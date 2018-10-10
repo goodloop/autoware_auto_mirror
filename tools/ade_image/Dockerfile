@@ -57,6 +57,7 @@ RUN mkdir -p /opt/atom/bin && \
     URL="https://github.com/atom/atom/releases/download/${VERSION}/atom-amd64.tar.gz" && \
     curl -Ls "${URL}" | tar -xzf - --directory=/opt/atom --strip-components=1 && \
     chown -R root:root /opt/atom && \
+    ls -la /opt/atom/bin && \
     ln -s ../atom /opt/atom/bin/ && \
     ln -s ../resources/app/apm/bin/apm /opt/atom/bin/
 COPY atom-env.sh /opt/atom/.env.sh
