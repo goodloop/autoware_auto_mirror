@@ -55,12 +55,14 @@ target_link_libraries(${CLOUD_EXEC} ${CLOUD_LIB})
 ament_target_dependencies(${CLOUD_EXEC} "Boost")
 
 if(BUILD_TESTING)
-    autoware_static_code_analysis()
+  # run linters
+  find_package(ament_lint_auto REQUIRED)
+  ament_lint_auto_find_test_dependencies()
 endif()
 
 ## install stuff
 autoware_install(
-  LIBRARIES  ${CLOUD_LIB}
+  LIBRARIES ${CLOUD_LIB}
   EXECUTABLES ${CLOUD_EXEC}
 )
 # workaround to disable sign conversion errors from sensor_msgs::PointCloud2Iterator

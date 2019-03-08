@@ -33,8 +33,9 @@ add_library(${PROJECT_NAME} SHARED
 autoware_set_compile_options(${PROJECT_NAME})
 
 if(BUILD_TESTING)
-  # Linting
-  autoware_static_code_analysis()
+  # run linters
+  find_package(ament_lint_auto REQUIRED)
+  ament_lint_auto_find_test_dependencies()
 
   # gtest
   set(HUNGARIAN_ASSIGN_GTEST hungarian_assigner_gtest)

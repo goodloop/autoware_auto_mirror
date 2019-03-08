@@ -26,7 +26,8 @@ ament_target_dependencies(${PROJECT_NAME} "motion_model" "eigen3")
 if(BUILD_TESTING)
   set(KALMAN_FILTER_GTEST kalman_filter_gtest)
   # run linters
-  autoware_static_code_analysis()
+  find_package(ament_lint_auto REQUIRED)
+  ament_lint_auto_find_test_dependencies()
   # gtest
   find_package(ament_cmake_gtest REQUIRED)
   ament_add_gtest(${KALMAN_FILTER_GTEST} test/src/test_kalman_filter.cpp)

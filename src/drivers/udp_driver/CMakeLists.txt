@@ -33,6 +33,9 @@ include_directories(include)
 autoware_install(HAS_INCLUDE)
 
 if(BUILD_TESTING)
+    find_package(ament_lint_auto REQUIRED)
+    ament_lint_auto_find_test_dependencies()
+
     find_package(std_msgs REQUIRED)
     set(TEST_LIB "${PROJECT_NAME}_test")
     add_library(${TEST_LIB} SHARED test/test_driver.hpp test/test_driver.cpp)
@@ -50,8 +53,6 @@ if(BUILD_TESTING)
     ament_target_dependencies(${TEST_UDP_DRIVER_EXE}  "Boost")
     target_include_directories(${TEST_UDP_DRIVER_EXE} PRIVATE include)
     target_link_libraries(${TEST_UDP_DRIVER_EXE} ${TEST_LIB})
-
-    autoware_static_code_analysis()
 endif()
 
 ament_package()

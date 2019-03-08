@@ -39,7 +39,9 @@ autoware_set_compile_options(${PROJECT_NAME})
 ## Testing
 if(BUILD_TESTING)
     # Static checking only if built via ament
-    autoware_static_code_analysis()
+    find_package(ament_lint_auto REQUIRED)
+    ament_lint_auto_find_test_dependencies()
+
     include_directories(include)
     # gtest
     find_package(ament_cmake_gtest REQUIRED)

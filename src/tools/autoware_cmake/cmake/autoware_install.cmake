@@ -49,7 +49,9 @@ macro(autoware_install)
       ARCHIVE DESTINATION lib
       LIBRARY DESTINATION lib
       RUNTIME DESTINATION bin)
-    ament_export_libraries(${PROJECT_NAME})
+    foreach(LIB ${ARG_LIBRARIES})
+      ament_export_libraries(${LIB})
+    endforeach()
   endif()
 
   if(ARG_EXECUTABLES)
