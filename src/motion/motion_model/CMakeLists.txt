@@ -30,8 +30,7 @@ autoware_set_compile_options(${PROJECT_NAME})
 
 if(BUILD_TESTING)
   # run linters
-  find_package(ament_lint_auto REQUIRED)
-  ament_lint_auto_find_test_dependencies()
+  autoware_static_code_analysis()
 
   # gtest
   set(MOTION_MODEL_GTEST motion_model_gtest)
