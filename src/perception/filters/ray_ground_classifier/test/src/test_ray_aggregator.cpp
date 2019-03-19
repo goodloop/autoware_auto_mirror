@@ -83,7 +83,7 @@ TEST(ray_aggregator, basic) {
 }
 
 // excluded bounds rays, multiple rays, end of scan id
-TEST(ray_aggregator, DISABLED_multi_flipped)
+TEST(ray_aggregator, multi_flipped)
 {
   const std::size_t min_ray_points = 50U;
   RayAggregator::Config cfg{1.14159F, -1.14159F, 0.2F, min_ray_points};
@@ -192,7 +192,7 @@ TEST(ray_aggregator, DISABLED_multi_insert)
 }
 
 // bad cases: fill out MC/DC for error handling
-TEST(ray_aggregator, DISABLED_bad_cases)
+TEST(ray_aggregator, bad_cases)
 {
   const uint32_t capacity =
     static_cast<uint32_t>(autoware::perception::filters::ray_ground_classifier::
