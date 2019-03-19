@@ -25,9 +25,9 @@ ament_target_dependencies(${PROJECT_NAME}
   "rclcpp_lifecycle"
 )
 if(BUILD_TESTING)
+  autoware_static_code_analysis()
+
   find_package(ament_cmake_gtest REQUIRED)
-  find_package(ament_lint_auto REQUIRED)
-  ament_lint_auto_find_test_dependencies()
 
   ament_add_gtest(test_ray_ground_classifier_gtest
     test/src/test_ray_ground_classifier.cpp
@@ -62,13 +62,10 @@ endif()
 
 ## install stuff
 autoware_install(
+  HAS_INCLUDE
   LIBRARIES ${PROJECT_NAME}
 )
 
-install(
-  DIRECTORY include/
-  DESTINATION include
-)
 ament_export_libraries(${PROJECT_NAME})
 ament_export_include_directories(include)
 
