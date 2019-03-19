@@ -27,9 +27,8 @@ custom_executable(topics talker)
 custom_executable(topics listener)
 
 if(BUILD_TESTING)
-  # run linters
-  find_package(ament_lint_auto REQUIRED)
-  ament_lint_auto_find_test_dependencies()
+  # Linting
+  autoware_static_code_analysis()
 
   file(COPY "${CMAKE_SOURCE_DIR}/test/expected_outputs"
     DESTINATION "${CMAKE_BINARY_DIR}")
