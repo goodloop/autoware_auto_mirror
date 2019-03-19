@@ -51,7 +51,7 @@ void check_ray(const Ray & ray, const float th)
 }
 
 // basic usage, stateful behavior
-TEST(ray_aggregator, DISABLED_basic) {
+TEST(ray_aggregator, basic) {
   const std::size_t min_ray_points = 10U;
   RayAggregator::Config cfg{-3.14159F, 3.14159F, 0.1F, min_ray_points};
   RayAggregator agg{cfg};

@@ -95,6 +95,7 @@ RayAggregator::RayAggregator(const Config & cfg)
   m_num_ready{},  // zero initialization
   m_ray_state(m_cfg.get_num_rays())
 {
+  m_rays.clear();  // capacity unchanged
   const std::size_t ray_size =
     std::max(m_cfg.get_min_ray_points(), static_cast<std::size_t>(POINT_BLOCK_CAPACITY));
   for (std::size_t idx = 0U; idx < m_cfg.get_num_rays(); ++idx) {
