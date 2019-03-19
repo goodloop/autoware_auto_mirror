@@ -142,7 +142,7 @@ TEST(ray_aggregator, multi_flipped)
 }
 
 // test various forms of templated insert, multiple times, (0, y)
-TEST(ray_aggregator, DISABLED_multi_insert)
+TEST(ray_aggregator, multi_insert)
 {
   std::array<PointXYZIF, 3U> pts;
   pts[0U].x = 0.0F; pts[0U].y = 1.0F;
@@ -151,12 +151,12 @@ TEST(ray_aggregator, DISABLED_multi_insert)
   std::array<PointXYZIFR, 3U> pts_r{PointXYZIFR{pts[0U]}, PointXYZIFR{pts[1U]},
     PointXYZIFR{pts[2U]}};
   std::array<PointBlock, 2U> blks;
+  blks[0U].resize(2U);
   blks[0U][0U].x = 0.0F; blks[0U][0U].y = -1.0F;
   blks[0U][1U].x = 0.0F; blks[0U][1U].y = -2.0F;
-  blks[0U].resize(2U);
+  blks[1U].resize(2U);
   blks[1U][0U].x = 1.0F; blks[1U][0U].y = 0.0F;
   blks[1U][1U].x = 2.0F; blks[1U][1U].y = 0.0F;
-  blks[1U].resize(2U);
   const std::size_t min_ray_points = 4U;
   RayAggregator::Config cfg{-3.14159F, 3.14159F, 0.2F, min_ray_points};
   RayAggregator agg{cfg};
