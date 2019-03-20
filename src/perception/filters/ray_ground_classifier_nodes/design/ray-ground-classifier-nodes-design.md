@@ -14,26 +14,18 @@ library. This boilerplate node wrapper allows us to communicate with the rest of
 These nodes are simple wrappers around the
 [`RayGroundClassifer`](@ref autoware::perception::filters::ray_ground_classifier::RayGroundClassifier).
 
-There are two instances of these nodes, one for the
-[`PointBlock`](@ref PointBlock.msg) message type, and the other for the
-`PointCloud2` message type. The former is intended to support online streaming of points from the
-driver, to amortize some of the computational burden of point cloud processing to the period while
-the full scan is arriving. The latter type is supported for visualization and open source support.
-
-These nodes generally support two input modalities within the realm of point cloud inputs:
-structured, and unstructured modalities.
+A node for the `PointCloud2` message type is provided for visualization and open source support.
+The `PointCloud2` node supports unstructured point clouds.
 
 An input is considered structured if the ray information needed for the classifier to work is
-known apriori (e.g. encoded in how the points are received from the sensor). Only PointBlocks
-can be structured.
+known apriori (e.g. encoded in how the points are received from the sensor).
 
 By contrast, an input is considered unstructured if ray information is not known apriori.
 This then means that extra work must be done to determine this information. Point clouds
 are considered by default to be unstructured.
 
 As such the `RayGroundClassifierCloudNode` has an instance of the `RayAggregator` to provide
-structure to the unstructured point clouds. By contrast, the `RayGroundClassifierBlockNode`
-can optionally construct an instance of the `RayAggregator` based on configuration parameters.
+structure to the unstructured point clouds.
 
 
 ## Assumptions / Known limits
