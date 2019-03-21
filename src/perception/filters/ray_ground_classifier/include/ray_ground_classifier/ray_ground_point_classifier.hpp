@@ -40,11 +40,11 @@ namespace filters
 namespace ray_ground_classifier
 {
 /// pi = tau / 2
-const float PI = 3.14159265359F;
+constexpr float PI = 3.14159265359F;
 /// tau = 2 pi
-const float TAU = 6.283185307179586476925286766559F;
+constexpr float TAU = 6.283185307179586476925286766559F;
 /// arbitrary small constant: 1.0E-6F
-const float FEPS = 0.000001F;
+constexpr float FEPS = 0.000001F;
 
 struct PointXYZIF
 {
