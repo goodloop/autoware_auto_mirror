@@ -77,9 +77,6 @@ public:
     const ray_ground_classifier::Config & cfg,
     const ray_ground_classifier::RayAggregator::Config & agg_cfg);
 
-  /// \brief Read samples from the subscription
-  void callback(const PointCloud2::SharedPtr msg);
-
 private:
   /// \brief Activates publishers
   /// \return Success, failure, or error key
@@ -111,6 +108,8 @@ private:
   const rclcpp::Subscription<PointCloud2>::SharedPtr m_raw_sub_ptr;
   const std::shared_ptr<rclcpp_lifecycle::LifecyclePublisher<PointCloud2>> m_ground_pub_ptr;
   const std::shared_ptr<rclcpp_lifecycle::LifecyclePublisher<PointCloud2>> m_nonground_pub_ptr;
+  /// \brief Read samples from the subscription
+  void callback(const PointCloud2::SharedPtr msg);
 };  // class RayGroundFilterDriverNode
 }  // namespace ray_ground_classifier_nodes
 }  // namespace filters
