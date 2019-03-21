@@ -28,8 +28,6 @@ namespace ray_ground_classifier_nodes
 ////////////////////////////////////////////////////////////////////////////////
 using autoware::perception::filters::ray_ground_classifier::PointXYZIF;
 using autoware::perception::filters::ray_ground_classifier::PointBlock;
-using sub_set_t = std::array<std::shared_ptr<rclcpp::SubscriptionBase>, 1>;  // NOLINT
-// Above disable is for repeated include file, pclint doesn't want it, cpplint wants it
 
 using std::placeholders::_1;
 
