@@ -13,14 +13,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 #include <rcutils/cmdline_parser.h>
-//lint -e537 NOLINT // cpplint vs pclint
+#include <rclcpp/rclcpp.hpp>
+
 #include <memory>
-//lint -e537 NOLINT // cpplint vs pclint
 #include <string>
 
 #include "ray_ground_classifier_nodes/ray_ground_classifier_cloud_node.hpp"
-
-#include <rclcpp/rclcpp.hpp>
 
 #define DEFAULT_CONFIG \
   CMAKE_INSTALL_PREFIX "/" "share/ray_ground_classifier_nodes/vlp16_lexus.param.yaml"
