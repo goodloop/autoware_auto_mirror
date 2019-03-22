@@ -16,31 +16,26 @@
 #ifndef RAY_GROUND_CLASSIFIER_NODES__VISIBILITY_CONTROL_HPP_
 #define RAY_GROUND_CLASSIFIER_NODES__VISIBILITY_CONTROL_HPP_
 
-#include <apexutils/apexdef.h>
-
 ////////////////////////////////////////////////////////////////////////////////
-#if defined(APEX_WINDOWS)
+#if defined(_MSC_VER) && defined(_WIN64)
   #if defined(RAY_GROUND_CLASSIFIER_NODES_BUILDING_DLL) || \
   defined(RAY_GROUND_CLASSIFIER_NODES_EXPORTS)
     #define RAY_GROUND_CLASSIFIER_NODES_PUBLIC __declspec(dllexport)
     #define RAY_GROUND_CLASSIFIER_NODES_LOCAL
-  #else  // defined(RAY_GROUND_CLASSIFIER_NODES_BUILDING_DLL) ||
-         // defined(RAY_GROUND_CLASSIFIER_NODES_EXPORTS)
+  #else  // defined(RAY_GROUND_CLASSIFIER_NODES_BUILDING_DLL)
+// || defined(RAY_GROUND_CLASSIFIER_NODES_EXPORTS)
     #define RAY_GROUND_CLASSIFIER_NODES_PUBLIC __declspec(dllimport)
     #define RAY_GROUND_CLASSIFIER_NODES_LOCAL
-  #endif  // defined(RAY_GROUND_CLASSIFIER_NODES_BUILDING_DLL) ||
-          // defined(RAY_GROUND_CLASSIFIER_NODES_EXPORTS)
-#elif defined(APEX_LINUX)
+  #endif  // defined(RAY_GROUND_CLASSIFIER_NODES_BUILDING_DLL)
+// || defined(RAY_GROUND_CLASSIFIER_NODES_EXPORTS)
+#elif defined(__GNUC__) && defined(__linux__)
   #define RAY_GROUND_CLASSIFIER_NODES_PUBLIC __attribute__((visibility("default")))
   #define RAY_GROUND_CLASSIFIER_NODES_LOCAL __attribute__((visibility("hidden")))
-#elif defined(APEX_OSX)
+#elif defined(__GNUC__) && defined(__APPLE__)
   #define RAY_GROUND_CLASSIFIER_NODES_PUBLIC __attribute__((visibility("default")))
   #define RAY_GROUND_CLASSIFIER_NODES_LOCAL __attribute__((visibility("hidden")))
-#elif defined(APEX_QNX)
-  #define RAY_GROUND_CLASSIFIER_NODES_PUBLIC __attribute__((visibility("default")))
-  #define RAY_GROUND_CLASSIFIER_NODES_LOCAL __attribute__((visibility("hidden")))
-#else  // defined(APEX_LINUX)
+#else  // !(defined(__GNUC__) && defined(__APPLE__))
   #error "Unsupported Build Configuration"
-#endif  // defined(APEX_WINDOWS)
+#endif  // _MSC_VER
 
 #endif  // RAY_GROUND_CLASSIFIER_NODES__VISIBILITY_CONTROL_HPP_

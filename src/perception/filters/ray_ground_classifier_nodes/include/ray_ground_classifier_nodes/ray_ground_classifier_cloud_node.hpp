@@ -29,6 +29,8 @@
 #include <memory>
 #include <string>
 
+#include "ray_ground_classifier_nodes/visibility_control.hpp"
+
 namespace autoware
 {
 namespace perception
@@ -80,19 +82,19 @@ public:
 private:
   /// \brief Activates publishers
   /// \return Success, failure, or error key
-  RAY_GROUND_CLASSIFIER_LOCAL
+  RAY_GROUND_CLASSIFIER_NODES_LOCAL
   rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
   on_activate_internal(const rclcpp_lifecycle::State &);
   /// \brief Deactivates publishers
   /// \return Success, failure, or error key
-  RAY_GROUND_CLASSIFIER_LOCAL
+  RAY_GROUND_CLASSIFIER_NODES_LOCAL
   rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
   on_deactivate_internal(const rclcpp_lifecycle::State &);
   /// \brief Registers on_activate() and on_deactivate() callbacks, allocates messages,
   ///        for use in constructor
-  RAY_GROUND_CLASSIFIER_LOCAL void register_callbacks_preallocate();
+  RAY_GROUND_CLASSIFIER_NODES_LOCAL void register_callbacks_preallocate();
   /// \brief Resets state of ray aggregator and messages
-  RAY_GROUND_CLASSIFIER_LOCAL void reset();
+  RAY_GROUND_CLASSIFIER_NODES_LOCAL void reset();
   // Algorithmic core
   ray_ground_classifier::RayGroundClassifier m_classifier;
   ray_ground_classifier::RayAggregator m_aggregator;
