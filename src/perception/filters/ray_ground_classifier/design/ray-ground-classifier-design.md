@@ -3,7 +3,7 @@ ray_ground_classifier
 
 # Purpose / Use cases
 
-Apex.Autonomy requires a method to distinguish ground points from non-ground points in point clouds.
+Autoware.Auto requires a method to distinguish ground points from non-ground points in point clouds.
 This is meant to act as a filtering step for object detection algorithms
 (working on non-ground points), and free space estimation algorithms (working on ground points).
 This method is very fast and allows the filtered point cloud to be exposed while the packets for a
