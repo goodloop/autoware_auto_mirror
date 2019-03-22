@@ -19,11 +19,6 @@
 #include <string>
 
 #include "ray_ground_classifier_nodes/ray_ground_classifier_cloud_node.hpp"
-#ifndef CMAKE_INSTALL_PREFIX
-//lint -e2865 NOLINT  CMAKE_INSTALL_PREFIX is not defined during pclint check
-#pragma message("CMAKE_INSTALL_PREFIX is not defined. Default configuration file may not exist.")
-#define CMAKE_INSTALL_PREFIX "/opt/ApexOS"
-#endif
 
 #include <rclcpp/rclcpp.hpp>
 
