@@ -17,10 +17,5 @@ def generate_launch_description():
   viz_rear = launch_ros.actions.Node(
       package='autoware_rviz', node_executable='autoware_rviz',
       arguments=['--block_topic=points_nonground', '--block_viz_topic=nonground_block_viz'])
-  console = launch_ros.actions.Node(
-      package='apex_console_viewer',
-      node_executable='apex_console_viewer',
-      arguments=['--cm'],
-      output='screen')
   return launch.LaunchDescription([driver, classifier, viz_front, viz_rear, console])
 
