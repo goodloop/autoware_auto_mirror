@@ -188,15 +188,15 @@ RayGroundClassifierCloudNode::callback(const PointCloud2::SharedPtr msg)
       // partition: should never fail, guaranteed to have capacity via other checks
       m_classifier.partition(m_aggregator.get_next_ray(), ground_blk, nonground_blk);
       // Add ray to point clouds
-      for (uint32_t idx = 0U; idx < ground_blk.size(); ++idx) {
-        if (!add_point_to_cloud(m_ground_msg, ground_blk[idx])) {
+      for (auto & ground_point : ground_blk) {
+        if (!add_point_to_cloud(m_ground_msg, ground_point)) {
           throw std::runtime_error("RayGroundClassifierNode: Overran ground msg point capacity");
         }
       }
-      for (uint32_t idx = 0U; idx < nonground_blk.size(); ++idx) {
+      for (auto & nonground_point : nonground_blk) {
         if (!add_point_to_cloud(
             m_nonground_msg,
-            nonground_blk[idx]))
+            nonground_point))
         {
           throw
             std::runtime_error("RayGroundClassifierNode: Overran nonground msg point capacity");

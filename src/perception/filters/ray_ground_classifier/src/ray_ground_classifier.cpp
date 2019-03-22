@@ -92,8 +92,7 @@ void RayGroundClassifier::structured_partition(
   nonground_block.clear();
   // insert points and segment rays
   uint16_t last_id = raw_block[0U].id;
-  for (uint32_t idx = 0U; idx < raw_block.size(); ++idx) {
-    const PointXYZIF & pt = raw_block[idx];
+  for (const PointXYZIF & pt : raw_block) {
     const uint16_t id = pt.id;
     // terminal scan, add to both
     if (static_cast<uint16_t>(autoware::perception::filters::ray_ground_classifier::PointXYZIF::

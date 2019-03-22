@@ -151,8 +151,7 @@ void RayAggregator::insert(const PointXYZIF & pt)
 ////////////////////////////////////////////////////////////////////////////////
 void RayAggregator::insert(const PointBlock & blk)
 {
-  for (uint32_t idx = 0U; idx < blk.size(); ++idx) {
-    const PointXYZIF & pt = blk[idx];
+  for (const PointXYZIF & pt : blk) {
     insert(pt);
     if (static_cast<uint16_t>(PointXYZIF::END_OF_SCAN_ID) == pt.id) {
       break;

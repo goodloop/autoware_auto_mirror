@@ -468,14 +468,12 @@ TEST_F(ray_ground_classifier, structured_partition_and_other)
   // initialize weird numbers
   ground_points.resize(3U);
   nonground_points.resize(5U);
-  for (uint32_t idx = 0U; idx < pts.size(); ++idx) {
-    PointXYZIF pt = pts[idx];
+  for (PointXYZIF & pt : pts) {
     pt.id = 0U;
     raw_points.push_back(pt);
   }
   // add second ray
-  for (uint32_t idx = 0U; idx < pts.size(); ++idx) {
-    PointXYZIF pt = pts[idx];
+  for (PointXYZIF & pt : pts) {
     pt.id = 1U;
     raw_points.push_back(pt);
   }
