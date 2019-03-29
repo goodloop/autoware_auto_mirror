@@ -203,32 +203,4 @@ The design of the ray ground filter is based off an implementation provided in
 
 # Future extensions / Unimplemented parts
 
-Correction + estimation using global ground-plane estimate from the last frame:
-#1060
-
-
-# Related issues
-
-- #1078
-- #1163
-- #589
-- #1138
-- #1108
-- #363
-- #1031
-- #787:  Implement this design document(2)
-- #1125: APEX_PRINT
-- #1383: remove add_node, spin, executor
-- #1394: Remove redundant ament calls
-- #1547: update `apex::init` call parameters
-- #1559: Update the design doc format to match the documentation style guide
-- #1612: Use partial sort, lexical comparison
-- #1639: Make ray_ground_filter_core assumptions consistent with changes from #1612
-- #1484: Revise namespace descriptions for consistency
-- #1971: Update dependencies due to velodyne_driver refactor
-- #2016: Style changes required for Doxygen version upgrade
-- #1991: Revise the design documentation language and format
-- #2066: Refactor and rename to RayGroundClassifier, split package, remove unnecessary threading
-- #1565: Change apex::init to apex::pre_init and apex::post_init
-- #1956: Replaced apex time with `std::chrono` constructs.
-- #1935: Adjust API for better integration with RayAggregator
+Correction + estimation using global ground-plane estimate from the last frame.

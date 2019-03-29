@@ -71,7 +71,3 @@ See original Autoware implementation, where the `RayAggregator` is implicitly de
 More exotic "scan ready" criterion may be added and/or evaluated, e.g.:
 - Max point spacing
 - Point variance
-
-# Related issues
-
-- #1935: Initial Implementation
