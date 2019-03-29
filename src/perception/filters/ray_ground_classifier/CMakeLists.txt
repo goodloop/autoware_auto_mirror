@@ -20,10 +20,6 @@ add_library(${PROJECT_NAME} SHARED
   src/ray_ground_classifier.cpp
   src/ray_ground_classifier_types.cpp)
 autoware_set_compile_options(${PROJECT_NAME})
-ament_target_dependencies(${PROJECT_NAME}
-  "rclcpp"
-  "rclcpp_lifecycle"
-)
 if(BUILD_TESTING)
   autoware_static_code_analysis()
 
@@ -69,9 +65,4 @@ autoware_install(
 ament_export_libraries(${PROJECT_NAME})
 ament_export_include_directories(include)
 
-# Ament Exporting
-ament_export_dependencies(
-  "rclcpp"
-  "rclcpp_lifecycle"
-)
 ament_package()
