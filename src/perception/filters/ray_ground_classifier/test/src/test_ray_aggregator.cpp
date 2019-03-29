@@ -217,5 +217,31 @@ TEST(ray_aggregator, bad_cases)
   pt2.y = 1.5;
   EXPECT_THROW(agg.insert(pt2), std::runtime_error);
 }
-// TODO(c.ho) figure out the push_heap/heap corruption issue
+
+TEST(ray_aggregator, segfault)
+{
+  RayAggregator::Config cfg{-3.14159F, 3.14159F, 0.005F, 512};
+  RayAggregator agg{cfg};
+  // Ensure the segfault conditions are reproduced:
+  // https://gitlab.apex.ai/ApexAI/grand_central/issues/2774#note_151888
+  //
+  // {m_point = {x = -16.376606, y = -3.12589109e-05, z = 6.11320305, intensity = 13, id = 0, static END_OF_SCAN_ID = 65535}, m_r_xy = 16.376606}
+  // $4 = {m_min_ray_points = 512, m_num_rays = 1257, m_ray_width_rad = 0.00499999989, m_min_angle_rad = -3.14159012, m_domain_crosses_180 = false}
+
+  EXPECT_EQ(cfg.get_num_rays(), 1257);
+  EXPECT_EQ(cfg.get_min_ray_points(), 512);
+  EXPECT_FLOAT_EQ(cfg.get_ray_width(), 0.00499999989);
+  EXPECT_FLOAT_EQ(cfg.get_min_angle(), -3.14159012);
+  EXPECT_FALSE(cfg.domain_crosses_180());
+
+  // Reproduce point
+  PointXYZIF pt;
+  pt.x = -16.376606;
+  pt.y = -3.12589109E-05;
+  pt.z = 6.1132035;
+  pt.intensity = 13;
+  pt.id = 0;
+
+  EXPECT_NO_THROW(agg.insert(pt));
+}
 }  // namespace
