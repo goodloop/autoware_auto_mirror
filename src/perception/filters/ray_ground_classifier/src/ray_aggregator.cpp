@@ -198,6 +198,8 @@ std::size_t RayAggregator::bin(const PointXYZIFR & pt) const
       // [-PI, max_angle) domain
       idx = idx + autoware::perception::filters::ray_ground_classifier::TAU;
     }
+    // Avoid underflow
+    idx = std::max(0.0F, idx);
   }
   // [min_angle, +PI) domain: normal calculation
   // normal case, no wraparound
