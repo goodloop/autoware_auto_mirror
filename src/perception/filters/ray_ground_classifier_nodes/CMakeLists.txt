@@ -44,12 +44,12 @@ endif()
 autoware_install(
   HAS_PARAM
   HAS_LAUNCH
-  LIBRARIES ${BLOCK_NODE_LIB} ${CLOUD_NODE_LIB}
-  EXECUTABLES ${BLOCK_NODE_EXE} ${CLOUD_NODE_EXE})
+  LIBRARIES ${CLOUD_NODE_LIB}
+  EXECUTABLES ${CLOUD_NODE_EXE})
 # Ament Exporting
 ament_export_dependencies(
   "ray_ground_classifier"
   "rclcpp_lifecycle")
-ament_export_interfaces(${BLOCK_NODE_EXE} ${CLOUD_NODE_EXE})
+ament_export_interfaces(${CLOUD_NODE_EXE})
 ament_package()
 
