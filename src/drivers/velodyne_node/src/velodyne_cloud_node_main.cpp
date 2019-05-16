@@ -51,8 +51,7 @@ int32_t main(const int32_t argc, char ** const argv)
     boost::program_options::parse_command_line(argc, argv, desc), vm);
   boost::program_options::notify(vm);
 
-  if (vm.count("help"))
-  {
+  if (vm.count("help")) {
     std::cout << desc << std::endl;
     return 1;
   }
