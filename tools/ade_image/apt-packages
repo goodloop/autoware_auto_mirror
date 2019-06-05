@@ -8,6 +8,7 @@ git
 git-lfs
 graphviz
 jq
+libboost-all-dev
 lcov
 less
 libpcap-dev
