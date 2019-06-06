@@ -54,3 +54,6 @@ libasound2
 libgtk-3.0
 libxkbfile1
 libxss1
+
+# ROS Melodic
+ros-melodic-desktop
