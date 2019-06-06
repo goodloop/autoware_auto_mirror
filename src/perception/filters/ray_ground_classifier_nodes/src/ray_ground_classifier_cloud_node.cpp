@@ -44,7 +44,7 @@ RayGroundClassifierCloudNode::RayGroundClassifierCloudNode(
     rclcpp::NodeOptions()
     .context(rclcpp::contexts::default_context::get_global_default_context())
     .arguments({(std::string {"__params:="} +param_file).c_str()})
-    .parameter_overrides({})),
+    .automatically_declare_parameters_from_overrides(true)),
   m_classifier(ray_ground_classifier::Config{
           static_cast<float>(get_parameter("classifier.sensor_height_m").as_double()),
           static_cast<float>(get_parameter("classifier.max_local_slope_deg").as_double()),

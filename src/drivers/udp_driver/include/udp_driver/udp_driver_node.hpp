@@ -75,7 +75,7 @@ public:
       rclcpp::NodeOptions()
       .context(rclcpp::contexts::default_context::get_global_default_context())
       .arguments({("__params:=" + param_file)})
-      .parameter_overrides({})),
+      .automatically_declare_parameters_from_overrides(true)),
     m_pub_ptr(LifecycleNode::create_publisher<OutputT>(get_parameter("topic").as_string(),
       rclcpp::QoS(10))),
     m_io_service(),

@@ -41,7 +41,7 @@ VoxelCloudNode::VoxelCloudNode(
     rclcpp::NodeOptions()
     .context(rclcpp::contexts::default_context::get_global_default_context())
     .arguments({(std::string {"__params:="} +param_file).c_str()})
-    .parameter_overrides({})),
+    .automatically_declare_parameters_from_overrides(true)),
   m_sub_ptr(create_subscription<Message>(get_parameter("input_topic").as_string(),
     rclcpp::QoS(10), std::bind(&VoxelCloudNode::callback, this, std::placeholders::_1))),
   m_pub_ptr(create_publisher<Message>(get_parameter("downsample_topic").as_string(),
