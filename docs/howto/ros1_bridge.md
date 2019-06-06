@@ -40,7 +40,7 @@ $ ade enter
 ade$ source ~/workspace/install/setup.bash  # Only if you have custom messages
 ade$ mkdir -p ~/ros1_bridge_ws/src
 ade$ cd ~/ros1_bridge_ws/src
-ade$ git clone https://github.com/ros2/ros1_bridge.git --branch 0.5.0
+ade$ git clone https://github.com/ros2/ros1_bridge.git --branch 0.7.2
 ade$ cd ..
 ade$ source /opt/ros/melodic/setup.bash
 ade$ colcon build --merge-install --packages-select ros1_bridge
