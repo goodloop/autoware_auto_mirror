@@ -26,6 +26,7 @@ find_package(euclidean_cluster REQUIRED)
 find_package(geometry REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(voxel_grid_nodes REQUIRED)
+find_package(Boost REQUIRED COMPONENTS filesystem)
 
 # Library
 set(CLUSTER_NODE_LIB euclidean_cluster_node)
@@ -48,7 +49,7 @@ ament_target_dependencies(${CLUSTER_NODE_LIB}
 set(CLUSTER_MAIN euclidean_cluster_exe)
 add_executable(${CLUSTER_MAIN} src/euclidean_cluster_main.cpp)
 autoware_set_compile_options(${CLUSTER_MAIN})
-target_link_libraries(${CLUSTER_MAIN} ${CLUSTER_NODE_LIB})
+target_link_libraries(${CLUSTER_MAIN} ${CLUSTER_NODE_LIB} ${Boost_LIBRARIES})
 
 ## Testing
 if(BUILD_TESTING)

@@ -52,9 +52,11 @@ public:
   /// \brief Constructor, no parameters are provided for launch parameter compatibility
   /// \param[in] node_name Name of the node
   /// \param[in] node_namespace Name of the node's namespace
+  /// \param[in] param_file Path to configuration file
   EuclideanClusterNode(
     const std::string & node_name,
-    const std::string & node_namespace = "");
+    const std::string & node_namespace,
+    const std::string & param_file);
   /// \brief Explicit parameter constructor
   /// \param[in] node_name Name of the node
   /// \param[in] node_namespace Namespace of the node

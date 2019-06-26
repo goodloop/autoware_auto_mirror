@@ -31,8 +31,15 @@ namespace euclidean_cluster_nodes
 ////////////////////////////////////////////////////////////////////////////////
 EuclideanClusterNode::EuclideanClusterNode(
   const std::string & node_name,
-  const std::string & node_namespace)
-: Node(node_name.c_str(), node_namespace.c_str()),
+  const std::string & node_namespace,
+  const std::string & param_file)
+: Node(
+    node_name.c_str(),
+    node_namespace.c_str(),
+    rclcpp::NodeOptions()
+    .context(rclcpp::contexts::default_context::get_global_default_context())
+    .arguments({(std::string {"__params:="} +param_file).c_str()})
+    .automatically_declare_parameters_from_overrides(true)),
   m_cloud_sub_ptr{create_subscription<PointCloud2>(get_parameter("cloud_topic").as_string(),
       rclcpp::QoS(10),
       [this](const PointCloud2::SharedPtr msg) {handle(msg);})},
