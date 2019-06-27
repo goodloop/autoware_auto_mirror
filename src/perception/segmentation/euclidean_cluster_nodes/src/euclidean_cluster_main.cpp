@@ -13,6 +13,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <rcutils/cmdline_parser.h>
+
 #if __cplusplus >= 201703L
 #include <filesystem>
 namespace std_fs = std::filesystem;
@@ -24,7 +26,6 @@ namespace std_fs = std::experimental::filesystem;
 #include <euclidean_cluster_nodes/euclidean_cluster_node.hpp>
 #include <iostream>
 #include <memory>
-#include <rcutils/cmdline_parser.h>
 
 static constexpr const char * PROGRAM_NAME = "euclidean_cluster_exe";
 
@@ -39,15 +40,15 @@ int32_t main(const int32_t argc, char ** const argv)
   rclcpp::init(argc, argv);
   std_fs::path default_config_path =
     std_fs::absolute(argv[0])
-      .parent_path()
-      .parent_path()
-      .parent_path() /
+    .parent_path()
+    .parent_path()
+    .parent_path() /
     "share" / "euclidean_cluster_nodes" / "vlp16_lexus_cluster.param.yaml";
 
   int32_t ret = 0;
   try {
-    if(rcutils_cli_option_exist(argv, &argv[argc], "-h") ||
-       rcutils_cli_option_exist(argv, &argv[argc], "--help"))
+    if (rcutils_cli_option_exist(argv, &argv[argc], "-h") ||
+      rcutils_cli_option_exist(argv, &argv[argc], "--help"))
     {
       print_usage();
       return 0;
