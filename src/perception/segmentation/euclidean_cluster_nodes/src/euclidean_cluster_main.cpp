@@ -57,7 +57,7 @@ int32_t main(const int32_t argc, char ** const argv)
     if (nullptr != arg) {
       config_file = arg;
     }
-    const char * node_name = "euclidean_cluster_node";
+    const char * node_name = "euclidean_cluster_cloud_node";
     arg = rcutils_cli_get_option(argv, &argv[argc], "--node_name");
     if (nullptr != arg) {
       node_name = arg;
