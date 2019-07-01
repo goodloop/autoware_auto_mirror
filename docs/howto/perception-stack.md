@@ -1,4 +1,4 @@
-Autoware.Auto 3D perception stack {#perception_stack_title}
+Autoware.Auto 3D perception stack {#perception-stack}
 ============
 
 [TOC]
@@ -65,6 +65,8 @@ This will create two new topics (`/nonground_points` and `/points_ground`) that 
 
 With `rviz` open, we can add visualizations for the two new topics, alternatively an `rviz`
 configuration is provided in `AutowareAuto/src/tools/autoware_examples/rviz/autoware_ray_ground.rviz`
+
+![Autoware.Auto ray ground filter snapshot](autoware-auto-ray-ground-filter.png)
 
 Another component in the Autoware.Auto 3D perception stack is the downsampling filter, which is
 implemented in the `voxel_grid_nodes` package.

@@ -106,7 +106,7 @@ Enter `Ctrl-C` to stop the applications.
 
 ## 3. Run Autoware.Auto and Autoware.AI applications {#autoware-auto-autoware-ai}
 
-For this section, we will follow the instructions in [3D Perception stack](perception-stack), but
+For this section, we will follow the instructions in [3D Perception stack](@ref perception-stack), but
 we will run `rviz` instead of `rviz2` to demonstrate that ROS 1 applications, such as `rviz` can
 be used to interact with Autoware.Auto.
 
