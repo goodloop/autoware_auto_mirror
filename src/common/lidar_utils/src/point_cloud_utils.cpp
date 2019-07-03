@@ -17,7 +17,7 @@ namespace lidar_utils
 
 PointCloudIts::PointCloudIts() {m_its.reserve(4);}
 
-void PointCloudIts::reset(sensor_msgs::msg::PointCloud2 & cloud, int idx)
+void PointCloudIts::reset(sensor_msgs::msg::PointCloud2 & cloud, uint32_t idx)
 {
   // Destroy the old iterators
   m_its.clear();
@@ -60,7 +60,7 @@ void init_pcl_msg(
 bool add_point_to_cloud(
   PointCloudIts & cloud_its,
   const autoware::common::lidar_utils::PointXYZIF & pt,
-  int & point_cloud_idx)
+  uint32_t & point_cloud_idx)
 {
   bool ret = false;
 
