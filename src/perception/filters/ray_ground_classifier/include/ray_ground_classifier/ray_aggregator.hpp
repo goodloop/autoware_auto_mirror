@@ -133,6 +133,7 @@ private:
   std::size_t RAY_GROUND_CLASSIFIER_LOCAL bin(const PointXYZIFR & pt) const;
   const Config m_cfg;
   std::vector<Ray> m_rays;
+  std::vector<Ray::iterator> m_ray_sort_helper;
   // simple index ring buffer
   std::vector<std::size_t> m_ready_indices;
   std::size_t m_ready_start_idx;

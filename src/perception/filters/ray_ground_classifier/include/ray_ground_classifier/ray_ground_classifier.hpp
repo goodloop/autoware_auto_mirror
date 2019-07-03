@@ -122,6 +122,9 @@ private:
   /// worker array
   Ray m_sort_array;
 
+  /// helper array of iterators for sorting m_sort_array
+  ::std::vector<Ray::iterator> m_helper_array;
+
   /// actual ground filter
   RayGroundPointClassifier m_point_classifier;
 
