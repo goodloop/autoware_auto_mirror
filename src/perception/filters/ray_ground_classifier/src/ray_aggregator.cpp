@@ -18,6 +18,7 @@
 #include <cstdint>
 #include <stdexcept>
 
+#include "algorithm/algorithm.hpp"
 #include "lidar_utils/lidar_utils.hpp"
 #include "ray_ground_classifier/ray_aggregator.hpp"
 #include "ray_ground_classifier/ray_ground_point_classifier.hpp"
@@ -101,6 +102,8 @@ RayAggregator::RayAggregator(const Config & cfg)
   m_rays.clear();  // capacity unchanged
   const std::size_t ray_size =
     std::max(m_cfg.get_min_ray_points(), static_cast<std::size_t>(POINT_BLOCK_CAPACITY));
+  autoware::common::algorithm::quick_sort_iterative_reserve(m_ray_sort_helper,
+    ray_size);
   for (std::size_t idx = 0U; idx < m_cfg.get_num_rays(); ++idx) {
     m_rays.emplace_back(ray_size);
     m_rays.back().clear();
@@ -175,7 +178,8 @@ const Ray & RayAggregator::get_next_ray()
   const std::size_t idx = m_ready_indices[m_ready_start_idx];
   Ray & ret = m_rays[idx];
   // Sort ray
-  std::partial_sort(ret.begin(), ret.end(), ret.end());
+  ::autoware::common::algorithm::quick_sort_iterative(ret.begin(), ret.end(),
+      m_ray_sort_helper);
   // ready to be reset on next insertion to this item
   m_ray_state[idx] = RayState::RESET;
   // "pop" from ring buffer
