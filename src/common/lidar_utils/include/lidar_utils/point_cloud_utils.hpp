@@ -41,7 +41,7 @@ public:
   /// \brief Resets the iterators for the given cloud to the given index
   /// \param[in] cloud the point cloud to reset the iterators to
   /// \param[in] idx the index/offset to advance the iterators to
-  void reset(sensor_msgs::msg::PointCloud2 & cloud, int idx = 0);
+  void reset(sensor_msgs::msg::PointCloud2 & cloud, uint32_t idx = 0);
 
   /// \brief Returns iterator for the "x" field
   inline sensor_msgs::PointCloud2Iterator<float> & x_it()
@@ -84,7 +84,7 @@ LIDAR_UTILS_PUBLIC void init_pcl_msg(
 LIDAR_UTILS_PUBLIC bool add_point_to_cloud(
   PointCloudIts & cloud_its,
   const autoware::common::lidar_utils::PointXYZIF & pt,
-  int & point_cloud_idx);
+  uint32_t & point_cloud_idx);
 
 LIDAR_UTILS_PUBLIC bool add_point_to_cloud(
   sensor_msgs::msg::PointCloud2 & cloud,
