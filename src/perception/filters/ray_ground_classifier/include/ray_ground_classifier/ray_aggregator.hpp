@@ -25,6 +25,7 @@
 #include <cstdint>
 #include <vector>
 
+#include "algorithm/algorithm.hpp"
 #include "lidar_utils/lidar_types.hpp"
 #include "ray_ground_classifier/ray_ground_point_classifier.hpp"
 
@@ -133,7 +134,7 @@ private:
   std::size_t RAY_GROUND_CLASSIFIER_LOCAL bin(const PointXYZIFR & pt) const;
   const Config m_cfg;
   std::vector<Ray> m_rays;
-  std::vector<Ray::iterator> m_ray_sort_helper;
+  autoware::common::algorithm::QuickSorter<Ray> m_ray_sorter;
   // simple index ring buffer
   std::vector<std::size_t> m_ready_indices;
   std::size_t m_ready_start_idx;
