@@ -3,7 +3,7 @@ Autoware.Auto 3D perception stack {#perception-stack}
 
 [TOC]
 
-# Running Autoware.Auto 3D perception stack
+# Running the Autoware.Auto 3D perception stack
 
 This section leverages the [velodyne_node](https://gitlab.com/AutowareAuto/AutowareAuto/tree/master/src/drivers/velodyne_node),
 which accepts UDP data as an input. Download the sample pcap file containing two LiDAR point clouds
@@ -22,7 +22,7 @@ ade$ rviz2 -d /home/"${USER}"/AutowareAuto/install/share/autoware_examples/rviz/
 ```
 \note
 Systems with an NVIDIA graphics card must set the `LD_LIBRARY_PATH` in order to load the correct
-driver; [see #49](https://gitlab.com/AutowareAuto/AutowareAuto/issues/49) for more information.
+driver; [see issue #49](https://gitlab.com/AutowareAuto/AutowareAuto/issues/49) for more information.
 
 ADE Terminal 2 - start `udpreplay`:
 
@@ -44,8 +44,8 @@ ade$ ros2 run velodyne_node velodyne_cloud_node_exe --config_file /home/"${USER}
 The steps above leverage a pcap file, however the `velodyne_node` can be connected directly to
 the sensor. Update the IP address and port arguments in the yaml file to connect to live hardware.
 
-When the `velodyne_node` is running resulting LiDAR point cloud can be visualized within `rviz` as
-a `sensor_msgs/PointCloud2` topic type. The data will look similar to the following image:
+When the `velodyne_node` is running, the resulting LiDAR point cloud can be visualized within `rviz` as
+a `sensor_msgs/PointCloud2` topic type. The data will look similar to the image shown below.
 
 We will now start with the [ray ground filter](../../../src/perception/filters/ray_ground_classifier)
 node, for which we will need the Velodyne driver that we ran previously and a pcap capture file
@@ -65,13 +65,14 @@ This will create two new topics (`/nonground_points` and `/points_ground`) that 
 
 With `rviz` open, we can add visualizations for the two new topics, alternatively an `rviz`
 configuration is provided in `AutowareAuto/src/tools/autoware_examples/rviz/autoware_ray_ground.rviz`
+that can be loaded to automatically set up the visualizations.
 
 ![Autoware.Auto ray ground filter snapshot](autoware-auto-ray-ground-filter.png)
 
 Another component in the Autoware.Auto 3D perception stack is the downsampling filter, which is
 implemented in the `voxel_grid_nodes` package.
-
-Similarly, we will run the the voxel grid downsampling node:
+We will run the the voxel grid downsampling node in a new ADE terminal, using the same method as
+for the other nodes.
 
 ```bash
 $ ade enter
