@@ -18,7 +18,6 @@
 #include <cstdint>
 #include <stdexcept>
 
-#include "algorithm/algorithm.hpp"
 #include "lidar_utils/lidar_utils.hpp"
 #include "ray_ground_classifier/ray_aggregator.hpp"
 #include "ray_ground_classifier/ray_ground_point_classifier.hpp"
