@@ -1,4 +1,4 @@
-#include "algorithm/algorithm.hpp"
+#include "autoware_auto_algorithm/algorithm.hpp"
 #include <gtest/gtest.h>
 
 template <typename Container, typename RandomIt = typename Container::iterator>

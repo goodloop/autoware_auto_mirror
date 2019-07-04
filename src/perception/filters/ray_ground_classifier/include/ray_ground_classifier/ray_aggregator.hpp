@@ -25,7 +25,7 @@
 #include <cstdint>
 #include <vector>
 
-#include "algorithm/algorithm.hpp"
+#include "autoware_auto_algorithm/algorithm.hpp"
 #include "lidar_utils/lidar_types.hpp"
 #include "ray_ground_classifier/ray_ground_point_classifier.hpp"
 

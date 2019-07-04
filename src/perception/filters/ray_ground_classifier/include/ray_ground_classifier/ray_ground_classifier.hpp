@@ -19,7 +19,7 @@
 #ifndef RAY_GROUND_CLASSIFIER__RAY_GROUND_CLASSIFIER_HPP_
 #define RAY_GROUND_CLASSIFIER__RAY_GROUND_CLASSIFIER_HPP_
 
-#include <algorithm/algorithm.hpp>
+#include <autoware_auto_algorithm/algorithm.hpp>
 #include <lidar_utils/lidar_types.hpp>
 #include <ray_ground_classifier/ray_ground_point_classifier.hpp>
 

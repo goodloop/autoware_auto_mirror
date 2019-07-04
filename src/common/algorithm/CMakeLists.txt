@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.5)
 
 ### Export headers
-project(algorithm)
+project(autoware_auto_algorithm)
 
 ## dependencies
 find_package(ament_cmake REQUIRED)

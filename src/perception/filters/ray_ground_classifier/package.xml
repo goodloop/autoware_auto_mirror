@@ -11,10 +11,10 @@
     <buildtool_depend>autoware_cmake</buildtool_depend>
 
     <build_depend>lidar_utils</build_depend>
-    <build_depend>algorithm</build_depend>
+    <build_depend>autoware_auto_algorithm</build_depend>
 
     <exec_depend>lidar_utils</exec_depend>
-    <exec_depend>algorithm</exec_depend>
+    <exec_depend>autoware_auto_algorithm</exec_depend>
 
     <test_depend>ament_lint_common</test_depend>
 

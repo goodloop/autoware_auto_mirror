@@ -2,8 +2,8 @@
 /// All rights reserved.
 /// \file
 /// \brief This file provides an iterative quick sort implementation.
-#ifndef ALGORITHM__QUICK_SORT_HPP_
-#define ALGORITHM__QUICK_SORT_HPP_
+#ifndef AUTOWARE_AUTO_ALGORITHM__QUICK_SORT_HPP_
+#define AUTOWARE_AUTO_ALGORITHM__QUICK_SORT_HPP_
 
 #include <algorithm>
 #include <functional>
@@ -149,4 +149,4 @@ private:
 
 }  // namespace autoware
 
-#endif  // ALGORITHM__QUICK_SORT_HPP_
+#endif  // AUTOWARE_AUTO_ALGORITHM__QUICK_SORT_HPP_

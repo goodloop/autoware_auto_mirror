@@ -7,7 +7,7 @@ project(ray_ground_classifier)
 find_package(autoware_cmake REQUIRED)
 find_package(ament_cmake REQUIRED)
 find_package(lidar_utils REQUIRED)
-find_package(algorithm REQUIRED)
+find_package(autoware_auto_algorithm REQUIRED)
 
 # includes
 include_directories(include)
@@ -24,7 +24,7 @@ add_library(${PROJECT_NAME} SHARED
 autoware_set_compile_options(${PROJECT_NAME})
 ament_target_dependencies(${PROJECT_NAME}
   "lidar_utils"
-  "algorithm"
+  "autoware_auto_algorithm"
 )
 if(BUILD_TESTING)
   autoware_static_code_analysis()
@@ -71,7 +71,7 @@ autoware_install(
 # Ament Exporting
 ament_export_dependencies(
   "lidar_utils"
-  "algorithm"
+  "autoware_auto_algorithm"
 )
 ament_export_libraries(${PROJECT_NAME})
 ament_export_include_directories(include)
