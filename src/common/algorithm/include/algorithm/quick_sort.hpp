@@ -6,6 +6,7 @@
 #define ALGORITHM__QUICK_SORT_HPP_
 
 #include <algorithm>
+#include <functional>
 #include <utility>
 #include <vector>
 
@@ -35,7 +36,7 @@ RandomIt partition(RandomIt first, RandomIt last, Compare comp)
   // Iterate over range and swap whenever element is smaller than the pivot
   // element.
   for (auto it = first; it < last; it++) {
-    if (comp(it, last)) {
+    if (comp(*it, *last)) {
       ::std::iter_swap(it, prev);
       prev++;
     }
@@ -103,7 +104,7 @@ void quick_sort_iterative(
   RandomIt first, RandomIt last, Stack & stack, Compare comp)
 {
   ::autoware::common::algorithm::detail::quick_sort_iterative(
-    first, last, __gnu_cxx::__ops::__iter_comp_iter(comp), stack);
+    first, last, comp, stack);
 }
 
 /// \brief Iterative quick sort implementation using a stack, sorts
@@ -115,7 +116,7 @@ template<typename RandomIt, typename Stack>
 void quick_sort_iterative(RandomIt first, RandomIt last, Stack & stack)
 {
   ::autoware::common::algorithm::detail::quick_sort_iterative(
-    first, last, __gnu_cxx::__ops::__iter_less_iter(), stack);
+    first, last, ::std::less<const decltype(*first)>(), stack);
 }
 
 /// \brief Reserves helper stack capacity for the iterative quick sort
