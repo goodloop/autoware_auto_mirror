@@ -20,7 +20,6 @@
 #include <cstdint>
 #include <stdexcept>
 
-#include "algorithm/algorithm.hpp"
 #include "lidar_utils/lidar_types.hpp"
 #include "ray_ground_classifier/ray_ground_classifier.hpp"
 #include "ray_ground_classifier/ray_ground_point_classifier.hpp"
@@ -37,14 +36,12 @@ namespace ray_ground_classifier
 ////////////////////////////////////////////////////////////////////////////////
 RayGroundClassifier::RayGroundClassifier(const Config & cfg)
 : m_sort_array(autoware::common::lidar_utils::POINT_BLOCK_CAPACITY),
-  m_helper_array(),
+  m_ray_sorter(autoware::common::lidar_utils::POINT_BLOCK_CAPACITY),
   m_point_classifier(cfg),
   m_min_height_m(cfg.get_min_height()),
   m_max_height_m(cfg.get_max_height())
 {
   m_sort_array.clear();
-  autoware::common::algorithm::quick_sort_iterative_reserve(m_helper_array,
-    m_sort_array.capacity());
 }
 ////////////////////////////////////////////////////////////////////////////////
 void RayGroundClassifier::insert(const PointXYZIF & pt)
@@ -123,8 +120,7 @@ void RayGroundClassifier::structured_partition(
 void RayGroundClassifier::sort_ray()
 {
   // sort by radial distance
-  ::autoware::common::algorithm::quick_sort_iterative(m_sort_array.begin(),
-      m_sort_array.end(), m_helper_array);
+  m_ray_sorter.sort(m_sort_array.begin(), m_sort_array.end());
 }
 ////////////////////////////////////////////////////////////////////////////////
 void RayGroundClassifier::insert(PointBlock & block, const PointXYZIF & pt)
