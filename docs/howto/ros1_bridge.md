@@ -106,9 +106,9 @@ Enter `Ctrl-C` to stop the applications.
 
 ## 3. Run Autoware.Auto and Autoware.AI applications {#autoware-auto-autoware-ai}
 
-For this section, we will follow the instructions in [3D Perception stack](@ref perception-stack), but
-we will run `rviz` instead of `rviz2` to demonstrate that ROS 1 applications, such as `rviz` can
-be used to interact with Autoware.Auto.
+For this section, we will follow the instructions in the [3D Perception stack](@ref perception-stack) howto, but
+we will run `rviz` instead of `rviz2` to demonstrate that ROS 1 applications, such as `rviz`, can
+interact with Autoware.Auto.
 
 We will need a new terminal, where we will start `roscore` and `ros1_bridge`:
 
@@ -117,7 +117,7 @@ $ ade enter
 ade$ start_ros1_bridge
 ```
 
-In the terminal where were going to start `rviz2`, we will run the following:
+In the terminal where were going to start `rviz2` (when following the [3D Perception stack](@ref perception-stack) howto), we will instead run the following:
 
 ```bash
 $ ade enter
