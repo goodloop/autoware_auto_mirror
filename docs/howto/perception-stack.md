@@ -37,7 +37,7 @@ ADE Terminal 3 - start the `velodyne_node`:
 $ ade enter
 ade$ cd AutowareAuto
 ade$ source install/setup.bash
-ade$ ros2 run velodyne_node velodyne_cloud_node_exe --config_file /home/"${USER}"/AutowareAuto/src/drivers/velodyne_node/param/vlp16_test.param.yaml
+ade$ ros2 run velodyne_node velodyne_cloud_node_exe ___params:=/home/"${USER}"/AutowareAuto/src/drivers/velodyne_node/param/vlp16_test.param.yaml
 ```
 
 \note
@@ -57,7 +57,7 @@ For this step we will need a fourth ADE terminal, in addition to the previous th
 $ ade enter
 ade$ cd AutowareAuto
 ade$ source install/setup.bash
-ade$ ros2 run ray_ground_classifier_nodes ray_ground_classifier_cloud_node_exe --config_file /home/"${USER}"/AutowareAuto/src/perception/filters/ray_ground_classifier_nodes/param/vlp16_lexus.param.yaml
+ade$ ros2 run ray_ground_classifier_nodes ray_ground_classifier_cloud_node_exe ___params:=/home/"${USER}"/AutowareAuto/src/perception/filters/ray_ground_classifier_nodes/param/vlp16_lexus.param.yaml
 ```
 
 This will create two new topics (`/nonground_points` and `/points_ground`) that output
@@ -78,7 +78,7 @@ for the other nodes.
 $ ade enter
 ade$ cd AutowareAuto
 ade$ source install/setup.bash
-ade$ ros2 run voxel_grid_nodes voxel_grid_cloud_node_exe --config_file /home/"${USER}"/AutowareAuto/src/perception/filters/voxel_grid_nodes/param/vlp16_lexus_centroid.param.yaml
+ade$ ros2 run voxel_grid_nodes voxel_grid_cloud_node_exe ___params:=/home/"${USER}"/AutowareAuto/src/perception/filters/voxel_grid_nodes/param/vlp16_lexus_centroid.param.yaml
 ```
 
 After this we will have a new topic, named (`/points_downsampled`) that we can visualize with the
