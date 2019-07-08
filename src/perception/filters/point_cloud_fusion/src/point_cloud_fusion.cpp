@@ -13,13 +13,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <tf2_sensor_msgs/tf2_sensor_msgs.h>
 #include <point_cloud_fusion/point_cloud_fusion.hpp>
 #include <point_cloud_fusion/point_cloud_transform.hpp>
 #include <memory>
 #include <vector>
 #include <algorithm>
 #include <string>
-#include <tf2_sensor_msgs/tf2_sensor_msgs.h>
 
 namespace autoware
 {
