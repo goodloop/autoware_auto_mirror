@@ -39,7 +39,7 @@ EuclideanClusterNode::EuclideanClusterNode(
       [this](const PointCloud2::SharedPtr msg) {handle(msg);})},
   m_cluster_pub_ptr{declare_parameter("cluster_topic").get<std::string>().empty() ? nullptr :
   create_publisher<Clusters>(
-    declare_parameter("cluster_topic").get<std::string>(), rclcpp::QoS(10))},
+    get_parameter("cluster_topic").as_string(), rclcpp::QoS(10))},
 // m_box_pub_ptr{declare_parameter("box_topic").get<std::string>().empty() ? nullptr :
 //   create_publisher<BoundingBoxArray>(declare_parameter("box_topic").get<std::string>())},
 m_cluster_alg{
@@ -149,7 +149,7 @@ void EuclideanClusterNode::init(const euclidean_cluster::Config & cfg)
     throw std::domain_error{"EuclideanClusterNode: No publisher topics provided"};
   }
   // Reserve
-  // m_clusters.clusters.reserve(cfg.max_num_clusters());
+  m_clusters.clusters.reserve(cfg.max_num_clusters());
   // m_boxes.header.frame_id.reserve(256U);
   // m_boxes.header.frame_id = cfg.frame_id().c_str();
 }
