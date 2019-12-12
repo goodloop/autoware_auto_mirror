@@ -1,7 +1,7 @@
 from setuptools import find_packages
 from setuptools import setup
 
-package_name='autoware_auto_create_pkg'
+package_name = 'autoware_auto_create_pkg'
 
 setup(
     name=package_name,
