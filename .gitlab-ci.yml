@@ -216,11 +216,11 @@ volume:
       VOLUME /opt/AutowareAuto
       CMD ["/bin/sh", "-c", "trap 'exit 147' TERM; tail -f /dev/null & wait ${!}"]
       EOF
-    - >
-      docker build
+    - 'docker build
           --label ade_image_commit_sha="$CI_COMMIT_SHA"
           --label ade_image_commit_tag="$CI_COMMIT_TAG"
           -t image .
+      '
     - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
     - docker tag image $CI_REGISTRY_IMAGE:commit-$CI_COMMIT_SHA
     - docker tag image $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
