@@ -1,3 +1,4 @@
+#include "common/types.hpp"
 #include "lidar_utils/lidar_utils.hpp"
 #include <gtest/gtest.h>
 
@@ -18,7 +19,7 @@ TEST(fast_atan2, corner_cases) {
 
 TEST(fast_atan2, max_error) {
   float max_error = 0;
-  for (float f = 0; f < autoware::common::lidar_utils::TAU; f += 0.00001f) {
+  for (float f = 0; f < autoware::common::types::TAU; f += 0.00001f) {
     float x = cos(f);
     float y = sin(f);
     max_error = ::std::max(

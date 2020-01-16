@@ -19,9 +19,9 @@ namespace localization
 namespace ndt_nodes
 {
 
-common::lidar_utils::PointXYZIF get_point_from_vector(const Eigen::Vector3d & v)
+common::types::PointXYZIF get_point_from_vector(const Eigen::Vector3d & v)
 {
-  return common::lidar_utils::PointXYZIF{
+  return common::types::PointXYZIF{
     static_cast<float>(v(0)),
     static_cast<float>(v(1)),
     static_cast<float>(v(2))};
