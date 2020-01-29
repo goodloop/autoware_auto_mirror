@@ -3,8 +3,7 @@ stages:
   - build
   - deploy
 
-
-ade:
+.ade_base: &ade_base
   stage: ade
   image: docker
   services:
@@ -23,11 +22,11 @@ ade:
               -t image .;
       else
           (
-              docker pull $CI_REGISTRY_IMAGE/ade:commit-$CI_COMMIT_SHA &&
-              docker tag $CI_REGISTRY_IMAGE/ade:commit-$CI_COMMIT_SHA image
+              docker pull $CI_REGISTRY_IMAGE/ade$ARCH:commit-$CI_COMMIT_SHA &&
+              docker tag $CI_REGISTRY_IMAGE/ade$ARCH:commit-$CI_COMMIT_SHA image
           ) || (
-              docker pull $CI_REGISTRY_IMAGE/ade:commit-$LAST_CHANGE &&
-              docker tag $CI_REGISTRY_IMAGE/ade:commit-$LAST_CHANGE image
+              docker pull $CI_REGISTRY_IMAGE/ade$ARCH:commit-$LAST_CHANGE &&
+              docker tag $CI_REGISTRY_IMAGE/ade$ARCH:commit-$LAST_CHANGE image
           ) || (
               chmod og-w . -R;
               docker build
@@ -37,13 +36,24 @@ ade:
           );
       fi
       '
-    - docker tag image $CI_REGISTRY_IMAGE/ade:commit-$LAST_CHANGE
-    - docker tag image $CI_REGISTRY_IMAGE/ade:commit-$CI_COMMIT_SHA
-    - docker tag image $CI_REGISTRY_IMAGE/ade:$CI_COMMIT_REF_SLUG
-    - docker push $CI_REGISTRY_IMAGE/ade:commit-$LAST_CHANGE
-    - docker push $CI_REGISTRY_IMAGE/ade:commit-$CI_COMMIT_SHA
-    - docker push $CI_REGISTRY_IMAGE/ade:$CI_COMMIT_REF_SLUG
+    - docker tag image $CI_REGISTRY_IMAGE/ade$ARCH:commit-$LAST_CHANGE
+    - docker tag image $CI_REGISTRY_IMAGE/ade$ARCH:commit-$CI_COMMIT_SHA
+    - docker tag image $CI_REGISTRY_IMAGE/ade$ARCH:$CI_COMMIT_REF_SLUG
+    - docker push $CI_REGISTRY_IMAGE/ade$ARCH:commit-$LAST_CHANGE
+    - docker push $CI_REGISTRY_IMAGE/ade$ARCH:commit-$CI_COMMIT_SHA
+    - docker push $CI_REGISTRY_IMAGE/ade$ARCH:$CI_COMMIT_REF_SLUG
 
+ade:
+  variables:
+    ARCH: ""
+  <<: *ade_base
+
+ade-arm:
+  variables:
+    ARCH: "-arm64"
+  tags:
+    - arm64
+  <<: *ade_base
 
 build_barebones:
   stage: build
