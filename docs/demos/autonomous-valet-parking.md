@@ -16,7 +16,7 @@ The AVP demonstration uses Autoware.Auto to provide the following functions:
 1. Avoid obstacles while achieving the above.
 
 
-Prerequisites
+Prerequisites {#avpdemo-prerequisites}
 -------------
 
 To run this demo, you will need to provide the following.
@@ -42,12 +42,12 @@ Setup and launching (simulator)
 
 The AVP demo can be run in the LGSVL simulator.
 You can use the included sample carpark, or your own carpark.
-If using your own carpark, you will need to provide a simulated world for it as described in [Prerequisites]{#prerequisites}.
+If using your own carpark, you will need to provide a simulated world for it as described in [Prerequisites]{@ref avpdemo-prerequisites}.
 
-1. [Install the ADE]{installation-and-development.html#installation-and-development-install-ade} and [install the LGSVL simulator]{@ref #lgsvl}.
+1. [Install the ADE]{@ref installation-and-development-install-ade} and install the LGSVL simulator.
 1. Configure the simulated world.
 1. Configure the simulated car.
-1. Follow the [instructions for launching LGSVL]{@ref #lgsvl} to launch the simulator.
+1. Follow the instructions for launching LGSVL to launch the simulator.
 1. Do magic stuff to make it all work.
 
 
