@@ -10,4 +10,4 @@ For demonstrations that work on a real car, the hardware requirements are also d
 The demonstration documentation assumes a working knowledge of how to use Autoware.Auto.
 For articles on how to achieve specific tasks with Autoware.Auto, see our [HowTo]{@ref howto} and [tutorials]{@ref tutorials} categories.
 
-- @subpage autonomous-valet-parking
+- @subpage avpdemo
