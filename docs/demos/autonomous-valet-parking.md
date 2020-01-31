@@ -3,8 +3,7 @@ Autonomous Valet Parking demonstration {#avpdemo}
 
 The Autonomous Valet Parking (AVP) demonstration uses Autoware.Auto to provide a valet parking service.
 
-Description of the demonstration
---------------------------------
+# Description of the demonstration
 
 The AVP demonstration uses Autoware.Auto to provide the following functions:
 
@@ -16,8 +15,7 @@ The AVP demonstration uses Autoware.Auto to provide the following functions:
 1. Avoid obstacles while achieving the above.
 
 
-Prerequisites {#avpdemo-prerequisites}
--------------
+# Prerequisites {#avpdemo-prerequisites}
 
 To run this demo, you will need to provide the following.
 
@@ -31,14 +29,12 @@ A sample carpark is available, based on a real single-level carpark in San Jose,
 A sample car is available, based on a real-life vehicle used by many members of the Autoware Foundation.
 
 
-Hardware requirements and setup
--------------------------------
+# Hardware requirements
 
 The AVP demo does not currently support running on hardware.
 
 
-Setup and launching (simulator)
--------------------------------
+# Setup and launching (simulator)
 
 The AVP demo can be run in the LGSVL simulator.
 You can use the included sample carpark, or your own carpark.
@@ -51,7 +47,6 @@ If using your own carpark, you will need to provide a simulated world for it as 
 1. Do magic stuff to make it all work.
 
 
-Setup and launching (hardware)
-------------------------------
+# Setup and launching (hardware)
 
 The AVP demo does not currently support running on hardware.
