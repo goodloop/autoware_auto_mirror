@@ -95,8 +95,8 @@ RayAggregator::RayAggregator(const Config & cfg)
 : m_cfg(cfg),
   m_rays(m_cfg.get_num_rays()),
   m_ready_indices(m_cfg.get_num_rays()),
-  m_ready_start_idx{},  // zero initialization
-  m_num_ready{},  // zero initialization
+  m_ready_start_idx(0),  // zero initialization
+  m_num_ready(0),  // zero initialization
   m_ray_state(m_cfg.get_num_rays())
 {
   m_rays.clear();  // capacity unchanged
