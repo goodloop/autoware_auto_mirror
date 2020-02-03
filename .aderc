@@ -2,7 +2,7 @@ export ADE_DOCKER_RUN_ARGS="--cap-add=SYS_PTRACE"
 export ADE_GITLAB=gitlab.com
 export ADE_REGISTRY=registry.gitlab.com
 export ADE_IMAGES="
-  registry.gitlab.com/autowarefoundation/autoware.auto/autowareauto/ade:master
+  registry.gitlab.com/autowarefoundation/autoware.auto/autowareauto/arm64/ade:7-add-arm-native-ci
   registry.gitlab.com/apexai/ade-atom:latest
-  registry.gitlab.com/autowarefoundation/autoware.auto/autowareauto:master
+  registry.gitlab.com/autowarefoundation/autoware.auto/autowareauto:7-add-arm-native-ci
 "
