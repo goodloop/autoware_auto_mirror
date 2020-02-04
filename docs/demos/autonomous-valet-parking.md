@@ -12,7 +12,7 @@ The AVP demonstration uses Autoware.Auto to provide the following functions:
 1. Park a car in a parking spot, starting in a lane near that parking spot.
 1. Drive out of a parking spot.
 1. Drive to a pre-defined pick-up zone (e.g. the exit from a carpark).
-1. Avoid obstacles while achieving the above.
+1. Automatically stop for obstacles while achieving the above.
 
 
 # Prerequisites {#avpdemo-prerequisites}
