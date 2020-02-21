@@ -11,6 +11,7 @@ set(CMAKE_CXX_STANDARD 14)
 # Build library
 ament_auto_add_library(${PROJECT_NAME} SHARED
   src/recordreplay_planner/recordreplay_planner.cpp
+  src/recordreplay_planner/geometry.cpp
 )
 
 ### Test

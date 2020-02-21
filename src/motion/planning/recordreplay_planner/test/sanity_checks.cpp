@@ -14,8 +14,16 @@
 
 #include <gtest/gtest.h>
 #include <recordreplay_planner/recordreplay_planner.hpp>
+#include <recordreplay_planner/geometry.hpp>
 #include <motion_testing/motion_testing.hpp>
 #include <autoware_auto_msgs/msg/trajectory.hpp>
+#include <autoware_auto_msgs/msg/trajectory_point.hpp>
+#include <autoware_auto_msgs/msg/bounding_box_array.hpp>
+#include <autoware_auto_msgs/msg/bounding_box.hpp>
+#include <geometry/common_2d.hpp>
+#include <motion_common/config.hpp>
+#include <motion_common/motion_common.hpp>
+#include <geometry_msgs/msg/point32.hpp>
 
 #include <chrono>
 #include <algorithm>
@@ -23,12 +31,20 @@
 using motion::planning::recordreplay_planner::RecordReplayPlanner;
 using std::chrono::system_clock;
 using motion::motion_testing::make_state;
-using Trajectory = autoware_auto_msgs::msg::Trajectory;
+using autoware_auto_msgs::msg::Trajectory;
+using autoware_auto_msgs::msg::TrajectoryPoint;
+using autoware_auto_msgs::msg::BoundingBoxArray;
+using autoware_auto_msgs::msg::BoundingBox;
+using motion::motion_common::VehicleConfig;
+using geometry_msgs::msg::Point32;
+using motion::motion_common::from_angle;
+
+const VehicleConfig test_vehicle_params{1.0, 1.0, 0.5, 0.5, 1500, 12};
 
 class sanity_checks_base : public ::testing::Test
 {
 protected:
-  RecordReplayPlanner planner_{};
+  RecordReplayPlanner planner_{test_vehicle_params};
 };
 
 
@@ -124,7 +140,7 @@ INSTANTIATE_TEST_CASE_P(
 // 0 throughout - for testing purposes
 RecordReplayPlanner helper_create_and_record_example(uint32_t N)
 {
-  auto planner = RecordReplayPlanner();
+  auto planner = RecordReplayPlanner(test_vehicle_params);
   auto t0 = system_clock::from_time_t({});
 
   // Record some states going from
@@ -185,7 +201,7 @@ TEST(recordreplay_sanity_checks, receding_horizon_cornercases)
 
 TEST(recordreplay_sanity_checks, state_setting_mechanism)
 {
-  auto planner = RecordReplayPlanner();
+  auto planner = RecordReplayPlanner{test_vehicle_params};
 
   // Make sure setting and reading the recording state works
   EXPECT_FALSE(planner.is_recording() );
@@ -218,9 +234,80 @@ TEST(recordreplay_sanity_checks, state_setting_mechanism)
 
 TEST(recordreplay_sanity_checks, heading_weight_setting)
 {
-  auto planner = RecordReplayPlanner();
+  auto planner = RecordReplayPlanner{test_vehicle_params};
 
   planner.set_heading_weight(0.5);
   EXPECT_EQ(planner.get_heading_weight(), 0.5);
   EXPECT_THROW(planner.set_heading_weight(-1.0), std::domain_error);
+}
+
+TEST(recordreplay_sanity_checks, adding_bounding_boxes)
+{
+  auto planner = RecordReplayPlanner{test_vehicle_params};
+  EXPECT_EQ(planner.get_number_of_bounding_boxes(), 0);
+
+  auto dummy_boxes = BoundingBoxArray{};
+  dummy_boxes.boxes.push_back(BoundingBox{});
+  dummy_boxes.boxes.push_back(BoundingBox{});
+
+  planner.update_bounding_boxes(dummy_boxes);
+
+  EXPECT_EQ(planner.get_number_of_bounding_boxes(), 2);
+}
+
+
+//------------------ Test that bounding box creation works
+TEST(recordreplay_sanity_checks, bounding_box_creation)
+{
+  const auto get_test_box = [](const TrajectoryPoint state) {
+      const VehicleConfig test_params{1.0, 1.0, 0.5, 0.5, 1500, 12};
+      const float vehicle_width_m = 2.0;
+      const float vehicle_front_overhang_m = 0.5;
+      const float vehicle_rear_overhang_m = 0.2;
+      return motion::planning::recordreplay_planner::compute_boundingbox_from_trajectorypoint(
+        state, vehicle_width_m, vehicle_front_overhang_m, vehicle_rear_overhang_m, test_params);
+    };
+
+  // First case: box aligned with axes
+  const auto t0 = system_clock::from_time_t({});
+  const auto state = make_state(0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, t0);
+  auto aligned_box = get_test_box(state.state);
+
+  EXPECT_EQ(aligned_box.corners.size(), 4);
+
+  // TODO(s.me) This assumes a certain order of the vertices, which I think is
+  // not guaranteed. One could switch to set membership based testing instead.
+  EXPECT_LT(std::abs(aligned_box.corners[0].x - 1.2), 1e-6);
+  EXPECT_LT(std::abs(aligned_box.corners[0].y - 1), 1e-6);
+
+  EXPECT_LT(std::abs(aligned_box.corners[1].x + 1.5), 1e-6);
+  EXPECT_LT(std::abs(aligned_box.corners[1].y - 1), 1e-6);
+
+  EXPECT_LT(std::abs(aligned_box.corners[2].x + 1.5), 1e-6);
+  EXPECT_LT(std::abs(aligned_box.corners[2].y + 1), 1e-6);
+
+  EXPECT_LT(std::abs(aligned_box.corners[3].x - 1.2), 1e-6);
+  EXPECT_LT(std::abs(aligned_box.corners[3].y + 1), 1e-6);
+
+
+  // Test case 2: box rotated by 90 degrees
+  const auto rotated_state = make_state(0.0F, 0.0F, 1.5707963267948966, 0.0F, 0.0F, 0.0F, t0);
+  auto rotated_box = get_test_box(rotated_state.state);
+  for (const auto & corner : rotated_box.corners) {
+    std::cout << corner.x << " " << corner.y << std::endl;
+  }
+
+  EXPECT_EQ(aligned_box.corners.size(), 4);
+
+  EXPECT_LT(std::abs(rotated_box.corners[0].x - 1), 1e-6);
+  EXPECT_LT(std::abs(rotated_box.corners[0].y - 1.5), 1e-6);
+
+  EXPECT_LT(std::abs(rotated_box.corners[1].x - 1), 1e-6);
+  EXPECT_LT(std::abs(rotated_box.corners[1].y - 1.5), 1e-6);
+
+  EXPECT_LT(std::abs(rotated_box.corners[2].x - 1), 1e-6);
+  EXPECT_LT(std::abs(rotated_box.corners[2].y - 1.1), 1e-6);
+
+  EXPECT_LT(std::abs(rotated_box.corners[3].x - 1), 1e-6);
+  EXPECT_LT(std::abs(rotated_box.corners[3].y + 1.2), 1e-6);
 }
