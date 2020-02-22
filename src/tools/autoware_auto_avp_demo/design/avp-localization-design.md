@@ -1,7 +1,16 @@
 AVP 2020 Demo Localization Design {#avp-localization-design}
 ============================================================
 
+# Overview
+
 In accordance with REP-105[1] and guided by the design principals laid out in #localization-design, the following localization architecture will be used for the AVP 2020 Demo and will form the basis for future improvements for the Autoware.Auto localization architecture.
+
+---
+
+[TOC]
+
+
+# Frames
 
 The following frames are defined:
 - `/earth`
@@ -19,12 +28,16 @@ REP-105[1] provides enough specificity with regard to most frames for a concrete
   - The tire pressure meets the manufacturer specifications in all four tires
   - The vehicle is placed on flat, level ground
 
+# Assumptions
+
 The following assumptions are made for the provided localization architecture:
 - A static, globally-fixed sensor data map is available for localization (sensor map)
 - A static, globally-fixed semantic data map is available for traffic rules and some stationary objects (semantic map)
 - Locally-referenced odometry sensor data are available from one or more sources
 - Locally-referenced environmental sensor data are available from one or more sources
 - Globally-referenced position data are available from one or more sources
+
+# Components
 
 The final localization stack for the AVP 2020 Demo should have the following components:
 - Global Sensor Localizer
@@ -48,6 +61,8 @@ The final localization stack for the AVP 2020 Demo should have the following com
   - Input: `sensor_msgs/PoseWithCovarianceStamped` in `/earth` frame
   - Output: `/map`->`/odom` transform
 
+# Transforms
+
 The final localization stack for the AVP 2020 Demo should have the following transforms available:
 - `/base_link`->`<sensor_frame>`: Static. Published by `tf2::static_transform_publisher` or `robot_description` when using a URDF file.
   - **Explanation**: It is assumed that all sensors which are attached to the body of the mobile robot are done so rigidly and are not free to move. Being as `/base_link` is a frame that is defined as being tied to a fixed point on the mobile robot's body, any transform between a sensor and `/base_link` would be static.
@@ -60,6 +75,12 @@ The final localization stack for the AVP 2020 Demo should have the following tra
 - `/earth`->`/map`: If a map server is used, dynamic but non-contiguous and published by the map server. If no map server is used, static and published by `tf2::static_transform_publisher`
   - **Explanation**: Since the Sensor Map (published in the `/map` frame) is defined as being globally-fixed, this transform relates the origin of the Sensor Map to the origin of the `/earth` frame which is referenced as ECEF. The publication of this transform is necessary for the Environmental Sensor Localizer to create an initial position estimate using the output from the Global Sensor Localizer. This transform is also necessary for the Map Localizer to be able to utilize the output from the Global Sensor Localizer as a fusion input.
 
+# Diagram
+
 The following diagram depicts this architecture:
 
 ![AVPTFTree](avp-tf-tree.png)
+
+# References
+
+- [1] [REP105 - Coordinate Frames for Mobile Platforms](https://www.ros.org/reps/rep-0105.html)
