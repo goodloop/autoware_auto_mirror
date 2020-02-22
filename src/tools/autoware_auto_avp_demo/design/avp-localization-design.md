@@ -3,7 +3,7 @@ AVP 2020 Demo Localization Design {#avp-localization-design}
 
 # Overview
 
-In accordance with REP-105[1] and guided by the design principals laid out in #localization-design, the following localization architecture will be used for the AVP 2020 Demo and will form the basis for future improvements for the Autoware.Auto localization architecture.
+In accordance with REP-105[1] and guided by the design principals laid out in \ref localization-design, the following localization architecture will be used for the AVP 2020 Demo and will form the basis for future improvements for the Autoware.Auto localization architecture.
 
 ---
 
