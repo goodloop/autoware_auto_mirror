@@ -13,9 +13,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <gtest/gtest.h>
 #include "common/types.hpp"
 #include "lidar_utils/lidar_utils.hpp"
-#include <gtest/gtest.h>
 
 using autoware::common::types::float32_t;
 
