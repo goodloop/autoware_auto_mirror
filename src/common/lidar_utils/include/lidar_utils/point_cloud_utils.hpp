@@ -40,6 +40,7 @@ using sensor_msgs::msg::PointCloud2;
 
 using autoware::common::types::bool8_t;
 using autoware::common::types::float32_t;
+using autoware::common::types::float64_t;
 
 /// max number of points in a scan for VLP16s, assuming 300 rpm = 5hz: 57870.3703 points per full
 /// rotation
