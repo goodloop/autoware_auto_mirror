@@ -13,11 +13,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <common/types.hpp>
 #include <gtest/gtest.h>
 #include <optimization/utils.hpp>
 #include "test_cache_states.hpp"
 #include <Eigen/Core>
 #include <vector>
+
+using autoware::common::types::float64_t;
 
 namespace autoware
 {
@@ -27,7 +30,7 @@ namespace optimization
 {
 TEST_F(CacheStateMachineTest, numeric_test) {
   auto eigen_comparator = [](const auto & lhs, const auto & rhs) {
-      return lhs.isApprox(rhs, std::numeric_limits<double>::epsilon());
+      return lhs.isApprox(rhs, std::numeric_limits<float64_t>::epsilon());
     };
 
   for (const auto & elem : m_mode_map) {
