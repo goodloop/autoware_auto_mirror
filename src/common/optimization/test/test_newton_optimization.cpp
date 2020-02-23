@@ -15,6 +15,7 @@
 
 #include <common/types.hpp>
 #include <gtest/gtest.h>
+#include <limits>
 #include "test_newton_optimization.hpp"
 
 using autoware::common::types::float64_t;

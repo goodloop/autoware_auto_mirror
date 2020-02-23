@@ -16,9 +16,10 @@
 #include <common/types.hpp>
 #include <gtest/gtest.h>
 #include <optimization/utils.hpp>
-#include "test_cache_states.hpp"
 #include <Eigen/Core>
 #include <vector>
+#include <limits>
+#include "test_cache_states.hpp"
 
 using autoware::common::types::float64_t;
 
@@ -50,6 +51,6 @@ TEST_F(CacheStateMachineTest, numeric_test) {
 }
 
 
-}  // namespace autoware
-}  // namespace common
 }  // namespace optimization
+}  // namespace common
+}  // namespace autoware

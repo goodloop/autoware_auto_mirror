@@ -75,7 +75,6 @@ public:
   {
     out(0, 0) = sign * 2.0;
   }
-
 };
 
 }  // namespace optimization
