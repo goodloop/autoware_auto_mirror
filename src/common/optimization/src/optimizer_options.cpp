@@ -56,12 +56,18 @@ uint64_t NewtonOptimizationOptions::max_num_iterations() const noexcept
 {
   return m_max_num_iterations;
 }
-float64_t NewtonOptimizationOptions::function_tolerance() const noexcept {return m_function_tolerance;}
+float64_t NewtonOptimizationOptions::function_tolerance() const noexcept
+{
+  return m_function_tolerance;
+}
 float64_t NewtonOptimizationOptions::parameter_tolerance() const noexcept
 {
   return m_parameter_tolerance;
 }
-float64_t NewtonOptimizationOptions::gradient_tolerance() const noexcept {return m_gradient_tolerance;}
+float64_t NewtonOptimizationOptions::gradient_tolerance() const noexcept
+{
+  return m_gradient_tolerance;
+}
 
 OptimizationSummary::OptimizationSummary(
   float64_t dist, TerminationType termination_type,

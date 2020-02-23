@@ -48,7 +48,7 @@ public:
   static constexpr auto NumJacobianCols = NumJacobianColsT;
   static constexpr auto NumVars = NumVarsT;
   using DomainValue = DomainValueT;
-  using Value = autoware::common:types::float64_t;
+  using Value = autoware::common::types::float64_t;
   using Jacobian = Eigen::Matrix<Value, NumVars, NumJacobianCols>;
   using Hessian = Eigen::Matrix<Value, NumVars, NumVars>;
   using JacobianRef = Eigen::Ref<Jacobian>;
@@ -114,7 +114,7 @@ public:
   static constexpr auto NumJacobianCols = NumJacobianColsT;
   static constexpr auto NumVars = NumVarsT;
   using DomainValue = DomainValueT;
-  using Value = autoware::common:types::float64_t;
+  using Value = autoware::common::types::float64_t;
   using Jacobian = Eigen::Matrix<Value, NumVars, NumJacobianCols>;
   using Hessian = Eigen::Matrix<Value, NumVars, NumVars>;
   using JacobianRef = Eigen::Ref<Eigen::Matrix<Value, NumVars, NumJacobianCols>>;
@@ -215,7 +215,7 @@ class OPTIMIZATION_PUBLIC OptimizationProblem<Derived, DomainValueT, NumJacobian
 public:
   using EqualityConstraintsT = std::tuple<EqualityConstraints...>;
   using InequalityConstraintsT = std::tuple<InequalityConstraints...>;
-  using Value = autoware::common:types::float64_t;
+  using Value = autoware::common::types::float64_t;
   using Jacobian = Eigen::Matrix<Value, NumVarsT, NumJacobianColsT>;
   using Hessian = Eigen::Matrix<Value, NumVarsT, NumVarsT>;
   using JacobianRef = Eigen::Ref<Jacobian>;
