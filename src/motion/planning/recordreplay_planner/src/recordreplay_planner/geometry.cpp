@@ -34,17 +34,14 @@ using autoware::common::geometry::bounding_box::eigenbox_2d;
 // Compute a bounding box from a vehicle state and configuration.
 BoundingBox compute_boundingbox_from_trajectorypoint(
   const TrajectoryPoint & state,
-  const float vehicle_width_m,
-  const float vehicle_front_overhang_m,
-  const float vehicle_rear_overhang_m,
   const VehicleConfig & vehicle_param)
 {
   // Shorthands to keep the formulas sane
   const auto h = to_angle(state.heading);
   const auto xcog = state.x, ycog = state.y, z = 0.0f;
-  const auto lf = vehicle_param.length_cg_front_axel() + vehicle_front_overhang_m;
-  const auto lr = vehicle_param.length_cg_rear_axel() + vehicle_rear_overhang_m;
-  const auto wh = vehicle_width_m * 0.5;
+  const auto lf = vehicle_param.length_cg_front_axel() + vehicle_param.front_overhang();
+  const auto lr = vehicle_param.length_cg_rear_axel() + vehicle_param.rear_overhang();
+  const auto wh = vehicle_param.width() * 0.5;
   const auto ch = cos(h), sh = sin(h);
 
   std::vector<Point32> vehicle_corners{};

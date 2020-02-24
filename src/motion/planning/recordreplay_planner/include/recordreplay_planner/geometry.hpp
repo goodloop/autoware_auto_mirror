@@ -35,16 +35,11 @@ using autoware_auto_msgs::msg::BoundingBox;
 
 BoundingBox compute_boundingbox_from_trajectorypoint(
   const TrajectoryPoint & state,
-  const float vehicle_width_m,
-  const float vehicle_front_overhang_m,
-  const float vehicle_rear_overhang_m,
   const VehicleConfig & vehicle_param);
 
 
 // Check if two bounding boxes collide
 bool boxes_collide(const BoundingBox & box1, const BoundingBox & box2);
-
-
 }  // namespace recordreplay_planner
 }  // namespace planning
 }  // namespace motion

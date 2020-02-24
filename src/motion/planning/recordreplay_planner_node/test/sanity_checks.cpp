@@ -32,7 +32,7 @@ using State = autoware_auto_msgs::msg::VehicleKinematicState;
 using motion::motion_common::VehicleConfig;
 
 const auto test_vehicle_params = VehicleConfig(
-  1.0, 1.0, 0.5, 0.5, 1500, 12);
+  1.0, 1.0, 0.5, 0.5, 1500.0, 12.0, 2.0, 0.5, 0.2);
 
 TEST(mytest_base, basic)
 {

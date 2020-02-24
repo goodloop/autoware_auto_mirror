@@ -148,13 +148,6 @@ const Trajectory & RecordReplayPlanner::from_record(const State & current_state)
       time_utils::from_message(m_record_buffer[minimum_idx + i].header.stamp) - t0);
   }
 
-  // TODO(s.me,c.ho) add the constants here to VehicleConfig. I put them here since
-  // wiring them through the interfaces does not make sense if all we do next is add
-  // them to VehicleConfig.
-  const float vehicle_width_m = 2.0;
-  const float vehicle_front_overhang_m = 0.5;
-  const float vehicle_rear_overhang_m = 0.5;
-
   // Create a function to obtain a polytope from our current state
   auto collision = false;
   std::size_t i = {};
@@ -163,7 +156,7 @@ const Trajectory & RecordReplayPlanner::from_record(const State & current_state)
     // could already be computed on recording and then cached so they don't have to be
     // recomputed every time a trajectory is published)
     const auto boundingbox = compute_boundingbox_from_trajectorypoint(trajectory.points[i],
-        vehicle_width_m, vehicle_front_overhang_m, vehicle_rear_overhang_m, m_vehicle_param);
+        m_vehicle_param);
 
     // Check for collisions with all perceived obstacles
     for (const auto & obstaclebox : m_latest_bounding_boxes.boxes) {

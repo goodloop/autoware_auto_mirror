@@ -39,7 +39,7 @@ using motion::motion_common::VehicleConfig;
 using geometry_msgs::msg::Point32;
 using motion::motion_common::from_angle;
 
-const VehicleConfig test_vehicle_params{1.0, 1.0, 0.5, 0.5, 1500, 12};
+const VehicleConfig test_vehicle_params{1.0, 1.0, 0.5, 0.5, 1500, 12, 2.0, 0.5, 0.2};
 
 class sanity_checks_base : public ::testing::Test
 {
@@ -260,12 +260,9 @@ TEST(recordreplay_sanity_checks, adding_bounding_boxes)
 TEST(recordreplay_sanity_checks, bounding_box_creation)
 {
   const auto get_test_box = [](const TrajectoryPoint state) {
-      const VehicleConfig test_params{1.0, 1.0, 0.5, 0.5, 1500, 12};
-      const float vehicle_width_m = 2.0;
-      const float vehicle_front_overhang_m = 0.5;
-      const float vehicle_rear_overhang_m = 0.2;
+      const VehicleConfig test_params{1.0, 1.0, 0.5, 0.5, 1500, 12, 2.0, 0.5, 0.2};
       return motion::planning::recordreplay_planner::compute_boundingbox_from_trajectorypoint(
-        state, vehicle_width_m, vehicle_front_overhang_m, vehicle_rear_overhang_m, test_params);
+        state, test_params);
     };
 
   // First case: box aligned with axes
@@ -277,36 +274,33 @@ TEST(recordreplay_sanity_checks, bounding_box_creation)
 
   // TODO(s.me) This assumes a certain order of the vertices, which I think is
   // not guaranteed. One could switch to set membership based testing instead.
-  EXPECT_LT(std::abs(aligned_box.corners[0].x - 1.2), 1e-6);
+  EXPECT_LT(std::abs(aligned_box.corners[0].x - 1.5), 1e-6);
   EXPECT_LT(std::abs(aligned_box.corners[0].y - 1), 1e-6);
 
-  EXPECT_LT(std::abs(aligned_box.corners[1].x + 1.5), 1e-6);
+  EXPECT_LT(std::abs(aligned_box.corners[1].x + 1.2), 1e-6);
   EXPECT_LT(std::abs(aligned_box.corners[1].y - 1), 1e-6);
 
-  EXPECT_LT(std::abs(aligned_box.corners[2].x + 1.5), 1e-6);
+  EXPECT_LT(std::abs(aligned_box.corners[2].x + 1.2), 1e-6);
   EXPECT_LT(std::abs(aligned_box.corners[2].y + 1), 1e-6);
 
-  EXPECT_LT(std::abs(aligned_box.corners[3].x - 1.2), 1e-6);
+  EXPECT_LT(std::abs(aligned_box.corners[3].x - 1.5), 1e-6);
   EXPECT_LT(std::abs(aligned_box.corners[3].y + 1), 1e-6);
 
 
   // Test case 2: box rotated by 90 degrees
   const auto rotated_state = make_state(0.0F, 0.0F, 1.5707963267948966, 0.0F, 0.0F, 0.0F, t0);
   auto rotated_box = get_test_box(rotated_state.state);
-  for (const auto & corner : rotated_box.corners) {
-    std::cout << corner.x << " " << corner.y << std::endl;
-  }
 
-  EXPECT_EQ(aligned_box.corners.size(), 4);
+  EXPECT_EQ(rotated_box.corners.size(), 4);
 
   EXPECT_LT(std::abs(rotated_box.corners[0].x - 1), 1e-6);
   EXPECT_LT(std::abs(rotated_box.corners[0].y - 1.5), 1e-6);
 
-  EXPECT_LT(std::abs(rotated_box.corners[1].x - 1), 1e-6);
+  EXPECT_LT(std::abs(rotated_box.corners[1].x + 1), 1e-6);
   EXPECT_LT(std::abs(rotated_box.corners[1].y - 1.5), 1e-6);
 
-  EXPECT_LT(std::abs(rotated_box.corners[2].x - 1), 1e-6);
-  EXPECT_LT(std::abs(rotated_box.corners[2].y - 1.1), 1e-6);
+  EXPECT_LT(std::abs(rotated_box.corners[2].x + 1), 1e-6);
+  EXPECT_LT(std::abs(rotated_box.corners[2].y + 1.2), 1e-6);
 
   EXPECT_LT(std::abs(rotated_box.corners[3].x - 1), 1e-6);
   EXPECT_LT(std::abs(rotated_box.corners[3].y + 1.2), 1e-6);

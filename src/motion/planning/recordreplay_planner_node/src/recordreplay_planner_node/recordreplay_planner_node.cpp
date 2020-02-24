@@ -38,7 +38,10 @@ RecordReplayPlannerNode::RecordReplayPlannerNode(const std::string & name, const
     static_cast<Real>(declare_parameter("vehicle.front_corner_stiffness").get<float>()),
     static_cast<Real>(declare_parameter("vehicle.rear_corner_stiffness").get<float>()),
     static_cast<Real>(declare_parameter("vehicle.mass_kg").get<float>()),
-    static_cast<Real>(declare_parameter("vehicle.yaw_inertia_kgm2").get<float>())
+    static_cast<Real>(declare_parameter("vehicle.yaw_inertia_kgm2").get<float>()),
+    static_cast<Real>(declare_parameter("vehicle.width_m").get<float>()),
+    static_cast<Real>(declare_parameter("vehicle.front_overhang_m").get<float>()),
+    static_cast<Real>(declare_parameter("vehicle.rear_overhang_m").get<float>())
   };
   init(ego_topic, trajectory_topic, bounding_boxes_topic, vehicle_param, heading_weight);
 }
