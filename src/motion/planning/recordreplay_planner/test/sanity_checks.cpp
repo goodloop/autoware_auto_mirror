@@ -38,6 +38,8 @@ using autoware_auto_msgs::msg::BoundingBox;
 using motion::motion_common::VehicleConfig;
 using geometry_msgs::msg::Point32;
 using motion::motion_common::from_angle;
+using motion::planning::recordreplay_planner::compute_boundingbox_from_trajectorypoint;
+using motion::planning::recordreplay_planner::boxes_collide;
 
 const VehicleConfig test_vehicle_params{1.0, 1.0, 0.5, 0.5, 1500, 12, 2.0, 0.5, 0.2};
 
@@ -256,15 +258,16 @@ TEST(recordreplay_sanity_checks, adding_bounding_boxes)
 }
 
 
-//------------------ Test that bounding box creation works
-TEST(recordreplay_sanity_checks, bounding_box_creation)
+const BoundingBox get_test_box(const TrajectoryPoint state)
 {
-  const auto get_test_box = [](const TrajectoryPoint state) {
-      const VehicleConfig test_params{1.0, 1.0, 0.5, 0.5, 1500, 12, 2.0, 0.5, 0.2};
-      return motion::planning::recordreplay_planner::compute_boundingbox_from_trajectorypoint(
-        state, test_params);
-    };
+  const VehicleConfig test_params{1.0, 1.0, 0.5, 0.5, 1500, 12, 2.0, 0.5, 0.2};
+  return compute_boundingbox_from_trajectorypoint(state, test_params);
+}
 
+
+//------------------ Test that bounding box creation works
+TEST(recordreplay_geometry_checks, bounding_box_creation)
+{
   // First case: box aligned with axes
   const auto t0 = system_clock::from_time_t({});
   const auto state = make_state(0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, t0);
@@ -304,4 +307,32 @@ TEST(recordreplay_sanity_checks, bounding_box_creation)
 
   EXPECT_LT(std::abs(rotated_box.corners[3].x - 1), 1e-6);
   EXPECT_LT(std::abs(rotated_box.corners[3].y + 1.2), 1e-6);
+}
+
+TEST(recordreplay_geometry_checks, collision_check) {
+  // First case: box aligned with axes
+  const auto t0 = system_clock::from_time_t({});
+  const auto state = make_state(0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, t0);
+  auto aligned_box = get_test_box(state.state);
+
+  { // Intersection
+    const auto state_shifted = make_state(1.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, t0);
+    auto aligned_box_shifted = get_test_box(state_shifted.state);
+    auto collision = boxes_collide(aligned_box, aligned_box_shifted);
+    EXPECT_TRUE(collision);
+  }
+
+  { // No intersection
+    const auto state_shifted = make_state(50.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, t0);
+    auto aligned_box_shifted = get_test_box(state_shifted.state);
+    auto collision = boxes_collide(aligned_box, aligned_box_shifted);
+    EXPECT_FALSE(collision);
+  }
+
+  { // Small intersection in a corner
+    const auto state_shifted = make_state(2.6F, 1.0F, 0.0F, 0.0F, 0.0F, 0.0F, t0);
+    auto aligned_box_shifted = get_test_box(state_shifted.state);
+    auto collision = boxes_collide(aligned_box, aligned_box_shifted);
+    EXPECT_TRUE(collision);
+  }
 }
