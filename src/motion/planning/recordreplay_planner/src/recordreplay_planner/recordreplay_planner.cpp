@@ -74,7 +74,7 @@ void RecordReplayPlanner::clear_record() noexcept
   m_record_buffer.clear();
 }
 
-uint32_t RecordReplayPlanner::get_record_length() const noexcept
+std::size_t RecordReplayPlanner::get_record_length() const noexcept
 {
   return m_record_buffer.size();
 }
@@ -104,7 +104,7 @@ const Trajectory & RecordReplayPlanner::plan(const State & current_state)
 }
 
 
-ssize_t RecordReplayPlanner::get_closest_state(const State & current_state)
+std::size_t RecordReplayPlanner::get_closest_state(const State & current_state)
 {
   // Find the closest point to the current state in the stored states buffer
   const auto distance_from_current_state =
@@ -135,7 +135,7 @@ const Trajectory & RecordReplayPlanner::from_record(const State & current_state)
   auto & trajectory = m_trajectory;
   const auto record_length = get_record_length();
   const auto publication_length =
-    std::min(record_length - minimum_idx, static_cast<ssize_t>(trajectory.points.max_size()));
+    std::min(record_length - minimum_idx, trajectory.points.max_size());
 
   // Assemble the trajectory as desired
   trajectory.points.resize(publication_length);
@@ -150,8 +150,7 @@ const Trajectory & RecordReplayPlanner::from_record(const State & current_state)
 
   // Create a function to obtain a polytope from our current state
   auto collision = false;
-  std::size_t i = {};
-  for (i = {}; i < trajectory.points.size(); ++i) {
+  for (std::size_t i = 0; i < trajectory.points.size(); ++i) {
     // Obtain a bounding box for that step along the trajectory. (TODO(s.me) these boxes
     // could already be computed on recording and then cached so they don't have to be
     // recomputed every time a trajectory is published)
@@ -161,17 +160,16 @@ const Trajectory & RecordReplayPlanner::from_record(const State & current_state)
     // Check for collisions with all perceived obstacles
     for (const auto & obstaclebox : m_latest_bounding_boxes.boxes) {
       if (boxes_collide(boundingbox, obstaclebox) ) {
+        // Collision detected, drop everything larger than index i-1
         collision = true;
-        break;
+        trajectory.points.resize(i);
+        break;  // this only breaks the inner for loop
       }
     }
     if (collision) {
       break;
     }
   }
-
-  // Drop everything larger than index i-1
-  trajectory.points.resize(i);
 
   return trajectory;
 }
@@ -182,7 +180,7 @@ void RecordReplayPlanner::update_bounding_boxes(const BoundingBoxArray & boundin
   m_latest_bounding_boxes = bounding_boxes;
 }
 
-uint32_t RecordReplayPlanner::get_number_of_bounding_boxes()
+std::size_t RecordReplayPlanner::get_number_of_bounding_boxes() const noexcept
 {
   return m_latest_bounding_boxes.boxes.size();
 }

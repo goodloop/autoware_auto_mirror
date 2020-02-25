@@ -69,7 +69,7 @@ public:
   const Trajectory & plan(const State & current_state);
 
   // Return the number of currently-recorded State messages
-  uint32_t get_record_length() const noexcept;
+  std::size_t get_record_length() const noexcept;
 
   // Heading weight configuration
   void set_heading_weight(double heading_weight);
@@ -79,12 +79,12 @@ public:
   // Update bounding boxes to new perception
   void update_bounding_boxes(const BoundingBoxArray & bounding_boxes);
 
-  uint32_t get_number_of_bounding_boxes();
+  std::size_t get_number_of_bounding_boxes() const noexcept;
 
 private:
   // Obtain a trajectory from the internally-stored recording buffer
   RECORDREPLAY_PLANNER_LOCAL const Trajectory & from_record(const State & current_state);
-  RECORDREPLAY_PLANNER_LOCAL ssize_t get_closest_state(const State & current_state);
+  RECORDREPLAY_PLANNER_LOCAL std::size_t get_closest_state(const State & current_state);
 
   // Weight of heading in computations of differences between states
   double m_heading_weight = 0.1;

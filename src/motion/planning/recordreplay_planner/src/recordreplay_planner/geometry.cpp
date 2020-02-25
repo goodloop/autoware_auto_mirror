@@ -21,9 +21,10 @@
 #include <geometry_msgs/msg/point32.hpp>
 
 #include <vector>
+#include <array>
 #include <iostream>
 #include <list>
-#include <tuple>
+#include <utility>
 #include <type_traits>
 #include <algorithm>
 
@@ -45,7 +46,6 @@ using autoware::common::geometry::norm_2d;
 using autoware::common::geometry::closest_line_point_2d;
 
 
-// Compute a bounding box from a vehicle state and configuration.
 BoundingBox compute_boundingbox_from_trajectorypoint(
   const TrajectoryPoint & state,
   const VehicleConfig & vehicle_param)
@@ -58,61 +58,53 @@ BoundingBox compute_boundingbox_from_trajectorypoint(
   const auto wh = vehicle_param.width() * 0.5;
   const auto ch = cos(h), sh = sin(h);
 
-  std::vector<Point32> vehicle_corners{};
+  std::array<Point32, 4> vehicle_corners;
 
   {     // Front left
     auto p = Point32{};
-    p.x = xcog + lf * ch - wh * sh;
-    p.y = ycog + lf * sh + wh * ch;
-    vehicle_corners.push_back(p);
+    p.x = xcog + (lf * ch) - (wh * sh);
+    p.y = ycog + (lf * sh) + (wh * ch);
+    vehicle_corners[0] = p;
   }
   {     // Front right
     auto p = Point32{};
-    p.x = xcog + lf * ch + wh * sh;
-    p.y = ycog + lf * sh - wh * ch;
-    vehicle_corners.push_back(p);
+    p.x = xcog + (lf * ch) + (wh * sh);
+    p.y = ycog + (lf * sh) - (wh * ch);
+    vehicle_corners[1] = p;
   }
   {     // Rear right
     auto p = Point32{};
-    p.x = xcog - lr * ch + wh * sh;
-    p.y = ycog - lr * sh - wh * ch;
-    vehicle_corners.push_back(p);
+    p.x = xcog - (lr * ch) + (wh * sh);
+    p.y = ycog - (lr * sh) - (wh * ch);
+    vehicle_corners[2] = p;
   }
   {     // Rear right
     auto p = Point32{};
-    p.x = xcog - lr * ch - wh * sh;
-    p.y = ycog - lr * sh + wh * ch;
-    vehicle_corners.push_back(p);
+    p.x = xcog - (lr * ch) - (wh * sh);
+    p.y = ycog - (lr * sh) + (wh * ch);
+    vehicle_corners[3] = p;
   }
 
   return eigenbox_2d(vehicle_corners.begin(), vehicle_corners.end());
 }
 
-
-std::vector<std::tuple<Point32, Point32>> get_sorted_face_list(const BoundingBox & box)
+using Line = std::pair<Point32, Point32>;
+std::vector<Line> get_sorted_face_list(const BoundingBox & box)
 {
   // First get a sorted list of points - convex_hull does that by modifying its argument
-  auto corners_list = std::list<Point32>(box.corners.begin(), box.corners.end());
-  auto first_interior_point = convex_hull(corners_list);
+  auto corner_list = std::list<Point32>(box.corners.begin(), box.corners.end());
+  const auto first_interior_point = convex_hull(corner_list);
 
-  std::vector<std::tuple<Point32, Point32>> face_list{};
-  for (auto it = corners_list.begin();
-    // second check appears to be needed if all the points are in the convex hull already
-    (it != first_interior_point) && (it != corners_list.end());
-    it++)
-  {
-    // Look at one point past the current one
-    auto next = std::next(it, 1);
+  std::vector<Line> face_list{};
+  auto itLast = corner_list.begin();
+  auto itNext = std::next(itLast, 1);
+  do {
+    face_list.emplace_back(Line{*itLast, *itNext});
+    itLast = itNext;
+    itNext = std::next(itNext, 1);
+  } while ((itNext != first_interior_point) && (itNext != corner_list.end()));
 
-    // Deal with the case of us being at the end of the list - we still need the face
-    // between the last and the first point
-    if ( (next == first_interior_point) || (next == corners_list.end()) ) {
-      face_list.push_back({*it, *(corners_list.begin())});
-    } else {
-      // Regular case in the "list interior"
-      face_list.push_back({*it, *next});
-    }
-  }
+  face_list.emplace_back(Line{*itLast, corner_list.front()});
 
   return face_list;
 }
@@ -144,7 +136,7 @@ bool boxes_collide(const BoundingBox & box1, const BoundingBox & box2)
     // of a given bounding box along the normal line of the face
     auto get_projected_min_max = [&get_position_along_line, &normal](const BoundingBox & box)
       {
-        auto corners_list = std::vector<Point32>(box.corners.begin(), box.corners.end());
+        const auto & corners_list = std::vector<Point32>(box.corners.begin(), box.corners.end());
         auto min_corners =
           get_position_along_line(closest_line_point_2d(normal, Point32{}, corners_list[0]));
         auto max_corners = min_corners;
@@ -155,7 +147,7 @@ bool boxes_collide(const BoundingBox & box1, const BoundingBox & box2)
           min_corners = std::min(min_corners, position_along_line);
           max_corners = std::max(max_corners, position_along_line);
         }
-        return std::tuple<float, float>{min_corners, max_corners};
+        return std::pair<float, float>{min_corners, max_corners};
       };
 
     // Perform the actual computations for the extent computation
@@ -163,9 +155,7 @@ bool boxes_collide(const BoundingBox & box1, const BoundingBox & box2)
     auto minmax_2 = get_projected_min_max(box2);
 
     // Check for any intersections
-    if (std::get<0>(minmax_1) > std::get<1>(minmax_2) ||
-      std::get<0>(minmax_2) > std::get<1>(minmax_1))
-    {
+    if (minmax_1.first > minmax_2.second || minmax_2.first > minmax_1.second) {
       // Found separating hyperplane, stop
       return false;
     }

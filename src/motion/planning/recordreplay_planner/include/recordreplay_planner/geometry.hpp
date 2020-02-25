@@ -33,12 +33,19 @@ using motion::motion_common::VehicleConfig;
 using TrajectoryPoint = autoware_auto_msgs::msg::TrajectoryPoint;
 using autoware_auto_msgs::msg::BoundingBox;
 
+/// \brief Compute a bounding box from a vehicle state and configuration
+/// \param[in] state State of the vehicle
+/// \param[in] vehicle_param Parameters of the vehicle
+/// \return Bounding box for the given state and vehicle parameters
 BoundingBox compute_boundingbox_from_trajectorypoint(
   const TrajectoryPoint & state,
   const VehicleConfig & vehicle_param);
 
 
-// Check if two bounding boxes collide
+/// \brief Check if two bounding boxes collide
+/// \param[in] box1 First bounding box
+/// \param[in] box2 Second bounding box
+/// \return true if the boxes collide, false otherwise.
 bool boxes_collide(const BoundingBox & box1, const BoundingBox & box2);
 }  // namespace recordreplay_planner
 }  // namespace planning
