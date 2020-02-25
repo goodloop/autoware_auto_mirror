@@ -201,6 +201,33 @@ TEST(recordreplay_sanity_checks, receding_horizon_cornercases)
   }
 }
 
+//------------------ Test that "receding horizon" planning properly works:
+TEST(recordreplay_sanity_checks, obstacle_stopping)
+{
+  const auto N = 10;
+  const auto t0 = system_clock::from_time_t({});
+  auto planner = helper_create_and_record_example(N);
+
+
+  // Check: Trajectory without box in place is N long
+  {
+    auto trajectory = planner.plan(make_state(0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, t0));
+    EXPECT_EQ(trajectory.points.size(), N);
+  }
+
+  // Add a box that intersects with the trajectory
+  const auto state = make_state(N, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, t0);
+  const VehicleConfig test_params{1.0, 1.0, 0.5, 0.5, 1500, 12, 2.0, 0.5, 0.2};
+  const auto aligned_box = compute_boundingbox_from_trajectorypoint(state.state, test_params);
+  auto boxes_list = BoundingBoxArray{};
+  boxes_list.boxes.push_back(aligned_box);
+  planner.update_bounding_boxes(boxes_list);
+
+  // Check: Trajectory with box added is shorter
+  auto trajectory = planner.plan(make_state(0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, t0));
+  EXPECT_EQ(trajectory.points.size(), N - 2);
+}
+
 TEST(recordreplay_sanity_checks, state_setting_mechanism)
 {
   auto planner = RecordReplayPlanner{test_vehicle_params};

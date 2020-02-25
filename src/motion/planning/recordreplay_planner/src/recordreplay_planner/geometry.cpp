@@ -82,11 +82,6 @@ BoundingBox compute_boundingbox_from_trajectorypoint(
 }
 
 
-// check if two bounding boxes collide. This uses SAT for doing the actual checking
-// (https://en.wikipedia.org/wiki/Hyperplane_separation_theorem#Use_in_collision_detection)
-// TODO(s.me) implement GJK(+EPA) algorithm as well as per Chris Ho's suggestion
-
-
 }  // namespace recordreplay_planner
 }  // namespace planning
 }  // namespace motion

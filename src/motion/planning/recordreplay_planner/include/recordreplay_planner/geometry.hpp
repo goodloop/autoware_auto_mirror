@@ -25,7 +25,6 @@
 
 #include <limits>
 #include <vector>
-#include <array>
 #include <iostream>
 #include <list>
 #include <utility>
@@ -64,7 +63,7 @@ using Line = std::pair<Point, Point>;
 /// \param[in] start End iterator of the list of points
 /// \return The list of faces
 template<typename Iter>
-std::vector<Line> get_sorted_face_list(Iter start, Iter end)
+std::vector<Line> get_sorted_face_list(const Iter start, const Iter end)
 {
   // First get a sorted list of points - convex_hull does that by modifying its argument
   auto corner_list = std::list<Point>(start, end);
@@ -96,30 +95,30 @@ BoundingBox compute_boundingbox_from_trajectorypoint(
   const VehicleConfig & vehicle_param);
 
 
+// TODO(s.me) implement GJK(+EPA) algorithm as well as per Chris Ho's suggestion
 /// \tparam Iter Iterator over point-types that must have point adapters
 //      defined or have float members x and y
 /// \brief Check if polyhedra defined by two given sets of points intersect
+//    This uses SAT for doing the actual checking
+//    (https://en.wikipedia.org/wiki/Hyperplane_separation_theorem#Use_in_collision_detection)
 /// \param[in] begin1 Start iterator to first list of point types
 /// \param[in] end1   End iterator to first list of point types
 /// \param[in] begin2 Start iterator to first list of point types
 /// \param[in] end2   End iterator to first list of point types
 /// \return true if the boxes collide, false otherwise.
 template<typename Iter>
-bool intersect(Iter begin1, Iter end1, Iter begin2, Iter end2)
+bool intersect(const Iter begin1, const Iter end1, const Iter begin2, const Iter end2)
 {
   // Obtain sorted lists of faces of both boxes, merge them into one big list of faces
-  const auto faces_1 = details::get_sorted_face_list(begin1, end1);
+  auto faces = details::get_sorted_face_list(begin1, end1);
   const auto faces_2 = details::get_sorted_face_list(begin2, end2);
-
-  typename std::remove_const<decltype(faces_1)>::type all_faces{};
-  all_faces.reserve(faces_1.size() + faces_2.size());
-  all_faces.insert(all_faces.end(), faces_1.begin(), faces_1.end() );
-  all_faces.insert(all_faces.end(), faces_2.begin(), faces_2.end() );
+  faces.reserve(faces.size() + faces_2.size());
+  faces.insert(faces.end(), faces_2.begin(), faces_2.end() );
 
   // Also look at last line
-  for (auto face : all_faces) {
+  for (const auto & face : faces) {
     // Compute normal vector to the face and define a closure to get progress along it
-    const auto normal = get_normal(minus_2d(std::get<1>(face), std::get<0>(face)));
+    const auto normal = get_normal(minus_2d(face.second, face.first));
     auto get_position_along_line = [&normal](auto point)
       {
         return dot_2d(normal, minus_2d(point, Point{}) );
