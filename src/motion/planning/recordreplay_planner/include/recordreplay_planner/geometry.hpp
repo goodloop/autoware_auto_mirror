@@ -60,7 +60,7 @@ using Line = std::pair<Point, Point>;
 //      defined or have float members x and y
 /// \brief Compute a sorted list of faces of a polyhedron given a list of points
 /// \param[in] start Start iterator of the list of points
-/// \param[in] start End iterator of the list of points
+/// \param[in] end End iterator of the list of points
 /// \return The list of faces
 template<typename Iter>
 std::vector<Line> get_sorted_face_list(const Iter start, const Iter end)
