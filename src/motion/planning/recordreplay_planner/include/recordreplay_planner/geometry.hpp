@@ -20,8 +20,17 @@
 #include <autoware_auto_msgs/msg/vehicle_kinematic_state.hpp>
 #include <autoware_auto_msgs/msg/bounding_box.hpp>
 #include <autoware_auto_msgs/msg/trajectory_point.hpp>
+#include <geometry/convex_hull.hpp>
+#include <geometry/common_2d.hpp>
 
+#include <limits>
 #include <vector>
+#include <array>
+#include <iostream>
+#include <list>
+#include <utility>
+#include <type_traits>
+#include <algorithm>
 
 namespace motion
 {
@@ -32,6 +41,51 @@ namespace recordreplay_planner
 using motion::motion_common::VehicleConfig;
 using TrajectoryPoint = autoware_auto_msgs::msg::TrajectoryPoint;
 using autoware_auto_msgs::msg::BoundingBox;
+using motion::motion_common::to_angle;
+using autoware::common::geometry::convex_hull;
+using autoware::common::geometry::get_normal;
+using autoware::common::geometry::dot_2d;
+using autoware::common::geometry::minus_2d;
+using autoware::common::geometry::times_2d;
+using autoware::common::geometry::norm_2d;
+using autoware::common::geometry::closest_line_point_2d;
+
+using Point = geometry_msgs::msg::Point32;
+
+namespace details
+{
+
+using Line = std::pair<Point, Point>;
+
+/// \tparam Iter1 Iterator over point-types that must have point adapters
+//      defined or have float members x and y
+/// \brief Compute a sorted list of faces of a polyhedron given a list of points
+/// \param[in] start Start iterator of the list of points
+/// \param[in] start End iterator of the list of points
+/// \return The list of faces
+template<typename Iter>
+std::vector<Line> get_sorted_face_list(Iter start, Iter end)
+{
+  // First get a sorted list of points - convex_hull does that by modifying its argument
+  auto corner_list = std::list<Point>(start, end);
+  const auto first_interior_point = convex_hull(corner_list);
+
+  std::vector<Line> face_list{};
+  auto itLast = corner_list.begin();
+  auto itNext = std::next(itLast, 1);
+  do {
+    face_list.emplace_back(Line{*itLast, *itNext});
+    itLast = itNext;
+    itNext = std::next(itNext, 1);
+  } while ((itNext != first_interior_point) && (itNext != corner_list.end()));
+
+  face_list.emplace_back(Line{*itLast, corner_list.front()});
+
+  return face_list;
+}
+
+
+}  // namespace details
 
 /// \brief Compute a bounding box from a vehicle state and configuration
 /// \param[in] state State of the vehicle
@@ -42,11 +96,68 @@ BoundingBox compute_boundingbox_from_trajectorypoint(
   const VehicleConfig & vehicle_param);
 
 
-/// \brief Check if two bounding boxes collide
-/// \param[in] box1 First bounding box
-/// \param[in] box2 Second bounding box
+/// \tparam Iter Iterator over point-types that must have point adapters
+//      defined or have float members x and y
+/// \brief Check if polyhedra defined by two given sets of points intersect
+/// \param[in] begin1 Start iterator to first list of point types
+/// \param[in] end1   End iterator to first list of point types
+/// \param[in] begin2 Start iterator to first list of point types
+/// \param[in] end2   End iterator to first list of point types
 /// \return true if the boxes collide, false otherwise.
-bool boxes_collide(const BoundingBox & box1, const BoundingBox & box2);
+template<typename Iter>
+bool intersect(Iter begin1, Iter end1, Iter begin2, Iter end2)
+{
+  // Obtain sorted lists of faces of both boxes, merge them into one big list of faces
+  const auto faces_1 = details::get_sorted_face_list(begin1, end1);
+  const auto faces_2 = details::get_sorted_face_list(begin2, end2);
+
+  typename std::remove_const<decltype(faces_1)>::type all_faces{};
+  all_faces.reserve(faces_1.size() + faces_2.size());
+  all_faces.insert(all_faces.end(), faces_1.begin(), faces_1.end() );
+  all_faces.insert(all_faces.end(), faces_2.begin(), faces_2.end() );
+
+  // Also look at last line
+  for (auto face : all_faces) {
+    // Compute normal vector to the face and define a closure to get progress along it
+    const auto normal = get_normal(minus_2d(std::get<1>(face), std::get<0>(face)));
+    auto get_position_along_line = [&normal](auto point)
+      {
+        return dot_2d(normal, minus_2d(point, Point{}) );
+      };
+
+    // Define a function to get the minimum and maximum projected position of the corners
+    // of a given bounding box along the normal line of the face
+    auto get_projected_min_max = [&get_position_along_line, &normal](Iter begin, Iter end)
+      {
+        const auto zero_point = Point{};
+        auto min_corners =
+          get_position_along_line(closest_line_point_2d(normal, zero_point, *begin));
+        auto max_corners = min_corners;
+
+        for (auto & point = begin; point != end; ++point) {
+          const auto point_projected = closest_line_point_2d(normal, zero_point, *point);
+          const auto position_along_line = get_position_along_line(point_projected);
+          min_corners = std::min(min_corners, position_along_line);
+          max_corners = std::max(max_corners, position_along_line);
+        }
+        return std::pair<float, float>{min_corners, max_corners};
+      };
+
+    // Perform the actual computations for the extent computation
+    auto minmax_1 = get_projected_min_max(begin1, end1);
+    auto minmax_2 = get_projected_min_max(begin2, end2);
+
+    // Check for any intersections
+    const auto eps = std::numeric_limits<decltype(minmax_1.first)>::epsilon();
+    if (minmax_1.first > minmax_2.second + eps || minmax_2.first > minmax_1.second + eps) {
+      // Found separating hyperplane, stop
+      return false;
+    }
+  }
+
+  // No separating hyperplane found, boxes collide
+  return true;
+}
 }  // namespace recordreplay_planner
 }  // namespace planning
 }  // namespace motion

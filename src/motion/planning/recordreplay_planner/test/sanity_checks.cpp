@@ -39,7 +39,7 @@ using motion::motion_common::VehicleConfig;
 using geometry_msgs::msg::Point32;
 using motion::motion_common::from_angle;
 using motion::planning::recordreplay_planner::compute_boundingbox_from_trajectorypoint;
-using motion::planning::recordreplay_planner::boxes_collide;
+using motion::planning::recordreplay_planner::intersect;
 
 const VehicleConfig test_vehicle_params{1.0, 1.0, 0.5, 0.5, 1500, 12, 2.0, 0.5, 0.2};
 
@@ -318,21 +318,24 @@ TEST(recordreplay_geometry_checks, collision_check) {
   { // Intersection
     const auto state_shifted = make_state(1.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, t0);
     auto aligned_box_shifted = get_test_box(state_shifted.state);
-    auto collision = boxes_collide(aligned_box, aligned_box_shifted);
+    auto collision = intersect(aligned_box.corners.begin(), aligned_box.corners.end(),
+        aligned_box_shifted.corners.begin(), aligned_box_shifted.corners.end());
     EXPECT_TRUE(collision);
   }
 
   { // No intersection
     const auto state_shifted = make_state(50.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, t0);
     auto aligned_box_shifted = get_test_box(state_shifted.state);
-    auto collision = boxes_collide(aligned_box, aligned_box_shifted);
+    auto collision = intersect(aligned_box.corners.begin(), aligned_box.corners.end(),
+        aligned_box_shifted.corners.begin(), aligned_box_shifted.corners.end());
     EXPECT_FALSE(collision);
   }
 
   { // Small intersection in a corner
     const auto state_shifted = make_state(2.6F, 1.0F, 0.0F, 0.0F, 0.0F, 0.0F, t0);
     auto aligned_box_shifted = get_test_box(state_shifted.state);
-    auto collision = boxes_collide(aligned_box, aligned_box_shifted);
+    auto collision = intersect(aligned_box.corners.begin(), aligned_box.corners.end(),
+        aligned_box_shifted.corners.begin(), aligned_box_shifted.corners.end());
     EXPECT_TRUE(collision);
   }
 }

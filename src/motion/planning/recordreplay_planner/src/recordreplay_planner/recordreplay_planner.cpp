@@ -159,7 +159,9 @@ const Trajectory & RecordReplayPlanner::from_record(const State & current_state)
 
     // Check for collisions with all perceived obstacles
     for (const auto & obstaclebox : m_latest_bounding_boxes.boxes) {
-      if (boxes_collide(boundingbox, obstaclebox) ) {
+      if (intersect(boundingbox.corners.begin(), boundingbox.corners.end(),
+        obstaclebox.corners.begin(), obstaclebox.corners.end()) )
+      {
         // Collision detected, drop everything larger than index i-1
         collision = true;
         trajectory.points.resize(i);
