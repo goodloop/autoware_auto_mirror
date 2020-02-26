@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "recordreplay_planner/geometry.hpp"
+#include "geometry/vehicle_bounding_box.hpp"
 
 #include <motion_common/motion_common.hpp>
 #include <geometry/bounding_box/eigenbox_2d.hpp>
@@ -29,11 +29,11 @@
 #include <type_traits>
 #include <algorithm>
 
-namespace motion
+namespace autoware
 {
-namespace planning
+namespace common
 {
-namespace recordreplay_planner
+namespace geometry
 {
 using motion::motion_common::to_angle;
 using geometry_msgs::msg::Point32;
@@ -44,12 +44,12 @@ BoundingBox compute_boundingbox_from_trajectorypoint(
   const VehicleConfig & vehicle_param)
 {
   // Shorthands to keep the formulas sane
-  const auto h = to_angle(state.heading);
-  const auto xcog = state.x, ycog = state.y, z = 0.0f;
-  const auto lf = vehicle_param.length_cg_front_axel() + vehicle_param.front_overhang();
-  const auto lr = vehicle_param.length_cg_rear_axel() + vehicle_param.rear_overhang();
-  const auto wh = vehicle_param.width() * 0.5;
-  const auto ch = cos(h), sh = sin(h);
+  const float h = to_angle(state.heading);
+  const float xcog = state.x, ycog = state.y;
+  const float lf = vehicle_param.length_cg_front_axel() + vehicle_param.front_overhang();
+  const float lr = vehicle_param.length_cg_rear_axel() + vehicle_param.rear_overhang();
+  const float wh = vehicle_param.width() * 0.5f;
+  const float ch = cosf(h), sh = sinf(h);
 
   std::array<Point32, 4> vehicle_corners;
 
@@ -82,6 +82,6 @@ BoundingBox compute_boundingbox_from_trajectorypoint(
 }
 
 
-}  // namespace recordreplay_planner
-}  // namespace planning
-}  // namespace motion
+}  // namespace geometry
+}  // namespace common
+}  // namespace autoware

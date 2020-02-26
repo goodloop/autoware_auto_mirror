@@ -14,7 +14,6 @@
 
 #include <gtest/gtest.h>
 #include <recordreplay_planner/recordreplay_planner.hpp>
-#include <recordreplay_planner/geometry.hpp>
 #include <motion_testing/motion_testing.hpp>
 #include <autoware_auto_msgs/msg/trajectory.hpp>
 #include <autoware_auto_msgs/msg/trajectory_point.hpp>
@@ -24,6 +23,9 @@
 #include <motion_common/config.hpp>
 #include <motion_common/motion_common.hpp>
 #include <geometry_msgs/msg/point32.hpp>
+
+#include <geometry/intersection.hpp>
+#include <geometry/vehicle_bounding_box.hpp>
 
 #include <chrono>
 #include <algorithm>
@@ -38,8 +40,8 @@ using autoware_auto_msgs::msg::BoundingBox;
 using motion::motion_common::VehicleConfig;
 using geometry_msgs::msg::Point32;
 using motion::motion_common::from_angle;
-using motion::planning::recordreplay_planner::compute_boundingbox_from_trajectorypoint;
-using motion::planning::recordreplay_planner::intersect;
+using autoware::common::geometry::intersect;
+using autoware::common::geometry::compute_boundingbox_from_trajectorypoint;
 
 const VehicleConfig test_vehicle_params{1.0, 1.0, 0.5, 0.5, 1500, 12, 2.0, 0.5, 0.2};
 

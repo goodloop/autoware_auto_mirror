@@ -14,9 +14,10 @@
 
 #include "recordreplay_planner/recordreplay_planner.hpp"
 
-#include <recordreplay_planner/geometry.hpp>
 #include <geometry_msgs/msg/point32.hpp>
 #include <geometry/common_2d.hpp>
+#include <geometry/intersection.hpp>
+#include <geometry/vehicle_bounding_box.hpp>
 #include <time_utils/time_utils.hpp>
 #include <motion_common/motion_common.hpp>
 
@@ -32,6 +33,8 @@ namespace recordreplay_planner
 {
 using geometry_msgs::msg::Point32;
 using motion::motion_common::to_angle;
+using autoware::common::geometry::intersect;
+using autoware::common::geometry::compute_boundingbox_from_trajectorypoint;
 
 RecordReplayPlanner::RecordReplayPlanner(const VehicleConfig & vehicle_param)
 : m_vehicle_param(vehicle_param)

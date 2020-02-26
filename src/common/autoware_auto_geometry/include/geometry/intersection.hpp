@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef RECORDREPLAY_PLANNER__GEOMETRY_HPP_
-#define RECORDREPLAY_PLANNER__GEOMETRY_HPP_
+#ifndef GEOMETRY__INTERSECTION_HPP_
+#define GEOMETRY__INTERSECTION_HPP_
 
 
 #include <motion_common/config.hpp>
@@ -31,14 +31,14 @@
 #include <type_traits>
 #include <algorithm>
 
-namespace motion
+namespace autoware
 {
-namespace planning
+namespace common
 {
-namespace recordreplay_planner
+namespace geometry
 {
 using motion::motion_common::VehicleConfig;
-using TrajectoryPoint = autoware_auto_msgs::msg::TrajectoryPoint;
+using autoware_auto_msgs::msg::TrajectoryPoint;
 using autoware_auto_msgs::msg::BoundingBox;
 using motion::motion_common::to_angle;
 using autoware::common::geometry::convex_hull;
@@ -85,15 +85,6 @@ std::vector<Line> get_sorted_face_list(const Iter start, const Iter end)
 
 
 }  // namespace details
-
-/// \brief Compute a bounding box from a vehicle state and configuration
-/// \param[in] state State of the vehicle
-/// \param[in] vehicle_param Parameters of the vehicle
-/// \return Bounding box for the given state and vehicle parameters
-BoundingBox compute_boundingbox_from_trajectorypoint(
-  const TrajectoryPoint & state,
-  const VehicleConfig & vehicle_param);
-
 
 // TODO(s.me) implement GJK(+EPA) algorithm as well as per Chris Ho's suggestion
 /// \tparam Iter Iterator over point-types that must have point adapters
@@ -157,8 +148,8 @@ bool intersect(const Iter begin1, const Iter end1, const Iter begin2, const Iter
   // No separating hyperplane found, boxes collide
   return true;
 }
-}  // namespace recordreplay_planner
-}  // namespace planning
-}  // namespace motion
+}  // namespace geometry
+}  // namespace common
+}  // namespace autoware
 
-#endif  // RECORDREPLAY_PLANNER__GEOMETRY_HPP_
+#endif  // GEOMETRY__INTERSECTION_HPP_
