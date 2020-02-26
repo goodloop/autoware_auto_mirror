@@ -165,6 +165,15 @@ const Trajectory & RecordReplayPlanner::from_record(const State & current_state)
         // Collision detected, drop everything larger than index i-1
         collision = true;
         trajectory.points.resize(i);
+
+        // Mark the last point along the trajectory as "stopping" by setting all rates,
+        // accelerations and velocities to zero. TODO(s.me) this is by no means
+        // guaranteed to be dynamically feasible. One could implement a proper velocity
+        // profile here in the future.
+        trajectory.points[i - 1].longitudinal_velocity_mps = 0.0;
+        trajectory.points[i - 1].lateral_velocity_mps = 0.0;
+        trajectory.points[i - 1].acceleration_mps2 = 0.0;
+        trajectory.points[i - 1].heading_rate_rps = 0.0;
         break;  // this only breaks the inner for loop
       }
     }
