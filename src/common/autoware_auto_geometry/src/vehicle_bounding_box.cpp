@@ -49,7 +49,7 @@ BoundingBox compute_boundingbox_from_trajectorypoint(
   const float lf = vehicle_param.length_cg_front_axel() + vehicle_param.front_overhang();
   const float lr = vehicle_param.length_cg_rear_axel() + vehicle_param.rear_overhang();
   const float wh = vehicle_param.width() * 0.5f;
-  const float ch = cosf(h), sh = sinf(h);
+  const float ch = std::cos(h), sh = std::sin(h);
 
   std::array<Point32, 4> vehicle_corners;
 
