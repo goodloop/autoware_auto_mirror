@@ -15,6 +15,8 @@ ament_auto_add_library(${PROJECT_NAME} SHARED
   src/recordreplay_planner/recordreplay_planner.cpp
 )
 
+ament_target_dependencies(${PROJECT_NAME} "autoware_auto_geometry")
+
 ### Test
 if(BUILD_TESTING)
   # Linters
