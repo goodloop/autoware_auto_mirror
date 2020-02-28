@@ -28,6 +28,7 @@
 #include <geometry/vehicle_bounding_box.hpp>
 
 #include <chrono>
+#include <set>
 #include <algorithm>
 
 using motion::planning::recordreplay_planner::RecordReplayPlanner;
@@ -41,6 +42,8 @@ using motion::motion_common::VehicleConfig;
 using geometry_msgs::msg::Point32;
 using motion::motion_common::from_angle;
 using autoware::common::geometry::intersect;
+using autoware::common::geometry::norm_2d;
+using autoware::common::geometry::minus_2d;
 using autoware::common::geometry::compute_boundingbox_from_trajectorypoint;
 
 const VehicleConfig test_vehicle_params{1.0, 1.0, 0.5, 0.5, 1500, 12, 2.0, 0.5, 0.2};
@@ -297,45 +300,71 @@ const BoundingBox get_test_box(const TrajectoryPoint state)
 //------------------ Test that bounding box creation works
 TEST(recordreplay_geometry_checks, bounding_box_creation)
 {
-  // First case: box aligned with axes
+  // Point construction helper
+  const auto make_point = [](auto x, auto y) {
+      Point32 point{};
+      point.x = x;
+      point.y = y;
+      return point;
+    };
+
+  // Point comparison, for set membership checks. Defined as a struct because set wants one
+  // https://stackoverflow.com/questions/2620862/using-custom-stdset-comparator
+  struct point_compare
+  {
+    bool operator()(const Point32 & p1, const Point32 & p2) const noexcept
+    {
+      const auto eps = 1e-6;  // close enough
+      if (std::abs(p2.x - p1.x) > eps) {
+        return p1.x > (p2.x + eps);
+      } else {
+        return p2.y > (p1.y + eps);
+      }
+    }
+  };
+
+  // Check a set of corners for being in a set of expected points
+  const auto corners_check = [](auto expected_set, auto check_set) {
+      for (std::size_t k = 0; k < check_set.size(); ++k) {
+        EXPECT_EQ(expected_set.count(check_set[k]), 1);
+      }
+    };
+
+
   const auto t0 = system_clock::from_time_t({});
-  const auto state = make_state(0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, t0);
-  auto aligned_box = get_test_box(state.state);
 
-  EXPECT_EQ(aligned_box.corners.size(), 4);
+  // First case: box aligned with axes
+  {
+    const auto state = make_state(0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, t0);
+    auto aligned_box = get_test_box(state.state);
 
-  // TODO(s.me) This assumes a certain order of the vertices, which I think is
-  // not guaranteed. One could switch to set membership based testing instead.
-  EXPECT_LT(std::abs(aligned_box.corners[0].x - 1.5), 1e-6);
-  EXPECT_LT(std::abs(aligned_box.corners[0].y - 1), 1e-6);
+    EXPECT_EQ(aligned_box.corners.size(), 4);
+    const auto expected_corners = std::set<Point32, point_compare>({
+      make_point(1.5f, 1.0f),
+      make_point(-1.2f, 1.0f),
+      make_point(-1.2f, -1.0f),
+      make_point(1.5f, -1.0f),
+    });
 
-  EXPECT_LT(std::abs(aligned_box.corners[1].x + 1.2), 1e-6);
-  EXPECT_LT(std::abs(aligned_box.corners[1].y - 1), 1e-6);
-
-  EXPECT_LT(std::abs(aligned_box.corners[2].x + 1.2), 1e-6);
-  EXPECT_LT(std::abs(aligned_box.corners[2].y + 1), 1e-6);
-
-  EXPECT_LT(std::abs(aligned_box.corners[3].x - 1.5), 1e-6);
-  EXPECT_LT(std::abs(aligned_box.corners[3].y + 1), 1e-6);
-
+    corners_check(expected_corners, aligned_box.corners);
+  }
 
   // Test case 2: box rotated by 90 degrees
-  const auto rotated_state = make_state(0.0F, 0.0F, 1.5707963267948966, 0.0F, 0.0F, 0.0F, t0);
-  auto rotated_box = get_test_box(rotated_state.state);
+  {
+    const auto rotated_state = make_state(0.0F, 0.0F, 1.5707963267948966, 0.0F, 0.0F, 0.0F, t0);
+    auto rotated_box = get_test_box(rotated_state.state);
 
-  EXPECT_EQ(rotated_box.corners.size(), 4);
+    EXPECT_EQ(rotated_box.corners.size(), 4);
 
-  EXPECT_LT(std::abs(rotated_box.corners[0].x - 1), 1e-6);
-  EXPECT_LT(std::abs(rotated_box.corners[0].y - 1.5), 1e-6);
+    const auto expected_corners = std::set<Point32, point_compare>({
+      make_point(+1.0f, +1.5f),
+      make_point(-1.0f, +1.5f),
+      make_point(-1.0f, -1.2f),
+      make_point(+1.0f, -1.2f),
+    });
 
-  EXPECT_LT(std::abs(rotated_box.corners[1].x + 1), 1e-6);
-  EXPECT_LT(std::abs(rotated_box.corners[1].y - 1.5), 1e-6);
-
-  EXPECT_LT(std::abs(rotated_box.corners[2].x + 1), 1e-6);
-  EXPECT_LT(std::abs(rotated_box.corners[2].y + 1.2), 1e-6);
-
-  EXPECT_LT(std::abs(rotated_box.corners[3].x - 1), 1e-6);
-  EXPECT_LT(std::abs(rotated_box.corners[3].y + 1.2), 1e-6);
+    corners_check(expected_corners, rotated_box.corners);
+  }
 }
 
 TEST(recordreplay_geometry_checks, collision_check) {

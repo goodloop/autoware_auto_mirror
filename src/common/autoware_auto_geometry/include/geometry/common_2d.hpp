@@ -306,10 +306,10 @@ inline T closest_segment_point_2d(const T & p, const T & q, const T & r)
 /// \tparam T point type. Must have point adapters defined or have float members x and y
 /// \brief Compute the closest point on the line going through p-q to point r
 //         Obtained by simplifying closest_segment_point_2d.
-/// \param[in] p First point defining the line segment
-/// \param[in] q Second point defining the line segment
+/// \param[in] p First point defining the line
+/// \param[in] q Second point defining the line
 /// \param[in] r Reference point to find the closest point to
-/// \return Closest point on line segment p-q to point r
+/// \return Closest point on line p-q to point r
 /// \throw std::runtime_error if the two points coincide and hence don't uniquely
 //         define a line
 template<typename T>

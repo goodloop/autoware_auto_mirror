@@ -15,7 +15,7 @@
 #include "geometry/vehicle_bounding_box.hpp"
 
 #include <motion_common/motion_common.hpp>
-#include <geometry/bounding_box/eigenbox_2d.hpp>
+#include <geometry/bounding_box/rotating_calipers.hpp>
 #include <geometry/convex_hull.hpp>
 #include <geometry/common_2d.hpp>
 #include <geometry_msgs/msg/point32.hpp>
@@ -37,7 +37,7 @@ namespace geometry
 {
 using motion::motion_common::to_angle;
 using geometry_msgs::msg::Point32;
-using autoware::common::geometry::bounding_box::eigenbox_2d;
+using autoware::common::geometry::bounding_box::minimum_perimeter_bounding_box;
 
 BoundingBox compute_boundingbox_from_trajectorypoint(
   const TrajectoryPoint & state,
@@ -51,34 +51,35 @@ BoundingBox compute_boundingbox_from_trajectorypoint(
   const float wh = vehicle_param.width() * 0.5f;
   const float ch = std::cos(h), sh = std::sin(h);
 
-  std::array<Point32, 4> vehicle_corners;
+  // We need a list for the bounding box call later
+  std::list<Point32> vehicle_corners;
 
   {     // Front left
     auto p = Point32{};
     p.x = xcog + (lf * ch) - (wh * sh);
     p.y = ycog + (lf * sh) + (wh * ch);
-    vehicle_corners[0] = p;
+    vehicle_corners.push_back(p);
   }
   {     // Front right
     auto p = Point32{};
     p.x = xcog + (lf * ch) + (wh * sh);
     p.y = ycog + (lf * sh) - (wh * ch);
-    vehicle_corners[1] = p;
+    vehicle_corners.push_back(p);
   }
   {     // Rear right
     auto p = Point32{};
     p.x = xcog - (lr * ch) + (wh * sh);
     p.y = ycog - (lr * sh) - (wh * ch);
-    vehicle_corners[2] = p;
+    vehicle_corners.push_back(p);
   }
   {     // Rear right
     auto p = Point32{};
     p.x = xcog - (lr * ch) - (wh * sh);
     p.y = ycog - (lr * sh) + (wh * ch);
-    vehicle_corners[3] = p;
+    vehicle_corners.push_back(p);
   }
 
-  return eigenbox_2d(vehicle_corners.begin(), vehicle_corners.end());
+  return minimum_perimeter_bounding_box(vehicle_corners);
 }
 
 
