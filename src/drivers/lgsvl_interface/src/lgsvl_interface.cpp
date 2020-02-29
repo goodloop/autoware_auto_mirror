@@ -12,6 +12,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+#include <common/types.hpp>
 #include "lgsvl_interface/lgsvl_interface.hpp"
 #include <tf2/LinearMath/Quaternion.h>
 
@@ -20,6 +21,8 @@
 #include <limits>
 #include <string>
 #include <utility>
+
+using autoware::common::types::bool8_t;
 
 namespace lgsvl_interface
 {
@@ -38,7 +41,7 @@ LgsvlInterface::LgsvlInterface(
   m_brake_table{brake_table},
   m_steer_table{steer_table}
 {
-  const auto check = [](const auto value, const auto ref) -> bool {
+  const auto check = [](const auto value, const auto ref) -> bool8_t {
       return std::fabs(value - ref) > std::numeric_limits<decltype(value)>::epsilon();
     };
   // check throttle table
@@ -101,7 +104,7 @@ LgsvlInterface::LgsvlInterface(
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-bool LgsvlInterface::update(std::chrono::nanoseconds timeout)
+bool8_t LgsvlInterface::update(std::chrono::nanoseconds timeout)
 {
   (void)timeout;
   // Not implemented: API is not needed since everything is handled by subscription callbacks
@@ -109,14 +112,14 @@ bool LgsvlInterface::update(std::chrono::nanoseconds timeout)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-bool LgsvlInterface::send_state_command(const autoware_auto_msgs::msg::VehicleStateCommand & msg)
+bool8_t LgsvlInterface::send_state_command(const autoware_auto_msgs::msg::VehicleStateCommand & msg)
 {
   m_state_pub->publish(msg);
   return true;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-bool LgsvlInterface::send_control_command(
+bool8_t LgsvlInterface::send_control_command(
   const autoware_auto_msgs::msg::VehicleControlCommand & msg)
 {
   autoware_auto_msgs::msg::RawControlCommand raw_msg;
@@ -139,7 +142,7 @@ bool LgsvlInterface::send_control_command(
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-bool LgsvlInterface::send_control_command(const autoware_auto_msgs::msg::RawControlCommand & msg)
+bool8_t LgsvlInterface::send_control_command(const autoware_auto_msgs::msg::RawControlCommand & msg)
 {
   // Front steer semantically is z up, ccw positive, but LGSVL thinks its the opposite
   auto msg_corrected = msg;
