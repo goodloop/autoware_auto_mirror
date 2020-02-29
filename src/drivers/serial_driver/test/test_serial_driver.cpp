@@ -13,6 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <common/types.hpp>
 #include "gtest/gtest.h"
 #include "rclcpp/rclcpp.hpp"
 #include "test_driver.hpp"
@@ -23,6 +24,7 @@
 #include <util.h>
 #endif
 
+using autoware::common::types::char8_t;
 using test_serial_driver::TestDriver;
 using test_serial_driver::Packet;
 using test_serial_driver::flow_control_t;
@@ -45,9 +47,9 @@ protected:
     ASSERT_TRUE(std::string(name).length() > 0);
   }
 
-  int master_fd;
-  int slave_fd;
-  char name[100];
+  int32_t master_fd;
+  int32_t slave_fd;
+  char8_t name[100];
 };
 }  // namespace
 
@@ -70,7 +72,7 @@ TEST_F(serial_driver, basic)
     );
 
   for (auto val : values) {
-    write(master_fd, reinterpret_cast<char *>(&val), sizeof(val));
+    write(master_fd, reinterpret_cast<char8_t *>(&val), sizeof(val));
     driver.run(1U);
     EXPECT_EQ(driver.get_last_value(), val);
   }

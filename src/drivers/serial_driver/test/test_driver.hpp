@@ -15,10 +15,13 @@
 
 #ifndef TEST_SERIAL_DRIVER_HPP_
 #define TEST_SERIAL_DRIVER_HPP_
+#include <common/types.hpp>
 #include <std_msgs/msg/int32.hpp>
 #include "serial_driver/serial_driver_node.hpp"
 #include <serial_driver/visibility_control.hpp>
 // double quotes here for static analysis
+
+using autoware::common::types::bool8_t;
 
 namespace test_serial_driver
 {
@@ -51,9 +54,9 @@ public:
 
   void init_output(std_msgs::msg::Int32 & output);
 
-  bool convert(const Packet & pkt, std_msgs::msg::Int32 & output);
+  bool8_t convert(const Packet & pkt, std_msgs::msg::Int32 & output);
 
-  bool get_output_remainder(std_msgs::msg::Int32 & output);
+  bool8_t get_output_remainder(std_msgs::msg::Int32 & output);
 
 private:
   int32_t m_last_value;
