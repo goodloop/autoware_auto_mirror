@@ -13,7 +13,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 #include <common/types.hpp>
-#include "lgsvl_interface/lgsvl_interface.hpp"
 #include <tf2/LinearMath/Quaternion.h>
 
 #include <algorithm>
@@ -21,6 +20,8 @@
 #include <limits>
 #include <string>
 #include <utility>
+
+#include "lgsvl_interface/lgsvl_interface.hpp"
 
 using autoware::common::types::bool8_t;
 
