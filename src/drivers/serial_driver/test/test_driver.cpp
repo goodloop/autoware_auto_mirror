@@ -14,6 +14,7 @@
 // limitations under the License.
 
 #include <common/types.hpp>
+#include <string>
 #include "test_driver.hpp"
 
 using autoware::common::types::bool8_t;

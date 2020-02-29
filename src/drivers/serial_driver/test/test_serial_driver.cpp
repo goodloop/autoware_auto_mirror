@@ -14,6 +14,8 @@
 // limitations under the License.
 
 #include <common/types.hpp>
+#include <string>
+#include <vector>
 #include "gtest/gtest.h"
 #include "rclcpp/rclcpp.hpp"
 #include "test_driver.hpp"
@@ -42,9 +44,9 @@ protected:
       exit(127);
     }
 
-    ASSERT_TRUE(master_fd > 0);
-    ASSERT_TRUE(slave_fd > 0);
-    ASSERT_TRUE(std::string(name).length() > 0);
+    ASSERT_GT(master_fd, 0);
+    ASSERT_GT(slave_fd, 0);
+    ASSERT_GT(std::string(name).length(), 0);
   }
 
   int32_t master_fd;
@@ -54,13 +56,13 @@ protected:
 }  // namespace
 
 
-//tests serial_driver_node's get_packet function which receives serial packages
+// tests serial_driver_node's get_packet function which receives serial packages
 TEST_F(serial_driver, basic)
 {
-  //rclcpp::init required to start the node
+  // rclcpp::init required to start the node
   rclcpp::init(0, nullptr);
 
-  //setting values to send
+  // setting values to send
   std::vector<int32_t> values(10);
   std::generate(values.begin(), values.end(), [n = 0] () mutable { return n++; });
 
