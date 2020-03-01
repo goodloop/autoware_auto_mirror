@@ -13,6 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <common/types.hpp>
 #include "state_machine.hpp"
 
 #include <time_utils/time_utils.hpp>
@@ -20,6 +21,8 @@
 #include <chrono>
 #include <utility>
 #include <vector>
+
+using autoware::common::types::float32_t;
 
 ////////////////////////////////////////////////////////////////////////////////
 enum class FrequencyTarget
@@ -34,8 +37,8 @@ using FrequencyTargets = std::vector<FrequencyTarget>;
 
 struct HighFrequency
 {
-  float bias;
-  float amplitude;
+  float32_t bias;
+  float32_t amplitude;
   std::chrono::nanoseconds period;
   std::size_t count;
   FrequencyTargets targets;
@@ -46,7 +49,7 @@ class high_frequency_warning
 {
 protected:
   using Time = builtin_interfaces::msg::Time;
-  using Signal = std::vector<std::pair<float, Time>>;
+  using Signal = std::vector<std::pair<float32_t, Time>>;
   Signal make_signal(const HighFrequency & param)
   {
     Signal ret{param.count};

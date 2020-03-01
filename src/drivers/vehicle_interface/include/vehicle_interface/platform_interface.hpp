@@ -17,6 +17,7 @@
 #ifndef VEHICLE_INTERFACE__PLATFORM_INTERFACE_HPP_
 #define VEHICLE_INTERFACE__PLATFORM_INTERFACE_HPP_
 
+#include <common/types.hpp>
 #include <autoware_auto_msgs/msg/raw_control_command.hpp>
 #include <autoware_auto_msgs/msg/vehicle_control_command.hpp>
 #include <autoware_auto_msgs/msg/vehicle_odometry.hpp>
@@ -25,6 +26,8 @@
 #include <vehicle_interface/visibility_control.hpp>
 
 #include <chrono>
+
+using autoware::common::types::bool8_t;
 
 namespace autoware
 {
@@ -51,25 +54,25 @@ public:
   /// Exceptions may be thrown on errors
   /// \param[in] timeout The maximum amount of time to check/receive data
   /// \return True if data was received before the timeout, false otherwise
-  virtual bool update(std::chrono::nanoseconds timeout) = 0;
+  virtual bool8_t update(std::chrono::nanoseconds timeout) = 0;
   /// Send the state command to the vehicle platform. May require translation into a
   /// vehicle-specific representation and sending multiple messages
   /// Exceptions may be thrown on errors
   /// \param[in] msg The state command to send to the vehicle
   /// \return false if sending failed in some way, true otherwise
-  virtual bool send_state_command(const autoware_auto_msgs::msg::VehicleStateCommand & msg) = 0;
+  virtual bool8_t send_state_command(const autoware_auto_msgs::msg::VehicleStateCommand & msg) = 0;
   /// Send the state command to the vehicle platform. May require translation into a
   /// vehicle-specific representation and sending multiple messages.
   /// Exceptions may be thrown on errors
   /// \param[in] msg The control command to send to the vehicle
   /// \return false if sending failed in some way, true otherwise
-  virtual bool send_control_command(const autoware_auto_msgs::msg::VehicleControlCommand & msg) = 0;
+  virtual bool8_t send_control_command(const autoware_auto_msgs::msg::VehicleControlCommand & msg) = 0;
   /// Send the state command to the vehicle platform. May require translation into a
   /// vehicle-specific representation and sending multiple messages.
   /// Exceptions may be thrown on errors
   /// \param[in] msg The control command to send to the vehicle
   /// \return false if sending failed in some way, true otherwise
-  virtual bool send_control_command(const autoware_auto_msgs::msg::RawControlCommand & msg) = 0;
+  virtual bool8_t send_control_command(const autoware_auto_msgs::msg::RawControlCommand & msg) = 0;
 
   /// Get the most recent state of the vehicle. The State should be assumed to be constant unless
   /// data from the vehicle platform implies a state should be changed. For example, if the gear

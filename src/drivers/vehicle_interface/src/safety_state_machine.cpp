@@ -12,12 +12,15 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+#include <common/types.hpp>
 #include "vehicle_interface/safety_state_machine.hpp"
 
 #include <time_utils/time_utils.hpp>
 
 #include <cmath>
 #include <limits>
+
+using autoware::common::types::bool8_t;
 
 namespace autoware
 {
@@ -237,7 +240,7 @@ SafetyStateMachine::MaybeEnum SafetyStateMachine::headlights_on_if_wipers_on(con
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-bool SafetyStateMachine::bad_gear_shift(const VSC & in) const
+bool8_t SafetyStateMachine::bad_gear_shift(const VSC & in) const
 {
   // Doing nothing -> no check needed
   if (VSC::GEAR_NO_COMMAND == in.gear) {

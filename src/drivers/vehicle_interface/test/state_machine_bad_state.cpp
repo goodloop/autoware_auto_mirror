@@ -13,9 +13,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <common/types.hpp>
 #include "state_machine.hpp"
 
 #include <vector>
+
+using autoware::common::types::bool8_t;
 
 enum class State
 {
@@ -69,7 +72,7 @@ protected:
     return ret;
   }
 
-  bool check(uint8_t result, uint8_t original, uint8_t max_value)
+  bool8_t check(uint8_t result, uint8_t original, uint8_t max_value)
   {
     if (original > max_value) {
       EXPECT_NE(original, result);
