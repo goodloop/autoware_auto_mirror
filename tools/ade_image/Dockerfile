@@ -64,6 +64,17 @@ RUN git clone https://github.com/rigtorp/udpreplay && mkdir -p udpreplay/build \
       && cd udpreplay/build && cmake .. && make && make install \
       && cd - && rm -rf udpreplay/
 
+# ====== Manual Install of casadi_vendor ===== #
+# This is to be removed after casadi_vendor is
+# available on the ROS Build Farm.
+
+RUN if [ $(uname -m) == 'x86_64' ]; then export ARCH="amd64"; else export ARCH="arm64"; fi && \
+    curl -Ls -o /tmp/ros-dashing-casadi-vendor.deb https://gitlab.com/autowarefoundation/autoware.auto/casadi_vendor/-/jobs/artifacts/master/raw/ros-dashing-casadi-vendor_3.5.1-0bionic_$ARCH.deb?job=build_debian_$ARCH && \
+    dpkg -i /tmp/ros-dashing-casadi-vendor.deb && \
+    rm /tmp/ros-dashing-casadi-vendor.deb
+
+# ===== END MANUAL INSTALL OF CASADI_VENDOR ===== #
+
 
 COPY bashrc-git-prompt /
 RUN cat /bashrc-git-prompt >> /etc/skel/.bashrc && \
