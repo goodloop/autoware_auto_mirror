@@ -14,13 +14,14 @@
 // limitations under the License.
 
 #include <common/types.hpp>
-#include "state_machine.hpp"
 
 #include <time_utils/time_utils.hpp>
 
 #include <chrono>
 #include <utility>
 #include <vector>
+
+#include "state_machine.hpp"
 
 using autoware::common::types::float32_t;
 

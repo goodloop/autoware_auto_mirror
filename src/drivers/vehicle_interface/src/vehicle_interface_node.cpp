@@ -13,7 +13,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 #include <common/types.hpp>
-#include "vehicle_interface/vehicle_interface_node.hpp"
 
 #include <signal_filters/filter_factory.hpp>
 #include <time_utils/time_utils.hpp>
@@ -22,6 +21,8 @@
 #include <string>
 #include <tuple>
 #include <utility>
+
+#include "vehicle_interface/vehicle_interface_node.hpp"
 
 using autoware::common::types::bool8_t;
 using autoware::common::types::float32_t;
@@ -93,7 +94,8 @@ VehicleInterfaceNode::VehicleInterfaceNode(
         return FilterConfig{"", 0.0F};
       }
       const auto cutoff =
-        static_cast<Real>(declare_parameter(prefix + "cutoff_frequency_hz").template get<float32_t>());
+        static_cast<Real>(declare_parameter(prefix + "cutoff_frequency_hz").template
+        get<float32_t>());
       return FilterConfig{type.template get<std::string>(), cutoff};
     };
   // Actually init

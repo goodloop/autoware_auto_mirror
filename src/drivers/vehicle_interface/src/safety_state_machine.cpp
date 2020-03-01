@@ -13,12 +13,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 #include <common/types.hpp>
-#include "vehicle_interface/safety_state_machine.hpp"
 
 #include <time_utils/time_utils.hpp>
 
 #include <cmath>
 #include <limits>
+
+#include "vehicle_interface/safety_state_machine.hpp"
 
 using autoware::common::types::bool8_t;
 

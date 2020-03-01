@@ -14,9 +14,10 @@
 // limitations under the License.
 
 #include <common/types.hpp>
-#include "state_machine.hpp"
 
 #include <limits>
+
+#include "state_machine.hpp"
 
 using autoware::common::types::bool8_t;
 
