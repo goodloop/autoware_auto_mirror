@@ -44,7 +44,7 @@ AutowareAuto repository, `lgsvl-sensors.json`, into the vehicle configuration di
 #### Vehicle Appearance
 
 By default, the vehicle "Lexus2016RXHybrid" uses a stock model of a VW wagon. To display the correct Lexus body model,
-click the pencil icon on that vehicle and set the Vehicle URL to https://gitlab.com/autowarefoundation/autoware.auto/AutowareAuto/issues/281.
+click the pencil icon on that vehicle and set the Vehicle URL to https://lgsvl-shared.s3-us-west-1.amazonaws.com/AWFLexus2016RXHybrid/vehicle_Lexus2016RXHybridApexAI.
 
 ![Lexus2016RXHybridEdit](lexus-2016-rx-hybrid-edit.png)
 
