@@ -39,12 +39,26 @@ simulations can be configured.
 
 ### Vehicle Configuration
 
-Follow the instructions in the
-[LGSVL documentation](https://www.lgsvlsimulator.com/docs/autoware-auto-instructions/#run-simulator-alongside-autowareauto)
-to configure the Lexus model to use the ROS 2 bridge.
+To configure the Lexus model, do the following in the browser:
 
-For a sensor json configuration that works out of the box, copy/paste the file in the root of the
-AutowareAuto repository, `lgsvl-sensors.json`, into the vehicle configuration dialogue box.
+- In the Vehicles tab look for `Lexus2016RXHybrid`. If not available, follow [these instructions](https://www.lgsvlsimulator.com/docs/vehicles-tab/#how-to-add-a-vehicle)
+to add it and use the URL https://lgsvl-shared.s3-us-west-1.amazonaws.com/AWFLexus2016RXHybrid/vehicle_Lexus2016RXHybridApexAI
+
+  - Click on the wrench icon for the Lexus vehicle
+  - Change the bridge type to `ROS2`
+  - In the `Sensors:` box, copy and paste the content of the `lgsvl-sensors.json` file in the root of the AutowareAuto repository
+
+- Switch to the Simulations tab and click the `Add new` button
+
+  - Enter a name and switch to the `Map & Vehicles` tab
+  - Select a map from the drop down menu. If none are available follow [this guide](https://www.lgsvlsimulator.com/docs/maps-tab/#where-to-find-maps) to get a map.
+  - Select the `Lexus2016RXHybrid` from the drop down menu. In the bridge connection box to the right enter the bridge address (default: `localhost:9090`)
+  - Click submit
+
+- Select the simulation and press the play button in the bottom right corner of the screen
+
+The above steps are a modified version of the
+[LGSVL documentation](https://www.lgsvlsimulator.com/docs/autoware-auto-instructions/#run-simulator-alongside-autowareauto)
 
 #### Vehicle Appearance
 
