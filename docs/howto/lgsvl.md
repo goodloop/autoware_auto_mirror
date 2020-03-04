@@ -11,6 +11,9 @@ The following guide assumes that the LGSVL simulator will be run from inside an 
 
 - ADE 4.1.0 or later. Follow the
 [ADE installation instructions](https://ade-cli.readthedocs.io/en/latest/install.html) to install it
+- NVidia graphics card
+- If using Docker engine version 19.03 or later, [install Native GPU Support](https://github.com/NVIDIA/nvidia-docker/wiki/Installation-(Native-GPU-Support)).
+- If using Docker engine with a version less than 19.03, either upgrade Docker or [install nvidia-docker2](https://github.com/NVIDIA/nvidia-docker/wiki/Installation-(version-2.0)).
 
 ## Instructions
 
@@ -31,6 +34,8 @@ Start the LGSVL simulator:
 
 Now start your favorite browser and go to [http://localhost:8080](http://localhost:8080) where
 simulations can be configured.
+
+**Note:** When running LGSVL Simulator in a Docker container, the "Open Browser..." button in the simulator window does not work.
 
 ### Vehicle Configuration
 
