@@ -50,6 +50,19 @@ RUN pip3 install -U \
         $(cut -d# -f1 </tmp/pip3-packages) \
     && rm -rf /root/.cache /tmp/pip-* /tmp/pip3-packages
 
+# ===== Manual Install of cyclonedds ===== #
+# This is to be removed once version 0.5
+# of this package is available from the
+# ROS Build Farm.
+
+RUN cd /opt && \
+    git clone https://github.com/eclipse-cyclonedds/cyclonedds.git -b V0.5.0 && \
+    mkdir -p cyclonedds/build && \
+    cd cyclonedds/build && \
+    cmake -DBUILD_IDLC=NO -DCMAKE_INSTALL_PREFIX=/opt/cyclonedds .. && \
+    cmake --build . --target install
+
+# ===== END MANUAL INSTALL OF CYCLONEDDS ===== #
 
 RUN mkdir -p /opt/aw-atom-config/bin
 COPY atom-install-our-plugins /etc/atom/atom-install-our-plugins
