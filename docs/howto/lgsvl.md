@@ -137,6 +137,26 @@ parametrizable 1D lookup tables
 
 ## Troubleshooting
 
+### No data are being sent through to ROS and/or the bridge status in the simulator shows "Disconnected" 
+
+To check that data are arriving on each of the required topics, run the following in a new terminal window:
+
+```
+$ ade enter
+ade$ source /opt/AutowareAuto/setup.bash
+ade$ ros2 topic hz /raw_command
+ade$ ros2 topic hz /vehicle_cmd
+```
+
+If data are not arriving on one of these topics, then the stack did not start up correctly, or there
+is a configuration problem. Stop the vehicle interface and joystick controller and inspect the logs
+to determine which is the case.
+
+**Note:** Some Linux installations come with the default route for `localhost` set to an IPv6 interface
+instead of IPv4. The LGSVL simulator does not currently support IPv6 so a modification must be made.
+In the Simulation configuration, change the ROS2 Bridge address from `localhost:9090` to `127.0.0.1:9090`
+and restart the simulation. This will ensure that the simulator is using IPv4.
+
 ### The brake/throttle/steering does not work
 
 The joystick control mapping is not deterministic. It is occasionally necessary to modify the axis
@@ -157,7 +177,7 @@ sticks correspond to which indices in the `Joy` message.
 Update the `joystick_vehicle_interface/param/logitech_f310.defaults.param.yaml` appropriately, or
 make a copy.
 
-### There is no data on the /joy topic
+### There are no data on the /joy topic
 
 Ensure that `/dev/input/js0` is available from within ade.
 
@@ -166,26 +186,13 @@ appropriately mounting the given device.
 
 ### The vehicle still does not move
 
-First, ensure the whole stack is running properly, and is appropriately configured.
+First, ensure the whole stack is running properly, and is appropriately configured. See the section
+above titled "No data are being sent through to ROS."
 
-Next, ensure there is data on the `/joy` topic. If this is not the case, refer to the appropriate
+Next, ensure there are data on the `/joy` topic. If this is not the case, refer to the appropriate
 question.
 
-Next, check that data arrives on each of the following topics by running the following in a new terminal window:
-
-```
-$ ade enter
-ade$ source /opt/AutowareAuto/setup.bash
-ade$ ros2 topic hz /joy
-ade$ ros2 topic hz /raw_command
-ade$ ros2 topic hz /vehicle_cmd
-```
-
-If data is not arriving on one of these topics, then the stack did not start up correctly, or there
-is a configuration problem. Stop the vehicle interface and joystick controller and inspect the logs
-to determine which is the case.
-
-If data is available on all topics, and the vehicle is still not moving, ensure that the port
+If data are available on all topics, and the vehicle is still not moving, ensure that the port
 (9090 by default) needed by the web bridge is exposed by running the following command:
 
 ```
