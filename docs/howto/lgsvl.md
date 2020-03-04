@@ -28,7 +28,7 @@ $ source .aderc-lgsvl
 $ ade start --update --enter
 ```
 
-Start the LGSVL simulator:
+In the same terminal window, start the LGSVL simulator:
 
 * `/opt/lgsvl/simulator`
 
@@ -57,7 +57,7 @@ click the pencil icon on that vehicle and set the Vehicle URL to https://lgsvl-s
 
 A version of `ros2 web bridge` is installed in the Autoware.Auto ade image.
 
-If only perception is required, then this version may be used:
+If only perception is required, then this version may be used. In a new terminal window, run:
 
 ```
 $ ade enter
@@ -67,7 +67,7 @@ ade$ rosbridge
 #### From source
 
 If vehicle control, or the bridging of `autoware_auto_msgs` is desired, then the ros2 web bridge
-must be built from source:
+must be built from source. In a new terminal window, run:
 
 ```
 $ ade enter
@@ -79,12 +79,9 @@ ade$ source /opt/AutowareAuto/setup.bash
 ade$ npm install
 ```
 
-And then run:
+Once the install is finished run the following in the same terminal window:
 
 ```
-$ ade enter
-ade$ source /opt/AutowareAuto/setup.bash
-ade$ cd simulator_ws/src/ros2-web-bridge
 ade$ node bin/rosbridge.js
 ```
 
@@ -101,7 +98,7 @@ For example:
 
 To make these conventions consistent, the `lgsvl_interface` is provided.
 
-To run the `lgsvl_interface`:
+To run the `lgsvl_interface`, enter the following in a new terminal window:
 
 ```
 $ ade enter
@@ -109,7 +106,7 @@ ade$ source /opt/AutowareAuto/setup.bash
 ade$ ros2 run lgsvl_interface lgsvl_interface_exe __params:=/opt/AutowareAuto/share/lgsvl_interface/lgsvl.param.yaml
 ```
 
-Launch scripts are also provided for convenience. For example for a joystick control demo, run:
+Launch scripts are also provided for convenience. For example for a joystick control demo, run the following in a new terminal window:
 
 ```
 $ ade enter
@@ -119,7 +116,7 @@ ade$ ros2 launch lgsvl_interface lgsvl_joystick.launch.py
 
 \warning The following demo currently does not work due to a bug in the launch scripts
 
-For an example of using `VehicleControlCommand` with LGSVL, run the following demo:
+For an example of using `VehicleControlCommand` with LGSVL, run the following demo in a new terminal window:
 
 ```
 $ ade enter
@@ -174,7 +171,7 @@ First, ensure the whole stack is running properly, and is appropriately configur
 Next, ensure there is data on the `/joy` topic. If this is not the case, refer to the appropriate
 question.
 
-Next, check that data arrives on each of the following topics:
+Next, check that data arrives on each of the following topics by running the following in a new terminal window:
 
 ```
 $ ade enter
