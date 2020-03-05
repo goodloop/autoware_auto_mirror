@@ -28,6 +28,7 @@ endif()
 
 # Install stuff
 install(DIRECTORY
+  config
   launch
   DESTINATION share/${PROJECT_NAME}
 )
