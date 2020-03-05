@@ -27,4 +27,9 @@ if(BUILD_TESTING)
 endif()
 
 # Install stuff
-ament_auto_package(INSTALL_TO_SHARE launch/)
+install(DIRECTORY
+  launch
+  DESTINATION share/${PROJECT_NAME}
+)
+
+ament_auto_package()

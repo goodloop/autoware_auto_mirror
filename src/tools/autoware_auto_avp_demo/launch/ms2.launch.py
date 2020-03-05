@@ -19,6 +19,8 @@ from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
 from launch.actions import IncludeLaunchDescription
 from launch.launch_description_sources import PythonLaunchDescriptionSource
+from launch_ros import actions
+
 import os
 
 
@@ -31,6 +33,8 @@ def generate_launch_description():
     """
     lgsvl_pkg_prefix = get_package_share_directory('lgsvl_interface')
     lgsvl_param_file = os.path.join(lgsvl_pkg_prefix, 'lgsvl.param.yaml')
+    urdf_pkg_prefix = get_package_share_directory('lexus_rx_450h_description')
+    urdf_path = os.path.join(urdf_pkg_prefix, 'urdf/lexus_rx_450h.urdf')
 
     return LaunchDescription([
         # LGSVL Interface
@@ -42,5 +46,12 @@ def generate_launch_description():
         IncludeLaunchDescription(
             PythonLaunchDescriptionSource([lgsvl_pkg_prefix, '/lgsvl.launch.py']),
             launch_arguments={'lgsvl_interface_param': lgsvl_param_file}.items(),
+        ),
+        # URDF Publishing
+        actions.Node(
+            package='robot_state_publisher',
+            node_executable='robot_state_publisher',
+            node_name='robot_state_publisher',
+            arguments=[str(urdf_path)]
         ),
     ])
