@@ -76,9 +76,17 @@ def generate_launch_description():
             arguments=['-d', str(rviz_cfg_path)],
             condition=IfCondition(LaunchConfiguration('with_rviz'))
         ),
+        # URDF Publishing
+        actions.Node(
+            package='robot_state_publisher',
+            node_executable='robot_state_publisher',
+            node_name='robot_state_publisher',
+            arguments=[str(urdf_path)]
+        ),
 
         # pcd map provider from ndt_nodes
         IncludeLaunchDescription(
             PythonLaunchDescriptionSource([os.path.join(ndt_nodes_pkg_prefix, 'launch'),
                                           '/map_provider.launch.py']),
-        )])
+        ),
+     ])
