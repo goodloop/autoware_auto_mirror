@@ -11,4 +11,6 @@ for x in /opt/*; do
     fi
 done
 
+export RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
+
 cd

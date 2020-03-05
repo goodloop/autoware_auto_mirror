@@ -28,6 +28,7 @@ ros-dashing-ament-lint-auto
 ros-dashing-ament-lint-common
 ros-dashing-ament-pep257
 ros-dashing-angles
+ros-dashing-cyclonedds-cmake-module
 ros-dashing-demo-nodes-cpp
 ros-dashing-diagnostic-updater
 ros-dashing-geographic-msgs
@@ -43,6 +44,7 @@ ros-dashing-rclcpp-action
 ros-dashing-rclcpp-lifecycle # 0.7.6
 ros-dashing-rcutils
 ros-dashing-rmw
+ros-dashing-rmw-cyclonedds-cpp
 ros-dashing-rmw-implementation-cmake
 ros-dashing-ros-testing
 ros-dashing-ros1-bridge
