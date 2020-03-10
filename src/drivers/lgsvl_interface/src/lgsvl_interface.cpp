@@ -115,7 +115,6 @@ bool8_t LgsvlInterface::update(std::chrono::nanoseconds timeout)
 ////////////////////////////////////////////////////////////////////////////////
 bool8_t LgsvlInterface::send_state_command(const autoware_auto_msgs::msg::VehicleStateCommand & msg)
 {
-
   // in autoware_auto_msgs::msg::VehicleStateCommand 1 is drive, 2 is reverse,
   // in lgsvl 0 is drive and 1 is reverse
   auto msg_corrected = msg;
