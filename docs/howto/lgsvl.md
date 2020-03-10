@@ -158,8 +158,9 @@ To check that data are arriving on each of the required topics, run the followin
 ```
 $ ade enter
 ade$ source /opt/AutowareAuto/setup.bash
-ade$ ros2 topic hz /raw_command
-ade$ ros2 topic hz /vehicle_cmd
+ade$ ros2 topic hz /raw_command         # for lgsvl_joystick.launch.py
+ade$ ros2 topic hz /vehicle_command     # for lgsvl_vehicle_control_command.launch.py
+ade$ ros2 topic hz /lgsvl_control_cmd
 ```
 
 If data are not arriving on one of these topics, then the stack did not start up correctly, or there
