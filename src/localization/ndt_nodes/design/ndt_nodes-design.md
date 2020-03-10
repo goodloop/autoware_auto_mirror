@@ -11,7 +11,7 @@ This package contains ndt related ROS2 nodes.
 
 ## Map Publisher
 
-[NDTMapPublisherNode](@ref autoware::localization::ndt_nodes::NDTMapPublisherNode) is responsible providing point cloud map data to recipients and publishing the "earth->map" transform. It does this by reading from a `.yaml` file, which contains the filename of a '.pcd' point cloud map as well as the map origin in geocentric coordinates (latitude, longitude and elevation). The transform is constructed using GeographicLib library and published as a static transform. The node reads the  point cloud file map from disk,
+[NDTMapPublisherNode](@ref autoware::localization::ndt_nodes::NDTMapPublisherNode) is responsible providing point cloud map data to recipients and publishing the "earth->map" transform. It does this by reading from a `.yaml` file, which contains the filename of a `.pcd` point cloud map as well as the map origin in geocentric coordinates (latitude, longitude and elevation). The transform is constructed using GeographicLib library and published as a static transform. The node reads the  point cloud file map from disk,
 transforming this map into an ndt map (voxel and covariances) and then publishing this map to its recipients. The node also converts the map data into a point cloud suitable for visualization in rviz2, and publishes this point cloud.
 
 Since the file IO means that this node cannot be used in a real time context, the dependency constraints are more relaxed and
@@ -20,12 +20,14 @@ Since the file IO means that this node cannot be used in a real time context, th
 ### Algorithm Design
 The workflow of the publisher can be summarized as the following:
 1. Wait to discover recipients of either the ndt map or the point cloud for visualization.
-2. Use [pcl](https://github.com/PointCloudLibrary/pcl) to read a `.pcd` file into a `sensor_msgs::msg::PointCloud2` message.
-3. Transform the read point cloud into a ndt map using [DynamicNDTMap](@ref autoware::localization::ndt::DynamicNDTMap).
-4. Serialize the ndt map representation into a `PointCloud2` message where each point represents a single cell in the ndt map.
-5. Publish the resulting PointCloud2 message containing the ndt map.
-6. Convert the point cloud into a `sensor_msgs::msg::PointCloud2` with a Point type suitable to be recieved by rviz2.
-7. Pubish the resulting PointCloud2 messagae containing the full point cloud
+2. Use yaml-cpp to read a `.yaml` file containing a `.pcd` file name and the origin of the point cloud map in geocentric coordinates (lat, lon, evelation).
+3. Using the GeogrpahicLib library, convert the geocentric cooordinates into an ECEF coordinates and publish as the static transform between frames `earth` and `map`.
+4. Use [pcl](https://github.com/PointCloudLibrary/pcl) to read a `.pcd` file into a `sensor_msgs::msg::PointCloud2` message.
+5. Transform the read point cloud into a ndt map using [DynamicNDTMap](@ref autoware::localization::ndt::DynamicNDTMap).
+6. Serialize the ndt map representation into a `PointCloud2` message where each point represents a single cell in the ndt map.
+7. Publish the resulting PointCloud2 message containing the ndt map.
+8. Convert the point cloud into a `sensor_msgs::msg::PointCloud2` with a Point type suitable to be recieved by rviz2.
+9. Publish the resulting PointCloud2 messagae containing the full point cloud
 
 The published ndt map point cloud message has the following fields:
 
