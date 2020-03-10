@@ -53,7 +53,7 @@ name = "x",        count = 1U,     datatype = sensor_msgs::msg::PointField::FLOA
 name = "y",        count = 1U,     datatype = sensor_msgs::msg::PointField::FLOAT32
 name = "z",        count = 1U,     datatype = sensor_msgs::msg::PointField::FLOAT32
 ```
-The launch file for this node also launches a [VoxelGridNode](@ref autoware::perception::filters::VoxelGridNode) to subsample the published full point cloud to reduce the number of points to be visualized.
+The launch file for this node also launches a `voxel_grid_node` to subsample the published full point cloud to reduce the number of points to be visualized.
 
 # Related issues
 - #136: Implement NDT Map Publisher
