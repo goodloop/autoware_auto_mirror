@@ -39,7 +39,6 @@ def generate_launch_description():
     lgsvl_param_file = os.path.join(lgsvl_pkg_prefix, 'lgsvl.param.yaml')
     urdf_pkg_prefix = get_package_share_directory('lexus_rx_450h_description')
     urdf_path = os.path.join(urdf_pkg_prefix, 'urdf/lexus_rx_450h.urdf')
-
     ndt_nodes_pkg_prefix = get_package_share_directory('ndt_nodes')
 
     return LaunchDescription([
@@ -80,5 +79,4 @@ def generate_launch_description():
             PythonLaunchDescriptionSource([os.path.join(ndt_nodes_pkg_prefix, 'launch'),
                '/map_provider.launch.py']),
         ),
-
     ])
