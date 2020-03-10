@@ -41,7 +41,6 @@ def generate_launch_description():
     urdf_path = os.path.join(urdf_pkg_prefix, 'urdf/lexus_rx_450h.urdf')
 
     ndt_nodes_pkg_prefix = get_package_share_directory('ndt_nodes')
-
     
     return LaunchDescription([
         # Arguments
@@ -80,6 +79,7 @@ def generate_launch_description():
 
         # pcd map provider from ndt_nodes
         IncludeLaunchDescription(
-            PythonLaunchDescriptionSource([ndt_nodes_pkg_prefix, '/map_provider.launch.py']),
+            PythonLaunchDescriptionSource([os.path.join(ndt_nodes_pkg_prefix, 'launch'),
+                                          '/map_provider.launch.py']),
         ),
    ])
