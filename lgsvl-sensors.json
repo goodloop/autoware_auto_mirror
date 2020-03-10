@@ -4,7 +4,7 @@
 		"name": "CAN Bus",
 		"params": {
 			"Frequency": 10,
-			"Topic": "/vehicle_state_report"
+			"Topic": "/lgsvl_state_report"
 		},
 		"transform": {
 			"x": 0,
@@ -37,10 +37,11 @@
 		"type": "GPS Odometry",
 		"name": "GPS Odometry",
 		"params": {
-			"Frequency": 12.5,
+			"Frequency": 50.0,
 			"Topic": "/lgsvl_odom",
-			"Frame": "gps",
-			"IgnoreMapOrigin": true
+			"Frame": "map",
+			"ChildFrame": "base_link",
+			"IgnoreMapOrigin": false
 		},
 		"transform": {
 			"x": 0,
@@ -80,13 +81,13 @@
 			"CenterAngle": 0,
 			"Compensated": true,
 			"PointColor": "#ff000000",
-			"Topic": "/test_velodyne_node_cloud_front",
-			"Frame": "base_link"
+			"Topic": "/points_raw",
+			"Frame": "velodyne_front"
 		},
 		"transform": {
 			"x": 0,
-			"y": 0.02,
-			"z": 1.8,
+			"y": 1.8,
+			"z": 0.02,
 			"pitch": 0,
 			"yaw": 0,
 			"roll": 0
@@ -105,8 +106,8 @@
 			"CenterAngle": 0,
 			"Compensated": true,
 			"PointColor": "#ff000000",
-			"Topic": "/test_velodyne_node_cloud_rear",
-			"Frame": "base_link_rear"
+			"Topic": "/points_raw_rear",
+			"Frame": "velodyne_rear"
 		},
 		"transform": {
 			"x": 0,
@@ -144,7 +145,14 @@
 		"type": "Vehicle Control",
 		"name": "Autoware Car Control",
 		"params": {
-			"Topic": "/vehicle_cmd"
+		  "Topic": "/lgsvl_control_cmd"
+		}
+	},
+	{
+		"type": "Vehicle State",
+		"name": "Autoware Auto Vehicle State",
+		"params": {
+			"Topic": "/lgsvl_state_cmd"
 		}
 	},
 	{
