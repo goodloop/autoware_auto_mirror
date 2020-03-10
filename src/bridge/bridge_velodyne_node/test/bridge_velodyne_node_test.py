@@ -167,7 +167,7 @@ def generate_test_description(ready_fn):
     # Execute rostopic echo /points_raw
     # Wait for several seconds after velodyne_node starts.
     echo_topic_action = launch.actions.ExecuteProcess(
-        cmd=['rostopic', 'echo', '/points_raw'],
+        cmd=['rostopic', 'echo', '/lidar_front/points_raw'],
         env=ros1_env)
 
     # Stream Velodyne UDP packet.
