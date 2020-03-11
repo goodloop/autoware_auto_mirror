@@ -15,6 +15,8 @@
 import launch
 import launch_ros.actions
 import launch.substitutions
+from launch.substitutions import LaunchConfiguration
+from launch.actions import DeclareLaunchArgument 
 import ament_index_python
 import os
 
@@ -25,12 +27,28 @@ def get_param(package_name, param_file):
 
 def generate_launch_description():
     # CLI
-    joy_translator_param = launch.actions.DeclareLaunchArgument(
+    high_level_command_param = DeclareLaunchArgument(
+        'high_level_command', 
+        default_value="''",
+        description='high_level_command control mode topic name')
+
+    basic_command_param = DeclareLaunchArgument(
+        'basic_command', 
+        default_value="''",
+        description='basic_command control mode topic name')
+
+    raw_command_param = DeclareLaunchArgument(
+        'raw_command', 
+        default_value='raw_command', 
+        description='raw_command control mode topic name')
+    
+    joy_translator_param = DeclareLaunchArgument(
         'joy_translator_param',
         default_value=[
             get_param('joystick_vehicle_interface', 'logitech_f310.default.param.yaml')
         ],
         description='Path to config file for joystick translator')
+
     # Nodes
     joy = launch_ros.actions.Node(
         package='joy',
@@ -40,9 +58,18 @@ def generate_launch_description():
         package='joystick_vehicle_interface',
         node_executable='joystick_vehicle_interface_exe',
         output='screen',
-        parameters=[launch.substitutions.LaunchConfiguration('joy_translator_param')])
+        parameters=[
+            LaunchConfiguration('joy_translator_param'),
+            # overwrite parameters from yaml here
+            {"high_level_command_topic" : LaunchConfiguration('high_level_command')},
+            {"basic_command_topic" : LaunchConfiguration('basic_command')},
+            {"raw_command_topic" :  LaunchConfiguration('raw_command')}
+        ])
 
     ld = launch.LaunchDescription([
+        high_level_command_param,
+        basic_command_param,
+        raw_command_param,
         joy_translator_param,
         joy,
         joy_translator])
