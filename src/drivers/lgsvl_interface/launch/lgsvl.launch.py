@@ -15,6 +15,8 @@
 import launch
 import launch_ros.actions
 import launch.substitutions
+from launch.substitutions import LaunchConfiguration
+from launch.actions import DeclareLaunchArgument 
 import ament_index_python
 import os
 
@@ -30,7 +32,23 @@ def generate_launch_description():
     systems, and the ros2 web bridge, which allows LGSVL to pick up ROS 2 topics.
     """
     # CLI
-    lgsvl_interface_param = launch.actions.DeclareLaunchArgument(
+
+    high_level_command_param = DeclareLaunchArgument(
+        'high_level_command', 
+        default_value="''",
+        description='high_level_command control mode topic name')
+
+    basic_command_param = DeclareLaunchArgument(
+        'basic_command', 
+        default_value="''",
+        description='basic_command control mode topic name')
+
+    raw_command_param = DeclareLaunchArgument(
+        'raw_command', 
+        default_value='raw_command', 
+        description='raw_command control mode topic name')
+
+    lgsvl_interface_param = DeclareLaunchArgument(
         'lgsvl_interface_param',
         default_value=[
             get_param('lgsvl_interface', 'lgsvl.param.yaml')
@@ -41,11 +59,22 @@ def generate_launch_description():
         package='lgsvl_interface',
         node_executable='lgsvl_interface_exe',
         output='screen',
-        parameters=[launch.substitutions.LaunchConfiguration('lgsvl_interface_param')])
+     
+        parameters=[
+            LaunchConfiguration('lgsvl_interface_param'),
+            # overwrite parameters from yaml here
+            {"high_level_command.name" : LaunchConfiguration('high_level_command')},
+            {"basic_command.name" : LaunchConfiguration('basic_command')},
+            {"raw_command.name" :  LaunchConfiguration('raw_command')}
+        ]
+    )
     # ros2 web bridge
     lgsvl_bridge = launch.actions.ExecuteProcess(cmd=["rosbridge"], shell=True)
 
     ld = launch.LaunchDescription([
+        high_level_command_param,
+        basic_command_param,
+        raw_command_param,
         lgsvl_interface_param,
         lgsvl_interface])
         #lgsvl_bridge]) # TODO(c.ho) bring this back once ADE version of web bridge is correct
