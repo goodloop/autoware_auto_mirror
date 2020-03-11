@@ -164,7 +164,7 @@ def generate_test_description(ready_fn):
         PythonLaunchDescriptionSource([this_package,
                                        '/launch/bridge_velodyne_node.launch.py']))
 
-    # Execute rostopic echo /points_raw
+    # Execute rostopic echo /lidar_front/points_raw
     # Wait for several seconds after velodyne_node starts.
     echo_topic_action = launch.actions.ExecuteProcess(
         cmd=['rostopic', 'echo', '/lidar_front/points_raw'],
