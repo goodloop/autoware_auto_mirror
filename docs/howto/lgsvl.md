@@ -15,7 +15,11 @@ The following guide assumes that the LGSVL simulator will be run from inside an 
 - If using Docker engine version 19.03 or later, [install Native GPU Support](https://github.com/NVIDIA/nvidia-docker/wiki/Installation-(Native-GPU-Support)).
 - If using Docker engine with a version less than 19.03, either upgrade Docker or [install nvidia-docker2](https://github.com/NVIDIA/nvidia-docker/wiki/Installation-(version-2.0)).
 
-## Instructions
+## Using the simulator
+
+To use the simulator, you need to launch it, configure a vehicle, select a simulation, launch the ROS bridge, bridge the simulator with Autoware.Auto, then start the simulator. This section outlines these steps.
+
+### Launching the simulator
 
 Install ADE as described in the
 [installation section](installation-and-development.html#installation-and-development-install-ade):
@@ -39,7 +43,7 @@ simulations can be configured.
 
 **Note:** When running LGSVL Simulator for the first time, you may be asked to log into [https://account.lgsvlsimulator.com/](https://account.lgsvlsimulator.com/). If you have an account, log in. If you do not have an account, create one, then log in.
 
-### Vehicle Configuration
+### Configuring a vehicle
 
 To configure the Lexus model, do the following in the browser:
 
@@ -50,26 +54,28 @@ to add it and use the URL https://lgsvl-shared.s3-us-west-1.amazonaws.com/AWFLex
   - Change the bridge type to `ROS2`
   - In the `Sensors:` box, copy and paste the content of the `lgsvl-sensors.json` file in the root of the AutowareAuto repository
 
-- Switch to the Simulations tab and click the `Add new` button
-
-  - Enter a name and switch to the `Map & Vehicles` tab
-  - Select a map from the drop down menu. If none are available follow [this guide](https://www.lgsvlsimulator.com/docs/maps-tab/#where-to-find-maps) to get a map.
-  - Select the `Lexus2016RXHybrid` from the drop down menu. In the bridge connection box to the right enter the bridge address (default: `localhost:9090`)
-  - Click submit
-
-- Select the simulation and press the play button in the bottom right corner of the screen
-
 The above steps are a modified version of the
 [LGSVL documentation](https://www.lgsvlsimulator.com/docs/autoware-auto-instructions/#run-simulator-alongside-autowareauto)
 
 #### Vehicle Appearance
 
-By default, the vehicle "Lexus2016RXHybrid" uses a stock model of a VW wagon. To display the correct Lexus body model,
-click the pencil icon on that vehicle and set the Vehicle URL to https://lgsvl-shared.s3-us-west-1.amazonaws.com/AWFLexus2016RXHybrid/vehicle_Lexus2016RXHybridApexAI.
+By default, the vehicle "Lexus2016RXHybrid" uses a stock model of a VW wagon. To display the correct Lexus body model, click the pencil icon on that vehicle and set the Vehicle URL to https://lgsvl-shared.s3-us-west-1.amazonaws.com/AWFLexus2016RXHybrid/vehicle_Lexus2016RXHybridApexAI.
 
 ![Lexus2016RXHybridEdit](lexus-2016-rx-hybrid-edit.png)
 
-### ros2 web bridge
+### Choosing a simulation
+
+- Switch to the Simulations tab and click the `Add new` button
+- Enter a name and switch to the `Map & Vehicles` tab
+- Select a map from the drop down menu. If none are available follow [this guide](https://www.lgsvlsimulator.com/docs/maps-tab/#where-to-find-maps) to get a map.
+- Select the `Lexus2016RXHybrid` from the drop down menu. In the bridge connection box to the right enter the bridge address (default: `localhost:9090`)
+- Click submit
+
+### Starting the simulator
+
+Select the simulation and press the play button in the bottom right corner of the screen.
+
+### Launching the ROS2 web bridge
 
 A version of `ros2 web bridge` is installed in the Autoware.Auto ade image.
 
@@ -153,7 +159,7 @@ parametrizable 1D lookup tables
 
 ## Troubleshooting
 
-### No data are being sent through to ROS and/or the bridge status in the simulator shows "Disconnected"
+### No data are being sent through to ROS
 
 To check that data are arriving on each of the required topics, run the following in a new terminal window:
 
@@ -168,7 +174,11 @@ If data are not arriving on one of these topics, then the stack did not start up
 is a configuration problem. Stop the vehicle interface and joystick controller and inspect the logs
 to determine which is the case.
 
-**Note:** Some Linux installations come with the default route for `localhost` set to an IPv6 interface
+### The bridge status in the simulator shows "Disconnected"
+
+This section is relevant if data are being sent through ROS (as described in the section "No data are being sent through to ROS").
+
+Some Linux installations come with the default route for `localhost` set to an IPv6 interface
 instead of IPv4. The LGSVL simulator does not currently support IPv6 so a modification must be made.
 In the Simulation configuration, change the ROS2 Bridge address from `localhost:9090` to `127.0.0.1:9090`
 and restart the simulation. This will ensure that the simulator is using IPv4.
@@ -190,15 +200,18 @@ ade$ ros2 topic echo /joy
 Next, actuate the appropriate axis on the vehicle controllers to determine which buttons and joy
 sticks correspond to which indices in the `Joy` message.
 
-Update the `joystick_vehicle_interface/param/logitech_f310.defaults.param.yaml` appropriately, or
+Update the `src/tools/joystick_vehicle_interface/param/logitech_f310.defaults.param.yaml` appropriately, or
 make a copy.
 
 ### There are no data on the /joy topic
 
 Ensure that `/dev/input/js0` is available from within ade.
 
-If it is not available, restart `ade`, ensuring that it is run with the `--privileged` flag, or by
-appropriately mounting the given device.
+If it is not available, restart `ade`, ensuring that the device is appropriately mounted. Alternatively, restart `ade` and run it with the `--privileged` flag, e.g.:
+
+```
+$ ade start <ade arguments> -- --privileged
+```
 
 ### The vehicle still does not move
 
