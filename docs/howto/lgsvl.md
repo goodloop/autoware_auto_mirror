@@ -37,6 +37,8 @@ simulations can be configured.
 
 **Note:** When running LGSVL Simulator in a Docker container, the "Open Browser..." button in the simulator window does not work.
 
+**Note:** When running LGSVL Simulator for the first time, you may be asked to log into [https://account.lgsvlsimulator.com/](https://account.lgsvlsimulator.com/). If you have an account, log in. If you do not have an account, create one, then log in.
+
 ### Vehicle Configuration
 
 To configure the Lexus model, do the following in the browser:
