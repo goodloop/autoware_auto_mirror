@@ -7,6 +7,10 @@ LGSVL simulator {#lgsvl}
 
 The following guide assumes that the LGSVL simulator will be run from inside an ADE container.
 
+For more information about the simulator, see:
+
+[https://www.lgsvlsimulator.com/docs/](https://www.lgsvlsimulator.com/docs/)
+
 ## Requirements
 
 - ADE 4.1.0 or later. Follow the
@@ -17,7 +21,7 @@ The following guide assumes that the LGSVL simulator will be run from inside an 
 
 ## Using the simulator
 
-To use the simulator, you need to launch it, configure a vehicle, select a simulation, launch the ROS bridge, bridge the simulator with Autoware.Auto, then start the simulator. This section outlines these steps.
+To use the simulator, you need to launch it, configure a vehicle, choose or create a simulation, launch the ROS2 bridge, bridge the simulator with Autoware.Auto, then start the simulator. This section outlines these steps.
 
 ### Launching the simulator
 
@@ -63,33 +67,34 @@ By default, the vehicle "Lexus2016RXHybrid" uses a stock model of a VW wagon. To
 
 ![Lexus2016RXHybridEdit](lexus-2016-rx-hybrid-edit.png)
 
-### Choosing a simulation
+### Choosing/creating a simulation
+
+Choose `Simulations` on the left to see the simulations screen. The LGSVL simulator lets you store and reuse multiple simulation configurations. To use an existing simulation, select the desired simulation and press the play button in the bottom right corner of the screen. The simulator should now start in the LGSVL window.
+
+To create a new simulation, follow the below steps:
 
 - Switch to the Simulations tab and click the `Add new` button
 - Enter a name and switch to the `Map & Vehicles` tab
 - Select a map from the drop down menu. If none are available follow [this guide](https://www.lgsvlsimulator.com/docs/maps-tab/#where-to-find-maps) to get a map.
-- Select the `Lexus2016RXHybrid` from the drop down menu. In the bridge connection box to the right enter the bridge address (default: `localhost:9090`)
+- Select the `Lexus2016RXHybrid` from the drop down menu. In the bridge connection box to the right enter the bridge address. For the default setting, use `127.0.0.1:9090`
 - Click submit
-
-### Starting the simulator
-
-Select the simulation and press the play button in the bottom right corner of the screen.
 
 ### Launching the ROS2 web bridge
 
-A version of `ros2 web bridge` is installed in the Autoware.Auto ade image.
+A version of `ros2 web bridge` is installed in the Autoware.Auto ade image. The method for launching the bridge depends on your use case. The following two sections cover the two primary uses.
 
-If only perception is required, then this version may be used. In a new terminal window, run:
+#### Use case 1: Only perception is required
+
+In a new terminal window, run:
 
 ```
 $ ade enter
 ade$ rosbridge
 ```
 
-#### From source
+#### Use case 2: Vehicle control, or bridging of autoware_auto_msgs is needed
 
-If vehicle control, or the bridging of `autoware_auto_msgs` is desired, then the ros2 web bridge
-must be built from source. In a new terminal window, run:
+In this case the ros2 web bridge must be built from source. In a new terminal window, run:
 
 ```
 $ ade enter
@@ -112,11 +117,15 @@ bridge to bridge these non-standard messages.
 
 ### Bridging with Autoware.Auto
 
-LGSVL uses conventions which are not directly aligned with ROS 2 conventions.
-
-For example:
-- Left handed coordinate system with heading zero at +y
-- Positive steering/wheel angle results in clockwise rotation of the vehicle
+LGSVL uses conventions which are not directly aligned with ROS 2 conventions. The full list of behaviors the `lgsvl_interface` implements is:
+1. Converts GPS-Odometry sensor to `VehicleKinematicState` and `TFMessage` (on `/tf`) with:
+    1. The orientation corrected (right-handed system), and the vehicle frame with x forward
+    2. Position set to zero with the first ground truth position. This makes the `/odom` frame local
+    3. This behavior can be disabled by setting the simulator odometry topic to "null"
+2. Converts control inputs with CCW positive rotations to the CCW negative inputs the LGSVL
+simulator expects
+3. Provides a mapping from `VehicleControlCommand` to the `RawControlCommand` LGSVL expects via
+parametrizable 1D lookup tables
 
 To make these conventions consistent, the `lgsvl_interface` is provided.
 
@@ -145,17 +154,6 @@ $ ade enter
 ade$ source /opt/AutowareAuto/setup.bash
 ade$ ros2 launch lgsvl_interface lgsvl_vehicle_control_command.launch.py
 ```
-
-The full list of behaviors the `lgsvl_interface` implements is:
-1. Converts GPS-Odometry sensor to `VehicleKinematicState` and `TFMessage` (on `/tf`) with:
-    1. The orientation corrected (right-handed system), and the vehicle frame with x forward
-    2. Position set to zero with the first ground truth position. This makes the `/odom` frame local
-    3. This behavior can be disabled by setting the simulator odometry topic to "null"
-2. Converts control inputs with CCW positive rotations to the CCW negative inputs the LGSVL
-simulator expects
-3. Provides a mapping from `VehicleControlCommand` to the `RawControlCommand` LGSVL expects via
-parametrizable 1D lookup tables
-
 
 ## Troubleshooting
 
