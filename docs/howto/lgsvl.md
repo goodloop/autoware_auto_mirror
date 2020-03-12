@@ -21,7 +21,16 @@ For more information about the simulator, see:
 
 ## Using the simulator
 
-To use the simulator, you need to launch it, configure a vehicle, choose or create a simulation, launch the ROS2 bridge, bridge the simulator with Autoware.Auto, then start the simulator. This section outlines these steps.
+Using the simulator involves the following steps:
+
+-# Launch it
+-# Configure a vehicle
+-# Choose or create a simulation
+-# Launch the ROS2 bridge
+-# Bridge the simulator with Autoware.Auto
+-# Start the simulations
+
+This section outlines these steps.
 
 ### Launching the simulator
 
@@ -78,6 +87,8 @@ To create a new simulation, follow the below steps:
 - Select a map from the drop down menu. If none are available follow [this guide](https://www.lgsvlsimulator.com/docs/maps-tab/#where-to-find-maps) to get a map.
 - Select the `Lexus2016RXHybrid` from the drop down menu. In the bridge connection box to the right enter the bridge address. For the default setting, use `127.0.0.1:9090`
 - Click submit
+
+Once the simulation has been created, you can select and run it.
 
 ### Launching the ROS2 web bridge
 
