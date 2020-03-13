@@ -129,16 +129,10 @@ bridge to bridge these non-standard messages.
 ### Bridging with Autoware.Auto
 
 LGSVL uses conventions which are not directly aligned with ROS 2 conventions. The full list of behaviors the `lgsvl_interface` implements is:
-1. Converts GPS-Odometry sensor to `VehicleKinematicState` and `TFMessage` (on `/tf`) with:
-    1. The orientation corrected (right-handed system), and the vehicle frame with x forward
-    2. Position set to zero with the first ground truth position. This makes the `/odom` frame local
-    3. This behavior can be disabled by setting the simulator odometry topic to "null"
-2. Converts control inputs with CCW positive rotations to the CCW negative inputs the LGSVL
+-# Converts control inputs with CCW positive rotations to the CCW negative inputs the LGSVL
 simulator expects
-3. Provides a mapping from `VehicleControlCommand` to the `RawControlCommand` LGSVL expects via
+-# Provides a mapping from `VehicleControlCommand` to the `RawControlCommand` LGSVL expects via
 parametrizable 1D lookup tables
-
-To make these conventions consistent, the `lgsvl_interface` is provided.
 
 To run the `lgsvl_interface`, enter the following in a new terminal window:
 
@@ -168,29 +162,21 @@ ade$ ros2 launch lgsvl_interface lgsvl_vehicle_control_command.launch.py
 
 ## Troubleshooting
 
-### No data are being sent through to ROS
+### No data are being transferred between ROS and the sim
 
-To check that data are arriving on each of the required topics, run the following in a new terminal window:
-
+-# Check that the required data is being published on the ROS side. To check that data are arriving on each of the required topics, run the following in a new terminal window:
 ```
 $ ade enter
 ade$ source /opt/AutowareAuto/setup.bash
 ade$ ros2 topic hz /raw_command
 ade$ ros2 topic hz /vehicle_cmd
 ```
-
 If data are not arriving on one of these topics, then the stack did not start up correctly, or there
 is a configuration problem. Stop the vehicle interface and joystick controller and inspect the logs
 to determine which is the case.
-
-### The bridge status in the simulator shows "Disconnected"
-
-This section is relevant if data are being sent through ROS (as described in the section "No data are being sent through to ROS").
-
-Some Linux installations come with the default route for `localhost` set to an IPv6 interface
-instead of IPv4. The LGSVL simulator does not currently support IPv6 so a modification must be made.
-In the Simulation configuration, change the ROS2 Bridge address from `localhost:9090` to `127.0.0.1:9090`
-and restart the simulation. This will ensure that the simulator is using IPv4.
+-# Check the message status in the sim (click the 'plug' icon in the bottome menu). If the bridge status in the simulator shows "Disconnected" or the sim is not receiving messages, check the following two things:
+    -# Ensure that the vehicle bridge type is correct (see section "Configuring a vehicle")
+    -# In the Simulation configuration, change the ROS2 Bridge address from `localhost:9090` to `127.0.0.1:9090` and restart the simulation. Some Linux installations come with the default route for `localhost` set to an IPv6 interface instead of IPv4. The LGSVL simulator does not currently support IPv6 so a modification must be made. This will ensure that the simulator is using IPv4.
 
 ### The brake/throttle/steering does not work
 
@@ -215,6 +201,8 @@ make a copy.
 ### There are no data on the /joy topic
 
 Ensure that `/dev/input/js0` is available from within ade.
+
+**Note:**  Sourcing the `.aderc-lgsvl` file should achieve this through the `ADE_DOCKER_RUN_ARGS` environment variable.
 
 If it is not available, restart `ade`, ensuring that the device is appropriately mounted. Alternatively, restart `ade` and run it with the `--privileged` flag, e.g.:
 
