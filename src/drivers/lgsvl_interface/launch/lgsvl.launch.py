@@ -31,30 +31,39 @@ def generate_launch_description():
     The LGSVL interface, which translates inputs and outputs to and from ROS standard coordinate
     systems, and the ros2 web bridge, which allows LGSVL to pick up ROS 2 topics.
     """
-    # CLI
 
+    # --------------------------------- Params -------------------------------
+
+    # In combination 'raw_command', 'basic_command' and 'high_level_command' control 
+    # in what mode of control comands to operate in, 
+    # only one of them can be active at a time with a topics name 
+    # other should be blank/null which is achieved by used ="''"
     high_level_command_param = DeclareLaunchArgument(
         'high_level_command', 
-        default_value="''",
+        default_value="''", # use "high_level_command" or "''" 
         description='high_level_command control mode topic name')
 
     basic_command_param = DeclareLaunchArgument(
         'basic_command', 
-        default_value="''",
+        default_value="''", # use "vehicle_command" or "''" 
         description='basic_command control mode topic name')
 
     raw_command_param = DeclareLaunchArgument(
         'raw_command', 
-        default_value='raw_command', 
+        default_value='raw_command',  # use "raw_command" or "''" 
         description='raw_command control mode topic name')
-
+    
+    # Default lgsvl_interface params
     lgsvl_interface_param = DeclareLaunchArgument(
         'lgsvl_interface_param',
         default_value=[
             get_param('lgsvl_interface', 'lgsvl.param.yaml')
         ],
         description='Path to config file for lgsvl interface')
-    # Nodes
+
+    # -------------------------------- Nodes-----------------------------------
+    
+    # LGSVL interface
     lgsvl_interface = launch_ros.actions.Node(
         package='lgsvl_interface',
         node_executable='lgsvl_interface_exe',
@@ -68,6 +77,7 @@ def generate_launch_description():
             {"raw_command.name" :  LaunchConfiguration('raw_command')}
         ]
     )
+
     # ros2 web bridge
     lgsvl_bridge = launch.actions.ExecuteProcess(cmd=["rosbridge"], shell=True)
 

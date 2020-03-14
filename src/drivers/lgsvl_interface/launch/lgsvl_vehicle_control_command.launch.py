@@ -35,24 +35,28 @@ def generate_launch_description():
     be controlled by manipulating the left joystick of the gamepad.
     """
 
+    # --------------------------------- Params -------------------------------
 
-
-    # CLI
+    # In combination 'raw_command', 'basic_command' and 'high_level_command' control 
+    # in what mode of control comands to operate in, 
+    # only one of them can be active at a time with a topics name 
+    # other should be blank/null which is achieved by used ="''"
     high_level_command_param = DeclareLaunchArgument(
         'high_level_command', 
-        default_value="''",
+        default_value="''", # use "high_level_command" or "''" 
         description='high_level_command control mode topic name')
 
     basic_command_param = DeclareLaunchArgument(
         'basic_command', 
-        default_value="vehicle_command",
+        default_value="vehicle_command", # use "vehicle_command" or "''" 
         description='basic_command control mode topic name')
 
     raw_command_param = DeclareLaunchArgument(
         'raw_command', 
-        default_value="''", 
+        default_value="''",  # use "raw_command" or "''" 
         description='raw_command control mode topic name')
-
+    
+    # Default joystick translator params
     joy_translator_param = launch.actions.DeclareLaunchArgument(
         'joy_translator_param',
         default_value=[
@@ -60,13 +64,16 @@ def generate_launch_description():
         ],
         description='Path to config file for joystick translator')
     
+    # Default lgsvl_interface params
     lgsvl_interface_param = DeclareLaunchArgument(
         'lgsvl_interface_param',
         default_value=[ 
             get_param('lgsvl_interface', 'lgsvl.param.yaml')
         ],
         description='Path to config file for lgsvl interface')
-    # Joystick stuff
+
+    # -------------------------------- Nodes-----------------------------------
+    # Include Joystick launch
     joystick_launch_file_path = get_param('joystick_vehicle_interface',
                                  'joystick_vehicle_interface.launch.py')
     joystick = launch.actions.IncludeLaunchDescription(
@@ -79,7 +86,7 @@ def generate_launch_description():
         }.items()
     )
 
-    # LGSVL stuff
+    # Include LGSVL interface launch
     lgsvl_launch_file_path = get_param('lgsvl_interface',
                                  'lgsvl.launch.py')
     lgsvl = launch.actions.IncludeLaunchDescription(
