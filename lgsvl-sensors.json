@@ -40,6 +40,7 @@
 			"Frequency": 12.5,
 			"Topic": "/gnss/gnss_odom",
 			"Frame": "gnss",
+			"ChildFrame": "base_link",
 			"IgnoreMapOrigin": true
 		},
 		"transform": {
