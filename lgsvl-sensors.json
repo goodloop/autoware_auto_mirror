@@ -38,7 +38,7 @@
 		"name": "GPS Odometry",
 		"params": {
 			"Frequency": 12.5,
-			"Topic": "lgsvl/gnss/gnss_odom",
+			"Topic": "/lgsvl/gnss_odom",
 			"Frame": "gnss",
 			"IgnoreMapOrigin": true
 		},
@@ -152,13 +152,6 @@
 		"name": "Autoware Auto Vehicle State",
 		"params": {
 			"Topic": "/lgsvl/vehicle_state_cmd"
-		}
-	},
-	{
-		"type": "Vehicle State",
-		"name": "Autoware Auto Vehicle State",
-		"params": {
-			"Topic": "/lgsvl_state_command"
 		}
 	},
 	{
