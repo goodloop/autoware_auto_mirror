@@ -18,6 +18,9 @@
 
 #include <localization_common/localizer_base.hpp>
 #include <std_msgs/msg/u_int8.hpp>
+#include "common/types.hpp"
+
+using autoware::common::types::bool8_t;
 
 namespace autoware
 {
@@ -79,9 +82,9 @@ public:
   // Expose protected method for convenience
   void set_localizer_(std::unique_ptr<MockRelativeLocalizer> && localizer);
 
-  bool register_exception();
-  bool map_exception();
-  bool register_on_invalid_map();
+  bool8_t register_exception();
+  bool8_t map_exception();
+  bool8_t register_on_invalid_map();
 
 protected:
   void on_bad_registration(std::exception_ptr eptr) override;
@@ -92,9 +95,9 @@ protected:
   void on_observation_with_invalid_map(TestObservation::ConstSharedPtr msg) override;
 
 private:
-  bool m_map_exception{false};
-  bool m_register_exception{false};
-  bool m_register_on_invalid_map{false};
+  bool8_t m_map_exception{false};
+  bool8_t m_register_exception{false};
+  bool8_t m_register_on_invalid_map{false};
 };
 
 /// Wait until publisher reaches desired num. of subscriptions.

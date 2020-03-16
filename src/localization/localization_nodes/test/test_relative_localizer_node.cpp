@@ -5,6 +5,10 @@
 #include "test_relative_localizer_node.hpp"
 #include <geometry_msgs/msg/transform_stamped.hpp>
 
+#include "common/types.hpp"
+
+using autoware::common::types::bool8_t;
+
 namespace autoware
 {
 namespace localization
@@ -302,11 +306,11 @@ void TestRelativeLocalizerNode::on_bad_map(std::exception_ptr eptr)
   }
 }
 
-bool TestRelativeLocalizerNode::register_exception()
+bool8_t TestRelativeLocalizerNode::register_exception()
 {
   return m_register_exception;
 }
-bool TestRelativeLocalizerNode::map_exception()
+bool8_t TestRelativeLocalizerNode::map_exception()
 {
   return m_map_exception;
 }
