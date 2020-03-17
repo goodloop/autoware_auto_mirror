@@ -45,6 +45,13 @@ struct TopicQoS
   rclcpp::QoS qos;
 };
 
+/// Enum to specify if the localizer node must publish to `/tf` topic or not
+enum class LocalizerPublishMode
+{
+  PUBLISH_TF,
+  NO_PUBLISH_TF
+};
+
 /// Base relative localizer node that publishes map->base_link relative
 /// transform messages for a given observation source and map.
 /// \tparam ObservationMsgT Message type to register against a map.
@@ -62,6 +69,7 @@ public:
   using Cloud = sensor_msgs::msg::PointCloud2;
   using PoseWithCovarianceStamped = typename LocalizerBase::PoseWithCovarianceStamped;
 
+
   /// Constructor
   /// \param node_name Name of node
   /// \param name_space Namespace of node
@@ -69,12 +77,15 @@ public:
   /// \param map_sub_config topic and QoS setting for the map subscription.
   /// \param pose_pub_config topic and QoS setting for the output pose publisher.
   /// \param pose_initializer Pose initializer.
+  /// \param publish_tf Whether to publish to the `tf` topic. This can be used to publish transform
+  /// messages when the relative localizer is the only source of localization.
   RelativeLocalizerNode(
     const std::string & node_name, const std::string & name_space,
     const TopicQoS & observation_sub_config,
     const TopicQoS & map_sub_config,
     const TopicQoS & pose_pub_config,
-    const PoseInitializerT & pose_initializer
+    const PoseInitializerT & pose_initializer,
+    LocalizerPublishMode publish_tf = LocalizerPublishMode::NO_PUBLISH_TF
   )
   : Node(node_name, name_space),
     m_pose_initializer(pose_initializer),
@@ -86,6 +97,9 @@ public:
       [this](typename MapMsgT::ConstSharedPtr msg) {map_callback(msg);})),
     m_pose_publisher(create_publisher<PoseWithCovarianceStamped>(pose_pub_config.topic,
       pose_pub_config.qos)) {
+    if (publish_tf == LocalizerPublishMode::PUBLISH_TF) {
+      m_tf_publisher = create_publisher<tf2_msgs::msg::TFMessage>("tf", pose_pub_config.qos);
+    }
   }
 
   /// Constructor using ros parameters
@@ -115,7 +129,12 @@ public:
         rclcpp::QoS{rclcpp::KeepLast{
             static_cast<size_t>(declare_parameter(
               "pose_pub.history_depth").template get<size_t>())}}))
-  {}
+  {
+    if (declare_parameter("publish_tf").template get<bool>()) {
+      m_tf_publisher = create_publisher<tf2_msgs::msg::TFMessage>("tf",
+          rclcpp::QoS{rclcpp::KeepLast{m_pose_publisher->get_queue_size()}});
+    }
+  }
 
   /// Get a const pointer of the output publisher. Can be used for matching against subscriptions.
   const typename rclcpp::Publisher<PoseWithCovarianceStamped>::ConstSharedPtr get_publisher()
@@ -156,22 +175,38 @@ protected:
     }
   }
 
+  /// Default behavior when an observation is received with no valid existing map.
+  virtual void on_observation_with_invalid_map(typename ObservationMsgT::ConstSharedPtr)
+  {
+    RCLCPP_WARN(get_logger(), "Received observation without a valid map, "
+      "ignoring the observation.");
+  }
+
 private:
   /// Callback that registers each received observation and outputs the result.
   /// \param msg_ptr Pointer to the observation message.
   void observation_callback(typename ObservationMsgT::ConstSharedPtr msg_ptr)
   {
     check_localizer();
-    try {
-      const auto observation_time = ::time_utils::from_message(get_stamp(*msg_ptr));
-      const auto & observation_frame = get_frame_id(*msg_ptr);
-      const auto & map_frame = m_localizer_ptr->map_frame_id();
-      const auto initial_guess =
-        m_pose_initializer.guess(m_tf_buffer, observation_time, observation_frame, map_frame);
-      const auto pose_out = m_localizer_ptr->register_measurement(*msg_ptr, initial_guess);
-      m_pose_publisher->publish(pose_out);
-    } catch (...) {
-      on_bad_registration(std::current_exception());
+    if (m_localizer_ptr->map_valid()) {
+      try {
+        const auto observation_time = ::time_utils::from_message(get_stamp(*msg_ptr));
+        const auto & observation_frame = get_frame_id(*msg_ptr);
+        const auto & map_frame = m_localizer_ptr->map_frame_id();
+        const auto initial_guess =
+          m_pose_initializer.guess(m_tf_buffer, observation_time, map_frame, observation_frame);
+        const auto pose_out = m_localizer_ptr->register_measurement(*msg_ptr, initial_guess);
+        m_pose_publisher->publish(pose_out);
+        // This is to be used when no state estimator or alternative source of
+        // localization is available.
+        if (m_tf_publisher) {
+          publish_tf(pose_out);
+        }
+      } catch (...) {
+        on_bad_registration(std::current_exception());
+      }
+    } else {
+      on_observation_with_invalid_map(msg_ptr);
     }
   }
 
@@ -185,6 +220,23 @@ private:
     } catch (...) {
       on_bad_map(std::current_exception());
     }
+  }
+
+  /// Publish the pose message as a transform.
+  void publish_tf(const PoseWithCovarianceStamped & pose)
+  {
+    tf2_msgs::msg::TFMessage tf_message;
+    geometry_msgs::msg::TransformStamped tf_stamped;
+    tf_stamped.header = pose.header;
+    tf_stamped.header.frame_id = m_localizer_ptr->map_frame_id();
+    tf_stamped.child_frame_id = pose.header.frame_id;
+    const auto & pose_trans = pose.pose.pose.position;
+    const auto & pose_rot = pose.pose.pose.orientation;
+    tf_stamped.transform.translation.set__x(pose_trans.x).set__y(pose_trans.y).set__z(pose_trans.z);
+    tf_stamped.transform.rotation.set__x(pose_rot.x).set__y(pose_rot.y).set__z(pose_rot.z).set__w(
+      pose_rot.w);
+    tf_message.transforms.push_back(tf_stamped);
+    m_tf_publisher->publish(tf_message);
   }
 
   /// Check if localizer exist, throw otherwise.
@@ -203,6 +255,7 @@ private:
   typename rclcpp::Subscription<ObservationMsgT>::SharedPtr m_observation_sub;
   typename rclcpp::Subscription<MapMsgT>::SharedPtr m_map_sub;
   typename rclcpp::Publisher<PoseWithCovarianceStamped>::SharedPtr m_pose_publisher;
+  typename rclcpp::Publisher<tf2_msgs::msg::TFMessage>::SharedPtr m_tf_publisher{nullptr};
 };
 }  // namespace localization_nodes
 }  // namespace localization
