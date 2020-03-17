@@ -74,6 +74,7 @@ def generate_launch_description():
             node_name='rviz2',
             arguments=['-d', str(rviz_cfg_path)],
             condition=IfCondition(LaunchConfiguration('with_rviz'))
+        ),
         # pcd map provider from ndt_nodes
         IncludeLaunchDescription(
             PythonLaunchDescriptionSource([os.path.join(ndt_nodes_pkg_prefix, 'launch'),
