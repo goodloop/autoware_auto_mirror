@@ -77,7 +77,11 @@ def generate_launch_description():
         ),
         # pcd map provider from ndt_nodes
         IncludeLaunchDescription(
-            PythonLaunchDescriptionSource([os.path.join(ndt_nodes_pkg_prefix, 'launch'),
-            '/map_provider.launch.py']),
+            PythonLaunchDescriptionSource(
+                [
+                    os.path.join(ndt_nodes_pkg_prefix, 'launch'),
+                    '/map_provider.launch.py'
+                ]
+            ),
         ),
     ])
