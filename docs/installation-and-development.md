@@ -135,7 +135,7 @@ To test code directly from Atom press '`CTRL`' + '`~`' to open the built-in term
 Run a built binary from the terminal, for example:
 
 ```bash
-ade$ ~/AutowareAuto/build/NODE_NAME/BINARY_NAME
+ade$ ~/AutowareAuto/build/PACKAGE_NAME/BINARY_NAME
 ```
 
 
