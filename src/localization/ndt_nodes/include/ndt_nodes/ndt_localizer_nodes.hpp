@@ -116,7 +116,8 @@ public:
         static_cast<uint64_t>(
           this->declare_parameter("localizer.optimizer.max_iterations").template get<uint64_t>()),
         this->declare_parameter("localizer.optimizer.score_tolerance").template get<float64_t>(),
-        this->declare_parameter("localizer.optimizer.parameter_tolerance").template get<float64_t>(),
+        this->declare_parameter(
+          "localizer.optimizer.parameter_tolerance").template get<float64_t>(),
         this->declare_parameter("localizer.optimizer.gradient_tolerance").template get<float64_t>()
       },
       map_config,
