@@ -24,4 +24,4 @@
 
 <!-- Please do not edit anything below this comment -->
 /label ~feature
-/milestone %30
+/milestone %28

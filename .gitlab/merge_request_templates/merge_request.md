@@ -15,4 +15,4 @@
 - [ ] Documentation was updated
 
 <!-- Please do not edit anything below this comment -->
-/milestone %30
+/milestone %28
