@@ -1,4 +1,4 @@
-How to develop in a fork
+How to develop in a fork {#fork-and-pull}
 ========================
 
 Autoware.Auto follows the fork-and-pull model of Git use.
