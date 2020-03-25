@@ -162,6 +162,8 @@ ade_arm64:
   tags:
     - arm64
   <<: *ade_base
+  only:
+    - branches@autowarefoundation/autoware.auto/AutowareAuto
 
 build_barebones:
   <<: *build_barebones_base
@@ -170,6 +172,8 @@ build_barebones_arm64:
   tags:
     - arm64
   <<: *build_barebones_base
+  only:
+    - branches@autowarefoundation/autoware.auto/AutowareAuto
 
 build:
   variables:
@@ -194,6 +198,8 @@ build_arm64:
     paths:
       - log
       - opt.tar.gz
+  only:
+    - branches@autowarefoundation/autoware.auto/AutowareAuto
 
 coverage:
   stage: build
@@ -281,3 +287,5 @@ volume_arm64:
   variables:
     ARCH: "/arm64"
   <<: *volume_base
+  only:
+    - branches@autowarefoundation/autoware.auto/AutowareAuto
