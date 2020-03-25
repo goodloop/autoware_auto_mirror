@@ -62,6 +62,8 @@ if(BUILD_TESTING)
   find_package(ament_cmake_gtest REQUIRED)
 
   ament_add_gtest(${NDT_TEST}
+          test/test_ndt_utils.hpp
+          test/test_ndt_utils.cpp
           test/test_ndt_map.hpp
           test/test_ndt_scan.hpp
           test/test_ndt_map.cpp
@@ -69,6 +71,7 @@ if(BUILD_TESTING)
           test/test_ndt_optimization.hpp
           test/test_ndt_optimization.cpp
           test/test_ndt_localizer.cpp)
+
   target_link_libraries(${NDT_TEST} ${PROJECT_NAME} ${PCL_LIBRARIES})
 
   ament_target_dependencies(${NDT_TEST} ${PROJECT_NAME})
