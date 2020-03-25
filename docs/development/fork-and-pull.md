@@ -56,6 +56,16 @@ The basic flow is quite simple.
    **Do not use the `git rebase` command** to bring your local copy's `master` branch up-to-date.
    The reason for this is that [you should never rebase commits that are public](https://git-scm.com/book/en/v2/Git-Branching-Rebasing), and all the commits in the `master` branch are by their nature public.
 
+   If the final command above does not happen smoothly, then your local copy of the `master` branch, or possibly the copy of the `master` branch in your fork on the server, has become polluted with extra commits.
+   If you have placed a change in the `master` branch by mistake, create a new branch from `master`, then reset `master` to match the upstream.
+
+   ```shell
+   $ git checkout -b my-branch-for-some-new-change
+   $ git checkout master
+   $ git reset --hard upstream/master
+   $ git push -f
+   ```
+
 1. The `master` branch in your local copy now matches the `master` branch in the Autoware.Auto repository.
    (Note that the `master` branch in your fork *on the GitLab server* does not, but this is not important, and easily rectified by pushing the local version to the server if you wish.)
    To ensure that your branch will apply cleanly to the `master` branch on the Autoware.Auto repository, which is a prerequisite for making a merge request, you need to bring the recent changes from the `master` branch into the branch containing your work.
