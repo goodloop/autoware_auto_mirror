@@ -1,5 +1,7 @@
-How to develop in a fork {#fork-and-pull}
+How to develop in a fork {#develop-in-a-fork}
 ========================
+
+# Using fork-and-pull {#fork-and-pull}
 
 Autoware.Auto follows the fork-and-pull model of Git use.
 This means that developers should make a fork of the Autoware.Auto repository, develop in branches on that fork, and then make merge requests (the GitLab term; pull requests in GitHub terminology) from that fork to the central Autoware.Auto repository.
@@ -51,7 +53,7 @@ The basic flow is quite simple.
 
    The final command updates the `master` branch of your local copy to match the `master` branch of the Autoware.Auto repository.
    It is very important to use the `git merge` command to do this.
-   **Do not use the `git rebase` command** to bring your local copy up-to-date.
+   **Do not use the `git rebase` command** to bring your local copy's `master` branch up-to-date.
    The reason for this is that [you should never rebase commits that are public](https://git-scm.com/book/en/v2/Git-Branching-Rebasing), and all the commits in the `master` branch are by their nature public.
 
 1. The `master` branch in your local copy now matches the `master` branch in the Autoware.Auto repository.
@@ -85,3 +87,48 @@ Create a merge request from your branch of your fork to the `master` branch of t
 
 When you need to add additional changes to the branch (for example, in response to a comment during code review), you will need to repeat the `git push` step above.
 If there have been other merge requests merged into the `master` branch since you last pushed, you will also need to repeat the merging into `master` and rebasing steps.
+
+
+# Working with unmerged merge requests {#using-unmerged-mrs}
+
+There are times when you are working on something in your branch, and you find that you need to include some work that is not yet merged but is available in a separate merge request.
+It is possible to temporarily include this work in your own branch while you develop, without polluting the history of changes that eventually make up your merge request.
+
+Note that doing this places the following restrictions on your own merge request.
+
+1. Your merge request cannot be reviewed until the other merge request(s) you depend on has been merged into `master` on the Autoware.Auto repository first.
+   You should mark the issue that gave rise to your merge request as blocked by the relevant other issues.
+   You can also mark your merge request as a work-in-progress (prepend "WIP: " to its title) until the other merge requests it depends on are merged.
+   However this is generally not preferred if it is possible to begin the review work on your merge request before the other merge requests have been merged.
+
+1. You must rebase and ensure a clean history, containing only your changes, prior to making a merge request.
+   If you follow the instructions here to rebase your branch before making a merge request then this should not be a problem.
+
+To include the changes from another merge request in your own branch, prior to them being merged into the `master` branch, you need to get that branch into your local copy and merge it into your branch.
+
+1. In your local copy, fetch the latest from the upstream repository.
+
+   ```shell
+   $ git fetch
+   ```
+
+1. Change to your branch and merge in the changes from the branch for the merge request you wish to use.
+
+   ```shell
+   $ git merge upstream/41-calculate-the-ultimate-question
+   ```
+
+1. When your branch is ready to be merged into `master` and the branch you depend on has been merged, follow the [steps above](#fork-and-pull) for how to rebase your branch.
+
+
+# When to do multiple merge requests
+
+Sometimes while developing a new feature, you may find a bug that needs fixing.
+There may be cases of this where you cannot continue development of your feature until the bug is fixed.
+
+In this situation, the correct thing to do is to first file a bug report, then create a new merge request containing the fix.
+However, the source of that merge request *should not* be your branch for your new feature.
+You should create a new, separate branch for the bug fix and follow the standard process to create a merge request and get the bug fix merged into the `master` branch on the Autoware.Auto repository.
+
+To use the bug fix in the branch for your new feature *prior* to it being merged into `master`, you
+can follow the steps above for working with unmerged merge requests](#using-unmerged-mrs).
