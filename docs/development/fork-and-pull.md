@@ -6,7 +6,7 @@ How to develop in a fork {#develop-in-a-fork}
 Autoware.Auto follows the fork-and-pull model of Git use.
 This means that developers should make a fork of the Autoware.Auto repository, develop in branches on that fork, and then make merge requests (the GitLab term; pull requests in GitHub terminology) from that fork to the central Autoware.Auto repository.
 
-The basic flow is quite simple.
+The basic flow consists of the following steps.
 
 1. Make a *fork* of the Autoware.Auto repository.
    The Autoware.Auto repository is known as the *upstream repository* relative to your fork.
