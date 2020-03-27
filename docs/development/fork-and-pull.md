@@ -147,7 +147,7 @@ To include the changes from another merge request in your own branch, prior to t
    $ git merge upstream/41-calculate-the-ultimate-question
    ```
 
-1. Follow the [steps above](#fork-and-pull) for how to rebase your branch when your branch is ready to be merged into `master` and the branch you depend on has been merged.
+1. Follow the [above steps](#fork-and-pull) for how to rebase your branch when your branch is ready to be merged into `master` and the branch you depend on has been merged.
 
 
 # When to do multiple merge requests
@@ -159,7 +159,7 @@ In this situation, the correct thing to do is to first file a bug report, then c
 However, the source of that merge request *should not* be your branch for your new feature.
 You should create a new, separate branch for the bug fix and follow the standard process to create a merge request and get the bug fix merged into the `master` branch on the Autoware.Auto repository.
 
-To use the bug fix in the branch for your new feature *prior* to it being merged into `master`, you can follow the steps above for working with unmerged merge requests](#using-unmerged-mrs).
+To use the bug fix in the branch for your new feature *prior* to it being merged into `master`, you can follow the above steps for working with unmerged merge requests](#using-unmerged-mrs).
 
 
 # What to do when updating master doesn't work
