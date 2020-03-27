@@ -102,13 +102,11 @@ The basic flow consists of the following steps.
 You now have a copy of your branch with your proposed changes in *your fork* on the GitLab servers.
 If you are ready for this work to be merged into the Autoware.Auto repository's `master` branch, you must now create a merge request.
 
-When you perform the `git push` command, above, for the first time, the result from the GitLab
-server will contain a URL that you can use to create a merge request from your branch.
+When you perform the `git push` command, above, for the first time, the result from the GitLab server will contain a URL that you can use to create a merge request from your branch.
 
 ![URL to create a merge request directly](images/autoware-merge-request.png)
 
-Alternatively, you can create a merge request through the GitLab website. On the Autoware.Auto
-project page, and on the page for your fork, there will be a button to create a merge request.
+Alternatively, you can create a merge request through the GitLab website. On the Autoware.Auto project page, and on the page for your fork, there will be a button to create a merge request.
 
 ![Button to create a merge request](images/autoware-merge-request-project.png)
 
