@@ -14,16 +14,26 @@
 
 """Launch Modules for Milestone 2 of the AVP 2020 Demo."""
 
-from ament_index_python import get_package_share_directory
 from launch import LaunchDescription
+from launch import LaunchContext
 from launch.actions import DeclareLaunchArgument
 from launch.actions import IncludeLaunchDescription
 from launch.conditions import IfCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration
 from launch_ros import actions
+from launch_ros.substitutions import FindPackage
+from pathlib import Path
 
 import os
+
+
+context = LaunchContext()
+
+
+def get_package_share_directory(package_name):
+    """Return the absolute path to the share directory of the given package."""
+    return os.path.join(Path(FindPackage(package_name).perform(context)), 'share', package_name)
 
 
 def generate_launch_description():
@@ -67,14 +77,6 @@ def generate_launch_description():
             node_name='robot_state_publisher',
             arguments=[str(urdf_path)]
         ),
-        # RVIZ2
-        actions.Node(
-            package='rviz2',
-            node_executable='rviz2',
-            node_name='rviz2',
-            arguments=['-d', str(rviz_cfg_path)],
-            condition=IfCondition(LaunchConfiguration('with_rviz'))
-        ),
         # pcd map provider from ndt_nodes
         IncludeLaunchDescription(
             PythonLaunchDescriptionSource(
@@ -83,5 +85,13 @@ def generate_launch_description():
                     '/map_provider.launch.py'
                 ]
             ),
+        ),
+        # RVIZ2
+        actions.Node(
+            package='rviz2',
+            node_executable='rviz2',
+            node_name='rviz2',
+            arguments=['-d', str(rviz_cfg_path)],
+            condition=IfCondition(LaunchConfiguration('with_rviz'))
         ),
     ])
