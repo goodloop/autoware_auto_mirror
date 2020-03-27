@@ -147,7 +147,7 @@ To include the changes from another merge request in your own branch, prior to t
    $ git merge upstream/41-calculate-the-ultimate-question
    ```
 
-1. Follow the [above steps](#fork-and-pull) for how to rebase your branch when your branch is ready to be merged into `master` and the branch you depend on has been merged.
+1. Follow the [above steps](#fork-and-pull) for how to rebase your branch when the branch you depend on has been merged and your branch is ready to be merged into `master`.
 
 
 # When to do multiple merge requests
