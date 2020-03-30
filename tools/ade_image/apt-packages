@@ -59,6 +59,7 @@ ros-dashing-tf2-sensor-msgs
 shellcheck
 strace
 sudo
+terminator
 vim
 
 # ndt localization dependency for loading pcd files
