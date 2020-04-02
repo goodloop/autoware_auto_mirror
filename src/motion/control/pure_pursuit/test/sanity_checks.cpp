@@ -19,6 +19,8 @@
 #include <time_utils/time_utils.hpp>
 #include <commont/types.hpp>
 
+#include <algorithm>
+
 #include "pure_pursuit/pure_pursuit.hpp"
 
 using motion::motion_testing::constant_velocity_trajectory;
@@ -35,7 +37,8 @@ protected:
   {
     return std::atan(2.0F * dx * cfg_.get_distance_front_rear_wheel() / (lookahead * lookahead));
   }
-  void check_steer(const VehicleControlCommand cmd, const float32_t guess, const float32_t TOL = 1.0E-4F)
+  void check_steer(const VehicleControlCommand cmd,
+                   const float32_t guess, const float32_t TOL = 1.0E-4F)
   {
     EXPECT_LT(std::fabs(cmd.front_wheel_angle_rad - guess), TOL) <<
       cmd.front_wheel_angle_rad << ", " << guess;
