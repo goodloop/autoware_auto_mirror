@@ -17,7 +17,7 @@
 #include <motion_testing/motion_testing.hpp>
 #include <osrf_testing_tools_cpp/memory_tools/memory_tools.hpp>
 #include <time_utils/time_utils.hpp>
-#include <commont/types.hpp>
+#include <common/types.hpp>
 
 #include <algorithm>
 
@@ -28,8 +28,8 @@ using motion::motion_testing::make_state;
 using autoware::motion::control::pure_pursuit::Config;
 using autoware::motion::control::pure_pursuit::PurePursuit;
 using autoware::motion::control::pure_pursuit::VehicleControlCommand;
-using autoware::common::teyps::bool8_t;
-using autoware::common::teyps::float32_t;
+using autoware::common::types::bool8_t;
+using autoware::common::types::float32_t;
 class sanity_checks : public ::testing::Test
 {
 protected:
