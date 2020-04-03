@@ -104,7 +104,7 @@ void RecordReplayPlanner::set_min_record_distance(double min_record_distance)
   m_min_record_distance = min_record_distance;
 }
 
-double RecordReplayPlanner::get_min_record_distance()
+double RecordReplayPlanner::get_min_record_distance() const
 {
   return m_min_record_distance;
 }

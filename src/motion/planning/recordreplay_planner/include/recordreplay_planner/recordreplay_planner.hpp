@@ -77,7 +77,7 @@ public:
 
   // Minimum distance configuration
   void set_min_record_distance(double min_record_distance);
-  double get_min_record_distance();
+  double get_min_record_distance() const;
 
   // Update bounding boxes to new perception
   void update_bounding_boxes(const BoundingBoxArray & bounding_boxes);
