@@ -79,9 +79,7 @@ public:
 protected:
 };  // class velodyne_node_integration
 
-// FIXME(esteve): Reenable
-// https://gitlab.com/autowarefoundation/autoware.auto/AutowareAuto/-/issues/388
-TEST_P(velodyne_node_integration, DISABLED_test)
+TEST_P(velodyne_node_integration, test)
 {
   rclcpp::init(0, nullptr);
 
