@@ -36,6 +36,7 @@
 			"Frame": "gnss",
 			"IgnoreMapOrigin": true
 		},
+                "parent": "base_link",
 		"transform": {
 			"x": 0,
 			"y": 0,
@@ -55,6 +56,7 @@
 			"ChildFrame": "base_link",
 			"IgnoreMapOrigin": true
 		},
+                "parent": "base_link",
 		"transform": {
 			"x": 0,
 			"y": 0,
@@ -71,6 +73,7 @@
 			"Topic": "/imu/imu_raw",
 			"Frame": "imu"
 		},
+                "parent": "base_link",
 		"transform": {
 			"x": 0,
 			"y": 0,
@@ -96,10 +99,11 @@
 			"Topic": "/lidar_front/points_raw",
 			"Frame": "lidar_front"
 		},
+                "parent": "base_link",
 		"transform": {
-			"x": 0,
-			"y": 1.8,
-			"z": 0.02,
+			"x": 0.022,
+			"y": 1.49,
+			"z": 1.498,
 			"pitch": 0,
 			"yaw": 0,
 			"roll": 0
@@ -121,10 +125,11 @@
 			"Topic": "/lidar_rear/points_raw",
 			"Frame": "lidar_rear"
 		},
+                "parent": "base_link",
 		"transform": {
-			"x": 0,
-			"y": 1.8,
-			"z": -1.17,
+			"x": 0.022,
+			"y": 1.49,
+			"z": 0.308,
 			"pitch": 0,
 			"yaw": 0,
 			"roll": 0
