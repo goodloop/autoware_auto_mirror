@@ -172,6 +172,12 @@
 			"Topic": "/lgsvl/vehicle_state_cmd"
 		}
 	},
+  {
+    "type": "Vehicle Odometry",
+    "name": "Vehicle Odometry Sensor",
+    "params": {
+      "Topic": "/lgsvl/vehicle_odometry"
+  },
 	{
 		"type": "Keyboard Control",
 		"name": "Keyboard Car Control"
