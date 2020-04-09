@@ -154,7 +154,7 @@ TEST_P(velodyne_node_integration, test)
 INSTANTIATE_TEST_CASE_P(
   cloud,
   velodyne_node_integration,
-  ::testing::Values(VelodyneNodeTestParam{55000U, 21350, 100.0F, true}));
+  ::testing::Values(VelodyneNodeTestParam{55000U, 30000, 100.0F, true}));
 
 // Doesn't work on this stuff!
 // QUARANTINE(4937, "10/29/2019")
