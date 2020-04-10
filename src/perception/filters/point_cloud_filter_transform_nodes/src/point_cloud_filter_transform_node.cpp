@@ -27,12 +27,15 @@ namespace filters
 /// \brief Boilerplate Apex.OS nodes around point_cloud_filter_transform_nodes
 namespace point_cloud_filter_transform_nodes
 {
-using sensor_msgs::msg::PointCloud2;
-using geometry_msgs::msg::Transform;
-using autoware::common::types::PointXYZIF;
-using common::lidar_utils::has_intensity_and_throw_if_no_xyz;
-
+using autoware::common::lidar_utils::add_point_to_cloud;
+using autoware::common::lidar_utils::has_intensity_and_throw_if_no_xyz;
+using autoware::common::lidar_utils::reset_pcl_msg;
+using autoware::common::lidar_utils::resize_pcl_msg;
+using autoware::common::lidar_utils::sanitize_point_cloud;
 using autoware::common::types::float64_t;
+using autoware::common::types::PointXYZIF;
+using geometry_msgs::msg::Transform;
+using sensor_msgs::msg::PointCloud2;
 
 Transform PointCloud2FilterTransformNode::get_transform_from_parameters(const std::string & prefix)
 {
@@ -67,9 +70,9 @@ PointCloud2FilterTransformNode::PointCloud2FilterTransformNode(
   const std::string & node_namespace)
 : PointCloudFilterTransformNodeBase(
     node_name, node_namespace),
-  m_input_frame_id{get_parameter("input_frame_id").as_string()},
-  m_output_frame_id{get_parameter("output_frame_id").as_string()},
-  m_pcl_size{static_cast<size_t>(get_parameter("pcl_size").as_int())}
+  m_input_frame_id{declare_parameter("input_frame_id").get<std::string>()},
+  m_output_frame_id{declare_parameter("output_frame_id").get<std::string>()},
+  m_pcl_size{static_cast<size_t>(declare_parameter("pcl_size").get<int32_t>())}
 {
   common::lidar_utils::init_pcl_msg(m_filtered_transformed_msg,
     m_output_frame_id.c_str(), m_pcl_size);
@@ -102,50 +105,24 @@ PointCloud2FilterTransformNode::PointCloud2FilterTransformNode(
     m_output_frame_id.c_str(), m_pcl_size);
 }
 
-
-PointCloud2FilterTransformNode::PointCloud2FilterTransformNode(
-  const std::string & node_name)
-: PointCloud2FilterTransformNode(
-    node_name,
-    "",
-    std::chrono::milliseconds{declare_parameter("init_timeout_ms").get<int32_t>()},
-    std::chrono::milliseconds{declare_parameter("timeout_ms").get<int32_t>()},
-    declare_parameter("input_frame_id").get<std::string>().data(),
-    declare_parameter("output_frame_id").get<std::string>().data(),
-    declare_parameter("raw_topic").get<std::string>().data(),
-    declare_parameter("filtered_topic").get<std::string>().data(),
-    declare_parameter("start_angle").get<float64_t>(),
-    declare_parameter("end_angle").get<float64_t>(),
-    declare_parameter("min_radius").get<float64_t>(),
-    declare_parameter("max_radius").get<float64_t>(),
-    get_transform_from_parameters("static_transformer"),
-    declare_parameter("pcl_size").get<int32_t>(),
-    declare_parameter("expected_num_publishers").get<int32_t>(),
-    declare_parameter("expected_num_subscribers").get<int32_t>())
-{
-}
-
-
 const PointCloud2 & PointCloud2FilterTransformNode::filter_and_transform(const PointCloud2 & msg)
 {
-  m_filtered_transformed_msg.data.clear();
-  m_filtered_transformed_msg.width = 0U;
   // Verify frame_id
   if (msg.header.frame_id != m_input_frame_id) {
     throw std::runtime_error("Raw topic from unexpected frame");
   }
   // Sanitize indexing for iteration; warn if sanitation occured
-  const auto indices = autoware::common::lidar_utils::sanitize_point_cloud(msg);
+  const auto indices = sanitize_point_cloud(msg);
   if (indices.point_step != msg.point_step) {
-    RCLCPP_WARN(get_logger(), "Using only a subset of Point cloud fields");
+    RCLCPP_WARN_ONCE(get_logger(), "Using only a subset of Point cloud fields");
   }
   if (indices.data_length != msg.data.size()) {
-    RCLCPP_WARN(get_logger(), "Misaligned data: Using only a subset of Point cloud data");
+    RCLCPP_WARN_ONCE(get_logger(), "Misaligned data: Using only a subset of Point cloud data");
   }
 
-  m_filtered_transformed_msg.header.stamp = msg.header.stamp;
-
   auto point_cloud_idx = 0U;
+  reset_pcl_msg(m_filtered_transformed_msg, m_pcl_size, point_cloud_idx);
+  m_filtered_transformed_msg.header.stamp = msg.header.stamp;
   for (auto idx = 0U; idx < indices.data_length; idx += msg.point_step) {
     PointXYZIF pt;
     //lint -e{925, 9110} Need to convert pointers and use bit for external API NOLINT
@@ -154,7 +131,7 @@ const PointCloud2 & PointCloud2FilterTransformNode::filter_and_transform(const P
       static_cast<const void *>(&msg.data[idx]),
       indices.point_step);
     if (point_not_filtered(pt)) {
-      if (!autoware::common::lidar_utils::add_point_to_cloud(
+      if (!add_point_to_cloud(
           m_filtered_transformed_msg, transform_point(pt), point_cloud_idx))
       {
         throw std::runtime_error(
@@ -162,8 +139,7 @@ const PointCloud2 & PointCloud2FilterTransformNode::filter_and_transform(const P
       }
     }
   }
-  m_filtered_transformed_msg.row_step = m_filtered_transformed_msg.width *
-    m_filtered_transformed_msg.point_step;
+  resize_pcl_msg(m_filtered_transformed_msg, point_cloud_idx);
   return m_filtered_transformed_msg;
 }
 
