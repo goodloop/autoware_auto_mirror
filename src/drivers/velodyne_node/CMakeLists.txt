@@ -87,10 +87,10 @@ if(BUILD_TESTING)
     )
     # FIXME(esteve): Reenable
     # https://gitlab.com/autowarefoundation/autoware.auto/AutowareAuto/-/issues/388
-    # add_ros_test(
-    #   test/velodyne_node_half_cloud.test.py
-    #   TIMEOUT "120"
-    # )
+    add_ros_test(
+      test/velodyne_node_half_cloud.test.py
+      TIMEOUT "120"
+    )
 endif()
 
 ## install stuff
