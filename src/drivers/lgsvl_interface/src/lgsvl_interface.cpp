@@ -252,6 +252,7 @@ void LgsvlInterface::on_odometry(const nav_msgs::msg::Odometry & msg)
 
     vse.state.lateral_velocity_mps =
       static_cast<decltype(vse.state.lateral_velocity_mps)>(msg.twist.twist.linear.y);
+    // TODO(jitrc): populate with correct value when acceleration is available from simulator
     vse.state.acceleration_mps2 = 0.0F;
     vse.state.heading_rate_rps =
       static_cast<decltype(vse.state.heading_rate_rps)>(msg.twist.twist.angular.z);
