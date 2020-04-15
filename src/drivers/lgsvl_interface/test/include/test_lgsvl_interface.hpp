@@ -24,7 +24,7 @@ const auto sim_ctrl_cmd_topic = "test_lgsvl/vehicle_control_cmd";
 const auto sim_state_cmd_topic = "test_lgsvl/vehicle_state_cmd";
 const auto sim_state_rpt_topic = "test_lgsvl/state_report";
 const auto sim_nav_odom_topic = "test_lgsvl/gnss_odom";
-const auto sim_veh_odom_topic = "test_lgsvl/vehicle_odometry";
+const auto sim_veh_odom_topic = "test_lgsvl/vehicle_odom";
 const auto kinematic_state_topic = "test_vehicle_kinematic_state";
 
 class LgsvlInterface_test : public ::testing::Test
