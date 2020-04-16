@@ -11,11 +11,20 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 endif()
 
 find_package(ament_cmake REQUIRED)
+find_package(autoware_auto_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
+find_package(nmea_msgs REQUIRED)
 find_package(sensor_msgs REQUIRED)
 
 add_executable(dataset_converter dataset_converter.cpp)
-ament_target_dependencies(dataset_converter rclcpp sensor_msgs)
+
+autoware_set_compile_options(dataset_converter)
+ament_target_dependencies(dataset_converter rclcpp nmea_msgs sensor_msgs)
+
+if(BUILD_TESTING)
+    # run linters
+    autoware_static_code_analysis()
+endif()
 
 install(TARGETS
   dataset_converter
