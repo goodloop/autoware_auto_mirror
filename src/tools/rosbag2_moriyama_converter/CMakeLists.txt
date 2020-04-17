@@ -16,7 +16,7 @@ find_package(rclcpp REQUIRED)
 find_package(nmea_msgs REQUIRED)
 find_package(sensor_msgs REQUIRED)
 
-add_executable(dataset_converter dataset_converter.cpp)
+add_executable(dataset_converter src/dataset_converter.cpp)
 
 autoware_set_compile_options(dataset_converter)
 ament_target_dependencies(dataset_converter rclcpp nmea_msgs sensor_msgs)
