@@ -15,6 +15,8 @@
 #include <cctype>
 #include <memory>
 #include <regex>
+#include <string>
+#include <vector>
 
 #include "rclcpp/rclcpp.hpp"
 #include "nmea_msgs/msg/sentence.hpp"
@@ -57,19 +59,19 @@ private:
         }).base();
     auto trimmed_sentence = std::string(ltrim, rtrim);
 
-    std::regex regex{R"([\s,]+)"}; // split on space and comma
+    std::regex regex{","};
     std::sregex_token_iterator it{std::begin(trimmed_sentence), std::end(trimmed_sentence), regex,
       -1};
     std::vector<std::string> nmea_parts{it, {}};
     if (!nmea_parts.empty()) {
       if ("$GPGGA" == nmea_parts[0] && nmea_parts.size() >= 10) {
-        auto latitude = std::atoi(nmea_parts[2].substr(0, 2).c_str()) + std::atof(nmea_parts[2].substr(
-              2).c_str()) / 60.0;
+        auto latitude = std::atoi(
+          nmea_parts[2].substr(0, 2).c_str()) + std::atof(nmea_parts[2].substr(2).c_str()) / 60.0;
         if (nmea_parts[3] == "S") {
           latitude = -latitude;
         }
-        auto longitude = std::atoi(nmea_parts[4].substr(0, 3).c_str()) + std::atof(nmea_parts[4].substr(
-              3).c_str()) / 60.0;
+        auto longitude = std::atoi(
+          nmea_parts[4].substr(0, 3).c_str()) + std::atof(nmea_parts[4].substr(3).c_str()) / 60.0;
         if (nmea_parts[5] == "W") {
           longitude = -longitude;
         }
