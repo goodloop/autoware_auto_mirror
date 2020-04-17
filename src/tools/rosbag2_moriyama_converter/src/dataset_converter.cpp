@@ -30,11 +30,13 @@ public:
   {
     point_cloud_subscription_ = this->create_subscription<sensor_msgs::msg::PointCloud2>(
       "/points_raw", 10, std::bind(&DatasetConverter::point_cloud_callback, this, _1));
-    point_cloud_publisher_ = this->create_publisher<sensor_msgs::msg::PointCloud2>("/lidar_front/points_raw", 10);
+    point_cloud_publisher_ = this->create_publisher<sensor_msgs::msg::PointCloud2>(
+      "/lidar_front/points_raw", 10);
 
     nmea_subscription_ = this->create_subscription<nmea_msgs::msg::Sentence>(
       "/nmea_sentence", 10, std::bind(&DatasetConverter::nmea_callback, this, _1));
-    nav_sat_fix_publisher_ = this->create_publisher<sensor_msgs::msg::NavSatFix>("/gnss/nmea_raw", 10);
+    nav_sat_fix_publisher_ = this->create_publisher<sensor_msgs::msg::NavSatFix>("/gnss/nmea_raw",
+        10);
   }
 
 private:
@@ -47,25 +49,28 @@ private:
   void nmea_callback(const nmea_msgs::msg::Sentence::SharedPtr msg) const
   {
     // Trim NMEA sequence
-    auto ltrim = std::find_if_not(msg->sentence.begin(), msg->sentence.end(), [](int c){return std::isspace(c);});
-    auto rtrim = std::find_if_not(msg->sentence.rbegin(), msg->sentence.rend(), [](int c){return std::isspace(c);}).base();
+    auto ltrim = std::find_if_not(msg->sentence.begin(), msg->sentence.end(), [](int c) {
+          return std::isspace(c);
+        });
+    auto rtrim = std::find_if_not(msg->sentence.rbegin(), msg->sentence.rend(), [](int c) {
+          return std::isspace(c);
+        }).base();
     auto trimmed_sentence = std::string(ltrim, rtrim);
 
     std::regex regex{R"([\s,]+)"}; // split on space and comma
-    std::sregex_token_iterator it{std::begin(trimmed_sentence), std::end(trimmed_sentence), regex, -1};
+    std::sregex_token_iterator it{std::begin(trimmed_sentence), std::end(trimmed_sentence), regex,
+      -1};
     std::vector<std::string> nmea_parts{it, {}};
-    if (!nmea_parts.empty())
-    {
-      if("$GPGGA" == nmea_parts[0] && nmea_parts.size() >= 10)
-      {
-        auto latitude = std::atoi(nmea_parts[2].substr(0, 2).c_str()) + std::atof(nmea_parts[2].substr(2).c_str()) / 60.0;
-        if(nmea_parts[3] == "S")
-        {
+    if (!nmea_parts.empty()) {
+      if ("$GPGGA" == nmea_parts[0] && nmea_parts.size() >= 10) {
+        auto latitude = std::atoi(nmea_parts[2].substr(0, 2).c_str()) + std::atof(nmea_parts[2].substr(
+              2).c_str()) / 60.0;
+        if (nmea_parts[3] == "S") {
           latitude = -latitude;
         }
-        auto longitude = std::atoi(nmea_parts[4].substr(0, 3).c_str()) + std::atof(nmea_parts[4].substr(3).c_str()) / 60.0;
-        if(nmea_parts[5] == "W")
-        {
+        auto longitude = std::atoi(nmea_parts[4].substr(0, 3).c_str()) + std::atof(nmea_parts[4].substr(
+              3).c_str()) / 60.0;
+        if (nmea_parts[5] == "W") {
           longitude = -longitude;
         }
         auto altitude = std::atof(nmea_parts[9].c_str());
