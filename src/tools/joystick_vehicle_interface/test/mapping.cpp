@@ -83,6 +83,7 @@ TEST_P(joy_vi_test, basic_mapping)
     (PubType::Basic == param.pub_type) ? "test_joystick_basic" : "null";
   constexpr auto state_command_topic = "test_state_command_topic";
   constexpr auto joy_topic = "test_joy_topic";
+  const bool recordreplay_command_enabled = false;
 
   const auto test_nd = std::make_shared<rclcpp::Node>("test_joystick_vehicle_interface_talker");
   const auto qos = rclcpp::SensorDataQoS{};
@@ -114,6 +115,7 @@ TEST_P(joy_vi_test, basic_mapping)
     basic_command_topic,
     state_command_topic,
     joy_topic,
+    recordreplay_command_enabled,
     param.axis_map,
     param.axis_scale_map,
     param.axis_offset_map,
