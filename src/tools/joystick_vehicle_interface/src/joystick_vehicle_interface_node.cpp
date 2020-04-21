@@ -119,7 +119,7 @@ JoystickVehicleInterfaceNode::JoystickVehicleInterfaceNode(
   const std::string & basic_command_topic,
   const std::string & state_command_topic,
   const std::string & joy_topic,
-  const bool & recordreplay_command_enabled,
+  const bool8_t & recordreplay_command_enabled,
   const AxisMap & axis_map,
   const AxisScaleMap & axis_scale_map,
   const AxisScaleMap & axis_offset_map,
