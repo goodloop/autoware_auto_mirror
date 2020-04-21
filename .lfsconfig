@@ -1,2 +1,2 @@
 [lfs]
-  fetchexclude = *.pcd
+  fetchexclude = *.pcd sample_moriyama_150324_autowareauto/*
