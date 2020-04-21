@@ -253,7 +253,8 @@ void JoystickVehicleInterfaceNode::on_joy(const sensor_msgs::msg::Joy::SharedPtr
 
   if (m_recordreplay_cmd_pub != nullptr && m_recordreplay_command.data > 0u) {
     m_recordreplay_cmd_pub->publish(m_recordreplay_command);
-    m_recordreplay_command.data = 0u;
+    m_recordreplay_command.data =
+      static_cast<decltype(std_msgs::msg::UInt8::data)>(Recordreplay::NOOP);
   }
 }
 
@@ -336,13 +337,16 @@ bool8_t JoystickVehicleInterfaceNode::handle_active_button(Buttons button)
       m_state_command.blinker = VSC::BLINKER_HAZARD;
       break;
     case Buttons::RECORDREPLAY_START_RECORD:
-      m_recordreplay_command.data = 1u;
+      m_recordreplay_command.data =
+        static_cast<decltype(std_msgs::msg::UInt8::data)>(Recordreplay::START_RECORD);
       break;
     case Buttons::RECORDREPLAY_START_REPLAY:
-      m_recordreplay_command.data = 2u;
+      m_recordreplay_command.data =
+        static_cast<decltype(std_msgs::msg::UInt8::data)>(Recordreplay::START_REPLAY);
       break;
     case Buttons::RECORDREPLAY_STOP:
-      m_recordreplay_command.data = 3u;
+      m_recordreplay_command.data =
+        static_cast<decltype(std_msgs::msg::UInt8::data)>(Recordreplay::STOP);
       break;
     default:
       throw std::logic_error{"Impossible button was pressed"};

@@ -71,6 +71,14 @@ enum class Buttons
   RECORDREPLAY_STOP
 };
 
+enum class Recordreplay : uint8_t
+{
+  NOOP = 0u,
+  START_RECORD,
+  START_REPLAY,
+  STOP
+};
+
 /// A node which translates sensor_msgs/msg/Joy messages into messages compatible with the vehicle
 /// interface. All participants use SensorDataQoS
 class JOYSTICK_VEHICLE_INTERFACE_PUBLIC JoystickVehicleInterfaceNode : public ::rclcpp::Node
