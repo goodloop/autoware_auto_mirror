@@ -13,24 +13,34 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#ifndef TEST_EUCLIDEAN_SEGMENTER_HPP_
+#define TEST_EUCLIDEAN_SEGMENTER_HPP_
+
 #include <geometry/bounding_box_2d.hpp>
-#include <test_euclidean_cluster_aux.h>
+#include <common/types.hpp>
+#include <test_euclidean_cluster_aux.hpp>
+
+#include <vector>
+#include <utility>
+
+using autoware::common::types::bool8_t;
+using autoware::common::types::float32_t;
 
 void check_box(
   const std::vector<autoware_auto_msgs::msg::BoundingBox> & expect,
   const autoware_auto_msgs::msg::BoundingBox & box,
-  const float TOL = 5.0E-1F)
+  const float32_t TOL = 5.0E-1F)
 {
-  bool found = false;
+  bool8_t found = false;
   for (auto & ebox : expect) {
-    bool close = true;
+    bool8_t close = true;
     close &= fabsf(box.centroid.x - ebox.centroid.x) < TOL;
     close &= fabsf(box.centroid.y - ebox.centroid.y) < TOL;
     close &= fabsf(box.size.x - ebox.size.x) < TOL;
     close &= fabsf(box.size.y - ebox.size.y) < TOL;
     // test corners
     for (uint32_t idx = 0U; idx < 4U; ++idx) {
-      bool found = false;
+      bool8_t found = false;
       for (uint32_t jdx = 0U; jdx < 4U; ++jdx) {
         if (fabsf(box.corners[idx].x - ebox.corners[jdx].x) < TOL &&
           fabsf(box.corners[idx].y - ebox.corners[jdx].y) < TOL)
@@ -41,7 +51,7 @@ void check_box(
       }
       close &= found;
     }
-    // TODO
+    // TODO(c.ho)
     // close &= fabsf(box.orientation.x = 1.0F;
     if (close) {
       found = true;
@@ -115,8 +125,8 @@ TEST(euclidean_segmenter, combined)
   res.clusters.reserve(cfg.max_num_clusters());
   std::vector<autoware_auto_msgs::msg::BoundingBox> expect;
   autoware_auto_msgs::msg::BoundingBox box;
-  std::vector<std::pair<float, float>> dummy;
-  const auto make = [](const float x, const float y) -> geometry_msgs::msg::Point32
+  std::vector<std::pair<float32_t, float32_t>> dummy;
+  const auto make = [](const float32_t x, const float32_t y) -> geometry_msgs::msg::Point32
   {
     geometry_msgs::msg::Point32 p;
     p.x = x;
@@ -126,7 +136,7 @@ TEST(euclidean_segmenter, combined)
 
   const auto box_fuzz = [](
     EuclideanCluster & cls,
-    std::vector<std::pair<float, float>> & dummy,
+    std::vector<std::pair<float32_t, float32_t>> & dummy,
     const autoware_auto_msgs::msg::BoundingBox & box) -> void
   {
     insert_point(cls, box.corners[0U].x, box.corners[0U].y);
@@ -202,3 +212,4 @@ TEST(euclidean_segmenter, combined)
   }
   EXPECT_NO_THROW(cls.cleanup(res));
 }
+#endif  // TEST_EUCLIDEAN_SEGMENTER_HPP_
