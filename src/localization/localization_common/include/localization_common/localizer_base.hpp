@@ -92,6 +92,17 @@ public:
     }
   }
 
+  /// Insert an increment to the map.
+  /// \param msg Data to insert to the map.
+  void insert_to_map(const MapMsgT & msg)
+  {
+    try {
+      insert_to_map_impl(msg);
+    } catch (...) {
+      on_bad_map_insertion(std::current_exception());
+    }
+  }
+
   /// Get the frame id of the current map.
   virtual const std::string & map_frame_id() const noexcept = 0;
 
@@ -109,8 +120,18 @@ protected:
   /// `set_map` implementation.
   virtual void set_map_impl(const MapMsgT & msg) = 0;
 
+  /// `insert_to_map` implementation
+  virtual void insert_to_map_impl(const MapMsgT & msg) = 0;
+
   /// Action to take on failure to set a new map.
   virtual void on_bad_map(std::exception_ptr eptr)
+  {
+    if (eptr) {
+      std::rethrow_exception(eptr);
+    }
+  }
+  /// Action to take on failure to insert to the map.
+  virtual void on_bad_map_insertion(std::exception_ptr eptr)
   {
     if (eptr) {
       std::rethrow_exception(eptr);
