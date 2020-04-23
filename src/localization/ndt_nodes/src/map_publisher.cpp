@@ -176,15 +176,20 @@ void NDTMapPublisherNode::init(
   m_pub = create_publisher<sensor_msgs::msg::PointCloud2>(map_topic,
       rclcpp::QoS(rclcpp::KeepLast(5U)).transient_local());
 
-  if (m_viz_map == true) {   // create a publisher for map_visualization
+  if (m_viz_map) {   // create a publisher for map_visualization
     m_viz_pub = create_publisher<sensor_msgs::msg::PointCloud2>(
       viz_map_topic, rclcpp::QoS(rclcpp::KeepLast(5U)).transient_local());
+
+    // Initialize Voxel Grid and output message for downsampling map
+    common::lidar_utils::init_pcl_msg(m_downsampled_pc, map_frame);
+    m_voxelgrid_ptr = std::make_unique<VoxelGrid>(*m_map_config_ptr);
+
     // Periodic publishing is a temp. hack until the rviz in ade has transient_local qos support.
     // TODO(yunus.caliskan): Remove the loop and publish only once after #380
     m_visualization_timer = create_wall_timer(std::chrono::seconds(1),
         [this]() {
-          if (m_source_pc.width > 0U) {
-            m_viz_pub->publish(m_source_pc);
+          if (m_downsampled_pc.width > 0U) {
+            m_viz_pub->publish(m_downsampled_pc);
           }
         });
   }
@@ -234,6 +239,11 @@ void NDTMapPublisherNode::load_map()
 
   m_ndt_map_ptr->insert(m_source_pc);
   map_to_pc();
+
+  if (m_viz_map) {
+    reset_pc_msg(m_downsampled_pc);
+    downsample_pc();
+  }
 }
 
 void NDTMapPublisherNode::publish_earth_to_map_transform(
@@ -325,6 +335,24 @@ void NDTMapPublisherNode::map_to_pc()
   common::lidar_utils::resize_pcl_msg(m_map_pc, num_used_cells);
 }
 
+void NDTMapPublisherNode::downsample_pc()
+{
+  common::lidar_utils::resize_pcl_msg(m_downsampled_pc, m_source_pc.data.size());
+
+  try {
+    m_voxelgrid_ptr->insert(m_source_pc);
+    m_downsampled_pc = m_voxelgrid_ptr->get();
+  } catch (const std::exception & e) {
+    std::string err_msg{e.what()};
+    RCLCPP_ERROR(this->get_logger(), err_msg.c_str());
+  } catch (...) {
+    std::string err_msg{"Unknown error occurred in "};
+    err_msg += get_name();
+    RCLCPP_ERROR(this->get_logger(), err_msg.c_str());
+    throw;
+  }
+}
+
 void NDTMapPublisherNode::publish()
 {
   if (m_map_pc.width > 0U) {
@@ -336,6 +364,11 @@ void NDTMapPublisherNode::reset()
 {
   reset_pc_msg(m_map_pc);
   reset_pc_msg(m_source_pc);
+
+  if (m_viz_map) {
+    reset_pc_msg(m_downsampled_pc);
+  }
+
   m_ndt_map_ptr->clear();
 }
 

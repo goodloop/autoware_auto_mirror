@@ -265,7 +265,8 @@ TEST_F(MapPublisherTest, viz_functionality)
 
   EXPECT_EQ(viz_callback_counter, 1U);
   // Check that received viz pointcloud is a valid ndt map in terms of meta information.
-  EXPECT_EQ(received_viz_cloud_map.width, m_pc.width);
+  // Map is now downsampled prior to visualization so it is the same size as the voxel map.
+  EXPECT_EQ(received_viz_cloud_map.width, 125U);
 
   remove(pcl_file_name);
   remove(yaml_file_name.c_str());
