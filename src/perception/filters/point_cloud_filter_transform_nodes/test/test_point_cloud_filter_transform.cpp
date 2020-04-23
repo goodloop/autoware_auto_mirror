@@ -27,6 +27,47 @@
 
 using autoware::common::types::float64_t;
 
+// FIXME(esteve): this function is copied from test_point_cloud_fusion.hpp
+builtin_interfaces::msg::Time to_msg_time(
+  const std::chrono::system_clock::time_point time_point)
+{
+  const auto tse = time_point.time_since_epoch();
+  if (tse < std::chrono::nanoseconds(0LL)) {
+    throw std::invalid_argument("ROS 2 builtin interfaces time does not support negative a epoch.");
+  }
+  builtin_interfaces::msg::Time result;
+
+  result.sec = static_cast<decltype(result.sec)>(
+    std::chrono::duration_cast<std::chrono::seconds>(tse).count());
+
+  result.nanosec = static_cast<decltype(result.nanosec)>((
+      tse - std::chrono::duration_cast<std::chrono::seconds>(tse)).count());
+
+  return result;
+}
+
+// FIXME(esteve): this function is copied from test_point_cloud_fusion.hpp
+sensor_msgs::msg::PointCloud2 make_pc(std::vector<int32_t> seeds, builtin_interfaces::msg::Time
+stamp)
+{
+  sensor_msgs::msg::PointCloud2 msg;
+  autoware::common::lidar_utils::init_pcl_msg(msg, "base_link", seeds.size());
+
+  uint32_t pidx = 0;
+  for (auto seed : seeds) {
+    autoware::common::types::PointXYZIF pt;
+    pt.x = seed;
+    pt.y = seed;
+    pt.z = seed;
+    pt.intensity = seed;
+    autoware::common::lidar_utils::add_point_to_cloud(msg, pt, pidx);
+  }
+
+  msg.header.stamp = stamp;
+
+  return msg;
+}
+
 class point_cloud_filter_transform_integration : public ::testing::Test
 {
 protected:
@@ -308,6 +349,96 @@ public:
 
 //   EXPECT_TRUE(tester.check_filtered_points(expected_filter_output_points, "base_link"));
 // }
+
+struct TestFilterTransformPC2FilterTransformMode :
+  public autoware::perception::filters::point_cloud_filter_transform_nodes::PointCloud2FilterTransformNode
+{
+  using PointCloud2 = sensor_msgs::msg::PointCloud2;
+
+  TestFilterTransformPC2FilterTransformMode(
+    const std::string & node_name,
+    const std::string & node_namespace,
+    const std::chrono::nanoseconds & init_timeout,
+    const std::chrono::nanoseconds & timeout,
+    const std::string & input_frame_id,
+    const std::string & output_frame_id,
+    const std::string & raw_topic,
+    const std::string & filtered_topic,
+    const float32_t start_angle,
+    const float32_t end_angle,
+    const float32_t min_radius,
+    const float32_t max_radius,
+    const geometry_msgs::msg::Transform & tf,
+    const size_t pcl_size,
+    const size_t expected_num_publishers = 1U,
+    const size_t expected_num_subscribers = 0U)
+    : PointCloud2FilterTransformNode
+    (
+    node_name,
+    node_namespace,
+    init_timeout,
+    timeout,
+    input_frame_id,
+    output_frame_id,
+    raw_topic,
+    filtered_topic,
+    start_angle,
+    end_angle,
+    min_radius,
+    max_radius,
+    tf,
+    pcl_size,
+    expected_num_publishers,
+    expected_num_subscribers
+    )
+    {}
+
+  const PointCloud2 & test_filter_and_transform(const PointCloud2 & msg)
+  {
+    return filter_and_transform(msg);
+  }
+};
+
+// regression test for bug 419
+// https://gitlab.com/autowarefoundation/autoware.auto/AutowareAuto/-/issues/419
+TEST_F(point_cloud_filter_transform_integration, filter_and_transform_bug419)
+{
+  rclcpp::init(0, nullptr);
+
+  const float32_t start_angle = 0.;
+  const float32_t end_angle = 4.712;
+  const float32_t min_radius = 0.;
+  const float32_t max_radius = 10.;
+  const std::string raw_topic_name{"points_raw"};
+  const std::string filtered_topic_name{"points_filtered"};
+  const std::string input_frame_id{"lidar_front"};
+  const std::string output_frame_id{"base_link"};
+  const auto pc2_filter_ptr = std::make_shared<TestFilterTransformPC2FilterTransformMode>(
+    "point_cloud_filter_transform_node",
+    "",
+    m_init_timeout,
+    std::chrono::milliseconds(110),
+    input_frame_id,
+    output_frame_id,
+    raw_topic_name,
+    filtered_topic_name,
+    start_angle,
+    end_angle,
+    min_radius,
+    max_radius,
+    m_tf,
+    5U,
+    1U,
+    1U);
+
+  auto time0 = std::chrono::system_clock::now();
+  auto t0 = to_msg_time(time0);
+
+  auto pc1 = make_pc({1, 2, 3, 4, 5, 6, 7, 8, 9}, t0);
+  pc1.header.frame_id = input_frame_id;
+
+  pc2_filter_ptr->test_filter_and_transform(pc1);
+}
 
 int32_t main(int32_t argc, char ** argv)
 {
