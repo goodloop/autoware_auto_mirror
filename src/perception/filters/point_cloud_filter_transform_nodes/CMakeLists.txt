@@ -49,12 +49,13 @@ if(BUILD_TESTING)
   find_package(apex_test_tools REQUIRED)
   find_package(velodyne_node REQUIRED)
   find_package(autoware_auto_common REQUIRED)
+  find_package(rclcpp_lifecycle REQUIRED)
   set(FILTER_TRANSFORM_NODE_GTEST filter_transform_node_gtest)
   apex_test_tools_add_gtest(${FILTER_TRANSFORM_NODE_GTEST}
       "test/test_point_cloud_filter_transform.cpp")
   target_include_directories(${FILTER_TRANSFORM_NODE_GTEST} PRIVATE include)
   target_link_libraries(${FILTER_TRANSFORM_NODE_GTEST} ${FILTER_NODE_LIB})
-  ament_target_dependencies(${FILTER_TRANSFORM_NODE_GTEST} "lidar_integration" "velodyne_node" "autoware_auto_common")
+  ament_target_dependencies(${FILTER_TRANSFORM_NODE_GTEST} "lidar_integration" "velodyne_node" "autoware_auto_common" "rclcpp_lifecycle")
 
   # # integration test
   # TODO(esteve): disabled for now until the lidar_integration package is merged in
