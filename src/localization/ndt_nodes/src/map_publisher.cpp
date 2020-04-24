@@ -152,7 +152,6 @@ NDTMapPublisherNode::NDTMapPublisherNode(
   init(map_frame, map_topic, viz_map_topic);
 }
 
-
 void NDTMapPublisherNode::init(
   const std::string & map_frame,
   const std::string & map_topic,
@@ -177,12 +176,26 @@ void NDTMapPublisherNode::init(
       rclcpp::QoS(rclcpp::KeepLast(5U)).transient_local());
 
   if (m_viz_map) {   // create a publisher for map_visualization
+    using PointXYZ = perception::filters::voxel_grid::PointXYZ;
+
     m_viz_pub = create_publisher<sensor_msgs::msg::PointCloud2>(
       viz_map_topic, rclcpp::QoS(rclcpp::KeepLast(5U)).transient_local());
 
+    // TODO(jwhitleywork) Hard-coded voxel size and capacity.
+    // To be removed when #380 is in.
+    PointXYZ viz_voxel_size;
+    viz_voxel_size.x = 0.4F;
+    viz_voxel_size.y = 0.4F;
+    viz_voxel_size.z = 0.4F;
+    m_viz_map_config_ptr = std::make_unique<MapConfig>(
+      m_map_config_ptr->get_min_point(),
+      m_map_config_ptr->get_max_point(),
+      viz_voxel_size,
+      10000000U);
+
     // Initialize Voxel Grid and output message for downsampling map
     common::lidar_utils::init_pcl_msg(m_downsampled_pc, map_frame);
-    m_voxelgrid_ptr = std::make_unique<VoxelGrid>(*m_map_config_ptr);
+    m_voxelgrid_ptr = std::make_unique<VoxelGrid>(*m_viz_map_config_ptr);
 
     // Periodic publishing is a temp. hack until the rviz in ade has transient_local qos support.
     // TODO(yunus.caliskan): Remove the loop and publish only once after #380
