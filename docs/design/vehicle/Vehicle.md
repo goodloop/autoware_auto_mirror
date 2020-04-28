@@ -115,12 +115,12 @@ The output to the vehicle depends on each vehicle interface.
 
 For vehicles of the type controlled by the target velocity or acceleration (type A)
 
-![Vehicle_design_typeA](/design/img/VehicleInterfaceDesign1.png)
+![Vehicle_design_typeA](/docs/images/architecture-vehicle-interface-A.png)
 
 
 For vehicles of the type controlled by the target throttle and brake pedals (type B)
 
-![Vehicle_design_typeB](/design/img/VehicleInterfaceDesign2.png)
+![Vehicle_design_typeB](/docs/images/architecture-vehicle-interface-B.png)
 
 
 ## Vehicle Interface 
@@ -189,7 +189,7 @@ With the use of `RawVehicleCmdConverter`, you need to create a module that satis
 
 When using the `RawVehicleCmdConverter` described above, it is necessary to create an acceleration map for each vehicle. The acceleration map is data in CSV format that describes how much acceleration is produced when the pedal pressed in each vehicle speed range. You can find the default acceleration map data in `src/vehicle/raw_vehicle_cmd_converter/data` as a reference. In the CSV data, the horizontal axis is the current velocity [m/s], the vertical axis is the vehicle-specific pedal value [-], and the element is the acceleration [m/ss] as described below.
 
-![Vehicle_accel_map_description](/design/img/VehicleAccelMapDescription.png)
+![Vehicle_accel_map_description](/docs/images/vehicle-accel-map-description.png)
 
 
 This is the reference data created by TierIV with the following steps.
