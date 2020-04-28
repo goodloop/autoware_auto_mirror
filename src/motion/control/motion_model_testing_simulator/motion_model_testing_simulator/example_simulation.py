@@ -22,7 +22,7 @@
 
 import sys
 import os
-import minisim
+import motion_model_testing_simulator.minisim as minisim
 import numpy as np
 import matplotlib.pyplot as plt
 

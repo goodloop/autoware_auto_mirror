@@ -1,0 +1,4 @@
+controller_testing_node:
+  ros__parameters:
+    state_frame: 'odom'
+    trajectory_frame: 'odom'
