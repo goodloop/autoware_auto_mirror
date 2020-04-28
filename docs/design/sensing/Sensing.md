@@ -5,7 +5,7 @@ Sensing
 
 For autonomous driving, a vehicle needs to be aware of its state and surrouding environment. Sensing stack collects the environment information through various sensors and manipulates data appropriately to be used by other stacks.
 
-![Sensing_overview](/design/img/SensingOverview.svg)
+![Sensing_overview](/docs/images/architecture-sensing-overview.svg)
 
 ## Role
 
@@ -23,14 +23,14 @@ The uses cases of Sensing stack are the followings:
 4. Recording log data
 
 ## Requirements
-For the use cases 1-3mentioned above, the actual computation is done in either [Localization](/Sensing/Sensing.md) stack and [Perception](/Perception/Perception.md) stack, but the data used for computation must be provided by Sensing stack. Therefore, requirement of the Sensing stack is:
+For the use cases 1-3mentioned above, the actual computation is done in either [Localization](/docs/design/localization/Localization.md) stack and [Perception](/docs/design/perception/Perception.md) stack, but the data used for computation must be provided by Sensing stack. Therefore, requirement of the Sensing stack is:
 1. Sensing stack should provide enough information for selected Localization method. e.g. LiDAR pointcloud, GNSS, and IMU (Use Case 1)
 2. Sensing stack should provide enough information for object recognition. e.g. LiDAR pointcloud and camera image (Use Case 2)
 3. Sensing stack should provide enough information for traffic light recognition. e.g. camera image (Use Case 3)
 4. Sensing stack should convert all sensor specific data into ROS message for logging. (Use Case 4)
 5. In order to abstract sensor specification from other stacks, Sensing stack should provide sensor data as ROS message specified described in Output section.
 
-Since the architecture of [Localization](/Sensing/Sensing.md) stack and [Perception](/Perception/Perception.md) stack leaves choices of using different combinations of algorithms, Autoware does not set any requirements about input sensor configurations. It is the users responsibility to come up with appropriate sensor configuration to achieve the user's use cases.
+Since the architecture of [Localization](/docs/design/localization/Localization.md) stack and [Perception](/docs/design/perception/Perception.md) stack leaves choices of using different combinations of algorithms, Autoware does not set any requirements about input sensor configurations. It is the users responsibility to come up with appropriate sensor configuration to achieve the user's use cases.
 
 As a reference, the recommended sensors from past experience with [Autoware.AI](http://autoware.ai/) is listed below:
 - LiDAR
@@ -64,7 +64,7 @@ The table below summarizes the output message for recommended sensors. More sens
 # Design
 In order to support the requirements, Sensing stack is decomposed as below. Depending on the use case and hardware configuration of the vehicle, users may choose to use a subset of the components stated in the diagram. General convention is that for each sensor, there will be a driver and optionally a preprocessor component. Drivers are responsible for converting sensor data into ROS message and modification of the data during conversion should be minimal. It is preprocessors' responsibility to manipulate sensor data for ease of use.
 
-![Sensing_component](/design/img/SensingComponent.svg)
+![Sensing_component](/docs/images/architecture-sensing-component.svg)
 
 
 ## Drivers
