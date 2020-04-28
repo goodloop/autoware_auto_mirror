@@ -23,11 +23,14 @@ from typing import List
 
 from scipy.integrate import odeint
 
+
 # --- Define abstract interface classes for the simulation ---------------------------
 class SerdeInterface(ABC):
-    """Interface for objects implementing (de-)serialization to numpy ndarrays.
-       The serialization can be used for purposes such as interfacing with integrators 
-       from numerical packages like scipy.integrate.ode.
+    """
+    Interface for objects implementing (de-)serialization to numpy ndarrays.
+
+    The serialization can be used for purposes such as interfacing with integrators
+    from numerical packages like scipy.integrate.ode.
     """
 
     @abstractmethod
@@ -41,38 +44,45 @@ class SerdeInterface(ABC):
 
 
 class DynamicsInterface(ABC):
-    """Interface for objects implementing a continuous system dynamics 
-       function evaluation, that is a function of the form dx/dt = f(x,u),
-       where x is the system state, u is the control input, and dx/dt is the
-       derivative of the state for those arguments.
+    """
+    Interface for objects implementing a continuous system dynamics function evaluation.
 
-       The interface provides both structured and unstructured (as in, with
-       serialized data) calls.
+    That is a function of the form dx/dt = f(x,u),
+    where x is the system state, u is the control input, and dx/dt is the
+    derivative of the state for those arguments.
+    The interface provides both structured and unstructured (as in, with
+    serialized data) calls.
     """
 
     @abstractmethod
     def evaluate_dynamics(
         self, current_state: SerdeInterface, current_command: SerdeInterface
     ) -> SerdeInterface:
-        """Should return the derivative of current state, given current_command 
-           is being applied to the system inputs.
+        """
+        Return the derivative of current state.
+
+        Given current_command is being applied to the system inputs.
         """
 
     @abstractmethod
     def evaluate_dynamics_serialized(
         self, current_state: np.ndarray, current_command: np.ndarray
     ) -> np.ndarray:
-        """Should return the derivative of current state, given current_command 
-           is being applied to the system inputs. This can just be a wrapper call
-           to evaluate_dynamics.
+        """
+        Return the derivative of current state.
+
+        Given current_command is being applied to the system inputs.
+        This can just be a wrapper call to evaluate_dynamics.
         """
 
 
 class ControlInterface(ABC):
     @abstractmethod
     def compute_control(self, current_state: SerdeInterface) -> SerdeInterface:
-        """Should compute the control inputs that should be applied to the system given
-           the state measurement current_state.
+        """
+        Compute the control inputs that should be applied to the system.
+
+        Given the state measurement current_state.
         """
 
 
@@ -92,7 +102,7 @@ class RecorderInterface(ABC):
 
 
 class SimulationRecorderToMemory(RecorderInterface):
-    """Class to record simulation history to memory (stored within the object)"""
+    """Class to record simulation history to memory (stored within the object)."""
 
     def __init__(self):
         self.history: List[SimulationInstant] = []
@@ -108,9 +118,11 @@ class SimulationRecorderToMemory(RecorderInterface):
 
 # --- Main simulation class ----------------------------------------------------------
 class MiniSim:
-    """Simple and small one-object, one-controller simulator. See the documentation of the
-       interfaces of the classes required by the constructor for how to implement dynamics
-       and controller.
+    """
+    Simple and small one-object, one-controller simulator.
+
+    See the documentation of the interfaces of the classes required by the constructor
+    for how to implement dynamics and controller.
     """
 
     def __init__(
@@ -121,11 +133,13 @@ class MiniSim:
         step_time_seconds: float,
         listeners: dict = {},
     ):
-        """Create a simulation object with the specified components. 
-           Listeners is a dictionary of objects for callback functionality. Currently
-           supported keys:
-           - "recorder": object implementing RecorderInterface. Used to either record
-             or otherwise publish each simulated simulated state and control input.
+        """
+        Create a simulation object with the specified components.
+
+        Listeners is a dictionary of objects for callback functionality. Currently
+        supported keys:
+          - "recorder": object implementing RecorderInterface. Used to either record
+          or otherwise publish each simulated simulated state and control input.
         """
         self.dynamics = dynamics
         self.controller = controller
@@ -151,8 +165,10 @@ class MiniSim:
         return state.deserialize(solution_trajectory[-1, :])
 
     def _simulation_iteration(self, current_state: SerdeInterface) -> SerdeInterface:
-        """Perform one iteration of the simulation, taking the current state as an 
-           input and returning the next state.
+        """
+        Perform one iteration of the simulation.
+
+        Takes the current state as an input and returns the next state.
         """
         current_command = self.controller.compute_control(current_state)
         next_state = self._integrate_dynamics(current_state, current_command)

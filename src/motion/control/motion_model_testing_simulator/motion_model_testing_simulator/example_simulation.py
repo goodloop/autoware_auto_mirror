@@ -22,14 +22,13 @@
 
 import sys
 import os
+import minisim
 import numpy as np
 import matplotlib.pyplot as plt
 
 # Add the package path to the python path temporarily. Useful to make the package
 # testable anywhere and immediately, also without modifying the system python path.
 sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
-
-import minisim
 
 
 class PendulumState(minisim.SerdeInterface):
