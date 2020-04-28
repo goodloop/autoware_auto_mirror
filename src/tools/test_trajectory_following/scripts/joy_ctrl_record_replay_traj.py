@@ -195,8 +195,8 @@ class JoyCtrlRecordReplayTraj(Node):
         return
 
     def replayTrajectoryFeedback(self, msg):
-        self.get_logger().info(
-            'replayTrajectoryFeedback lenght {}'.format(msg.feedback.remaining_length))
+        # self.get_logger().info(
+        #     'replayTrajectoryFeedback lenght {}'.format(msg.feedback.remaining_length))
         self.replay_remaining_length_ = msg.feedback.remaining_length
         return
 

@@ -225,6 +225,7 @@ const Trajectory & RecordReplayPlanner::from_record(const State & current_state)
       break;
     }
   }
+  std::cout<<"collision "<<collision<<std::endl;
 
   return trajectory;
 }

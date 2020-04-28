@@ -215,12 +215,20 @@ void LgsvlInterface::on_odometry(const nav_msgs::msg::Odometry & msg)
   }
   decltype(msg.pose.pose.orientation) q{};
   {
+/*
+    tf2::Quaternion q_lhs{
+      msg.pose.pose.orientation.x,
+      msg.pose.pose.orientation.y,
+      msg.pose.pose.orientation.z,
+      msg.pose.pose.orientation.w};
+      std::cout<<"\nq_lhs getAngle "<<q_lhs.getAngle() * (180.0/M_PI);*/
     // Convert from LHS system to RHS system: Y forward, Z up
     tf2::Quaternion q_rhs{
-      -msg.pose.pose.orientation.z,
+      msg.pose.pose.orientation.z,
       msg.pose.pose.orientation.x,
       -msg.pose.pose.orientation.y,
       msg.pose.pose.orientation.w};
+    //std::cout<<"\nq_rhs getAngle "<<q_rhs.getAngle() * (180.0/M_PI);
     // rotate +90 degrees around +z axis to get X forward
     tf2::Quaternion q90{};
     q90.setRPY(0.0, 0.0, 90.0 * (M_PI / 180.0));
@@ -229,6 +237,7 @@ void LgsvlInterface::on_odometry(const nav_msgs::msg::Odometry & msg)
     q.y = q_x_forward.getY();
     q.z = q_x_forward.getZ();
     q.w = q_x_forward.getW();
+    //std::cout<<"\nq_x_forward getAngle "<<q_x_forward.getAngle() * (180.0/M_PI);
   }
   const auto px = msg.pose.pose.position.x - m_odom_zero.x;
   const auto py = msg.pose.pose.position.y - m_odom_zero.y;
