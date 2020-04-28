@@ -1,7 +1,7 @@
 # Planning Architecture Rationale
 
 ## Requirements for Planning
-Plannig architecture must be able to support any functions required to achieve the overall use case stated in [Overview](/Overview.md)
+Plannig architecture must be able to support any functions required to achieve the overall use case stated in [Overview](/docs/design/Overview.md)
 
 This includes: 
 - Calculates route that navigates to the desired goal

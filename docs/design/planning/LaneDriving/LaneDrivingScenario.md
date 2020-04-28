@@ -7,7 +7,7 @@ Lane Driving Scenario must satisfy the following use cases:
 * Follow traffic light
 * Turning left/right at intersections
 
-For the details about related requirements, please refer to the [document for Planning stack](/design/Planning/Planning.md).
+For the details about related requirements, please refer to the [document for Planning stack](/docs/design/planning/Planning.md).
 
 ## Input
 - Route: `autoware_planning_msgs::Route` <br> This includes the final goal pose and which lanes are available for trajectory planning.
@@ -23,7 +23,7 @@ For the details about related requirements, please refer to the [document for Pl
 ## Design
 Lane Driving scenario is decomposed into following modules: LaneChangePlanner, BehaviorVelocityPlanner, MotionPlanner and TurnSignalDecider. 
 
-![LaneDrivingScenario](/design/img/LaneDrivingScenario.png)
+![LaneDrivingScenario](/docs/images/architecture-planning-lane-driving.png)
 
 ### Behavior Planner
 Behavior Planner plans the path, which includes reference trajectory(i.e. path points) for motion planner to optimize and drivable area. General idea is that behavior layer sets constraints according to traffic rules to ensure optimized trajectory follows traffic rules.
