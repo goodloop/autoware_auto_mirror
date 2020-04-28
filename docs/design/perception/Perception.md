@@ -3,7 +3,7 @@ Perception
 # Overview
 Perception stack recognizes the surrounding of the vehicle to achieve safe and efficient autonomous driving. The output of Sensing describes environment "as is", and is usually too primitive to be used directly for high-level planning. Perception stack will extract key and organize it into more meaningful data for Planning stack.
 
-![Perception_overview](/design/img/PerceptionOverview.svg)
+![Perception_overview](/docs/images/architecture-perception-overview.svg)
 
 # Role
 Perception stack has 2 main roles.
@@ -72,7 +72,7 @@ This Perception stack consists of 2 separated modules and each module can be sub
    - Detection
    - Classification
 
-![Perception_component](/design/img/PerceptionComponent.png)
+![Perception_component](/docs/images/architecture-perception-component.png)
 
 **Key points of the structure**
 
@@ -89,7 +89,7 @@ The motivation behind recognizing obstacles comes from a requirement for balanci
 
 ### Requirement
 
-![Perception_object_if](/design/img/PerceptionObjectIf.png)
+![Perception_object_if](/docs/images/architecture-perception-object-if.png)
 
 #### Detection
 
@@ -129,7 +129,7 @@ Prediction component is responsible for clarifying the following objects' proper
 
 Necessary information is defined in `autoware_perception_msg::DynamicObjectArray.msg` with layered msg structure.
 
-![Perception_object_msg](/design/img/PerceptionObjectMsg.svg)
+![Perception_object_msg](/docs/images/architecture-perception-object-message.svg)
 
 ### Input
 
@@ -171,7 +171,7 @@ It needs to recognize traffic light signals in order to ensure safe autonomous d
 
 Need to fill `lamp_states` in `autoware_traffic_light_msg::TrafficLightState.msg`
 
-![Perception_trafficlight_msg_msg](/design/img/PerceptionTrafficLightMsg.png)
+![Perception_trafficlight_msg_msg](/docs/images/architecture-perception-traffic-light-message.png)
 
 | Property    | Definition                                                      | Data Type                               | Parent Data Type                              |
 | ----------- | --------------------------------------------------------------- | --------------------------------------- | --------------------------------------------- |

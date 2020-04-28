@@ -10,7 +10,7 @@ Prediction in Object Recognition is required for usecases involved with obstacle
 * Taking over Pedestrian/Cyclists
 * Stopping/yielding to an obstacle
 
-For the details about related requirements, please refer to the [document for Perception stack](/design/Perception/Perception.md).
+For the details about related requirements, please refer to the [document for Perception stack](/docs/design/perception/Perception.md).
 
 ## Role
 Prediction in Object Recognition estimate objects' intention. Intentions are represented as objects' future trajectories with covariance. The Planning module makes a decision and plans a future ego-motion based on the results of predicted objects.
@@ -31,13 +31,13 @@ Prediction in Object Recognition estimate objects' intention. Intentions are rep
 
 ## Design
 This is our sample implementation for the Tracking module.
-![msg](/design/img/ObjectPredictionDesign.png)
+![msg](/docs/images/architecture-perception-object-prediction-design.png)
 
 
 ## Requirement in Output
 Designated objects' property in autoware_perception_msgs::DynamicObject needs to be filled in the Prediction module before passing to the Planning component.
 
-![msg](/design/img/ObjectPredictionRequirement.png)
+![msg](/docs/images/architecture-perception-object-prediction-requirement.png)
 
 
 | Property  | Definition |Data Type                                 | Parent Data Type|

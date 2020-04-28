@@ -6,7 +6,7 @@ Detection in Traffic Light Recognition is required for usecases involved with tr
 * Passing intersection when traffic light is greed
 * Stopping intersection when traffic sinal is red
 
-For the details about related requirements, please refer to the [document for Perception stack](/design/Perception/Perception.md).
+For the details about related requirements, please refer to the [document for Perception stack](/docs/design/perception/Perception.md).
 
 ## Role
 
@@ -30,9 +30,9 @@ Detection module in Traffic Light Recognition finds traffic lights' region of in
 ## Design
 The Detection module is designed to modularize some patterns of detecting traffic lights' ROI.
 
-![msg](/design/img/LightDetectionDesign.png)
+![msg](/docs/images/architecture-perception-traffic-light-detection.png)
 
 This is our sample implementation for the Detection module.
-![msg](/design/img/LightDetectionDesign2.png)
+![msg](/docs/images/architecture-perception-traffic-light-detection-refimpl.png)
 
 Our sample implementation has one advantage over only Map Based Detection method, which sometimes suffers from calibration error. In our approach, Map Based Detection passes rough ROIs to Fine Detection so that it would not care minor calibration error. Fine Detection refines the passed rough ROI to accurately cropped traffic signals' ROI.
