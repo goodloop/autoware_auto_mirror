@@ -3,7 +3,7 @@ Architecture Overview
 
 # Introduction
 
-Although Autoware.Auto started as a rewrite of Autoware.AI for ROS2, we will also re-designing architecture for autonomous driving.
+Autoware.Auto started as a rewrite of Autoware.AI for ROS2, and architecture design is also renewed.
 One of the lessons learned from Autoware.Auto is that it became difficult to improve Autoware.AI features because of:
 - No concrete architecture designed
 - A lot of technical debt
@@ -64,16 +64,17 @@ Since Autoware is open source and is meant to be used/developed by anyone around
 - The role and interface of a module must be clearly defined
 
 # High-level Architecture Design
-Here is an overview of this architecture.
+Here is the high-level overview of Autoware architecture.
 
-![Overview](/design/img/Overview2.svg)
+![Overview](/docs/images/architecture-overview.svg)
 
-This architecture consists of 6 stacks:
-- [Sensing](Sensing/Sensing.md)
-- [Localization](Localization/Localization.md)
-- [Perception](Perception/Perception.md)
-- [Planning](Planning/Planning.md)
-- [Control](Control/Control.md)
-- [Map](Map/Map.md)
+This architecture consists of the following stacks:
+- [Sensing](sensing/Sensing.md) provides sensor data as ROS messages.
+- [Map](map/Map.md) provides geometric and semantic information about an environment.
+- [Localization](localization/Localization.md) provides vehicle's position.
+- [Perception](perception/Perception.md) extracts meaningful information from sensor data.
+- [Planning](planning/Planning.md) plans trajectory that vehicle must follow.
+- [Control](control/Control.md) calculates control command for the vehicle to follow given trajectory.
+- [Vehicle](vehicle/Vehicle.md) acts as interface for vehicle hardware.
 
-The details are explained in each page. 
+Each stack is decomposed into smaller components. The details are explained in each page. 
