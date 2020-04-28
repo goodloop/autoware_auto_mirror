@@ -78,3 +78,39 @@ This architecture consists of the following stacks:
 - [Vehicle](vehicle/Vehicle.md) acts as interface for vehicle hardware.
 
 Each stack is decomposed into smaller components. The details are explained in each page. 
+
+## Inter-module Topics
+The final output topics of each stack are defined as list below. The details about the topics are explained in each page. In order to avoid complex interdependecy between stacks, a node in a certain stack is only allowed to subscribed to topics within that stack or the topics in the list. For example, if a new node is added to Planning stack, then that node is not allowed to subscribe to a other local topics in Perception, e.g. /perception/traffic_light_recognition/detection/rois.
+
+The restriction of access to topics in other stacks allows developers to: 
+* easily track down issues to find which stack is malfunctioning
+* easily replace any module or submodules in a stack without worrying about downgrading functions in other stacks
+* make clear of their contribution. (Improvement of a stack means improvement of the accuracy of the stack's topic)
+
+Intermodule topic list:
+- [Sensing](sensing/Sensing.md)
+  - /sensing/lidar/pointcloud
+  - /sensing/lidar/no_ground/pointcloud
+  - /sensing/camera/image
+  - /sensing/camera/camera_info
+  - /sensing/gnss/pose_with_covariance
+  - /sensing/imu/imu_data
+- [Localization](localization/Localization.md)
+  - /tf
+  - /localization/twist
+- [Perception](perception/Perception.md)
+  - /perception/object_recognition/objects
+  - /perception/traffic_light_recognition/traffic_light_states
+- [Planning](planning/Planning.md)
+  - /planning/trajectory
+  - /vehicle/turn_signal_cmd
+- [Control](control/Control.md)
+  - /control/vehicle_cmd
+- [Map](map/Map.md)
+  - /map/pointcloud_map
+  - /map/vector_map
+- [Vehicle](vehicle/Vehicle.md)
+  - /vehicle/status/twist
+  - /vehicle/status/steering
+  - /vehicle/status/shift
+  - /vehicle/status/turn_signal
