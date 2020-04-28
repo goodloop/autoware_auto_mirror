@@ -56,7 +56,7 @@ Here is an example osm syntax for traffic light object.
 </way>
 ```
 
-### Turn Diretions
+### Turn Directions
 Users must add "turn_direction" tags to lanelets within intersections to indicate vehicle's turning direction. You do not need this tags for lanelets that are not in intersections. If you do not have this tag, Autoware will not be able to light up turning indicators. 
 This tags only take following values:
 * left
@@ -97,20 +97,3 @@ Here is an example of MetaInfo in osm file:
   <relation>...</relation>
 </osm>
 ``` 
-
-### Local Coordinate Expression
-Sometimes users might want to create Lanelet2 maps that are not georeferenced. 
-In such a case, users may use "local_x", "local_y" taggings to express local positions instead of latitude and longitude. 
-Autoware Osm Parser will overwrite x,y positions with these tags when they are present.
-For z values, use "ele" tags as default Lanelet2 Format. 
-You would still need to fill in lat and lon attributes so that parser does not crush, but their values could be anything. 
-
-Here is example `node` element in osm with "local_x", "local_y" taggings:
-```
-<!-- lat/lon attributes are required, but their values can be anything --> 
-<node id='40648' visible='true' version='1' lat='0' lon='0'>
-  <tag k='local_x' v=2.54'/>
-  <tag k='local_y' v=4.38'/>
-  <tag k='ele' v='3.0'/>
-</node>
-```
