@@ -22,7 +22,6 @@ from controller_testing.controller_testing_node \
 def main(args=None):
     rclpy.init(args=args)
     node = ControllerTestingNode()
-
     try:
         rclpy.spin(node)
     except KeyboardInterrupt:

@@ -21,8 +21,8 @@
 <!-- Not yet used - reenable as needed
   <exec_depend>python3-matplotlib</exec_depend>
   <exec_depend>python3-numpy</exec_depend>
-  <exec_depend>python-scipy</exec_depend>
 -->
+<exec_depend>python-scipy</exec_depend>
   <exec_depend>rclpy</exec_depend>
 
   <test_depend>ament_lint_auto</test_depend>

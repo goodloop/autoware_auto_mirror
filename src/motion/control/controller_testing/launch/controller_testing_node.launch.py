@@ -39,6 +39,7 @@ def generate_launch_description():
             {
                 "state_frame":  'odom',
                 "trajectory_frame":  'odom',
+                "sim_time_step_s": 0.01
             }
 
         ],

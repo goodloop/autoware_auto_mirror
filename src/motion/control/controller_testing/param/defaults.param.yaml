@@ -2,3 +2,4 @@ controller_testing_node:
   ros__parameters:
     state_frame: 'odom'
     trajectory_frame: 'odom'
+    sim_time_step_s: 0.01

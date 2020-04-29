@@ -117,6 +117,65 @@ class SimulationRecorderToMemory(RecorderInterface):
 
 
 # --- Main simulation class ----------------------------------------------------------
+class ExternalControllerSim:
+    """
+    Simple and small one-object, one-controller simulator.
+
+    See the documentation of the interfaces of the classes required by the constructor
+    for how to implement dynamics and controller.
+    """
+
+    def __init__(
+        self,
+        dynamics: DynamicsInterface,
+        step_time_seconds: float,
+        listeners: dict = {},
+    ):
+        """
+        Create a simulation object with the specified components.
+
+        Listeners is a dictionary of objects for callback functionality. Currently
+        supported keys:
+          - "recorder": object implementing RecorderInterface. Used to either record
+          or otherwise publish each simulated simulated state and control input.
+        """
+        self.dynamics = dynamics
+        self.step_time = step_time_seconds
+        self.listeners = listeners
+        self.simulation_time = 0.0
+
+    def _integrate_dynamics(
+        self, state: SerdeInterface, command: SerdeInterface
+    ) -> SerdeInterface:
+        # Create a wrapper that closes over the current command
+        def ode_wrapper(y: np.ndarray, t: float) -> np.ndarray:
+            return self.dynamics.evaluate_dynamics_serialized(y, command.serialize())
+
+        # Integrate the ODE using that facade
+        solution_trajectory = odeint(
+            ode_wrapper, state.serialize().flatten(), [0, self.step_time]
+        )
+
+        # Deserialize again, using the static function of the state class,
+        # accessed through the input state object.
+        return state.deserialize(solution_trajectory[-1, :])
+
+    def simulate_iteration(self, current_state: SerdeInterface,
+        current_command: SerdeInterface) -> SerdeInterface:
+        """
+        Perform one iteration of the simulation.
+
+        Takes the current state as an input and returns the next state.
+        """
+        next_state = self._integrate_dynamics(current_state, current_command)
+        if "recorder" in self.listeners:
+            self.listeners["recorder"].record_instant(
+                SimulationInstant(current_state, current_command, self.simulation_time)
+            )
+
+        self.simulation_time += self.step_time
+        return next_state
+
 class MiniSim:
     """
     Simple and small one-object, one-controller simulator.
