@@ -29,6 +29,8 @@ using autoware::common::types::bool8_t;
 using autoware::common::types::char8_t;
 using autoware::common::types::float32_t;
 using autoware::common::types::float64_t;
+using autoware::perception::filters::point_cloud_filter_transform_nodes::NEW_STAMP;
+using autoware::perception::filters::point_cloud_filter_transform_nodes::NO_NEW_STAMP;
 
 // FIXME(esteve): this function is copied from test_point_cloud_fusion.hpp
 builtin_interfaces::msg::Time to_msg_time(
@@ -373,7 +375,8 @@ struct TestFilterTransformPC2FilterTransformMode :
     const geometry_msgs::msg::Transform & tf,
     const size_t pcl_size,
     const size_t expected_num_publishers = 1U,
-    const size_t expected_num_subscribers = 0U)
+    const size_t expected_num_subscribers = 0U,
+    const bool8_t stamp_with_current_time = NO_NEW_STAMP)
     : PointCloud2FilterTransformNode
     (
     node_name,
@@ -391,7 +394,8 @@ struct TestFilterTransformPC2FilterTransformMode :
     tf,
     pcl_size,
     expected_num_publishers,
-    expected_num_subscribers
+    expected_num_subscribers,
+    stamp_with_current_time
     )
     {}
 
@@ -405,8 +409,6 @@ struct TestFilterTransformPC2FilterTransformMode :
 // https://gitlab.com/autowarefoundation/autoware.auto/AutowareAuto/-/issues/419
 TEST_F(point_cloud_filter_transform_integration, filter_and_transform_bug419)
 {
-  rclcpp::init(0, nullptr);
-
   const float32_t start_angle = 0.;
   const float32_t end_angle = 4.712;
   const float32_t min_radius = 0.;
@@ -442,11 +444,53 @@ TEST_F(point_cloud_filter_transform_integration, filter_and_transform_bug419)
   pc2_filter_ptr->test_filter_and_transform(pc1);
 }
 
+// Test for stamp_with_current_time feature
+TEST_F(point_cloud_filter_transform_integration, stamp_with_current_time)
+{
+  const float32_t start_angle = 0.;
+  const float32_t end_angle = 4.712;
+  const float32_t min_radius = 0.;
+  const float32_t max_radius = 10.;
+  const std::string raw_topic_name{"points_raw"};
+  const std::string filtered_topic_name{"points_filtered"};
+  const std::string input_frame_id{"base_link"};
+  const std::string output_frame_id{"base_link"};
+  const auto pc2_filter_ptr = std::make_shared<TestFilterTransformPC2FilterTransformMode>(
+    "point_cloud_filter_transform_node",
+    "",
+    m_init_timeout,
+    std::chrono::milliseconds(110),
+    input_frame_id,
+    output_frame_id,
+    raw_topic_name,
+    filtered_topic_name,
+    start_angle,
+    end_angle,
+    min_radius,
+    max_radius,
+    m_tf,
+    5U,
+    1U,
+    1U,
+    NEW_STAMP);
+
+  auto time0 = std::chrono::system_clock::now();
+  auto t0 = to_msg_time(time0);
+
+  auto pc1 = make_pc({1, 2, 3, 4, 5, 6, 7, 8, 9}, t0);
+  pc1.header.frame_id = input_frame_id;
+
+  auto pc2 = pc2_filter_ptr->test_filter_and_transform(pc1);
+
+  ASSERT_NE(pc2.header.stamp, pc1.header.stamp);
+}
+
 int32_t main(int32_t argc, char ** argv)
 {
   ::testing::InitGoogleTest(&argc, argv);
   int32_t ret = 0;
   try {
+    rclcpp::init(0, nullptr);
     ret = RUN_ALL_TESTS();
   } catch (...) {
   }
