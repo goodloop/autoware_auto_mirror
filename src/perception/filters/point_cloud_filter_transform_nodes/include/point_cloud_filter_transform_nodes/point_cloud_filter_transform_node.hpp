@@ -131,7 +131,8 @@ public:
     m_expected_num_publishers{
       static_cast<size_t>(declare_parameter("expected_num_publishers").get<int32_t>())},
     m_expected_num_subscribers{
-      static_cast<size_t>(declare_parameter("expected_num_subscribers").get<int32_t>())}
+      static_cast<size_t>(declare_parameter("expected_num_subscribers").get<int32_t>())},
+    m_stamp_with_current_time{NO_NEW_STAMP}
   {
     const auto stamp_with_current_time_param = declare_parameter("stamp_with_current_time");
     if (rclcpp::PARAMETER_NOT_SET != stamp_with_current_time_param.get_type()) {
