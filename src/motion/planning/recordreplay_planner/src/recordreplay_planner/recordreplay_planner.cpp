@@ -170,6 +170,17 @@ std::size_t RecordReplayPlanner::get_closest_state(const State & current_state)
   return minimum_idx;
 }
 
+const BoundingBoxArray & RecordReplayPlanner::get_traj_boxes()
+{
+  return m_latest_traj_bounding_boxes;
+}
+const BoundingBoxArray & RecordReplayPlanner::get_collision_boxes()
+{
+
+  return m_latest_collison_bounding_boxes;
+}
+
+
 const Trajectory & RecordReplayPlanner::from_record(const State & current_state)
 {
   // Find out where on the recorded buffer we should start replaying
@@ -194,20 +205,34 @@ const Trajectory & RecordReplayPlanner::from_record(const State & current_state)
 
   // Create a function to obtain a polytope from our current state
   auto collision = false;
+  m_latest_traj_bounding_boxes.boxes.clear();
+  m_latest_traj_bounding_boxes.header = current_state.header;
+  m_latest_collison_bounding_boxes.boxes.clear();
+  m_latest_collison_bounding_boxes.header = m_latest_bounding_boxes.header;
   for (std::size_t i = 0; i < trajectory.points.size(); ++i) {
     // Obtain a bounding box for that step along the trajectory. (TODO(s.me) these boxes
     // could already be computed on recording and then cached so they don't have to be
     // recomputed every time a trajectory is published)
     const auto boundingbox = compute_boundingbox_from_trajectorypoint(trajectory.points[i],
         m_vehicle_param);
+    
+    auto traj_bounding_box = boundingbox;
+    traj_bounding_box.vehicle_label = autoware_auto_msgs::msg::BoundingBox::MOTORCYCLE; // workaround to color Green
+    m_latest_traj_bounding_boxes.boxes.push_back(traj_bounding_box);
+    std::cout<<"i  "<<i << " trajectory x"<<trajectory.points[i].x<<" y "<<trajectory.points[i].y <<std::endl;
 
     // Check for collisions with all perceived obstacles
     for (const auto & obstaclebox : m_latest_bounding_boxes.boxes) {
+      std::cout<<"obs center x  "<<obstaclebox.centroid.x << " y "<<obstaclebox.centroid.y<<std::endl;
       if (intersect(boundingbox.corners.begin(), boundingbox.corners.end(),
         obstaclebox.corners.begin(), obstaclebox.corners.end()) )
       {
         // Collision detected, drop everything larger than index i-1
         collision = true;
+
+        auto collison_box = obstaclebox;
+        collison_box.vehicle_label= autoware_auto_msgs::msg::BoundingBox::CYCLIST; // workaround to color Orange
+        m_latest_collison_bounding_boxes.boxes.push_back(collison_box);
         trajectory.points.resize(i);
 
         // Mark the last point along the trajectory as "stopping" by setting all rates,

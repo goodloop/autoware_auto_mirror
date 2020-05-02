@@ -116,6 +116,9 @@ void RecordReplayPlannerNode::init(
   m_trajectory_pub =
     create_publisher<Trajectory>(trajectory_topic, QoS{10}, PubAllocT{});
 
+  m_trajectory_boundingbox_pub = create_publisher<BoundingBoxArray>("debug/trajectory_boxes", QoS{10});
+  m_collison_boundingbox_pub = create_publisher<BoundingBoxArray>("debug/collison_boxes", QoS{10});
+
   // Create and set a planner object that we'll talk to
   m_planner = std::make_unique<recordreplay_planner::RecordReplayPlanner>(vehicle_param);
   m_planner->set_heading_weight(heading_weight);
@@ -139,6 +142,10 @@ void RecordReplayPlannerNode::on_ego(const State::SharedPtr & msg)
     RCLCPP_INFO_ONCE(this->get_logger(), "Replaying recorded ego postion as trajectory");
     const auto & traj = m_planner->plan(*msg);
     m_trajectory_pub->publish(traj);
+
+    //const auto & traj_boxes = m_planner->get_traj_boxes();
+    m_trajectory_boundingbox_pub->publish(m_planner->get_traj_boxes());
+    m_collison_boundingbox_pub->publish(m_planner->get_collision_boxes());
 
     // Publish replaying feedback information
     auto feedback_msg = std::make_shared<ReplayTrajectory::Feedback>();

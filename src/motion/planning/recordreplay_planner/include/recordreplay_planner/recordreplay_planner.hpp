@@ -90,6 +90,9 @@ public:
   void update_bounding_boxes(const BoundingBoxArray & bounding_boxes);
 
   std::size_t get_number_of_bounding_boxes() const noexcept;
+  
+  const BoundingBoxArray & get_collision_boxes();
+  const BoundingBoxArray & get_traj_boxes();
 
 private:
   // Obtain a trajectory from the internally-stored recording buffer
@@ -103,6 +106,9 @@ private:
 
   std::deque<State> m_record_buffer;
   BoundingBoxArray m_latest_bounding_boxes{};
+  BoundingBoxArray m_latest_traj_bounding_boxes{};
+  using BoundingBox = autoware_auto_msgs::msg::BoundingBox;
+  BoundingBoxArray m_latest_collison_bounding_boxes{};
   Trajectory m_trajectory{};
   RecordReplayState m_recordreplaystate{RecordReplayState::IDLE};
 };  // class RecordReplayPlanner
