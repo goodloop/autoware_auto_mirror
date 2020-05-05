@@ -83,8 +83,13 @@ RayGroundClassifierCloudNode::RayGroundClassifierCloudNode(
     create_publisher<PointCloud2>(declare_parameter("nonground_topic").get<std::string>(),
     rclcpp::QoS(10))),
   m_ground_pc_idx{0},
-  m_nonground_pc_idx{0}
+  m_nonground_pc_idx{0},
+  m_stamp_with_current_time{NO_NEW_STAMP}
 {
+  const auto stamp_with_current_time_param = declare_parameter("stamp_with_current_time");
+  if (rclcpp::PARAMETER_NOT_SET != stamp_with_current_time_param.get_type()) {
+    m_stamp_with_current_time = static_cast<bool8_t>(stamp_with_current_time_param.get<bool>());
+  }
   register_callbacks_preallocate();
 }
 ////////////////////////////////////////////////////////////////////////////////
@@ -97,7 +102,8 @@ RayGroundClassifierCloudNode::RayGroundClassifierCloudNode(
   const std::chrono::nanoseconds & timeout,
   const std::size_t pcl_size,
   const ray_ground_classifier::Config & cfg,
-  const ray_ground_classifier::RayAggregator::Config & agg_cfg)
+  const ray_ground_classifier::RayAggregator::Config & agg_cfg,
+  const bool8_t stamp_with_current_time)
 : LifecycleNode(node_name.c_str()),
   m_classifier(cfg),
   m_aggregator(agg_cfg),
@@ -112,7 +118,8 @@ RayGroundClassifierCloudNode::RayGroundClassifierCloudNode(
   m_nonground_pub_ptr(create_publisher<PointCloud2>(nonground_topic.c_str(),
     rclcpp::QoS(10))),
   m_ground_pc_idx{0},
-  m_nonground_pc_idx{0}
+  m_nonground_pc_idx{0},
+  m_stamp_with_current_time{stamp_with_current_time}
 {
   register_callbacks_preallocate();
 }
@@ -148,8 +155,14 @@ RayGroundClassifierCloudNode::callback(const PointCloud2::SharedPtr msg)
         "RayGroundClassifierNode Warning: PointCloud doesn't have intensity field");
     }
     // Harvest timestamp
-    m_nonground_msg.header.stamp = msg->header.stamp;
-    m_ground_msg.header.stamp = msg->header.stamp;
+    if (!m_stamp_with_current_time) {
+      m_nonground_msg.header.stamp = msg->header.stamp;
+      m_ground_msg.header.stamp = msg->header.stamp;
+    } else {
+      const auto now = rclcpp::Clock(RCL_ROS_TIME).now();
+      m_nonground_msg.header.stamp = now;
+      m_ground_msg.header.stamp = now;
+    }
     // Add all points to aggregator
     // Iterate through the data, but skip intensity in case the point cloud does not have it.
     // For example:
