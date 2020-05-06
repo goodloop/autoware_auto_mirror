@@ -80,6 +80,12 @@ void RecordReplayPlannerNode::init(
 {
   using rclcpp::QoS;
 
+  //m_tf_listener(m_tf_buffer, std::shared_ptr<rclcpp::Node>(this, [](auto) {}), false);
+  rclcpp::Clock::SharedPtr clock = std::make_shared<rclcpp::Clock>(RCL_SYSTEM_TIME);
+  tf_buffer_ = std::make_shared<tf2_ros::Buffer>(clock);
+  tf_listener_ = std::make_shared<tf2_ros::TransformListener>(*tf_buffer_);
+
+
   // Set up action for control of recording and replaying
   m_recordserver = rclcpp_action::create_server<RecordTrajectory>(
     this->get_node_base_interface(),
@@ -118,6 +124,7 @@ void RecordReplayPlannerNode::init(
 
   m_trajectory_boundingbox_pub = create_publisher<BoundingBoxArray>("debug/trajectory_boxes", QoS{10});
   m_collison_boundingbox_pub = create_publisher<BoundingBoxArray>("debug/collison_boxes", QoS{10});
+  m_transformed_boundingbox_pub = create_publisher<BoundingBoxArray>("debug/transformed_obstacle_boxes", QoS{10});
 
   // Create and set a planner object that we'll talk to
   m_planner = std::make_unique<recordreplay_planner::RecordReplayPlanner>(vehicle_param);
@@ -128,6 +135,11 @@ void RecordReplayPlannerNode::init(
 
 void RecordReplayPlannerNode::on_ego(const State::SharedPtr & msg)
 {
+  if(m_odom_frame_id.empty())
+  {
+    m_odom_frame_id = msg->header.frame_id;
+  }
+  
   if (m_planner->is_recording()) {
     RCLCPP_INFO_ONCE(this->get_logger(), "Recording ego position");
     m_planner->record_state(*msg);
@@ -154,10 +166,93 @@ void RecordReplayPlannerNode::on_ego(const State::SharedPtr & msg)
   }
 }
 
+void RecordReplayPlannerNode::doTransform(
+  const geometry_msgs::msg::Point32 & t_in, 
+  geometry_msgs::msg::Point32 & t_out, 
+  const geometry_msgs::msg::TransformStamped & transform)
+{
+
+  tf2::Transform t;
+
+  tf2::fromMsg(transform.transform, t);
+  tf2::Vector3 v_in = tf2::Vector3(t_in.x, t_in.y, t_in.z); //tf2::fromMsg(t_in, v_in);
+  tf2::Vector3 v_out = t * v_in;
+
+   //t_out = tf2::toMsg(v_out); 
+  t_out.x = static_cast<float32_t>(v_out.getX());
+  t_out.y = static_cast<float32_t>(v_out.getY());
+  t_out.z = static_cast<float32_t>(v_out.getZ());
+ 
+}
+
+void RecordReplayPlannerNode::doTransform(
+  const BoundingBox & source_msg, 
+  BoundingBox & target_msg, 
+  const geometry_msgs::msg::TransformStamped & transform)
+{
+  target_msg=source_msg;
+  doTransform(source_msg.centroid,target_msg.centroid,transform);
+  doTransform(source_msg.corners[0],target_msg.corners[0],transform);
+  doTransform(source_msg.corners[1],target_msg.corners[1],transform);
+  doTransform(source_msg.corners[2],target_msg.corners[2],transform);
+  doTransform(source_msg.corners[3],target_msg.corners[3],transform);
+  //tf2::doTransform(source_msg.orientation,target_msg.orientation,transform);
+
+
+  // geometry_msgs::msg::Point32 centroid;
+  // geometry_msgs::msg::Point32 size;
+  // autoware_auto_msgs::msg::Quaternion32 orientation;
+  // float velocity;
+  // float heading;
+  // float heading_rate;
+  // geometry_msgs/Point32[4] corners
+  // float[8]variance;
+  // float value;
+  // uint8 vehicle_label;
+  // uint8 signal_label;
+  // float class_likelihood;
+
+  // geometry_msgs/Point32 centroid
+  // geometry_msgs/Point32 size
+  // geometry_msgs/Quaternion orientation
+
+  // float32 value
+  // uint32 label
+  
+
+}
+
+void RecordReplayPlannerNode::doTransform(
+  const BoundingBoxArray::SharedPtr & source_msg, 
+  BoundingBoxArray::SharedPtr & target_msg, 
+  const geometry_msgs::msg::TransformStamped & transform)
+{
+  target_msg=source_msg;
+  for(auto idx= 0U; idx < source_msg->boxes.size(); idx++)
+  {
+    doTransform(source_msg->boxes[idx],target_msg->boxes[idx],transform);
+  }
+}
+
 void RecordReplayPlannerNode::on_bounding_box(const BoundingBoxArray::SharedPtr & msg)
 {
+  //auto stamp = std::chrono::time_point_cast<std::chrono::microseconds>(msg->header.stamp);
   // Update most recent bounding box internally
-  m_planner->update_bounding_boxes(*msg);
+  if (msg->header.frame_id == m_odom_frame_id ) {
+    m_planner->update_bounding_boxes(*msg);
+  }
+  
+  else if(tf_buffer_->canTransform(m_odom_frame_id, msg->header.frame_id , tf2_ros::fromMsg(msg->header.stamp) ) ) {
+    const auto tf = tf_buffer_->lookupTransform(msg->header.frame_id , m_odom_frame_id, tf2_ros::fromMsg(msg->header.stamp));
+    auto msg_tf = msg;
+    doTransform(msg, msg_tf, tf);
+    m_transformed_boundingbox_pub->publish(*msg_tf);
+    m_planner->update_bounding_boxes(*msg_tf);
+  } else
+  {
+    RCLCPP_WARN(this->get_logger(), "on_bounding_box cannot transform %s to %s",msg->header.frame_id.c_str() ,m_odom_frame_id.c_str());
+  }
+  
 }
 
 rclcpp_action::GoalResponse RecordReplayPlannerNode::record_handle_goal(

@@ -3,7 +3,8 @@ Panels:
     Help Height: 78
     Name: Displays
     Property Tree Widget:
-      Expanded: ~
+      Expanded:
+        - /Global Options1
       Splitter Ratio: 0.5
     Tree Height: 829
   - Class: rviz_common/Selection
@@ -57,23 +58,26 @@ Visualization Manager:
           Value: true
         nav_base:
           Value: true
+        odom:
+          Value: true
       Marker Scale: 1
       Name: TF
       Show Arrows: true
       Show Axes: true
       Show Names: true
       Tree:
-        base_link:
-          gnss:
-            {}
-          imu:
-            {}
-          lidar_front:
-            {}
-          lidar_rear:
-            {}
-          nav_base:
-            {}
+        odom:
+          base_link:
+            gnss:
+              {}
+            imu:
+              {}
+            lidar_front:
+              {}
+            lidar_rear:
+              {}
+            nav_base:
+              {}
       Update Interval: 0
       Value: true
     - Alpha: 0.5
@@ -213,13 +217,13 @@ Visualization Manager:
       Use rainbow: true
       Value: true
     - Class: autoware_rviz_plugins/BoundingBoxArray
-      Enabled: true
+      Enabled: false
       Name: Lidar Objects
       Namespaces:
         {}
       Topic: /perception/lidar_bounding_boxes
       Unreliable: false
-      Value: true
+      Value: false
     - Alpha: 1
       Autocompute Intensity Bounds: true
       Autocompute Value Bounds:
@@ -289,25 +293,33 @@ Visualization Manager:
       Unreliable: false
       Value: true
     - Class: autoware_rviz_plugins/BoundingBoxArray
-      Enabled: true
+      Enabled: false
       Name: BB_Traj
       Namespaces:
         {}
       Topic: /planning/debug/trajectory_boxes
       Unreliable: false
-      Value: true
+      Value: false
     - Class: autoware_rviz_plugins/BoundingBoxArray
-      Enabled: true
+      Enabled: false
       Name: BB_collision
       Namespaces:
         {}
       Topic: /planning/debug/collison_boxes
       Unreliable: false
+      Value: false
+    - Class: autoware_rviz_plugins/BoundingBoxArray
+      Enabled: true
+      Name: BoundingBoxArray
+      Namespaces:
+        {}
+      Topic: /planning/debug/transformed_obstacle_boxes
+      Unreliable: false
       Value: true
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
-    Fixed Frame: base_link
+    Fixed Frame: odom
     Frame Rate: 30
   Name: root
   Tools:
@@ -330,7 +342,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz_default_plugins/Orbit
-      Distance: 70
+      Distance: 41.978675842285156
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -345,10 +357,10 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.5803983807563782
+      Pitch: 1.3547965288162231
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 3.141590118408203
+      Yaw: 0.6665911078453064
     Saved: ~
 Window Geometry:
   Displays:
