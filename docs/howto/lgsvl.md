@@ -122,6 +122,18 @@ ade$ ros2 launch lgsvl_interface lgsvl_vehicle_control_command.launch.py
 
 ## Troubleshooting
 
+### You don't see the "ROS2 Native" bridge option
+
+Your version of the `ade` container for LGSVL is probably out-of-date.
+Update it using the following commands, once you have left `ade` with `exit`:
+
+```
+ade stop
+git pull
+source .aderc-lgsvl
+ade start --update --enter
+```
+
 ### The brake/throttle/steering does not work
 
 The joystick control mapping is not deterministic. It is occasionally necessary to modify the axis
