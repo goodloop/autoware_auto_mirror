@@ -60,7 +60,7 @@ If you have an account, log in. If you do not have an account, create one, then 
 To configure the Lexus model, do the following in the browser:
 
 - In the Vehicles tab look for `Lexus2016RXHybrid`. If not available, follow [these instructions](https://www.lgsvlsimulator.com/docs/vehicles-tab/#how-to-add-a-vehicle)
-to add it and use the URL https://assets.lgsvlsimulator.com/ea5e32fe566065c6d1bbf1f0728d6654c94e375d/vehicle_AWFLexus2016RXHybrid
+to add it and use the URL `https://assets.lgsvlsimulator.com/ea5e32fe566065c6d1bbf1f0728d6654c94e375d/vehicle_AWFLexus2016RXHybrid`
 
   - Click on the wrench icon for the Lexus vehicle
   - Change the bridge type to `ROS2 Native`
