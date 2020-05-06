@@ -224,7 +224,7 @@ void LgsvlInterface::on_odometry(const nav_msgs::msg::Odometry & msg)
       std::cout<<"\nq_lhs getAngle "<<q_lhs.getAngle() * (180.0/M_PI);*/
     // Convert from LHS system to RHS system: Y forward, Z up
     tf2::Quaternion q_rhs{
-      msg.pose.pose.orientation.z,
+      -msg.pose.pose.orientation.z,
       msg.pose.pose.orientation.x,
       -msg.pose.pose.orientation.y,
       msg.pose.pose.orientation.w};
