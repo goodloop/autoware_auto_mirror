@@ -67,8 +67,14 @@ VoxelCloudNode::VoxelCloudNode(
   const std::size_t capacity =
     static_cast<std::size_t>(declare_parameter("config.capacity").get<std::size_t>());
   const voxel_grid::Config cfg{min_point, max_point, voxel_size, capacity};
+  bool8_t stamp_with_current_time{false};
+  const auto stamp_with_current_time_param = declare_parameter("stamp_with_current_time");
+  if (rclcpp::PARAMETER_NOT_SET != stamp_with_current_time_param.get_type()) {
+    stamp_with_current_time = static_cast<bool8_t>(stamp_with_current_time_param.get<bool>());
+  }
+
   // Init
-  init(cfg, declare_parameter("is_approximate").get<bool8_t>());
+  init(cfg, declare_parameter("is_approximate").get<bool8_t>(), stamp_with_current_time);
 }
 ////////////////////////////////////////////////////////////////////////////////
 VoxelCloudNode::VoxelCloudNode(
@@ -78,14 +84,15 @@ VoxelCloudNode::VoxelCloudNode(
   const voxel_grid::Config & cfg,
   const bool8_t is_approximate,
   const rclcpp::QoS sub_qos,
-  const rclcpp::QoS pub_qos)
+  const rclcpp::QoS pub_qos,
+  const bool8_t stamp_with_current_time)
 : LifecycleNode(node_name.c_str()),
   m_sub_ptr(create_subscription<Message>(sub_topic.c_str(),
     sub_qos, std::bind(&VoxelCloudNode::callback, this, std::placeholders::_1))),
   m_pub_ptr(create_publisher<Message>(pub_topic.c_str(), pub_qos)),
   m_has_failed(false)
 {
-  init(cfg, is_approximate);
+  init(cfg, is_approximate, stamp_with_current_time);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -107,13 +114,18 @@ void VoxelCloudNode::callback(const sensor_msgs::msg::PointCloud2::SharedPtr msg
   }
 }
 ////////////////////////////////////////////////////////////////////////////////
-void VoxelCloudNode::init(const voxel_grid::Config & cfg, const bool8_t is_approximate)
+void VoxelCloudNode::init(
+  const voxel_grid::Config & cfg,
+  const bool8_t is_approximate,
+  const bool8_t stamp_with_current_time)
 {
   // construct voxel grid
   if (is_approximate) {
-    m_voxelgrid_ptr = std::make_unique<algorithm::VoxelCloudApproximate>(cfg);
+    m_voxelgrid_ptr = std::make_unique<algorithm::VoxelCloudApproximate>(
+      cfg, stamp_with_current_time);
   } else {
-    m_voxelgrid_ptr = std::make_unique<algorithm::VoxelCloudCentroid>(cfg);
+    m_voxelgrid_ptr = std::make_unique<algorithm::VoxelCloudCentroid>(
+      cfg, stamp_with_current_time);
   }
   // register callbacks
   using rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface;

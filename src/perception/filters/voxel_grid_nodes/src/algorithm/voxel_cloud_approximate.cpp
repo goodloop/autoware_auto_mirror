@@ -32,8 +32,10 @@ namespace voxel_grid_nodes
 namespace algorithm
 {
 ////////////////////////////////////////////////////////////////////////////////
-VoxelCloudApproximate::VoxelCloudApproximate(const voxel_grid::Config & cfg)
-: VoxelCloudBase(),
+VoxelCloudApproximate::VoxelCloudApproximate(
+  const voxel_grid::Config & cfg,
+  const bool8_t stamp_with_current_time)
+: VoxelCloudBase(stamp_with_current_time),
   m_cloud(),
   m_grid(cfg)
 {
@@ -91,6 +93,10 @@ const sensor_msgs::msg::PointCloud2 & VoxelCloudApproximate::get()
   }
   m_grid.clear();
   autoware::common::lidar_utils::resize_pcl_msg(m_cloud, m_point_cloud_idx);
+
+  if (m_stamp_with_current_time) {
+    m_cloud.header.stamp = rclcpp::Clock(RCL_ROS_TIME).now();
+  }
 
   return m_cloud;
 }
