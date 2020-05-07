@@ -84,9 +84,6 @@ libgtk-3.0
 libxkbfile1
 libxss1
 
-# ROS Melodic
-ros-melodic-desktop
-
 # Bloom
 # Use the Python 2.x version of Bloom because of conflicts with catkin_pkg
 python-bloom
