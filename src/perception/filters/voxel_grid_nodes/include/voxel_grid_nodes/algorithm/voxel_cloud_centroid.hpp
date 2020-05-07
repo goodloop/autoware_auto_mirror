@@ -36,7 +36,11 @@ class VOXEL_GRID_NODES_PUBLIC VoxelCloudCentroid : public VoxelCloudBase
 public:
   /// \brief Constructor
   /// \param[in] cfg Configuration struct for the voxel grid
-  explicit VoxelCloudCentroid(const voxel_grid::Config & cfg);
+  /// \param[in] stamp_with_current_time replace stamp in provided msg with current time
+  explicit VoxelCloudCentroid(
+    const voxel_grid::Config & cfg,
+    const bool8_t stamp_with_current_time = NO_NEW_STAMP
+  );
 
   /// \brief Inserts points into the voxel grid data structure, overwrites internal header
   /// \param[in] msg A point cloud to insert into the voxel grid. Assumed to have the structure XYZI

@@ -19,16 +19,19 @@
 #include <voxel_grid_nodes/algorithm/voxel_cloud_approximate.hpp>
 #include <voxel_grid_nodes/algorithm/voxel_cloud_centroid.hpp>
 #include <sensor_msgs/point_cloud2_iterator.hpp>
+#include <rclcpp/clock.hpp>
 #include <common/types.hpp>
 #include <memory>
 
-using autoware::perception::filters::voxel_grid::PointXYZ;
 using autoware::perception::filters::voxel_grid::Config;
-
-using autoware::perception::filters::voxel_grid_nodes::algorithm::VoxelCloudBase;
-using autoware::perception::filters::voxel_grid_nodes::algorithm::VoxelCloudApproximate;
-using autoware::perception::filters::voxel_grid_nodes::algorithm::VoxelCloudCentroid;
+using autoware::perception::filters::voxel_grid::PointXYZ;
 using autoware::perception::filters::voxel_grid::PointXYZIF;
+
+using autoware::perception::filters::voxel_grid_nodes::algorithm::NEW_STAMP;
+using autoware::perception::filters::voxel_grid_nodes::algorithm::NO_NEW_STAMP;
+using autoware::perception::filters::voxel_grid_nodes::algorithm::VoxelCloudApproximate;
+using autoware::perception::filters::voxel_grid_nodes::algorithm::VoxelCloudBase;
+using autoware::perception::filters::voxel_grid_nodes::algorithm::VoxelCloudCentroid;
 
 using autoware::common::types::bool8_t;
 using autoware::common::types::float32_t;
@@ -209,6 +212,55 @@ TEST_F(CloudAlgorithm, centroid)
   alg_ptr->insert(cloud2);
   // get again
   EXPECT_TRUE(check(alg_ptr->get(), ref_points1.size()));
+  // check empty
+  EXPECT_EQ(alg_ptr->get().width, 0U);
+}
+
+TEST_F(CloudAlgorithm, newStamp)
+{
+  const auto now = rclcpp::Clock().now();
+
+  // initialize approx object
+  alg_ptr = std::make_unique<VoxelCloudApproximate>(*cfg_ptr);
+  // set stamp
+  cloud1.header.stamp = now;
+  // add points
+  alg_ptr->insert(cloud1);
+  // check stamp
+  EXPECT_EQ(alg_ptr->get().header.stamp, now);
+  // check empty
+  EXPECT_EQ(alg_ptr->get().width, 0U);
+
+  // initialze approx object with new stamp
+  alg_ptr.reset(new VoxelCloudApproximate(*cfg_ptr, NEW_STAMP));
+  // set stamp
+  cloud1.header.stamp = now;
+  // add points
+  alg_ptr->insert(cloud1);
+  // check stamp
+  EXPECT_NE(alg_ptr->get().header.stamp, now);
+  // check empty
+  EXPECT_EQ(alg_ptr->get().width, 0U);
+
+  // initialze centroid object
+  alg_ptr.reset(new VoxelCloudCentroid(*cfg_ptr));
+  // set stamp
+  cloud1.header.stamp = now;
+  // add points
+  alg_ptr->insert(cloud1);
+  // check stamp
+  EXPECT_EQ(alg_ptr->get().header.stamp, now);
+  // check empty
+  EXPECT_EQ(alg_ptr->get().width, 0U);
+
+  // initialize centroid object with new stamp
+  alg_ptr.reset(new VoxelCloudCentroid(*cfg_ptr, NEW_STAMP));
+  //set stamp
+  cloud1.header.stamp = now;
+  // add points
+  alg_ptr->insert(cloud1);
+  // check stamp
+  EXPECT_NE(alg_ptr->get().header.stamp, now);
   // check empty
   EXPECT_EQ(alg_ptr->get().width, 0U);
 }

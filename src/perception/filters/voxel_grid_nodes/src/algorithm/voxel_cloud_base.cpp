@@ -29,6 +29,11 @@ namespace algorithm
 {
 ////////////////////////////////////////////////////////////////////////////////
 
+VoxelCloudBase::VoxelCloudBase(const bool8_t stamp_with_current_time)
+: m_stamp_with_current_time{stamp_with_current_time}
+{
+}
+
 VoxelCloudBase::~VoxelCloudBase()
 {
   // No base members
