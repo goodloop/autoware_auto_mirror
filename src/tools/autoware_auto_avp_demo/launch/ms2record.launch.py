@@ -27,12 +27,11 @@ import os
 
 from launch.actions import IncludeLaunchDescription
 from launch.launch_description_sources import PythonLaunchDescriptionSource
-from ament_index_python import get_package_share_directory
-
+from ament_index_python import get_package_share_directory as get_package_share_directory_orig
 
 
 def get_share_file(package_name, file_name):
-    return os.path.join(get_package_share_directory(package_name), file_name)
+    return os.path.join(get_package_share_directory_orig(package_name), file_name)
 
 
 context = LaunchContext()
@@ -54,7 +53,7 @@ def generate_launch_description():
     print(avp_demo_pkg_prefix)
     euclidean_cluster_param_file = os.path.join(
         avp_demo_pkg_prefix, 'param/euclidean_cluster.param.yaml')
-    lgsvl_param_file =  get_share_file(
+    lgsvl_param_file = get_share_file(
         package_name='test_trajectory_following', file_name='lgsvl_interface.param.yaml')
     map_publisher_param_file = os.path.join(
         avp_demo_pkg_prefix, 'param/map_publisher.param.yaml')
@@ -192,12 +191,12 @@ def generate_launch_description():
         node_namespace='localization/map',
         parameters=[LaunchConfiguration('map_state_estimator_param_file')]
     )
-    odom_state_estimator = Node(
-        package='robot_localization',
-        node_executable='ekf_node',
-        node_namespace='localization/odom',
-        parameters=[LaunchConfiguration('odom_state_estimator_param_file')]
-    )
+    # odom_state_estimator = Node(
+    #     package='robot_localization',
+    #     node_executable='ekf_node',
+    #     node_namespace='localization/odom',
+    #     parameters=[LaunchConfiguration('odom_state_estimator_param_file')]
+    # )
     ray_ground_classifier = Node(
         package='ray_ground_classifier_nodes',
         node_executable='ray_ground_classifier_cloud_node_exe',

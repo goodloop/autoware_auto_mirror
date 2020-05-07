@@ -29,7 +29,6 @@
 #include <common/types.hpp>
 
 #include <tf2_ros/transform_listener.h>
-//#include <tf2/buffer_core.h>
 #include <tf2_ros/buffer.h>
 #include <tf2/convert.h>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
@@ -105,17 +104,20 @@ private:
 
   RECORDREPLAY_PLANNER_NODE_LOCAL void on_ego(const State::SharedPtr & msg);
   RECORDREPLAY_PLANNER_NODE_LOCAL void on_bounding_box(const BoundingBoxArray::SharedPtr & msg);
-  
- RECORDREPLAY_PLANNER_NODE_LOCAL void doTransform(const geometry_msgs::msg::Point32 & source_msg, 
-                                                    geometry_msgs::msg::Point32 & target_msg, 
-                                                    const geometry_msgs::msg::TransformStamped & transform);
-  RECORDREPLAY_PLANNER_NODE_LOCAL void doTransform(const BoundingBox & source_msg, 
-                                                    BoundingBox & target_msg, 
-                                                    const geometry_msgs::msg::TransformStamped & transform);
-  RECORDREPLAY_PLANNER_NODE_LOCAL void doTransform(const BoundingBoxArray::SharedPtr & source_msg, 
-                                                    BoundingBoxArray::SharedPtr & target_msg, 
-                                                    const geometry_msgs::msg::TransformStamped & transform);
-  
+
+  RECORDREPLAY_PLANNER_NODE_LOCAL void doTransform(
+    const geometry_msgs::msg::Point32 & source_msg,
+    geometry_msgs::msg::Point32 & target_msg,
+    const geometry_msgs::msg::TransformStamped & transform);
+  RECORDREPLAY_PLANNER_NODE_LOCAL void doTransform(
+    const BoundingBox & source_msg,
+    BoundingBox & target_msg,
+    const geometry_msgs::msg::TransformStamped & transform);
+  RECORDREPLAY_PLANNER_NODE_LOCAL void doTransform(
+    const BoundingBoxArray::SharedPtr & source_msg,
+    BoundingBoxArray::SharedPtr & target_msg,
+    const geometry_msgs::msg::TransformStamped & transform);
+
   // TODO(s.me) there does not seem to be a RecordTrajectory::SharedPtr? Also
   // the return types need to be changed to the rclcpp_action types once the package
   // is available.
@@ -134,18 +136,55 @@ private:
     const std::shared_ptr<GoalHandleReplayTrajectory> goal_handle);
   RECORDREPLAY_PLANNER_NODE_LOCAL void replay_handle_accepted(
     const std::shared_ptr<GoalHandleReplayTrajectory> goal_handle);
-  
+
+  RECORDREPLAY_PLANNER_NODE_LOCAL geometry_msgs::msg::Point32 inline toPoint32(
+    const geometry_msgs::msg::Point & in)
+  {
+    geometry_msgs::msg::Point32 out;
+    out.x = static_cast<float>(in.x);
+    out.y = static_cast<float>(in.y);
+    out.z = static_cast<float>(in.z);
+    return out;
+  }
+  RECORDREPLAY_PLANNER_NODE_LOCAL geometry_msgs::msg::Point inline toPoint(
+    const geometry_msgs::msg::Point32 & in)
+  {
+    geometry_msgs::msg::Point out;
+    out.x = static_cast<double>(in.x);
+    out.y = static_cast<double>(in.y);
+    out.z = static_cast<double>(in.z);
+    return out;
+  }
+
+  RECORDREPLAY_PLANNER_NODE_LOCAL autoware_auto_msgs::msg::Quaternion32 inline toQuaternion32(
+    const geometry_msgs::msg::Quaternion & in)
+  {
+    autoware_auto_msgs::msg::Quaternion32 out;
+    out.x = static_cast<float>(in.x);
+    out.y = static_cast<float>(in.y);
+    out.z = static_cast<float>(in.z);
+    out.w = static_cast<float>(in.w);
+    return out;
+  }
+  RECORDREPLAY_PLANNER_NODE_LOCAL geometry_msgs::msg::Quaternion inline toQuaternion(
+    const autoware_auto_msgs::msg::Quaternion32 & in)
+  {
+    geometry_msgs::msg::Quaternion out;
+    out.x = static_cast<double>(in.x);
+    out.y = static_cast<double>(in.y);
+    out.z = static_cast<double>(in.z);
+    out.w = static_cast<double>(in.w);
+    return out;
+  }
+
+
   std::string m_odom_frame_id{};
-  //tf2::BufferCore m_tf_buffer{tf2::BUFFER_CORE_DEFAULT_CACHE_TIME};
-  //tf2_ros::TransformListener m_tf_listener;
 
   std::shared_ptr<tf2_ros::Buffer> tf_buffer_;
   std::shared_ptr<tf2_ros::TransformListener> tf_listener_;
-
 };  // class RecordReplayPlannerNode
 }  // namespace recordreplay_planner_node
 }  // namespace planning
 }  // namespace motion
 
 #endif  // RECORDREPLAY_PLANNER_NODE__RECORDREPLAY_PLANNER_NODE_HPP_
-

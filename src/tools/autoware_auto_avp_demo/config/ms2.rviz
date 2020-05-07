@@ -138,7 +138,7 @@ Visualization Manager:
       Color: 255; 255; 255
       Color Transformer: Intensity
       Decay Time: 0
-      Enabled: true
+      Enabled: false
       Invert Rainbow: false
       Max Color: 255; 255; 255
       Max Intensity: 213
@@ -155,7 +155,7 @@ Visualization Manager:
       Unreliable: false
       Use Fixed Frame: true
       Use rainbow: true
-      Value: true
+      Value: false
     - Alpha: 1
       Autocompute Intensity Bounds: true
       Autocompute Value Bounds:
@@ -168,7 +168,7 @@ Visualization Manager:
       Color: 255; 255; 255
       Color Transformer: Intensity
       Decay Time: 0
-      Enabled: true
+      Enabled: false
       Invert Rainbow: false
       Max Color: 255; 255; 255
       Max Intensity: 213
@@ -185,7 +185,7 @@ Visualization Manager:
       Unreliable: false
       Use Fixed Frame: true
       Use rainbow: true
-      Value: true
+      Value: false
     - Alpha: 1
       Autocompute Intensity Bounds: true
       Autocompute Value Bounds:
@@ -198,7 +198,7 @@ Visualization Manager:
       Color: 255; 255; 255
       Color Transformer: ""
       Decay Time: 0
-      Enabled: true
+      Enabled: false
       Invert Rainbow: false
       Max Color: 255; 255; 255
       Max Intensity: 4096
@@ -215,7 +215,7 @@ Visualization Manager:
       Unreliable: false
       Use Fixed Frame: true
       Use rainbow: true
-      Value: true
+      Value: false
     - Class: autoware_rviz_plugins/BoundingBoxArray
       Enabled: false
       Name: Lidar Objects
@@ -285,34 +285,34 @@ Visualization Manager:
       Use rainbow: true
       Value: false
     - Class: autoware_rviz_plugins/Trajectory
-      Enabled: true
+      Enabled: false
       Name: Trajectory
       Namespaces:
         {}
       Topic: /planning/trajectory
       Unreliable: false
-      Value: true
+      Value: false
     - Class: autoware_rviz_plugins/BoundingBoxArray
-      Enabled: false
+      Enabled: true
       Name: BB_Traj
       Namespaces:
         {}
       Topic: /planning/debug/trajectory_boxes
       Unreliable: false
-      Value: false
+      Value: true
     - Class: autoware_rviz_plugins/BoundingBoxArray
-      Enabled: false
+      Enabled: true
       Name: BB_collision
       Namespaces:
         {}
       Topic: /planning/debug/collison_boxes
       Unreliable: false
-      Value: false
+      Value: true
     - Class: autoware_rviz_plugins/BoundingBoxArray
       Enabled: true
-      Name: BoundingBoxArray
+      Name: RRP tfed_obstacle
       Namespaces:
-        {}
+        bounding_box: true
       Topic: /planning/debug/transformed_obstacle_boxes
       Unreliable: false
       Value: true
@@ -342,7 +342,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz_default_plugins/Orbit
-      Distance: 41.978675842285156
+      Distance: 193.59039306640625
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -357,10 +357,10 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 1.3547965288162231
+      Pitch: 1.5697963237762451
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 0.6665911078453064
+      Yaw: 0.9915909767150879
     Saved: ~
 Window Geometry:
   Displays:

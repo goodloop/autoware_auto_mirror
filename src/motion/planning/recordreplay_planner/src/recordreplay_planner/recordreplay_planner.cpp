@@ -176,7 +176,6 @@ const BoundingBoxArray & RecordReplayPlanner::get_traj_boxes()
 }
 const BoundingBoxArray & RecordReplayPlanner::get_collision_boxes()
 {
-
   return m_latest_collison_bounding_boxes;
 }
 
@@ -215,15 +214,14 @@ const Trajectory & RecordReplayPlanner::from_record(const State & current_state)
     // recomputed every time a trajectory is published)
     const auto boundingbox = compute_boundingbox_from_trajectorypoint(trajectory.points[i],
         m_vehicle_param);
-    
+
+    using BoundingBox = autoware_auto_msgs::msg::BoundingBox;
     auto traj_bounding_box = boundingbox;
-    traj_bounding_box.vehicle_label = autoware_auto_msgs::msg::BoundingBox::MOTORCYCLE; // workaround to color Green
+    traj_bounding_box.vehicle_label = BoundingBox::MOTORCYCLE;  // workaround to color Green
     m_latest_traj_bounding_boxes.boxes.push_back(traj_bounding_box);
-    std::cout<<"i  "<<i << " trajectory x"<<trajectory.points[i].x<<" y "<<trajectory.points[i].y <<std::endl;
 
     // Check for collisions with all perceived obstacles
     for (const auto & obstaclebox : m_latest_bounding_boxes.boxes) {
-      std::cout<<"obs center x  "<<obstaclebox.centroid.x << " y "<<obstaclebox.centroid.y<<std::endl;
       if (intersect(boundingbox.corners.begin(), boundingbox.corners.end(),
         obstaclebox.corners.begin(), obstaclebox.corners.end()) )
       {
@@ -231,7 +229,7 @@ const Trajectory & RecordReplayPlanner::from_record(const State & current_state)
         collision = true;
 
         auto collison_box = obstaclebox;
-        collison_box.vehicle_label= autoware_auto_msgs::msg::BoundingBox::CYCLIST; // workaround to color Orange
+        collison_box.vehicle_label = BoundingBox::CYCLIST;  // workaround to color Orange
         m_latest_collison_bounding_boxes.boxes.push_back(collison_box);
         trajectory.points.resize(i);
 
@@ -250,8 +248,6 @@ const Trajectory & RecordReplayPlanner::from_record(const State & current_state)
       break;
     }
   }
-  std::cout<<"collision "<<collision<<std::endl;
-
   return trajectory;
 }
 
