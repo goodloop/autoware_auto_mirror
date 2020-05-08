@@ -30,16 +30,16 @@ localization:
         # and enable IMU when IMU value is fixed from LGSVL
 
         # For absolute orientation, while IMU is unusable  
-        pose0: /gnss/pose
-        pose0_config: [false,  false,  false,
+        pose1: /gnss/pose
+        pose1_config: [false,  false,  false,
                        true,  true,  true,
                        false, false, false,
                        false, false, false,
                        false, false, false]
-        pose0_queue_size: 10
-        pose0_nodelay: false
-        pose0_differential: false
-        pose0_relative: false
+        pose1_queue_size: 10
+        pose1_nodelay: false
+        pose1_differential: false
+        pose1_relative: false
 
         # Temporarily disabled, till IMU is fixed in LGSVL
         # imu0: /imu/imu_raw
