@@ -29,6 +29,7 @@
 using autoware::common::types::bool8_t;
 using autoware::common::types::float32_t;
 using autoware::perception::filters::point_cloud_fusion::PointCloudFusionNode;
+using autoware::perception::filters::point_cloud_fusion::NEW_STAMP;
 
 class TestPCF : public ::testing::Test
 {
@@ -251,6 +252,108 @@ TEST_F(TestPCF, test_transformed_fusion) {
   pub_ptr1->publish(pc1);
   // publish the transformed pc message
   pub_ptr2->publish(transformed_pc2);
+
+  // publishing for a second time to give a reference point for fusion.
+  pub_ptr1->publish(dummy_pc);
+
+  auto start_time = std::chrono::system_clock::now();
+  auto max_test_dur = std::chrono::seconds(1);
+
+  while (rclcpp::ok() && !test_completed) {
+    rclcpp::spin_some(pcf_node);
+    rclcpp::sleep_for(std::chrono::milliseconds(50));
+    if (std::chrono::system_clock::now() - start_time > max_test_dur) {
+      timed_out = true;
+      break;
+    }
+  }
+  EXPECT_FALSE(timed_out);
+  EXPECT_TRUE(test_completed);
+}
+
+TEST_F(TestPCF, test_no_new_stamp)
+{
+  std::vector<std::string> topics{"topic1", "topic2"};
+  pcf_node = std::make_shared<PointCloudFusionNode>(
+    "test_pcf_node", "", "points_concat", topics, "base_link", 55000U);
+
+  auto time0 = std::chrono::system_clock::now();
+  auto t0 = to_msg_time(time0);
+  auto t1 = to_msg_time(time0 + std::chrono::nanoseconds(1));
+  auto a_later_time = to_msg_time(time0 + std::chrono::milliseconds(200));
+
+  auto dummy_pc = make_pc({0, 0, 0}, a_later_time);
+  // define two pointclouds on base_link
+  pc1 = make_pc({1, 2, 3}, t0);
+  pc2 = make_pc({4, 5, 6}, t1);
+
+  pub_ptr1 = pcf_node->create_publisher<sensor_msgs::msg::PointCloud2>(topics[0], rclcpp::QoS(10));
+  pub_ptr2 = pcf_node->create_publisher<sensor_msgs::msg::PointCloud2>(topics[1], rclcpp::QoS(10));
+
+  bool test_completed = false;
+
+  auto handle_concat =
+    [&t1, &test_completed](const sensor_msgs::msg::PointCloud2::SharedPtr msg) -> void {
+      EXPECT_EQ(msg->header.stamp, t1);
+      test_completed = true;
+    };
+
+  sub_ptr = pcf_node->create_subscription<sensor_msgs::msg::PointCloud2>(
+    "points_concat", rclcpp::QoS(10), handle_concat);
+
+  pub_ptr1->publish(pc1);
+  pub_ptr2->publish(pc2);
+
+  // publishing for a second time to give a reference point for fusion.
+  pub_ptr1->publish(dummy_pc);
+
+  auto start_time = std::chrono::system_clock::now();
+  auto max_test_dur = std::chrono::seconds(1);
+
+  while (rclcpp::ok() && !test_completed) {
+    rclcpp::spin_some(pcf_node);
+    rclcpp::sleep_for(std::chrono::milliseconds(50));
+    if (std::chrono::system_clock::now() - start_time > max_test_dur) {
+      timed_out = true;
+      break;
+    }
+  }
+  EXPECT_FALSE(timed_out);
+  EXPECT_TRUE(test_completed);
+}
+
+TEST_F(TestPCF, test_new_stamp)
+{
+  std::vector<std::string> topics{"topic1", "topic2"};
+  pcf_node = std::make_shared<PointCloudFusionNode>(
+    "test_pcf_node", "", "points_concat", topics, "base_link", 55000U, NEW_STAMP);
+
+  auto time0 = std::chrono::system_clock::now();
+  auto t0 = to_msg_time(time0);
+  auto t1 = to_msg_time(time0 + std::chrono::nanoseconds(1));
+  auto a_later_time = to_msg_time(time0 + std::chrono::milliseconds(200));
+
+  auto dummy_pc = make_pc({0, 0, 0}, a_later_time);
+  // define two pointclouds on base_link
+  pc1 = make_pc({1, 2, 3}, t0);
+  pc2 = make_pc({4, 5, 6}, t1);
+
+  pub_ptr1 = pcf_node->create_publisher<sensor_msgs::msg::PointCloud2>(topics[0], rclcpp::QoS(10));
+  pub_ptr2 = pcf_node->create_publisher<sensor_msgs::msg::PointCloud2>(topics[1], rclcpp::QoS(10));
+
+  bool test_completed = false;
+
+  auto handle_concat =
+    [&t1, &test_completed](const sensor_msgs::msg::PointCloud2::SharedPtr msg) -> void {
+      EXPECT_NE(msg->header.stamp, t1);
+      test_completed = true;
+    };
+
+  sub_ptr = pcf_node->create_subscription<sensor_msgs::msg::PointCloud2>(
+    "points_concat", rclcpp::QoS(10), handle_concat);
+
+  pub_ptr1->publish(pc1);
+  pub_ptr2->publish(pc2);
 
   // publishing for a second time to give a reference point for fusion.
   pub_ptr1->publish(dummy_pc);
