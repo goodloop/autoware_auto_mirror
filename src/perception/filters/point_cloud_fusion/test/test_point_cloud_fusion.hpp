@@ -28,6 +28,7 @@
 
 using autoware::common::types::bool8_t;
 using autoware::common::types::float32_t;
+using autoware::perception::filters::point_cloud_fusion::PointCloudFusionNode;
 
 class TestPCF : public ::testing::Test
 {
@@ -40,6 +41,14 @@ protected:
   {
     rclcpp::shutdown();
   }
+
+  std::shared_ptr<PointCloudFusionNode> pcf_node;
+  sensor_msgs::msg::PointCloud2 pc1;
+  sensor_msgs::msg::PointCloud2 pc2;
+  std::shared_ptr<rclcpp::Publisher<sensor_msgs::msg::PointCloud2>> pub_ptr1;
+  std::shared_ptr<rclcpp::Publisher<sensor_msgs::msg::PointCloud2>> pub_ptr2;
+  std::shared_ptr<rclcpp::Subscription<sensor_msgs::msg::PointCloud2>> sub_ptr;
+  bool8_t timed_out{false};
 };
 
 sensor_msgs::msg::PointCloud2 make_pc(std::vector<int32_t> seeds, builtin_interfaces::msg::Time
@@ -138,35 +147,33 @@ builtin_interfaces::msg::Time to_msg_time(
 
 TEST_F(TestPCF, test_basic_fusion) {
   std::vector<std::string> topics{"topic1", "topic2"};
-  auto pcf_node =
-    std::make_shared<autoware::perception::filters::point_cloud_fusion::PointCloudFusionNode>(
+  pcf_node = std::make_shared<PointCloudFusionNode>(
     "test_pcf_node", "", "points_concat", topics, "base_link", 55000U);
 
-  bool8_t test_completed = false;
   auto time0 = std::chrono::system_clock::now();
   auto t0 = to_msg_time(time0);
   auto t1 = to_msg_time(time0 + std::chrono::nanoseconds(1));
   auto a_later_time = to_msg_time(time0 + std::chrono::milliseconds(200));
 
   auto dummy_pc = make_pc({0, 0, 0}, a_later_time);
-  auto pc1 = make_pc({1, 2, 3}, t0);
-  auto pc2 = make_pc({4, 5, 6}, t1);
-  auto expected_result = make_pc({1, 2, 3, 4, 5, 6}, t1);
+  pc1 = make_pc({1, 2, 3}, t0);
+  pc2 = make_pc({4, 5, 6}, t1);
+  auto expected_pc = make_pc({1, 2, 3, 4, 5, 6}, t1);
 
-  auto pub_ptr1 = pcf_node->create_publisher<sensor_msgs::msg::PointCloud2>("topic1",
-      rclcpp::QoS(10));
-  auto pub_ptr2 = pcf_node->create_publisher<sensor_msgs::msg::PointCloud2>("topic2",
-      rclcpp::QoS(10));
+  pub_ptr1 = pcf_node->create_publisher<sensor_msgs::msg::PointCloud2>(topics[0], rclcpp::QoS(10));
+  pub_ptr2 = pcf_node->create_publisher<sensor_msgs::msg::PointCloud2>(topics[1], rclcpp::QoS(10));
+
+  bool test_completed = false;
 
   auto handle_concat =
-    [&expected_result,
+    [&expected_pc,
     &test_completed](const sensor_msgs::msg::PointCloud2::SharedPtr msg) -> void {
-      check_pcl_eq(*msg, expected_result);
+      check_pcl_eq(*msg, expected_pc);
       test_completed = true;
     };
 
-  auto sub_ptr = pcf_node->create_subscription<sensor_msgs::msg::PointCloud2>("points_concat",
-      rclcpp::QoS(10), handle_concat);
+  sub_ptr = pcf_node->create_subscription<sensor_msgs::msg::PointCloud2>(
+    "points_concat", rclcpp::QoS(10), handle_concat);
 
   pub_ptr1->publish(pc1);
   pub_ptr2->publish(pc2);
@@ -176,7 +183,6 @@ TEST_F(TestPCF, test_basic_fusion) {
 
   auto start_time = std::chrono::system_clock::now();
   auto max_test_dur = std::chrono::seconds(1);
-  auto timed_out = false;
 
   while (rclcpp::ok() && !test_completed) {
     rclcpp::spin_some(pcf_node);
@@ -192,11 +198,9 @@ TEST_F(TestPCF, test_basic_fusion) {
 
 TEST_F(TestPCF, test_transformed_fusion) {
   std::vector<std::string> topics{"topic1", "topic2"};
-  auto pcf_node =
-    std::make_shared<autoware::perception::filters::point_cloud_fusion::PointCloudFusionNode>(
+  pcf_node = std::make_shared<PointCloudFusionNode>(
     "test_pcf_node", "", "points_concat", topics, "base_link", 55000U);
 
-  bool8_t test_completed = false;
   auto time0 = std::chrono::system_clock::now();
   auto t0 = to_msg_time(time0);
   auto t1 = to_msg_time(time0 + std::chrono::nanoseconds(1));
@@ -204,10 +208,10 @@ TEST_F(TestPCF, test_transformed_fusion) {
 
   auto dummy_pc = make_pc({0, 0, 0}, a_later_time);
   // define two pointclouds on base_link
-  auto pc1 = make_pc({1, 2, 3}, t0);
-  auto pc2 = make_pc({4, 5, 6}, t1);
+  pc1 = make_pc({1, 2, 3}, t0);
+  pc2 = make_pc({4, 5, 6}, t1);
   // expected result on base_link
-  auto expected_result = make_pc({1, 2, 3, 4, 5, 6}, t1);
+  auto expected_pc = make_pc({1, 2, 3, 4, 5, 6}, t1);
 
   // define transform to rotate 180° on x axis and translate 7.0 on Z axis
   geometry_msgs::msg::TransformStamped transform_forward;
@@ -221,10 +225,8 @@ TEST_F(TestPCF, test_transformed_fusion) {
   sensor_msgs::msg::PointCloud2 transformed_pc2;
   tf2::doTransform(pc2, transformed_pc2, transform_forward);
 
-  auto pub_ptr1 = pcf_node->create_publisher<sensor_msgs::msg::PointCloud2>("topic1",
-      rclcpp::QoS(10));
-  auto pub_ptr2 = pcf_node->create_publisher<sensor_msgs::msg::PointCloud2>("topic2",
-      rclcpp::QoS(10));
+  pub_ptr1 = pcf_node->create_publisher<sensor_msgs::msg::PointCloud2>(topics[0], rclcpp::QoS(10));
+  pub_ptr2 = pcf_node->create_publisher<sensor_msgs::msg::PointCloud2>(topics[1], rclcpp::QoS(10));
   auto tf2_pub_ptr2 = pcf_node->create_publisher<tf2_msgs::msg::TFMessage>("tf",
       rclcpp::QoS(10));
 
@@ -232,14 +234,17 @@ TEST_F(TestPCF, test_transformed_fusion) {
   auto tf_msg = tf2_msgs::msg::TFMessage();
   tf_msg.transforms.push_back(transform_forward);
 
-  auto handle_concat = [&expected_result, &test_completed]
+  bool test_completed = false;
+
+  auto handle_concat = [&expected_pc, &test_completed]
       (const sensor_msgs::msg::PointCloud2::SharedPtr msg) -> void {
-      check_pcl_eq(*msg, expected_result);
+      check_pcl_eq(*msg, expected_pc);
       test_completed = true;
     };
 
-  auto sub_ptr = pcf_node->create_subscription<sensor_msgs::msg::PointCloud2>("points_concat",
-      rclcpp::QoS(10), handle_concat);
+  sub_ptr = pcf_node->create_subscription<sensor_msgs::msg::PointCloud2>(
+    "points_concat", rclcpp::QoS(10), handle_concat);
+
   // publish tf message that will help the fusion node transform the transformed_pc2
   tf2_pub_ptr2->publish(tf_msg);
 
@@ -252,7 +257,6 @@ TEST_F(TestPCF, test_transformed_fusion) {
 
   auto start_time = std::chrono::system_clock::now();
   auto max_test_dur = std::chrono::seconds(1);
-  auto timed_out = false;
 
   while (rclcpp::ok() && !test_completed) {
     rclcpp::spin_some(pcf_node);
