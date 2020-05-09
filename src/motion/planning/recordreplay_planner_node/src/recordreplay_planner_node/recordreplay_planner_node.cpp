@@ -219,12 +219,13 @@ void RecordReplayPlannerNode::on_bounding_box(const BoundingBoxArray::SharedPtr 
   if (msg->header.frame_id == m_odom_frame_id) {
     m_planner->update_bounding_boxes(*msg);
   } else {
+    double tf_tolerance = 1.0;
     if (tf_buffer_->canTransform(m_odom_frame_id, msg->header.frame_id,
-      tf2_ros::fromMsg(msg->header.stamp) ) )
+      tf2::TimePoint(), tf2::durationFromSec(tf_tolerance) ) )
     {
       const auto tf = tf_buffer_->lookupTransform(
         m_odom_frame_id, msg->header.frame_id,
-        tf2::TimePoint());
+        tf2::TimePoint(),tf2::durationFromSec(tf_tolerance) );
       auto msg_tf = msg;
       doTransform(msg, msg_tf, tf);
       msg_tf->header.frame_id = m_odom_frame_id;
