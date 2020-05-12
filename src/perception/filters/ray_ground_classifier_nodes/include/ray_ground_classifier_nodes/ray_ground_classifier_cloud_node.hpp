@@ -47,6 +47,9 @@ namespace ray_ground_classifier_nodes
 
 using sensor_msgs::msg::PointCloud2;
 
+constexpr static bool8_t NO_NEW_STAMP = false;
+constexpr static bool8_t NEW_STAMP = true;
+
 /// \brief A node that takes in unstructured point clouds and partitions them into ground and
 ///        nonground points
 class RAY_GROUND_CLASSIFIER_PUBLIC RayGroundClassifierCloudNode
@@ -70,6 +73,7 @@ public:
   /// \param[in] pcl_size Number of points to preallocate in pointcloud messages
   /// \param[in] cfg Configuration class for ground classifier
   /// \param[in] agg_cfg Configuration class for ray aggregator
+  /// \param[in] stamp_with_current_time stamp the output point cloud with the current time
   /// \throw std::runtime_error if configuration fails
   RayGroundClassifierCloudNode(
     const std::string & node_name,
@@ -80,7 +84,8 @@ public:
     const std::chrono::nanoseconds & timeout,
     const std::size_t pcl_size,
     const ray_ground_classifier::Config & cfg,
-    const ray_ground_classifier::RayAggregator::Config & agg_cfg);
+    const ray_ground_classifier::RayAggregator::Config & agg_cfg,
+    const bool8_t stamp_with_current_time = NO_NEW_STAMP);
 
 private:
   /// \brief Activates publishers
@@ -119,6 +124,7 @@ private:
   autoware::common::lidar_utils::PointCloudIts m_ground_pc_its;
   uint32_t m_nonground_pc_idx;
   autoware::common::lidar_utils::PointCloudIts m_nonground_pc_its;
+  bool8_t m_stamp_with_current_time;
 };  // class RayGroundFilterDriverNode
 }  // namespace ray_ground_classifier_nodes
 }  // namespace filters

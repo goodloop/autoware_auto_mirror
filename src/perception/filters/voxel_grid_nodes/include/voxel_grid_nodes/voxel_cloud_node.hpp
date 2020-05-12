@@ -29,6 +29,8 @@
 #include <string>
 
 using autoware::common::types::bool8_t;
+using autoware::perception::filters::voxel_grid_nodes::algorithm::NO_NEW_STAMP;
+using autoware::perception::filters::voxel_grid_nodes::algorithm::NEW_STAMP;
 
 namespace autoware
 {
@@ -62,6 +64,7 @@ public:
   /// \param[in] is_approximate Whether the internal voxel grid is approximate or not (centroid)
   /// \param sub_qos QoS profile for the subscription. By default, set to depth of 10.
   /// \param pub_qos QoS profile for the publisher. By default, set to depth of 10.
+  /// \param stamp_with_current_time replace the stamp from the inserted msg with the curren time
   VoxelCloudNode(
     const std::string & node_name,
     const std::string & sub_topic,
@@ -69,7 +72,8 @@ public:
     const voxel_grid::Config & cfg,
     const bool8_t is_approximate,
     const rclcpp::QoS sub_qos = rclcpp::QoS(10),
-    const rclcpp::QoS pub_qos = rclcpp::QoS(10));
+    const rclcpp::QoS pub_qos = rclcpp::QoS(10),
+    const bool8_t stamp_with_current_time = NO_NEW_STAMP);
 
   /// \brief Core run loop
   void callback(const sensor_msgs::msg::PointCloud2::SharedPtr msg);
@@ -78,7 +82,11 @@ private:
   /// \brief Initialize state transition callbacks and voxel grid
   /// \param[in] cfg Configuration object for voxel grid
   /// \param[in] is_approximate whether to instantiate an approximate or centroid voxel grid
-  void VOXEL_GRID_NODES_LOCAL init(const voxel_grid::Config & cfg, const bool8_t is_approximate);
+  void VOXEL_GRID_NODES_LOCAL init(
+    const voxel_grid::Config & cfg,
+    const bool8_t is_approximate,
+    const bool8_t stamp_with_current_time
+  );
 
   using Message = sensor_msgs::msg::PointCloud2;
 

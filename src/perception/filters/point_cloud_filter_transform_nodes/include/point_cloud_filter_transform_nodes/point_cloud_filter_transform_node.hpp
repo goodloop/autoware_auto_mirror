@@ -44,6 +44,9 @@ Transform get_transform(
   float64_t r_x, float64_t r_y, float64_t r_z, float64_t r_w, float64_t t_x,
   float64_t t_y, float64_t t_z);
 
+constexpr static bool8_t NO_NEW_STAMP = false;
+constexpr static bool8_t NEW_STAMP = true;
+
 /// \brief Base class to subscribe to raw point cloud and transform and filter it to publish
 ///        filtered point cloud. Calls angle filter, distance filter and static transformer.
 /// \tparam PointCloudT desired point cloud type. Currently specialized for PointCloud2.
@@ -68,6 +71,7 @@ public:
   /// \param tf Transform msg to be applied to the raw points
   /// \param expected_num_publishers Expected number of publishers for the raw point cloud topic
   /// \param expected_num_subscribers Expected number of subscribers for the filtered point topic
+  /// \param stamp_with_current_time stamp the output point cloud with the current time
   PointCloudFilterTransformNodeBase(
     const std::string & node_name,
     const std::string & node_namespace,
@@ -81,7 +85,8 @@ public:
     const float32_t max_radius,
     const Transform & tf,
     const size_t expected_num_publishers,
-    const size_t expected_num_subscribers)
+    const size_t expected_num_subscribers,
+    const bool8_t stamp_with_current_time)
   : Node(node_name.c_str(), node_namespace.c_str()),
     m_angle_filter{start_angle, end_angle}, m_distance_filter{min_radius, max_radius},
     m_static_transformer{tf}, m_init_timeout{init_timeout}, m_timeout{timeout},
@@ -91,7 +96,8 @@ public:
           &PointCloudFilterTransformNodeBase::process_filtered_transformed_message, this, _1))},
     m_pub_ptr{create_publisher<PointCloudT>(filtered_topic.c_str(), rclcpp::QoS{10})},
     m_expected_num_publishers{expected_num_publishers},
-    m_expected_num_subscribers{expected_num_subscribers}
+    m_expected_num_subscribers{expected_num_subscribers},
+    m_stamp_with_current_time{stamp_with_current_time}
   {
   }
 
@@ -125,8 +131,13 @@ public:
     m_expected_num_publishers{
       static_cast<size_t>(declare_parameter("expected_num_publishers").get<int32_t>())},
     m_expected_num_subscribers{
-      static_cast<size_t>(declare_parameter("expected_num_subscribers").get<int32_t>())}
+      static_cast<size_t>(declare_parameter("expected_num_subscribers").get<int32_t>())},
+    m_stamp_with_current_time{NO_NEW_STAMP}
   {
+    const auto stamp_with_current_time_param = declare_parameter("stamp_with_current_time");
+    if (rclcpp::PARAMETER_NOT_SET != stamp_with_current_time_param.get_type()) {
+      m_stamp_with_current_time = static_cast<bool8_t>(stamp_with_current_time_param.get<bool>());
+    }
   }
 
 protected:
@@ -243,6 +254,9 @@ private:
   const typename std::shared_ptr<rclcpp::Publisher<PointCloudT>> m_pub_ptr;
   const size_t m_expected_num_publishers;
   const size_t m_expected_num_subscribers;
+
+protected:
+  bool8_t m_stamp_with_current_time;
 };
 
 /// \brief Specialized filter/transform class for PointCloud2
@@ -276,6 +290,7 @@ public:
   /// \param pcl_size Number of points to preallocate for filtered point cloud message
   /// \param expected_num_publishers Expected number of publishers for the raw point cloud topic
   /// \param expected_num_subscribers Expected number of subscribers for the filtered point topic
+  /// \param stamp_with_current_time stamp the output point cloud with the current time
   PointCloud2FilterTransformNode(
     const std::string & node_name,
     const std::string & node_namespace,
@@ -292,7 +307,8 @@ public:
     const geometry_msgs::msg::Transform & tf,
     const size_t pcl_size,
     const size_t expected_num_publishers = 1U,
-    const size_t expected_num_subscribers = 0U);
+    const size_t expected_num_subscribers = 0U,
+    const bool8_t stamp_with_current_time = NO_NEW_STAMP);
 
 protected:
   /// \brief Call distance & angle filter and then static transformer for all the points
