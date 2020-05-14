@@ -27,6 +27,8 @@
 #include <motion_common/config.hpp>
 #include <common/types.hpp>
 
+#include <tf2_ros/transform_listener.h>
+#include <tf2_ros/buffer.h>
 #include <rclcpp_action/rclcpp_action.hpp>
 #include <rclcpp/rclcpp.hpp>
 
@@ -112,6 +114,10 @@ private:
     const std::shared_ptr<GoalHandleReplayTrajectory> goal_handle);
   RECORDREPLAY_PLANNER_NODE_LOCAL void replay_handle_accepted(
     const std::shared_ptr<GoalHandleReplayTrajectory> goal_handle);
+
+  std::string m_odom_frame_id{};
+  std::shared_ptr<tf2_ros::Buffer> tf_buffer_;
+  std::shared_ptr<tf2_ros::TransformListener> tf_listener_;
 };  // class RecordReplayPlannerNode
 }  // namespace recordreplay_planner_node
 }  // namespace planning
