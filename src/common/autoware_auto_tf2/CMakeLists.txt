@@ -21,4 +21,22 @@ find_package(ament_cmake REQUIRED)
 find_package(ament_cmake_auto REQUIRED)
 ament_auto_find_build_dependencies()
 
+if(BUILD_TESTING)
+  # run linters
+  autoware_static_code_analysis()
+  # gtest
+  find_package(geometry_msgs REQUIRED)
+  find_package(ament_cmake_gtest)
+  ament_add_gtest(test_tf2_autoware_auto_msgs test/test_tf2_autoware_auto_msgs.cpp)
+  target_include_directories(test_tf2_autoware_auto_msgs PRIVATE "include")
+  ament_target_dependencies(test_tf2_autoware_auto_msgs
+    "autoware_auto_common"
+    "autoware_auto_msgs"
+    "geometry_msgs"
+    "orocos_kdl"
+    "tf2"
+    "tf2_ros"
+)
+endif()
+
 ament_auto_package()
