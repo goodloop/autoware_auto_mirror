@@ -21,10 +21,10 @@
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 #include <autoware_auto_tf2/tf2_autoware_auto_msgs.hpp>
 #include <rclcpp/clock.hpp>
-
+#include <memory>
 
 std::unique_ptr<tf2_ros::Buffer> tf_buffer = nullptr;
-static const double EPS = 1e-3;
+constexpr double EPS = 1e-3;
 
 geometry_msgs::msg::TransformStamped filled_transfom()
 {
@@ -46,7 +46,7 @@ geometry_msgs::msg::TransformStamped filled_transfom()
 
 TEST(Tf2AutowareAuto, DoTransformPoint32)
 {
-  const geometry_msgs::msg::TransformStamped trans = filled_transfom();
+  const auto trans = filled_transfom();
   geometry_msgs::msg::Point32 p1;
   p1.x = 1;
   p1.y = 2;
@@ -64,7 +64,7 @@ TEST(Tf2AutowareAuto, DoTransformPoint32)
 
 TEST(Tf2AutowareAuto, DoTransformQuaternion32)
 {
-  const geometry_msgs::msg::TransformStamped trans = filled_transfom();
+  const auto trans = filled_transfom();
   autoware_auto_msgs::msg::Quaternion32 q1;
   q1.w = 0;
   q1.x = 0;
@@ -84,8 +84,8 @@ TEST(Tf2AutowareAuto, DoTransformQuaternion32)
 
 TEST(Tf2AutowareAuto, DoTransformBoundingBox)
 {
-  const geometry_msgs::msg::TransformStamped trans = filled_transfom();
-  autoware_auto_msgs::msg::BoundingBox bb1;
+  const auto trans = filled_transfom();
+  BoundingBox bb1;
   bb1.orientation.w = 0;
   bb1.orientation.x = 0;
   bb1.orientation.y = 0;
@@ -107,7 +107,7 @@ TEST(Tf2AutowareAuto, DoTransformBoundingBox)
   bb1.corners[3].z = 15;
 
   // doTransform
-  autoware_auto_msgs::msg::BoundingBox bb_out;
+  BoundingBox bb_out;
   tf2::doTransform(bb1, bb_out, trans);
 
   EXPECT_NEAR(bb_out.orientation.x, 0.0, EPS);
@@ -142,8 +142,7 @@ TEST(Tf2AutowareAuto, DoTransformBoundingBox)
 
 TEST(Tf2AutowareAuto, TransformBoundingBoxArray)
 {
-
-  autoware_auto_msgs::msg::BoundingBox bb1;
+  BoundingBox bb1;
   bb1.orientation.w = 0;
   bb1.orientation.x = 0;
   bb1.orientation.y = 0;
@@ -164,7 +163,7 @@ TEST(Tf2AutowareAuto, TransformBoundingBoxArray)
   bb1.corners[3].y = 33;
   bb1.corners[3].z = 34;
 
-  autoware_auto_msgs::msg::BoundingBox bb2;
+  BoundingBox bb2;
   bb2.orientation.w = 0.707;
   bb2.orientation.x = -0.706;
   bb2.orientation.y = 0;
@@ -185,15 +184,14 @@ TEST(Tf2AutowareAuto, TransformBoundingBoxArray)
   bb2.corners[3].y = 53;
   bb2.corners[3].z = 54;
 
-  autoware_auto_msgs::msg::BoundingBoxArray bba1;
+  BoundingBoxArray bba1;
   bba1.header.stamp = tf2_ros::toMsg(tf2::timeFromSec(2));
   bba1.header.frame_id = "A";
   bba1.boxes.push_back(bb1);
   bba1.boxes.push_back(bb2);
 
   // simple api
-  autoware_auto_msgs::msg::BoundingBoxArray bba_simple = tf_buffer->transform(bba1, "B", tf2::durationFromSec(
-        2.0));
+  const auto bba_simple = tf_buffer->transform(bba1, "B", tf2::durationFromSec(2.0));
 
 
   EXPECT_EQ(bba_simple.header.frame_id, "B");
@@ -242,12 +240,11 @@ TEST(Tf2AutowareAuto, TransformBoundingBoxArray)
 
 
   // advanced api
-  autoware_auto_msgs::msg::BoundingBoxArray bba_advanced = tf_buffer->transform(
-    bba1, "B", tf2::timeFromSec(2.0), "A", tf2::durationFromSec(3.0)
-    );
+  const auto bba_advanced = tf_buffer->transform(bba1, "B",
+      tf2::timeFromSec(2.0), "A", tf2::durationFromSec(3.0));
 
   EXPECT_EQ(bba_advanced.header.frame_id, "B");
-  
+
   // checking boxes[0]
   EXPECT_NEAR(bba_advanced.boxes[0].orientation.x, 0.0, EPS);
   EXPECT_NEAR(bba_advanced.boxes[0].orientation.y, 1.0, EPS);

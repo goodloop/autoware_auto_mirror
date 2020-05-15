@@ -20,7 +20,10 @@
 #include <tf2/convert.h>
 #include <tf2/time.h>
 #include <autoware_auto_msgs/msg/bounding_box_array.hpp>
+#include <autoware_auto_msgs/msg/bounding_box.hpp>
 #include <geometry_msgs/msg/transform_stamped.hpp>
+#include <autoware_auto_msgs/msg/quaternion32.hpp>
+#include <geometry_msgs/msg/point32.hpp>
 #include <common/types.hpp>
 #include <string>
 

@@ -21,12 +21,13 @@ find_package(ament_cmake REQUIRED)
 find_package(ament_cmake_auto REQUIRED)
 ament_auto_find_build_dependencies()
 
+
+### Test
 if(BUILD_TESTING)
-  # run linters
-  autoware_static_code_analysis()
-  # gtest
-  find_package(geometry_msgs REQUIRED)
-  find_package(ament_cmake_gtest)
+  find_package(ament_lint_auto REQUIRED)
+  # Linters
+  ament_lint_auto_find_test_dependencies()
+  # Unit test
   ament_add_gtest(test_tf2_autoware_auto_msgs test/test_tf2_autoware_auto_msgs.cpp)
   target_include_directories(test_tf2_autoware_auto_msgs PRIVATE "include")
   ament_target_dependencies(test_tf2_autoware_auto_msgs
