@@ -30,18 +30,18 @@ namespace autoware
 namespace hello_world
 {
 
-/// \class hello_world_c
+/// \class HelloWorldNode
 /// \brief ROS 2 Node for hello world.
-class HELLO_WORLD_PUBLIC hello_world_c : public rclcpp::Node
+class HELLO_WORLD_PUBLIC HelloWorldNode : public rclcpp::Node
 {
 public:
   /// \brief default constructor, starts driver
   /// \param[in] node_name name of the node for rclcpp internals
   /// \throw runtime error if failed to start threads or configure driver
-  explicit hello_world_c(const std::string & node_name);
+  explicit HelloWorldNode(const rclcpp::NodeOptions & options);
 
   /// \brief default destructor
-  virtual ~hello_world_c();
+  virtual ~HelloWorldNode();
 
   /// \brief print hello
   /// return 0 if successful.
