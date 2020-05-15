@@ -12,11 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import pytest
 from ament_copyright.main import main
+import pytest
 
 
-@pytest.mark.skip(reason="Disabled until Apex.AI + TierIV copyright can be properly linted")
+@pytest.mark.copyright
+@pytest.mark.linter
 def test_copyright():
-    rc = main()
+    rc = main(argv=['.'])
     assert rc == 0, 'Found errors'

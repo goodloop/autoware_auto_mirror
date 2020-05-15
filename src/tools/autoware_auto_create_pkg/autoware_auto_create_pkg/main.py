@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 #
 # Copyright 2018 Apex.AI, Inc.
-# Co-developed by Tier IV, Inc. and Apex.AI, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
