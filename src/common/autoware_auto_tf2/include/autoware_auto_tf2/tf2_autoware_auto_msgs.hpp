@@ -14,8 +14,8 @@
 /// \file
 /// \brief This file includes common transoform functionaly for autoware_auto_msgs
 
-#ifndef AUTOWARE_AUTO_TF2__TF2_AUTOWARE_AUTO_MSGS_H_
-#define AUTOWARE_AUTO_TF2__TF2_AUTOWARE_AUTO_MSGS_H_
+#ifndef AUTOWARE_AUTO_TF2__TF2_AUTOWARE_AUTO_MSGS_HPP_
+#define AUTOWARE_AUTO_TF2__TF2_AUTOWARE_AUTO_MSGS_HPP_
 
 #include <tf2/convert.h>
 #include <tf2/time.h>
@@ -160,4 +160,4 @@ void doTransform(
 
 }  // namespace tf2
 
-#endif  // AUTOWARE_AUTO_TF2__TF2_AUTOWARE_AUTO_MSGS_H_
+#endif  // AUTOWARE_AUTO_TF2__TF2_AUTOWARE_AUTO_MSGS_HPP_
