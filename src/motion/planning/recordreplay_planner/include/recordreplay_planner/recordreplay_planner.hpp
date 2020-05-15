@@ -117,7 +117,6 @@ private:
   // Debug msgs
   BoundingBoxArray m_latest_collison_boxes{};
   BoundingBoxArray m_current_traj_bboxes{};
-
 };  // class RecordReplayPlanner
 }  // namespace recordreplay_planner
 }  // namespace planning

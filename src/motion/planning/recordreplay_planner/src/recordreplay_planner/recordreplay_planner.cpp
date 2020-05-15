@@ -178,14 +178,16 @@ const BoundingBoxArray & RecordReplayPlanner::get_traj_boxes()
   m_current_traj_bboxes.boxes.resize((m_traj_end_idx - m_traj_start_idx));
   for (std::size_t i = {}; i < (m_traj_end_idx - m_traj_start_idx); ++i) {
     m_current_traj_bboxes.boxes[i] = m_cache_traj_bbox_arr.boxes[i + m_traj_start_idx];
-    m_current_traj_bboxes.boxes[i].vehicle_label = autoware_auto_msgs::msg::BoundingBox::MOTORCYCLE;   // workaround to color Green
+    // workaround to color Green
+    m_current_traj_bboxes.boxes[i].vehicle_label = BoundingBox::MOTORCYCLE;
   }
   return m_current_traj_bboxes;
 }
 const BoundingBoxArray & RecordReplayPlanner::get_collision_boxes()
 {
   if (!m_latest_collison_boxes.boxes.empty()) {
-    m_latest_collison_boxes.boxes[0].vehicle_label = autoware_auto_msgs::msg::BoundingBox::CYCLIST;  // workaround to color Orange
+    // workaround to color Orange
+    m_latest_collison_boxes.boxes[0].vehicle_label = BoundingBox::CYCLIST;
   }
   return m_latest_collison_boxes;
 }

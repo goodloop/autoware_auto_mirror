@@ -156,12 +156,10 @@ void RecordReplayPlannerNode::on_ego(const State::SharedPtr & msg)
     const auto & traj = m_planner->plan(*msg);
     m_trajectory_pub->publish(traj);
 
-    if(m_trajectory_boundingbox_pub->get_subscription_count()> 0U)
-    {
+    if (m_trajectory_boundingbox_pub->get_subscription_count() > 0U) {
       m_trajectory_boundingbox_pub->publish(m_planner->get_traj_boxes());
     }
-    if(m_collison_boundingbox_pub->get_subscription_count()> 0U)
-    {
+    if (m_collison_boundingbox_pub->get_subscription_count() > 0U) {
       m_collison_boundingbox_pub->publish(m_planner->get_collision_boxes());
     }
 
@@ -183,10 +181,9 @@ void RecordReplayPlannerNode::on_bounding_box(const BoundingBoxArray::SharedPtr 
       tf2_ros::fromMsg(msg->header.stamp), timeout) )
     {
       auto msg_tansformed = tf_buffer_->transform(*msg, m_odom_frame_id, timeout);
-      if(m_transformed_boundingbox_pub->get_subscription_count()> 0U)
-      {
+      if (m_transformed_boundingbox_pub->get_subscription_count() > 0U) {
         m_transformed_boundingbox_pub->publish(msg_tansformed);
-      }      
+      }
       m_planner->update_bounding_boxes(msg_tansformed);
     } else {
       RCLCPP_WARN(
