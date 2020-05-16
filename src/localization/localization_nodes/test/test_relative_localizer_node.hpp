@@ -26,13 +26,10 @@
 #include "common/types.hpp"
 
 using autoware::common::types::bool8_t;
+using autoware::localization::localization_common::RelativeLocalizerBase;
+using autoware::localization::localization_nodes::RelativeLocalizerNode;
+using autoware::localization::localization_nodes::TopicQoS;
 
-namespace autoware
-{
-namespace localization
-{
-namespace localization_nodes
-{
 using MsgWithHeader = geometry_msgs::msg::TransformStamped;
 using TestObservation = MsgWithHeader;
 using TestMap = MsgWithHeader;
@@ -42,8 +39,7 @@ using Transform = geometry_msgs::msg::TransformStamped;
 
 constexpr int TEST_ERROR_ID = -9999;
 
-class MockRelativeLocalizer : public localization_common::RelativeLocalizerBase<TestObservation,
-    TestMap, int>
+class MockRelativeLocalizer : public RelativeLocalizerBase<TestObservation, TestMap, int>
 {
 public:
   MockRelativeLocalizer(
@@ -147,10 +143,5 @@ inline void set_msg_id(PoseWithCovarianceStamped & msg, int64_t id)
 {
   msg.pose.pose.position.x = id;
 }
-////
 
-
-}  // namespace localization_nodes
-}  // namespace localization
-}  // namespace autoware
 #endif  // TEST_RELATIVE_LOCALIZER_NODE_HPP_

@@ -29,12 +29,6 @@
 
 using autoware::common::types::bool8_t;
 
-namespace autoware
-{
-namespace localization
-{
-namespace localization_nodes
-{
 class RelativeLocalizationNodeTest : public ::testing::Test
 {
 public:
@@ -355,8 +349,3 @@ Transform MockInitializer::guess(
   transform.header.frame_id = obs_frame + map_frame;
   return transform;
 }
-
-
-}  // namespace localization_nodes
-}  // namespace localization
-}  // namespace autoware
