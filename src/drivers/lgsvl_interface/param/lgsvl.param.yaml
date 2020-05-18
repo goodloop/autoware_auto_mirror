@@ -21,12 +21,7 @@ lgsvl_interface:
     # "raw", "basic" or "high_level"
     control_command: "raw"
     lgsvl:
-      control_command_topic: "lgsvl/vehicle_control_cmd"
-      state_command_topic: "lgsvl/vehicle_state_cmd"
-      state_report_topic: "lgsvl/state_report"
-      nav_odometry_topic: "lgsvl/gnss_odom"
-      veh_odometry_topic: "lgsvl/vehicle_odom"
-      kinematic_state_topic: "vehicle_kinematic_state"
+      use_nav_odometry_topic: True
       throttle:
         domain: [0.0, 3.0]
         range: [0.0, 100.0]
