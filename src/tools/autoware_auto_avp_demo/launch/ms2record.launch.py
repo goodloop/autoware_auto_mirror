@@ -50,17 +50,10 @@ def generate_launch_description():
     be found at https://gitlab.com/autowarefoundation/autoware.auto/AutowareAuto/-/milestones/24.
     """
     avp_demo_pkg_prefix = get_package_share_directory('autoware_auto_avp_demo')
-    print(avp_demo_pkg_prefix)
     euclidean_cluster_param_file = os.path.join(
         avp_demo_pkg_prefix, 'param/euclidean_cluster.param.yaml')
     lgsvl_param_file = get_share_file(
         package_name='test_trajectory_following', file_name='lgsvl_interface.param.yaml')
-    map_publisher_param_file = os.path.join(
-        avp_demo_pkg_prefix, 'param/map_publisher.param.yaml')
-    map_state_estimator_param_file = os.path.join(
-        avp_demo_pkg_prefix, 'param/map_state_estimator.param.yaml')
-    odom_state_estimator_param_file = os.path.join(
-        avp_demo_pkg_prefix, 'param/odom_state_estimator.param.yaml')
     ray_ground_classifier_param_file = os.path.join(
         avp_demo_pkg_prefix, 'param/ray_ground_classifier.param.yaml')
     rviz_cfg_path = os.path.join(avp_demo_pkg_prefix, 'config/ms2.rviz')
@@ -87,21 +80,6 @@ def generate_launch_description():
         'lgsvl_interface_param_file',
         default_value=lgsvl_param_file,
         description='Path to config file for LGSVL Interface'
-    )
-    map_publisher_param = DeclareLaunchArgument(
-        'map_publisher_param_file',
-        default_value=map_publisher_param_file,
-        description='Path to config file for Map Publisher'
-    )
-    map_state_estimator_param = DeclareLaunchArgument(
-        'map_state_estimator_param_file',
-        default_value=map_state_estimator_param_file,
-        description='Path to config file for Map State Estimator'
-    )
-    odom_state_estimator_param = DeclareLaunchArgument(
-        'odom_state_estimator_param_file',
-        default_value=odom_state_estimator_param_file,
-        description='Path to config file for Odometry State Estimator'
     )
     pc_filter_transform_param = DeclareLaunchArgument(
         'pc_filter_transform_param_file',
@@ -179,24 +157,7 @@ def generate_launch_description():
         output='screen',
         parameters=[LaunchConfiguration('lgsvl_interface_param_file')]
     )
-    map_publisher = Node(
-        package='ndt_nodes',
-        node_executable='ndt_map_publisher_exe',
-        node_namespace='localization',
-        parameters=[LaunchConfiguration('map_publisher_param_file')]
-    )
-    map_state_estimator = Node(
-        package='robot_localization',
-        node_executable='ekf_node',
-        node_namespace='localization/map',
-        parameters=[LaunchConfiguration('map_state_estimator_param_file')]
-    )
-    # odom_state_estimator = Node(
-    #     package='robot_localization',
-    #     node_executable='ekf_node',
-    #     node_namespace='localization/odom',
-    #     parameters=[LaunchConfiguration('odom_state_estimator_param_file')]
-    # )
+
     ray_ground_classifier = Node(
         package='ray_ground_classifier_nodes',
         node_executable='ray_ground_classifier_cloud_node_exe',
@@ -224,9 +185,6 @@ def generate_launch_description():
         joy_ctrl_record_replay_traj,
         euclidean_cluster_param,
         lgsvl_interface_param,
-        map_publisher_param,
-        map_state_estimator_param,
-        odom_state_estimator_param,
         pc_filter_transform_param,
         ray_ground_classifier_param,
         with_rviz_param,
@@ -235,9 +193,6 @@ def generate_launch_description():
         filter_transform_vlp16_front,
         filter_transform_vlp16_rear,
         lgsvl_interface,
-        map_publisher,
-        map_state_estimator,
-        # odom_state_estimator,
         ray_ground_classifier,
         rviz2
     ])
