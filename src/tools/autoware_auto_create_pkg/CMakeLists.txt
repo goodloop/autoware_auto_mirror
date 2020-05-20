@@ -27,7 +27,17 @@ if(BUILD_TESTING)
   ament_xmllint(${CMAKE_CURRENT_SOURCE_DIR}/package.xml)
 endif()
 
-# Install python scripts
+# Install python package
 ament_python_install_package(${PROJECT_NAME})
+
+# Install main script
+install(PROGRAMS ${PROJECT_NAME}/main.py
+  DESTINATION lib/${PROJECT_NAME}
+)
+
+# Install template
+install(DIRECTORY ${PROJECT_NAME}/template/
+  DESTINATION share/${PROJECT_NAME}/template/
+)
 
 ament_auto_package()

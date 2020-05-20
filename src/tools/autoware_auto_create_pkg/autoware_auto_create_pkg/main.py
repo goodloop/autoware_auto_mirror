@@ -19,6 +19,8 @@ import os
 import shutil
 import sys
 
+from ament_index_python import get_package_share_directory
+
 
 def copy(src, dest):
     try:
@@ -74,10 +76,11 @@ def main():
     dest = os.path.join(args.destination, args.pkg_name)
 
     # Copy the template package to the desired location
-    template_pkg_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'template')
+    template_pkg_dir = os.path.join(
+      get_package_share_directory('autoware_auto_create_pkg'), 'template')
     copy(template_pkg_dir, dest)
 
-    # Remove COLCON_IGNORE and this script
+    # Remove COLCON_IGNORE
     try:
         os.remove(os.path.join(dest, 'COLCON_IGNORE'))
     except FileNotFoundError:
