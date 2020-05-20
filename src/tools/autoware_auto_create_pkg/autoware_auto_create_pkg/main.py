@@ -17,6 +17,7 @@
 import argparse
 import os
 import shutil
+import string
 import sys
 
 from ament_index_python import get_package_share_directory
@@ -36,9 +37,15 @@ def find_and_replace(filename, pkg_name, email, description=None, maintainer=Non
     with open(filename, 'r') as f:
         filedata = f.read()
 
+    camelcase_pkg_name = "".join([
+      word.capitalize()
+      for word in pkg_name.split("_")
+    ])
+
     # Replace the target string
     filedata = filedata.replace('hello_world', pkg_name)
     filedata = filedata.replace('HELLO_WORLD', pkg_name.upper())
+    filedata = filedata.replace('HelloWorld', camelcase_pkg_name)
     filedata = filedata.replace('MAINTAINER_EMAIL', email)
     filedata = filedata.replace('USERNAME', username)
 
