@@ -13,11 +13,11 @@
 # limitations under the License.
 cmake_minimum_required(VERSION 3.5)
 
-project(autoware_auto_hello_world)
+project(hello_world)
 
 # dependencies
 find_package(ament_cmake_auto REQUIRED)
-ament_cmake_auto_find_build_dependencies()
+ament_auto_find_build_dependencies()
 
 set(HELLO_WORLD_LIB_SRC
   src/hello_world.cpp
@@ -74,6 +74,4 @@ if(BUILD_TESTING)
 endif()
 
 # ament package generation and installing
-ament_auto_package(
-  INSTALL_TO_PATH
-)
+ament_auto_package()

@@ -23,7 +23,7 @@ int32_t main(const int32_t argc, char ** const argv)
   int32_t ret;
   try {
     rclcpp::init(argc, argv);
-    rclcpp::Options options;
+    rclcpp::NodeOptions options;
     autoware::hello_world::HelloWorldNode hello(options);
     (void)hello.print_hello();
     ret = 0;
