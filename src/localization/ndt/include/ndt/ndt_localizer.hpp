@@ -121,6 +121,13 @@ public:
     m_map.insert(msg);
   }
 
+  /// Insert the given message to the existing map.
+  /// \param msg Message containing the map addition.
+  void insert_to_map_impl(const CloudT & msg) override
+  {
+    m_map.insert(msg);
+  }
+
   /// Get the last used scan.
   const ScanT & scan() const noexcept
   {
