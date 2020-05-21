@@ -13,6 +13,8 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+#
+# Co-developed by Tier IV, Inc. and Apex.AI, Inc.
 
 import argparse
 import os
@@ -36,9 +38,9 @@ def find_and_replace(filename, pkg_name, email, description=None, maintainer=Non
     with open(filename, 'r') as f:
         filedata = f.read()
 
-    camelcase_pkg_name = "".join([
+    camelcase_pkg_name = ''.join([
       word.capitalize()
-      for word in pkg_name.split("_")
+      for word in pkg_name.split('_')
     ])
 
     # Replace the target string
