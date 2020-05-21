@@ -28,10 +28,6 @@ HelloWorldNode::HelloWorldNode(const rclcpp::NodeOptions & options)
 {
 }
 
-HelloWorldNode::~HelloWorldNode()
-{
-}
-
 int32_t HelloWorldNode::print_hello() const
 {
   return hello_world::print_hello();

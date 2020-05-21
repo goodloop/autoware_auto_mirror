@@ -40,9 +40,6 @@ public:
   /// \throw runtime error if failed to start threads or configure driver
   explicit HelloWorldNode(const rclcpp::NodeOptions & options);
 
-  /// \brief default destructor
-  virtual ~HelloWorldNode();
-
   /// \brief print hello
   /// return 0 if successful.
   int32_t print_hello() const;
