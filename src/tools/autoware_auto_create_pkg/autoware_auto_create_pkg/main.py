@@ -17,7 +17,6 @@
 import argparse
 import os
 import shutil
-import string
 import sys
 
 from ament_index_python import get_package_share_directory
