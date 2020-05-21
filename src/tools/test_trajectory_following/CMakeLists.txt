@@ -14,6 +14,7 @@ endif()
 install(PROGRAMS
   scripts/simple_trajectory.py
   scripts/joy_ctrl_record_replay_traj.py
+  scripts/vehicle_motion_sim.py
   DESTINATION lib/${PROJECT_NAME}
 )
 
