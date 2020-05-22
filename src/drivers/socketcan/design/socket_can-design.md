@@ -1,4 +1,4 @@
-ssocket_can {#socket_can}
+socket_can {#socket_can}
 ===============
 
 # Purpose / Use cases
