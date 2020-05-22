@@ -1,4 +1,4 @@
-Developer Guidelines and Best-Practices for Autoware.Auto Contributors {#developer-guidelines}
+Guidelines and Best-Practices {#contributor-guidelines}
 ===========
 
 [TOC]

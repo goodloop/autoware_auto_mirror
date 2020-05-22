@@ -4,7 +4,7 @@ Contributor's guide {#contributors-guide}
 This section of the Autoware.Auto documentation gives policies, procedures, best practices, and rules for contributing to Autoware.Auto.
 You should begin with the contributor's guide overview.
 
-- @subpage developer-guidelines
+- @subpage contributor-guidelines
 - @subpage develop-in-a-fork
 - @subpage autoware-common-naming-guidelines
 - @subpage integration-testing
