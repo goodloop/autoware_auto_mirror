@@ -20,11 +20,21 @@ $ ade start
 
 ## Publishing sensor data
 
-Sensor data can be obtained by connecting the `velodyne_node` directly to the sensor, or by publishing the below `pcap` file:
+In order to bring up the perception stack, point cloud data needs to be published to the `/lidar_front/points_raw` topic. Several methods for doing this are given below.
 
-- [Dual VLP-16 Hi-Res pcap file](https://drive.google.com/open?id=1vNA009j-tsVVqSeYRCKh_G_tkJQrHvP-)
+Once sensor data is being published by one of these methods, continue on with the tutorial.
 
-To publish the `pcap` file, place it somewhere in the `adehome` directory such as `adehome/data/`, open a new terminal, then:
+### Running a simulator
+
+To do this, see [Running the LGSVL Simulator along side Autoware.Auto](lgsvl.html)
+
+### Connecting to the sensor
+
+To do this, update the IP address and port arguments in the param file for the `velodyne_node`.
+
+### Publishing a `pcap` file
+
+To do this, download [Dual VLP-16 Hi-Res pcap file](https://drive.google.com/open?id=1vNA009j-tsVVqSeYRCKh_G_tkJQrHvP-), place it in `adehome/data/`, open a new terminal, then:
 
 ```console
 $ ade enter
@@ -33,8 +43,6 @@ ade$ udpreplay ~/data/route_small_loop_rw-127.0.0.1.pcap -r -1
 
 \note
 The `-r -1` argument is optional; it just tells the player to loop playback indefinitely.
-
-To connect to the sensor: update the IP address and port arguments in the param file for the `velodyne_node` (see next step).
 
 ## Running the velodyne node
 
