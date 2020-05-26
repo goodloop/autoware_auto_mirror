@@ -141,7 +141,8 @@ def generate_launch_description():
         node_executable='lgsvl_interface_exe',
         node_namespace='vehicle',
         output='screen',
-        parameters=[LaunchConfiguration('lgsvl_interface_param_file')]
+        parameters=[LaunchConfiguration('lgsvl_interface_param_file'),
+                    {"lgsvl.publish_tf": "True"}]
     )
     map_publisher = Node(
         package='ndt_nodes',
@@ -175,6 +176,12 @@ def generate_launch_description():
         arguments=[str(urdf_path)]
     )
 
+    map_odom_publisher = Node(
+        package='tf2_ros',
+        node_executable='static_transform_publisher',
+        arguments=["-57.6", "-41.0", "-2.01", "0", "0", "0", "map", "odom"]
+    )
+
     scan_downsampler = Node(
         package='voxel_grid_nodes',
         node_executable='voxel_grid_cloud_node_exe',
@@ -200,14 +207,15 @@ def generate_launch_description():
         ndt_localizer_param,
         with_rviz_param,
         urdf_publisher,
-        euclidean_clustering,
+        # euclidean_clustering,
         filter_transform_vlp16_front,
         filter_transform_vlp16_rear,
         lgsvl_interface,
         map_publisher,
-        odom_state_estimator,
-        ray_ground_classifier,
+        # odom_state_estimator,
+        # ray_ground_classifier,
+        map_odom_publisher,
         scan_downsampler,
         ndt_localizer,
-        rviz2
+        # rviz2
     ])

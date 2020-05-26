@@ -287,33 +287,47 @@ private:
   /// Publish the pose message as a transform.
   void publish_tf(const PoseWithCovarianceStamped & pose_msg)
   {
-    const auto & pose = pose_msg.pose.pose;
-    tf2::Quaternion rotation{pose.orientation.x, pose.orientation.y, pose.orientation.z,
-      pose.orientation.w};
-    tf2::Vector3 translation{pose.position.x, pose.position.y, pose.position.z};
-    const tf2::Transform map_base_link_transform{rotation, translation};
+//    const auto & pose = pose_msg.pose.pose;
+//    tf2::Quaternion rotation{pose.orientation.x, pose.orientation.y, pose.orientation.z,
+//      pose.orientation.w};
+//    tf2::Vector3 translation{pose.position.x, pose.position.y, pose.position.z};
+//    const tf2::Transform map_base_link_transform{rotation, translation};
+//    RCLCPP_WARN(get_logger(), "computing tf....:");
+//    const auto odom_tf = m_tf_buffer.lookupTransform("odom", "base_link",
+//        time_utils::from_message(pose_msg.header.stamp));
+//    tf2::Quaternion odom_rotation{odom_tf.transform.rotation.x,
+//      odom_tf.transform.rotation.y, odom_tf.transform.rotation.z, odom_tf.transform.rotation.w};
+//    tf2::Vector3 odom_translation{odom_tf.transform.translation.x, odom_tf.transform.translation.y,
+//      odom_tf.transform.translation.z};
+//    const tf2::Transform odom_base_link_transform{odom_rotation, odom_translation};
+//
+//    const auto map_odom_tf = map_base_link_transform * odom_base_link_transform.inverse();
+//
+//    tf2_msgs::msg::TFMessage tf_message;
+//    geometry_msgs::msg::TransformStamped tf_stamped;
+//    tf_stamped.header.stamp = pose_msg.header.stamp;
+//    tf_stamped.header.frame_id = m_localizer_ptr->map_frame_id();
+//    tf_stamped.child_frame_id = "odom";
+//    const auto & tf_trans = map_odom_tf.getOrigin();
+//    const auto & tf_rot = map_odom_tf.getRotation();
+//    tf_stamped.transform.translation.set__x(tf_trans.x()).set__y(tf_trans.y()).
+//    set__z(tf_trans.z());
+//    tf_stamped.transform.rotation.set__x(tf_rot.x()).set__y(tf_rot.y()).set__z(tf_rot.z()).
+//    set__w(tf_rot.w());
+//    tf_message.transforms.push_back(tf_stamped);
+//    m_tf_publisher->publish(tf_message);
 
-    const auto odom_tf = m_tf_buffer.lookupTransform("odom", "base_link",
-        time_utils::from_message(pose_msg.header.stamp));
-    tf2::Quaternion odom_rotation{odom_tf.transform.rotation.x,
-      odom_tf.transform.rotation.y, odom_tf.transform.rotation.z, odom_tf.transform.rotation.w};
-    tf2::Vector3 odom_translation{odom_tf.transform.translation.x, odom_tf.transform.translation.y,
-      odom_tf.transform.translation.z};
-    const tf2::Transform odom_base_link_transform{odom_rotation, odom_translation};
-
-    const auto map_odom_tf = map_base_link_transform * odom_base_link_transform.inverse();
 
     tf2_msgs::msg::TFMessage tf_message;
     geometry_msgs::msg::TransformStamped tf_stamped;
-    tf_stamped.header.stamp = pose_msg.header.stamp;
+    tf_stamped.header = pose_msg.header;
     tf_stamped.header.frame_id = m_localizer_ptr->map_frame_id();
-    tf_stamped.child_frame_id = "odom";
-    const auto & tf_trans = map_odom_tf.getOrigin();
-    const auto & tf_rot = map_odom_tf.getRotation();
-    tf_stamped.transform.translation.set__x(tf_trans.x()).set__y(tf_trans.y()).
-    set__z(tf_trans.z());
-    tf_stamped.transform.rotation.set__x(tf_rot.x()).set__y(tf_rot.y()).set__z(tf_rot.z()).
-    set__w(tf_rot.w());
+    tf_stamped.child_frame_id = "base_link";
+    const auto & pose_trans = pose_msg.pose.pose.position;
+    const auto & pose_rot = pose_msg.pose.pose.orientation;
+    tf_stamped.transform.translation.set__x(pose_trans.x).set__y(pose_trans.y).set__z(pose_trans.z);
+    tf_stamped.transform.rotation.set__x(pose_rot.x).set__y(pose_rot.y).set__z(pose_rot.z).set__w(
+      pose_rot.w);
     tf_message.transforms.push_back(tf_stamped);
     m_tf_publisher->publish(tf_message);
   }

@@ -159,11 +159,17 @@ protected:
     if (ret) {
       // Check if translation is valid
       ret = translation_valid(pose, guess);
+    } else {
+        RCLCPP_WARN(rclcpp::get_logger("localizernode"), "trans not valid");
     }
+
     if (ret) {
       // Check if rotation is valid
       ret = rotation_valid(pose, guess);
+    } else {
+        RCLCPP_WARN(rclcpp::get_logger("localizernode"), "rot not valid.");
     }
+
     return ret;
   }
 

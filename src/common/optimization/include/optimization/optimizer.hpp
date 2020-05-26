@@ -19,6 +19,7 @@
 #include <optimization/optimization_problem.hpp>
 #include <optimization/optimizer_options.hpp>
 #include <optimization/line_search.hpp>
+#include <rclcpp/rclcpp.hpp>
 #include <Eigen/SVD>
 #include <limits>
 #include <memory>
@@ -151,6 +152,7 @@ public:
         options.parameter_tolerance() * (prev_x_norm + options.parameter_tolerance());
       if (step.norm() <= parameter_tolerance) {
         termination_type = TerminationType::CONVERGENCE;
+        RCLCPP_WARN(rclcpp::get_logger("opt"), "param convergence");
         break;
       }
 
@@ -163,6 +165,7 @@ public:
       // Check if the max-norm of the gradient is small enough.
       if (jacobian.template lpNorm<Eigen::Infinity>() <= options.gradient_tolerance()) {
         termination_type = TerminationType::CONVERGENCE;
+        RCLCPP_WARN(rclcpp::get_logger("opt"), "grad convergence");
         break;
       }
 
@@ -171,9 +174,14 @@ public:
         (options.function_tolerance() * std::fabs(score_previous)))
       {
         termination_type = TerminationType::CONVERGENCE;
+        RCLCPP_WARN(rclcpp::get_logger("opt"), "score convergence");
         break;
       }
       score_previous = score;
+    }
+
+    if(termination_type == TerminationType::NO_CONVERGENCE){
+        RCLCPP_WARN(rclcpp::get_logger("opt"), "no convergence");
     }
 
     // Returning summary consisting of the following three values:
