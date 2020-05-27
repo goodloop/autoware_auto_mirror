@@ -22,7 +22,7 @@ $ ade start
 
 In order to bring up the perception stack, point cloud data needs to be published to the `/lidar_front/points_raw` topic. Several methods for doing this are given below.
 
-Once sensor data is being published by one of these methods, continue on with the tutorial.
+Once sensor data are being published by one of these methods, continue on with the tutorial.
 
 ### Running a simulator
 
@@ -54,7 +54,7 @@ ade$ source /opt/AutowareAuto/setup.bash
 ade$ ros2 run velodyne_node velodyne_cloud_node_exe __ns:=/lidar_front __params:=/opt/AutowareAuto/share/velodyne_node/param/vlp16_test.param.yaml
 ```
 
-When the `velodyne_node` is running, the resulting point cloud can be visualized in `rviz2` as a `sensor_msgs/PointCloud2` topic type.
+When the `velodyne_node` is running, the resulting point cloud can be visualized in `rviz2` as a `PointCloud2` topic type.
 
 ## Running the point cloud filter transform node
 
@@ -85,8 +85,8 @@ ade$ source /opt/AutowareAuto/setup.bash
 ade$ ros2 run ray_ground_classifier_nodes ray_ground_classifier_cloud_node_exe __params:=/opt/AutowareAuto/share/ray_ground_classifier_nodes/param/vlp16_lexus.param.yaml
 ```
 
-This will create two new topics (`/nonground_points` and `/points_ground`) that output
-`sensor_msgs/PointCloud2`s that we can use to segment the point clouds.
+This will create two new topics (`/points_nonground` and `/points_ground`) that output
+`PointCloud2` messages that we can use to segment the point clouds.
 
 For convenience, an `rviz2` configuration is provided in `/opt/AutowareAuto/share/autoware_auto_examples/rviz2/autoware_ray_ground.rviz` that can be loaded to automatically set up the visualizations.
 
