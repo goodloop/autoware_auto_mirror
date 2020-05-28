@@ -5,57 +5,46 @@ Autoware.Auto 3D perception stack {#perception-stack}
 
 # Running the Autoware.Auto 3D perception stack
 
-First, ensure that ADE is running:
-
-```console
-$ ade start
-```
+First, ensure that ADE is running. Open a terminal and type: `$ ade start`.
 
 The Autoware.Auto 3D perception stack consists of a set of nodes necessary to compute and publish object bounding boxes. The minimal stack for doing so is:
 
-1. [robot_state_publisher](https://github.com/ros/robot_state_publisher/tree/ros2): Publish the transform tree of the vehicle.
-2. [velodyne_node](https://gitlab.com/autowarefoundation/autoware.auto/AutowareAuto/tree/master/src/drivers/velodyne_node): Converts raw sensor data to [PointCloud2](https://github.com/ros2/common_interfaces/blob/master/sensor_msgs/msg/PointCloud2.msg) messages.
-3. [point_cloud_filter_transform_node](https://gitlab.com/autowarefoundation/autoware.auto/AutowareAuto/-/tree/master/src/perception/filters/point_cloud_filter_transform_nodes): Transforms output of the `velodyne_node` to a common frame.
-4. [ray_ground_classifier_node](https://gitlab.com/autowarefoundation/autoware.auto/AutowareAuto/-/tree/master/src/perception/filters/ray_ground_classifier_nodes): Classifies point cloud points to indicate whether they belong to a ground or non-ground surface.
-5. [euclidean_cluster_node](https://gitlab.com/autowarefoundation/autoware.auto/AutowareAuto/-/tree/master/src/perception/segmentation/euclidean_cluster_nodes): Clusters the non-ground points into object detections.
+1. [velodyne_node](https://gitlab.com/autowarefoundation/autoware.auto/AutowareAuto/tree/master/src/drivers/velodyne_node): Converts raw sensor data to [PointCloud2](https://github.com/ros2/common_interfaces/blob/master/sensor_msgs/msg/PointCloud2.msg) messages.
+2. [point_cloud_filter_transform_node](https://gitlab.com/autowarefoundation/autoware.auto/AutowareAuto/-/tree/master/src/perception/filters/point_cloud_filter_transform_nodes): Transforms output of the `velodyne_node` to a common frame.
+3. [ray_ground_classifier_node](https://gitlab.com/autowarefoundation/autoware.auto/AutowareAuto/-/tree/master/src/perception/filters/ray_ground_classifier_nodes): Classifies point cloud points to indicate whether they belong to a ground or non-ground surface.
+4. [euclidean_cluster_node](https://gitlab.com/autowarefoundation/autoware.auto/AutowareAuto/-/tree/master/src/perception/segmentation/euclidean_cluster_nodes): Clusters the non-ground points into object detections.
 
-The following subsections describe how to bring up the perception stack node by node. Follow the directions in sequence.
+There are also optional nodes, not covered in this tutorial, that can be used to augment the stack:
 
-\note
-Once sensor data is being published (described in next section), a convenience launch file exists that can bring up the whole stack with a single command:
+1. [point_cloud_fusion](https://gitlab.com/autowarefoundation/autoware.auto/AutowareAuto/-/tree/master/src/perception/filters/point_cloud_fusion): Fuses point clouds from multiple sources into a single message. This is used currently to fuse the front and rear lidar data into a single message stream. This tutorial only uses the front lidar data.
+2. [voxel_grid_nodes](https://gitlab.com/autowarefoundation/autoware.auto/AutowareAuto/-/tree/master/src/perception/filters/voxel_grid_nodes): This can be used to downsample point cloud data through a voxel grid representation. This tutorial does not perform downsampling.
+
+There also exists a convenience launch file that can bring up the robot_state_publisher along with the perception stack using a single command once sensor data are being published:
+
 ```console
 $ ade enter
 ade$ source /opt/AutowareAuto/setup.bash
 ade$ ros2 launch autoware_demos lidar_bounding_boxes_lgsvl.launch.py
 ```
 
-## Publishing sensor data
+To aid becoming familiar with the elements of the perception stack, the following subsections describe how to bring up the stack node by node without using the launch file. Follow the directions in sequence.
 
-In order to bring up the perception stack, point cloud data needs to be published to the `/lidar_front/points_raw` topic. Several methods for doing this are given below.
+## Prerequisites
 
-Once sensor data are being published by one of these methods, continue on with the tutorial.
+In order to run the perception stack, we need to open a visualizer, publish sensor data, and publish the "robot state," which is the transform tree describing the sensors positions with respect to the vehicle. The following subsections describe how to do this.
 
-### Running a simulator
+### Running the rviz2 visualizer
 
-To do this, see [Running the LGSVL Simulator along side Autoware.Auto](lgsvl.html)
-
-### Connecting to the sensor
-
-To do this, update the IP address and port arguments in the param file for the `velodyne_node`.
-
-### Publishing a `pcap` file
-
-To do this, download [Dual VLP-16 Hi-Res pcap file](https://drive.google.com/open?id=1vNA009j-tsVVqSeYRCKh_G_tkJQrHvP-), place it in `adehome/data/`, open a new terminal, then:
+`rviz2` can be used to visualize perception data as it is published. To start the visualizer, open a new terminal, then:
 
 ```console
 $ ade enter
-ade$ udpreplay ~/data/route_small_loop_rw-127.0.0.1.pcap -r -1
+ade$ source /opt/AutowareAuto/setup.bash
+ade$ rviz2 -d /opt/AutowareAuto/share/autoware_auto_examples/rviz2/autoware_perception_stack.rviz
 ```
+The rviz config has displays for all topics in this tutorial. As nodes are launched, they will be displayed in rviz. The checkboxes next to topic names can be checked and unchecked to toggle which perception outputs are visualized.
 
-\note
-The `-r -1` argument is optional; it just tells the player to loop playback indefinitely.
-
-## Publishing the robot start
+### Publishing the robot state
 
 This node publishes the transform tree of the vehicle available. To do this:
 
@@ -64,7 +53,25 @@ $ ade enter
 ade$ ros2 run robot_state_publisher robot_state_publisher /opt/AutowareAuto/share/lexus_rx_450h_description/urdf/lexus_rx_450h.urdf
 ```
 
-## Running the velodyne node
+### Publishing sensor data
+
+In order to bring up the perception stack, point cloud data needs to be published to the `/lidar_front/points_raw` topic. Several methods for doing this are given below.
+
+- Running a simulator: To do this, see [Running the LGSVL Simulator along side Autoware.Auto](lgsvl.html)
+- Connecting to the sensor: To do this, update the IP address and port arguments in the param file for the `velodyne_node`.
+- Publishing a `pcap` file: To do this, download [Dual VLP-16 Hi-Res pcap file](https://drive.google.com/open?id=1vNA009j-tsVVqSeYRCKh_G_tkJQrHvP-), place it in `adehome/data/`, open a new terminal, then:
+```console
+$ ade enter
+ade$ udpreplay ~/data/route_small_loop_rw-127.0.0.1.pcap -r -1
+```
+\note
+The `-r -1` argument is optional; it just tells the player to loop playback indefinitely.
+
+## Bringing up the perception stack
+
+Now that the prerequisites have been brought up, the perception stack can be launched.
+
+### Run the velodyne node
 
 This node consumes raw data from a velodyne sensor and publishes point cloud messages. In a new terminal, do:
 
@@ -74,9 +81,7 @@ ade$ source /opt/AutowareAuto/setup.bash
 ade$ ros2 run velodyne_node velodyne_cloud_node_exe __ns:=/lidar_front __params:=/opt/AutowareAuto/share/velodyne_node/param/vlp16_test.param.yaml
 ```
 
-When the `velodyne_node` is running, the resulting point cloud can be visualized in `rviz2` as a `PointCloud2` topic type.
-
-## Running the point cloud filter transform node
+### Run the point cloud filter transform node
 
 This node transforms point clouds from the `velodyne_node` to a common frame. In a new terminal, do:
 
@@ -85,17 +90,10 @@ $ ade enter
 ade$ source /opt/AutowareAuto/setup.bash
 ade$ ros2 run point_cloud_filter_transform_nodes point_cloud_filter_transform_node_exe __ns:=/lidar_front __params:=/opt/AutowareAuto/share/point_cloud_filter_transform_nodes/param/vlp16_sim_lexus_filter_transform.param.yaml __node:=filter_transform_vlp16_front
 ```
-## Running the rviz2 visualizer
 
-At this point, `rviz2` can be used to visualize the point cloud data. To start it, open a new terminal, then:
+![Autoware.Auto transformed points snapshot](autoware-auto-transformed-points.png)
 
-```console
-$ ade enter
-ade$ source /opt/AutowareAuto/setup.bash
-ade$ rviz2 -d /opt/AutowareAuto/share/autoware_auto_examples/rviz2/autoware.rviz
-```
-
-## Running the ray ground classifier node
+### Run the ray ground classifier node
 
 This node classifies point cloud points according to whether they are ground or non-ground. In a new terminal, do:
 
@@ -105,14 +103,9 @@ ade$ source /opt/AutowareAuto/setup.bash
 ade$ ros2 run ray_ground_classifier_nodes ray_ground_classifier_cloud_node_exe __params:=/opt/AutowareAuto/share/ray_ground_classifier_nodes/param/vlp16_lexus.param.yaml
 ```
 
-This will create two new topics (`/points_nonground` and `/points_ground`) that output
-`PointCloud2` messages that we can use to segment the point clouds.
-
-For convenience, an `rviz2` configuration is provided in `/opt/AutowareAuto/share/autoware_auto_examples/rviz2/autoware_ray_ground.rviz` that can be loaded to automatically set up the visualizations.
-
 ![Autoware.Auto ray ground filter snapshot](autoware-auto-ray-ground-filter-smaller.png)
 
-## Running the Euclidean cluster node
+### Run the Euclidean cluster node
 
 This node clusters non-ground points into objects and publishes bounding boxes. In a new terminal, do:
 
@@ -121,7 +114,5 @@ $ ade enter
 ade$ source /opt/AutowareAuto/setup.bash
 ade$ ros2 run euclidean_cluster_nodes euclidean_cluster_exe __params:=/opt/AutowareAuto/share/euclidean_cluster_nodes/param/vlp16_lexus_cluster.param.yaml
 ```
-
-After this we will have a new topic, named (`/lidar_bounding_boxes`) that we can visualize with the provided `rviz2` configuration file in `/opt/AutowareAuto/share/autoware_auto_examples/rviz2/autoware_bounding_boxes.rviz`
 
 ![Autoware.Auto bounding boxes segmentation snapshot](autoware-auto-bounding-boxes-smaller.png)
