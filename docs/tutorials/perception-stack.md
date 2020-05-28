@@ -5,17 +5,28 @@ Autoware.Auto 3D perception stack {#perception-stack}
 
 # Running the Autoware.Auto 3D perception stack
 
-The Autoware.Auto 3D perception stack consists of:
-
-1. [velodyne_node](https://gitlab.com/autowarefoundation/autoware.auto/AutowareAuto/tree/master/src/drivers/velodyne_node): Converts raw sensor data to [PointCloud2](https://github.com/ros2/common_interfaces/blob/master/sensor_msgs/msg/PointCloud2.msg) messages.
-2. [point_cloud_filter_transform_node](https://gitlab.com/autowarefoundation/autoware.auto/AutowareAuto/-/tree/master/src/perception/filters/point_cloud_filter_transform_nodes): Transforms output of the `velodyne_node` to a common frame.
-3. [ray_ground_classifier_node](https://gitlab.com/autowarefoundation/autoware.auto/AutowareAuto/-/tree/master/src/perception/filters/ray_ground_classifier_nodes): Classifies point cloud points to indicate whether they belong to a ground or non-ground surface.
-4. [euclidean_cluster_node](https://gitlab.com/autowarefoundation/autoware.auto/AutowareAuto/-/tree/master/src/perception/segmentation/euclidean_cluster_nodes): Clusters the non-ground points into object detections.
-
-The following subsections describe how to bring up the perception stack node by node. Follow the directions in sequence. Ensure that ADE has been started by running:
+First, ensure that ADE is running:
 
 ```console
 $ ade start
+```
+
+The Autoware.Auto 3D perception stack consists of a set of nodes necessary to compute and publish object bounding boxes. The minimal stack for doing so is:
+
+1. [robot_state_publisher](https://github.com/ros/robot_state_publisher/tree/ros2): Publish the transform tree of the vehicle.
+2. [velodyne_node](https://gitlab.com/autowarefoundation/autoware.auto/AutowareAuto/tree/master/src/drivers/velodyne_node): Converts raw sensor data to [PointCloud2](https://github.com/ros2/common_interfaces/blob/master/sensor_msgs/msg/PointCloud2.msg) messages.
+3. [point_cloud_filter_transform_node](https://gitlab.com/autowarefoundation/autoware.auto/AutowareAuto/-/tree/master/src/perception/filters/point_cloud_filter_transform_nodes): Transforms output of the `velodyne_node` to a common frame.
+4. [ray_ground_classifier_node](https://gitlab.com/autowarefoundation/autoware.auto/AutowareAuto/-/tree/master/src/perception/filters/ray_ground_classifier_nodes): Classifies point cloud points to indicate whether they belong to a ground or non-ground surface.
+5. [euclidean_cluster_node](https://gitlab.com/autowarefoundation/autoware.auto/AutowareAuto/-/tree/master/src/perception/segmentation/euclidean_cluster_nodes): Clusters the non-ground points into object detections.
+
+The following subsections describe how to bring up the perception stack node by node. Follow the directions in sequence.
+
+\note
+Once sensor data is being published (described in next section), a convenience launch file exists that can bring up the whole stack with a single command:
+```console
+$ ade enter
+ade$ source /opt/AutowareAuto/setup.bash
+ade$ ros2 launch autoware_demos lidar_bounding_boxes_lgsvl.launch.py
 ```
 
 ## Publishing sensor data
@@ -43,6 +54,15 @@ ade$ udpreplay ~/data/route_small_loop_rw-127.0.0.1.pcap -r -1
 
 \note
 The `-r -1` argument is optional; it just tells the player to loop playback indefinitely.
+
+## Publishing the robot start
+
+This node publishes the transform tree of the vehicle available. To do this:
+
+```console
+$ ade enter
+ade$ ros2 run robot_state_publisher robot_state_publisher /opt/AutowareAuto/share/lexus_rx_450h_description/urdf/lexus_rx_450h.urdf
+```
 
 ## Running the velodyne node
 
