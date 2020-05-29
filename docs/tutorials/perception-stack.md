@@ -5,7 +5,7 @@ Autoware.Auto 3D perception stack {#perception-stack}
 
 # Running the Autoware.Auto 3D perception stack
 
-First, ensure that ADE is running. Open a terminal and type: `$ ade start`.
+First, ensure that ADE is running and that everything is up to date. Open a terminal and type: `$ ade start --update`.
 
 The Autoware.Auto 3D perception stack consists of a set of nodes necessary to compute and publish object bounding boxes. The minimal stack for doing so is:
 
