@@ -19,6 +19,7 @@
 #ifndef VOXEL_GRID_NODES__ALGORITHM__VOXEL_CLOUD_BASE_HPP_
 #define VOXEL_GRID_NODES__ALGORITHM__VOXEL_CLOUD_BASE_HPP_
 
+#include <common/types.hpp>
 #include <sensor_msgs/msg/point_cloud2.hpp>
 #include <voxel_grid/voxel_grid.hpp>
 #include <voxel_grid_nodes/visibility_control.hpp>
@@ -36,11 +37,19 @@ namespace voxel_grid_nodes
 ///        message types
 namespace algorithm
 {
+using autoware::common::types::bool8_t;
+
+constexpr static bool8_t NO_NEW_STAMP = false;
+constexpr static bool8_t NEW_STAMP = true;
+
 /// \brief A pure interface meant for dynamically dispatching to different voxel grid instances
 ///        at runtime. Specialized for PointCloud2 types
 class VOXEL_GRID_NODES_PUBLIC VoxelCloudBase
 {
 public:
+  /// \brief Default constructor
+  /// \param[in] stamp_with_current_time replace stamp in provided msg with current time
+  explicit VoxelCloudBase(const bool8_t stamp_with_current_time);
   /// \brief Virtual destructor
   virtual ~VoxelCloudBase();
   /// \brief Inserts points into the voxel grid data structure, overwrites internal header
@@ -57,6 +66,7 @@ protected:
 
   /// \brief The offset to be used with the PointCloud2 iterators
   uint32_t m_point_cloud_idx{0};
+  bool8_t m_stamp_with_current_time;
 };  // VoxelCloudBase
 }  // namespace algorithm
 }  // namespace voxel_grid_nodes

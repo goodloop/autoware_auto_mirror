@@ -44,8 +44,14 @@ PointCloudFusionNode::PointCloudFusionNode(
   m_tf_listener(m_tf_buffer, std::shared_ptr<rclcpp::Node>(this, [](auto) {}), false),
   m_input_topics(declare_parameter("input_topics").get<std::vector<std::string>>()),
   m_output_frame_id(declare_parameter("output_frame_id").get<std::string>()),
-  m_cloud_capacity(declare_parameter("cloud_size").get<uint32_t>())
+  m_cloud_capacity(declare_parameter("cloud_size").get<uint32_t>()),
+  m_stamp_with_current_time{NO_NEW_STAMP}
 {
+  const auto stamp_with_current_time_param = declare_parameter("stamp_with_current_time");
+  if (rclcpp::PARAMETER_NOT_SET != stamp_with_current_time_param.get_type()) {
+    m_stamp_with_current_time = static_cast<bool8_t>(stamp_with_current_time_param.get<bool>());
+  }
+
   init();
 }
 
@@ -55,13 +61,15 @@ PointCloudFusionNode::PointCloudFusionNode(
   const std::string & output_topic,
   const std::vector<std::string> & input_topics,
   const std::string & output_frame_id,
-  const uint32_t cloud_size)
+  const uint32_t cloud_size,
+  const bool8_t stamp_with_current_time)
 : Node(node_name, node_namespace),
   m_cloud_publisher(create_publisher<PointCloudMsgT>(output_topic, rclcpp::QoS(10))),
   m_tf_listener(m_tf_buffer, std::shared_ptr<rclcpp::Node>(this, [](auto) {}), false),
   m_input_topics(input_topics),
   m_output_frame_id(output_frame_id),
-  m_cloud_capacity(cloud_size)
+  m_cloud_capacity(cloud_size),
+  m_stamp_with_current_time(stamp_with_current_time)
 {
   init();
 }
@@ -141,7 +149,12 @@ PointCloudFusionNode::pointcloud_callback(
     // Resize and publish.
     common::lidar_utils::resize_pcl_msg(m_cloud_concatenated, fused_cloud_size);
 
-    m_cloud_concatenated.header.stamp = latest_stamp;
+    if (!m_stamp_with_current_time) {
+      m_cloud_concatenated.header.stamp = latest_stamp;
+    } else {
+      m_cloud_concatenated.header.stamp = rclcpp::Clock(RCL_ROS_TIME).now();
+    }
+
     m_cloud_publisher->publish(m_cloud_concatenated);
   }
 }

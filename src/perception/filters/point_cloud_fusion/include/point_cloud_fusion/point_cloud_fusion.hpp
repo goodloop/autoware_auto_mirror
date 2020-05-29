@@ -39,6 +39,12 @@ namespace filters
 {
 namespace point_cloud_fusion
 {
+
+using autoware::common::types::bool8_t;
+
+constexpr static bool8_t NO_NEW_STAMP = false;
+constexpr static bool8_t NEW_STAMP = true;
+
 /// \brief Class that fuses multiple point clouds from different sources into one by concatanating
 /// them.
 class POINT_CLOUD_FUSION_PUBLIC PointCloudFusionNode : public rclcpp::Node
@@ -57,13 +63,15 @@ public:
   /// \param input_topics List of pointcloud input topics
   /// \param output_frame_id ID of the frame the fused point cloud should be on
   /// \param cloud_size Maximum size for a pointcloud
+  /// \param stamp_with_current_time stamp the output point cloud with the current time
   PointCloudFusionNode(
     const std::string & node_name,
     const std::string & node_namespace,
     const std::string & output_topic,
     const std::vector<std::string> & input_topics,
     const std::string & output_frame_id,
-    const uint32_t cloud_size);
+    const uint32_t cloud_size,
+    const bool8_t stamp_with_current_time = NO_NEW_STAMP);
 
 private:
   using PointT = common::types::PointXYZIF;
@@ -105,6 +113,7 @@ private:
   std::vector<std::string> m_input_topics;
   std::string m_output_frame_id;
   uint32_t m_cloud_capacity;
+  bool8_t m_stamp_with_current_time;
 };
 }  // namespace point_cloud_fusion
 }  // namespace filters

@@ -94,10 +94,11 @@ PointCloud2FilterTransformNode::PointCloud2FilterTransformNode(
   const geometry_msgs::msg::Transform & tf,
   const size_t pcl_size,
   const size_t expected_num_publishers,
-  const size_t expected_num_subscribers)
+  const size_t expected_num_subscribers,
+  const bool8_t stamp_with_current_time)
 : PointCloudFilterTransformNodeBase(node_name, node_namespace, init_timeout,
     timeout, raw_topic, filtered_topic, start_angle, end_angle, min_radius, max_radius,
-    tf, expected_num_publishers, expected_num_subscribers),
+    tf, expected_num_publishers, expected_num_subscribers, stamp_with_current_time),
   m_input_frame_id{input_frame_id}, m_output_frame_id(output_frame_id),
   m_pcl_size{pcl_size}
 {
@@ -121,7 +122,12 @@ const PointCloud2 & PointCloud2FilterTransformNode::filter_and_transform(const P
 
   auto point_cloud_idx = 0U;
   reset_pcl_msg(m_filtered_transformed_msg, m_pcl_size, point_cloud_idx);
-  m_filtered_transformed_msg.header.stamp = msg.header.stamp;
+
+  if (m_stamp_with_current_time) {
+    m_filtered_transformed_msg.header.stamp = rclcpp::Clock(RCL_ROS_TIME).now();
+  } else {
+    m_filtered_transformed_msg.header.stamp = msg.header.stamp;
+  }
 
   while (x_it != x_it.end() &&
     y_it != y_it.end() &&
