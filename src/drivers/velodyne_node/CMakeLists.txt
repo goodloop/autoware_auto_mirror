@@ -39,7 +39,6 @@ ament_auto_add_library(${CLOUD_LIB} SHARED
 autoware_set_compile_options(${CLOUD_LIB})
 
 # generate executable for ros1-style standalone nodes
-file(COPY param/vlp16_test.param.yaml DESTINATION "${CMAKE_BINARY_DIR}/param")  #copy the param file into the build directory
 set(CLOUD_EXEC "velodyne_cloud_node_exe")
 ament_auto_add_executable(${CLOUD_EXEC} src/velodyne_cloud_node_main.cpp)
 autoware_set_compile_options(${CLOUD_EXEC})
@@ -84,7 +83,7 @@ if(BUILD_TESTING)
 endif()
 
 ## install stuff
-ament_auto_package()
+ament_auto_package(INSTALL_TO_SHARE param)
 
 # workaround to disable sign conversion errors from sensor_msgs::PointCloud2Iterator
 # -Wno-ignored-qualifiers is temp fix for udp_driver bug
