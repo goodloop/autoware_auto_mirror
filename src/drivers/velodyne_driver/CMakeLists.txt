@@ -32,8 +32,6 @@ ament_auto_find_build_dependencies()
 
 ### Build driver library
 ament_auto_add_library(${PROJECT_NAME} SHARED
-        "include/velodyne_driver/vlp16_translator.hpp"
-        "include/velodyne_driver/visibility_control.hpp"
         "src/vlp16_config.cpp"
         "src/vlp16_translator.cpp")
 autoware_set_compile_options(${PROJECT_NAME})
@@ -46,7 +44,6 @@ if(BUILD_TESTING)
     # gtest
     set(VELODYNE_GTEST velodyne_gtest)
     ament_add_gtest(${VELODYNE_GTEST}
-            "test/include/test_driver.h"
             "test/src/test_velodyne.cpp")
     target_include_directories(${VELODYNE_GTEST} PRIVATE test/include include)
     target_link_libraries(${VELODYNE_GTEST} ${PROJECT_NAME})
