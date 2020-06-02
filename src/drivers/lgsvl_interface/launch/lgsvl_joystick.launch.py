@@ -15,11 +15,12 @@ def get_share_file(package_name, file_name):
 
 def generate_launch_description():
     """
-    Launches a minimal joystick + LGSVL demo. Under the default configuration, the joystick
+    Launch a minimal joystick + LGSVL demo.
+
+    Under the default configuration, the joystick
     translator outputs and the LGSVL interface expects RawControlCommand. Controlling the vehicle
     can happen via the gamepad triggers and left joystick.
     """
-
     # --------------------------------- Params -------------------------------
 
     # Default joystick translator params
