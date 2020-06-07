@@ -1,7 +1,7 @@
-# Git Subtree Tips and Tricks {#git-subtrees}
+Git Subtree Tips and Tricks {#git-subtrees}
 =============================
 
-## Adding a new subtree with `git subtree`
+# Adding a new subtree with `git subtree`
 
 From the base of the repository, run:
 
@@ -44,64 +44,65 @@ pick 90d9456dd [1234] Update .subtree/README
 ```
 
 To rebase successfully, there are a few things that must be taken into account:
-1. The second `label` needs to be changed to not have any special characters (such as `[`, `]`, etc.) since
-   the special characters can't be handled by git. Replace the long string with something shorter:
-    ```diff
-    label onto
 
-    # Branch [1234]-Merge-commit-'211d368547cfe7d48b087cabe4b59545632172e4'-as-'src/external/mpc'
-    reset [new root]
-    pick 211d36854 Squashed 'src/external/mpc/' content from commit f35f7423c
-    - label [1234]-Merge-commit-'211d368547cfe7d48b087cabe4b59545632172e4'-as-'src/external/mpc'
-    + label myshortlabel
+1. The second `label` needs to be changed to not have any special characters (such as `[`, `]`, etc.) since the special characters can't be handled by git.
+   Replace the long string with something shorter:
+```diff
+label onto
 
-    reset onto
-    - merge -C fe7cee43a [1234]-Merge-commit-'211d368547cfe7d48b087cabe4b59545632172e4'-as-'src/external/mpc' # [1234] Merge commit '211d368547cfe7d48b087cabe4b59545632172e4' as 'src/external/mpc'
-    + merge -C fe7cee43a myshortlabel
-    pick 01d97845b [1234] Ignore doxygen on imported joystick_drivers repository
-    pick 95601e63a [1234] Update subtrees.yaml with joystick_drivers
-    pick 90d9456dd [1234] Update THIRD_PARTY_SOFTWARE.md
-    ```
-2. As in a regular rebase, you can do operations on regular commits:
-   e.g, If you want to reword a commit (to add the issue ID), change `pick` with `reword`:
+# Branch [1234]-Merge-commit-'211d368547cfe7d48b087cabe4b59545632172e4'-as-'src/external/mpc'
+reset [new root]
+pick 211d36854 Squashed 'src/external/mpc/' content from commit f35f7423c
+- label [1234]-Merge-commit-'211d368547cfe7d48b087cabe4b59545632172e4'-as-'src/external/mpc'
++ label myshortlabel
 
-    ```diff
-    label onto
+reset onto
+- merge -C fe7cee43a [1234]-Merge-commit-'211d368547cfe7d48b087cabe4b59545632172e4'-as-'src/external/mpc' # [1234] Merge commit '211d368547cfe7d48b087cabe4b59545632172e4' as 'src/external/mpc'
++ merge -C fe7cee43a myshortlabel
+pick 01d97845b [1234] Ignore doxygen on imported joystick_drivers repository
+pick 95601e63a [1234] Update subtrees.yaml with joystick_drivers
+pick 90d9456dd [1234] Update THIRD_PARTY_SOFTWARE.md
+```
 
-    # Branch [1234]-Merge-commit-'211d368547cfe7d48b087cabe4b59545632172e4'-as-'src/external/mpc'
-    reset [new root]
-    pick 211d36854 Squashed 'src/external/mpc/' content from commit f35f7423c
-    label myshortlabel
+2. As in a regular rebase, you can do operations on regular commits (e.g, If you want to reword a commit (to add the issue ID), change `pick` with `reword`):
+```diff
+label onto
 
-    reset onto
-    merge -C fe7cee43a myshortlabel
-    pick 01d97845b [1234] Ignore doxygen on imported joystick_drivers repository
-    - pick 95601e63a [1234] Update subtrees.yaml with joystick_drivers
-    + reword 95601e63a [1234] Update subtrees.yaml with joystick_drivers
-    pick 90d9456dd [1234] Update THIRD_PARTY_SOFTWARE.md
-    ```
+# Branch [1234]-Merge-commit-'211d368547cfe7d48b087cabe4b59545632172e4'-as-'src/external/mpc'
+reset [new root]
+pick 211d36854 Squashed 'src/external/mpc/' content from commit f35f7423c
+label myshortlabel
+
+reset onto
+merge -C fe7cee43a myshortlabel
+pick 01d97845b [1234] Ignore doxygen on imported joystick_drivers repository
+- pick 95601e63a [1234] Update subtrees.yaml with joystick_drivers
++ reword 95601e63a [1234] Update subtrees.yaml with joystick_drivers
+pick 90d9456dd [1234] Update THIRD_PARTY_SOFTWARE.md
+```
+
 3. To edit the commit message of the merge commit, use the `merge -c` option instead of `merge -C`:
    e.g., to add the issue ID to the commit message:
-    ```diff
-    label onto
+```diff
+label onto
 
-    # Branch [1234]-Merge-commit-'211d368547cfe7d48b087cabe4b59545632172e4'-as-'src/external/mpc'
-    reset [new root]
-    pick 211d36854 Squashed 'src/external/mpc/' content from commit f35f7423c
-    label myshortlabel
+# Branch [1234]-Merge-commit-'211d368547cfe7d48b087cabe4b59545632172e4'-as-'src/external/mpc'
+reset [new root]
+pick 211d36854 Squashed 'src/external/mpc/' content from commit f35f7423c
+label myshortlabel
 
-    reset onto
-    - merge -C fe7cee43a myshortlabel
-    + merge -c fe7cee43a myshortlabel
-    pick 01d97845b [1234] Ignore doxygen on imported joystick_drivers repository
-    reword 95601e63a [1234] Update subtrees.yaml with joystick_drivers
-    pick 90d9456dd [1234] Update THIRD_PARTY_SOFTWARE.md
-    ```
+reset onto
+- merge -C fe7cee43a myshortlabel
++ merge -c fe7cee43a myshortlabel
+pick 01d97845b [1234] Ignore doxygen on imported joystick_drivers repository
+reword 95601e63a [1234] Update subtrees.yaml with joystick_drivers
+pick 90d9456dd [1234] Update THIRD_PARTY_SOFTWARE.md
+```
 
 Once you have finished preparing the to-do file, save and exit. You will be prompted
 for any commit messages that need to change, etc.
 
-## Updating a package that has been `git subtree add`ed before
+# Updating a package that has been `git subtree add`ed before
 
 From the root of the repository, run:
 
