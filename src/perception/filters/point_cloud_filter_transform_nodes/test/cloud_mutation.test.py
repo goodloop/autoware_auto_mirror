@@ -39,7 +39,6 @@ def generate_test_description(ready_fn):
             {
                 "expected_num_ground_subscribers": 1,
                 "expected_num_nonground_subscribers": 1,
-                "raw_topic": "points_raw",
                 "input_frame_id": "frameid",
                 "output_frame_id": "frameid",
             }
