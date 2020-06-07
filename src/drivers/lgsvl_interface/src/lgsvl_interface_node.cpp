@@ -33,14 +33,14 @@ LgsvlInterfaceNode::LgsvlInterfaceNode(
   const rclcpp::NodeOptions & options)
 : VehicleInterfaceNode{"lgsvl_interface", options}
 {
-  const auto sim_ctrl_cmd_topic = "lgsvl/vehicle_control_cmd";
-  const auto sim_state_cmd_topic = "lgsvl/vehicle_state_cmd";
-  const auto sim_state_rpt_topic = "lgsvl/state_report";
-  const auto sim_veh_odom_topic = "lgsvl/vehicle_odom";
+  const auto sim_ctrl_cmd_topic = "vehicle_control_cmd";
+  const auto sim_state_cmd_topic = "vehicle_state_cmd";
+  const auto sim_state_rpt_topic = "state_report";
+  const auto sim_veh_odom_topic = "vehicle_odom";
   // Optional
   const std::string sim_nav_odom_topic =
     declare_parameter("use_nav_odometry_topic", true) ?
-    "lgsvl/gnss_odom" : "";
+    "gnss_odom" : "";
   const auto kinematic_state_topic = "vehicle_kinematic_state";
   const auto table = [this](const std::string & prefix_raw) -> Table1D {
       const std::string prefix = "lgsvl." + prefix_raw + ".";

@@ -62,6 +62,10 @@ def generate_launch_description():
             LaunchConfiguration('joy_translator_param'),
             # overwrite parameters from yaml here
             {"control_command": LaunchConfiguration('control_command')}
+        ],
+        remappings=[
+            ("raw_command", "/vehicle/raw_command"),
+            ("state_command", "/vehicle/state_command")
         ])
 
     ld = launch.LaunchDescription([

@@ -1,5 +1,6 @@
 joystick_vehicle_interface:
   ros__parameters:
+    control_command: "raw"
     recordreplay_command_enabled: false
     # Which index in the joy message corresponds to which axis
     axes:
