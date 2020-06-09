@@ -24,7 +24,6 @@ ament_auto_find_build_dependencies()
 
 
 if(spinnaker_camera_driver_FOUND)
-  ament_auto_find_build_dependencies()
   ament_auto_add_library(${PROJECT_NAME}
       "include/spinnaker_camera_node/spinnaker_camera_node.hpp"
       "src/spinnaker_camera_node.cpp")
