@@ -42,7 +42,8 @@ def generate_test_description(ready_fn):
                 "input_frame_id": "frameid",
                 "output_frame_id": "frameid",
             }
-        ]
+        ],
+        remappings=[("points_in", "points_raw")]
     )
 
     filtered_points_checker = lidar_integration.make_pcl_checker(
