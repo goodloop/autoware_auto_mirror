@@ -208,7 +208,7 @@ def generate_launch_description():
         node_namespace='localization',
         node_name='p2d_ndt_localizer_node',
         parameters=[LaunchConfiguration('ndt_localizer_param_file')],
-        remmapings=[
+        remappings=[
             ("points_in", "/lidar_front/points_filtered_downsampled")
         ]
     )
