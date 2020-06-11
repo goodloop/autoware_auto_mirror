@@ -154,6 +154,7 @@ def generate_launch_description():
             ("vehicle_control_cmd", "/lgsvl/vehicle_control_cmd"),
             ("vehicle_state_cmd", "/lgsvl/vehicle_state_cmd"),
             ("state_report", "/lgsvl/state_report"),
+            ("state_report_out", "/vehicle/state_report"),
             ("gnss_odom", "/lgsvl/gnss_odom"),
             ("vehicle_odom", "/lgsvl/vehicle_odom")
         ]
@@ -217,7 +218,6 @@ def generate_launch_description():
         euclidean_cluster_param,
         lgsvl_interface_param,
         map_publisher_param,
-#        odom_state_estimator_param,
         pc_filter_transform_param,
         ray_ground_classifier_param,
         scan_downsampler_param,
@@ -229,7 +229,6 @@ def generate_launch_description():
         filter_transform_vlp16_rear,
         lgsvl_interface,
         map_publisher,
-#        odom_state_estimator,
         ray_ground_classifier,
         scan_downsampler,
         ndt_localizer,
