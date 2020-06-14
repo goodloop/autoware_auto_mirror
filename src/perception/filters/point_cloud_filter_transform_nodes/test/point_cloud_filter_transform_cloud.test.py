@@ -40,9 +40,9 @@ def generate_test_description(ready_fn):
             ),
             {
                 "port": PORT,
-                "topic": "points_raw"
             }
-        ]
+        ],
+        remappings=[("points_out", "points_raw")]
     )
 
     point_cloud_filter_transform_node = launch_ros.actions.Node(
