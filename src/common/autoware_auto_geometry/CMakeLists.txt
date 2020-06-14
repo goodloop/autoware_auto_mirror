@@ -57,6 +57,11 @@ if(BUILD_TESTING)
   ament_add_gtest(${GEOMETRY_GTEST} ${GEOMETRY_SRC})
   target_include_directories(${GEOMETRY_GTEST} PRIVATE "test/include" "include")
   target_link_libraries(${GEOMETRY_GTEST} ${PROJECT_NAME})
+  ament_target_dependencies(${GEOMETRY_GTEST}
+    "autoware_auto_common"
+    "autoware_auto_msgs"
+    "geometry_msgs"
+    "osrf_testing_tools_cpp")
 endif()
 
 # Ament Exporting
