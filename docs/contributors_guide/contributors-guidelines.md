@@ -204,7 +204,7 @@ Providing topic names as ROS parameters is an anti-pattern, with few exceptions.
 
 ### Parameter File Syntax
 
-To avoid the need to change paramter files based on the namespacing or node name of a node, use the "double-star" syntax. e.g.:
+To avoid the need to change parameter files based on the namespacing or node name of a node, use the "double-star" syntax. e.g.:
 
 ```yaml
 /**:
