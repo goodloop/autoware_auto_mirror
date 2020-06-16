@@ -38,10 +38,9 @@ def generate_test_description(ready_fn):
             {
                 "port": PORT,
                 "expected_num_subscribers": 1,
-                "topic": test_topic,
             }
         ],
-        remappings=[("points_out", test_topic)]
+        remappings=[("points_raw", test_topic)]
     )
 
     pcl_checker = lidar_integration.make_pcl_checker(

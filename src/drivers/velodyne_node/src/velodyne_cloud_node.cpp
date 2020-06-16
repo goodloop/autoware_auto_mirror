@@ -41,7 +41,7 @@ VelodyneCloudNode::VelodyneCloudNode(
   const velodyne_driver::Vlp16Translator::Config & config)
 : UdpDriverNode<velodyne_driver::Vlp16Translator::Packet, sensor_msgs::msg::PointCloud2>(
     node_name,
-    "points_out",
+    "points_raw",
     UdpConfig{ip, port}),
   m_translator(config),
   m_published_cloud(false),
