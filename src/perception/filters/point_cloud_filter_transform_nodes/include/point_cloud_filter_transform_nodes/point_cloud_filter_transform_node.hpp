@@ -121,36 +121,31 @@ public:
   PointCloud2FilterTransformNode(
     const std::string & node_name,
     const std::string & node_namespace = "")
-  : Node(node_name.c_str(), node_namespace.c_str()),
-    m_angle_filter{static_cast<float32_t>(declare_parameter("start_angle").get<float64_t>()),
-      static_cast<float32_t>(declare_parameter("end_angle").get<float64_t>())},
-    m_distance_filter{static_cast<float32_t>(declare_parameter("min_radius").get<float64_t>()),
-      static_cast<float32_t>(declare_parameter("max_radius").get<float64_t>())},
-    m_static_transformer{get_transform(declare_parameter(
+  : PointCloud2FilterTransformNode(
+      node_name.c_str(),
+      node_namespace.c_str(),
+      std::chrono::milliseconds{declare_parameter("init_timeout_ms").get<int32_t>()},
+      std::chrono::milliseconds{declare_parameter("timeout_ms").get<int32_t>()},
+      declare_parameter("input_frame_id").get<std::string>(),
+      declare_parameter("output_frame_id").get<std::string>(),
+      "points_in",
+      "points_filtered",
+      static_cast<float32_t>(declare_parameter("start_angle").get<float64_t>()),
+      static_cast<float32_t>(declare_parameter("end_angle").get<float64_t>()),
+      static_cast<float32_t>(declare_parameter("min_radius").get<float64_t>()),
+      static_cast<float32_t>(declare_parameter("max_radius").get<float64_t>()),
+      get_transform(declare_parameter(
           "static_transformer.quaternion.x").get<float64_t>(),
         declare_parameter("static_transformer.quaternion.y").get<float64_t>(),
         declare_parameter("static_transformer.quaternion.z").get<float64_t>(),
         declare_parameter("static_transformer.quaternion.w").get<float64_t>(),
         declare_parameter("static_transformer.translation.x").get<float64_t>(),
         declare_parameter("static_transformer.translation.y").get<float64_t>(),
-        declare_parameter("static_transformer.translation.z").get<float64_t>())},
-    m_init_timeout{std::chrono::milliseconds{declare_parameter("init_timeout_ms").get<int32_t>()}},
-    m_timeout{std::chrono::milliseconds{declare_parameter("timeout_ms").get<int32_t>()}},
-    m_sub_ptr{create_subscription<PointCloud2>("points_in", rclcpp::QoS{10},
-        std::bind(
-          &PointCloud2FilterTransformNode::process_filtered_transformed_message, this, _1))},
-    m_pub_ptr{create_publisher<PointCloud2>("points_filtered", rclcpp::QoS{10})},
-    m_expected_num_publishers{
-      static_cast<size_t>(declare_parameter("expected_num_publishers").get<int32_t>())},
-    m_expected_num_subscribers{
-      static_cast<size_t>(declare_parameter("expected_num_subscribers").get<int32_t>())},
-    m_input_frame_id{declare_parameter("input_frame_id").get<std::string>()},
-    m_output_frame_id{declare_parameter("output_frame_id").get<std::string>()},
-    m_pcl_size{static_cast<size_t>(declare_parameter("pcl_size").get<int32_t>())}
-  {
-    common::lidar_utils::init_pcl_msg(m_filtered_transformed_msg,
-      m_output_frame_id.c_str(), m_pcl_size);
-  }
+        declare_parameter("static_transformer.translation.z").get<float64_t>()),
+      static_cast<size_t>(declare_parameter("pcl_size").get<int32_t>()),
+      static_cast<size_t>(declare_parameter("expected_num_publishers").get<int32_t>()),
+      static_cast<size_t>(declare_parameter("expected_num_subscribers").get<int32_t>())
+  ) {}
 
 protected:
   /// \brief Call distance & angle filter and then static transformer for all the points
