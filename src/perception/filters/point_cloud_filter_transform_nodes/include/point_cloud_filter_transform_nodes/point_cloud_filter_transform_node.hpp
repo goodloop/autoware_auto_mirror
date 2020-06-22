@@ -47,9 +47,7 @@ Transform get_transform(
 
 /// \brief Base class to subscribe to raw point cloud and transform and filter it to publish
 ///        filtered point cloud. Calls angle filter, distance filter and static transformer.
-/// \tparam PointCloudT desired point cloud type. Currently specialized for PointCloud2.
-template<class PointCloudT>
-class POINT_CLOUD_FILTER_TRANSFORM_NODES_PUBLIC PointCloudFilterTransformNodeBase
+class POINT_CLOUD_FILTER_TRANSFORM_NODES_PUBLIC PointCloud2FilterTransformNode
   : public rclcpp::Node
 {
 public:
@@ -58,6 +56,8 @@ public:
   /// \param node_namespace Name of this node's namespace
   /// \param init_timeout Timeout for initialization
   /// \param timeout Timeout for waitset to receive raw point cloud message
+  /// \param input_frame_id Expected frame_id of the input point cloud message
+  /// \param output_frame_id frame_id of the point cloud message after it is filtered & transformed
   /// \param raw_topic Name of the input topic containing raw point cloud
   /// \param filtered_topic Name of the output topic containing filtered point cloud
   /// \param start_angle Minimum angle in radians
@@ -67,41 +67,49 @@ public:
   /// \param max_radius Radius in meters of the maximum point. Any point with radius less than
   ///                   min and greater than max will be discarded
   /// \param tf Transform msg to be applied to the raw points
+  /// \param pcl_size Number of points to preallocate for filtered point cloud message
   /// \param expected_num_publishers Expected number of publishers for the raw point cloud topic
   /// \param expected_num_subscribers Expected number of subscribers for the filtered point topic
-  PointCloudFilterTransformNodeBase(
+  PointCloud2FilterTransformNode(
     const std::string & node_name,
     const std::string & node_namespace,
     const std::chrono::nanoseconds & init_timeout,
     const std::chrono::nanoseconds & timeout,
+    const std::string & input_frame_id,
+    const std::string & output_frame_id,
     const std::string & raw_topic,
     const std::string & filtered_topic,
     const float32_t start_angle,
     const float32_t end_angle,
     const float32_t min_radius,
     const float32_t max_radius,
-    const Transform & tf,
-    const size_t expected_num_publishers,
-    const size_t expected_num_subscribers)
+    const geometry_msgs::msg::Transform & tf,
+    const size_t pcl_size,
+    const size_t expected_num_publishers = 1U,
+    const size_t expected_num_subscribers = 0U)
   : Node(node_name.c_str(), node_namespace.c_str()),
     m_angle_filter{start_angle, end_angle}, m_distance_filter{min_radius, max_radius},
     m_static_transformer{tf}, m_init_timeout{init_timeout}, m_timeout{timeout},
-    m_sub_ptr{create_subscription<PointCloudT>(
+    m_sub_ptr{create_subscription<PointCloud2>(
         raw_topic.c_str(), rclcpp::QoS{10},
         std::bind(
-          &PointCloudFilterTransformNodeBase::process_filtered_transformed_message, this, _1))},
-    m_pub_ptr{create_publisher<PointCloudT>(filtered_topic.c_str(), rclcpp::QoS{10})},
+          &PointCloud2FilterTransformNode::process_filtered_transformed_message, this, _1))},
+    m_pub_ptr{create_publisher<PointCloud2>(filtered_topic.c_str(), rclcpp::QoS{10})},
     m_expected_num_publishers{expected_num_publishers},
-    m_expected_num_subscribers{expected_num_subscribers}
+    m_expected_num_subscribers{expected_num_subscribers},
+    m_input_frame_id{input_frame_id}, m_output_frame_id(output_frame_id),
+    m_pcl_size{pcl_size}
   {
+    common::lidar_utils::init_pcl_msg(m_filtered_transformed_msg,
+      m_output_frame_id.c_str(), m_pcl_size);
   }
 
   /// \brief Parameter constructor
   /// \param node_name Name of this node
   /// \param node_namespace Name of this node's namespace
-  PointCloudFilterTransformNodeBase(
+  PointCloud2FilterTransformNode(
     const std::string & node_name,
-    const std::string & node_namespace)
+    const std::string & node_namespace = "")
   : Node(node_name.c_str(), node_namespace.c_str()),
     m_angle_filter{static_cast<float32_t>(declare_parameter("start_angle").get<float64_t>()),
       static_cast<float32_t>(declare_parameter("end_angle").get<float64_t>())},
@@ -117,27 +125,34 @@ public:
         declare_parameter("static_transformer.translation.z").get<float64_t>())},
     m_init_timeout{std::chrono::milliseconds{declare_parameter("init_timeout_ms").get<int32_t>()}},
     m_timeout{std::chrono::milliseconds{declare_parameter("timeout_ms").get<int32_t>()}},
-    m_sub_ptr{create_subscription<PointCloudT>("points_in", rclcpp::QoS{10},
+    m_sub_ptr{create_subscription<PointCloud2>("points_in", rclcpp::QoS{10},
         std::bind(
-          &PointCloudFilterTransformNodeBase::process_filtered_transformed_message, this, _1))},
-    m_pub_ptr{create_publisher<PointCloudT>("points_filtered", rclcpp::QoS{10})},
+          &PointCloud2FilterTransformNode::process_filtered_transformed_message, this, _1))},
+    m_pub_ptr{create_publisher<PointCloud2>("points_filtered", rclcpp::QoS{10})},
     m_expected_num_publishers{
       static_cast<size_t>(declare_parameter("expected_num_publishers").get<int32_t>())},
     m_expected_num_subscribers{
-      static_cast<size_t>(declare_parameter("expected_num_subscribers").get<int32_t>())}
+      static_cast<size_t>(declare_parameter("expected_num_subscribers").get<int32_t>())},
+    m_input_frame_id{declare_parameter("input_frame_id").get<std::string>()},
+    m_output_frame_id{declare_parameter("output_frame_id").get<std::string>()},
+    m_pcl_size{static_cast<size_t>(declare_parameter("pcl_size").get<int32_t>())}
   {
+    common::lidar_utils::init_pcl_msg(m_filtered_transformed_msg,
+      m_output_frame_id.c_str(), m_pcl_size);
   }
 
 protected:
+  /// \brief Call distance & angle filter and then static transformer for all the points
+  /// \param msg Raw point cloud
+  /// \return Filtered and Transformed point cloud.
+  /// \throws std::runtime_error on unexpected input contents or not enough output capacity
+  const PointCloud2 & filter_and_transform(const PointCloud2 & msg);
+
+  Transform get_transform_from_parameters(const std::string & prefix);
+
   /// \brief Run main subscribe -> filter & transform -> publish loop
   void process_filtered_transformed_message(
-    const typename PointCloudT::SharedPtr msg)
-  {
-    const auto filtered_transformed_msg = filter_and_transform(*msg);
-    m_pub_ptr->publish(filtered_transformed_msg);
-  }
-
-  virtual const PointCloudT & filter_and_transform(const PointCloudT & msg) = 0;
+    const PointCloud2::SharedPtr msg);
 
   template<typename PointType>
   /// \brief Check if the point is within the specified angle and radius limits
@@ -238,71 +253,10 @@ private:
   StaticTransformer m_static_transformer;
   const std::chrono::nanoseconds m_init_timeout;
   const std::chrono::nanoseconds m_timeout;
-  const typename rclcpp::Subscription<PointCloudT>::SharedPtr m_sub_ptr;
-  const typename std::shared_ptr<rclcpp::Publisher<PointCloudT>> m_pub_ptr;
+  const typename rclcpp::Subscription<PointCloud2>::SharedPtr m_sub_ptr;
+  const typename std::shared_ptr<rclcpp::Publisher<PointCloud2>> m_pub_ptr;
   const size_t m_expected_num_publishers;
   const size_t m_expected_num_subscribers;
-};
-
-/// \brief Specialized filter/transform class for PointCloud2
-class POINT_CLOUD_FILTER_TRANSFORM_NODES_PUBLIC PointCloud2FilterTransformNode : public
-  PointCloudFilterTransformNodeBase<PointCloud2>
-{
-public:
-  /// \brief Parameter constructor
-  /// \param node_name Name of this node.
-  /// \param node_namespace Name of this node's namespace
-  PointCloud2FilterTransformNode(
-    const std::string & node_name,
-    const std::string & node_namespace = "");
-
-  /// \brief Explicit constructor
-  /// \param node_name Name of this node
-  /// \param node_namespace Name of this node's namespace
-  /// \param init_timeout Timeout for initialization
-  /// \param timeout Timeout for waitset to receive raw point cloud message
-  /// \param input_frame_id Expected frame_id of the input point cloud message
-  /// \param output_frame_id frame_id of the point cloud message after it is filtered & transformed
-  /// \param raw_topic Name of the input topic containing raw point cloud
-  /// \param filtered_topic Name of the output topic containing filtered point cloud
-  /// \param start_angle Minimum angle in radians
-  /// \param end_angle Maximum angle in radians. Points outside of the sector going counter
-  ///                  clockwise from start and end angle will be discarded
-  /// \param min_radius Radius in meters of the minimum point
-  /// \param max_radius Radius in meters of the maximum point. Any point with radius less than
-  ///                   min and greater than max will be discarded
-  /// \param tf Transform msg to be applied to the raw points
-  /// \param pcl_size Number of points to preallocate for filtered point cloud message
-  /// \param expected_num_publishers Expected number of publishers for the raw point cloud topic
-  /// \param expected_num_subscribers Expected number of subscribers for the filtered point topic
-  PointCloud2FilterTransformNode(
-    const std::string & node_name,
-    const std::string & node_namespace,
-    const std::chrono::nanoseconds & init_timeout,
-    const std::chrono::nanoseconds & timeout,
-    const std::string & input_frame_id,
-    const std::string & output_frame_id,
-    const std::string & raw_topic,
-    const std::string & filtered_topic,
-    const float32_t start_angle,
-    const float32_t end_angle,
-    const float32_t min_radius,
-    const float32_t max_radius,
-    const geometry_msgs::msg::Transform & tf,
-    const size_t pcl_size,
-    const size_t expected_num_publishers = 1U,
-    const size_t expected_num_subscribers = 0U);
-
-protected:
-  /// \brief Call distance & angle filter and then static transformer for all the points
-  /// \param msg Raw point cloud
-  /// \return Filtered and Transformed point cloud.
-  /// \throws std::runtime_error on unexpected input contents or not enough output capacity
-  const PointCloud2 & filter_and_transform(const PointCloud2 & msg) override;
-
-  Transform get_transform_from_parameters(const std::string & prefix);
-
-private:
   const std::string m_input_frame_id;
   const std::string m_output_frame_id;
   const std::size_t m_pcl_size;

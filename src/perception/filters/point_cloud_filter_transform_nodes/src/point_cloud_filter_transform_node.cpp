@@ -66,46 +66,6 @@ Transform get_transform(
   return ret;
 }
 
-PointCloud2FilterTransformNode::PointCloud2FilterTransformNode(
-  const std::string & node_name,
-  const std::string & node_namespace)
-: PointCloudFilterTransformNodeBase(
-    node_name, node_namespace),
-  m_input_frame_id{declare_parameter("input_frame_id").get<std::string>()},
-  m_output_frame_id{declare_parameter("output_frame_id").get<std::string>()},
-  m_pcl_size{static_cast<size_t>(declare_parameter("pcl_size").get<int32_t>())}
-{
-  common::lidar_utils::init_pcl_msg(m_filtered_transformed_msg,
-    m_output_frame_id.c_str(), m_pcl_size);
-}
-
-PointCloud2FilterTransformNode::PointCloud2FilterTransformNode(
-  const std::string & node_name,
-  const std::string & node_namespace,
-  const std::chrono::nanoseconds & init_timeout,
-  const std::chrono::nanoseconds & timeout,
-  const std::string & input_frame_id,
-  const std::string & output_frame_id,
-  const std::string & raw_topic,
-  const std::string & filtered_topic,
-  const float32_t start_angle,
-  const float32_t end_angle,
-  const float32_t min_radius,
-  const float32_t max_radius,
-  const geometry_msgs::msg::Transform & tf,
-  const size_t pcl_size,
-  const size_t expected_num_publishers,
-  const size_t expected_num_subscribers)
-: PointCloudFilterTransformNodeBase(node_name, node_namespace, init_timeout,
-    timeout, raw_topic, filtered_topic, start_angle, end_angle, min_radius, max_radius,
-    tf, expected_num_publishers, expected_num_subscribers),
-  m_input_frame_id{input_frame_id}, m_output_frame_id(output_frame_id),
-  m_pcl_size{pcl_size}
-{
-  common::lidar_utils::init_pcl_msg(m_filtered_transformed_msg,
-    m_output_frame_id.c_str(), m_pcl_size);
-}
-
 const PointCloud2 & PointCloud2FilterTransformNode::filter_and_transform(const PointCloud2 & msg)
 {
   // Verify frame_id
@@ -153,6 +113,14 @@ const PointCloud2 & PointCloud2FilterTransformNode::filter_and_transform(const P
   }
   resize_pcl_msg(m_filtered_transformed_msg, point_cloud_idx);
   return m_filtered_transformed_msg;
+}
+
+void
+PointCloud2FilterTransformNode::process_filtered_transformed_message(
+  const PointCloud2::SharedPtr msg)
+{
+  const auto filtered_transformed_msg = filter_and_transform(*msg);
+  m_pub_ptr->publish(filtered_transformed_msg);
 }
 
 }  // namespace point_cloud_filter_transform_nodes
