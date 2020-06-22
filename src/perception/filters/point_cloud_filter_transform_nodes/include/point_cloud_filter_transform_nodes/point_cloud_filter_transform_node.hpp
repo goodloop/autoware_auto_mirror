@@ -43,7 +43,18 @@ using std::placeholders::_1;
 
 Transform get_transform(
   float64_t r_x, float64_t r_y, float64_t r_z, float64_t r_w, float64_t t_x,
-  float64_t t_y, float64_t t_z);
+  float64_t t_y, float64_t t_z)
+{
+  Transform ret;
+  ret.rotation.x = r_x;
+  ret.rotation.y = r_y;
+  ret.rotation.z = r_z;
+  ret.rotation.w = r_w;
+  ret.translation.x = t_x;
+  ret.translation.y = t_y;
+  ret.translation.z = t_z;
+  return ret;
+}
 
 /// \brief Base class to subscribe to raw point cloud and transform and filter it to publish
 ///        filtered point cloud. Calls angle filter, distance filter and static transformer.
