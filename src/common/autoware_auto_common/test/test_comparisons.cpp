@@ -75,6 +75,30 @@ TEST(HelperFunctions_Comparisons, approx_zero) {
 
 //------------------------------------------------------------------------------
 
+TEST(HelperFunctions_Comparisons, approx_negative) {
+  EXPECT_FALSE(geom::approx_negative(d, epsilon));
+  EXPECT_FALSE(geom::approx_negative(d + epsilon * epsilon, epsilon));
+  EXPECT_FALSE(geom::approx_negative(-d - epsilon * epsilon, epsilon));
+  EXPECT_FALSE(geom::approx_negative(d + 2.0 * epsilon, epsilon));
+  EXPECT_TRUE(geom::approx_negative(-d - 2.0 * epsilon, epsilon));
+  EXPECT_FALSE(geom::approx_negative(1.0, epsilon));
+  EXPECT_FALSE(geom::approx_negative(0.0, 0.0));
+}
+
+//------------------------------------------------------------------------------
+
+TEST(HelperFunctions_Comparisons, approx_positive) {
+  EXPECT_FALSE(geom::approx_positive(d, epsilon));
+  EXPECT_FALSE(geom::approx_positive(d + epsilon * epsilon, epsilon));
+  EXPECT_FALSE(geom::approx_positive(-d - epsilon * epsilon, epsilon));
+  EXPECT_TRUE(geom::approx_positive(d + 2.0 * epsilon, epsilon));
+  EXPECT_FALSE(geom::approx_positive(-d - 2.0 * epsilon, epsilon));
+  EXPECT_TRUE(geom::approx_positive(1.0, epsilon));
+  EXPECT_FALSE(geom::approx_positive(0.0, 0.0));
+}
+
+//------------------------------------------------------------------------------
+
 TEST(HelperFunctions_Comparisons, approx_rel_eq) {
   EXPECT_TRUE(geom::approx_rel_eq(c, e, epsilon, 0.0));
   EXPECT_TRUE(geom::approx_rel_eq(e, c, epsilon, 0.0));

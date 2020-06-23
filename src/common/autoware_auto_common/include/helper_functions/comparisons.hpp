@@ -83,16 +83,6 @@ bool approx_ne(const T & a, const T & b, const T & eps)
 }
 
 /**
- * @brief Check whether a value is within epsilon of zero.
- * @return True iff 'a' is within 'eps' of zero.
- */
-template<typename T>
-bool approx_zero(const T & a, const T & eps)
-{
-  return approx_eq(a, static_cast<T>(0), eps);
-}
-
-/**
  * @brief Check for approximate less than in absolute terms.
  * @return True iff 'a' is less than 'b' minus 'eps'.
  */
@@ -130,6 +120,36 @@ template<typename T>
 bool approx_gt(const T & a, const T & b, const T & eps)
 {
   return !approx_le(a, b, eps);
+}
+
+/**
+ * @brief Check whether a value is within epsilon of zero.
+ * @return True iff 'a' is within 'eps' of zero.
+ */
+template<typename T>
+bool approx_zero(const T & a, const T & eps)
+{
+  return approx_eq(a, static_cast<T>(0), eps);
+}
+
+/**
+ * @brief Check whether a value is below epsilon of zero.
+ * @return True iff 'a' is below 'eps' of zero.
+ */
+template<typename T>
+bool approx_negative(const T & a, const T & eps)
+{
+  return approx_lt(a, static_cast<T>(0), eps);
+}
+
+/**
+ * @brief Check whether a value is above epsilon of zero.
+ * @return True iff 'a' is above 'eps' of zero.
+ */
+template<typename T>
+bool approx_positive(const T & a, const T & eps)
+{
+  return approx_gt(a, static_cast<T>(0), eps);
 }
 
 }  // namespace helper_functions
