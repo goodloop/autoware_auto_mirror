@@ -22,6 +22,7 @@
 #include <lidar_utils/visibility_control.hpp>
 
 #include <common/types.hpp>
+#include <helper_functions/comparisons.hpp>
 #include <geometry_msgs/msg/transform_stamped.hpp>
 #include <geometry/common_3d.hpp>
 #include <rclcpp/rclcpp.hpp>
@@ -288,7 +289,8 @@ public:
   {
     using common::geometry::dot_3d;
     auto pt_radius = dot_3d(pt, pt);
-    return ((pt_radius + FEPS) >= m_min_r2) && ((pt_radius - FEPS) <= m_max_r2);
+    return helper_functions::approx_ge(pt_radius, m_min_r2, FEPS) &&
+           helper_functions::approx_le(pt_radius, m_max_r2, FEPS);
   }
 
 private:
@@ -359,7 +361,7 @@ public:
     const auto pt_len2 = dot_2d(pt, pt);
     const auto proj_on_normal = dot_2d(pt, m_range_normal);
     const auto proj_on_normal2 = proj_on_normal * proj_on_normal;
-    const auto is_proj_negative = (proj_on_normal + FEPS) < 0.0F;
+    const auto is_proj_negative = helper_functions::approx_negative(proj_on_normal, FEPS);
 
     // Since the input vector's projection is scaled by the length of itself, the
     // threshold is also scaled by the length of the input vector to make the comparison possible.

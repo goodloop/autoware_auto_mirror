@@ -18,6 +18,10 @@
 
 #include <point_cloud_mapping/point_cloud_mapper.hpp>
 #include <localization_common/localizer_base.hpp>
+#include <helper_functions/comparisons.hpp>
+
+static constexpr auto EPS = std::numeric_limits<float_t>::epsilon();
+namespace hf = autoware::common::helper_functions;
 
 namespace autoware
 {
@@ -89,19 +93,20 @@ private:
   const std::string m_map_frame{PCMapperTestContext::map_frame};
 };
 
-bool check_pc_equal(PCLCloud & pc1, PCLCloud & pc2)
+bool check_pc_equal(const PCLCloud & pc1, const PCLCloud & pc2)
 {
-  auto float_eq = [](auto n1, auto n2) {
-      return std::fabs(n1 - n2) <= std::numeric_limits<float_t>::epsilon();
-    };
   if (pc1.size() != pc2.size()) {
     return false;
   }
+
+  const auto float_eq = [](const auto& pt1, const auto& pt2) {
+      return hf::approx_eq(pt1.x, pt2.x, EPS)
+             && hf::approx_eq(pt1.y, pt2.y, EPS)
+             && hf::approx_eq(pt1.z, pt2.z, EPS);
+    };
+
   // TODO(yunus.caliskan): do the check orderless?
-  return std::equal(pc1.begin(), pc1.end(), pc2.begin(),
-           [float_eq](const auto & pt1, const auto & pt2) {
-             return float_eq(pt1.x, pt2.x) && float_eq(pt1.y, pt2.y) && float_eq(pt1.z, pt2.z);
-           });
+  return std::equal(pc1.begin(), pc1.end(), pc2.begin(), float_eq);
 }
 
 }  // namespace point_cloud_mapping
