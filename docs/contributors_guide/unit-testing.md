@@ -365,13 +365,16 @@ are shown below.
 
 Use the commands below to generate coverage information for `my_cool_pkg`:
 
+\note
+You may need to clean your build before generating the coverage report.
+
 ```bash
 # In ~/workspace/
 # Build with correct flags
 ade$ COVERAGE_FLAGS="-fprofile-arcs -ftest-coverage -DCOVERAGE_RUN=1"
 ade$ colcon build \
           --merge-install \
-          --packages-select my_cool_pkg \
+          --packages-up-to my_cool_pkg \
           --cmake-args \
             -DCMAKE_BUILD_TYPE=Coverage \
           --ament-cmake-args \
