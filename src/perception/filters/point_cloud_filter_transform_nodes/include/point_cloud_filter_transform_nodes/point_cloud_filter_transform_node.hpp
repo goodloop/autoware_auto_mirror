@@ -43,18 +43,7 @@ using std::placeholders::_1;
 
 Transform get_transform(
   float64_t r_x, float64_t r_y, float64_t r_z, float64_t r_w, float64_t t_x,
-  float64_t t_y, float64_t t_z)
-{
-  Transform ret;
-  ret.rotation.x = r_x;
-  ret.rotation.y = r_y;
-  ret.rotation.z = r_z;
-  ret.rotation.w = r_w;
-  ret.translation.x = t_x;
-  ret.translation.y = t_y;
-  ret.translation.z = t_z;
-  return ret;
-}
+  float64_t t_y, float64_t t_z);
 
 /// \brief Base class to subscribe to raw point cloud and transform and filter it to publish
 ///        filtered point cloud. Calls angle filter, distance filter and static transformer.
@@ -97,55 +86,14 @@ public:
     const geometry_msgs::msg::Transform & tf,
     const size_t pcl_size,
     const size_t expected_num_publishers = 1U,
-    const size_t expected_num_subscribers = 0U)
-  : Node(node_name.c_str(), node_namespace.c_str()),
-    m_angle_filter{start_angle, end_angle}, m_distance_filter{min_radius, max_radius},
-    m_static_transformer{tf}, m_init_timeout{init_timeout}, m_timeout{timeout},
-    m_sub_ptr{create_subscription<PointCloud2>(
-        raw_topic.c_str(), rclcpp::QoS{10},
-        std::bind(
-          &PointCloud2FilterTransformNode::process_filtered_transformed_message, this, _1))},
-    m_pub_ptr{create_publisher<PointCloud2>(filtered_topic.c_str(), rclcpp::QoS{10})},
-    m_expected_num_publishers{expected_num_publishers},
-    m_expected_num_subscribers{expected_num_subscribers},
-    m_input_frame_id{input_frame_id}, m_output_frame_id(output_frame_id),
-    m_pcl_size{pcl_size}
-  {
-    common::lidar_utils::init_pcl_msg(m_filtered_transformed_msg,
-      m_output_frame_id.c_str(), m_pcl_size);
-  }
+    const size_t expected_num_subscribers = 0U);
 
   /// \brief Parameter constructor
   /// \param node_name Name of this node
   /// \param node_namespace Name of this node's namespace
   PointCloud2FilterTransformNode(
     const std::string & node_name,
-    const std::string & node_namespace = "")
-  : PointCloud2FilterTransformNode(
-      node_name.c_str(),
-      node_namespace.c_str(),
-      std::chrono::milliseconds{declare_parameter("init_timeout_ms").get<int32_t>()},
-      std::chrono::milliseconds{declare_parameter("timeout_ms").get<int32_t>()},
-      declare_parameter("input_frame_id").get<std::string>(),
-      declare_parameter("output_frame_id").get<std::string>(),
-      "points_in",
-      "points_filtered",
-      static_cast<float32_t>(declare_parameter("start_angle").get<float64_t>()),
-      static_cast<float32_t>(declare_parameter("end_angle").get<float64_t>()),
-      static_cast<float32_t>(declare_parameter("min_radius").get<float64_t>()),
-      static_cast<float32_t>(declare_parameter("max_radius").get<float64_t>()),
-      get_transform(declare_parameter(
-        "static_transformer.quaternion.x").get<float64_t>(),
-      declare_parameter("static_transformer.quaternion.y").get<float64_t>(),
-      declare_parameter("static_transformer.quaternion.z").get<float64_t>(),
-      declare_parameter("static_transformer.quaternion.w").get<float64_t>(),
-      declare_parameter("static_transformer.translation.x").get<float64_t>(),
-      declare_parameter("static_transformer.translation.y").get<float64_t>(),
-      declare_parameter("static_transformer.translation.z").get<float64_t>()),
-      static_cast<size_t>(declare_parameter("pcl_size").get<int32_t>()),
-      static_cast<size_t>(declare_parameter("expected_num_publishers").get<int32_t>()),
-      static_cast<size_t>(declare_parameter("expected_num_subscribers").get<int32_t>())
-  ) {}
+    const std::string & node_namespace = "");
 
 protected:
   /// \brief Call distance & angle filter and then static transformer for all the points
@@ -190,49 +138,11 @@ private:
     decltype(sensor_msgs::msg::PointField::datatype) m_intensity_datatype;
 
 public:
-    intensity_iterator_wrapper(const PointCloud2 & msg)
-    : m_intensity_it_uint8(msg, "intensity"),
-      m_intensity_it_float32(msg, "intensity")
-    {
-      auto && intensity_field_it =
-        std::find_if(std::cbegin(msg.fields), std::cend(msg.fields),
-          [](const sensor_msgs::msg::PointField & field) {return field.name == "intensity";});
-      m_intensity_datatype = (*intensity_field_it).datatype;
-      switch (m_intensity_datatype) {
-        case sensor_msgs::msg::PointField::UINT8:
-        case sensor_msgs::msg::PointField::FLOAT32:
-          break;
-        default:
-          throw std::runtime_error("Intensity type not supported: " + m_intensity_datatype);
-      }
-    }
+    explicit intensity_iterator_wrapper(const PointCloud2 & msg);
 
-    void next()
-    {
-      switch (m_intensity_datatype) {
-        case sensor_msgs::msg::PointField::UINT8:
-          ++m_intensity_it_uint8;
-          break;
-        case sensor_msgs::msg::PointField::FLOAT32:
-          ++m_intensity_it_float32;
-          break;
-        default:
-          throw std::runtime_error("Intensity type not supported: " + m_intensity_datatype);
-      }
-    }
+    void next();
 
-    bool8_t eof()
-    {
-      switch (m_intensity_datatype) {
-        // For some reason, the equality operator (==) does not work with PointCloud2ConstIterator
-        case sensor_msgs::msg::PointField::UINT8:
-          return !(m_intensity_it_uint8 != m_intensity_it_uint8.end());
-        case sensor_msgs::msg::PointField::FLOAT32:
-          return !(m_intensity_it_float32 != m_intensity_it_float32.end());
-        default:
-          throw std::runtime_error("Intensity type not supported: " + m_intensity_datatype);
-      }
-    }
+    bool8_t eof();
 
     template<typename PointFieldValueT>
     void get_curent_value(PointFieldValueT & point_field_value)
