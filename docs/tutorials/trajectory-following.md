@@ -15,6 +15,6 @@ For example this package can be used for simulator testing with a dummy/spoofed 
 ros2 launch test_trajectory_following simple_trajectory_following.launch.py sim_type:=lgsvl
 ```
 
-The launch file start spoofing a trajectory and bring up an rviz visualization.
+The launch file start spoofing a trajectory and bring up an rviz visualization. By default green is the trajectory from planner/record replay, whatever is being send to the controller, and blue is the internal representation of the mpc controller, which may be interpolated, smoothed, and predicted.
 
 ![Autoware.Auto trajectory following](trajectory-following-small.jpg)
