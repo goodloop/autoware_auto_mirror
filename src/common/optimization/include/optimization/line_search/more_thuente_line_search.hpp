@@ -275,7 +275,7 @@ DomainValueT MoreThuenteLineSearch::compute_next_step_(
       f_l = phi(interval.a_l);
       f_u = phi(interval.a_u);
     }
-    // TODO(Yunus Emre): This check can be false for [min<=0, max<=0]; is that intended?
+    // TODO(Yunus Emre): This check is false for [min<=0, max<=0]; is that intended?
     if (std::abs(interval.a_u - interval.a_l) <
       std::max(interval.a_u, interval.a_l) * std::numeric_limits<StepT>::epsilon())
     {
