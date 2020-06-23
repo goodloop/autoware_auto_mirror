@@ -44,6 +44,7 @@ bool exclusive_or(const T & a, const T & b)
 
 /**
  * @brief Check for approximate equality in absolute terms.
+ * @pre eps >= 0
  * @return True iff 'a' and 'b' are within 'eps' of each other.
  */
 template<typename T>
@@ -55,12 +56,12 @@ bool approx_eq(const T & a, const T & b, const T & eps)
 /**
  * @brief
  * https://randomascii.wordpress.com/2012/02/25/comparing-floating-point-numbers-2012-edition/
+ * @pre abs_eps >= 0
+ * @pre rel_eps >= 0
  * @return True iff 'a' and 'b' are within absolute 'eps' or relative 'rel_eps' of each other.
  */
 template<typename T>
-bool approx_rel_eq(
-  const T & a, const T & b, const T & abs_eps,
-  const T & rel_eps)
+bool approx_rel_eq(const T & a, const T & b, const T & abs_eps, const T & rel_eps)
 {
   const auto abs_approx_eq = approx_eq(a, b, abs_eps);
 
@@ -74,6 +75,7 @@ bool approx_rel_eq(
 
 /**
  * @brief Check for approximate inequality in absolute terms.
+ * @pre eps >= 0
  * @return True iff 'a' and 'b' are outside of 'eps' of each other.
  */
 template<typename T>
@@ -84,6 +86,7 @@ bool approx_ne(const T & a, const T & b, const T & eps)
 
 /**
  * @brief Check for approximate less than in absolute terms.
+ * @pre eps >= 0
  * @return True iff 'a' is less than 'b' minus 'eps'.
  */
 template<typename T>
@@ -94,6 +97,7 @@ bool approx_lt(const T & a, const T & b, const T & eps)
 
 /**
  * @brief Check for approximate less than or equal in absolute terms.
+ * @pre eps >= 0
  * @return True iff 'a' is less than or equal to 'b' plus 'eps'.
  */
 template<typename T>
@@ -104,6 +108,7 @@ bool approx_le(const T & a, const T & b, const T & eps)
 
 /**
  * @brief Check for approximate greater than or equal in absolute terms.
+ * @pre eps >= 0
  * @return True iff 'a' is greater than or equal to 'b' minus 'eps'.
  */
 template<typename T>
@@ -114,6 +119,7 @@ bool approx_ge(const T & a, const T & b, const T & eps)
 
 /**
  * @brief Check for approximate greater than in absolute terms.
+ * @pre eps >= 0
  * @return True iff 'a' is greater than 'b' minus 'eps'.
  */
 template<typename T>
@@ -124,6 +130,7 @@ bool approx_gt(const T & a, const T & b, const T & eps)
 
 /**
  * @brief Check whether a value is within epsilon of zero.
+ * @pre eps >= 0
  * @return True iff 'a' is within 'eps' of zero.
  */
 template<typename T>
@@ -134,6 +141,7 @@ bool approx_zero(const T & a, const T & eps)
 
 /**
  * @brief Check whether a value is below epsilon of zero.
+ * @pre eps >= 0
  * @return True iff 'a' is below 'eps' of zero.
  */
 template<typename T>
@@ -144,6 +152,7 @@ bool approx_negative(const T & a, const T & eps)
 
 /**
  * @brief Check whether a value is above epsilon of zero.
+ * @pre eps >= 0
  * @return True iff 'a' is above 'eps' of zero.
  */
 template<typename T>

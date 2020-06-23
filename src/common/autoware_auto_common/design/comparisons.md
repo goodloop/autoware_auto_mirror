@@ -11,7 +11,8 @@ The intended use case for the comparison functions is for comparing floating poi
 
 # Assumptions
 
-The library assumes that input data types have all necessary operators (`static_cast<bool>`, comparisons, and arithmetic) are available. The code will not compile if that assumption is not met.
+* The approximate comparisons all take an `epsilon` parameter. The value of this parameter must be >= 0.
+* The library assumes that input data types have all necessary operators (`static_cast<bool>`, comparisons, and arithmetic) are available. The code will not compile if that assumption is not met.
 
 # Example Usage
 
