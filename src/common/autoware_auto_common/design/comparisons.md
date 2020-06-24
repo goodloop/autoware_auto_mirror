@@ -1,9 +1,12 @@
 Helper Functions: Comparisons
 ============
 
-The `comparisons.hpp` library is a simple set of functions for performing approximate numerical comparisons.
-There is additionally an XOR operator.
-The intent of the library is to improve readability of code and reduce likelihood of typographical errors when using numerical comparisons.
+The `float_comparisons.hpp` library is a simple set of functions for performing approximate numerical comparisons.
+There are separate functions for performing comparisons using absolute bounds and relative bounds. Absolute comparison checks are prefixed with `abs_` and relative checks are prefixed with `rel_`.
+
+The `bool_comparisons.hpp` library additionally contains an XOR operator.
+
+The intent of the library is to improve readability of code and reduce likelihood of typographical errors when using numerical and boolean comparisons.
 
 # Target use cases
 
@@ -34,30 +37,30 @@ static constexpr auto relative_epsilon = 0.01;
 std::cout << exclusive_or(true, false) << "\n";
 // Prints: true
 
-std::cout << approx_rel_eq(1.0, 1.1, epsilon, relative_epsilon)) << "\n";
-// Prints: true
-
-std::cout << approx_rel_eq(10000.0, 10010.0, epsilon, relative_epsilon)) << "\n";
-// Prints: true
-
-std::cout << approx_eq(4.0, 4.2, epsilon) << "\n";
-// Prints: true
-
-std::cout << approx_ne(4.0, 4.2, epsilon) << "\n";
+std::cout << rel_eq(1.0, 1.1, relative_epsilon)) << "\n";
 // Prints: false
 
-std::cout << approx_zero(0.2, epsilon) << "\n";
+std::cout << approx_eq(10000.0, 10010.0, epsilon, relative_epsilon)) << "\n";
+// Prints: true
+
+std::cout << abs_eq(4.0, 4.2, epsilon) << "\n";
+// Prints: true
+
+std::cout << abs_ne(4.0, 4.2, epsilon) << "\n";
 // Prints: false
 
-std::cout << approx_lt(4.0, 4.25, epsilon) << "\n";
+std::cout << abs_eq_zero(0.2, epsilon) << "\n";
+// Prints: false
+
+std::cout << abs_lt(4.0, 4.25, epsilon) << "\n";
 // Prints: true
 
-std::cout << approx_le(1.0, 1.2, epsilon) << "\n";
+std::cout << abs_lte(1.0, 1.2, epsilon) << "\n";
 // Prints: true
 
-std::cout << approx_gt(1.25, 1.0, epsilon) << "\n";
+std::cout << abs_gt(1.25, 1.0, epsilon) << "\n";
 // Prints: true
 
-std::cout << approx_ge(0.75, 1.0, epsilon) << "\n";
+std::cout << abs_gte(0.75, 1.0, epsilon) << "\n";
 // Prints: false
 ```
