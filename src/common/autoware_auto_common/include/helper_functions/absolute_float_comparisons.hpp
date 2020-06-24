@@ -18,8 +18,8 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 // IN THE SOFTWARE.
 
-#ifndef HELPER_FUNCTIONS__COMPARISONS_HPP_
-#define HELPER_FUNCTIONS__COMPARISONS_HPP_
+#ifndef HELPER_FUNCTIONS__ABSOLUTE_FLOAT_COMPARISONS_HPP_
+#define HELPER_FUNCTIONS__ABSOLUTE_FLOAT_COMPARISONS_HPP_
 
 #include <algorithm>
 #include <cmath>
@@ -31,16 +31,8 @@ namespace common
 {
 namespace helper_functions
 {
-
-/**
- * @brief Convenience method for performing logical exclusive or ops.
- * @return True iff exactly one of 'a' and 'b' is true.
- */
-template<typename T>
-bool exclusive_or(const T & a, const T & b)
+namespace comparisons
 {
-  return static_cast<bool>(a) != static_cast<bool>(b);
-}
 
 /**
  * @brief Check for approximate equality in absolute terms.
@@ -48,40 +40,12 @@ bool exclusive_or(const T & a, const T & b)
  * @return True iff 'a' and 'b' are within 'eps' of each other.
  */
 template<typename T>
-bool approx_eq(const T & a, const T & b, const T & eps)
+bool abs_eq(const T & a, const T & b, const T & eps)
 {
+  static_assert(std::is_floating_point<T>::value,
+    "Float comparisons only support floating point types.");
+
   return std::abs(a - b) <= eps;
-}
-
-/**
- * @brief
- * https://randomascii.wordpress.com/2012/02/25/comparing-floating-point-numbers-2012-edition/
- * @pre abs_eps >= 0
- * @pre rel_eps >= 0
- * @return True iff 'a' and 'b' are within absolute 'eps' or relative 'rel_eps' of each other.
- */
-template<typename T>
-bool approx_rel_eq(const T & a, const T & b, const T & abs_eps, const T & rel_eps)
-{
-  const auto abs_approx_eq = approx_eq(a, b, abs_eps);
-
-  const auto delta = std::abs(a - b);
-  const auto larger = std::max(std::abs(a), std::abs(b));
-  const auto rel_delta = (larger * rel_eps);
-  const auto rel_approx_eq = (delta <= rel_delta);
-
-  return abs_approx_eq || rel_approx_eq;
-}
-
-/**
- * @brief Check for approximate inequality in absolute terms.
- * @pre eps >= 0
- * @return True iff 'a' and 'b' are outside of 'eps' of each other.
- */
-template<typename T>
-bool approx_ne(const T & a, const T & b, const T & eps)
-{
-  return !approx_eq(a, b, eps);
 }
 
 /**
@@ -90,9 +54,9 @@ bool approx_ne(const T & a, const T & b, const T & eps)
  * @return True iff 'a' is less than 'b' minus 'eps'.
  */
 template<typename T>
-bool approx_lt(const T & a, const T & b, const T & eps)
+bool abs_lt(const T & a, const T & b, const T & eps)
 {
-  return approx_ne(a, b, eps) && (a < b);
+  return !abs_eq(a, b, eps) && (a < b);
 }
 
 /**
@@ -101,9 +65,9 @@ bool approx_lt(const T & a, const T & b, const T & eps)
  * @return True iff 'a' is less than or equal to 'b' plus 'eps'.
  */
 template<typename T>
-bool approx_le(const T & a, const T & b, const T & eps)
+bool abs_lte(const T & a, const T & b, const T & eps)
 {
-  return approx_eq(a, b, eps) || (a < b);
+  return abs_eq(a, b, eps) || (a < b);
 }
 
 /**
@@ -112,9 +76,9 @@ bool approx_le(const T & a, const T & b, const T & eps)
  * @return True iff 'a' is greater than or equal to 'b' minus 'eps'.
  */
 template<typename T>
-bool approx_ge(const T & a, const T & b, const T & eps)
+bool abs_gte(const T & a, const T & b, const T & eps)
 {
-  return !approx_lt(a, b, eps);
+  return !abs_lt(a, b, eps);
 }
 
 /**
@@ -123,9 +87,9 @@ bool approx_ge(const T & a, const T & b, const T & eps)
  * @return True iff 'a' is greater than 'b' minus 'eps'.
  */
 template<typename T>
-bool approx_gt(const T & a, const T & b, const T & eps)
+bool abs_gt(const T & a, const T & b, const T & eps)
 {
-  return !approx_le(a, b, eps);
+  return !abs_lte(a, b, eps);
 }
 
 /**
@@ -134,35 +98,14 @@ bool approx_gt(const T & a, const T & b, const T & eps)
  * @return True iff 'a' is within 'eps' of zero.
  */
 template<typename T>
-bool approx_zero(const T & a, const T & eps)
+bool abs_eq_zero(const T & a, const T & eps)
 {
-  return approx_eq(a, static_cast<T>(0), eps);
+  return abs_eq(a, static_cast<T>(0), eps);
 }
 
-/**
- * @brief Check whether a value is below epsilon of zero.
- * @pre eps >= 0
- * @return True iff 'a' is below 'eps' of zero.
- */
-template<typename T>
-bool approx_negative(const T & a, const T & eps)
-{
-  return approx_lt(a, static_cast<T>(0), eps);
-}
-
-/**
- * @brief Check whether a value is above epsilon of zero.
- * @pre eps >= 0
- * @return True iff 'a' is above 'eps' of zero.
- */
-template<typename T>
-bool approx_positive(const T & a, const T & eps)
-{
-  return approx_gt(a, static_cast<T>(0), eps);
-}
-
+}  // namespace comparisons
 }  // namespace helper_functions
 }  // namespace common
 }  // namespace autoware
 
-#endif  // HELPER_FUNCTIONS__COMPARISONS_HPP_
+#endif  // HELPER_FUNCTIONS__ABSOLUTE_FLOAT_COMPARISONS_HPP_
