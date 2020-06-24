@@ -39,8 +39,6 @@ if(BUILD_TESTING)
   ament_add_gtest(${TEST_COMMON}
           test/gtest_main.cpp
           test/test_float_comparisons.cpp
-          test/test_absolute_float_comparisons.cpp
-          test/test_relative_float_comparisons.cpp
           test/test_bool_comparisons.cpp
           test/lookup_table.cpp
           test/test_byte_reader.cpp

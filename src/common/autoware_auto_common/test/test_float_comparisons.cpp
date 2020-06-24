@@ -40,6 +40,94 @@ const auto epsilon = 0.0001;
 
 //------------------------------------------------------------------------------
 
+TEST(HelperFunctions_Comparisons, abs_eq_zero) {
+  EXPECT_TRUE(comp::abs_eq_zero(d, epsilon));
+  EXPECT_TRUE(comp::abs_eq_zero(d + epsilon * epsilon, epsilon));
+  EXPECT_FALSE(comp::abs_eq_zero(d + 2.0 * epsilon, epsilon));
+  EXPECT_FALSE(comp::abs_eq_zero(1.0, epsilon));
+  EXPECT_TRUE(comp::abs_eq_zero(0.0, 0.0));
+}
+
+//------------------------------------------------------------------------------
+
+TEST(HelperFunctions_Comparisons, abs_eq) {
+  EXPECT_TRUE(comp::abs_eq(c, e, epsilon));
+  EXPECT_TRUE(comp::abs_eq(e, c, epsilon));
+  EXPECT_FALSE(comp::abs_eq(c, e, 0.0));
+  EXPECT_FALSE(comp::abs_eq(e, c, 0.0));
+  EXPECT_FALSE(comp::abs_eq(a, b, epsilon));
+  EXPECT_FALSE(comp::abs_eq(b, a, epsilon));
+  EXPECT_TRUE(comp::abs_eq(a, a, epsilon));
+  EXPECT_TRUE(comp::abs_eq(a, a, 0.0));
+}
+
+//------------------------------------------------------------------------------
+
+TEST(HelperFunctions_Comparisons, abs_lt) {
+  EXPECT_TRUE(comp::abs_lt(f, c, 0.0));
+  EXPECT_TRUE(comp::abs_lt(f, c, epsilon));
+  EXPECT_FALSE(comp::abs_lt(c, f, epsilon));
+  EXPECT_FALSE(comp::abs_lt(d, d, epsilon));
+  EXPECT_FALSE(comp::abs_lt(d, d, 0.0));
+}
+
+//------------------------------------------------------------------------------
+
+TEST(HelperFunctions_Comparisons, abs_lte) {
+  EXPECT_TRUE(comp::abs_lte(c, e, epsilon));
+  EXPECT_TRUE(comp::abs_lte(e, c, epsilon));
+  EXPECT_FALSE(comp::abs_lte(c, e, 0.0));
+  EXPECT_TRUE(comp::abs_lte(e, c, 0.0));
+  EXPECT_TRUE(comp::abs_lte(c, e, epsilon));
+  EXPECT_TRUE(comp::abs_lte(e, c, epsilon));
+  EXPECT_TRUE(comp::abs_lte(a, b, epsilon));
+  EXPECT_FALSE(comp::abs_lte(b, a, epsilon));
+  EXPECT_TRUE(comp::abs_lte(d, d, epsilon));
+  EXPECT_TRUE(comp::abs_lte(d, d, 0.0));
+}
+
+//------------------------------------------------------------------------------
+
+TEST(HelperFunctions_Comparisons, abs_gt) {
+  EXPECT_TRUE(comp::abs_gt(c, e, 0.0));
+  EXPECT_FALSE(comp::abs_gt(c, e, epsilon));
+  EXPECT_FALSE(comp::abs_gt(f, c, epsilon));
+  EXPECT_TRUE(comp::abs_gt(c, f, epsilon));
+  EXPECT_FALSE(comp::abs_gt(d, d, epsilon));
+  EXPECT_FALSE(comp::abs_gt(d, d, 0.0));
+}
+
+//------------------------------------------------------------------------------
+
+TEST(HelperFunctions_Comparisons, abs_gte) {
+  EXPECT_TRUE(comp::abs_gte(c, e, 0.0));
+  EXPECT_FALSE(comp::abs_gte(e, c, 0.0));
+  EXPECT_TRUE(comp::abs_gte(c, e, epsilon));
+  EXPECT_TRUE(comp::abs_gte(e, c, epsilon));
+  EXPECT_FALSE(comp::abs_gte(f, c, epsilon));
+  EXPECT_TRUE(comp::abs_gte(c, f, epsilon));
+  EXPECT_TRUE(comp::abs_gte(d, d, epsilon));
+  EXPECT_TRUE(comp::abs_gte(d, d, 0.0));
+}
+
+//------------------------------------------------------------------------------
+
+TEST(HelperFunctions_Comparisons, rel_eq) {
+  EXPECT_FALSE(comp::rel_eq(c, e, 0.0));
+  EXPECT_FALSE(comp::rel_eq(e, c, 0.0));
+  EXPECT_TRUE(comp::rel_eq(a, a, 0.0));
+
+  EXPECT_TRUE(comp::rel_eq(c, e, 1.0));
+  EXPECT_TRUE(comp::rel_eq(e, c, 1.0));
+  EXPECT_TRUE(comp::rel_eq(a, b, 1.0));
+  EXPECT_TRUE(comp::rel_eq(b, a, 1.0));
+
+  EXPECT_FALSE(comp::rel_eq(1.0, 1.1, 0.01));
+  EXPECT_TRUE(comp::rel_eq(10000.0, 10010.0, 0.01));
+}
+
+//------------------------------------------------------------------------------
+
 TEST(HelperFunctions_Comparisons, approx_eq) {
   EXPECT_TRUE(comp::approx_eq(c, e, epsilon, 0.0));
   EXPECT_TRUE(comp::approx_eq(e, c, epsilon, 0.0));

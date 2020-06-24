@@ -21,8 +21,9 @@
 #ifndef HELPER_FUNCTIONS__FLOAT_COMPARISONS_HPP_
 #define HELPER_FUNCTIONS__FLOAT_COMPARISONS_HPP_
 
-#include "helper_functions/absolute_float_comparisons.hpp"
-#include "helper_functions/relative_float_comparisons.hpp"
+#include <algorithm>
+#include <cmath>
+#include <limits>
 
 namespace autoware
 {
@@ -32,6 +33,95 @@ namespace helper_functions
 {
 namespace comparisons
 {
+
+/**
+ * @brief Check for approximate equality in absolute terms.
+ * @pre eps >= 0
+ * @return True iff 'a' and 'b' are within 'eps' of each other.
+ */
+template<typename T>
+bool abs_eq(const T & a, const T & b, const T & eps)
+{
+  static_assert(std::is_floating_point<T>::value,
+    "Float comparisons only support floating point types.");
+
+  return std::abs(a - b) <= eps;
+}
+
+/**
+ * @brief Check for approximate less than in absolute terms.
+ * @pre eps >= 0
+ * @return True iff 'a' is less than 'b' minus 'eps'.
+ */
+template<typename T>
+bool abs_lt(const T & a, const T & b, const T & eps)
+{
+  return !abs_eq(a, b, eps) && (a < b);
+}
+
+/**
+ * @brief Check for approximate less than or equal in absolute terms.
+ * @pre eps >= 0
+ * @return True iff 'a' is less than or equal to 'b' plus 'eps'.
+ */
+template<typename T>
+bool abs_lte(const T & a, const T & b, const T & eps)
+{
+  return abs_eq(a, b, eps) || (a < b);
+}
+
+/**
+ * @brief Check for approximate greater than or equal in absolute terms.
+ * @pre eps >= 0
+ * @return True iff 'a' is greater than or equal to 'b' minus 'eps'.
+ */
+template<typename T>
+bool abs_gte(const T & a, const T & b, const T & eps)
+{
+  return !abs_lt(a, b, eps);
+}
+
+/**
+ * @brief Check for approximate greater than in absolute terms.
+ * @pre eps >= 0
+ * @return True iff 'a' is greater than 'b' minus 'eps'.
+ */
+template<typename T>
+bool abs_gt(const T & a, const T & b, const T & eps)
+{
+  return !abs_lte(a, b, eps);
+}
+
+/**
+ * @brief Check whether a value is within epsilon of zero.
+ * @pre eps >= 0
+ * @return True iff 'a' is within 'eps' of zero.
+ */
+template<typename T>
+bool abs_eq_zero(const T & a, const T & eps)
+{
+  return abs_eq(a, static_cast<T>(0), eps);
+}
+
+/**
+ * @brief
+ * https://randomascii.wordpress.com/2012/02/25/comparing-floating-point-numbers-2012-edition/
+ * @pre rel_eps >= 0
+ * @return True iff 'a' and 'b' are within relative 'rel_eps' of each other.
+ */
+template<typename T>
+bool rel_eq(const T & a, const T & b, const T & rel_eps)
+{
+  static_assert(std::is_floating_point<T>::value,
+    "Float comparisons only support floating point types.");
+
+  const auto delta = std::abs(a - b);
+  const auto larger = std::max(std::abs(a), std::abs(b));
+  const auto max_rel_delta = (larger * rel_eps);
+  return delta <= max_rel_delta;
+}
+
+// TODO(jeff): As needed, add relative variants of <, <=, >, >=
 
 /**
  * @brief Check for approximate equality in absolute and relative terms.
