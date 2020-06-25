@@ -270,12 +270,12 @@ void LgsvlInterface::on_odometry(const nav_msgs::msg::Odometry & msg)
     pose.pose.pose.orientation = q;
 
     constexpr auto EPS = std::numeric_limits<float64_t>::epsilon();
-    if (!comp::abs_eq_zero(msg.pose.covariance[COV_X], EPS) ||
-      !comp::abs_eq_zero(msg.pose.covariance[COV_Y], EPS) ||
-      !comp::abs_eq_zero(msg.pose.covariance[COV_Z], EPS) ||
-      !comp::abs_eq_zero(msg.pose.covariance[COV_RX], EPS) ||
-      !comp::abs_eq_zero(msg.pose.covariance[COV_RY], EPS) ||
-      !comp::abs_eq_zero(msg.pose.covariance[COV_RZ], EPS))
+    if (std::fabs(msg.pose.covariance[COV_X]) > EPS ||
+      std::fabs(msg.pose.covariance[COV_Y]) > EPS ||
+      std::fabs(msg.pose.covariance[COV_Z]) > EPS ||
+      std::fabs(msg.pose.covariance[COV_RX]) > EPS ||
+      std::fabs(msg.pose.covariance[COV_RY]) > EPS ||
+      std::fabs(msg.pose.covariance[COV_RZ]) > EPS)
     {
       pose.pose.covariance = {
         COV_X_VAR, 0.0, 0.0, 0.0, 0.0, 0.0,

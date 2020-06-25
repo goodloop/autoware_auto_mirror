@@ -66,20 +66,6 @@ public:
 };
 
 /// @test       Check that we can minimize a simple parabola with a minimum at 0.
-TEST(MoreThuenteLineSearchTest, simple_quadratic_function_minimization2) {
-  QuadraticFunction f;
-  Matrix jacobian;
-
-  auto max_step{1.0F};
-  auto min_step{max_step};
-  auto step = MoreThuenteLineSearch{max_step, min_step}.compute_next_step(
-    Vector{-min_step}, Vector{min_step}, f);
-  // We expect that we will be able to find a proper step in a single call. The max step does not
-  // satisfy the strong Wolfe conditions and we will be searching for the proper step.
-  EXPECT_NEAR(1.0, step(0, 0), kRelaxedEpsilon);
-}
-
-/// @test       Check that we can minimize a simple parabola with a minimum at 0.
 TEST(MoreThuenteLineSearchTest, simple_quadratic_function_minimization) {
   QuadraticFunction f;
   Matrix jacobian;

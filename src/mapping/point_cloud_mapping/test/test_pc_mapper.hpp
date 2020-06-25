@@ -93,7 +93,7 @@ private:
   const std::string m_map_frame{PCMapperTestContext::map_frame};
 };
 
-bool check_pc_equal(const PCLCloud & pc1, const PCLCloud & pc2)
+bool check_pc_equal(PCLCloud & pc1, PCLCloud & pc2)
 {
   if (pc1.size() != pc2.size()) {
     return false;
