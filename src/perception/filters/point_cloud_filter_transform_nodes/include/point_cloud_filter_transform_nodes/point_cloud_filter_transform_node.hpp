@@ -74,8 +74,6 @@ public:
   /// \param expected_num_publishers Expected number of publishers for the raw point cloud topic
   /// \param expected_num_subscribers Expected number of subscribers for the filtered point topic
   PointCloud2FilterTransformNode(
-    const std::string & node_name,
-    const std::string & node_namespace,
     const std::chrono::nanoseconds & init_timeout,
     const std::chrono::nanoseconds & timeout,
     const std::string & raw_topic,
@@ -87,14 +85,14 @@ public:
     const geometry_msgs::msg::TransformStamped & tf,
     const size_t pcl_size,
     const size_t expected_num_publishers = 1U,
-    const size_t expected_num_subscribers = 0U);
+    const size_t expected_num_subscribers = 0U,
+    const rclcpp::NodeOptions & node_options = rclcpp::NodeOptions{});
 
   /// \brief Parameter constructor
   /// \param node_name Name of this node
   /// \param node_namespace Name of this node's namespace
   PointCloud2FilterTransformNode(
-    const std::string & node_name,
-    const std::string & node_namespace = "");
+    const rclcpp::NodeOptions & node_options = rclcpp::NodeOptions{});
 
 protected:
   /// \brief Call distance & angle filter and then static transformer for all the points

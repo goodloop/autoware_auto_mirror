@@ -361,8 +361,6 @@ struct TestFilterTransformPC2FilterTransformMode
   using PointCloud2 = sensor_msgs::msg::PointCloud2;
 
   TestFilterTransformPC2FilterTransformMode(
-    const std::string & node_name,
-    const std::string & node_namespace,
     const std::chrono::nanoseconds & init_timeout,
     const std::chrono::nanoseconds & timeout,
     const std::string & raw_topic,
@@ -374,11 +372,10 @@ struct TestFilterTransformPC2FilterTransformMode
     const geometry_msgs::msg::TransformStamped & tf,
     const size_t pcl_size,
     const size_t expected_num_publishers = 1U,
-    const size_t expected_num_subscribers = 0U)
+    const size_t expected_num_subscribers = 0U,
+    const rclcpp::NodeOptions & node_options = rclcpp::NodeOptions{})
   : PointCloud2FilterTransformNode
     (
-      node_name,
-      node_namespace,
       init_timeout,
       timeout,
       raw_topic,
@@ -390,7 +387,8 @@ struct TestFilterTransformPC2FilterTransformMode
       tf,
       pcl_size,
       expected_num_publishers,
-      expected_num_subscribers
+      expected_num_subscribers,
+      node_options
     )
   {}
 
@@ -414,13 +412,12 @@ TEST_F(point_cloud_filter_transform_integration, filter_and_transform_bug419)
   const std::string filtered_topic_name{"points_filtered"};
   const std::string input_frame_id{"lidar_front"};
   const std::string output_frame_id{"base_link"};
+  const rclcpp::NodeOptions & node_options = rclcpp::NodeOptions{};
   TransformStamped ts;
   ts.header.frame_id = input_frame_id;
   ts.child_frame_id = output_frame_id;
   ts.transform = m_tf;
   const auto pc2_filter_ptr = std::make_shared<TestFilterTransformPC2FilterTransformMode>(
-    "point_cloud_filter_transform_node",
-    "",
     m_init_timeout,
     std::chrono::milliseconds(110),
     raw_topic_name,
@@ -432,7 +429,8 @@ TEST_F(point_cloud_filter_transform_integration, filter_and_transform_bug419)
     ts,
     5U,
     1U,
-    1U);
+    1U,
+    node_options);
 
   auto time0 = std::chrono::system_clock::now();
   auto t0 = to_msg_time(time0);

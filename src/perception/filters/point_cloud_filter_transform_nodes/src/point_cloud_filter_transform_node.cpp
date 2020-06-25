@@ -58,8 +58,6 @@ TransformStamped get_transform(
 }
 
 PointCloud2FilterTransformNode::PointCloud2FilterTransformNode(
-  const std::string & node_name,
-  const std::string & node_namespace,
   const std::chrono::nanoseconds & init_timeout,
   const std::chrono::nanoseconds & timeout,
   const std::string & raw_topic,
@@ -71,8 +69,9 @@ PointCloud2FilterTransformNode::PointCloud2FilterTransformNode(
   const geometry_msgs::msg::TransformStamped & tf,
   const size_t pcl_size,
   const size_t expected_num_publishers,
-  const size_t expected_num_subscribers)
-: Node(node_name.c_str(), node_namespace.c_str()),
+  const size_t expected_num_subscribers,
+  const rclcpp::NodeOptions & node_options)
+: Node("point_cloud2_filter_transform_node", node_options),
   m_angle_filter{start_angle, end_angle}, m_distance_filter{min_radius, max_radius},
   m_static_transformer{tf.transform}, m_init_timeout{init_timeout}, m_timeout{timeout},
   m_sub_ptr{create_subscription<PointCloud2>(
@@ -82,7 +81,7 @@ PointCloud2FilterTransformNode::PointCloud2FilterTransformNode(
   m_pub_ptr{create_publisher<PointCloud2>(filtered_topic.c_str(), rclcpp::QoS{10})},
   m_expected_num_publishers{expected_num_publishers},
   m_expected_num_subscribers{expected_num_subscribers},
-  m_input_frame_id{tf.header.frame_id}, m_output_frame_id(tf.child_frame_id),
+  m_input_frame_id{tf.header.frame_id}, m_output_frame_id{tf.child_frame_id},
   m_pcl_size{pcl_size}
 {
   common::lidar_utils::init_pcl_msg(m_filtered_transformed_msg,
@@ -90,11 +89,8 @@ PointCloud2FilterTransformNode::PointCloud2FilterTransformNode(
 }
 
 PointCloud2FilterTransformNode::PointCloud2FilterTransformNode(
-  const std::string & node_name,
-  const std::string & node_namespace)
+  const rclcpp::NodeOptions & node_options)
 : PointCloud2FilterTransformNode(
-    node_name.c_str(),
-    node_namespace.c_str(),
     std::chrono::milliseconds{declare_parameter("init_timeout_ms").get<int32_t>()},
     std::chrono::milliseconds{declare_parameter("timeout_ms").get<int32_t>()},
     "points_in",
@@ -116,7 +112,8 @@ PointCloud2FilterTransformNode::PointCloud2FilterTransformNode(
     static_cast<size_t>(declare_parameter("pcl_size").get<int32_t>()
     ),
     static_cast<size_t>(declare_parameter("expected_num_publishers").get<int32_t>()),
-    static_cast<size_t>(declare_parameter("expected_num_subscribers").get<int32_t>())
+    static_cast<size_t>(declare_parameter("expected_num_subscribers").get<int32_t>()),
+    node_options
 ) {}
 
 const PointCloud2 & PointCloud2FilterTransformNode::filter_and_transform(const PointCloud2 & msg)
