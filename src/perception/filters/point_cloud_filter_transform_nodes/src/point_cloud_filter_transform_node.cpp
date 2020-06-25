@@ -113,7 +113,7 @@ PointCloud2FilterTransformNode::PointCloud2FilterTransformNode(
       declare_parameter("static_transformer.translation.x").get<float64_t>(),
       declare_parameter("static_transformer.translation.y").get<float64_t>(),
       declare_parameter("static_transformer.translation.z").get<float64_t>()),
-      static_cast<size_t>(declare_parameter("pcl_size").get<int32_t>()
+    static_cast<size_t>(declare_parameter("pcl_size").get<int32_t>()
     ),
     static_cast<size_t>(declare_parameter("expected_num_publishers").get<int32_t>()),
     static_cast<size_t>(declare_parameter("expected_num_subscribers").get<int32_t>())
