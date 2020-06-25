@@ -14,7 +14,7 @@
 //
 // Co-developed by Tier IV, Inc. and Apex.AI, Inc.
 #include <common/types.hpp>
-#include <helper_functions/comparisons.hpp>
+#include <helper_functions/float_comparisons.hpp>
 
 #include <time_utils/time_utils.hpp>
 
@@ -24,7 +24,7 @@
 #include "vehicle_interface/safety_state_machine.hpp"
 
 using autoware::common::types::bool8_t;
-namespace hf = autoware::common::helper_functions;
+namespace comp = autoware::common::helper_functions::comparisons;
 
 namespace autoware
 {
@@ -303,7 +303,7 @@ uint8_t SafetyStateMachine::automatic_gear_shift(
   const auto accel_switches_sign = Real{} > (velocity * v_next);
   // Nonzero velocity and acceleration doesn't switch sign -> stay as is
   constexpr auto EPS = std::numeric_limits<Real>::epsilon();
-  if (!hf::approx_zero(velocity, EPS) && (!accel_switches_sign)) {
+  if (!comp::abs_eq_zero(velocity, EPS) && (!accel_switches_sign)) {
     return state.gear;
   }
   // Zero velocity -> any acceleration should be a gear shift

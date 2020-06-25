@@ -17,7 +17,7 @@
 #include <gtest/gtest.h>
 
 #include <signal_filters/filter_factory.hpp>
-#include <helper_functions/comparisons.hpp>
+#include <helper_functions/float_comparisons.hpp>
 
 #include <chrono>
 #include <cmath>
@@ -27,7 +27,7 @@
 #include <string>
 #include <vector>
 
-namespace hf = autoware::common::helper_functions;
+namespace comp = autoware::common::helper_functions::comparisons;
 
 using autoware::common::types::bool8_t;
 using autoware::common::types::float32_t;
@@ -301,7 +301,7 @@ TYPED_TEST(sanity_check, basic)
   auto has_nonzero_response = false;
   for (const auto & resp : filtered_response) {
     constexpr auto EPS = std::numeric_limits<decltype(resp.second)>::epsilon();
-    if (!hf::approx_zero(resp.second, EPS)) {
+    if (!comp::abs_eq_zero(resp.second, EPS)) {
       has_nonzero_response = true;
     }
   }

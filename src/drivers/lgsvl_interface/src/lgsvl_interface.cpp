@@ -14,7 +14,7 @@
 //
 // Co-developed by Tier IV, Inc. and Apex.AI, Inc.
 #include <common/types.hpp>
-#include <helper_functions/comparisons.hpp>
+#include <helper_functions/float_comparisons.hpp>
 #include <tf2/LinearMath/Quaternion.h>
 
 #include <algorithm>
@@ -29,7 +29,7 @@
 
 using autoware::common::types::bool8_t;
 using autoware::common::types::float64_t;
-namespace hf = autoware::common::helper_functions;
+namespace comp = autoware::common::helper_functions::comparisons;
 
 namespace lgsvl_interface
 {
@@ -59,7 +59,7 @@ LgsvlInterface::LgsvlInterface(
 {
   const auto check = [](const auto value, const auto ref) -> bool8_t {
       constexpr auto EPS = std::numeric_limits<decltype(value)>::epsilon();
-      return hf::approx_eq(value, ref, EPS);
+      return comp::abs_gt(value, ref, EPS);
     };
   // check throttle table
   if (check(m_throttle_table.domain().front(), 0.0)) {
@@ -270,12 +270,12 @@ void LgsvlInterface::on_odometry(const nav_msgs::msg::Odometry & msg)
     pose.pose.pose.orientation = q;
 
     constexpr auto EPS = std::numeric_limits<float64_t>::epsilon();
-    if (!hf::approx_zero(msg.pose.covariance[COV_X], EPS) ||
-      !hf::approx_zero(msg.pose.covariance[COV_Y], EPS) ||
-      !hf::approx_zero(msg.pose.covariance[COV_Z], EPS) ||
-      !hf::approx_zero(msg.pose.covariance[COV_RX], EPS) ||
-      !hf::approx_zero(msg.pose.covariance[COV_RY], EPS) ||
-      !hf::approx_zero(msg.pose.covariance[COV_RZ], EPS))
+    if (!comp::abs_eq_zero(msg.pose.covariance[COV_X], EPS) ||
+      !comp::abs_eq_zero(msg.pose.covariance[COV_Y], EPS) ||
+      !comp::abs_eq_zero(msg.pose.covariance[COV_Z], EPS) ||
+      !comp::abs_eq_zero(msg.pose.covariance[COV_RX], EPS) ||
+      !comp::abs_eq_zero(msg.pose.covariance[COV_RY], EPS) ||
+      !comp::abs_eq_zero(msg.pose.covariance[COV_RZ], EPS))
     {
       pose.pose.covariance = {
         COV_X_VAR, 0.0, 0.0, 0.0, 0.0, 0.0,

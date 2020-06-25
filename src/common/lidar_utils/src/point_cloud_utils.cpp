@@ -17,7 +17,7 @@
 //lint -e537 pclint vs cpplint NOLINT
 #include <sensor_msgs/point_cloud2_iterator.hpp>
 #include <common/types.hpp>
-#include <helper_functions/comparisons.hpp>
+#include <helper_functions/float_comparisons.hpp>
 
 #include <algorithm>
 #include <limits>
@@ -33,6 +33,7 @@ namespace autoware
 {
 namespace common
 {
+namespace comp = helper_functions::comparisons;
 namespace lidar_utils
 {
 
@@ -274,7 +275,7 @@ DistanceFilter::DistanceFilter(float32_t min_radius, float32_t max_radius)
 StaticTransformer::StaticTransformer(const geometry_msgs::msg::Transform & tf)
 {
   Eigen::Quaternionf rotation(tf.rotation.w, tf.rotation.x, tf.rotation.y, tf.rotation.z);
-  if (helper_functions::approx_ne(rotation.norm(), 1.0f, EPSf)) {
+  if (!comp::abs_eq(rotation.norm(), 1.0f, EPSf)) {
     throw std::domain_error("StaticTransformer: quaternion is not normalized");
   }
   m_tf.setIdentity();
