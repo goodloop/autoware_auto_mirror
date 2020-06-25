@@ -37,13 +37,12 @@ set(TRAJECTORY_SPOOFER_LIB_HEADERS
 )
 
 # generate library
-ament_auto_add_library(${PROJECT_NAME} SHARED
+ament_auto_add_library(${${PROJECT_NAME}_LIBRARIES} SHARED
   ${TRAJECTORY_SPOOFER_LIB_SRC}
   ${TRAJECTORY_SPOOFER_LIB_HEADERS}
 )
-# If enabled, linking of ${TRAJECTORY_SPOOFER_EXE}, ${TEST_TRAJECTORY_SPOOFER_EXE} will fail.
-# autoware_set_compile_options(${PROJECT_NAME})
-target_compile_options(${PROJECT_NAME} PRIVATE
+autoware_set_compile_options(${${PROJECT_NAME}_LIBRARIES})
+target_compile_options(${${PROJECT_NAME}_LIBRARIES} PRIVATE
   -Wno-unused-parameter # for speed_ramp_on
 )
 
@@ -63,7 +62,6 @@ ament_auto_add_executable(${TRAJECTORY_SPOOFER_EXE}
   ${TRAJECTORY_SPOOFER_EXE_HEADERS}
 )
 autoware_set_compile_options(${TRAJECTORY_SPOOFER_EXE})
-target_link_libraries(${TRAJECTORY_SPOOFER_EXE} ${PROJECT_NAME})
 
 # Testing
 if(BUILD_TESTING)
@@ -80,7 +78,9 @@ if(BUILD_TESTING)
     "autoware_auto_msgs"
     "time_utils"
   )
-  target_link_libraries(${TEST_TRAJECTORY_SPOOFER_EXE} ${PROJECT_NAME})
+  target_link_libraries(${TEST_TRAJECTORY_SPOOFER_EXE} ${${PROJECT_NAME}_LIBRARIES})
+  target_include_directories(${TEST_TRAJECTORY_SPOOFER_EXE} PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
   #find_package(autoware_integration_tests)
   #autoware_integration_tests(
