@@ -38,10 +38,13 @@ using autoware::common::types::bool8_t;
 using autoware::common::types::float32_t;
 using autoware::common::types::float64_t;
 using geometry_msgs::msg::Transform;
+using geometry_msgs::msg::TransformStamped;
 using sensor_msgs::msg::PointCloud2;
 using std::placeholders::_1;
 
-Transform get_transform(
+TransformStamped get_transform(
+  const std::string & input_frame_id,
+  const std::string & output_frame_id,
   float64_t r_x, float64_t r_y, float64_t r_z, float64_t r_w, float64_t t_x,
   float64_t t_y, float64_t t_z);
 
@@ -75,15 +78,13 @@ public:
     const std::string & node_namespace,
     const std::chrono::nanoseconds & init_timeout,
     const std::chrono::nanoseconds & timeout,
-    const std::string & input_frame_id,
-    const std::string & output_frame_id,
     const std::string & raw_topic,
     const std::string & filtered_topic,
     const float32_t start_angle,
     const float32_t end_angle,
     const float32_t min_radius,
     const float32_t max_radius,
-    const geometry_msgs::msg::Transform & tf,
+    const geometry_msgs::msg::TransformStamped & tf,
     const size_t pcl_size,
     const size_t expected_num_publishers = 1U,
     const size_t expected_num_subscribers = 0U);
