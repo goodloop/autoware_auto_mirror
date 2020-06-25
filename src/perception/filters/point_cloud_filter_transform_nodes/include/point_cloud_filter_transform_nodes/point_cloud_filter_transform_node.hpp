@@ -103,8 +103,6 @@ protected:
   /// \throws std::runtime_error on unexpected input contents or not enough output capacity
   const PointCloud2 & filter_and_transform(const PointCloud2 & msg);
 
-  Transform get_transform_from_parameters(const std::string & prefix);
-
   /// \brief Run main subscribe -> filter & transform -> publish loop
   void process_filtered_transformed_message(
     const PointCloud2::SharedPtr msg);

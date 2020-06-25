@@ -119,19 +119,6 @@ PointCloud2FilterTransformNode::PointCloud2FilterTransformNode(
     static_cast<size_t>(declare_parameter("expected_num_subscribers").get<int32_t>())
 ) {}
 
-Transform PointCloud2FilterTransformNode::get_transform_from_parameters(const std::string & prefix)
-{
-  Transform ret;
-  ret.rotation.x = declare_parameter(prefix + ".quaternion.x").get<float64_t>();
-  ret.rotation.y = declare_parameter(prefix + ".quaternion.y").get<float64_t>();
-  ret.rotation.z = declare_parameter(prefix + ".quaternion.z").get<float64_t>();
-  ret.rotation.w = declare_parameter(prefix + ".quaternion.w").get<float64_t>();
-  ret.translation.x = declare_parameter(prefix + ".translation.x").get<float64_t>();
-  ret.translation.y = declare_parameter(prefix + ".translation.y").get<float64_t>();
-  ret.translation.z = declare_parameter(prefix + ".translation.z").get<float64_t>();
-  return ret;
-}
-
 const PointCloud2 & PointCloud2FilterTransformNode::filter_and_transform(const PointCloud2 & msg)
 {
   // Verify frame_id
