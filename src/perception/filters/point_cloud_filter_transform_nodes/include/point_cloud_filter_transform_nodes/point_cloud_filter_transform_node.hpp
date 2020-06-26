@@ -55,8 +55,6 @@ class POINT_CLOUD_FILTER_TRANSFORM_NODES_PUBLIC PointCloud2FilterTransformNode
 {
 public:
   /// \brief Explicit constructor
-  /// \param node_name Name of this node
-  /// \param node_namespace Name of this node's namespace
   /// \param init_timeout Timeout for initialization
   /// \param timeout Timeout for waitset to receive raw point cloud message
   /// \param input_frame_id Expected frame_id of the input point cloud message
@@ -73,6 +71,7 @@ public:
   /// \param pcl_size Number of points to preallocate for filtered point cloud message
   /// \param expected_num_publishers Expected number of publishers for the raw point cloud topic
   /// \param expected_num_subscribers Expected number of subscribers for the filtered point topic
+  /// \param node_options Additional options to control creation of the node.
   PointCloud2FilterTransformNode(
     const std::chrono::nanoseconds & init_timeout,
     const std::chrono::nanoseconds & timeout,
@@ -89,8 +88,7 @@ public:
     const rclcpp::NodeOptions & node_options = rclcpp::NodeOptions{});
 
   /// \brief Parameter constructor
-  /// \param node_name Name of this node
-  /// \param node_namespace Name of this node's namespace
+  /// \param node_options Additional options to control creation of the node.
   PointCloud2FilterTransformNode(
     const rclcpp::NodeOptions & node_options = rclcpp::NodeOptions{});
 
