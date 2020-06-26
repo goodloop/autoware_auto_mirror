@@ -57,8 +57,6 @@ public:
   /// \brief Explicit constructor
   /// \param init_timeout Timeout for initialization
   /// \param timeout Timeout for waitset to receive raw point cloud message
-  /// \param input_frame_id Expected frame_id of the input point cloud message
-  /// \param output_frame_id frame_id of the point cloud message after it is filtered & transformed
   /// \param raw_topic Name of the input topic containing raw point cloud
   /// \param filtered_topic Name of the output topic containing filtered point cloud
   /// \param start_angle Minimum angle in radians
