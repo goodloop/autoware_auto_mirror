@@ -39,10 +39,8 @@ namespace voxel_grid_nodes
 {
 ////////////////////////////////////////////////////////////////////////////////
 VoxelCloudNode::VoxelCloudNode(
-  const std::string & node_name,
-  const std::string & node_namespace)
-: LifecycleNode(
-    node_name.c_str(), node_namespace.c_str()),
+  const rclcpp::NodeOptions & node_options)
+: LifecycleNode("voxel_grid_cloud_node", node_options),
   m_sub_ptr(create_subscription<Message>("points_in",
     parse_qos(declare_parameter("subscription.qos.durability"),
     declare_parameter("subscription.qos.history_depth")),
@@ -73,14 +71,14 @@ VoxelCloudNode::VoxelCloudNode(
 }
 ////////////////////////////////////////////////////////////////////////////////
 VoxelCloudNode::VoxelCloudNode(
-  const std::string & node_name,
   const std::string & sub_topic,
   const std::string & pub_topic,
   const voxel_grid::Config & cfg,
   const bool8_t is_approximate,
   const rclcpp::QoS sub_qos,
-  const rclcpp::QoS pub_qos)
-: LifecycleNode(node_name.c_str()),
+  const rclcpp::QoS pub_qos,
+  const rclcpp::NodeOptions & node_options)
+: LifecycleNode("voxel_grid_cloud_node", node_options),
   m_sub_ptr(create_subscription<Message>(sub_topic.c_str(),
     sub_qos, std::bind(&VoxelCloudNode::callback, this, std::placeholders::_1))),
   m_pub_ptr(create_publisher<Message>(pub_topic.c_str(), pub_qos)),
