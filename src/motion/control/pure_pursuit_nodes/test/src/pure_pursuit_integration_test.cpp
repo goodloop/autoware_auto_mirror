@@ -1,5 +1,4 @@
 // Copyright 2019 Apex.AI, Inc.
-// Co-developed by Tier IV, Inc. and Apex.AI, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// Co-developed by Tier IV, Inc. and Apex.AI, Inc.
 
 #include <common/types.hpp>
 #include <rclcpp/rclcpp.hpp>
@@ -45,7 +46,7 @@ using TrajectoryPointStamped = autoware_auto_msgs::msg::VehicleKinematicState;
 using autoware::motion::control::pure_pursuit::ControllerDiagnostic;
 using autoware_auto_msgs::msg::VehicleControlCommand;
 
-constexpr auto PI = 3.13159F;
+constexpr auto PI = 3.14159F;
 
 void create_traj(
   Trajectory & traj,
@@ -183,6 +184,9 @@ private:
   void task_function()
   {
     RCLCPP_INFO(get_logger(), "PubTask task starts.");
+
+    // for debug
+    RCLCPP_INFO(get_logger(), "-- iteration " + std::to_string(m_iteration) + " ---");
     const uint32_t total_msgs = m_num_msgs * 3U;
     if (m_iteration > total_msgs) {
       m_done = true;
@@ -196,6 +200,8 @@ private:
         m_tf_msg.transform.translation.x += 1.0;
         m_tf_msg.transform.translation.y += 1.0;
         m_tf_msg.transform.rotation.z += 0.007;  // From 0 to PI/2
+        RCLCPP_INFO(get_logger(), "m_tf rotation z: " +
+          std::to_string(m_tf_msg.transform.rotation.z));
         const float32_t z_float = static_cast<float32_t>(m_tf_msg.transform.rotation.z);
         m_tf_msg.transform.rotation.w = sqrtf(1.0F - z_float * z_float);
         m_tf_msg.header.stamp = time_utils::to_message(right_now);
@@ -208,23 +214,59 @@ private:
           m_traj_msg, 100U, PI / 4.0F, static_cast<float32_t>(m_tf_msg.transform.translation.x));
         m_traj_msg.header.frame_id = m_trajectory_frame_id.c_str();
         m_trajectory_pub_ptr->publish(m_traj_msg);
+
+        // for debug
+        RCLCPP_INFO(get_logger(), "--- create_traj() ---");
+        RCLCPP_INFO(get_logger(), "traj.points[0].x: " + std::to_string(m_traj_msg.points[0].x));
+        RCLCPP_INFO(get_logger(), "traj.points[0].y: " + std::to_string(m_traj_msg.points[0].y));
+        RCLCPP_INFO(get_logger(), "traj.points[0].longitudinal_velocity_mps: " +
+          std::to_string(m_traj_msg.points[0].longitudinal_velocity_mps));
+        RCLCPP_INFO(get_logger(), "traj.points[0].heading: " +
+          std::to_string(m_traj_msg.points[0].heading.real));
+        RCLCPP_INFO(get_logger(), "traj.points[99].x: " + std::to_string(m_traj_msg.points[99].x));
+        RCLCPP_INFO(get_logger(), "traj.points[99].y: " + std::to_string(m_traj_msg.points[99].y));
+        RCLCPP_INFO(get_logger(), "traj.points[99].longitudinal_velocity_mps: " +
+          std::to_string(m_traj_msg.points[99].longitudinal_velocity_mps));
+        RCLCPP_INFO(get_logger(), "traj.points[99].heading: " +
+          std::to_string(m_traj_msg.points[99].heading.real));
       } else {
         // pose update
         const float32_t offset = static_cast<float32_t>(m_iteration % 3U - 1);
+        // const float32_t offset = static_cast<float32_t>((m_iteration-1) / 3U + 1);
         create_current_pose(
           m_pose_msg, offset * 2.0F, offset * 2.0F, 0.0F, offset * 10,
           0.0F, 0.0F, m_pose_frame_id.c_str());
+        // create_current_pose(
+        // m_pose_msg, offset, offset, 0.0F, offset + 6.0F,
+        // 0.0F, PI / 4.0F, m_pose_frame_id.c_str());
         m_pose_msg.header.stamp = time_utils::to_message(right_now);
         m_pose_pub_ptr->publish(m_pose_msg);
+
+        // for debug
+        RCLCPP_INFO(get_logger(), "--- pose_update() ---");
+        RCLCPP_INFO(get_logger(), "current_stamp.state.x: " + std::to_string(m_pose_msg.state.x));
+        RCLCPP_INFO(get_logger(), "current_stamp.state.y: " + std::to_string(m_pose_msg.state.y));
+        RCLCPP_INFO(get_logger(), "current_stamp.state.heading: " +
+          std::to_string(m_pose_msg.state.heading.real));
+        RCLCPP_INFO(get_logger(), "current_stamp.state.acceleration_mps2: " +
+          std::to_string(m_pose_msg.state.acceleration_mps2));
+        RCLCPP_INFO(get_logger(), "current_stamp.state.heading_rate_rps: " +
+          std::to_string(m_pose_msg.state.heading_rate_rps));
       }
       m_iteration++;
+
+      // for debug
+      RCLCPP_INFO(get_logger(), "task_function is finished(else)");
     }
   }
 
   void update(VehicleControlCommand::SharedPtr msg)
   {
     const uint32_t iteration = get_iteration();
-    if ((iteration % 3) == 2U) {
+    // for debug
+    RCLCPP_INFO(get_logger(), "---- update() ----");
+    RCLCPP_INFO(get_logger(), "m_num_received_msgs: " + std::to_string(m_num_received_msgs));
+    if ((iteration % 3) == 1U) {
       // Check: estimated accel and steering angle are the desired values
       // Poses that are on the trajectory and those velocity equals to 0 are checked
       // The first pose topic is always on the origin of the trajectory by the TF transform,
@@ -246,6 +288,25 @@ private:
       const float32_t relative_y = (-sinf(heading_rad) * 5.0F) + (cosf(heading_rad) * 5.0F);
       const float32_t carvature = (2.0F * relative_y) / denominator;
       const float32_t angle = atanf(carvature * 2.7F);
+
+      // for debug
+      RCLCPP_INFO(get_logger(), "target_velocity: " + std::to_string(target_velocity));
+      RCLCPP_INFO(get_logger(), "distance: " + std::to_string(distance));
+      RCLCPP_INFO(get_logger(), "accel: " + std::to_string(accel));
+      RCLCPP_INFO(get_logger(), "denominator: " + std::to_string(denominator));
+      RCLCPP_INFO(get_logger(), "tf_x: " + std::to_string(tf_x));
+      RCLCPP_INFO(get_logger(), "tf_z: " + std::to_string(tf_z));
+      RCLCPP_INFO(get_logger(), "tf_w: " + std::to_string(tf_w));
+      RCLCPP_INFO(get_logger(), "siny: " + std::to_string(siny));
+      RCLCPP_INFO(get_logger(), "cosy: " + std::to_string(cosy));
+      RCLCPP_INFO(get_logger(), "heading_rad: " + std::to_string(heading_rad));
+      RCLCPP_INFO(get_logger(), "relative_y: " + std::to_string(relative_y));
+      RCLCPP_INFO(get_logger(), "carvature: " + std::to_string(carvature));
+      RCLCPP_INFO(get_logger(), "angle: " + std::to_string(angle));
+      RCLCPP_INFO(get_logger(), "msg->long_accel_mps2: " + std::to_string(msg->long_accel_mps2));
+      RCLCPP_INFO(get_logger(), "msg->front_wheel_angle_rad: " +
+        std::to_string(msg->front_wheel_angle_rad));
+
       if (
         (fabsf(accel - msg->long_accel_mps2) < TOL) &&
         (fabsf(angle - msg->front_wheel_angle_rad) < TOL))
@@ -305,7 +366,7 @@ int32_t main(const int32_t argc, char8_t ** const argv)
 
   rclcpp::executors::SingleThreadedExecutor exec;
 
- while (!tester_ptr->done()) {
+  while (!tester_ptr->done()) {
     exec.spin_node_some(tester_ptr);
   }
 
