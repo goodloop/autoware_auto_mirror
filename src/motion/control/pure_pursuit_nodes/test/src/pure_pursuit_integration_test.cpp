@@ -197,8 +197,6 @@ private:
         m_tf_msg.transform.translation.x += 1.0;
         m_tf_msg.transform.translation.y += 1.0;
         m_tf_msg.transform.rotation.z += 0.007;  // From 0 to PI/2
-        RCLCPP_INFO(get_logger(), "m_tf rotation z: " +
-          std::to_string(m_tf_msg.transform.rotation.z));
         const float32_t z_float = static_cast<float32_t>(m_tf_msg.transform.rotation.z);
         m_tf_msg.transform.rotation.w = sqrtf(1.0F - z_float * z_float);
         m_tf_msg.header.stamp = time_utils::to_message(right_now);
@@ -249,7 +247,6 @@ private:
       const float32_t relative_y = (-sinf(heading_rad) * 5.0F) + (cosf(heading_rad) * 5.0F);
       const float32_t carvature = (2.0F * relative_y) / denominator;
       const float32_t angle = atanf(carvature * 2.7F);
-
       if (
         (fabsf(accel - msg->long_accel_mps2) < TOL) &&
         (fabsf(angle - msg->front_wheel_angle_rad) < TOL))
