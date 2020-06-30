@@ -16,6 +16,7 @@
 
 #include <common/types.hpp>
 #include <point_cloud_filter_transform_nodes/point_cloud_filter_transform_node.hpp>
+#include <rclcpp_components/register_node_macro.hpp>
 #include <memory>
 #include <string>
 
@@ -224,3 +225,6 @@ PointCloud2FilterTransformNode::intensity_iterator_wrapper::intensity_iterator_w
 }  // namespace filters
 }  // namespace perception
 }  // namespace autoware
+
+RCLCPP_COMPONENTS_REGISTER_NODE(
+  autoware::perception::filters::point_cloud_filter_transform_nodes::PointCloud2FilterTransformNode)
