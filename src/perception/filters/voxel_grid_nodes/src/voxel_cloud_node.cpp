@@ -21,6 +21,8 @@
 #include <voxel_grid_nodes/algorithm/voxel_cloud_approximate.hpp>
 #include <voxel_grid_nodes/algorithm/voxel_cloud_centroid.hpp>
 #include <common/types.hpp>
+#include <rclcpp_components/register_node_macro.hpp>
+
 #include <memory>
 #include <string>
 #include <algorithm>
@@ -68,23 +70,6 @@ VoxelCloudNode::VoxelCloudNode(
   const voxel_grid::Config cfg{min_point, max_point, voxel_size, capacity};
   // Init
   init(cfg, declare_parameter("is_approximate").get<bool8_t>());
-}
-////////////////////////////////////////////////////////////////////////////////
-VoxelCloudNode::VoxelCloudNode(
-  const std::string & sub_topic,
-  const std::string & pub_topic,
-  const voxel_grid::Config & cfg,
-  const bool8_t is_approximate,
-  const rclcpp::QoS sub_qos,
-  const rclcpp::QoS pub_qos,
-  const rclcpp::NodeOptions & node_options)
-: LifecycleNode("voxel_grid_cloud_node", node_options),
-  m_sub_ptr(create_subscription<Message>(sub_topic.c_str(),
-    sub_qos, std::bind(&VoxelCloudNode::callback, this, std::placeholders::_1))),
-  m_pub_ptr(create_publisher<Message>(pub_topic.c_str(), pub_qos)),
-  m_has_failed(false)
-{
-  init(cfg, is_approximate);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -176,3 +161,6 @@ rclcpp::QoS parse_qos(
 }  // namespace filters
 }  // namespace perception
 }  // namespace autoware
+
+RCLCPP_COMPONENTS_REGISTER_NODE(
+  autoware::perception::filters::voxel_grid_nodes::VoxelCloudNode)

@@ -53,23 +53,6 @@ public:
   VoxelCloudNode(
     const rclcpp::NodeOptions & node_options = rclcpp::NodeOptions{});
 
-  /// \brief Explicit constructor
-  /// \param[in] sub_topic Name of input topic
-  /// \param[in] pub_topic Name of downsampled output topic
-  /// \param[in] cfg Configuration object for VoxelGrid
-  /// \param[in] is_approximate Whether the internal voxel grid is approximate or not (centroid)
-  /// \param sub_qos QoS profile for the subscription. By default, set to depth of 10.
-  /// \param pub_qos QoS profile for the publisher. By default, set to depth of 10.
-  /// \param node_options Additional options to control creation of the node.
-  VoxelCloudNode(
-    const std::string & sub_topic,
-    const std::string & pub_topic,
-    const voxel_grid::Config & cfg,
-    const bool8_t is_approximate,
-    const rclcpp::QoS sub_qos = rclcpp::QoS(10),
-    const rclcpp::QoS pub_qos = rclcpp::QoS(10),
-    const rclcpp::NodeOptions & node_options = rclcpp::NodeOptions{});
-
   /// \brief Core run loop
   void callback(const sensor_msgs::msg::PointCloud2::SharedPtr msg);
 
