@@ -51,7 +51,7 @@ public:
   /// \brief Parameter constructor
   /// \param node_options Additional options to control creation of the node.
   VoxelCloudNode(
-    const rclcpp::NodeOptions & node_options = rclcpp::NodeOptions{});
+    const rclcpp::NodeOptions & node_options);
 
   /// \brief Core run loop
   void callback(const sensor_msgs::msg::PointCloud2::SharedPtr msg);
