@@ -15,6 +15,7 @@ endif()
 
 #dependencies
 find_package(ament_cmake_auto REQUIRED)
+find_package(Qt5 REQUIRED COMPONENTS Widgets)
 ament_auto_find_build_dependencies()
 
 set(OD_PLUGIN_LIB_SRC
@@ -43,6 +44,7 @@ target_link_libraries(${PROJECT_NAME}
   rviz_common::rviz_common
   Qt5::Widgets
 )
+target_include_directories(${PROJECT_NAME} PRIVATE include)
 autoware_set_compile_options(${PROJECT_NAME})
 
 # Settings to improve the build as suggested on https://github.com/ros2/rviz/blob/ros2/docs/plugin_development.md
