@@ -8,6 +8,15 @@ ament_auto_find_build_dependencies()
 # Testing
 if(BUILD_TESTING)
   # Work-around for problem with ament_lint_auto finding template/package.xml
+  find_package(ament_cmake_copyright REQUIRED)
+  find_package(ament_cmake_cppcheck REQUIRED)
+  find_package(ament_cmake_cpplint REQUIRED)
+  find_package(ament_cmake_flake8 REQUIRED)
+  find_package(ament_cmake_lint_cmake REQUIRED)
+  find_package(ament_cmake_pep257 REQUIRED)
+  find_package(ament_cmake_uncrustify REQUIRED)
+  find_package(ament_cmake_xmllint REQUIRED)
+
   ament_copyright()
   ament_cppcheck()
   ament_cpplint()
