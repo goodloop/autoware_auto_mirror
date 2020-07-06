@@ -23,6 +23,9 @@
 #include <common/types.hpp>
 #include <memory>
 
+#include <rclcpp/rclcpp.hpp>
+#include <voxel_grid_nodes/voxel_cloud_node.hpp>
+
 using autoware::perception::filters::voxel_grid::PointXYZ;
 using autoware::perception::filters::voxel_grid::Config;
 
@@ -220,10 +223,10 @@ struct TestVoxelCloudNode
 {
   // using PointCloud2 = sensor_msgs::msg::PointCloud2;
 
-  // explicit TestFilterTransformPC2FilterTransformMode(
-  //   const rclcpp::NodeOptions & node_options)
-  // : PointCloud2FilterTransformNode(node_options)
-  // {}
+  explicit TestVoxelCloudNode(
+    const rclcpp::NodeOptions & node_options)
+  : autoware::perception::filters::voxel_grid_nodes::VoxelCloudNode(node_options)
+  {}
 
   // const PointCloud2 & test_filter_and_transform(const PointCloud2 & msg)
   // {
