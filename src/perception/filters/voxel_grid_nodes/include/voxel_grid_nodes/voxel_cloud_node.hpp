@@ -41,8 +41,8 @@ namespace filters
 namespace voxel_grid_nodes
 {
 rclcpp::QoS parse_qos(
-  const rclcpp::ParameterValue & durability_param,
-  const rclcpp::ParameterValue & depth_param, const rclcpp::QoS & default_qos = rclcpp::QoS(10));
+  const std::string & durability,
+  const int32_t depth);
 
 /// \brief Boilerplate node that subscribes to point clouds and publishes a downsampled version
 class VOXEL_GRID_NODES_PUBLIC VoxelCloudNode : public rclcpp_lifecycle::LifecycleNode

@@ -43,14 +43,20 @@ namespace voxel_grid_nodes
 VoxelCloudNode::VoxelCloudNode(
   const rclcpp::NodeOptions & node_options)
 : LifecycleNode("voxel_grid_cloud_node", node_options),
-  m_sub_ptr(create_subscription<Message>("points_in",
-    parse_qos(declare_parameter("subscription.qos.durability"),
-    declare_parameter("subscription.qos.history_depth")),
-    std::bind(&VoxelCloudNode::callback, this, std::placeholders::_1))),
-  m_pub_ptr(create_publisher<Message>("points_downsampled",
-    parse_qos(declare_parameter("publisher.qos.durability"),
-    declare_parameter("publisher.qos.history_depth")))),
-  m_has_failed(false)
+  m_sub_ptr{create_subscription<Message>("points_in",
+    parse_qos(
+      declare_parameter("subscription.qos.durability", "transient_local"),
+      declare_parameter("subscription.qos.history_depth", 10)
+    ),
+    std::bind(&VoxelCloudNode::callback, this, std::placeholders::_1)
+  )},
+  m_pub_ptr{create_publisher<Message>("points_downsampled",
+    parse_qos(
+      declare_parameter("publisher.qos.durability", "transient_local"),
+      declare_parameter("publisher.qos.history_depth", 10)
+    )
+  )},
+  m_has_failed{false}
 {
   // Build config manually (messages only have default constructors)
   voxel_grid::PointXYZ min_point;
@@ -129,23 +135,9 @@ void VoxelCloudNode::init(const voxel_grid::Config & cfg, const bool8_t is_appro
 
 /////////////////////////////////////////////////////////////////////////////
 rclcpp::QoS parse_qos(
-  const rclcpp::ParameterValue & durability_param,
-  const rclcpp::ParameterValue & depth_param, const rclcpp::QoS & default_qos)
+  const std::string & durability,
+  int32_t depth)
 {
-  if ((durability_param.get_type() == rclcpp::PARAMETER_NOT_SET) ||
-    (depth_param.get_type() == rclcpp::PARAMETER_NOT_SET))
-  {
-    RCLCPP_DEBUG(rclcpp::get_logger("qos_parse_logger"),
-      "Cannot parse the qos as there are missing fields in the parameter file. "
-      "A preset qos profile is used instead.");
-    return default_qos;
-  }
-  int32_t depth = depth_param.get<int32_t>();
-  std::string durability = durability_param.get<std::string>();
-
-  std::transform(durability.begin(), durability.end(), durability.begin(),
-    [](uchar8_t c) {return std::tolower(c);}
-  );
   auto qos = rclcpp::QoS(depth);
   if (durability == "transient_local") {
     qos.transient_local();

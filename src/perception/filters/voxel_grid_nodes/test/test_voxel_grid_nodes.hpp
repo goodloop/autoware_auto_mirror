@@ -240,7 +240,26 @@ TEST(voxel_grid_nodes, basic)
 
   // const std::string input_frame_id = "lidar_front";
 
-  // std::vector<rclcpp::Parameter> params;
+  std::vector<rclcpp::Parameter> params;
+
+  params.emplace_back("subscription.qos.durability", "transient_local");
+  params.emplace_back("subscription.qos.history_depth", 2);
+  params.emplace_back("publisher.qos.durability", "transient_local");
+  params.emplace_back("publisher.qos.history_depth", 4);
+
+  params.emplace_back("is_approximate", false);
+  params.emplace_back("config.capacity", 55000);
+  params.emplace_back("config.min_point.x", -130.0);
+  params.emplace_back("config.min_point.y", -130.0);
+  params.emplace_back("config.min_point.z", -3.0);
+  params.emplace_back("config.max_point.x", 130.0);
+  params.emplace_back("config.max_point.y", 130.0);
+  params.emplace_back("config.max_point.z", 3.0);
+  params.emplace_back("config.voxel_size.x", 1.0);
+  params.emplace_back("config.voxel_size.y", 1.0);
+  params.emplace_back("config.voxel_size.z", 1.0);
+
+
 
   // params.emplace_back("start_angle", 0.);
   // params.emplace_back("end_angle", 4.712);
@@ -262,7 +281,7 @@ TEST(voxel_grid_nodes, basic)
   // params.emplace_back("pcl_size", 5);
 
   rclcpp::NodeOptions options;
-  // options.parameter_overrides(params);
+  options.parameter_overrides(params);
 
   const auto voxel_node_ptr = std::make_shared<TestVoxelCloudNode>(options);
 
