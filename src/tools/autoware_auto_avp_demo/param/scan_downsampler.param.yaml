@@ -1,7 +1,7 @@
 # param/scan_downsampler.param.yaml
 ---
 lidar_front:
-  voxel_grid_node:
+  voxel_grid_cloud_node:
     ros__parameters:
       is_approximate: false
       config:

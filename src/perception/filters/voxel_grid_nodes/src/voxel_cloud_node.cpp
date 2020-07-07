@@ -42,7 +42,7 @@ namespace voxel_grid_nodes
 ////////////////////////////////////////////////////////////////////////////////
 VoxelCloudNode::VoxelCloudNode(
   const rclcpp::NodeOptions & node_options)
-: LifecycleNode("voxel_grid_node", node_options),
+: LifecycleNode("voxel_grid_cloud_node", node_options),
   m_sub_ptr{create_subscription<Message>("points_in",
       parse_qos(
         declare_parameter("subscription.qos.durability", "transient_local"),
