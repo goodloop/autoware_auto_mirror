@@ -221,24 +221,15 @@ TEST_F(CloudAlgorithm, centroid)
 struct TestVoxelCloudNode
   : public autoware::perception::filters::voxel_grid_nodes::VoxelCloudNode
 {
-  // using PointCloud2 = sensor_msgs::msg::PointCloud2;
-
   explicit TestVoxelCloudNode(
     const rclcpp::NodeOptions & node_options)
   : autoware::perception::filters::voxel_grid_nodes::VoxelCloudNode(node_options)
   {}
-
-  // const PointCloud2 & test_filter_and_transform(const PointCloud2 & msg)
-  // {
-  //   return filter_and_transform(msg);
-  // }
 };
 
 TEST(voxel_grid_nodes, basic)
 {
   rclcpp::init(0, nullptr);
-
-  // const std::string input_frame_id = "lidar_front";
 
   std::vector<rclcpp::Parameter> params;
 
@@ -259,39 +250,10 @@ TEST(voxel_grid_nodes, basic)
   params.emplace_back("config.voxel_size.y", 1.0);
   params.emplace_back("config.voxel_size.z", 1.0);
 
-
-
-  // params.emplace_back("start_angle", 0.);
-  // params.emplace_back("end_angle", 4.712);
-  // params.emplace_back("min_radius", 0.);
-  // params.emplace_back("max_radius", 10.);
-  // params.emplace_back("input_frame_id", input_frame_id);
-  // params.emplace_back("output_frame_id", "base_link");
-  // params.emplace_back("static_transformer.quaternion.x", m_tf.rotation.x);
-  // params.emplace_back("static_transformer.quaternion.y", m_tf.rotation.y);
-  // params.emplace_back("static_transformer.quaternion.z", m_tf.rotation.z);
-  // params.emplace_back("static_transformer.quaternion.w", m_tf.rotation.w);
-  // params.emplace_back("static_transformer.translation.x", m_tf.translation.x);
-  // params.emplace_back("static_transformer.translation.y", m_tf.translation.y);
-  // params.emplace_back("static_transformer.translation.z", m_tf.translation.z);
-  // params.emplace_back("init_timeout_ms", std::chrono::milliseconds{m_init_timeout}.count());
-  // params.emplace_back("timeout_ms", 110);
-  // params.emplace_back("expected_num_publishers", 1);
-  // params.emplace_back("expected_num_subscribers", 1);
-  // params.emplace_back("pcl_size", 5);
-
   rclcpp::NodeOptions options;
   options.parameter_overrides(params);
 
   const auto voxel_node_ptr = std::make_shared<TestVoxelCloudNode>(options);
-
-  // auto time0 = std::chrono::system_clock::now();
-  // auto t0 = to_msg_time(time0);
-
-  // auto pc1 = make_pc({1, 2, 3, 4, 5, 6, 7, 8, 9}, t0);
-  // pc1.header.frame_id = input_frame_id;
-
-  // pc2_filter_ptr->test_filter_and_transform(pc1);
 }
 
 #endif  // TEST_VOXEL_GRID_NODES_HPP_
