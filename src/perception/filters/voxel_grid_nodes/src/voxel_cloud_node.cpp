@@ -45,14 +45,14 @@ VoxelCloudNode::VoxelCloudNode(
 : LifecycleNode("voxel_grid_cloud_node", node_options),
   m_sub_ptr{create_subscription<Message>("points_in",
       parse_qos(
-        declare_parameter("subscription.qos.durability", "transient_local"),
+        declare_parameter("subscription.qos.durability", "volatile"),
         declare_parameter("subscription.qos.history_depth", 10)
       ),
       std::bind(&VoxelCloudNode::callback, this, std::placeholders::_1)
     )},
   m_pub_ptr{create_publisher<Message>("points_downsampled",
       parse_qos(
-        declare_parameter("publisher.qos.durability", "transient_local"),
+        declare_parameter("publisher.qos.durability", "volatile"),
         declare_parameter("publisher.qos.history_depth", 10)
       )
     )},
