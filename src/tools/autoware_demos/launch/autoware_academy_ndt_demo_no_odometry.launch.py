@@ -93,7 +93,7 @@ def generate_launch_description():
         package='voxel_grid_nodes',
         node_executable='voxel_grid_node_exe',
         node_namespace='lidar_front',
-        node_name='voxel_grid_cloud_node',
+        node_name='voxel_grid_node',
         parameters=[LaunchConfiguration('scan_downsampler_param_file')],
         remappings=[
             ("points_in", "points_filtered"),

@@ -25,7 +25,7 @@ def generate_test_description(ready_fn):
     node = launch_ros.actions.LifecycleNode(
         package="voxel_grid_nodes",
         node_executable="voxel_grid_node_exe",
-        node_name="voxel_grid_cloud_node",
+        node_name="voxel_grid_node",
         parameters=[
             "{}/param/vlp16_lexus_centroid.param.yaml".format(
                 ament_index_python.get_package_share_directory(
