@@ -50,12 +50,14 @@ set(VLP16_INTEGRATION_SPOOFER vlp16_integration_spoofer_exe)
 ament_auto_add_executable(${VLP16_INTEGRATION_SPOOFER}
   src/vlp16_integration_spoofer_main.cpp)
 autoware_set_compile_options(${VLP16_INTEGRATION_SPOOFER})
+add_dependencies(${VLP16_INTEGRATION_SPOOFER} ${SPOOFER_LIB})
 
 set(POINT_CLOUD_MUTATION_INTEGRATION_SPOOFER point_cloud_mutation_spoofer_exe)
 ament_auto_add_executable(${POINT_CLOUD_MUTATION_INTEGRATION_SPOOFER}
   src/point_cloud_mutation_spoofer_main.cpp
   include/lidar_integration/point_cloud_mutation_spoofer.hpp)
 autoware_set_compile_options(${POINT_CLOUD_MUTATION_INTEGRATION_SPOOFER})
+add_dependencies(${POINT_CLOUD_MUTATION_INTEGRATION_SPOOFER} ${SPOOFER_LIB})
 
 # # LIDAR_INTEGRATION_LISTENER
 set(LIDAR_LISTENER lidar_integration_listener)
@@ -68,10 +70,12 @@ ament_auto_add_executable(${LIDAR_INTEGRATION_LISTENER}
   src/lidar_lc_integration_listener.hpp
   src/lidar_integration_listener_main.cpp)
 autoware_set_compile_options(${LIDAR_INTEGRATION_LISTENER})
+add_dependencies(${LIDAR_INTEGRATION_LISTENER} ${LIDAR_LISTENER})
 
 # "Unit test" library
 ament_auto_add_library(${PROJECT_NAME} SHARED src/lidar_integration.cpp)
 autoware_set_compile_options(${PROJECT_NAME})
+add_dependencies(${PROJECT_NAME} ${SPOOFER_LIB} ${LIDAR_LISTENER})
 
 ## Testing
 if(BUILD_TESTING)
