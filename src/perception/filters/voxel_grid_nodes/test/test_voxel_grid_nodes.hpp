@@ -17,14 +17,15 @@
 #ifndef TEST_VOXEL_GRID_NODES_HPP_
 #define TEST_VOXEL_GRID_NODES_HPP_
 
+#include <common/types.hpp>
+#include <rclcpp/rclcpp.hpp>
+#include <sensor_msgs/point_cloud2_iterator.hpp>
 #include <voxel_grid_nodes/algorithm/voxel_cloud_approximate.hpp>
 #include <voxel_grid_nodes/algorithm/voxel_cloud_centroid.hpp>
-#include <sensor_msgs/point_cloud2_iterator.hpp>
-#include <common/types.hpp>
-#include <memory>
-
-#include <rclcpp/rclcpp.hpp>
 #include <voxel_grid_nodes/voxel_cloud_node.hpp>
+
+#include <memory>
+#include <vector>
 
 using autoware::perception::filters::voxel_grid::PointXYZ;
 using autoware::perception::filters::voxel_grid::Config;
@@ -229,6 +230,7 @@ struct TestVoxelCloudNode
 
 TEST(voxel_grid_nodes, basic)
 {
+  // Basic test to ensure that VoxelCloudNode can be instantiated
   rclcpp::init(0, nullptr);
 
   std::vector<rclcpp::Parameter> params;
@@ -254,6 +256,7 @@ TEST(voxel_grid_nodes, basic)
   options.parameter_overrides(params);
 
   const auto voxel_node_ptr = std::make_shared<TestVoxelCloudNode>(options);
+  (void)voxel_node_ptr;
 }
 
 #endif  // TEST_VOXEL_GRID_NODES_HPP_
