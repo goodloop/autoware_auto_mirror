@@ -40,9 +40,7 @@ using autoware::common::lidar_utils::init_pcl_msg;
 RayGroundClassifierCloudNode::RayGroundClassifierCloudNode(
   const std::string & node_name,
   const std::string & node_namespace)
-: LifecycleNode(
-    node_name.c_str(),
-    node_namespace.c_str()),
+: LifecycleNode("ray_ground_classifier"),
   m_classifier(ray_ground_classifier::Config{
           static_cast<float32_t>(declare_parameter("classifier.sensor_height_m").get<float32_t>()),
           static_cast<float32_t>(declare_parameter(

@@ -54,9 +54,11 @@ class RAY_GROUND_CLASSIFIER_PUBLIC RayGroundClassifierCloudNode
   : public rclcpp_lifecycle::LifecycleNode
 {
 public:
-  /// \param[in] node_name Name of this node
-  /// \param[in] node_namespace Name of this node's namespace
+  /// \brief default constructor, starts node
+  /// \param[in] options an rclcpp::NodeOptions object to configure the node
   /// \throw std::runtime_error if configuration fails
+  explicit RayGroundClassifierCloudNode(const rclcpp::NodeOptions & options);
+
   RayGroundClassifierCloudNode(
     const std::string & node_name,
     const std::string & node_namespace = "");
