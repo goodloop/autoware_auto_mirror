@@ -40,9 +40,8 @@ namespace filters
 /// \brief Objects that tie voxel_grid classes to Apex.OS and interprocess communication
 namespace voxel_grid_nodes
 {
-rclcpp::QoS parse_qos(
-  const std::string & durability,
-  const int32_t depth);
+rmw_qos_durability_policy_t parse_durability_parameter(
+  const std::string & durability);
 
 /// \brief Boilerplate node that subscribes to point clouds and publishes a downsampled version
 class VOXEL_GRID_NODES_PUBLIC VoxelCloudNode : public rclcpp_lifecycle::LifecycleNode

@@ -44,16 +44,23 @@ VoxelCloudNode::VoxelCloudNode(
   const rclcpp::NodeOptions & node_options)
 : LifecycleNode("voxel_grid_cloud_node", node_options),
   m_sub_ptr{create_subscription<Message>("points_in",
-      parse_qos(
-        declare_parameter("subscription.qos.durability", "volatile"),
+      rclcpp::QoS(
         declare_parameter("subscription.qos.history_depth", 10)
-      ),
+      ).durability(
+        parse_durability_parameter(
+          declare_parameter("subscription.qos.durability", "volatile")
+        )
+      )
+      ,
       std::bind(&VoxelCloudNode::callback, this, std::placeholders::_1)
     )},
   m_pub_ptr{create_publisher<Message>("points_downsampled",
-      parse_qos(
-        declare_parameter("publisher.qos.durability", "volatile"),
+      rclcpp::QoS(
         declare_parameter("publisher.qos.history_depth", 10)
+      ).durability(
+        parse_durability_parameter(
+          declare_parameter("publisher.qos.durability", "volatile")
+        )
       )
     )},
   m_has_failed{false}
@@ -134,20 +141,17 @@ void VoxelCloudNode::init(const voxel_grid::Config & cfg, const bool8_t is_appro
 }
 
 /////////////////////////////////////////////////////////////////////////////
-rclcpp::QoS parse_qos(
-  const std::string & durability,
-  int32_t depth)
+rmw_qos_durability_policy_t parse_durability_parameter(
+  const std::string & durability)
 {
-  auto qos = rclcpp::QoS(depth);
   if (durability == "transient_local") {
-    qos.transient_local();
+    return RMW_QOS_POLICY_DURABILITY_TRANSIENT_LOCAL;
   } else if (durability == "volatile") {
-    qos.durability_volatile();
-  } else {
-    throw std::runtime_error("Durability setting '" + durability + "' is not supported."
-            "Please try 'volatile' or 'transient_local'.");
+    return RMW_QOS_POLICY_DURABILITY_VOLATILE;
   }
-  return qos;
+
+  throw std::runtime_error("Durability setting '" + durability + "' is not supported."
+          "Please try 'volatile' or 'transient_local'.");
 }
 }  // namespace voxel_grid_nodes
 }  // namespace filters
