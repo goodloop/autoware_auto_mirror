@@ -13,11 +13,13 @@
 // limitations under the License.
 //
 // Co-developed by Tier IV, Inc. and Apex.AI, Inc.
-#include <string>
+#include <common/types.hpp>
+#include <lidar_utils/point_cloud_utils.hpp>
+#include <ray_ground_classifier_nodes/ray_ground_classifier_cloud_node.hpp>
+#include <rclcpp/rclcpp.hpp>
+#include <rclcpp_components/register_node_macro.hpp>
 
-#include "common/types.hpp"
-#include "lidar_utils/point_cloud_utils.hpp"
-#include "ray_ground_classifier_nodes/ray_ground_classifier_cloud_node.hpp"
+#include <string>
 
 namespace autoware
 {
@@ -38,9 +40,8 @@ using autoware::common::lidar_utils::has_intensity_and_throw_if_no_xyz;
 using autoware::common::lidar_utils::init_pcl_msg;
 
 RayGroundClassifierCloudNode::RayGroundClassifierCloudNode(
-  const std::string & node_name,
-  const std::string & node_namespace)
-: LifecycleNode("ray_ground_classifier"),
+  const rclcpp::NodeOptions & node_options)
+: LifecycleNode("ray_ground_classifier", node_options),
   m_classifier(ray_ground_classifier::Config{
           static_cast<float32_t>(declare_parameter("classifier.sensor_height_m").get<float32_t>()),
           static_cast<float32_t>(declare_parameter(
@@ -73,39 +74,13 @@ RayGroundClassifierCloudNode::RayGroundClassifierCloudNode(
   m_frame_id(declare_parameter("frame_id").get<std::string>().c_str()),
   m_has_failed(false),
   m_timeout(std::chrono::milliseconds{declare_parameter("cloud_timeout_ms").get<uint16_t>()}),
-  m_raw_sub_ptr(create_subscription<PointCloud2>("points_in",
-    rclcpp::QoS(10), std::bind(&RayGroundClassifierCloudNode::callback, this, _1))),
-  m_ground_pub_ptr(create_publisher<PointCloud2>("points_ground", rclcpp::QoS(10))),
-  m_nonground_pub_ptr(create_publisher<PointCloud2>("points_nonground", rclcpp::QoS(10))),
-  m_ground_pc_idx{0},
-  m_nonground_pc_idx{0}
-{
-  register_callbacks_preallocate();
-}
-////////////////////////////////////////////////////////////////////////////////
-RayGroundClassifierCloudNode::RayGroundClassifierCloudNode(
-  const std::string & node_name,
-  const std::string & raw_topic,
-  const std::string & ground_topic,
-  const std::string & nonground_topic,
-  const std::string & frame_id,
-  const std::chrono::nanoseconds & timeout,
-  const std::size_t pcl_size,
-  const ray_ground_classifier::Config & cfg,
-  const ray_ground_classifier::RayAggregator::Config & agg_cfg)
-: LifecycleNode(node_name.c_str()),
-  m_classifier(cfg),
-  m_aggregator(agg_cfg),
-  m_pcl_size(pcl_size),
-  m_frame_id(frame_id),
-  m_has_failed(false),
-  m_timeout(timeout),
-  m_raw_sub_ptr(create_subscription<PointCloud2>(raw_topic.c_str(),
-    rclcpp::QoS(10), std::bind(&RayGroundClassifierCloudNode::callback, this, _1))),
-  m_ground_pub_ptr(create_publisher<PointCloud2>(ground_topic.c_str(),
-    rclcpp::QoS(10))),
-  m_nonground_pub_ptr(create_publisher<PointCloud2>(nonground_topic.c_str(),
-    rclcpp::QoS(10))),
+  m_raw_sub_ptr(create_subscription<PointCloud2>(
+      declare_parameter("raw_topic", "points_in"),
+      rclcpp::QoS(10), std::bind(&RayGroundClassifierCloudNode::callback, this, _1))),
+  m_ground_pub_ptr(create_publisher<PointCloud2>(
+      declare_parameter("ground_topic", "points_ground"), rclcpp::QoS(10))),
+  m_nonground_pub_ptr(create_publisher<PointCloud2>(
+      declare_parameter("nonground_topic", "points_nonground"), rclcpp::QoS(10))),
   m_ground_pc_idx{0},
   m_nonground_pc_idx{0}
 {
@@ -262,3 +237,6 @@ void RayGroundClassifierCloudNode::register_callbacks_preallocate()
 }  // namespace filters
 }  // namespace perception
 }  // namespace autoware
+
+RCLCPP_COMPONENTS_REGISTER_NODE(
+  autoware::perception::filters::ray_ground_classifier_nodes::RayGroundClassifierCloudNode)

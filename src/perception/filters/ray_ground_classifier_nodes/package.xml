@@ -14,6 +14,7 @@
     <depend>autoware_auto_common</depend>
     <depend>ray_ground_classifier</depend>
     <depend>rclcpp</depend>
+    <depend>rclcpp_components</depend>
     <depend>rclcpp_lifecycle</depend>
     <depend>sensor_msgs</depend>
 

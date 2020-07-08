@@ -59,32 +59,6 @@ public:
   /// \throw std::runtime_error if configuration fails
   explicit RayGroundClassifierCloudNode(const rclcpp::NodeOptions & options);
 
-  RayGroundClassifierCloudNode(
-    const std::string & node_name,
-    const std::string & node_namespace = "");
-
-  /// \brief Explicit constructor
-  /// \param[in] node_name Name of this node
-  /// \param[in] raw_topic Name of input topic of points directly from drivers
-  /// \param[in] ground_topic Name of output topic of ground points
-  /// \param[in] nonground_topic Name of output topic of nonground points
-  /// \param[in] frame_id Name of coordinate frame id for outgoing clouds
-  /// \param[in] timeout Timeout for waitset, i.e. max period between messages on raw_topic
-  /// \param[in] pcl_size Number of points to preallocate in pointcloud messages
-  /// \param[in] cfg Configuration class for ground classifier
-  /// \param[in] agg_cfg Configuration class for ray aggregator
-  /// \throw std::runtime_error if configuration fails
-  RayGroundClassifierCloudNode(
-    const std::string & node_name,
-    const std::string & raw_topic,
-    const std::string & ground_topic,
-    const std::string & nonground_topic,
-    const std::string & frame_id,
-    const std::chrono::nanoseconds & timeout,
-    const std::size_t pcl_size,
-    const ray_ground_classifier::Config & cfg,
-    const ray_ground_classifier::RayAggregator::Config & agg_cfg);
-
 private:
   /// \brief Activates publishers
   /// \return Success, failure, or error key
