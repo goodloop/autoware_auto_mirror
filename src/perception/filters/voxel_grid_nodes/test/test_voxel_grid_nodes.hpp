@@ -38,6 +38,8 @@ using autoware::perception::filters::voxel_grid::PointXYZIF;
 using autoware::common::types::bool8_t;
 using autoware::common::types::float32_t;
 
+using autoware::perception::filters::voxel_grid_nodes::VoxelCloudNode;
+
 class VoxelAlgorithm : public ::testing::Test
 {
 protected:
@@ -219,19 +221,12 @@ TEST_F(CloudAlgorithm, centroid)
   EXPECT_EQ(alg_ptr->get().width, 0U);
 }
 
-struct TestVoxelCloudNode
-  : public autoware::perception::filters::voxel_grid_nodes::VoxelCloudNode
-{
-  explicit TestVoxelCloudNode(
-    const rclcpp::NodeOptions & node_options)
-  : autoware::perception::filters::voxel_grid_nodes::VoxelCloudNode(node_options)
-  {}
-};
-
-TEST(voxel_grid_nodes, basic)
+TEST(voxel_grid_nodes, instantiate)
 {
   // Basic test to ensure that VoxelCloudNode can be instantiated
   rclcpp::init(0, nullptr);
+
+  rclcpp::NodeOptions node_options;
 
   std::vector<rclcpp::Parameter> params;
 
@@ -241,22 +236,48 @@ TEST(voxel_grid_nodes, basic)
   params.emplace_back("publisher.qos.history_depth", 4);
 
   params.emplace_back("is_approximate", false);
+  node_options.parameter_overrides(params);
+  ASSERT_THROW(VoxelCloudNode{node_options}, rclcpp::ParameterTypeException);
+
   params.emplace_back("config.capacity", 55000);
+  node_options.parameter_overrides(params);
+  ASSERT_THROW(VoxelCloudNode{node_options}, rclcpp::ParameterTypeException);
+
   params.emplace_back("config.min_point.x", -130.0);
+  node_options.parameter_overrides(params);
+  ASSERT_THROW(VoxelCloudNode{node_options}, rclcpp::ParameterTypeException);
+
   params.emplace_back("config.min_point.y", -130.0);
+  node_options.parameter_overrides(params);
+  ASSERT_THROW(VoxelCloudNode{node_options}, rclcpp::ParameterTypeException);
+
   params.emplace_back("config.min_point.z", -3.0);
+  node_options.parameter_overrides(params);
+  ASSERT_THROW(VoxelCloudNode{node_options}, rclcpp::ParameterTypeException);
+
   params.emplace_back("config.max_point.x", 130.0);
+  node_options.parameter_overrides(params);
+  ASSERT_THROW(VoxelCloudNode{node_options}, rclcpp::ParameterTypeException);
+
   params.emplace_back("config.max_point.y", 130.0);
+  node_options.parameter_overrides(params);
+  ASSERT_THROW(VoxelCloudNode{node_options}, rclcpp::ParameterTypeException);
+
   params.emplace_back("config.max_point.z", 3.0);
+  node_options.parameter_overrides(params);
+  ASSERT_THROW(VoxelCloudNode{node_options}, rclcpp::ParameterTypeException);
+
   params.emplace_back("config.voxel_size.x", 1.0);
+  node_options.parameter_overrides(params);
+  ASSERT_THROW(VoxelCloudNode{node_options}, rclcpp::ParameterTypeException);
+
   params.emplace_back("config.voxel_size.y", 1.0);
+  node_options.parameter_overrides(params);
+  ASSERT_THROW(VoxelCloudNode{node_options}, rclcpp::ParameterTypeException);
+
   params.emplace_back("config.voxel_size.z", 1.0);
-
-  rclcpp::NodeOptions options;
-  options.parameter_overrides(params);
-
-  const auto voxel_node_ptr = std::make_shared<TestVoxelCloudNode>(options);
-  (void)voxel_node_ptr;
+  node_options.parameter_overrides(params);
+  ASSERT_NO_THROW(VoxelCloudNode{node_options});
 }
 
 #endif  // TEST_VOXEL_GRID_NODES_HPP_
