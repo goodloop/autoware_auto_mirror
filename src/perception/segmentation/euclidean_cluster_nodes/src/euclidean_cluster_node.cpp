@@ -99,7 +99,7 @@ m_use_z{declare_parameter("use_z").get<bool8_t>()}
               min_point,
               max_point,
               voxel_size,
-              static_cast<std::size_t>(declare_parameter("max_cloud_size").get<std::size_t>())
+              static_cast<std::size_t>(get_parameter("max_cloud_size").as_int())
             });
   }
 }
