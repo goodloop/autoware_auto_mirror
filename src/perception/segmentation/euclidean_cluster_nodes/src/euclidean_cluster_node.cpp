@@ -47,7 +47,7 @@ EuclideanClusterNode::EuclideanClusterNode(
   m_cluster_pub_ptr{declare_parameter("use_cluster").get<bool8_t>() ?
   create_publisher<Clusters>(
     declare_parameter("cluster_topic", "points_clustered"),
-      rclcpp::QoS(10)) : nullptr},
+    rclcpp::QoS(10)) : nullptr},
 m_box_pub_ptr{declare_parameter("use_box").get<bool8_t>() ?
   create_publisher<BoundingBoxArray>(
     declare_parameter("box_topic", "lidar_bounding_boxes"), rclcpp::QoS{10}) :
