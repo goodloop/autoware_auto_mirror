@@ -20,17 +20,86 @@
 
 using autoware::perception::segmentation::euclidean_cluster_nodes::EuclideanClusterNode;
 
-TEST(euclidean_cluster_nodes, instantiate)
+class EuclideanClusterNodesTest : public ::testing::Test
 {
-  // Basic test to ensure that EuclideanClusterNode can be instantiated
-  rclcpp::init(0, nullptr);
+protected:
+  void SetUp() override
+  {
+    ASSERT_FALSE(rclcpp::is_initialized());
+    rclcpp::init(0, nullptr);
+    ASSERT_TRUE(rclcpp::is_initialized());
+  }
 
+  void TearDown() override
+  {
+    (void)rclcpp::shutdown();
+  }
+};
+
+TEST_F(EuclideanClusterNodesTest, instantiate)
+{
   rclcpp::NodeOptions node_options;
 
   std::vector<rclcpp::Parameter> params;
 
   node_options.parameter_overrides(params);
-//   ASSERT_THROW(EuclideanClusterNode{node_options}, rclcpp::ParameterTypeException);
+  ASSERT_THROW(EuclideanClusterNode{node_options}, rclcpp::ParameterTypeException);
+
+  params.emplace_back("use_cluster", true);
+  node_options.parameter_overrides(params);
+  ASSERT_THROW(EuclideanClusterNode{node_options}, rclcpp::ParameterTypeException);
+
+  params.emplace_back("use_box", true);
+  node_options.parameter_overrides(params);
+  ASSERT_THROW(EuclideanClusterNode{node_options}, rclcpp::ParameterTypeException);
+
+  params.emplace_back("max_cloud_size", 55000);
+  node_options.parameter_overrides(params);
+  ASSERT_THROW(EuclideanClusterNode{node_options}, rclcpp::ParameterTypeException);
+
+  params.emplace_back("downsample", false);
+  node_options.parameter_overrides(params);
+  ASSERT_THROW(EuclideanClusterNode{node_options}, rclcpp::ParameterTypeException);
+
+  params.emplace_back("use_lfit", true);
+  node_options.parameter_overrides(params);
+  ASSERT_THROW(EuclideanClusterNode{node_options}, rclcpp::ParameterTypeException);
+
+  params.emplace_back("use_z", true);
+  node_options.parameter_overrides(params);
+  ASSERT_THROW(EuclideanClusterNode{node_options}, rclcpp::ParameterTypeException);
+
+  params.emplace_back("cluster.frame_id", "base_link");
+  node_options.parameter_overrides(params);
+  ASSERT_THROW(EuclideanClusterNode{node_options}, rclcpp::ParameterTypeException);
+
+  params.emplace_back("cluster.min_cluster_size", 10);
+  node_options.parameter_overrides(params);
+  ASSERT_THROW(EuclideanClusterNode{node_options}, rclcpp::ParameterTypeException);
+
+  params.emplace_back("cluster.max_num_clusters", 256);
+  node_options.parameter_overrides(params);
+  ASSERT_THROW(EuclideanClusterNode{node_options}, rclcpp::ParameterTypeException);
+
+  params.emplace_back("hash.min_x", -130.0);
+  node_options.parameter_overrides(params);
+  ASSERT_THROW(EuclideanClusterNode{node_options}, rclcpp::ParameterTypeException);
+
+  params.emplace_back("hash.max_x",  130.0);
+  node_options.parameter_overrides(params);
+  ASSERT_THROW(EuclideanClusterNode{node_options}, rclcpp::ParameterTypeException);
+
+  params.emplace_back("hash.min_y", -130.0);
+  node_options.parameter_overrides(params);
+  ASSERT_THROW(EuclideanClusterNode{node_options}, rclcpp::ParameterTypeException);
+
+  params.emplace_back("hash.max_y",  130.0);
+  node_options.parameter_overrides(params);
+  ASSERT_THROW(EuclideanClusterNode{node_options}, rclcpp::ParameterTypeException);
+
+  params.emplace_back("hash.side_length", 1.0);
+  node_options.parameter_overrides(params);
+
   ASSERT_NO_THROW(EuclideanClusterNode{node_options});
 }
 
