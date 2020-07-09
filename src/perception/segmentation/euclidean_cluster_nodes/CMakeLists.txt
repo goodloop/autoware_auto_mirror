@@ -41,10 +41,10 @@ autoware_set_compile_options(${CLUSTER_NODE_LIB})
 target_compile_options(
   ${CLUSTER_NODE_LIB} PUBLIC "-Wno-sign-conversion" "-Wno-conversion")
 
-# Executable
-set(CLUSTER_MAIN euclidean_cluster_exe)
-ament_auto_add_executable(${CLUSTER_MAIN} src/euclidean_cluster_main.cpp)
-autoware_set_compile_options(${CLUSTER_MAIN})
+rclcpp_components_register_node(${CLUSTER_NODE_LIB}
+  PLUGIN "autoware::perception::segmentation::euclidean_cluster_nodes::EuclideanClusterNode"
+  EXECUTABLE ${CLUSTER_NODE_LIB}_exe
+)
 
 ## Testing
 if(BUILD_TESTING)
