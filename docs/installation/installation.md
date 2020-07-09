@@ -240,4 +240,4 @@ This usually indicates that a new Nvidia graphics driver has been installed (usu
 
 ### Solution
 
-Try turning it off and on again.
+Restart your system after installing the new NVIDIA driver.
