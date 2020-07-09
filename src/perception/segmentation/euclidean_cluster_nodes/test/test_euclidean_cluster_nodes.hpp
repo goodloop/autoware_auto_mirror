@@ -18,6 +18,8 @@
 #include <rclcpp/rclcpp.hpp>
 #include <euclidean_cluster_nodes/euclidean_cluster_node.hpp>
 
+#include <vector>
+
 using autoware::perception::segmentation::euclidean_cluster_nodes::EuclideanClusterNode;
 
 class EuclideanClusterNodesTest : public ::testing::Test
@@ -85,7 +87,7 @@ TEST_F(EuclideanClusterNodesTest, instantiate)
   node_options.parameter_overrides(params);
   ASSERT_THROW(EuclideanClusterNode{node_options}, rclcpp::ParameterTypeException);
 
-  params.emplace_back("hash.max_x",  130.0);
+  params.emplace_back("hash.max_x", 130.0);
   node_options.parameter_overrides(params);
   ASSERT_THROW(EuclideanClusterNode{node_options}, rclcpp::ParameterTypeException);
 
@@ -93,7 +95,7 @@ TEST_F(EuclideanClusterNodesTest, instantiate)
   node_options.parameter_overrides(params);
   ASSERT_THROW(EuclideanClusterNode{node_options}, rclcpp::ParameterTypeException);
 
-  params.emplace_back("hash.max_y",  130.0);
+  params.emplace_back("hash.max_y", 130.0);
   node_options.parameter_overrides(params);
   ASSERT_THROW(EuclideanClusterNode{node_options}, rclcpp::ParameterTypeException);
 
