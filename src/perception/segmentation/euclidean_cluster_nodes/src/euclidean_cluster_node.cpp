@@ -21,6 +21,7 @@
 #include <euclidean_cluster_nodes/euclidean_cluster_node.hpp>
 #include <lidar_utils/point_cloud_utils.hpp>
 #include <rclcpp_components/register_node_macro.hpp>
+#include <rclcpp/rclcpp.hpp>
 
 #include <memory>
 #include <string>
