@@ -75,12 +75,12 @@ RayGroundClassifierCloudNode::RayGroundClassifierCloudNode(
   m_has_failed(false),
   m_timeout(std::chrono::milliseconds{declare_parameter("cloud_timeout_ms").get<uint16_t>()}),
   m_raw_sub_ptr(create_subscription<PointCloud2>(
-      declare_parameter("raw_topic", "points_in"),
+      "points_in",
       rclcpp::QoS(10), std::bind(&RayGroundClassifierCloudNode::callback, this, _1))),
   m_ground_pub_ptr(create_publisher<PointCloud2>(
-      declare_parameter("ground_topic", "points_ground"), rclcpp::QoS(10))),
+      "points_ground", rclcpp::QoS(10))),
   m_nonground_pub_ptr(create_publisher<PointCloud2>(
-      declare_parameter("nonground_topic", "points_nonground"), rclcpp::QoS(10))),
+      "points_nonground", rclcpp::QoS(10))),
   m_ground_pc_idx{0},
   m_nonground_pc_idx{0}
 {

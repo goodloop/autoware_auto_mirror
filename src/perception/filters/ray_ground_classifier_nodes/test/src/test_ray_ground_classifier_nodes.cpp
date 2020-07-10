@@ -36,15 +36,15 @@ class RayGroundPclValidationTester : public rclcpp::Node
 public:
   RayGroundPclValidationTester()
   : Node{"pcl_listener"},
-    m_sub_nonground_points{create_subscription<PointCloud2>("nonground_cloud", rclcpp::QoS{50},
+    m_sub_nonground_points{create_subscription<PointCloud2>("points_nonground", rclcpp::QoS{50},
         [this](const PointCloud2::SharedPtr msg) {
           m_nonground_points.emplace_back(*msg);
         })},
-    m_sub_ground_points{create_subscription<PointCloud2>("ground_cloud", rclcpp::QoS{50},
+    m_sub_ground_points{create_subscription<PointCloud2>("points_ground", rclcpp::QoS{50},
       [this](const PointCloud2::SharedPtr msg) {
         m_ground_points.emplace_back(*msg);
       })},
-  m_pub_raw_points{create_publisher<PointCloud2>("raw_cloud", rclcpp::QoS{50})}
+  m_pub_raw_points{create_publisher<PointCloud2>("points_in", rclcpp::QoS{50})}
   {
   }
 
@@ -94,9 +94,6 @@ TEST(ray_ground_classifier_pcl_validation, filter_test)
   using autoware::perception::filters::ray_ground_classifier_nodes::RayGroundClassifierCloudNode;
   std::shared_ptr<RayGroundClassifierCloudNode> ray_gnd_ptr;
   std::shared_ptr<RayGroundPclValidationTester> ray_gnd_validation_tester;
-  const std::string raw_pcl_topic{"raw_cloud"};
-  const std::string ground_pcl_topic{"ground_cloud"};
-  const std::string nonground_pcl_topic{"nonground_cloud"};
   const uint32_t mini_cloud_size = 10U;
 
   const int32_t cloud_size{55000U};
@@ -104,17 +101,11 @@ TEST(ray_ground_classifier_pcl_validation, filter_test)
 
   std::vector<rclcpp::Parameter> params;
 
-  params.emplace_back("__node", "ray_ground_classifier_cloud_node");
-
   params.emplace_back("frame_id", frame_id);
 
   params.emplace_back("cloud_timeout_ms", 110);
 
   params.emplace_back("pcl_size", cloud_size);
-
-  params.emplace_back("raw_topic", raw_pcl_topic);
-  params.emplace_back("ground_topic", ground_pcl_topic);
-  params.emplace_back("nonground_topic", nonground_pcl_topic);
 
   params.emplace_back("classifier.sensor_height_m", 0.0);
   params.emplace_back("classifier.max_local_slope_deg", 20.0);
