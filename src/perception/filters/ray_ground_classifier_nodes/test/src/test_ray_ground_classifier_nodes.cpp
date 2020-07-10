@@ -137,12 +137,6 @@ TEST(ray_ground_classifier_pcl_validation, filter_test)
 
   ray_gnd_ptr = std::make_shared<RayGroundClassifierCloudNode>(
     node_options);
-  if (lifecycle_msgs::msg::State::PRIMARY_STATE_INACTIVE != ray_gnd_ptr->configure().id()) {
-    throw std::runtime_error("Could not configure RayGroundClassifierCloudNode!");
-  }
-  if (lifecycle_msgs::msg::State::PRIMARY_STATE_ACTIVE != ray_gnd_ptr->activate().id()) {
-    throw std::runtime_error("Could not activate RayGroundClassifierCloudNode!");
-  }
 
   ray_gnd_validation_tester = std::make_shared<RayGroundPclValidationTester>();
 

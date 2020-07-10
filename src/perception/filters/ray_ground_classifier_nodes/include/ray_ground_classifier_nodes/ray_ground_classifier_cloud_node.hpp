@@ -21,18 +21,15 @@
 #define RAY_GROUND_CLASSIFIER_NODES__RAY_GROUND_CLASSIFIER_CLOUD_NODE_HPP_
 
 #include <common/types.hpp>
-#include <lifecycle_msgs/msg/state.hpp>
-#include <lifecycle_msgs/msg/transition.hpp>
-#include <rclcpp_lifecycle/lifecycle_node.hpp>
-#include <sensor_msgs/msg/point_cloud2.hpp>
-#include <ray_ground_classifier/ray_ground_classifier.hpp>
-#include <ray_ground_classifier/ray_aggregator.hpp>
 #include <lidar_utils/point_cloud_utils.hpp>
+#include <ray_ground_classifier_nodes/visibility_control.hpp>
+#include <ray_ground_classifier/ray_aggregator.hpp>
+#include <ray_ground_classifier/ray_ground_classifier.hpp>
+#include <rclcpp/rclcpp.hpp>
+#include <sensor_msgs/msg/point_cloud2.hpp>
 
 #include <memory>
 #include <string>
-
-#include "ray_ground_classifier_nodes/visibility_control.hpp"
 
 using autoware::common::types::bool8_t;
 using autoware::common::types::char8_t;
@@ -51,7 +48,7 @@ using sensor_msgs::msg::PointCloud2;
 /// \brief A node that takes in unstructured point clouds and partitions them into ground and
 ///        nonground points
 class RAY_GROUND_CLASSIFIER_PUBLIC RayGroundClassifierCloudNode
-  : public rclcpp_lifecycle::LifecycleNode
+  : public rclcpp::Node
 {
 public:
   /// \brief default constructor, starts node
@@ -60,19 +57,6 @@ public:
   explicit RayGroundClassifierCloudNode(const rclcpp::NodeOptions & options);
 
 private:
-  /// \brief Activates publishers
-  /// \return Success, failure, or error key
-  RAY_GROUND_CLASSIFIER_NODES_LOCAL
-  rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
-  on_activate_internal(const rclcpp_lifecycle::State &);
-  /// \brief Deactivates publishers
-  /// \return Success, failure, or error key
-  RAY_GROUND_CLASSIFIER_NODES_LOCAL
-  rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
-  on_deactivate_internal(const rclcpp_lifecycle::State &);
-  /// \brief Registers on_activate() and on_deactivate() callbacks, allocates messages,
-  ///        for use in constructor
-  RAY_GROUND_CLASSIFIER_NODES_LOCAL void register_callbacks_preallocate();
   /// \brief Resets state of ray aggregator and messages
   RAY_GROUND_CLASSIFIER_NODES_LOCAL void reset();
   // Algorithmic core
@@ -88,8 +72,8 @@ private:
   // publishers and subscribers
   const std::chrono::nanoseconds m_timeout;
   const rclcpp::Subscription<PointCloud2>::SharedPtr m_raw_sub_ptr;
-  const std::shared_ptr<rclcpp_lifecycle::LifecyclePublisher<PointCloud2>> m_ground_pub_ptr;
-  const std::shared_ptr<rclcpp_lifecycle::LifecyclePublisher<PointCloud2>> m_nonground_pub_ptr;
+  const std::shared_ptr<rclcpp::Publisher<PointCloud2>> m_ground_pub_ptr;
+  const std::shared_ptr<rclcpp::Publisher<PointCloud2>> m_nonground_pub_ptr;
   /// \brief Read samples from the subscription
   void callback(const PointCloud2::SharedPtr msg);
   uint32_t m_ground_pc_idx;

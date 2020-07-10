@@ -41,7 +41,7 @@ using autoware::common::lidar_utils::init_pcl_msg;
 
 RayGroundClassifierCloudNode::RayGroundClassifierCloudNode(
   const rclcpp::NodeOptions & node_options)
-: LifecycleNode("ray_ground_classifier", node_options),
+: Node("ray_ground_classifier", node_options),
   m_classifier(ray_ground_classifier::Config{
           static_cast<float32_t>(declare_parameter("classifier.sensor_height_m").get<float32_t>()),
           static_cast<float32_t>(declare_parameter(
@@ -84,7 +84,11 @@ RayGroundClassifierCloudNode::RayGroundClassifierCloudNode(
   m_ground_pc_idx{0},
   m_nonground_pc_idx{0}
 {
-  register_callbacks_preallocate();
+  // initialize messages
+  init_pcl_msg(m_ground_msg, m_frame_id.c_str(), m_pcl_size);
+  m_ground_pc_its.reset(m_ground_msg, 0);
+  init_pcl_msg(m_nonground_msg, m_frame_id.c_str(), m_pcl_size);
+  m_nonground_pc_its.reset(m_nonground_msg, 0);
 }
 ////////////////////////////////////////////////////////////////////////////////
 void
@@ -181,24 +185,6 @@ RayGroundClassifierCloudNode::callback(const PointCloud2::SharedPtr msg)
   }
 }
 ////////////////////////////////////////////////////////////////////////////////
-rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
-RayGroundClassifierCloudNode::on_activate_internal(const rclcpp_lifecycle::State &)
-{
-  RCLCPP_INFO(this->get_logger(), "RayGroundClassifier has activated");
-  m_ground_pub_ptr->on_activate();
-  m_nonground_pub_ptr->on_activate();
-  return rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::SUCCESS;
-}
-////////////////////////////////////////////////////////////////////////////////
-rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
-RayGroundClassifierCloudNode::on_deactivate_internal(const rclcpp_lifecycle::State &)
-{
-  RCLCPP_INFO(this->get_logger(), "RayGroundClassifier has deactivated");
-  m_ground_pub_ptr->on_deactivate();
-  m_nonground_pub_ptr->on_deactivate();
-  return rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::SUCCESS;
-}
-////////////////////////////////////////////////////////////////////////////////
 void RayGroundClassifierCloudNode::reset()
 {
   // reset aggregator: Needed in case an error is thrown during partitioning of cloud
@@ -211,27 +197,6 @@ void RayGroundClassifierCloudNode::reset()
   m_ground_pc_its.reset(m_ground_msg, m_ground_pc_idx);
   autoware::common::lidar_utils::reset_pcl_msg(m_nonground_msg, m_pcl_size, m_nonground_pc_idx);
   m_nonground_pc_its.reset(m_nonground_msg, m_nonground_pc_idx);
-}
-////////////////////////////////////////////////////////////////////////////////
-void RayGroundClassifierCloudNode::register_callbacks_preallocate()
-{
-  if (!register_on_activate(
-      std::bind(&RayGroundClassifierCloudNode::on_activate_internal, this, std::placeholders::_1)))
-  {
-    throw std::runtime_error("Could not register activate callback");
-  }
-  if (!register_on_deactivate(
-      std::bind(&RayGroundClassifierCloudNode::on_deactivate_internal,
-      this,
-      std::placeholders::_1)))
-  {
-    throw std::runtime_error("Could not register deactivate callback");
-  }
-  // initialize messages
-  init_pcl_msg(m_ground_msg, m_frame_id.c_str(), m_pcl_size);
-  m_ground_pc_its.reset(m_ground_msg, 0);
-  init_pcl_msg(m_nonground_msg, m_frame_id.c_str(), m_pcl_size);
-  m_nonground_pc_its.reset(m_nonground_msg, 0);
 }
 }  // namespace ray_ground_classifier_nodes
 }  // namespace filters
