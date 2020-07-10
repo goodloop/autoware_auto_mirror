@@ -42,16 +42,16 @@ EuclideanClusterNode::EuclideanClusterNode(
   const rclcpp::NodeOptions & node_options)
 : Node("euclidean_cluster_cloud_node", node_options),
   m_cloud_sub_ptr{create_subscription<PointCloud2>(
-      declare_parameter("cloud_topic", "points_in"),
+      "points_in",
       rclcpp::QoS(10),
       [this](const PointCloud2::SharedPtr msg) {handle(msg);})},
   m_cluster_pub_ptr{declare_parameter("use_cluster").get<bool8_t>() ?
   create_publisher<Clusters>(
-    declare_parameter("cluster_topic", "points_clustered"),
+    "points_clustered",
     rclcpp::QoS(10)) : nullptr},
 m_box_pub_ptr{declare_parameter("use_box").get<bool8_t>() ?
   create_publisher<BoundingBoxArray>(
-    declare_parameter("box_topic", "lidar_bounding_boxes"), rclcpp::QoS{10}) :
+    "lidar_bounding_boxes", rclcpp::QoS{10}) :
   nullptr},
 m_cluster_alg{
   euclidean_cluster::Config{
