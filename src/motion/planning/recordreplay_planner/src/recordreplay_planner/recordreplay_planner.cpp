@@ -210,10 +210,9 @@ const Trajectory & RecordReplayPlanner::from_record(const State & current_state)
   {
     m_cache_traj_bbox_arr.boxes.clear();
     m_cache_traj_bbox_arr.header = current_state.header;
-    for (std::size_t i = {}; i < get_record_length(); ++i) {
+    for (std::size_t i = m_traj_start_idx; i < m_traj_end_idx; ++i) {
       const auto boundingbox = compute_boundingbox_from_trajectorypoint(
-        m_record_buffer[m_traj_start_idx + i].state,
-        m_vehicle_param);
+        m_record_buffer[i].state, m_vehicle_param);
       m_cache_traj_bbox_arr.boxes.push_back(boundingbox);
     }
   }
