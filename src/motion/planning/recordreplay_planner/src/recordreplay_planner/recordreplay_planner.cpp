@@ -201,8 +201,8 @@ const Trajectory & RecordReplayPlanner::from_record(const State & current_state)
   auto & trajectory = m_trajectory;
   const auto record_length = get_record_length();
   m_traj_end_idx =
-    std::min(record_length - m_traj_start_idx, trajectory.points.max_size()) + m_traj_start_idx;
-
+    std::min({record_length - m_traj_start_idx, trajectory.points.max_size(),
+        m_cache_traj_bbox_arr.boxes.max_size()}) + m_traj_start_idx;
 
   // Build bounding box cache
   if (m_cache_traj_bbox_arr.boxes.empty() ||
