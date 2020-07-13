@@ -226,7 +226,8 @@ const Trajectory & RecordReplayPlanner::from_record(const State & current_state)
 
   // Collision detection
   for (std::size_t i = m_traj_start_idx; i < m_traj_end_idx; ++i) {
-    const auto & boundingbox = m_cache_traj_bbox_arr.boxes[i];
+    const size_t i_bbox = i - m_traj_start_idx;
+    const auto & boundingbox = m_cache_traj_bbox_arr.boxes[i_bbox];
 
     // Check for collisions with all perceived obstacles
     for (const auto & obstaclebox : m_latest_bounding_boxes.boxes) {
