@@ -303,7 +303,10 @@ private:
           on_invalid_output(pose_out);
         }
       } catch (...) {
-        republish_tf(get_stamp(*msg_ptr));
+        // TODO(mitsudome-r) remove this hack in #458
+        if (m_tf_publisher) {
+          republish_tf(get_stamp(*msg_ptr));
+        }
         on_bad_registration(std::current_exception());
       }
     } else {
@@ -363,7 +366,7 @@ private:
     m_tf_publisher->publish(tf_message);
   }
 
-
+  // TODO(mitsudome-r) remove this hack in #458
   /// Publish the pose message as a transform.
   void republish_tf(builtin_interfaces::msg::Time stamp)
   {
