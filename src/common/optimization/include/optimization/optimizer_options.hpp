@@ -42,14 +42,8 @@ enum class TerminationType
   FAILURE = 2U
 };
 
-// Optimization options base class.
-class OPTIMIZATION_PUBLIC OptimizationOptionsBase
-{
-// TODO(yunus.caliskan, zoza): Add a switch for MINIMIZATION/MAXIMIZATION. Gather common params.
-};
-
-// Optimization options class for newton's method.
-class OPTIMIZATION_PUBLIC NewtonOptimizationOptions : public OptimizationOptionsBase
+// Optimization options class.
+class OPTIMIZATION_PUBLIC OptimizationOptions
 {
 public:
   /// Constructor to initialize const members
@@ -58,25 +52,26 @@ public:
   /// \param parameter_tolerance minimum step size relative to the parameter's norm.
   /// \param gradient_tolerance minimum absolute change in the gradient.
   /// \throws std::domain_error on negative or NaN tolerance values.
-  NewtonOptimizationOptions(
+  OptimizationOptions(
     uint64_t max_num_iterations = std::numeric_limits<int64_t>::max(),
-    float64_t function_tolerance = 0.0, float64_t parameter_tolerance = 0.0,
-    float64_t gradient_tolerance = 0.0);
+    types::float64_t function_tolerance = 0.0,
+    types::float64_t parameter_tolerance = 0.0,
+    types::float64_t gradient_tolerance = 0.0);
 
   /// Get maximum number of iterations
   uint64_t max_num_iterations() const noexcept;
   /// Get minimum relative change in the cost function
-  float64_t function_tolerance() const noexcept;
+  types::float64_t function_tolerance() const noexcept;
   /// Get minimum relative change in the parameter
-  float64_t parameter_tolerance() const noexcept;
+  types::float64_t parameter_tolerance() const noexcept;
   /// Get minimum relative change in the gradient
-  float64_t gradient_tolerance() const noexcept;
+  types::float64_t gradient_tolerance() const noexcept;
 
 private:
   uint64_t m_max_num_iterations;
-  float64_t m_function_tolerance;
-  float64_t m_parameter_tolerance;
-  float64_t m_gradient_tolerance;
+  types::float64_t m_function_tolerance;
+  types::float64_t m_parameter_tolerance;
+  types::float64_t m_gradient_tolerance;
 };
 
 // Optimization summary class.
@@ -87,17 +82,20 @@ public:
   /// \param dist estimated distance to the optimum
   /// \param termination_type Type of termination. Check the enum definition for possible outcomes.
   /// \param iter number of iterations that were made
-  OptimizationSummary(float64_t dist, TerminationType termination_type, uint64_t iter);
+  OptimizationSummary(
+    types::float64_t dist,
+    TerminationType termination_type,
+    uint64_t iter);
 
   /// Get the estimated distance to the optimum
-  float64_t estimated_distance_to_optimum() const noexcept;
+  types::float64_t estimated_distance_to_optimum() const noexcept;
   /// Get termination type.
   TerminationType termination_type() const noexcept;
   /// Get the number of iterations that were made
   uint64_t number_of_iterations_made() const noexcept;
 
 private:
-  float64_t m_estimated_distance_to_optimum;
+  types::float64_t m_estimated_distance_to_optimum;
   uint64_t m_number_of_iterations_made;
   TerminationType m_termination_type;
 };

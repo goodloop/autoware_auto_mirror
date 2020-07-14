@@ -259,7 +259,7 @@ MockRelativeLocalizer::MockRelativeLocalizer(
   std::shared_ptr<TestObservation> map_ptr)
 : m_map_tracking_ptr{map_ptr}, m_observation_tracking_ptr{obs_ptr} {}
 
-MockRelativeLocalizer::RegistrationSummary MockRelativeLocalizer::register_measurement_impl(
+autoware::common::optimization::OptimizationSummary MockRelativeLocalizer::register_measurement(
   const TestObservation & msg, const Transform & transform_initial,
   PoseWithCovarianceStamped & pose_out)
 {
@@ -275,31 +275,7 @@ MockRelativeLocalizer::RegistrationSummary MockRelativeLocalizer::register_measu
   if (m_observation_tracking_ptr) {
     *m_observation_tracking_ptr = msg;
   }
-  return RegistrationSummary{};
-}
-
-void MockRelativeLocalizer::set_map_impl(const TestMap & msg)
-{
-  if (get_msg_id(msg) == TEST_ERROR_ID) {
-    throw TestMapException{};
-  }
-  m_map = msg;
-  // Update the tracking pointer for notifying the test.
-  if (m_map_tracking_ptr) {
-    *m_map_tracking_ptr = msg;
-  }
-}
-
-void MockRelativeLocalizer::insert_to_map_impl(const TestMap &) {}
-
-const std::string & MockRelativeLocalizer::map_frame_id() const noexcept
-{
-  return m_map.header.frame_id;
-}
-
-std::chrono::system_clock::time_point MockRelativeLocalizer::map_stamp() const noexcept
-{
-  return ::time_utils::from_message(m_map.header.stamp);
+  return {0.0, autoware::common::optimization::TerminationType::CONVERGENCE, 100UL};
 }
 
 void TestRelativeLocalizerNode::on_bad_registration(std::exception_ptr eptr)

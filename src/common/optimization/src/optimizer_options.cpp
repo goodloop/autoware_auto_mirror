@@ -27,7 +27,7 @@ namespace common
 {
 namespace optimization
 {
-NewtonOptimizationOptions::NewtonOptimizationOptions(
+OptimizationOptions::OptimizationOptions(
   uint64_t max_num_iterations,
   float64_t function_tolerance,
   float64_t parameter_tolerance,
@@ -40,39 +40,38 @@ NewtonOptimizationOptions::NewtonOptimizationOptions(
     !std::isfinite(m_parameter_tolerance) ||
     !std::isfinite(m_gradient_tolerance))
   {
-    throw std::domain_error("NewtonOptimizationOptions: Tolerance values must be finite.");
+    throw std::domain_error("OptimizationOptions: Tolerance values must be finite.");
   }
 
   if ((m_function_tolerance <= 0.0) &&
     (m_parameter_tolerance <= 0.0) &&
     (m_gradient_tolerance <= 0.0))
   {
-    throw std::domain_error("NewtonOptimizationOptions: "
+    throw std::domain_error("OptimizationOptions: "
             "There should at least be one positive tolerance value "
             "for convergence.");
   }
 }
 
-uint64_t NewtonOptimizationOptions::max_num_iterations() const noexcept
+uint64_t OptimizationOptions::max_num_iterations() const noexcept
 {
   return m_max_num_iterations;
 }
-float64_t NewtonOptimizationOptions::function_tolerance() const noexcept
+float64_t OptimizationOptions::function_tolerance() const noexcept
 {
   return m_function_tolerance;
 }
-float64_t NewtonOptimizationOptions::parameter_tolerance() const noexcept
+float64_t OptimizationOptions::parameter_tolerance() const noexcept
 {
   return m_parameter_tolerance;
 }
-float64_t NewtonOptimizationOptions::gradient_tolerance() const noexcept
+float64_t OptimizationOptions::gradient_tolerance() const noexcept
 {
   return m_gradient_tolerance;
 }
 
 OptimizationSummary::OptimizationSummary(
-  float64_t dist, TerminationType termination_type,
-  uint64_t iter)
+  float64_t dist, TerminationType termination_type, uint64_t iter)
 : m_estimated_distance_to_optimum(dist),
   m_number_of_iterations_made(iter),
   m_termination_type(termination_type)

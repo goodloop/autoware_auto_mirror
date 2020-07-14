@@ -121,6 +121,12 @@ public:
     insert_(msg);
   }
 
+  explicit P2DNDTScan(const sensor_msgs::msg::PointCloud2 & msg)
+  {
+    m_points.reserve(msg.width);
+    insert_(msg);
+  }
+
   // Scans should be moved rather than being copied.
   P2DNDTScan(const P2DNDTScan &) = delete;
   P2DNDTScan & operator=(const P2DNDTScan &) = delete;
