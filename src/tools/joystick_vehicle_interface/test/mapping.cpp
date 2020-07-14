@@ -112,17 +112,66 @@ TEST_P(joy_vi_test, basic_mapping)
       break;
   }
 
+  rclcpp::NodeOptions node_options;
+
+  std::vector<rclcpp::Parameter> params;
+  params.emplace_back("control_command", control_command);
+  params.emplace_back("state_command_topic", state_command_topic);
+  params.emplace_back("joy_topic", joy_topic);
+  params.emplace_back("recordreplay_command_enabled", recordreplay_command_enabled);
+
+  params.emplace_back("axes.throttle", param.axis_map[Axes::THROTTLE]);
+  params.emplace_back("axes.brake", param.axis_map[Axes::BRAKE]);
+  params.emplace_back("axes.front_steer", param.axis_map[Axes::FRONT_STEER]);
+  params.emplace_back("axes.rear_steer", param.axis_map[Axes::REAR_STEER]);
+  params.emplace_back("axes.curvature", param.axis_map[Axes::CURVATURE]);
+  params.emplace_back("axes.acceleration", param.axis_map[Axes::ACCELERATION]);
+
+  params.emplace_back("axis_scale.throttle", param.axis_scale_map[Axes::THROTTLE]);
+  params.emplace_back("axis_scale.brake", param.axis_scale_map[Axes::BRAKE]);
+  params.emplace_back("axis_scale.front_steer", param.axis_scale_map[Axes::FRONT_STEER]);
+  params.emplace_back("axis_scale.rear_steer", param.axis_scale_map[Axes::REAR_STEER]);
+  params.emplace_back("axis_scale.curvature", param.axis_scale_map[Axes::CURVATURE]);
+  params.emplace_back("axis_scale.acceleration", param.axis_scale_map[Axes::ACCELERATION]);
+
+  params.emplace_back("axis_offset.throttle", param.axis_offset_map[Axes::THROTTLE]);
+  params.emplace_back("axis_offset.brake", param.axis_offset_map[Axes::BRAKE]);
+  params.emplace_back("axis_offset.front_steer", param.axis_offset_map[Axes::FRONT_STEER]);
+  params.emplace_back("axis_offset.rear_steer", param.axis_offset_map[Axes::REAR_STEER]);
+  params.emplace_back("axis_offset.curvature", param.axis_offset_map[Axes::CURVATURE]);
+  params.emplace_back("axis_offset.acceleration", param.axis_offset_map[Axes::ACCELERATION]);
+
+  params.emplace_back("buttons.autonomous", param.button_map[Buttons::AUTONOMOUS_TOGGLE]);
+  params.emplace_back("buttons.headlights", param.button_map[Buttons::HEADLIGHTS_TOGGLE]);
+  params.emplace_back("buttons.wiper", param.button_map[Buttons::WIPER_TOGGLE]);
+  params.emplace_back("buttons.gear_drive", param.button_map[Buttons::GEAR_DRIVE]);
+  params.emplace_back("buttons.gear_reverse", param.button_map[Buttons::GEAR_REVERSE]);
+  params.emplace_back("buttons.gear_park", param.button_map[Buttons::GEAR_PARK]);
+  params.emplace_back("buttons.gear_neutral", param.button_map[Buttons::GEAR_NEUTRAL]);
+  params.emplace_back("buttons.gear_low", param.button_map[Buttons::GEAR_LOW]);
+  params.emplace_back("buttons.blinker_left", param.button_map[Buttons::BLINKER_LEFT]);
+  params.emplace_back("buttons.blinker_right", param.button_map[Buttons::BLINKER_RIGHT]);
+  params.emplace_back("buttons.blinker_hazard", param.button_map[Buttons::BLINKER_HAZARD]);
+  params.emplace_back("buttons.velocity_up", param.button_map[Buttons::VELOCITY_UP]);
+  params.emplace_back("buttons.velocity_down", param.button_map[Buttons::VELOCITY_DOWN]);
+  params.emplace_back("buttons.recordreplay_start_record", param.button_map[Buttons::RECORDREPLAY_START_RECORD]);
+  params.emplace_back("buttons.recordreplay_start_replay", param.button_map[Buttons::RECORDREPLAY_START_REPLAY]);
+  params.emplace_back("buttons.recordreplay_stop", param.button_map[Buttons::RECORDREPLAY_STOP]);
+
+  node_options.parameter_overrides(params);
+
   const auto nd = std::make_shared<JoystickVehicleInterfaceNode>(
-    "test_joystick_vehicle_interface",
-    "",
-    control_command,
-    state_command_topic,
-    joy_topic,
-    recordreplay_command_enabled,
-    param.axis_map,
-    param.axis_scale_map,
-    param.axis_offset_map,
-    param.button_map);
+    node_options);
+    // "test_joystick_vehicle_interface",
+    // "",
+    // control_command,
+    // state_command_topic,
+    // joy_topic,
+    // recordreplay_command_enabled,
+    // param.axis_map,
+    // param.axis_scale_map,
+    // param.axis_offset_map,
+    // param.button_map);
 
   // make joy
   sensor_msgs::msg::Joy joy_msg{};
