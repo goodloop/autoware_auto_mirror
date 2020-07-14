@@ -27,9 +27,8 @@ namespace joystick_vehicle_interface
 {
 
 JoystickVehicleInterfaceNode::JoystickVehicleInterfaceNode(
-  const std::string & node_name,
-  const std::string & node_namespace)
-: Node{node_name, node_namespace}
+  const rclcpp::NodeOptions & node_options)
+: Node{"joystick_vehicle_interface", node_options}
 {
   // topics
   const auto joy_topic = "joy";
@@ -93,31 +92,6 @@ JoystickVehicleInterfaceNode::JoystickVehicleInterfaceNode(
   check_set(button_map, Buttons::RECORDREPLAY_START_REPLAY, "buttons.recordreplay_start_replay");
   check_set(button_map, Buttons::RECORDREPLAY_STOP, "buttons.recordreplay_stop");
   // init
-  init(
-    control_command,
-    state_command_topic,
-    joy_topic,
-    recordreplay_command_enabled,
-    axis_map,
-    axis_scale_map,
-    axis_offset_map,
-    button_map);
-}
-
-////////////////////////////////////////////////////////////////////////////////
-JoystickVehicleInterfaceNode::JoystickVehicleInterfaceNode(
-  const std::string & node_name,
-  const std::string & node_namespace,
-  const std::string & control_command,
-  const std::string & state_command_topic,
-  const std::string & joy_topic,
-  const bool8_t & recordreplay_command_enabled,
-  const AxisMap & axis_map,
-  const AxisScaleMap & axis_scale_map,
-  const AxisScaleMap & axis_offset_map,
-  const ButtonMap & button_map)
-: Node{node_name, node_namespace}
-{
   init(
     control_command,
     state_command_topic,
