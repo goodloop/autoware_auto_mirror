@@ -63,7 +63,8 @@ template<typename ObservationMsgT, typename MapMsgT, typename LocalizerT, typena
 class LOCALIZATION_NODES_PUBLIC RelativeLocalizerNode : public rclcpp::Node
 {
 public:
-  using LocalizerPtr = std::unique_ptr<localization_common::LocalizerInterface<ObservationMsgT>>;
+  using LocalizerPtr =
+    std::unique_ptr<localization_common::LocalizerInterface<ObservationMsgT, MapMsgT>>;
 
   /// Constructor
   /// \param node_name Name of node
@@ -165,6 +166,8 @@ public:
     return m_pose_publisher;
   }
 
+  const typename MapMsgT::ConstSharedPtr & latest_map() const noexcept {return m_latest_map;}
+
 protected:
   /// Set the localizer.
   /// \param localizer_ptr rvalue to the localizer to set.
@@ -177,12 +180,6 @@ protected:
   virtual void on_bad_registration(std::exception_ptr eptr) // NOLINT
   {
     on_exception(eptr, "on_bad_registration");
-  }
-
-  /// Handle the exceptions during map setting.
-  virtual void on_bad_map(std::exception_ptr eptr) // NOLINT
-  {
-    on_exception(eptr, "on_bad_map");
   }
 
   void on_exception(std::exception_ptr eptr, const std::string & error_source)  // NOLINT
@@ -265,11 +262,11 @@ private:
   void observation_callback(typename ObservationMsgT::ConstSharedPtr msg_ptr)
   {
     check_localizer();
-    if (m_localizer_ptr->map_valid()) {
+    if (m_latest_map) {
       try {
         const auto observation_time = ::time_utils::from_message(get_stamp(*msg_ptr));
         const auto & observation_frame = get_frame_id(*msg_ptr);
-        const auto & map_frame = m_localizer_ptr->map_frame_id();
+        const auto & map_frame = m_latest_map->header.frame_id;
 
         ////////////////////////////////////////////////////////
         // TODO(yunus.caliskan): remove in #425
@@ -285,7 +282,7 @@ private:
 
         geometry_msgs::msg::PoseWithCovarianceStamped pose_out;
         const auto summary =
-          m_localizer_ptr->register_measurement(*msg_ptr, initial_guess, pose_out);
+          m_localizer_ptr->register_measurement(*msg_ptr, *m_latest_map, initial_guess, pose_out);
         if (validate_output(summary, pose_out, initial_guess)) {
           m_pose_publisher->publish(pose_out);
           // This is to be used when no state estimator or alternative source of
@@ -309,17 +306,13 @@ private:
   /// \param msg_ptr Pointer to the map message.
   void map_callback(typename MapMsgT::ConstSharedPtr msg_ptr)
   {
-    check_localizer();
-    try {
-      m_localizer_ptr->set_map(*msg_ptr);
-    } catch (...) {
-      on_bad_map(std::current_exception());
-    }
+    m_latest_map = msg_ptr;
   }
 
   /// Publish the pose message as a transform.
   void publish_tf(const geometry_msgs::msg::PoseWithCovarianceStamped & pose_msg)
   {
+    if (!m_latest_map) {return;}
     const auto & pose = pose_msg.pose.pose;
     tf2::Quaternion rotation{pose.orientation.x, pose.orientation.y, pose.orientation.z,
       pose.orientation.w};
@@ -339,7 +332,7 @@ private:
     tf2_msgs::msg::TFMessage tf_message;
     geometry_msgs::msg::TransformStamped tf_stamped;
     tf_stamped.header.stamp = pose_msg.header.stamp;
-    tf_stamped.header.frame_id = m_localizer_ptr->map_frame_id();
+    tf_stamped.header.frame_id = m_latest_map->header.frame_id;
     tf_stamped.child_frame_id = "odom";
     const auto & tf_trans = map_odom_tf.getOrigin();
     const auto & tf_rot = map_odom_tf.getRotation();
@@ -374,6 +367,7 @@ private:
   PoseInitializerT m_pose_initializer;
   tf2::BufferCore m_tf_buffer;
   tf2_ros::TransformListener m_tf_listener;
+  typename MapMsgT::ConstSharedPtr m_latest_map{};
   typename rclcpp::Subscription<ObservationMsgT>::SharedPtr m_observation_sub;
   typename rclcpp::Subscription<MapMsgT>::SharedPtr m_map_sub;
   typename rclcpp::Publisher<geometry_msgs::msg::PoseWithCovarianceStamped>::SharedPtr

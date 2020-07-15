@@ -32,7 +32,7 @@ namespace localization_common
 ///
 /// It keeps it open to its children to decide what the measurements can be registered against.
 /// \tparam InputMsgT Message type that will be registered.
-template<typename InputMsgT>
+template<typename InputMsgT, typename MapT>
 class LOCALIZATION_COMMON_PUBLIC LocalizerInterface
 {
 public:
@@ -44,6 +44,7 @@ public:
   /// \param[out] pose_out Reference to the resulting pose estimate after registration.
   virtual common::optimization::OptimizationSummary register_measurement(
     const InputMsgT & msg,
+    const MapT& map,
     const geometry_msgs::msg::TransformStamped & transform_initial,
     geometry_msgs::msg::PoseWithCovarianceStamped & pose_out) = 0;
 };

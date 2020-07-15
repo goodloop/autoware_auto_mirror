@@ -41,22 +41,20 @@ using Transform = geometry_msgs::msg::TransformStamped;
 
 constexpr int TEST_ERROR_ID = -9999;
 
-class MockRelativeLocalizer : public LocalizerInterface<TestObservation>
+class MockRelativeLocalizer : public LocalizerInterface<TestObservation, TestMap>
 {
 public:
-  MockRelativeLocalizer(
-    std::shared_ptr<TestMap> obs_ptr,
-    std::shared_ptr<TestObservation> map_ptr);
+  explicit MockRelativeLocalizer(std::shared_ptr<TestObservation> obs_ptr);
   // constructor when the tracking is not needed.
   MockRelativeLocalizer() = default;
 
   autoware::common::optimization::OptimizationSummary register_measurement(
     const TestObservation & msg,
+    const TestMap & map,
     const Transform & transform_initial, PoseWithCovarianceStamped & pose_out) override;
 
 private:
   TestMap m_map;
-  std::shared_ptr<TestMap> m_map_tracking_ptr;
   std::shared_ptr<TestObservation> m_observation_tracking_ptr;
 };
 
@@ -68,8 +66,8 @@ public:
     const std::string & id1, const std::string & id2);
 };
 
-class TestRelativeLocalizerNode : public RelativeLocalizerNode<TestObservation, TestMap,
-    MockRelativeLocalizer, MockInitializer>
+class TestRelativeLocalizerNode : public RelativeLocalizerNode<
+    TestObservation, TestMap, MockRelativeLocalizer, MockInitializer>
 {
 public:
   using RelativeLocalizerNode::RelativeLocalizerNode;
@@ -83,9 +81,6 @@ public:
 
 protected:
   void on_bad_registration(std::exception_ptr eptr) override;
-
-  /// Handle the exceptions during map setting.
-  void on_bad_map(std::exception_ptr eptr) override;
 
   void on_observation_with_invalid_map(TestObservation::ConstSharedPtr msg) override;
 
