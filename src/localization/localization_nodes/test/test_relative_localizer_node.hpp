@@ -41,9 +41,17 @@ using Transform = geometry_msgs::msg::TransformStamped;
 
 constexpr int TEST_ERROR_ID = -9999;
 
+class MockMap
+{
+public:
+  void insert(MsgWithHeader) {}
+};
+
 class MockRelativeLocalizer : public LocalizerInterface<TestObservation, TestMap>
 {
 public:
+  using MapT = MockMap;
+
   explicit MockRelativeLocalizer(std::shared_ptr<TestObservation> obs_ptr);
   // constructor when the tracking is not needed.
   MockRelativeLocalizer() = default;

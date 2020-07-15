@@ -33,18 +33,20 @@ namespace localization
 namespace ndt
 {
 /// Base class for NDT based localizers. Implementations must implement the validation logic.
-template<typename MapT, typename OptimizerT>
+template<typename OptimizerT, typename OptimizationProblemT>
 class NDT_PUBLIC NdtLocalizer
-  : public localization_common::LocalizerInterface<sensor_msgs::msg::PointCloud2>
+  : public localization_common::LocalizerInterface<
+    sensor_msgs::msg::PointCloud2, typename OptimizationProblemT::Objective::Map>
 {
+  using MapT = typename OptimizationProblemT::Objective::Map;
+  using ScanT = typename OptimizationProblemT::Objective::Scan;
+
 public:
   explicit NdtLocalizer(
-    MapT && map,  // TODO(igor): does it make sense to *take* ownership? Can we create it?
     const OptimizerT & optimizer,
     const Real outlier_ratio,
     const std::chrono::nanoseconds guess_time_tolerance)
-  : m_map{std::move(map)},
-    m_optimizer{optimizer},
+  : m_optimizer{optimizer},
     m_outlier_ratio{outlier_ratio},
     m_guess_time_tolerance{guess_time_tolerance} {}
 
@@ -59,12 +61,13 @@ public:
   /// range from the measurement.
   /// \throws std::runtime_error on numerical errors in the optimizer.
   common::optimization::OptimizationSummary register_measurement(
-    const sensor_msgs::msg::PointCloud2 & msg,
+    const sensor_msgs::msg::PointCloud2 & measurement_msg,
+    const MapT & map_msg,
     const geometry_msgs::msg::TransformStamped & transform_initial,
     geometry_msgs::msg::PoseWithCovarianceStamped & pose_out) override
   {
-    validate_msg(msg);
-    validate_guess(msg, transform_initial);
+    validate_msg(measurement_msg, map_msg);
+    validate_guess(measurement_msg, transform_initial);
     // Initial checks passed, proceed with initialization
     // Eigen representations to be used for internal computations.
     EigenPose<Real> eig_pose_initial, eig_pose_result;
@@ -74,23 +77,22 @@ public:
     transform_adapters::transform_to_pose(transform_initial.transform, eig_pose_initial);
 
     // Set the scan
-    P2DNDTScan scan{msg};
+    ScanT scan{measurement_msg};
 
     // Define and solve the problem.
-    P2DNDTOptimizationProblem<MapT> problem(scan, m_map, m_outlier_ratio);
+    OptimizationProblemT problem(scan, map_msg, m_outlier_ratio);
     const auto opt_summary = m_optimizer.solve(problem, eig_pose_initial, eig_pose_result);
 
     if (opt_summary.termination_type() == common::optimization::TerminationType::FAILURE) {
-      throw std::runtime_error("NDT localizer has likely encountered a numerical "
-              "error during optimization.");
+      throw std::runtime_error(
+              "NDT localizer has likely encountered a numerical error during optimization.");
     }
 
     // Convert eigen pose back to ros pose/transform
-    transform_adapters::pose_to_transform(eig_pose_result,
-      pose_out.pose.pose);
+    transform_adapters::pose_to_transform(eig_pose_result, pose_out.pose.pose);
 
-    pose_out.header.stamp = msg.header.stamp;
-    pose_out.header.frame_id = m_map.frame_id();
+    pose_out.header.stamp = measurement_msg.header.stamp;
+    pose_out.header.frame_id = map_msg.frame_id();
 
     // Populate covariance information. It is implementation defined.
     set_covariance(problem, eig_pose_initial, eig_pose_result, pose_out);
@@ -121,11 +123,11 @@ private:
   /// * Message timestamp is not older than the map timestamp.
   /// \param msg Message to register.
   /// \throws std::logic_error on old data.
-  void validate_msg(const sensor_msgs::msg::PointCloud2 & msg) const
+  void validate_msg(const sensor_msgs::msg::PointCloud2 & msg, const MapT & map_msg) const
   {
     const auto message_time = ::time_utils::from_message(msg.header.stamp);
     // Map shouldn't be newer than a measurement.
-    if (message_time < m_map.stamp()) {
+    if (message_time < map_msg.stamp()) {
       throw std::logic_error("Lidar scan should not have a timestamp older than the timestamp of"
               "the current map.");
     }
@@ -156,7 +158,6 @@ private:
     }
   }
 
-  MapT m_map;
   OptimizerT m_optimizer;
   Real m_outlier_ratio;
   std::chrono::nanoseconds m_guess_time_tolerance;

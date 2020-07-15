@@ -147,11 +147,11 @@ TEST_F(RelativeLocalizationNodeTest, basic) {
     }
     // Wait until correct map is received by the localizer.
     spin_until_tracker_match(
-      localizer_node, localizer_node->latest_map(), cur_map_id, max_poll_iters);
+      localizer_node, localizer_node->latest_map_msg(), cur_map_id, max_poll_iters);
 
     // Confirm map is correct.
-    EXPECT_TRUE(localizer_node->latest_map() != nullptr);
-    EXPECT_EQ(get_msg_id(*localizer_node->latest_map()), cur_map_id);
+    EXPECT_TRUE(localizer_node->latest_map_msg() != nullptr);
+    EXPECT_EQ(get_msg_id(*localizer_node->latest_map_msg()), cur_map_id);
 
     // Publish a new observation with a new ID
     cur_obs_id = i;
@@ -234,8 +234,8 @@ TEST_F(RelativeLocalizationNodeTest, exception_handling) {
   set_msg_id(m_map_msg, valid_map_id);
   map_pub->publish(m_map_msg);
   spin_until_condition(localizer_node, [&](auto &) {
-      const auto& latest_map = localizer_node->latest_map();
-      return (latest_map != nullptr) && (get_msg_id(*latest_map) == valid_map_id);
+      const auto & latest_map_msg = localizer_node->latest_map_msg();
+      return (latest_map_msg != nullptr) && (get_msg_id(*latest_map_msg) == valid_map_id);
     }, max_poll_iters);
 
   observation_pub->publish(m_observation_msg);

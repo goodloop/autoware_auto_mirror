@@ -40,7 +40,9 @@ using NewtonOptimizer = autoware::common::optimization::NewtonsMethodOptimizer<F
 using OptimizerOptions = autoware::common::optimization::OptimizationOptions;
 using FixedLineSearch = autoware::common::optimization::FixedLineSearch;
 using StaticNDTMap = autoware::localization::ndt::StaticNDTMap;
-using P2DTestLocalizer = NdtLocalizer<StaticNDTMap, NewtonOptimizer>;
+using P2DNDTOptimizationProblem =
+  autoware::localization::ndt::P2DNDTOptimizationProblem<StaticNDTMap>;
+using P2DTestLocalizer = NdtLocalizer<NewtonOptimizer, P2DNDTOptimizationProblem>;
 
 using geometry_msgs::msg::TransformStamped;
 using geometry_msgs::msg::PoseWithCovarianceStamped;
@@ -125,13 +127,12 @@ TEST_P(P2DLocalizerParameterTest, sanity_test) {
   map.insert(map_cloud);
 
   P2DTestLocalizer localizer{
-    std::move(map),
     NewtonOptimizer{FixedLineSearch{m_step_size}, m_localizer_config.optimizer_options()},
     m_localizer_config.optimization_config().outlier_ratio(),
     m_localizer_config.guess_time_tolerance()};
 
   PoseWithCovarianceStamped ros_pose_out{};
-  localizer.register_measurement(translated_cloud, transform_initial, ros_pose_out);
+  localizer.register_measurement(translated_cloud, map, transform_initial, ros_pose_out);
 
   transform_to_pose(ros_pose_out.pose.pose, pose_out);
 
@@ -168,14 +169,13 @@ TEST_F(P2DLocalizerParameterTest, delayed_scan) {
   map.insert(map_cloud);
 
   P2DTestLocalizer localizer{
-    std::move(map),
     NewtonOptimizer{FixedLineSearch{m_step_size}, m_localizer_config.optimizer_options()},
     m_localizer_config.optimization_config().outlier_ratio(),
     m_localizer_config.guess_time_tolerance()};
 
   PoseWithCovarianceStamped dummy_pose;
   EXPECT_THROW(
-    localizer.register_measurement(m_downsampled_cloud, transform_initial, dummy_pose),
+    localizer.register_measurement(m_downsampled_cloud, map, transform_initial, dummy_pose),
     std::logic_error
   );
 }
@@ -210,7 +210,6 @@ TEST_F(P2DLocalizerParameterTest, async_initial_guess) {
   map.insert(map_cloud);
 
   P2DTestLocalizer localizer{
-    std::move(map),
     NewtonOptimizer{FixedLineSearch{m_step_size}, m_localizer_config.optimizer_options()},
     m_localizer_config.optimization_config().outlier_ratio(),
     m_localizer_config.guess_time_tolerance()};
@@ -221,21 +220,23 @@ TEST_F(P2DLocalizerParameterTest, async_initial_guess) {
     };
   PoseWithCovarianceStamped dummy_pose;
   EXPECT_NO_THROW(
-    localizer.register_measurement(m_downsampled_cloud, set_and_get(scan_time), dummy_pose)
+    localizer.register_measurement(m_downsampled_cloud, map, set_and_get(scan_time), dummy_pose)
   );
   EXPECT_NO_THROW(localizer.register_measurement(
-      m_downsampled_cloud, set_and_get(guess_time_tolerated1), dummy_pose));
+      m_downsampled_cloud, map, set_and_get(guess_time_tolerated1), dummy_pose));
   EXPECT_NO_THROW(localizer.register_measurement(
-      m_downsampled_cloud, set_and_get(guess_time_tolerated2), dummy_pose));
+      m_downsampled_cloud, map, set_and_get(guess_time_tolerated2), dummy_pose));
   EXPECT_NO_THROW(localizer.register_measurement(
-      m_downsampled_cloud, set_and_get(guess_time_tolerated3), dummy_pose));
+      m_downsampled_cloud, map, set_and_get(guess_time_tolerated3), dummy_pose));
   EXPECT_NO_THROW(localizer.register_measurement(
-      m_downsampled_cloud, set_and_get(guess_time_tolerated4), dummy_pose));
+      m_downsampled_cloud, map, set_and_get(guess_time_tolerated4), dummy_pose));
 
   EXPECT_THROW(
-    localizer.register_measurement(m_downsampled_cloud, set_and_get(guess_time_late), dummy_pose),
+    localizer.register_measurement(
+      m_downsampled_cloud, map, set_and_get(guess_time_late), dummy_pose),
     std::domain_error);
   EXPECT_THROW(
-    localizer.register_measurement(m_downsampled_cloud, set_and_get(guess_time_early), dummy_pose),
+    localizer.register_measurement(
+      m_downsampled_cloud, map, set_and_get(guess_time_early), dummy_pose),
     std::domain_error);
 }

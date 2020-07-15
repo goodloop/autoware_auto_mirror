@@ -333,6 +333,8 @@ class UnconstrainedOptimizationProblem : public
   OptimizationProblem<UnconstrainedOptimizationProblem<ObjectiveT, DomainValueT, NumVarsT>,
     DomainValueT, 1U, NumVarsT, ObjectiveT, std::tuple<>, std::tuple<>>
 {
+public:
+  using Objective = ObjectiveT;
   using OptimizationProblem<UnconstrainedOptimizationProblem<ObjectiveT, DomainValueT, NumVarsT>,
     DomainValueT, 1U, NumVarsT, ObjectiveT, std::tuple<>, std::tuple<>>::OptimizationProblem;
 };
