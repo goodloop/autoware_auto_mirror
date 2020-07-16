@@ -120,43 +120,43 @@ TEST_P(joy_vi_test, basic_mapping)
   params.emplace_back("joy_topic", joy_topic);
   params.emplace_back("recordreplay_command_enabled", recordreplay_command_enabled);
 
-  params.emplace_back("axes.throttle", param.axis_map[Axes::THROTTLE]);
-  params.emplace_back("axes.brake", param.axis_map[Axes::BRAKE]);
-  params.emplace_back("axes.front_steer", param.axis_map[Axes::FRONT_STEER]);
-  params.emplace_back("axes.rear_steer", param.axis_map[Axes::REAR_STEER]);
-  params.emplace_back("axes.curvature", param.axis_map[Axes::CURVATURE]);
-  params.emplace_back("axes.acceleration", param.axis_map[Axes::ACCELERATION]);
+  params.emplace_back("axes.throttle", static_cast<uint8_t>(param.axis_map.at(Axes::THROTTLE)));
+  params.emplace_back("axes.brake", static_cast<uint8_t>(param.axis_map.at(Axes::BRAKE)));
+  params.emplace_back("axes.front_steer", static_cast<uint8_t>(param.axis_map.at(Axes::FRONT_STEER)));
+  params.emplace_back("axes.rear_steer", static_cast<uint8_t>(param.axis_map.at(Axes::REAR_STEER)));
+  params.emplace_back("axes.curvature", static_cast<uint8_t>(param.axis_map.at(Axes::CURVATURE)));
+  params.emplace_back("axes.acceleration", static_cast<uint8_t>(param.axis_map.at(Axes::ACCELERATION)));
 
-  params.emplace_back("axis_scale.throttle", param.axis_scale_map[Axes::THROTTLE]);
-  params.emplace_back("axis_scale.brake", param.axis_scale_map[Axes::BRAKE]);
-  params.emplace_back("axis_scale.front_steer", param.axis_scale_map[Axes::FRONT_STEER]);
-  params.emplace_back("axis_scale.rear_steer", param.axis_scale_map[Axes::REAR_STEER]);
-  params.emplace_back("axis_scale.curvature", param.axis_scale_map[Axes::CURVATURE]);
-  params.emplace_back("axis_scale.acceleration", param.axis_scale_map[Axes::ACCELERATION]);
+  params.emplace_back("axis_scale.throttle", param.axis_scale_map.at(Axes::THROTTLE));
+  params.emplace_back("axis_scale.brake", param.axis_scale_map.at(Axes::BRAKE));
+  params.emplace_back("axis_scale.front_steer", param.axis_scale_map.at(Axes::FRONT_STEER));
+  params.emplace_back("axis_scale.rear_steer", param.axis_scale_map.at(Axes::REAR_STEER));
+  params.emplace_back("axis_scale.curvature", param.axis_scale_map.at(Axes::CURVATURE));
+  params.emplace_back("axis_scale.acceleration", param.axis_scale_map.at(Axes::ACCELERATION));
 
-  params.emplace_back("axis_offset.throttle", param.axis_offset_map[Axes::THROTTLE]);
-  params.emplace_back("axis_offset.brake", param.axis_offset_map[Axes::BRAKE]);
-  params.emplace_back("axis_offset.front_steer", param.axis_offset_map[Axes::FRONT_STEER]);
-  params.emplace_back("axis_offset.rear_steer", param.axis_offset_map[Axes::REAR_STEER]);
-  params.emplace_back("axis_offset.curvature", param.axis_offset_map[Axes::CURVATURE]);
-  params.emplace_back("axis_offset.acceleration", param.axis_offset_map[Axes::ACCELERATION]);
+  params.emplace_back("axis_offset.throttle", param.axis_offset_map.at(Axes::THROTTLE));
+  params.emplace_back("axis_offset.brake", param.axis_offset_map.at(Axes::BRAKE));
+  params.emplace_back("axis_offset.front_steer", param.axis_offset_map.at(Axes::FRONT_STEER));
+  params.emplace_back("axis_offset.rear_steer", param.axis_offset_map.at(Axes::REAR_STEER));
+  params.emplace_back("axis_offset.curvature", param.axis_offset_map.at(Axes::CURVATURE));
+  params.emplace_back("axis_offset.acceleration", param.axis_offset_map.at(Axes::ACCELERATION));
 
-  params.emplace_back("buttons.autonomous", param.button_map[Buttons::AUTONOMOUS_TOGGLE]);
-  params.emplace_back("buttons.headlights", param.button_map[Buttons::HEADLIGHTS_TOGGLE]);
-  params.emplace_back("buttons.wiper", param.button_map[Buttons::WIPER_TOGGLE]);
-  params.emplace_back("buttons.gear_drive", param.button_map[Buttons::GEAR_DRIVE]);
-  params.emplace_back("buttons.gear_reverse", param.button_map[Buttons::GEAR_REVERSE]);
-  params.emplace_back("buttons.gear_park", param.button_map[Buttons::GEAR_PARK]);
-  params.emplace_back("buttons.gear_neutral", param.button_map[Buttons::GEAR_NEUTRAL]);
-  params.emplace_back("buttons.gear_low", param.button_map[Buttons::GEAR_LOW]);
-  params.emplace_back("buttons.blinker_left", param.button_map[Buttons::BLINKER_LEFT]);
-  params.emplace_back("buttons.blinker_right", param.button_map[Buttons::BLINKER_RIGHT]);
-  params.emplace_back("buttons.blinker_hazard", param.button_map[Buttons::BLINKER_HAZARD]);
-  params.emplace_back("buttons.velocity_up", param.button_map[Buttons::VELOCITY_UP]);
-  params.emplace_back("buttons.velocity_down", param.button_map[Buttons::VELOCITY_DOWN]);
-  params.emplace_back("buttons.recordreplay_start_record", param.button_map[Buttons::RECORDREPLAY_START_RECORD]);
-  params.emplace_back("buttons.recordreplay_start_replay", param.button_map[Buttons::RECORDREPLAY_START_REPLAY]);
-  params.emplace_back("buttons.recordreplay_stop", param.button_map[Buttons::RECORDREPLAY_STOP]);
+  params.emplace_back("buttons.autonomous", static_cast<uint8_t>(param.button_map.at(Buttons::AUTONOMOUS_TOGGLE)));
+  params.emplace_back("buttons.headlights", static_cast<uint8_t>(param.button_map.at(Buttons::HEADLIGHTS_TOGGLE)));
+  params.emplace_back("buttons.wiper", static_cast<uint8_t>(param.button_map.at(Buttons::WIPER_TOGGLE)));
+  params.emplace_back("buttons.gear_drive", static_cast<uint8_t>(param.button_map.at(Buttons::GEAR_DRIVE)));
+  params.emplace_back("buttons.gear_reverse", static_cast<uint8_t>(param.button_map.at(Buttons::GEAR_REVERSE)));
+  params.emplace_back("buttons.gear_park", static_cast<uint8_t>(param.button_map.at(Buttons::GEAR_PARK)));
+  params.emplace_back("buttons.gear_neutral", static_cast<uint8_t>(param.button_map.at(Buttons::GEAR_NEUTRAL)));
+  params.emplace_back("buttons.gear_low", static_cast<uint8_t>(param.button_map.at(Buttons::GEAR_LOW)));
+  params.emplace_back("buttons.blinker_left", static_cast<uint8_t>(param.button_map.at(Buttons::BLINKER_LEFT)));
+  params.emplace_back("buttons.blinker_right", static_cast<uint8_t>(param.button_map.at(Buttons::BLINKER_RIGHT)));
+  params.emplace_back("buttons.blinker_hazard", static_cast<uint8_t>(param.button_map.at(Buttons::BLINKER_HAZARD)));
+  params.emplace_back("buttons.velocity_up", static_cast<uint8_t>(param.button_map.at(Buttons::VELOCITY_UP)));
+  params.emplace_back("buttons.velocity_down", static_cast<uint8_t>(param.button_map.at(Buttons::VELOCITY_DOWN)));
+  params.emplace_back("buttons.recordreplay_start_record", static_cast<uint8_t>(param.button_map.at(Buttons::RECORDREPLAY_START_RECORD)));
+  params.emplace_back("buttons.recordreplay_start_replay", static_cast<uint8_t>(param.button_map.at(Buttons::RECORDREPLAY_START_REPLAY)));
+  params.emplace_back("buttons.recordreplay_stop", static_cast<uint8_t>(param.button_map.at(Buttons::RECORDREPLAY_STOP)));
 
   node_options.parameter_overrides(params);
 
