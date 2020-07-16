@@ -336,12 +336,11 @@ private:
     const tf2::Transform map_base_link_transform{rotation, translation};
 
     geometry_msgs::msg::TransformStamped odom_tf;
-    try{
+    try {
       odom_tf = m_tf_buffer.lookupTransform("odom", "base_link",
           time_utils::from_message(pose_msg.header.stamp));
-    }catch(const tf2::ExtrapolationException &)
-    {
-      odom_tf = m_tf_buffer.lookupTransform("odom", "base_link",tf2::TimePointZero);
+    } catch (const tf2::ExtrapolationException &) {
+      odom_tf = m_tf_buffer.lookupTransform("odom", "base_link", tf2::TimePointZero);
     }
     tf2::Quaternion odom_rotation{odom_tf.transform.rotation.x,
       odom_tf.transform.rotation.y, odom_tf.transform.rotation.z, odom_tf.transform.rotation.w};
