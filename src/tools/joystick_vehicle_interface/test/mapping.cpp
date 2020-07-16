@@ -25,6 +25,7 @@
 #include <memory>
 #include <string>
 #include <thread>
+#include <vector>
 
 using joystick_vehicle_interface::Axes;
 using joystick_vehicle_interface::Buttons;
@@ -122,10 +123,12 @@ TEST_P(joy_vi_test, basic_mapping)
 
   params.emplace_back("axes.throttle", static_cast<uint8_t>(param.axis_map.at(Axes::THROTTLE)));
   params.emplace_back("axes.brake", static_cast<uint8_t>(param.axis_map.at(Axes::BRAKE)));
-  params.emplace_back("axes.front_steer", static_cast<uint8_t>(param.axis_map.at(Axes::FRONT_STEER)));
+  params.emplace_back("axes.front_steer",
+    static_cast<uint8_t>(param.axis_map.at(Axes::FRONT_STEER)));
   params.emplace_back("axes.rear_steer", static_cast<uint8_t>(param.axis_map.at(Axes::REAR_STEER)));
   params.emplace_back("axes.curvature", static_cast<uint8_t>(param.axis_map.at(Axes::CURVATURE)));
-  params.emplace_back("axes.acceleration", static_cast<uint8_t>(param.axis_map.at(Axes::ACCELERATION)));
+  params.emplace_back("axes.acceleration",
+    static_cast<uint8_t>(param.axis_map.at(Axes::ACCELERATION)));
 
   params.emplace_back("axis_scale.throttle", param.axis_scale_map.at(Axes::THROTTLE));
   params.emplace_back("axis_scale.brake", param.axis_scale_map.at(Axes::BRAKE));
@@ -141,37 +144,53 @@ TEST_P(joy_vi_test, basic_mapping)
   params.emplace_back("axis_offset.curvature", param.axis_offset_map.at(Axes::CURVATURE));
   params.emplace_back("axis_offset.acceleration", param.axis_offset_map.at(Axes::ACCELERATION));
 
-  params.emplace_back("buttons.autonomous", static_cast<uint8_t>(param.button_map.at(Buttons::AUTONOMOUS_TOGGLE)));
-  params.emplace_back("buttons.headlights", static_cast<uint8_t>(param.button_map.at(Buttons::HEADLIGHTS_TOGGLE)));
-  params.emplace_back("buttons.wiper", static_cast<uint8_t>(param.button_map.at(Buttons::WIPER_TOGGLE)));
-  params.emplace_back("buttons.gear_drive", static_cast<uint8_t>(param.button_map.at(Buttons::GEAR_DRIVE)));
-  params.emplace_back("buttons.gear_reverse", static_cast<uint8_t>(param.button_map.at(Buttons::GEAR_REVERSE)));
-  params.emplace_back("buttons.gear_park", static_cast<uint8_t>(param.button_map.at(Buttons::GEAR_PARK)));
-  params.emplace_back("buttons.gear_neutral", static_cast<uint8_t>(param.button_map.at(Buttons::GEAR_NEUTRAL)));
-  params.emplace_back("buttons.gear_low", static_cast<uint8_t>(param.button_map.at(Buttons::GEAR_LOW)));
-  params.emplace_back("buttons.blinker_left", static_cast<uint8_t>(param.button_map.at(Buttons::BLINKER_LEFT)));
-  params.emplace_back("buttons.blinker_right", static_cast<uint8_t>(param.button_map.at(Buttons::BLINKER_RIGHT)));
-  params.emplace_back("buttons.blinker_hazard", static_cast<uint8_t>(param.button_map.at(Buttons::BLINKER_HAZARD)));
-  params.emplace_back("buttons.velocity_up", static_cast<uint8_t>(param.button_map.at(Buttons::VELOCITY_UP)));
-  params.emplace_back("buttons.velocity_down", static_cast<uint8_t>(param.button_map.at(Buttons::VELOCITY_DOWN)));
-  params.emplace_back("buttons.recordreplay_start_record", static_cast<uint8_t>(param.button_map.at(Buttons::RECORDREPLAY_START_RECORD)));
-  params.emplace_back("buttons.recordreplay_start_replay", static_cast<uint8_t>(param.button_map.at(Buttons::RECORDREPLAY_START_REPLAY)));
-  params.emplace_back("buttons.recordreplay_stop", static_cast<uint8_t>(param.button_map.at(Buttons::RECORDREPLAY_STOP)));
+  params.emplace_back("buttons.autonomous",
+    static_cast<uint8_t>(param.button_map.at(Buttons::AUTONOMOUS_TOGGLE)));
+  params.emplace_back("buttons.headlights",
+    static_cast<uint8_t>(param.button_map.at(Buttons::HEADLIGHTS_TOGGLE)));
+  params.emplace_back("buttons.wiper",
+    static_cast<uint8_t>(param.button_map.at(Buttons::WIPER_TOGGLE)));
+  params.emplace_back("buttons.gear_drive",
+    static_cast<uint8_t>(param.button_map.at(Buttons::GEAR_DRIVE)));
+  params.emplace_back("buttons.gear_reverse",
+    static_cast<uint8_t>(param.button_map.at(Buttons::GEAR_REVERSE)));
+  params.emplace_back("buttons.gear_park",
+    static_cast<uint8_t>(param.button_map.at(Buttons::GEAR_PARK)));
+  params.emplace_back("buttons.gear_neutral",
+    static_cast<uint8_t>(param.button_map.at(Buttons::GEAR_NEUTRAL)));
+  params.emplace_back("buttons.gear_low",
+    static_cast<uint8_t>(param.button_map.at(Buttons::GEAR_LOW)));
+  params.emplace_back("buttons.blinker_left",
+    static_cast<uint8_t>(param.button_map.at(Buttons::BLINKER_LEFT)));
+  params.emplace_back("buttons.blinker_right",
+    static_cast<uint8_t>(param.button_map.at(Buttons::BLINKER_RIGHT)));
+  params.emplace_back("buttons.blinker_hazard",
+    static_cast<uint8_t>(param.button_map.at(Buttons::BLINKER_HAZARD)));
+  params.emplace_back("buttons.velocity_up",
+    static_cast<uint8_t>(param.button_map.at(Buttons::VELOCITY_UP)));
+  params.emplace_back("buttons.velocity_down",
+    static_cast<uint8_t>(param.button_map.at(Buttons::VELOCITY_DOWN)));
+  params.emplace_back("buttons.recordreplay_start_record",
+    static_cast<uint8_t>(param.button_map.at(Buttons::RECORDREPLAY_START_RECORD)));
+  params.emplace_back("buttons.recordreplay_start_replay",
+    static_cast<uint8_t>(param.button_map.at(Buttons::RECORDREPLAY_START_REPLAY)));
+  params.emplace_back("buttons.recordreplay_stop",
+    static_cast<uint8_t>(param.button_map.at(Buttons::RECORDREPLAY_STOP)));
 
   node_options.parameter_overrides(params);
 
   const auto nd = std::make_shared<JoystickVehicleInterfaceNode>(
     node_options);
-    // "test_joystick_vehicle_interface",
-    // "",
-    // control_command,
-    // state_command_topic,
-    // joy_topic,
-    // recordreplay_command_enabled,
-    // param.axis_map,
-    // param.axis_scale_map,
-    // param.axis_offset_map,
-    // param.button_map);
+  // "test_joystick_vehicle_interface",
+  // "",
+  // control_command,
+  // state_command_topic,
+  // joy_topic,
+  // recordreplay_command_enabled,
+  // param.axis_map,
+  // param.axis_scale_map,
+  // param.axis_offset_map,
+  // param.button_map);
 
   // make joy
   sensor_msgs::msg::Joy joy_msg{};

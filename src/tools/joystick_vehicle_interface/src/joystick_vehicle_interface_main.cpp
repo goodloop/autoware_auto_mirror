@@ -25,7 +25,8 @@ int main(int argc, char ** argv)
 
   rclcpp::NodeOptions node_options;
 
-  const auto nd = std::make_shared<joystick_vehicle_interface::JoystickVehicleInterfaceNode>(node_options);
+  const auto nd = std::make_shared<joystick_vehicle_interface::JoystickVehicleInterfaceNode>(
+    node_options);
   rclcpp::spin(nd);
 
   (void)rclcpp::shutdown();
