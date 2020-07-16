@@ -117,13 +117,10 @@ public:
   /// \param scan Scan to align with the map.
   /// \param map NDT map to be aligned.
   /// \param config Optimization config.
-  P2DNDTObjective(
-    const P2DNDTScan & scan, const Map & map,
-    const P2DNDTOptimizationConfig & config)
-  : m_scan_ref(scan),
-    m_map_ref(map)
+  P2DNDTObjective(const P2DNDTScan & scan, const Map & map, const Real outlier_ratio)
+  : m_scan_ref(scan), m_map_ref(map)
   {
-    init(config.outlier_ratio());
+    init(outlier_ratio);
   }
 
   void evaluate_(const DomainValue & x, const ComputeMode & mode)

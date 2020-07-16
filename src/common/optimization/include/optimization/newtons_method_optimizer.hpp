@@ -41,8 +41,10 @@ public:
   using StepT = float_t;
 
   /// Constructor to initialize the line search method
-  explicit NewtonsMethodOptimizer(const LineSearchT & line_searcher)
-  : m_line_searcher(line_searcher) {}
+  explicit NewtonsMethodOptimizer(
+    const LineSearchT & line_searcher,
+    const OptimizationOptions & options)
+  : Optimizer<NewtonsMethodOptimizer<LineSearchT>>{options}, m_line_searcher(line_searcher) {}
 
   /// Solves `x_out` for an objective `optimization_problem` and an initial value `x0`
   /// \tparam OptimizationProblemT Optimization problem type. Must be an
@@ -58,8 +60,7 @@ public:
   template<typename OptimizationProblemT, typename DomainValueT, typename EigenSolverT>
   OptimizationSummary solve_(
     OptimizationProblemT & optimization_problem,
-    const DomainValueT & x0, DomainValueT & x_out,
-    const NewtonOptimizationOptions & options)
+    const DomainValueT & x0, DomainValueT & x_out)
   {
     // Get types from the method's templated parameter
     using Value = typename OptimizationProblemT::Value;
@@ -85,14 +86,14 @@ public:
     optimization_problem.hessian(x_out, hessian);
 
     // Early exit if the initial solution is good enough.
-    if (jacobian.template lpNorm<Eigen::Infinity>() <= options.gradient_tolerance()) {
+    if (jacobian.template lpNorm<Eigen::Infinity>() <= this->options().gradient_tolerance()) {
       // As there's no newton solution yet, jacobian can be a good substitute.
       return OptimizationSummary{jacobian.norm(), TerminationType::CONVERGENCE, 0UL};
     }
 
     // Iterate until convergence, error, or maximum number of iterations
     auto nr_iterations = 0UL;
-    for (; nr_iterations < options.max_num_iterations(); ++nr_iterations) {
+    for (; nr_iterations < this->options().max_num_iterations(); ++nr_iterations) {
       if (!x_out.allFinite() || !jacobian.allFinite() || !hessian.allFinite()) {
         termination_type = TerminationType::FAILURE;
         break;
@@ -122,7 +123,8 @@ public:
       // (Inspired from https://github.com/ceres-solver/ceres-solver/blob/4362a2169966e08394252098
       // c80d1f26764becd0/include/ceres/tiny_solver.h#L244)
       const auto parameter_tolerance =
-        options.parameter_tolerance() * (prev_x_norm + options.parameter_tolerance());
+        this->options().parameter_tolerance() *
+        (prev_x_norm + this->options().parameter_tolerance());
       if (step.norm() <= parameter_tolerance) {
         termination_type = TerminationType::CONVERGENCE;
         break;
@@ -135,14 +137,14 @@ public:
       optimization_problem.hessian(x_out, hessian);
 
       // Check if the max-norm of the gradient is small enough.
-      if (jacobian.template lpNorm<Eigen::Infinity>() <= options.gradient_tolerance()) {
+      if (jacobian.template lpNorm<Eigen::Infinity>() <= this->options().gradient_tolerance()) {
         termination_type = TerminationType::CONVERGENCE;
         break;
       }
 
       // Check change in cost function.
       if (std::fabs(score - score_previous) <=
-        (options.function_tolerance() * std::fabs(score_previous)))
+        (this->options().function_tolerance() * std::fabs(score_previous)))
       {
         termination_type = TerminationType::CONVERGENCE;
         break;

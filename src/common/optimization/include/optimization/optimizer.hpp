@@ -32,6 +32,9 @@ template<typename Derived>
 class OPTIMIZATION_PUBLIC Optimizer : public common::helper_functions::crtp<Derived>
 {
 public:
+  explicit Optimizer(const OptimizationOptions & options)
+  : m_options{options} {}
+
   /// Solves `x_out` for an objective `optimization_problem` and an initial value `x0`
   /// \tparam OptimizationProblemT Optimization problem type. Must be an
   /// implementation of `common::optimization::OptimizationProblem`.
@@ -43,16 +46,20 @@ public:
   /// \param x_out optimized value
   /// \param options optimization options
   /// \return summary object
-  template<typename OptimizationProblemT, typename DomainValueT, typename OptionsT,
+  template<typename OptimizationProblemT, typename DomainValueT,
     typename EigenSolverT = Eigen::LDLT<typename OptimizationProblemT::Hessian>>
   OptimizationSummary solve(
     OptimizationProblemT & optimization_problem,
-    const DomainValueT & x0, DomainValueT & x_out,
-    const OptionsT & options)
+    const DomainValueT & x0, DomainValueT & x_out)
   {
     return this->impl().template solve_<OptimizationProblemT, DomainValueT, EigenSolverT>(
-      optimization_problem, x0, x_out, options);
+      optimization_problem, x0, x_out);
   }
+
+  const OptimizationOptions options() const noexcept {return m_options;}
+
+private:
+  OptimizationOptions m_options;
 };
 
 }  // namespace optimization

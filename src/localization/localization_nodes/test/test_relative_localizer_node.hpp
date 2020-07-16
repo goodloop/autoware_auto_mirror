@@ -17,8 +17,10 @@
 #ifndef TEST_RELATIVE_LOCALIZER_NODE_HPP_
 #define TEST_RELATIVE_LOCALIZER_NODE_HPP_
 
-#include <localization_common/localizer_base.hpp>
 #include <std_msgs/msg/u_int8.hpp>
+#include <localization_common/localizer_interface.hpp>
+#include <localization_nodes/localization_node.hpp>
+#include <optimization/optimizer_options.hpp>
 
 #include <memory>
 #include <string>
@@ -26,7 +28,7 @@
 #include "common/types.hpp"
 
 using autoware::common::types::bool8_t;
-using autoware::localization::localization_common::RelativeLocalizerBase;
+using autoware::localization::localization_common::LocalizerInterface;
 using autoware::localization::localization_nodes::RelativeLocalizerNode;
 using autoware::localization::localization_nodes::TopicQoS;
 
@@ -39,30 +41,28 @@ using Transform = geometry_msgs::msg::TransformStamped;
 
 constexpr int TEST_ERROR_ID = -9999;
 
-class MockRelativeLocalizer : public RelativeLocalizerBase<TestObservation, TestMap, int>
+class MockMap
 {
 public:
-  MockRelativeLocalizer(
-    std::shared_ptr<TestMap> obs_ptr,
-    std::shared_ptr<TestObservation> map_ptr);
+  void insert(MsgWithHeader) {}
+};
+
+class MockRelativeLocalizer : public LocalizerInterface<TestObservation, TestMap>
+{
+public:
+  using MapT = MockMap;
+
+  explicit MockRelativeLocalizer(std::shared_ptr<TestObservation> obs_ptr);
   // constructor when the tracking is not needed.
   MockRelativeLocalizer() = default;
 
-  RegistrationSummary register_measurement_impl(
+  autoware::common::optimization::OptimizationSummary register_measurement(
     const TestObservation & msg,
+    const TestMap & map,
     const Transform & transform_initial, PoseWithCovarianceStamped & pose_out) override;
-
-  void set_map_impl(const TestMap & msg) override;
-
-  void insert_to_map_impl(const TestMap & msg) override;
-
-  const std::string & map_frame_id() const noexcept override;
-
-  std::chrono::system_clock::time_point map_stamp() const noexcept override;
 
 private:
   TestMap m_map;
-  std::shared_ptr<TestMap> m_map_tracking_ptr;
   std::shared_ptr<TestObservation> m_observation_tracking_ptr;
 };
 
@@ -74,8 +74,8 @@ public:
     const std::string & id1, const std::string & id2);
 };
 
-class TestRelativeLocalizerNode : public RelativeLocalizerNode<TestObservation, TestMap,
-    MockRelativeLocalizer, MockInitializer>
+class TestRelativeLocalizerNode : public RelativeLocalizerNode<
+    TestObservation, TestMap, MockRelativeLocalizer, MockInitializer>
 {
 public:
   using RelativeLocalizerNode::RelativeLocalizerNode;
@@ -89,9 +89,6 @@ public:
 
 protected:
   void on_bad_registration(std::exception_ptr eptr) override;
-
-  /// Handle the exceptions during map setting.
-  void on_bad_map(std::exception_ptr eptr) override;
 
   void on_observation_with_invalid_map(TestObservation::ConstSharedPtr msg) override;
 

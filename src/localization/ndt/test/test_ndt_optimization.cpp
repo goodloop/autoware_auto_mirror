@@ -71,7 +71,7 @@ TEST_P(P2DOptimizationNumericalTest, numerical_analysis) {
   {
     // m_pc is also used as the map, so this scan perfectly aligns with the map
     P2DNDTScan matching_scan(m_downsampled_cloud, m_downsampled_cloud.width);
-    P2DProblem problem{matching_scan, m_static_map, P2DNDTOptimizationConfig{0.55}};
+    P2DProblem problem{matching_scan, m_static_map, 0.55};
 
     EigenPose<Real> pose = GetParam().diff;
     problem.evaluate(pose, autoware::common::optimization::ComputeMode{true, true, true});
@@ -129,7 +129,7 @@ TEST_P(P2DOptimizationValidationTest, sanity_test) {
   const auto num_iters = 5U;
   {
     P2DNDTScan scan(translated_cloud, translated_cloud.width);
-    P2DProblem problem{scan, m_static_map, P2DNDTOptimizationConfig{0.55}};
+    P2DProblem problem{scan, m_static_map, 0.55};
     // Solve the problem in 50 iterations:
     for (auto i = 0U; i < num_iters; ++i) {
       problem.evaluate(guess,
