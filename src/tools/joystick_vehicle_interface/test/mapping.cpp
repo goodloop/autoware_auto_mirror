@@ -97,22 +97,19 @@ TEST_P(joy_vi_test, basic_mapping)
     (PubType::HighLevel == param.pub_type) ? "high_level" :
     (PubType::Raw == param.pub_type) ? "raw" :
     (PubType::Basic == param.pub_type) ? "basic" : "null";
-  constexpr auto state_command_topic = "test_state_command_topic";
-  constexpr auto joy_topic = "test_joy_topic";
-  constexpr auto recordreplay_command_topic = "recordreplay_cmd";
   const bool recordreplay_command_enabled = true;
 
   const auto test_nd = std::make_shared<rclcpp::Node>("test_joystick_vehicle_interface_talker");
   const auto qos = rclcpp::SensorDataQoS{};
-  const auto joy_pub = test_nd->create_publisher<sensor_msgs::msg::Joy>(joy_topic, qos);
+  const auto joy_pub = test_nd->create_publisher<sensor_msgs::msg::Joy>("joy", qos);
   SubAndMsg<autoware_auto_msgs::msg::RawControlCommand>
   raw{*test_nd, (control_command == "raw") ? "raw_command" : "null"};
   SubAndMsg<autoware_auto_msgs::msg::HighLevelControlCommand>
   high_level{*test_nd, (control_command == "high_level") ? "high_level_command" : "null"};
   SubAndMsg<autoware_auto_msgs::msg::VehicleControlCommand>
   basic{*test_nd, (control_command == "basic") ? "basic_command" : "null"};
-  SubAndMsg<autoware_auto_msgs::msg::VehicleStateCommand> state{*test_nd, state_command_topic};
-  SubAndMsg<std_msgs::msg::UInt8> recordreplay{*test_nd, recordreplay_command_topic};
+  SubAndMsg<autoware_auto_msgs::msg::VehicleStateCommand> state{*test_nd, "state_command"};
+  SubAndMsg<std_msgs::msg::UInt8> recordreplay{*test_nd, "recordreplay_cmd"};
 
   ASSERT_NE(state.sub_, nullptr);
   switch (param.pub_type) {
@@ -131,11 +128,8 @@ TEST_P(joy_vi_test, basic_mapping)
 
   std::vector<rclcpp::Parameter> params;
   params.emplace_back("control_command", control_command);
-  params.emplace_back("state_command_topic", state_command_topic);
-  params.emplace_back("joy_topic", joy_topic);
   params.emplace_back("recordreplay_command_enabled", recordreplay_command_enabled);
 
-  add_map_value_to_parameters<uint8_t>(params, "axes.throttle", param.axis_map, Axes::THROTTLE);
   add_map_value_to_parameters<uint8_t>(params, "axes.throttle", param.axis_map, Axes::THROTTLE);
   add_map_value_to_parameters<uint8_t>(params, "axes.brake", param.axis_map, Axes::BRAKE);
   add_map_value_to_parameters<uint8_t>(params, "axes.front_steer", param.axis_map,
