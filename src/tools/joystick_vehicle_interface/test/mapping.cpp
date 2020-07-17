@@ -69,9 +69,8 @@ protected:
     const K & map_key)
   {
     auto && it = map.find(map_key);
-    if (it != map.end())
-    {
-        params.emplace_back(parameter_key, static_cast<uint8_t>(map.at(map_key)));
+    if (it != map.end()) {
+      params.emplace_back(parameter_key, static_cast<uint8_t>(map.at(map_key)));
     }
   }
 };  // class joy_vi_test
@@ -146,34 +145,55 @@ TEST_P(joy_vi_test, basic_mapping)
 
   add_map_value_to_parameters(params, "axis_scale.throttle", param.axis_scale_map, Axes::THROTTLE);
   add_map_value_to_parameters(params, "axis_scale.brake", param.axis_scale_map, Axes::BRAKE);
-  add_map_value_to_parameters(params, "axis_scale.front_steer", param.axis_scale_map, Axes::FRONT_STEER);
-  add_map_value_to_parameters(params, "axis_scale.rear_steer", param.axis_scale_map, Axes::REAR_STEER);
-  add_map_value_to_parameters(params, "axis_scale.curvature", param.axis_scale_map, Axes::CURVATURE);
-  add_map_value_to_parameters(params, "axis_scale.acceleration", param.axis_scale_map, Axes::ACCELERATION);
+  add_map_value_to_parameters(params, "axis_scale.front_steer", param.axis_scale_map,
+    Axes::FRONT_STEER);
+  add_map_value_to_parameters(params, "axis_scale.rear_steer", param.axis_scale_map,
+    Axes::REAR_STEER);
+  add_map_value_to_parameters(params, "axis_scale.curvature", param.axis_scale_map,
+    Axes::CURVATURE);
+  add_map_value_to_parameters(params, "axis_scale.acceleration", param.axis_scale_map,
+    Axes::ACCELERATION);
 
-  add_map_value_to_parameters(params, "axis_offset.throttle", param.axis_offset_map, Axes::THROTTLE);
+  add_map_value_to_parameters(params, "axis_offset.throttle", param.axis_offset_map,
+    Axes::THROTTLE);
   add_map_value_to_parameters(params, "axis_offset.brake", param.axis_offset_map, Axes::BRAKE);
-  add_map_value_to_parameters(params, "axis_offset.front_steer", param.axis_offset_map, Axes::FRONT_STEER);
-  add_map_value_to_parameters(params, "axis_offset.rear_steer", param.axis_offset_map, Axes::REAR_STEER);
-  add_map_value_to_parameters(params, "axis_offset.curvature", param.axis_offset_map, Axes::CURVATURE);
-  add_map_value_to_parameters(params, "axis_offset.acceleration", param.axis_offset_map, Axes::ACCELERATION);
+  add_map_value_to_parameters(params, "axis_offset.front_steer", param.axis_offset_map,
+    Axes::FRONT_STEER);
+  add_map_value_to_parameters(params, "axis_offset.rear_steer", param.axis_offset_map,
+    Axes::REAR_STEER);
+  add_map_value_to_parameters(params, "axis_offset.curvature", param.axis_offset_map,
+    Axes::CURVATURE);
+  add_map_value_to_parameters(params, "axis_offset.acceleration", param.axis_offset_map,
+    Axes::ACCELERATION);
 
-  add_map_value_to_parameters(params, "buttons.autonomous", param.button_map, Buttons::AUTONOMOUS_TOGGLE);
-  add_map_value_to_parameters(params, "buttons.headlights", param.button_map, Buttons::HEADLIGHTS_TOGGLE);
+  add_map_value_to_parameters(params, "buttons.autonomous", param.button_map,
+    Buttons::AUTONOMOUS_TOGGLE);
+  add_map_value_to_parameters(params, "buttons.headlights", param.button_map,
+    Buttons::HEADLIGHTS_TOGGLE);
   add_map_value_to_parameters(params, "buttons.wiper", param.button_map, Buttons::WIPER_TOGGLE);
   add_map_value_to_parameters(params, "buttons.gear_drive", param.button_map, Buttons::GEAR_DRIVE);
-  add_map_value_to_parameters(params, "buttons.gear_reverse", param.button_map, Buttons::GEAR_REVERSE);
+  add_map_value_to_parameters(params, "buttons.gear_reverse", param.button_map,
+    Buttons::GEAR_REVERSE);
   add_map_value_to_parameters(params, "buttons.gear_park", param.button_map, Buttons::GEAR_PARK);
-  add_map_value_to_parameters(params, "buttons.gear_neutral", param.button_map, Buttons::GEAR_NEUTRAL);
+  add_map_value_to_parameters(params, "buttons.gear_neutral", param.button_map,
+    Buttons::GEAR_NEUTRAL);
   add_map_value_to_parameters(params, "buttons.gear_low", param.button_map, Buttons::GEAR_LOW);
-  add_map_value_to_parameters(params, "buttons.blinker_left", param.button_map, Buttons::BLINKER_LEFT);
-  add_map_value_to_parameters(params, "buttons.blinker_right", param.button_map, Buttons::BLINKER_RIGHT);
-  add_map_value_to_parameters(params, "buttons.blinker_hazard", param.button_map, Buttons::BLINKER_HAZARD);
-  add_map_value_to_parameters(params, "buttons.velocity_up", param.button_map, Buttons::VELOCITY_UP);
-  add_map_value_to_parameters(params, "buttons.velocity_down", param.button_map, Buttons::VELOCITY_DOWN);
-  add_map_value_to_parameters(params, "buttons.recordreplay_start_record", param.button_map, Buttons::RECORDREPLAY_START_RECORD);
-  add_map_value_to_parameters(params, "buttons.recordreplay_start_replay", param.button_map, Buttons::RECORDREPLAY_START_REPLAY);
-  add_map_value_to_parameters(params, "buttons.recordreplay_stop", param.button_map, Buttons::RECORDREPLAY_STOP);
+  add_map_value_to_parameters(params, "buttons.blinker_left", param.button_map,
+    Buttons::BLINKER_LEFT);
+  add_map_value_to_parameters(params, "buttons.blinker_right", param.button_map,
+    Buttons::BLINKER_RIGHT);
+  add_map_value_to_parameters(params, "buttons.blinker_hazard", param.button_map,
+    Buttons::BLINKER_HAZARD);
+  add_map_value_to_parameters(params, "buttons.velocity_up", param.button_map,
+    Buttons::VELOCITY_UP);
+  add_map_value_to_parameters(params, "buttons.velocity_down", param.button_map,
+    Buttons::VELOCITY_DOWN);
+  add_map_value_to_parameters(params, "buttons.recordreplay_start_record", param.button_map,
+    Buttons::RECORDREPLAY_START_RECORD);
+  add_map_value_to_parameters(params, "buttons.recordreplay_start_replay", param.button_map,
+    Buttons::RECORDREPLAY_START_REPLAY);
+  add_map_value_to_parameters(params, "buttons.recordreplay_stop", param.button_map,
+    Buttons::RECORDREPLAY_STOP);
 
   node_options.parameter_overrides(params);
 
