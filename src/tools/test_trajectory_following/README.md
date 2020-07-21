@@ -16,15 +16,12 @@ For example this package can be used to test `controller` and `simulator` with d
 
 
 ## 2. Simple trajectory following
+
 * Trajectory generation config
-```test_trajectory_following/param/simple_trajectory.param.yaml```
+`test_trajectory_following/param/simple_trajectory.param.yaml`
 
 ```
-ros2 launch test_trajectory_following simple_trajectory_following.launch.py sim_type:=dynamics  # Default
-or
-ros2 launch test_trajectory_following simple_trajectory_following.launch.py sim_type:=kinematics
-or
-ros2 launch test_trajectory_following simple_trajectory_following.launch.py sim_type:=lgsvl
+ros2 launch test_trajectory_following simple_trajectory_following.launch.py sim_type:=dynamics  # Option: dynamics(defalut), kinematics, lgsvl
 ```
 
 ## 3. Record Replay
@@ -50,27 +47,38 @@ Edit the config to publish a circle instead of a straight line.
 
 
 * Trajectory spoofer config
-```test_trajectory_following/param/trajectory_spoofer.param.yaml```
+
+```
+test_trajectory_following/param/trajectory_spoofer.param.yaml
+```
 
 ### Test with Lgsvl
+
 ```
 ros2 launch test_trajectory_following trajectory_spoofer_mpc_control.launch.py sim_type:=lgsvl
 ```
+
 ### Test with headerless dynamics simulator
+
 ```
 ros2 launch test_trajectory_following trajectory_spoofer_mpc_control.launch.py sim_type:=dynamics
-````
+```
+
 ### Test with headerless dynamics simulator, faster than realtime mode
+
 ```
 ros2 launch test_trajectory_following trajectory_spoofer_mpc_control.launch.py sim_type:=dynamics real_time_sim:=False with_rviz:=False
 ```
+
 ### Test with headerless kinematics simulator
+
 ```
 ros2 launch test_trajectory_following trajectory_spoofer_mpc_control.launch.py sim_type:=kinematics
 ```
 
 ## Toubleshooting
 Test kinematics_sim using joystick
+
 ```
 ros2 launch test_trajectory_following test_joystick_vehicle_kinematics_sim.launch.py
 ```
