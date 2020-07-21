@@ -30,6 +30,8 @@ ros2 launch test_trajectory_following simple_trajectory_following.launch.py sim_
 ros2 launch test_trajectory_following trajectory_recording.launch.py
 ```
 
+**With Joystick**
+
 * on Joystick press `start` button to `record`
 * drive vehicle manually in simulator/real world (not using the joystick)
 * press `back` button to `stop recording`
@@ -38,6 +40,28 @@ ros2 launch test_trajectory_following trajectory_recording.launch.py
   * If `with_mpc:=True` Let MPC drive or else `with_mpc:=False` drive vehicle manually in LGSVL
   * If `with_obstacle:=True` trajectory replay should handle obstacles from simulation (perception stack also launched).
 * press `back` button to `stop replaying`
+
+**With CUI**
+
+* send a record action
+
+```
+ros2 action send_goal /planning/recordtrajectory recordreplay_planner_actions/action/RecordTrajectory "{record_path: "/tmp/path"}" --feedback
+```
+
+* drive vehicle manually in simulator/real world
+* stop the record (`ctrl+c`)
+* go back to the start position (manualy, or press `F12` on the LGSVL to reset the position)
+* send a replay action
+  * If `with_mpc:=True` Let MPC drive or else `with_mpc:=False` drive vehicle manually in LGSVL
+  * If `with_obstacle:=True` trajectory replay should handle obstacles from simulation (perception stack also launched).
+
+```
+ros2 action send_goal /planning/replaytrajectory recordreplay_planner_actions/action/ReplayTrajectory "{replay_path: "/tmp/path"}" --feedback
+```
+
+* stop replaying (`ctrl+c`)
+
 
 ## 4. Trajectory spoofer
 Trajectory spoofer is very similar to `simple_trajectory`,
