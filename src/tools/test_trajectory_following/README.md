@@ -41,7 +41,7 @@ ros2 launch test_trajectory_following trajectory_recording.launch.py
   * If `with_obstacle:=True` trajectory replay should handle obstacles from simulation (perception stack also launched).
 * press `back` button to `stop replaying`
 
-**With CUI**
+**With Terminal**
 
 * send a record action
 
