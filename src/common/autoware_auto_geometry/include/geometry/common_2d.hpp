@@ -297,7 +297,7 @@ inline T closest_segment_point_2d(const T & p, const T & q, const T & r)
   if (len2 > std::numeric_limits<float32_t>::epsilon()) {
     const Interval_f unit_interval(0.0f, 1.0f);
     const float32_t val = dot_2d(minus_2d(r, p), qp) / len2;
-    const float32_t t = Interval_f::project_to(unit_interval, val);
+    const float32_t t = Interval_f::clamp_to(unit_interval, val);
     ret = plus_2d(p, times_2d(qp, t));
   }
   return ret;
