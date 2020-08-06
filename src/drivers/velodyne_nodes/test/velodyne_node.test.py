@@ -26,7 +26,7 @@ def generate_test_description(ready_fn):
 
     # The node under test and the checker node that will pass/fail our tests:
     test_topic = "veloyne_cloud_node_test_topic"
-    velodyne_cloud_node = launch_ros.actions.LifecycleNode(
+    velodyne_cloud_node = launch_ros.actions.Node(
         package="velodyne_nodes",
         executable="velodyne_cloud_node_exe",
         name="vlp16_driver_node",
