@@ -25,6 +25,6 @@ public:
   explicit NamingToolNode(const rclcpp::NodeOptions & options);
 };
 
-}  // namespace rosbag2_moriyama_converter
+}  // namespace rosbag2_naming_tool
 
 #endif  // ROSBAG2_NAMING_TOOL__ROSBAG2_NAMING_TOOL_HPP_

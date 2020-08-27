@@ -2,16 +2,18 @@
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
   <name>rosbag2_naming_tool</name>
-  <version>0.0.0</version>
-  <description>TODO: Package description</description>
-  <maintainer email="kyungpyo94@gmail.com">kyungpyo</maintainer>
-  <license>TODO: License declaration</license>
+  <version>0.0.1</version>
+  <description>Tool for applying naming conventions to rosbag2 Moriyama dataset</description>
+  <maintainer email="esteve.fernandez@tier4.jp">TierIV, Inc.</maintainer>
+  <license>Apache License 2.0</license>
 
   <buildtool_depend>ament_cmake_auto</buildtool_depend>
   <buildtool_depend>autoware_auto_cmake</buildtool_depend>
 
   <depend>rclcpp</depend>
   <depend>rclcpp_components</depend>
+  <depend>rosbag2</depend>
+  <depend>rosbag2_transport</depend>
 
   <test_depend>ament_cmake_gtest</test_depend>
   <test_depend>ament_lint_auto</test_depend>
