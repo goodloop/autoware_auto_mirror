@@ -17,9 +17,7 @@
 #include <rclcpp_components/register_node_macro.hpp>
 #include <rclcpp/rclcpp.hpp>
 
-#include <cctype>
-#include <memory>
-#include <regex>
+#include <map>
 #include <string>
 #include <vector>
 
@@ -52,12 +50,20 @@ rosbag2_naming_tool::NamingToolNode::NamingToolNode(
 
   auto topics = reader.get_all_topics_and_types();
 
+  auto topic_renamings = declare_parameter("topics").get<std::vector<std::string>>();
+
+  std::map<std::string, std::string> topic_renamings_map;
+
+  for (auto it = topic_renamings.begin(); it < topic_renamings.end(); ++it) {
+    topic_renamings_map[*it] = *(++it);
+  }
+
   for (auto topic : topics) {
     auto topic_new = topic;
-    if ("/nmea_sentence" == topic_new.name) {
-      topic_new.name = "/gnss/nmea_sentence_raw";
-    } else if ("/gnss/fix" == topic_new.name) {
-      topic_new.name = "/gnss/nav_sat_fix_raw";
+    try {
+      topic_new.name = topic_renamings_map.at(topic.name);
+    } catch (const std::out_of_range &) {
+      topic_renamings_map[topic.name] = topic.name;
     }
     writer.create_topic(topic_new);
   }
@@ -65,11 +71,7 @@ rosbag2_naming_tool::NamingToolNode::NamingToolNode(
   RCLCPP_INFO(get_logger(), "Processing rosbag2 file: " + input_storage_options.uri);
   while (reader.has_next()) {
     auto serialized_message = reader.read_next();
-    if ("/nmea_sentence" == serialized_message->topic_name) {
-      serialized_message->topic_name = "/gnss/nmea_sentence_raw";
-    } else if ("/gnss/fix" == serialized_message->topic_name) {
-      serialized_message->topic_name = "/gnss/nav_sat_fix_raw";
-    }
+    serialized_message->topic_name = topic_renamings_map.at(serialized_message->topic_name);
     writer.write(serialized_message);
   }
   RCLCPP_INFO(get_logger(), "File written: " + output_storage_options.uri);
