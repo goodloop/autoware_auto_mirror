@@ -17,6 +17,10 @@
 #include <rclcpp_components/register_node_macro.hpp>
 #include <rclcpp/rclcpp.hpp>
 
+#include <sensor_msgs/msg/nav_sat_fix.hpp>
+#include <sensor_msgs/msg/point_cloud2.hpp>
+#include <nmea_msgs/msg/sentence.hpp>
+
 #include <map>
 #include <string>
 #include <vector>
@@ -25,10 +29,6 @@
 #include "rosbag2/writer.hpp"
 #include "rosbag2/typesupport_helpers.hpp"
 #include "rosbag2/converter_interfaces/serialization_format_converter.hpp"
-
-#include <sensor_msgs/msg/nav_sat_fix.hpp>
-#include <sensor_msgs/msg/point_cloud2.hpp>
-#include <nmea_msgs/msg/sentence.hpp>
 
 rosbag2_naming_tool::NamingToolNode::NamingToolNode(
   const rclcpp::NodeOptions & options)
@@ -89,15 +89,15 @@ rosbag2_naming_tool::NamingToolNode::NamingToolNode(
     auto serialized_message = reader.read_next();
     serialized_message->topic_name = topic_renamings_map.at(serialized_message->topic_name);
 
-    if ("/gnss/nav_sat_fix_raw" == serialized_message->topic_name)
-    {
-      apply_frame_transformation<sensor_msgs::msg::NavSatFix>(serialized_message, "sensor_msgs/msg/NavSatFix", frame_renamings_map);
-    } else if ("/lidar_front/points_raw" == serialized_message->topic_name)
-    {
-      apply_frame_transformation<sensor_msgs::msg::PointCloud2>(serialized_message, "sensor_msgs/msg/PointCloud2", frame_renamings_map);
-    } else if ("/gnss/nmea_sentence_raw" == serialized_message->topic_name)
-    {
-      apply_frame_transformation<nmea_msgs::msg::Sentence>(serialized_message, "nmea_msgs/msg/Sentence", frame_renamings_map);
+    if ("/gnss/nav_sat_fix_raw" == serialized_message->topic_name) {
+      apply_frame_transformation<sensor_msgs::msg::NavSatFix>(serialized_message,
+        "sensor_msgs/msg/NavSatFix", frame_renamings_map);
+    } else if ("/lidar_front/points_raw" == serialized_message->topic_name) {
+      apply_frame_transformation<sensor_msgs::msg::PointCloud2>(serialized_message,
+        "sensor_msgs/msg/PointCloud2", frame_renamings_map);
+    } else if ("/gnss/nmea_sentence_raw" == serialized_message->topic_name) {
+      apply_frame_transformation<nmea_msgs::msg::Sentence>(serialized_message,
+        "nmea_msgs/msg/Sentence", frame_renamings_map);
     }
     writer.write(serialized_message);
   }
