@@ -17,12 +17,41 @@
 
 #include <rclcpp/rclcpp.hpp>
 
+#include "rosbag2/sequential_reader.hpp"
+#include "rosbag2/writer.hpp"
+#include "rosbag2/typesupport_helpers.hpp"
+#include "rosbag2/converter_interfaces/serialization_format_converter.hpp"
+
 namespace rosbag2_naming_tool
 {
 class NamingToolNode : public rclcpp::Node
 {
 public:
   explicit NamingToolNode(const rclcpp::NodeOptions & options);
+private:
+  template<typename MessageT>
+  void apply_frame_transformation(std::shared_ptr<rosbag2_storage::SerializedBagMessage> serialized_message, const std::string & message_type, const std::map<std::string, std::string> & frame_renamings_map)
+  {
+    MessageT msg;
+    auto ros_message = std::make_shared<rosbag2_introspection_message_t>();
+    ros_message->time_stamp = 0;
+    ros_message->message = nullptr;
+    ros_message->allocator = rcutils_get_default_allocator();
+    ros_message->message = &msg;
+    auto type_support = rosbag2::get_typesupport(message_type, "rosidl_typesupport_cpp");
+
+    rosbag2::SerializationFormatConverterFactory factory;
+    std::unique_ptr<rosbag2::converter_interfaces::SerializationFormatDeserializer> cdr_deserializer;
+    cdr_deserializer = factory.load_deserializer("cdr");
+
+    cdr_deserializer->deserialize(serialized_message, type_support, ros_message);
+
+    msg.header.frame_id = frame_renamings_map.at(msg.header.frame_id);
+
+    std::unique_ptr<rosbag2::converter_interfaces::SerializationFormatSerializer> cdr_serializer;
+    cdr_serializer = factory.load_serializer("cdr");
+    cdr_serializer->serialize(ros_message, type_support, serialized_message);
+  }
 };
 
 }  // namespace rosbag2_naming_tool
