@@ -1,0 +1,8 @@
+
+---
+/**:
+  ros__parameters:
+    input_dataset: "../rosbag2/sample_moriyama_150324_autowareauto/"
+    output_dataset: "../rosbag2/sample_moriyama_150324_autowareauto_new/"
+    topics: ["/nmea_sentence", "/gnss/nmea_sentence_raw", "/gnss/fix", "/gnss/nav_sat_fix_raw"]
+    frames: ["/gps", "gnss"]
