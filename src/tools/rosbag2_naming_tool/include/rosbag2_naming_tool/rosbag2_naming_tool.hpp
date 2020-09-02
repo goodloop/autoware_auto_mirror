@@ -39,7 +39,7 @@ private:
   void apply_frame_transformation(
     std::shared_ptr<rosbag2_storage::SerializedBagMessage> serialized_message,
     const std::string & message_type,
-    const std::map<std::string, std::string> & frame_renamings_map)
+    std::map<std::string, std::string> & frame_renamings_map)
   {
     MessageT msg;
     auto ros_message = std::make_shared<rosbag2_introspection_message_t>();
@@ -57,7 +57,11 @@ private:
 
     cdr_deserializer->deserialize(serialized_message, type_support, ros_message);
 
-    msg.header.frame_id = frame_renamings_map.at(msg.header.frame_id);
+    try {
+      msg.header.frame_id = frame_renamings_map.at(msg.header.frame_id);
+    } catch (const std::out_of_range &) {
+      frame_renamings_map[msg.header.frame_id] = msg.header.frame_id;
+    }
 
     std::unique_ptr<rosbag2::converter_interfaces::SerializationFormatSerializer> cdr_serializer;
     cdr_serializer = factory.load_serializer("cdr");

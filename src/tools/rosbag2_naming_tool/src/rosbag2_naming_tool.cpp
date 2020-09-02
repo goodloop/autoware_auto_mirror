@@ -85,10 +85,10 @@ rosbag2_naming_tool::NamingToolNode::NamingToolNode(
   }
 
   RCLCPP_INFO(get_logger(), "Processing rosbag2 file: " + input_storage_options.uri);
+
   while (reader.has_next()) {
     auto serialized_message = reader.read_next();
-    serialized_message->topic_name = topic_renamings_map.at(serialized_message->topic_name);
-
+    serialized_message->topic_name = topic_renamings_map[serialized_message->topic_name];
     if ("/gnss/nav_sat_fix_raw" == serialized_message->topic_name) {
       apply_frame_transformation<sensor_msgs::msg::NavSatFix>(serialized_message,
         "sensor_msgs/msg/NavSatFix", frame_renamings_map);
