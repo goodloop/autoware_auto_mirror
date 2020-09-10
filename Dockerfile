@@ -45,6 +45,8 @@ RUN cp /etc/apt/apt.conf.d/docker-clean /etc/apt/ && \
 RUN --mount=type=cache,target=/var/cache/apt \
     --mount=type=cache,target=/var/lib/apt \
     apt-get update && apt-get install -q -y \
+      clang \
+      clang-tidy \
       ccache \
       lcov \
     && rosdep update
