@@ -14,10 +14,18 @@
 #   -f Dockerfile ./
 
 ARG FROM_IMAGE=ros:foxy
+ARG UNDERLAY_WS=/opt/underlay_ws
 ARG OVERLAY_WS=/opt/overlay_ws
 
 # multi-stage for caching
 FROM $FROM_IMAGE AS cacher
+
+# clone underlay source
+ARG UNDERLAY_WS
+WORKDIR $UNDERLAY_WS/src
+COPY ./tools/ade_image/underlay.repos ../
+RUN vcs import ./ < ../underlay.repos && \
+    find ./ -name ".git" | xargs rm -rf
 
 # copy overlay source
 ARG OVERLAY_WS
@@ -52,13 +60,34 @@ RUN --mount=type=cache,target=/var/cache/apt \
       python3-distro \
     && rosdep update
 
+# install underlay dependencies
+ARG UNDERLAY_WS
+WORKDIR $UNDERLAY_WS
+COPY --from=cacher /tmp/$UNDERLAY_WS/src ./src
+RUN --mount=type=cache,target=/var/cache/apt \
+    --mount=type=cache,target=/var/lib/apt \
+    . /opt/ros/$ROS_DISTRO/setup.sh && \
+    apt-get update && rosdep install -q -y \
+      --from-paths src \
+      --ignore-src \
+    && rm -rf /var/lib/apt/lists/*
+
+# build underlay source
+COPY --from=cacher $UNDERLAY_WS/src ./src
+ARG UNDERLAY_MIXINS="release ccache"
+RUN --mount=type=cache,target=/root/.ccache \
+    . /opt/ros/$ROS_DISTRO/setup.sh && \
+    colcon build \
+      --mixin $OVERLAY_MIXINS \
+      --symlink-install
+
 # install overlay dependencies
 ARG OVERLAY_WS
 WORKDIR $OVERLAY_WS
 COPY --from=cacher /tmp/$OVERLAY_WS/src ./src
 RUN --mount=type=cache,target=/var/cache/apt \
     --mount=type=cache,target=/var/lib/apt \
-    . /opt/ros/$ROS_DISTRO/setup.sh && \
+    . $UNDERLAY_WS/install/setup.sh && \
     apt-get update && rosdep install -q -y \
       --from-paths src \
       --ignore-src \
@@ -68,7 +97,7 @@ RUN --mount=type=cache,target=/var/cache/apt \
 COPY --from=cacher $OVERLAY_WS/src ./src
 ARG OVERLAY_MIXINS="release ccache"
 RUN --mount=type=cache,target=/root/.ccache \
-    . /opt/ros/$ROS_DISTRO/setup.sh && \
+    . $UNDERLAY_WS/install/setup.sh && \
     colcon build \
       --mixin $OVERLAY_MIXINS \
       --symlink-install

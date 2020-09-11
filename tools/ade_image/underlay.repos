@@ -1,0 +1,9 @@
+repositories:
+    cra-ros-pkg/robot_localization:
+      type: git
+      url: https://github.com/cra-ros-pkg/robot_localization.git
+      version: foxy-devel
+    rigtorp/udpreplay:
+      type: git
+      url: https://github.com/rigtorp/udpreplay.git
+      version: master
