@@ -58,6 +58,7 @@ RUN --mount=type=cache,target=/var/cache/apt \
       clang-tidy \
       ccache \
       lcov \
+      libpcap-dev \
       python3-distro \
     && rosdep update
 
