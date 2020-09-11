@@ -26,6 +26,8 @@ if [ ${FLAG_U} -eq 1 ]; then
 	apt-get update && apt-get -y --no-install-recommends install git clang-tidy
 fi
 
+set -ex
+
 colcon build \
 	--ament-cmake-args \
 	  -DCMAKE_CXX_FLAGS="${COVERAGE_FLAGS}" \
