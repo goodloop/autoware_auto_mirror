@@ -25,6 +25,7 @@ ARG UNDERLAY_WS
 WORKDIR $UNDERLAY_WS/src
 COPY ./tools/ade_image/underlay.repos ../
 RUN vcs import ./ < ../underlay.repos && \
+    touch cra-ros-pkg/robot_localization/COLCON_IGNORE && \
     find ./ -name ".git" | xargs rm -rf
 
 # copy overlay source
