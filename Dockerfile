@@ -80,7 +80,7 @@ ARG UNDERLAY_MIXINS="release ccache"
 RUN --mount=type=cache,target=/root/.ccache \
     . /opt/ros/$ROS_DISTRO/setup.sh && \
     colcon build \
-      --mixin $OVERLAY_MIXINS \
+      --mixin $UNDERLAY_MIXINS \
       --symlink-install
 
 # install overlay dependencies
