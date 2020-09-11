@@ -8,10 +8,10 @@
 # export DOCKER_BUILDKIT=1
 # export FROM_IMAGE="ros:foxy"
 # export OVERLAY_MIXINS="release ccache"
-# docker build -t nav2:foxy \
+# docker build -t autoware/auto:foxy \
 #   --build-arg FROM_IMAGE \
 #   --build-arg OVERLAY_MIXINS \
-#   -f distro.Dockerfile ../
+#   -f Dockerfile ./
 
 ARG FROM_IMAGE=ros:foxy
 ARG OVERLAY_WS=/opt/overlay_ws
@@ -70,8 +70,8 @@ ARG OVERLAY_MIXINS="release ccache"
 RUN --mount=type=cache,target=/root/.ccache \
     . /opt/ros/$ROS_DISTRO/setup.sh && \
     colcon build \
-      --symlink-install \
-      --mixin $OVERLAY_MIXINS
+      --mixin $OVERLAY_MIXINS \
+      --symlink-install
 
 # restore apt for docker
 RUN mv /etc/apt/docker-clean /etc/apt/apt.conf.d/ && \
@@ -89,7 +89,6 @@ ARG FAIL_ON_TEST_FAILURE=Ture
 RUN if [ -n "$RUN_TESTS" ]; then \
         . $OVERLAY_WS/install/setup.sh && \
         colcon test \
-          --mixin $OVERLAY_MIXINS \
         && colcon test-result \
           || ([ -z "$FAIL_ON_TEST_FAILURE" ] || exit 1) \
     fi
