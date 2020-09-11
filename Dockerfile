@@ -49,6 +49,7 @@ RUN --mount=type=cache,target=/var/cache/apt \
       clang-tidy \
       ccache \
       lcov \
+      python3-distro \
     && rosdep update
 
 # install overlay dependencies
