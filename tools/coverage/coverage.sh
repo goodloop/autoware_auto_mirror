@@ -44,5 +44,7 @@ lcov --config-file .lcovrc -r lcov.total \
 	"*/AutowareAuto/build/mpc_planner/*" "*/AutowareAuto/build/mpc_controller/*" \
 	"*/AutowareAuto/src/external/*" \
 	"*/AutowareAuto/build/recordreplay_planner_actions/*" \
+	"*/AutowareAuto/build/*/rclcpp_components/*" \
+	"*/AutowareAuto/src/*/test/*" \
 	-o lcov.total.filtered >> log/latest/lcov_stdout.logs
 genhtml --config-file .lcovrc -p ${PWD} --legend --demangle-cpp lcov.total.filtered -o coverage >> log/latest/lcov_stdout.logs
