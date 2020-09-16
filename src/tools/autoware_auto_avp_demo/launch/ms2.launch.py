@@ -20,7 +20,7 @@ from launch.actions import DeclareLaunchArgument
 from launch.conditions import IfCondition
 from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
-from launch_ros.substitutions import FindPackage
+from launch_ros.substitutions import FindPackageShare
 from pathlib import Path
 
 import os
@@ -31,7 +31,9 @@ context = LaunchContext()
 
 def get_package_share_directory(package_name):
     """Return the absolute path to the share directory of the given package."""
-    return os.path.join(Path(FindPackage(package_name).perform(context)), 'share', package_name)
+    sub = FindPackageShare(package_name)
+    package_prefix = Path(sub.perform(context))
+    return package_prefix
 
 
 def generate_launch_description():
