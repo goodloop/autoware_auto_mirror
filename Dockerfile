@@ -41,8 +41,8 @@ RUN mkdir -p /tmp/opt && \
     find ./ -name "COLCON_IGNORE" | \
       xargs cp --parents -t /tmp/opt || true
 
-# multi-stage for building
-FROM $FROM_IMAGE AS builder
+# multi-stage for underlay dependencies
+FROM $FROM_IMAGE AS underlay_depender
 ARG DEBIAN_FRONTEND=noninteractive
 
 # edit apt for caching
@@ -71,8 +71,10 @@ RUN --mount=type=cache,target=/var/cache/apt \
     . /opt/ros/$ROS_DISTRO/setup.sh && \
     apt-get update && rosdep install -q -y \
       --from-paths src \
-      --ignore-src \
-    && rm -rf /var/lib/apt/lists/*
+      --ignore-src
+
+# multi-stage for building underlay
+FROM underlay_depender AS underlay_builder
 
 # build underlay source
 COPY --from=cacher $UNDERLAY_WS/src ./src
@@ -80,8 +82,27 @@ ARG UNDERLAY_MIXINS="release ccache"
 RUN --mount=type=cache,target=/root/.ccache \
     . /opt/ros/$ROS_DISTRO/setup.sh && \
     colcon build \
-      --mixin $UNDERLAY_MIXINS \
-      --symlink-install
+      --symlink-install \
+      --mixin $UNDERLAY_MIXINS
+
+# multi-stage for testing underlay
+FROM underlay_builder AS underlay_tester
+
+# test overlay build
+ARG RUN_TESTS
+ARG FAIL_ON_TEST_FAILURE=True
+RUN if [ -n "$RUN_TESTS" ]; then \
+        . install/setup.sh && \
+        colcon test && \
+        colcon test-result \
+          || ([ -z "$FAIL_ON_TEST_FAILURE" ] || exit 1) \
+    fi
+
+# multi-stage for overlay dependencies
+FROM underlay_depender AS overlay_depender
+
+# copy manifests for caching
+COPY --from=cacher /tmp/$UNDERLAY_WS $UNDERLAY_WS
 
 # install overlay dependencies
 ARG OVERLAY_WS
@@ -89,11 +110,17 @@ WORKDIR $OVERLAY_WS
 COPY --from=cacher /tmp/$OVERLAY_WS/src ./src
 RUN --mount=type=cache,target=/var/cache/apt \
     --mount=type=cache,target=/var/lib/apt \
-    . $UNDERLAY_WS/install/setup.sh && \
+    . /opt/ros/$ROS_DISTRO/setup.sh && \
     apt-get update && rosdep install -q -y \
       --from-paths src \
-      --ignore-src \
-    && rm -rf /var/lib/apt/lists/*
+        $UNDERLAY_WS/src \
+      --ignore-src
+
+# multi-stage for building overlay
+FROM overlay_depender AS overlay_builder
+
+# copy workspace for caching
+COPY --from=underlay_builder $UNDERLAY_WS $UNDERLAY_WS
 
 # build overlay source
 COPY --from=cacher $OVERLAY_WS/src ./src
@@ -101,25 +128,39 @@ ARG OVERLAY_MIXINS="release ccache"
 RUN --mount=type=cache,target=/root/.ccache \
     . $UNDERLAY_WS/install/setup.sh && \
     colcon build \
-      --mixin $OVERLAY_MIXINS \
-      --symlink-install
+      --symlink-install \
+      --mixin $OVERLAY_MIXINS
+
+# multi-stage for testing overlay
+FROM overlay_builder AS overlay_tester
+
+# test overlay build
+ARG RUN_TESTS
+ARG FAIL_ON_TEST_FAILURE=True
+RUN if [ -n "$RUN_TESTS" ]; then \
+        . install/setup.sh && \
+        colcon test && \
+        colcon test-result \
+          || ([ -z "$FAIL_ON_TEST_FAILURE" ] || exit 1) \
+    fi
+
+# multi-stage for testing workspaces
+FROM overlay_builder AS workspaces_tester
+
+# copy workspace test results
+COPY --from=underlay_tester $UNDERLAY_WS/log  $UNDERLAY_WS/log
+COPY --from=overlay_tester  $OVERLAY_WS/log   $OVERLAY_WS/log
+
+# multi-stage for shipping overlay
+FROM overlay_builder AS overlay_shipper
 
 # restore apt for docker
 RUN mv /etc/apt/docker-clean /etc/apt/apt.conf.d/ && \
     rm -rf /var/lib/apt/lists/
 
 # source overlay from entrypoint
+ENV UNDERLAY_WS $UNDERLAY_WS
 ENV OVERLAY_WS $OVERLAY_WS
 RUN sed --in-place \
       's|^source .*|source "$OVERLAY_WS/install/setup.bash"|' \
       /ros_entrypoint.sh
-
-# test overlay build
-ARG RUN_TESTS
-ARG FAIL_ON_TEST_FAILURE=True
-RUN if [ -n "$RUN_TESTS" ]; then \
-        . $OVERLAY_WS/install/setup.sh && \
-        colcon test \
-        && colcon test-result \
-          || ([ -z "$FAIL_ON_TEST_FAILURE" ] || exit 1) \
-    fi
