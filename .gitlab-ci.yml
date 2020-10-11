@@ -54,7 +54,6 @@ stages:
 
 .build_barebones_base: &build_barebones_base
   stage: build
-  image: ubuntu:bionic
   script:
     - 'apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends
           tzdata
@@ -77,14 +76,13 @@ stages:
           git
           clang-tidy
           python3-vcstool
-          ros-dashing-cyclonedds
-          ros-dashing-rmw-cyclonedds-cpp
+          ros-$ROS_DISTRO-cyclonedds
+          ros-$ROS_DISTRO-rmw-cyclonedds-cpp
       '
-    - 'source /opt/ros/dashing/setup.bash'
-    - 'vcs import < autoware.auto.dashing.repos'
+    - 'source /opt/ros/$ROS_DISTRO/setup.bash'
+    - 'vcs import < autoware.auto.$ROS_DISTRO.repos'
     - 'rosdep init && rosdep update'
-    - 'rosdep install -y --from . --ignore-src --rosdistro dashing'
-    - 'source /opt/ros/dashing/setup.bash'
+    - 'rosdep install -y --from . --ignore-src --rosdistro $ROS_DISTRO'
     - 'colcon build
            --merge-install
            --install-base /opt/AutowareAuto
@@ -260,22 +258,51 @@ ade_arm64_foxy:
     - branches@autowarefoundation/autoware.auto/AutowareAuto
 
 build_barebones_amd64_dashing:
+  image: ubuntu:bionic
   variables:
     RMW_IMPLEMENTATION: rmw_fastrtps_cpp
+    ROS_DISTRO: dashing
   <<: *build_barebones_base
   needs:
     - gen_ros_deps_dashing
 
 build_barebones_arm64_dashing:
+  image: ubuntu:bionic
   tags:
     - arm64
   variables:
     RMW_IMPLEMENTATION: rmw_fastrtps_cpp
+    ROS_DISTRO: dashing
   <<: *build_barebones_base
   only:
     - branches@autowarefoundation/autoware.auto/AutowareAuto
   needs:
     - gen_ros_deps_dashing
+
+build_barebones_amd64_foxy:
+  image: ubuntu:focal
+  variables:
+    RMW_IMPLEMENTATION: rmw_fastrtps_cpp
+    ROS_DISTRO: foxy
+  <<: *build_barebones_base
+  needs:
+    - gen_ros_deps_foxy
+  rules:
+    - allow_failure: true
+
+build_barebones_arm64_foxy:
+  image: ubuntu:focal
+  tags:
+    - arm64
+  variables:
+    RMW_IMPLEMENTATION: rmw_fastrtps_cpp
+    ROS_DISTRO: foxy
+  <<: *build_barebones_base
+  needs:
+    - gen_ros_deps_foxy
+  rules:
+    - if: '$CI_PROJECT_NAMESPACE == "autowarefoundation/autoware.auto"'
+      allow_failure: true
 
 build_amd64_dashing:
   variables:
@@ -298,6 +325,31 @@ build_arm64_dashing:
     - branches@autowarefoundation/autoware.auto/AutowareAuto
   needs:
     - ade_arm64_dashing
+
+build_amd64_foxy:
+  variables:
+    ARCH: amd64
+    RMW_IMPLEMENTATION: rmw_cyclonedds_cpp
+    ROS_DISTRO: foxy
+  <<: *build_base
+  needs:
+    - ade_amd64_foxy
+  rules:
+    - allow_failure: true
+
+build_arm64_foxy:
+  variables:
+    ARCH: arm64
+    RMW_IMPLEMENTATION: rmw_cyclonedds_cpp
+    ROS_DISTRO: foxy
+  tags:
+    - arm64
+  <<: *build_base
+  needs:
+    - ade_arm64_foxy
+  rules:
+    - if: '$CI_PROJECT_NAMESPACE == "autowarefoundation/autoware.auto"'
+      allow_failure: true
 
 test_amd64_dashing:
   variables:
