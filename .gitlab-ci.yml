@@ -57,6 +57,7 @@ stages:
   script:
     - 'apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends
           gnupg
+          keyboard-configuration
           tzdata
       '
     - 'apt-get update && apt-get -y --no-install-recommends install
