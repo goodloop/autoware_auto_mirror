@@ -137,7 +137,7 @@ stages:
            --install-base /opt/AutowareAuto
            --return-code-on-test-failure
       '
-    - 'colcon test-result --all |grep xml |cut -d":" -f1 |xargs .gitlab-ci/merge-test-results test-results.xml || true'
+    - 'colcon test-result --all | grep xml | cut -d":" -f1 | xargs .gitlab-ci/merge-test-results test-results.xml || true'
 
     # Test package
     - 'ros2 run autoware_auto_create_pkg main.py
