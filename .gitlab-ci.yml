@@ -74,7 +74,7 @@ stages:
           cmake
           git
           python3-colcon-common-extensions
-          $ROSDEP_VERSION
+          python3-rosdep
           python3-vcstool
           ros-$ROS_DISTRO-cyclonedds
           ros-$ROS_DISTRO-rmw-cyclonedds-cpp
@@ -83,6 +83,7 @@ stages:
     - 'vcs import < autoware.auto.$ROS_DISTRO.repos'
     - 'rosdep init && rosdep update'
     - 'rosdep install -y --from . --ignore-src --rosdistro $ROS_DISTRO'
+    - 'source /opt/ros/$ROS_DISTRO/setup.bash'
     - 'colcon build
            --merge-install
            --install-base /opt/AutowareAuto
@@ -262,7 +263,6 @@ build_barebones_amd64_dashing:
   variables:
     RMW_IMPLEMENTATION: rmw_fastrtps_cpp
     ROS_DISTRO: dashing
-    ROSDEP_VERSION: python-rosdep
   <<: *build_barebones_base
   needs:
     - gen_ros_deps_dashing
@@ -274,7 +274,6 @@ build_barebones_arm64_dashing:
   variables:
     RMW_IMPLEMENTATION: rmw_fastrtps_cpp
     ROS_DISTRO: dashing
-    ROSDEP_VERSION: python-rosdep
   <<: *build_barebones_base
   only:
     - branches@autowarefoundation/autoware.auto/AutowareAuto
@@ -286,7 +285,6 @@ build_barebones_amd64_foxy:
   variables:
     RMW_IMPLEMENTATION: rmw_fastrtps_cpp
     ROS_DISTRO: foxy
-    ROSDEP_VERSION: python3-rosdep
   <<: *build_barebones_base
   needs:
     - gen_ros_deps_foxy
@@ -300,7 +298,6 @@ build_barebones_arm64_foxy:
   variables:
     RMW_IMPLEMENTATION: rmw_fastrtps_cpp
     ROS_DISTRO: foxy
-    ROSDEP_VERSION: python3-rosdep
   <<: *build_barebones_base
   needs:
     - gen_ros_deps_foxy
