@@ -380,6 +380,36 @@ test_arm64_dashing:
   needs:
     - build_arm64_dashing
 
+test_amd64_foxy:
+  variables:
+    ARCH: amd64
+    RMW_IMPLEMENTATION: rmw_cyclonedds_cpp
+    ROS_DISTRO: foxy
+  <<: *test_base
+  needs:
+    - build_amd64_foxy
+  rules:
+    - allow_failure: true
+
+test_arm64_foxy:
+  variables:
+    ARCH: arm64
+    RMW_IMPLEMENTATION: rmw_cyclonedds_cpp
+    ROS_DISTRO: foxy
+  tags:
+    - arm64
+  <<: *test_base
+  artifacts:
+    name: "$CI_JOB_NAME"
+    paths:
+      - log
+      - opt.tar.gz
+  needs:
+    - build_arm64_foxy
+  rules:
+    - if: '$CI_PROJECT_NAMESPACE == "autowarefoundation/autoware.auto"'
+      allow_failure: true
+
 coverage:
   stage: build
   image: $CI_REGISTRY_IMAGE/amd64/ade-dashing:commit-$CI_COMMIT_SHA
@@ -456,3 +486,40 @@ volume_arm64_dashing:
     - branches@autowarefoundation/autoware.auto/AutowareAuto
   needs:
     - test_arm64_dashing
+
+volume_amd64_foxy:
+  stage: deploy
+  image: docker
+  services:
+    - docker:dind
+  variables:
+    ARCH: amd64
+    DOCKER_DRIVER: overlay2
+    RMW_IMPLEMENTATION: rmw_cyclonedds_cpp
+    ROS_DISTRO: foxy
+    UBUNTU_DISTRO: bionic
+  <<: *volume_base
+  needs:
+    - test_amd64_foxy
+  rules:
+    - allow_failure: true
+
+volume_arm64_foxy:
+  stage: deploy
+  image: docker
+  services:
+    - docker:dind
+  tags:
+    - arm64
+  variables:
+    ARCH: arm64
+    DOCKER_DRIVER: overlay2
+    RMW_IMPLEMENTATION: rmw_cyclonedds_cpp
+    ROS_DISTRO: foxy
+    UBUNTU_DISTRO: bionic
+  <<: *volume_base
+  needs:
+    - test_arm64_foxy
+  rules:
+    - if: '$CI_PROJECT_NAMESPACE == "autowarefoundation/autoware.auto"'
+      allow_failure: true
