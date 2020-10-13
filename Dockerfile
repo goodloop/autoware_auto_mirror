@@ -132,12 +132,12 @@ RUN --mount=type=cache,target=/root/.ccache \
     . $UNDERLAY_WS/install/setup.sh && \
     colcon build \
       --symlink-install \
-      --mixin $OVERLAY_MIXINS \
-      --cmake-args \
-        --no-warn-unused-cli \
-        -DCMAKE_CXX_FLAGS="\
-          -Wno-ignored-qualifiers \
-        "
+      --mixin $OVERLAY_MIXINS
+      # --cmake-args \
+      #   --no-warn-unused-cli \
+      #   -DCMAKE_CXX_FLAGS="\
+      #     -Wno-ignored-qualifiers \
+      #   "
 
 # multi-stage for testing overlay
 FROM overlay_builder AS overlay_tester
