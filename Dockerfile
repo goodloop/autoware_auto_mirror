@@ -32,6 +32,9 @@ RUN vcs import ./ < ../underlay.repos && \
 ARG OVERLAY_WS
 WORKDIR $OVERLAY_WS/src
 COPY ./src ./AutowareAuto/src
+COPY ./autoware.auto.$ROS_DISTRO.repos ../
+RUN vcs import ./AutowareAuto < ../autoware.auto.$ROS_DISTRO.repos && \
+    find ./ -name ".git" | xargs rm -rf
 
 # copy manifests for caching
 WORKDIR /opt
