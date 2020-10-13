@@ -62,7 +62,6 @@ RUN --mount=type=cache,target=/var/cache/apt \
       ccache \
       lcov \
       libpcap-dev \
-      python3-distro \
     && rosdep update
 
 # install underlay dependencies
