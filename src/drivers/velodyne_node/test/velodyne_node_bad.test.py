@@ -19,7 +19,6 @@ import ament_index_python
 import launch
 import launch.actions
 import launch_ros.actions
-from launch_ros.default_launch_description import ROSSpecificLaunchStartup
 import launch_testing
 import launch_testing.util
 
@@ -47,7 +46,6 @@ def generate_test_description(ready_fn):
     context = {'vel_node': velodyne_cloud_node}
 
     return launch.LaunchDescription([
-        ROSSpecificLaunchStartup(),
         velodyne_cloud_node,
         # Need to keep the launch alive by having an alive process
         launch_testing.util.KeepAliveProc(),
