@@ -1,6 +1,7 @@
 Common {#autoware-common-design}
 ==========
 
+- @subpage autoware_auto_contracts-package-design
 - @subpage helper-comparisons
 - @subpage autoware-common-geometry-design
 - @subpage autoware-common-optimization-design
