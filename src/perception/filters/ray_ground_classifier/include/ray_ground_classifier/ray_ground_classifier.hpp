@@ -114,6 +114,9 @@ public:
     PointPtrBlock & ground_block,
     PointPtrBlock & nonground_block);
 
+  /// \brief Check whether the internal sort array is at capacity or not
+  bool8_t sort_array_below_capacity() const {return m_sort_array.size() < m_sort_array.capacity();}
+
 private:
   /// \brief Sorts internally stored ray
   RAY_GROUND_CLASSIFIER_LOCAL void sort_ray();
