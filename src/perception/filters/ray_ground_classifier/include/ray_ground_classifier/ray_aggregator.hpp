@@ -34,6 +34,7 @@
 #endif
 
 #include "autoware_auto_algorithm/algorithm.hpp"
+#include "autoware_auto_contracts/checks.hpp"
 #include "common/types.hpp"
 #include "ray_ground_classifier/ray_ground_point_classifier.hpp"
 
@@ -49,6 +50,10 @@ namespace ray_ground_classifier
 using autoware::common::types::PointPtrBlock;
 using autoware::common::types::bool8_t;
 using autoware::common::types::float32_t;
+using autoware::common::contracts::Realf;
+using autoware::common::contracts::SizeBound;
+using autoware::common::contracts::StrictlyEpsPositiveRealf;
+using autoware::common::types::POINT_BLOCK_CAPACITY;
 
 /// \brief Used as a prefiltering step for RayGroundClassifier. Aggregates unstructured
 ///        blobs into rays of points that the RayGroundClassifier can partition.
@@ -66,34 +71,27 @@ public:
     /// \param[in] min_ray_points Number of points needed in a ray before it's ready for
     ///                           partitioning
     Config(
-      const float32_t min_ray_angle_rad,
-      const float32_t max_ray_angle_rad,
-      const float32_t ray_width_rad,
-      const std::size_t min_ray_points);
+      const Realf min_ray_angle_rad, const Realf max_ray_angle_rad,
+      const StrictlyEpsPositiveRealf ray_width_rad,
+      const SizeBound<POINT_BLOCK_CAPACITY> min_ray_points
+    );
 
-    /// \brief Get number of rays
-    /// \return Value
-    std::size_t get_num_rays() const;
-    /// \brief Get number of points needed for a ray to be ready for partitioning
-    /// \return Value
-    std::size_t get_min_ray_points() const;
-    /// \brief Get minimum ray angle
-    /// \return Value
-    float32_t get_min_angle() const;
-    /// \brief Get maximum ray angle
-    /// \return Value
-    float32_t get_ray_width() const;
+    /// \brief Number of points needed for a ray to be ready for partitioning
+    const std::size_t m_min_ray_points;
+    /// \brief Maximum ray angle
+    const StrictlyEpsPositiveRealf m_ray_width_rad;
+    /// \brief Minimum ray angle
+    const Realf m_min_angle_rad;
     /// \brief Whether domain crosses the -PI/+PI singularity, e.g. min_ray_angle=300,
     ///        max_ray_angle = -300
-    /// \return Value
-    bool8_t domain_crosses_180() const;
-
-private:
-    const std::size_t m_min_ray_points;
-    std::size_t m_num_rays;
-    const float32_t m_ray_width_rad;
-    const float32_t m_min_angle_rad;
     const bool8_t m_domain_crosses_180;
+    /// \brief Number of rays
+    const std::size_t m_num_rays;
+    /// \brief Compute the value for m_num_rays
+    static std::size_t compute_num_rays(
+      bool8_t domain_crosses_180, Realf min_ray_angle_rad,
+      Realf max_ray_angle_rad,
+      StrictlyEpsPositiveRealf ray_width_rad);
   };  // class Config
 
   /// \brief Constructor
@@ -164,8 +162,8 @@ private:
   std::size_t get_ready_ray_count() const;
   /// \brief Get next ray that is ready for partitioning
   /// Concurrent calls are thread safe
+  /// \pre A ray is ready
   /// \return Const reference to next ray ready for processing
-  /// \throw std::runtime_error If no ray is ready
   const Ray & get_next_ray();
   /// \brief Clear all the ready rays so that is_ray_ready() return false
   void reset();

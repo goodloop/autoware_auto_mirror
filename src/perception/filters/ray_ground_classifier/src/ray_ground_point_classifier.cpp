@@ -26,6 +26,9 @@
 using autoware::common::types::bool8_t;
 using autoware::common::types::float32_t;
 using autoware::common::geometry::Interval_f;
+using autoware::common::contracts::NonnegativeRealf;
+using autoware::common::contracts::StrictlyPositiveRealf;
+using autoware::common::types::FEPS;
 
 namespace autoware
 {
@@ -72,17 +75,15 @@ RayGroundPointClassifier::PointLabel RayGroundPointClassifier::is_ground(const P
 
   // a small fudge factor is added because we check in the sorting process for "almost zero"
   // This is because points which are almost collinear are sorted by height
-  const float32_t dr_m = (radius_m - m_prev_radius_m) + autoware::common::types::FEPS;
-  if (dr_m < 0.0F) {
-    throw std::runtime_error("Ray Ground filter must receive points in increasing radius");
-  }
+  const NonnegativeRealf dr_m = static_cast<float>(radius_m) - m_prev_radius_m + FEPS;
 
   const float32_t dh_m = fabsf(height_m - m_prev_height_m);
   const Interval_f range(m_config.m_min_height_thresh_m, m_config.m_max_global_height_thresh_m);
   const auto dr_m_clamped = Interval_f::clamp_to(range, m_config.m_max_local_slope * dr_m);
   const bool8_t is_local = (dh_m < dr_m_clamped);
   const float32_t global_height_thresh_m =
-    std::min(m_config.m_max_global_slope * radius_m, m_config.m_max_global_height_thresh_m);
+    std::min(m_config.m_max_global_slope * radius_m,
+      static_cast<float>(m_config.m_max_global_height_thresh_m));
   const bool8_t has_vertical_structure = (dh_m > (dr_m * m_config.m_nonground_retro_thresh));
   if (m_last_was_ground) {
     if (is_local) {

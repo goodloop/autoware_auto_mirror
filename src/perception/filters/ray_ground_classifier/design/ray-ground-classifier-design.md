@@ -187,7 +187,7 @@ recession would be no more than 1 mm, which is negligible, considering the VLP16
 precision is no greater than 1 cm.
 
 If configuration parameters are semantically incorrect with respect to one
-another, then an error will be thrown during construction of the configuration class.
+another, this will be considered a contract violation and `std::terminate` will be invoked.
 
 
 # Security considerations

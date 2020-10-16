@@ -27,11 +27,23 @@ endif()
 find_package(ament_cmake_auto REQUIRED)
 ament_auto_find_build_dependencies()
 
+set(CMAKE_BUILD_TYPE RelWithDebInfo)
+#set(CMAKE_BUILD_TYPE Release)
+#set(CMAKE_BUILD_TYPE Debug)
+
+set(BUILD_DEFINITIONS
+  -DCONTRACT_VIOLATION_CONTINUATION_MODE_OFF # Options: _OFF, _ON
+  -DCONTRACT_BUILD_LEVEL_DEFAULT # Options: _OFF, _DEFAULT, _AUDIT
+)
+
 ### Build cloud node as library
 set(CLOUD_NODE_LIB ray_ground_classifier_cloud_node)
 ament_auto_add_library(${CLOUD_NODE_LIB} SHARED
   include/ray_ground_classifier_nodes/ray_ground_classifier_cloud_node.hpp
   include/ray_ground_classifier_nodes/visibility_control.hpp
+  include/ray_ground_classifier_nodes/contract.hpp
+  src/scoped_timer.cpp
+  src/contract.cpp
   src/ray_ground_classifier_cloud_node.cpp)
 autoware_set_compile_options(${CLOUD_NODE_LIB})
 
@@ -47,6 +59,7 @@ target_compile_options(${CLOUD_NODE_LIB} PRIVATE
   -Wno-sign-conversion
   -Wno-conversion
   ${OpenMP_FLAGS}
+  ${BUILD_DEFINITIONS}
 )
 
 if(BUILD_TESTING)

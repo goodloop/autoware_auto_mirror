@@ -18,9 +18,11 @@
 #include <cmath>
 #include <cstdint>
 #include <stdexcept>
+#include <utility>
 
 #include "common/types.hpp"
 #include "lidar_utils/lidar_utils.hpp"
+#include "ray_ground_classifier/contract.hpp"
 #include "ray_ground_classifier/ray_aggregator.hpp"
 #include "ray_ground_classifier/ray_ground_point_classifier.hpp"
 
@@ -38,78 +40,54 @@ using autoware::common::types::PI;
 using autoware::common::types::POINT_BLOCK_CAPACITY;
 using autoware::common::types::bool8_t;
 using autoware::common::types::float32_t;
+using contracts_lite::gcc_7x_to_string_fix;
 
 ////////////////////////////////////////////////////////////////////////////////
 RayAggregator::Config::Config(
-  const float32_t min_ray_angle_rad,
-  const float32_t max_ray_angle_rad,
-  const float32_t ray_width_rad,
-  const std::size_t min_ray_points)
+  const Realf min_ray_angle_rad, const Realf max_ray_angle_rad,
+  const StrictlyEpsPositiveRealf ray_width_rad,
+  const SizeBound<POINT_BLOCK_CAPACITY> min_ray_points
+)
 : m_min_ray_points(min_ray_points),
-  m_num_rays(),
   m_ray_width_rad(ray_width_rad),
   m_min_angle_rad(min_ray_angle_rad),
-  m_domain_crosses_180(max_ray_angle_rad < min_ray_angle_rad)
+  m_domain_crosses_180(max_ray_angle_rad < min_ray_angle_rad),
+  m_num_rays(RayAggregator::Config::compute_num_rays(m_domain_crosses_180, m_min_angle_rad,
+    max_ray_angle_rad, m_ray_width_rad))
 {
-  if (m_domain_crosses_180) {
-    const float32_t angle_range = (PI - min_ray_angle_rad) +
-      (PI + max_ray_angle_rad);
-    m_num_rays = static_cast<std::size_t>(std::ceil(angle_range / ray_width_rad));
-  } else {
-    m_num_rays = static_cast<std::size_t>(std::ceil(
-        (max_ray_angle_rad - min_ray_angle_rad) / ray_width_rad));
-  }
-  if (ray_width_rad < FEPS) {
-    throw std::runtime_error("Ray width negative or infinitesimally small");
-  }
-  if (min_ray_points > static_cast<std::size_t>(POINT_BLOCK_CAPACITY)) {
-    throw std::runtime_error("Min ray points larger than point block capacity, consider reducing");
-  }
   // TODO(c.ho) upper limit on number of rays?
 }
 ////////////////////////////////////////////////////////////////////////////////
-std::size_t RayAggregator::Config::get_min_ray_points() const
+std::size_t RayAggregator::Config::compute_num_rays(
+  bool8_t domain_crosses_180,
+  Realf min_ray_angle_rad,
+  Realf max_ray_angle_rad,
+  StrictlyEpsPositiveRealf ray_width_rad)
 {
-  return m_min_ray_points;
+  if (domain_crosses_180) {
+    const Realf angle_range = (PI - min_ray_angle_rad) + (PI + max_ray_angle_rad);
+    return static_cast<std::size_t>(std::ceil(angle_range / ray_width_rad));
+  }
+  return static_cast<std::size_t>(std::ceil((max_ray_angle_rad - min_ray_angle_rad) /
+         ray_width_rad));
 }
-////////////////////////////////////////////////////////////////////////////////
-std::size_t RayAggregator::Config::get_num_rays() const
-{
-  return m_num_rays;
-}
-////////////////////////////////////////////////////////////////////////////////
-float32_t RayAggregator::Config::get_min_angle() const
-{
-  return m_min_angle_rad;
-}
-////////////////////////////////////////////////////////////////////////////////
-float32_t RayAggregator::Config::get_ray_width() const
-{
-  return m_ray_width_rad;
-}
-////////////////////////////////////////////////////////////////////////////////
-bool8_t RayAggregator::Config::domain_crosses_180() const
-{
-  return m_domain_crosses_180;
-}
-////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 RayAggregator::RayAggregator(const Config & cfg)
 : m_cfg(cfg),
-  m_rays(m_cfg.get_num_rays()),
-  m_ready_indices(m_cfg.get_num_rays()),
+  m_rays(m_cfg.m_num_rays),
+  m_ready_indices(m_cfg.m_num_rays),
   m_ready_start_idx{},  // zero initialization
   m_num_ready{},  // zero initialization
-  m_ray_state(m_cfg.get_num_rays())
+  m_ray_state(m_cfg.m_num_rays)
   #ifdef RAY_AGGREGATOR_PARALLEL
-  , m_ray_locks(m_cfg.get_num_rays()),
+  , m_ray_locks(m_cfg.m_num_rays),
   m_get_next_ray_lock(ATOMIC_FLAG_INIT)
   #endif
 {
   m_rays.clear();  // capacity unchanged
   const std::size_t ray_size =
-    std::max(m_cfg.get_min_ray_points(), static_cast<std::size_t>(POINT_BLOCK_CAPACITY));
-  for (std::size_t idx = 0U; idx < m_cfg.get_num_rays(); ++idx) {
+    std::max(m_cfg.m_min_ray_points, static_cast<std::size_t>(POINT_BLOCK_CAPACITY));
+  for (std::size_t idx = 0U; idx < m_cfg.m_num_rays; ++idx) {
     m_rays.emplace_back(ray_size);
     m_rays.back().clear();
     m_ray_state.push_back(RayState::NOT_READY);
@@ -117,7 +95,7 @@ RayAggregator::RayAggregator(const Config & cfg)
   m_ready_indices.resize(m_ready_indices.capacity());
   #ifdef RAY_AGGREGATOR_PARALLEL
   m_num_ready = {0};
-  for (std::size_t idx = 0U; idx < m_cfg.get_num_rays(); ++idx) {
+  for (std::size_t idx = 0U; idx < m_cfg.m_num_rays; ++idx) {
     m_ray_locks[idx].clear();
   }
   #endif
@@ -157,13 +135,22 @@ bool8_t RayAggregator::insert(const PointXYZIFR & pt)
       #ifdef RAY_AGGREGATOR_PARALLEL
       m_ray_locks[idx].clear();
       #endif
-      throw std::runtime_error("RayAggregator: Ray capacity overrun! Use smaller bins");
     }
+
+    DEFAULT_ENFORCE(
+      [&]() {
+        auto comment = CONTRACT_COMMENT("", "RayAggregator: ray size (" + gcc_7x_to_string_fix(
+          ray.size()) + ") must always be strictly less than ray capacity (" +
+        gcc_7x_to_string_fix(ray.capacity()) + ") before insertion");
+        return contracts_lite::ReturnStatus(std::move(comment), ray.size() < ray.capacity());
+      } ());
+
+
     // insert point to ray, do some presorting
     ray.push_back(pt);
     // TODO(c.ho) get push_heap working to amortize sorting burden
     // check if ray is ready
-    if ((RayState::READY != m_ray_state[idx]) && (m_cfg.get_min_ray_points() <= ray.size())) {
+    if ((RayState::READY != m_ray_state[idx]) && (m_cfg.m_min_ray_points <= ray.size())) {
       m_ray_state[idx] = RayState::READY;
       // "push" to ring buffer
       // so long we don't fill the buffer, change m_ready_start_idx or pop, reserving m_num_ready
@@ -226,9 +213,9 @@ const Ray & RayAggregator::get_next_ray()
   m_get_next_ray_lock.clear();
   #endif
 
-  if (!is_ready) {
-    throw std::runtime_error("RayAggregator: no rays ready");
-  }
+  DEFAULT_ENFORCE(contracts_lite::ReturnStatus(CONTRACT_COMMENT("",
+    "RayAggregator: at least one ray must be ready"),
+    is_ready));
 
   const std::size_t idx = m_ready_indices[local_start_idx];
   #ifdef RAY_AGGREGATOR_PARALLEL
@@ -261,20 +248,20 @@ void RayAggregator::reset()
 ////////////////////////////////////////////////////////////////////////////////
 std::size_t RayAggregator::bin(const PointXYZIFR & pt) const
 {
-  const float32_t x = pt.get_point_pointer()->x;
-  const float32_t y = pt.get_point_pointer()->y;
+  const Realf x = pt.get_point_pointer()->x;
+  const Realf y = pt.get_point_pointer()->y;
   // (0, 0) is always bin 0
   float32_t idx = 0.0F;
   const float32_t th = autoware::common::lidar_utils::fast_atan2(y, x);
-  idx = th - m_cfg.get_min_angle();
-  if (m_cfg.domain_crosses_180() && (idx < 0.0F)) {
+  idx = th - m_cfg.m_min_angle_rad;
+  if (m_cfg.m_domain_crosses_180 && (idx < 0.0F)) {
     // Case where receptive field crosses the +PI/-PI singularity
     // [-PI, max_angle) domain
     idx = idx + autoware::common::types::TAU;
   }
   // [min_angle, +PI) domain: normal calculation
   // normal case, no wraparound
-  idx = std::floor(idx / m_cfg.get_ray_width());
+  idx = std::floor(idx / m_cfg.m_ray_width_rad);
   // Avoid underflow
   return std::max(0, static_cast<int32_t>(idx));
 }

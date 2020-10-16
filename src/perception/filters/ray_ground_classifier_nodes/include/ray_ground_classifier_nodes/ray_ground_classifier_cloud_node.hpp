@@ -20,6 +20,8 @@
 #ifndef RAY_GROUND_CLASSIFIER_NODES__RAY_GROUND_CLASSIFIER_CLOUD_NODE_HPP_
 #define RAY_GROUND_CLASSIFIER_NODES__RAY_GROUND_CLASSIFIER_CLOUD_NODE_HPP_
 
+#include <autoware_auto_contracts/scalar_flicker.hpp>
+#include <ray_ground_classifier_nodes/scoped_timer.hpp>
 #include <common/types.hpp>
 #include <lidar_utils/point_cloud_utils.hpp>
 #include <ray_ground_classifier_nodes/visibility_control.hpp>
@@ -34,6 +36,7 @@
 
 using autoware::common::types::bool8_t;
 using autoware::common::types::char8_t;
+using mapless::demo::sotif::ScalarFlicker;
 
 namespace autoware
 {
@@ -72,8 +75,6 @@ private:
   PointCloud2 m_nonground_msg;
   const std::size_t m_pcl_size;
   const std::string m_frame_id;
-  // Basic stateful stuff, will get refactored after we have a proper state machine implementation
-  bool8_t m_has_failed;
   // publishers and subscribers
   const std::chrono::nanoseconds m_timeout;
   const rclcpp::Subscription<PointCloud2>::SharedPtr m_raw_sub_ptr;
@@ -83,6 +84,12 @@ private:
   void callback(const PointCloud2::SharedPtr msg);
   uint32_t m_ground_pc_idx;
   uint32_t m_nonground_pc_idx;
+
+  ScalarFlicker<size_t, 3> m_input_flicker_detector;
+  ScalarFlicker<size_t, 3> m_output_ground_flicker_detector;
+  ScalarFlicker<size_t, 3> m_output_nongroud_flicker_detector;
+
+  Timing_Statistics timing_stats;
 };  // class RayGroundFilterDriverNode
 }  // namespace ray_ground_classifier_nodes
 }  // namespace filters

@@ -58,7 +58,7 @@ TEST(ray_aggregator, basic) {
   const std::size_t min_ray_points = 10U;
   RayAggregator::Config cfg{-3.14159F, 3.14159F, 0.1F, min_ray_points};
   RayAggregator agg{cfg};
-  EXPECT_EQ(min_ray_points, cfg.get_min_ray_points());
+  EXPECT_EQ(min_ray_points, cfg.m_min_ray_points);
   // Do this twice, expect same result to exercise internal reset logic
   for (uint32_t jdx = 0U; jdx < 3U; ++jdx) {
     // insert points along one ray
@@ -267,11 +267,12 @@ TEST(ray_aggregator, segfault)
   // $4 = {m_min_ray_points = 512, m_num_rays = 1257, m_ray_width_rad = 0.00499999989,
   //  m_min_angle_rad = -3.14159012, m_domain_crosses_180 = false}
 
-  EXPECT_EQ(cfg.get_num_rays(), 1257U);
-  EXPECT_EQ(cfg.get_min_ray_points(), 512U);
-  EXPECT_FLOAT_EQ(cfg.get_ray_width(), 0.00499999989);
-  EXPECT_FLOAT_EQ(cfg.get_min_angle(), -3.14159012);
-  EXPECT_FALSE(cfg.domain_crosses_180());
+  EXPECT_EQ(cfg.m_num_rays, 1257U);
+  EXPECT_EQ(cfg.m_min_ray_points, 512U);
+  EXPECT_FLOAT_EQ(cfg.m_ray_width_rad, 0.00499999989);
+  EXPECT_FLOAT_EQ(cfg.m_min_angle_rad, -3.14159012);
+  EXPECT_FALSE(cfg.m_domain_crosses_180);
+
 
   // Reproduce point
   PointXYZIF pt;

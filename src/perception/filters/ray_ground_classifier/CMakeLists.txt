@@ -10,6 +10,15 @@ if(NOT CMAKE_CXX_STANDARD)
   set(CMAKE_CXX_STANDARD 14)
 endif()
 
+set(CMAKE_BUILD_TYPE RelWithDebInfo)
+#set(CMAKE_BUILD_TYPE Release)
+#set(CMAKE_BUILD_TYPE Debug)
+
+set(BUILD_DEFINITIONS
+  -DCONTRACT_VIOLATION_CONTINUATION_MODE_OFF # Options: _OFF, _ON
+  -DCONTRACT_BUILD_LEVEL_DEFAULT # Options: _OFF, _DEFAULT, _AUDIT
+)
+
 set(use_OMP TRUE)
 if(use_OMP)
   find_package(OpenMP REQUIRED)
@@ -32,6 +41,8 @@ ament_auto_add_library(${PROJECT_NAME} SHARED
   include/ray_ground_classifier/ray_ground_classifier.hpp
   include/ray_ground_classifier/ray_ground_point_classifier.hpp
   include/ray_ground_classifier/visibility_control.hpp
+  include/ray_ground_classifier/contract.hpp
+  src/contract.cpp
   src/ray_aggregator.cpp
   src/ray_ground_point_classifier.cpp
   src/ray_ground_classifier.cpp
@@ -84,6 +95,7 @@ endif()
 target_compile_options(${PROJECT_NAME} PRIVATE
   -Wno-sign-conversion -Wno-conversion
     ${OpenMP_FLAGS}
+    ${BUILD_DEFINITIONS}
 )
 
 

@@ -19,9 +19,9 @@
 //lint -e537 NOLINT  // cpplint vs pclint
 #include <algorithm>
 #include <cstdint>
-#include <stdexcept>
 
 #include "common/types.hpp"
+#include "ray_ground_classifier/contract.hpp"
 #include "ray_ground_classifier/ray_ground_classifier.hpp"
 #include "ray_ground_classifier/ray_ground_point_classifier.hpp"
 
@@ -61,16 +61,14 @@ void RayGroundClassifier::insert(const PointXYZIF * pt)
 ////////////////////////////////////////////////////////////////////////////////
 void RayGroundClassifier::insert(const PointXYZIFR & pt)
 {
-  if (m_sort_array.size() >= m_sort_array.capacity()) {
-    throw std::runtime_error("RayGroundClassifier: cannot insert into full array");
-  }
+  DEFAULT_ENFORCE(contract::preconditions::ray_ground_classifier::insert(*this));
   m_sort_array.push_back(pt);
 }
 ////////////////////////////////////////////////////////////////////////////////
 bool8_t RayGroundClassifier::can_fit_result(
   const Ray & ray,
   const PointPtrBlock & ground_block,
-  const PointPtrBlock & nonground_block) const
+  const PointPtrBlock & nonground_block)
 {
   return (ray.size() + std::max(ground_block.size(), nonground_block.size())) <=
          autoware::common::types::POINT_BLOCK_CAPACITY;
@@ -150,10 +148,9 @@ void RayGroundClassifier::partition(
   PointPtrBlock & ground_block,
   PointPtrBlock & nonground_block)
 {
-  // Make sure result can fit
-  if (!can_fit_result(ray, ground_block, nonground_block)) {
-    throw std::runtime_error("RayGroundClassifier: Blocks cannot fit partition result");
-  }
+  DEFAULT_ENFORCE(contract::preconditions::ray_ground_classifier::partition(
+      ray, ground_block, nonground_block));
+
   // reset classifier
   m_point_classifier.reset();
   // filter and push to appropriate queues

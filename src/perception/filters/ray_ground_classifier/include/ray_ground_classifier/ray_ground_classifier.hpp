@@ -50,12 +50,12 @@ public:
   /// \brief Inserts a point into the internal datastructure, intended to be used with filter.
   ///        Points inserted sequentially should have the semantics of being a part of the same ray
   /// \param[in] pt The point to insert
-  /// \throw std::runtime_error If the internal datastructure is full
+  /// \pre The internal datastructure is not full
   void insert(const PointXYZIF * pt);
   /// \brief Inserts a point into the internal datastructure, intended to be used with filter.
   ///        Points inserted sequentially should have the semantics of being a part of the same ray
   /// \param[in] pt The point to insert
-  /// \throw std::runtime_error If the internal datastructure is full
+  /// \pre The internal datastructure is not full
   void insert(const PointXYZIFR & pt);
 
   /// \brief check if the provided output blocks can definitely fit the result of a partition
@@ -70,21 +70,21 @@ public:
   /// \param[in] nonground_block The block that should hold the resulting nonground points
   /// \param[in] ray The ray to be partitioned
   /// \return false if provided output blocks could not fit ray
-  bool8_t can_fit_result(
+  static bool8_t can_fit_result(
     const Ray & ray,
     const PointPtrBlock & ground_block,
-    const PointPtrBlock & nonground_block) const;
+    const PointPtrBlock & nonground_block);
 
   /// \brief Partitions points from a single ray that were inserted using insert as ground or
   ///        nonground
   /// \param[inout] ground_block Gets appended with ground partition of the ray. The size parameter
   ///                            is honored and modified.
   /// \param[inout] nonground_block Gets appended with nonground partition of the ray. The size
-  ///                               parameter is honored and modified.
+  ///                               parameter is honored and modi`fied.
   /// \param[in] presorted If true, does not do a sorting step. Should only be true if the ray
   ///                      points are inserted in order of increasing radial distance, and in
   ///                      order of increasing height in the case of a tie
-  /// \throw std::runtime_error If blocks cannot fit result
+  /// \pre  Blocks must fit result
   void partition(
     PointPtrBlock & ground_block,
     PointPtrBlock & nonground_block,
@@ -108,11 +108,14 @@ public:
   /// \param[inout] ground_block Gets appended with ground points, size is respected and modified
   /// \param[inout] nonground_block Gets appended with nonground points, size is respected and
   ///                               modified
-  /// \throw std::runtime_error If blocks cannot fit result
+  /// \pre  Blocks must fit result
   void partition(
     const Ray & ray,
     PointPtrBlock & ground_block,
     PointPtrBlock & nonground_block);
+
+  /// \brief Check whether the internal sort array is at capacity or not
+  bool8_t sort_array_below_capacity() const {return m_sort_array.size() < m_sort_array.capacity();}
 
 private:
   /// \brief Sorts internally stored ray
