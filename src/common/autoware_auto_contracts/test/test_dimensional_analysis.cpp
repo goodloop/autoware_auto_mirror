@@ -26,22 +26,22 @@ static constexpr auto quarter_turn_rad = static_cast<float>(M_PI) / 4.0f;
 //------------------------------------------------------------------------------
 
 TEST(DimensionalAnalysis, AcuteDegreef) {
-    const c::AcuteDegreef d{45.0f};
-    EXPECT_NEAR(c::AcuteRadianf{d}, quarter_turn_rad, FEPS);
+  const c::AcuteDegreef d{45.0f};
+  EXPECT_NEAR(c::AcuteRadianf{d}, quarter_turn_rad, FEPS);
 
-    const c::AcuteRadianf r = d;
-    EXPECT_NEAR(r, quarter_turn_rad, FEPS);
+  const c::AcuteRadianf r = d;
+  EXPECT_NEAR(r, quarter_turn_rad, FEPS);
 }
 
 //------------------------------------------------------------------------------
 
 TEST(DimensionalAnalysis, AcuteRadianf) {
-    const c::AcuteRadianf r{quarter_turn_rad};
-    ASSERT_EQ(r, quarter_turn_rad);
-    EXPECT_NEAR(c::AcuteDegreef{r}, 45.0f, FEPS);
+  const c::AcuteRadianf r{quarter_turn_rad};
+  ASSERT_EQ(r, quarter_turn_rad);
+  EXPECT_NEAR(c::AcuteDegreef{r}, 45.0f, FEPS);
 
-    const c::AcuteDegreef d = r;
-    EXPECT_NEAR(d, 45.0f, FEPS);
+  const c::AcuteDegreef d = r;
+  EXPECT_NEAR(d, 45.0f, FEPS);
 }
 
 //------------------------------------------------------------------------------
