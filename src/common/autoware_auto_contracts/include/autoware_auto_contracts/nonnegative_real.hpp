@@ -38,6 +38,8 @@ namespace contracts
  *
  * @invariant The float value of these objects is guaranteed to be valid upon
  * successful construction.
+ *
+ * @implements{CONTRACTS002}
  */
 template<typename T>
 class NonnegativeReal

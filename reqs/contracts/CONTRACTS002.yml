@@ -1,0 +1,34 @@
+active: true
+derived: false
+header: |
+  Type-based enforcement
+level: 1.3.0
+links:
+- SYS004: YTgsjfqJy4wXsJiWYyDSKFBiJNZxrtlwAFER6QmquBI=
+normative: true
+ref: ''
+references:
+- keyword: CONTRACTS002
+  path: src/common/autoware_auto_contracts/include/autoware_auto_contracts/acute_degree.hpp
+  type: file
+- keyword: CONTRACTS002
+  path: src/common/autoware_auto_contracts/include/autoware_auto_contracts/acute_radian.hpp
+  type: file
+- keyword: CONTRACTS002
+  path: src/common/autoware_auto_contracts/include/autoware_auto_contracts/nonnegative_real.hpp
+  type: file
+- keyword: CONTRACTS002
+  path: src/common/autoware_auto_contracts/include/autoware_auto_contracts/real.hpp
+  type: file
+- keyword: CONTRACTS002
+  path: src/common/autoware_auto_contracts/include/autoware_auto_contracts/size_bound.hpp
+  type: file
+- keyword: CONTRACTS002
+  path: src/common/autoware_auto_contracts/include/autoware_auto_contracts/strictly_eps_positive_real.hpp
+  type: file
+- keyword: CONTRACTS002
+  path: src/common/autoware_auto_contracts/include/autoware_auto_contracts/strictly_positive_real.hpp
+  type: file
+reviewed: FTkRvIB6vti3qFodc_jvjFq1Egnys0ZvQf7POfUw7kY=
+text: |
+  **The contracts system _shall_ provide a programmatic method for enforcing parameter type and range requirements at run time.**

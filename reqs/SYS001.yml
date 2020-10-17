@@ -1,0 +1,11 @@
+active: true
+derived: false
+header: |
+  Object avoidance
+level: 1.1.0
+links: []
+normative: true
+ref: ''
+reviewed: k7xP4KIKEZ3vUplwgTnE9dqhBTKmFr4QbJmwFvDu-pg=
+text: |
+  **The system _shall_ avoid objects in its environment**

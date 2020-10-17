@@ -91,6 +91,8 @@ private:
   /// \post The output ground point cloud must not flicker over time
   /// \post The output non-ground point cloud must not flicker over time
   ///
+  /// \implements{GROUNDCLASSIFIER001}
+  ///
   void callback(const PointCloud2::SharedPtr msg);
   uint32_t m_ground_pc_idx;
   uint32_t m_nonground_pc_idx;

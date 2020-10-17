@@ -36,6 +36,8 @@ namespace contracts
  * @note A size bound is 'valid' if and only if it is in [0, BOUND]
  *
  * @invariant The value of these objects is guaranteed to be valid upon successful construction.
+ *
+ * @implements{CONTRACTS002}
  */
 template<size_t BOUND>
 class SizeBound

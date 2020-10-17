@@ -1,0 +1,13 @@
+active: true
+derived: false
+header: |
+  Object tracking
+level: 1.2.0
+links: []
+normative: true
+ref: ''
+reviewed: RXLn7-F_3k-XRqjxjrNdSJr073b3guK9hkMv0Gzm51c=
+text: |
+  **The perception system _shall_ track identified objects over time within the sensor input.**
+
+  To do this, the perception system needs identify and associate objects over time.

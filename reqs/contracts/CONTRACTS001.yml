@@ -1,0 +1,16 @@
+active: true
+derived: false
+header: |
+  Flicker detection
+level: 1.2.0
+links:
+- SYS004: YTgsjfqJy4wXsJiWYyDSKFBiJNZxrtlwAFER6QmquBI=
+normative: true
+ref: ''
+references:
+- keyword: CONTRACTS001
+  path: src/common/autoware_auto_contracts/include/autoware_auto_contracts/scalar_flicker.hpp
+  type: file
+reviewed: WOryBfmrKDzER56WiZgxOdCJCdczvaCQcdAPm3dbgIk=
+text: |
+  **The contracts system _shall_ provide a mechanism for enforcing bounds on the magnitude of flicker on a scalar-valued time series.**

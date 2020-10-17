@@ -39,6 +39,8 @@ namespace contracts
  * @note A strictly epsilon positive real is 'valid' if and only if it is in [FEPS, inf), where FEPS > 0
  *
  * @invariant The float value of these objects is guaranteed to be valid upon successful construction.
+ *
+ * @implements{CONTRACTS002}
  */
 template<typename T>
 class StrictlyEpsPositiveReal

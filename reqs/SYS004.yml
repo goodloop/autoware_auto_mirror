@@ -1,0 +1,11 @@
+active: true
+derived: false
+header: |
+  Fault/failure reporting
+level: 1.4.0
+links: []
+normative: true
+ref: ''
+reviewed: YTgsjfqJy4wXsJiWYyDSKFBiJNZxrtlwAFER6QmquBI=
+text: |
+  **System processes _shall_ report health status to a system watchdog.**

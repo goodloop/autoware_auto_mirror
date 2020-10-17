@@ -1,0 +1,11 @@
+active: true
+derived: false
+header: |
+  Fault/failure mitigation
+level: 1.3.0
+links: []
+normative: true
+ref: ''
+reviewed: Ydogvb0_8Q94q5_gUhs4CqqvUbyY3n4-F0MycYJtiZ4=
+text: |
+  **The system _shall_ mitigate reported faults and failures**

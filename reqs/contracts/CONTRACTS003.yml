@@ -1,0 +1,16 @@
+active: true
+derived: false
+header: |
+  Contract violation handler
+level: 1.4.0
+links:
+- SYS004: YTgsjfqJy4wXsJiWYyDSKFBiJNZxrtlwAFER6QmquBI=
+normative: true
+ref: ''
+references:
+- keyword: CONTRACTS003
+  path: src/common/autoware_auto_contracts/include/autoware_auto_contracts/violation_handler.hpp
+  type: file
+reviewed: UfUjrjVHD6nd6kxCgQMYkYCECE1ktXu9BNrruD3-TD4=
+text: |
+  **The contracts system _shall_ provide a defined handler for contract violations.**

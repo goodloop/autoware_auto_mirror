@@ -1,0 +1,13 @@
+active: true
+derived: false
+header: ''
+level: 1.0
+links: []
+normative: false
+ref: ''
+reviewed: b84ZoQsdRoa4WkalpFlqafwZe5Bo9-8FEnVwGoeE-bw=
+text: |
+  [Autoware.Auto](https://www.autoware.auto/) point clustering
+
+
+  Point clustering groups points together depending on their proximity. The clusters are intended to be interpreted as distinct objects.

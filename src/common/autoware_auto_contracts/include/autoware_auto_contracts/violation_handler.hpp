@@ -60,7 +60,11 @@ inline void handler_without_continuation(
 }  // namespace common
 }  // namespace autoware
 
-/** @brief Define the build-dependent contract violation handler. */
+/**
+ * @brief Define the build-dependent contract violation handler.
+ *
+ * @implements{CONTRACTS003}
+ */
 #ifdef CONTRACT_VIOLATION_CONTINUATION_MODE_ON
 #define CONTRACT_VIOLATION_HANDLER(violation) \
   ::autoware::common::contracts::handler_with_continuation(violation)

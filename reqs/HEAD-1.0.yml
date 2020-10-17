@@ -1,0 +1,26 @@
+active: true
+derived: false
+header: ''
+level: 1.0
+links: []
+normative: false
+ref: ''
+reviewed: 4JHrKILlcgsezVUbLag3W4vxLsKMgycxjNIKDWjOsr8=
+text: |
+  [Autoware.Auto](https://www.autoware.auto/)
+
+  blockdiag {
+    orientation = portrait
+    "World" -> "Sensors";
+    "Sensors" -> "Perception";
+    "Localization" -> "Perception";
+    "Perception" -> "Planning";
+    "Sensors" -> "Localization";
+    "Localization" -> "Planning";
+    "Planning" -> "Control";
+    "Control" -> "World";
+  }
+
+  Because the system structure relevant for requirement specification may not map exactly onto the implmeneted system structure, requirements are specified out of source.
+
+  The general proposed strategy for requirement specification in Autoware is to specify a system-level requirement tree, and then at each leaf point to the top-level software point where the system-level requirement is _realized_, i.e., not just implemented but employed by the stack during operation. From there, software requirements are fully specified through a combination of design docs and API documentation per module.

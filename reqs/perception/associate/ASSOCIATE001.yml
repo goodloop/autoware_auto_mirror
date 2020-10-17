@@ -1,0 +1,14 @@
+active: true
+derived: false
+header: |
+  Hungarian assigner
+level: 1.1.0
+links:
+- PERCEPTION002: RXLn7-F_3k-XRqjxjrNdSJr073b3guK9hkMv0Gzm51c=
+normative: true
+ref: ''
+reviewed: S0CjWAL2RkvcYFpcovdMHwWu0OA5VZWH4jLjD4ajQz8=
+text: |
+  **The Hungarian assigner _shall_ associate distinct object detections based on a defined cost function.**
+
+  The Hungarian algorithm was chosen because it can take in arbitrary costs. It does, however, come with O(N^3) complexity instead of, for example, O(N log N) for Global Nearest Neighbors (GNN).

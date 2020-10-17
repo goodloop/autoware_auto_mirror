@@ -1,0 +1,13 @@
+active: true
+derived: false
+header: |
+  Watchdog functionality
+level: 1.0
+links: []
+normative: false
+ref: ''
+reviewed: mMnbAZ3E9fulWjoWiXBeAZg_4B62juEAh9UCae-WvCA=
+text: |
+  Watchdog functionality
+
+  General watchdog functionality requirments, maybe link to repo and lifecycle nodes.

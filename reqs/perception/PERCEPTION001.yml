@@ -1,0 +1,15 @@
+active: true
+derived: false
+header: |
+  Object detection
+level: 1.1.0
+links:
+- SYS001: k7xP4KIKEZ3vUplwgTnE9dqhBTKmFr4QbJmwFvDu-pg=
+- SYS004: YTgsjfqJy4wXsJiWYyDSKFBiJNZxrtlwAFER6QmquBI=
+normative: true
+ref: ''
+reviewed: xRACEhhuGlgSwIVwNrgIIftieqUuHcIgAJiT0Ibfc-8=
+text: |
+  **The perception system _shall_ identify objects within the sensor input.**
+
+  To do this, the perception system needs to segment out non-ground lidar points and cluster them.

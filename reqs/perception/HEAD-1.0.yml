@@ -1,0 +1,21 @@
+active: true
+derived: false
+header: ''
+level: 1.0
+links: []
+normative: false
+ref: ''
+reviewed: W-G7Rmv3RtSW0IDFRA7qefsvWWnlelZWpFIIUwH5_jg=
+text: |
+  [Autoware.Auto](https://www.autoware.auto/) perception
+
+  The perception system is responsible for interpreting sensor data and transforming it into a consistent representation to be used for planning and control.
+
+  blockdiag {
+    orientation = portrait
+    "LiDAR Sensors" -> "Point Cloud Fusion"
+    "Point Cloud Fusion" -> "Point Cloud Transform"
+    "Point Cloud Transform" -> "Ray Classifier Node"
+    "Point Cloud Transform" -> "Voxel Grid"
+    "Ray Classifier Node" -> "Euclidean Cluster"
+  }

@@ -272,6 +272,8 @@ PeakIndex<T, S> greatest_magnitude_peak(const std::array<T, S> & arr)
 
 /**
  * @brief Utility class to encapsulate data structure and flicker computation.
+ *
+ * @implements{CONTRACTS001}
  */
 template<typename T, size_t S>
 class ScalarFlicker

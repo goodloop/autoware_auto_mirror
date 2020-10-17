@@ -38,6 +38,8 @@ namespace contracts
  * @note A strictly positive real is 'valid' if and only if it is in (0, inf)
  *
  * @invariant The float value of these objects is guaranteed to be valid upon successful construction.
+ *
+ * @implements{CONTRACTS002}
  */
 template<typename T>
 class StrictlyPositiveReal

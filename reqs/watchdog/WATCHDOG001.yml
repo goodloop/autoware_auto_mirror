@@ -1,0 +1,12 @@
+active: true
+derived: false
+header: |
+  Process watchdog
+level: 1.1.0
+links:
+- SYS003: Ydogvb0_8Q94q5_gUhs4CqqvUbyY3n4-F0MycYJtiZ4=
+normative: true
+ref: ''
+reviewed: Wat0mrXZQRPc9t1cxsGx7L6-MCJDqe1Kq59a5J6PaUA=
+text: |
+  **A process watchdog _shall_ process failures and invoke mitigation routines**
