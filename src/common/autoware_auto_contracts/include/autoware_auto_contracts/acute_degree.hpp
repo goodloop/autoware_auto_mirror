@@ -21,6 +21,7 @@
 
 #include <contracts_lite/range_checks.hpp>
 #include <limits>
+#include <utility>
 
 #include "autoware_auto_contracts/violation_handler.hpp"
 #include "common/types.hpp"
