@@ -18,8 +18,6 @@
 #include "common/types.hpp"
 #include "gtest/gtest.h"
 
-// TODO: build with continuation mode ON, split into separate files
-
 namespace c = autoware::common::contracts;
 using autoware::common::types::FEPS;
 static constexpr auto NaNf = std::numeric_limits<float>::quiet_NaN();

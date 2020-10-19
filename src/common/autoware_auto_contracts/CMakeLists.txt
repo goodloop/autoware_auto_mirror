@@ -60,6 +60,7 @@ if(BUILD_TESTING)
     test/test_scalar_flicker.cpp
     test/test_acute_degree.cpp
     test/test_acute_radian.cpp
+    test/test_assertions.cpp
     test/test_nonnegative_real.cpp
     test/test_real.cpp
     test/test_size_bound.cpp
