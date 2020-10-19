@@ -15,8 +15,11 @@
 #ifndef RAY_GROUND_CLASSIFIER__CONTRACT_HPP_
 #define RAY_GROUND_CLASSIFIER__CONTRACT_HPP_
 
-#include "ray_ground_classifier/ray_aggregator.hpp"
+#include <utility>
+
+#include "autoware_auto_contracts/violation_handler.hpp"
 #include "ray_ground_classifier/ray_ground_classifier.hpp"
+#include "ray_ground_classifier/ray_ground_point_classifier.hpp"
 
 namespace autoware
 {
@@ -34,18 +37,10 @@ namespace preconditions
 namespace ray_ground_classifier
 {
 
-/// @brief Ensure partition preconditions
+/// @brief Enforce that partition can fit partition result.
 contracts_lite::ReturnStatus partition(
   const Ray & ray, PointPtrBlock & ground_block,
   PointPtrBlock & nonground_block);
-
-/// @brief Ensure insert preconditions
-inline contracts_lite::ReturnStatus insert(const RayGroundClassifier & ray_ground_classifier)
-{
-  return contracts_lite::ReturnStatus(
-    CONTRACT_COMMENT("", "RayGroundClassifier: array must never be full before insertion"),
-    ray_ground_classifier.sort_array_below_capacity());
-}
 
 }  // namespace ray_ground_classifier
 }  // namespace preconditions

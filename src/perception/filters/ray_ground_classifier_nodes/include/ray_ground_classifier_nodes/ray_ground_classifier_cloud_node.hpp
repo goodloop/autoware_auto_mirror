@@ -21,6 +21,7 @@
 #define RAY_GROUND_CLASSIFIER_NODES__RAY_GROUND_CLASSIFIER_CLOUD_NODE_HPP_
 
 #include <autoware_auto_contracts/scalar_flicker.hpp>
+#include <autoware_auto_contracts/violation_handler.hpp>
 #include <ray_ground_classifier_nodes/scoped_timer.hpp>
 #include <common/types.hpp>
 #include <lidar_utils/point_cloud_utils.hpp>
@@ -36,7 +37,7 @@
 
 using autoware::common::types::bool8_t;
 using autoware::common::types::char8_t;
-using mapless::demo::sotif::ScalarFlicker;
+using autoware::common::contracts::ScalarFlicker;
 
 namespace autoware
 {
@@ -80,7 +81,16 @@ private:
   const rclcpp::Subscription<PointCloud2>::SharedPtr m_raw_sub_ptr;
   const std::shared_ptr<rclcpp::Publisher<PointCloud2>> m_ground_pub_ptr;
   const std::shared_ptr<rclcpp::Publisher<PointCloud2>> m_nonground_pub_ptr;
+  ///
   /// \brief Read samples from the subscription
+  ///
+  /// \pre The frame of the input point cloud must be consistent
+  /// \pre The size of the input point cloud must be valid
+  /// \pre The length of the input point cloud must be valid
+  /// \pre The size of the point cloud must not flicker over time
+  /// \post The output ground point cloud must not flicker over time
+  /// \post The output non-ground point cloud must not flicker over time
+  ///
   void callback(const PointCloud2::SharedPtr msg);
   uint32_t m_ground_pc_idx;
   uint32_t m_nonground_pc_idx;

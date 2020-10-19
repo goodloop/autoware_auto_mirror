@@ -34,7 +34,9 @@
 #endif
 
 #include "autoware_auto_algorithm/algorithm.hpp"
-#include "autoware_auto_contracts/checks.hpp"
+#include "autoware_auto_contracts/real.hpp"
+#include "autoware_auto_contracts/size_bound.hpp"
+#include "autoware_auto_contracts/strictly_eps_positive_real.hpp"
 #include "common/types.hpp"
 #include "ray_ground_classifier/ray_ground_point_classifier.hpp"
 

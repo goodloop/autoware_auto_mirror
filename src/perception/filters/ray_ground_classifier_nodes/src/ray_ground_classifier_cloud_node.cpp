@@ -195,12 +195,8 @@ RayGroundClassifierCloudNode::callback(const PointCloud2::SharedPtr msg)
             local_nonground_pc_idx = m_nonground_pc_idx++;
             const auto success =
               add_point_to_cloud_raw(m_nonground_msg, *pt, local_nonground_pc_idx);
-            DEFAULT_ENFORCE([&]() {
-                auto comment =
-                CONTRACT_COMMENT("",
-                "RayGroundClassifierNode: msg point capacity must not be overrun");
-                return contracts_lite::ReturnStatus(std::move(comment), success);
-              } ());
+            DEFAULT_ENFORCE(contracts_lite::ReturnStatus(CONTRACT_COMMENT("",
+              "RayGroundClassifierNode: msg point capacity must not be overrun"), success));
             (void)success;
           }
         } catch (const std::runtime_error & e) {
@@ -252,32 +248,27 @@ RayGroundClassifierCloudNode::callback(const PointCloud2::SharedPtr msg)
             m_classifier.partition(ray, ground_blk, nonground_blk);
             #endif
             // Add ray to point clouds
-            auto all_ground_added = true;
+            auto all_ground_points_added = true;
             for (auto & ground_point : ground_blk) {
               uint32_t local_ground_pc_idx;
               #pragma omp atomic capture
               local_ground_pc_idx = m_ground_pc_idx++;
-              all_ground_added = all_ground_added && add_point_to_cloud_raw(m_ground_msg,
-                  *ground_point,
+              const auto success = add_point_to_cloud_raw(m_ground_msg, *ground_point,
                   local_ground_pc_idx);
+              all_ground_points_added = success && all_ground_points_added;
             }
-            auto all_nonground_added = true;
+            auto all_nonground_points_added = true;
             for (auto & nonground_point : nonground_blk) {
               uint32_t local_nonground_pc_idx;
               #pragma omp atomic capture
               local_nonground_pc_idx = m_nonground_pc_idx++;
-              all_nonground_added = all_nonground_added && add_point_to_cloud_raw(m_nonground_msg,
-                  *nonground_point,
+              const auto success = add_point_to_cloud_raw(m_nonground_msg, *nonground_point,
                   local_nonground_pc_idx);
+              all_nonground_points_added = success && all_nonground_points_added;
             }
-
-            DEFAULT_ENFORCE([&]() {
-                auto comment =
-                CONTRACT_COMMENT("",
-                "RayGroundClassifierNode: msg point capacity must not be overrun");
-                return contracts_lite::ReturnStatus(std::move(comment),
-                all_ground_added && all_nonground_added);
-              } ());
+            DEFAULT_ENFORCE(contracts_lite::ReturnStatus(CONTRACT_COMMENT("",
+              "RayGroundClassifierNode: msg point capacity must not be overrun"),
+              all_ground_points_added && all_nonground_points_added));
           } catch (const std::runtime_error & e) {
             #pragma omp critical (get_logger)
             RCLCPP_INFO(this->get_logger(), e.what());
@@ -299,12 +290,9 @@ RayGroundClassifierCloudNode::callback(const PointCloud2::SharedPtr msg)
       }
     }
 
-    DEFAULT_ENFORCE([&]() {
-        auto comment =
-        CONTRACT_COMMENT("",
-        "RayGroundClassifierCloudNode must not encounter unknown failures");
-        return contracts_lite::ReturnStatus(std::move(comment), !has_encountered_unknown_exception);
-      } ());
+    DEFAULT_ENFORCE(contracts_lite::ReturnStatus(CONTRACT_COMMENT("",
+      "RayGroundClassifierCloudNode must not encounter unknown failures"),
+      !has_encountered_unknown_exception));
     (void)has_encountered_unknown_exception;
 
     if (abort) {
@@ -328,12 +316,8 @@ RayGroundClassifierCloudNode::callback(const PointCloud2::SharedPtr msg)
   } catch (const std::exception & e) {
     RCLCPP_INFO(this->get_logger(), e.what());
   } catch (...) {
-    DEFAULT_ENFORCE([&]() {
-        auto comment =
-        CONTRACT_COMMENT("",
-        "RayGroundClassifierCloudNode must not encounter unknown exceptions");
-        return contracts_lite::ReturnStatus(std::move(comment), false);
-      } ());
+    DEFAULT_ENFORCE(contracts_lite::ReturnStatus(CONTRACT_COMMENT("",
+      "RayGroundClassifierCloudNode must not encounter unknown exceptions"), false));
   }
 }
 ////////////////////////////////////////////////////////////////////////////////

@@ -18,7 +18,9 @@
 #include <sensor_msgs/msg/point_cloud2.hpp>
 #include <string>
 
-#include "autoware_auto_contracts/checks.hpp"
+#include "autoware_auto_contracts/scalar_flicker.hpp"
+
+using autoware::common::contracts::ScalarFlicker;
 
 namespace autoware
 {
@@ -36,18 +38,21 @@ namespace preconditions
 /// @brief Enforce pre-conditions on point cloud input.
 contracts_lite::ReturnStatus callback(
   const sensor_msgs::msg::PointCloud2::SharedPtr msg,
-  mapless::demo::sotif::ScalarFlicker<size_t, 3> & input_flicker_detector,
+  ScalarFlicker<size_t, 3> & input_flicker_detector,
   const std::string & frame_id);
 
 }  // namespace preconditions
 
 namespace postconditions
 {
+
+/// @brief Enforce the post-conditions on point cloud output.
 contracts_lite::ReturnStatus callback(
   const sensor_msgs::msg::PointCloud2 & ground_msg,
   const sensor_msgs::msg::PointCloud2 & nonground_msg,
-  mapless::demo::sotif::ScalarFlicker<size_t, 3> & output_ground_flicker_detector,
-  mapless::demo::sotif::ScalarFlicker<size_t, 3> & output_nonground_flicker_detector);
+  ScalarFlicker<size_t, 3> & output_ground_flicker_detector,
+  ScalarFlicker<size_t, 3> & output_nonground_flicker_detector);
+
 }  // namespace postconditions
 
 }  // namespace contract

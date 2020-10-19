@@ -21,6 +21,7 @@
 #include <cstdint>
 
 #include "common/types.hpp"
+#include "autoware_auto_contracts/assertions.hpp"
 #include "ray_ground_classifier/contract.hpp"
 #include "ray_ground_classifier/ray_ground_classifier.hpp"
 #include "ray_ground_classifier/ray_ground_point_classifier.hpp"
@@ -61,7 +62,7 @@ void RayGroundClassifier::insert(const PointXYZIF * pt)
 ////////////////////////////////////////////////////////////////////////////////
 void RayGroundClassifier::insert(const PointXYZIFR & pt)
 {
-  DEFAULT_ENFORCE(contract::preconditions::ray_ground_classifier::insert(*this));
+  DEFAULT_ENFORCE(common::contracts::assertions::vector_below_capacity(m_sort_array));
   m_sort_array.push_back(pt);
 }
 ////////////////////////////////////////////////////////////////////////////////

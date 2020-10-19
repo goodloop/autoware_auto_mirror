@@ -17,8 +17,6 @@
 
 #include "ray_ground_classifier/contract.hpp"
 
-#include "autoware_auto_contracts/checks.hpp"
-
 namespace autoware
 {
 namespace perception
@@ -34,15 +32,6 @@ using contracts_lite::gcc_7x_to_string_fix;
 
 namespace preconditions
 {
-namespace ray_aggregator
-{
-
-//------------------------------------------------------------------------------
-
-//------------------------------------------------------------------------------
-
-}  // namespace ray_aggregator
-
 namespace ray_ground_classifier
 {
 

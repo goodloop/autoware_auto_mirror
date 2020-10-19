@@ -23,7 +23,11 @@
 #include <cmath>
 #include <vector>
 
-#include "autoware_auto_contracts/checks.hpp"
+#include "autoware_auto_contracts/acute_degree.hpp"
+#include "autoware_auto_contracts/acute_radian.hpp"
+#include "autoware_auto_contracts/nonnegative_real.hpp"
+#include "autoware_auto_contracts/strictly_positive_real.hpp"
+#include "autoware_auto_contracts/real.hpp"
 #include "common/types.hpp"
 #include "helper_functions/float_comparisons.hpp"
 #include "ray_ground_classifier/visibility_control.hpp"

@@ -34,7 +34,7 @@ namespace preconditions
 
 contracts_lite::ReturnStatus callback(
   const sensor_msgs::msg::PointCloud2::SharedPtr msg,
-  mapless::demo::sotif::ScalarFlicker<size_t, 3> & input_flicker_detector,
+  ScalarFlicker<size_t, 3> & input_flicker_detector,
   const std::string & frame_id)
 {
   // Verify header
@@ -84,8 +84,8 @@ namespace postconditions
 contracts_lite::ReturnStatus callback(
   const sensor_msgs::msg::PointCloud2 & ground_msg,
   const sensor_msgs::msg::PointCloud2 & nonground_msg,
-  mapless::demo::sotif::ScalarFlicker<size_t, 3> & output_ground_flicker_detector,
-  mapless::demo::sotif::ScalarFlicker<size_t, 3> & output_nonground_flicker_detector)
+  ScalarFlicker<size_t, 3> & output_ground_flicker_detector,
+  ScalarFlicker<size_t, 3> & output_nonground_flicker_detector)
 {
   const auto ground_points = ground_msg.width * ground_msg.height;
   auto ground_flicker_valid = output_ground_flicker_detector.no_flicker(ground_points);

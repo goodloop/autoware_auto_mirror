@@ -22,6 +22,7 @@
 
 #include "common/types.hpp"
 #include "lidar_utils/lidar_utils.hpp"
+#include "autoware_auto_contracts/assertions.hpp"
 #include "ray_ground_classifier/contract.hpp"
 #include "ray_ground_classifier/ray_aggregator.hpp"
 #include "ray_ground_classifier/ray_ground_point_classifier.hpp"
@@ -137,14 +138,7 @@ bool8_t RayAggregator::insert(const PointXYZIFR & pt)
       #endif
     }
 
-    DEFAULT_ENFORCE(
-      [&]() {
-        auto comment = CONTRACT_COMMENT("", "RayAggregator: ray size (" + gcc_7x_to_string_fix(
-          ray.size()) + ") must always be strictly less than ray capacity (" +
-        gcc_7x_to_string_fix(ray.capacity()) + ") before insertion");
-        return contracts_lite::ReturnStatus(std::move(comment), ray.size() < ray.capacity());
-      } ());
-
+    DEFAULT_ENFORCE(common::contracts::assertions::vector_below_capacity(ray));
 
     // insert point to ray, do some presorting
     ray.push_back(pt);
