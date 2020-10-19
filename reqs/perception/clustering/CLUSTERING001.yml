@@ -7,7 +7,11 @@ links:
 - PERCEPTION001: jUiUkHBvW87xCJWbUQT6pW_rQz5YtPDot6H0R-ol304=
 normative: true
 ref: ''
-reviewed: 3DkY45zTQet-RTefDqiyNbrgTAv1SnuIiLvrnLCc2oU=
+references:
+- keyword: CLUSTERING001
+  path: src/perception/segmentation/euclidean_cluster_nodes/include/euclidean_cluster_nodes/euclidean_cluster_node.hpp
+  type: file
+reviewed: G_89pZWkFV7dLC5jp2yt4J2Khi15livXSKM93bUyAOc=
 text: |
   **Euclidean point clustering _shall_ group non-ground LiDAR points into distinct object clusters.**
 

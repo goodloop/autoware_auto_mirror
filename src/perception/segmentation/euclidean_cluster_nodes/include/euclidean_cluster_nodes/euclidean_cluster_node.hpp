@@ -59,6 +59,7 @@ public:
 
 private:
   /// \brief Main callback function
+  /// \implements{CLUSTERING001}
   void EUCLIDEAN_CLUSTER_NODES_LOCAL handle(const PointCloud2::SharedPtr msg_ptr);
   /// \brief Initialization function
   void EUCLIDEAN_CLUSTER_NODES_LOCAL init(const euclidean_cluster::Config & cfg);
