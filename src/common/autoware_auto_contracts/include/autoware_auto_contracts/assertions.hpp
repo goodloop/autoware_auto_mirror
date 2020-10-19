@@ -35,7 +35,7 @@ namespace contracts
 namespace assertions
 {
 
-/** @brief Enforce that a vectory object is below capacity. */
+/** @brief Enforce that a vector object is below capacity. */
 template<typename T>
 contracts_lite::ReturnStatus vector_below_capacity(const std::vector<T> & v)
 {
