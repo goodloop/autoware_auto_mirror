@@ -1,5 +1,5 @@
 settings:
   digits: 3
   parent: PERCEPTION
-  prefix: GROUNDCLASSIFIER
+  prefix: GROUNDCLASSIFICATION
   sep: ''

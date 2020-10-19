@@ -7,7 +7,7 @@ links:
 - PERCEPTION002: RXLn7-F_3k-XRqjxjrNdSJr073b3guK9hkMv0Gzm51c=
 normative: true
 ref: ''
-reviewed: S0CjWAL2RkvcYFpcovdMHwWu0OA5VZWH4jLjD4ajQz8=
+reviewed: V4wuUPzlH6e1Tb7zfLUujTF2wS7qdjMWfULItGdlIx0=
 text: |
   **The Hungarian assigner _shall_ associate distinct object detections based on a defined cost function.**
 

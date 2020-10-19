@@ -7,6 +7,6 @@ links:
 - SYS003: Ydogvb0_8Q94q5_gUhs4CqqvUbyY3n4-F0MycYJtiZ4=
 normative: true
 ref: ''
-reviewed: Wat0mrXZQRPc9t1cxsGx7L6-MCJDqe1Kq59a5J6PaUA=
+reviewed: k-TBMMfP3_oM7n0lnp6QIyRZh2IA4yXeZiAz8tERE-8=
 text: |
-  **A process watchdog _shall_ process failures and invoke mitigation routines**
+  **A process watchdog _shall_ respond to process failures by invoking mitigation routines**

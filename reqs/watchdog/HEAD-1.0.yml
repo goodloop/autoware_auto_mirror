@@ -6,8 +6,8 @@ level: 1.0
 links: []
 normative: false
 ref: ''
-reviewed: mMnbAZ3E9fulWjoWiXBeAZg_4B62juEAh9UCae-WvCA=
+reviewed: uMc3320nGOhLFdv_vIb18PbVnuRNK35FaEStTVtuUkY=
 text: |
   Watchdog functionality
 
-  General watchdog functionality requirments, maybe link to repo and lifecycle nodes.
+  The system watchdog is responsible for enforcing system-level health requirements and mitigating failures of those requirements.

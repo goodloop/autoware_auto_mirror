@@ -8,11 +8,11 @@ links:
 normative: true
 ref: ''
 references:
-- keyword: GROUNDCLASSIFIER001
+- keyword: GROUNDCLASSIFICATION001
   path: src/perception/filters/ray_ground_classifier_nodes/include/ray_ground_classifier_nodes/ray_ground_classifier_cloud_node.hpp
   type: file
-reviewed: S0CjWAL2RkvcYFpcovdMHwWu0OA5VZWH4jLjD4ajQz8=
+reviewed: 3ucQTpXYi4XvdnvODDovchMro1rQc0C6qq_r9ZEAAtQ=
 text: |
-  **The Ray Ground Classifier _shall_ partition input LiDAR points into ground and non-ground sets.**
+  **The ground classifier _shall_ partition input LiDAR points into ground and non-ground sets.**
 
   A valid partitioning is required for object segmentation.

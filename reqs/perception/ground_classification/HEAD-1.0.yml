@@ -1,0 +1,13 @@
+active: true
+derived: false
+header: ''
+level: 1.0
+links: []
+normative: false
+ref: ''
+reviewed: FBeBnUanuINk5OCZT-dzp2TZDoP9ckJ61Te08PHoOsg=
+text: |
+  [Autoware.Auto](https://www.autoware.auto/) ground classification
+
+
+  Ground classification paritions points in a point cloud into ground and non-ground sets.
