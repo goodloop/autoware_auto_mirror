@@ -15,14 +15,14 @@ Suppose there is a function that takes some floating point values as inputs and 
 float foo(float height, float deg, float scalar, size_t count)
 {
    if (height < 0.0f) { throw ... }
-   if ((angle_deg < 0.0f) || (angle_deg >= 90.0f)) { throw ... }
-   if (!std::isfinite(arg3)) { throw ... }
+   if ((deg < 0.0f) || (deg >= 90.0f)) { throw ... }
+   if (!std::isfinite(scalar)) { throw ... }
    if (count > SOME_BOUND) { throw ... }
    
    // Convert degrees to radians
    auto rad = some_conversion_function(deg);
    
-   // do some work
+   // do some work, compute 'bar' of type float
    
    if (!std::isfinite(bar)) { throw ... }
    if (bar <= 0.0f) { throw ... }
@@ -40,7 +40,7 @@ StrictlyPositiveRealf foo(NonnegativeRealf height, AcuteDegreef deg, Realf scala
    // Convert degrees to radians
    AcuteRadianf rad = deg;
    
-   // do some work
+   // do some work, compute 'bar' of type float
    
    return bar;
 }
