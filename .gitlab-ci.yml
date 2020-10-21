@@ -404,7 +404,9 @@ coverage:
   stage: build
   image: $CI_REGISTRY_IMAGE/amd64/ade-dashing:commit-$CI_COMMIT_SHA
   script:
-    - vcs import < autoware.auto.$ROS_DISTRO.repos
+    - tar xzf opt.tar.gz -C /
+    - rm opt.tar.gz
+    - source /opt/AutowareAuto/setup.bash
     - './tools/coverage/coverage.sh -u'
   artifacts:
     name: "$CI_JOB_NAME"
@@ -413,7 +415,7 @@ coverage:
       - log
   coverage: /\s*lines.*:\s(\d+\.\d+\%\s\(\d+\sof\s\d+.*\))/
   needs:
-    - ade_amd64_dashing
+    - build_amd64_dashing
 
 docs:
   stage: build
