@@ -401,7 +401,7 @@ test_arm64_foxy:
   allow_failure: true
 
 coverage:
-  stage: build
+  stage: test
   image: $CI_REGISTRY_IMAGE/amd64/ade-dashing:commit-$CI_COMMIT_SHA
   script:
     - tar xzf opt.tar.gz -C /
