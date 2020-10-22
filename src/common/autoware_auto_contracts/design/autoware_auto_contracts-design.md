@@ -12,10 +12,11 @@ In addition, the types can be used to perform basic dimensional analysis.
 Suppose there is a function that takes some floating point values as inputs and needs to do error checking on both input and output to ensure proper functioning:
 
 ```
+/// \@brief Toy example of a function without contracts.
 float foo(float height, float deg, float scalar, size_t count)
 {
-   if (height < 0.0f) { throw ... }
-   if ((deg < 0.0f) || (deg >= 90.0f)) { throw ... }
+   if (!std::isfinite(height) || (height < 0.0f)) { throw ... }
+   if (!((deg >= 0.0f) && (deg < 90.0f))) { throw ... }
    if (!std::isfinite(scalar)) { throw ... }
    if (count > SOME_BOUND) { throw ... }
    
@@ -24,8 +25,7 @@ float foo(float height, float deg, float scalar, size_t count)
    
    // do some work, compute 'bar' of type float
    
-   if (!std::isfinite(bar)) { throw ... }
-   if (bar <= 0.0f) { throw ... }
+   if (!std::isfinite(bar) || (bar <= 0.0f)) { throw ... }
    return bar;
 }
 ```
@@ -35,6 +35,12 @@ It can also be very error prone to maintain them over time.
 The contract types provided by this library allow all of that error checking to be written _once_ and maintained in the _data type_:
 
 ```
+/// \@brief Toy example of a function with contracts.
+/// \@pre  0 <= height < inf
+/// \@pre  0 <= deg < 90
+/// \@pre  -inf < scalar < inf
+/// \@pre  0 <= count <= SOME_BOUND
+/// \@post 0 < ret < inf
 StrictlyPositiveRealf foo(NonnegativeRealf height, AcuteDegreef deg, Realf scalar, SizeBound<SOME_BOUND> count)
 {  
    // Convert degrees to radians
@@ -46,7 +52,7 @@ StrictlyPositiveRealf foo(NonnegativeRealf height, AcuteDegreef deg, Realf scala
 }
 ```
 
-Not only is the code far less verbose, but it is much easier to maintain and the informative names make the code more readable.
+Not only is the code less verbose, but it is much easier to maintain and the informative names make the code more readable.
 Further, conversion between types can be built into the type itself.
 For example, in the above code, conversion from degree to radian (or vice versa), is as simple as assigning one type to the other.
 
