@@ -27,9 +27,6 @@
 #include <common/types.hpp>
 #include <motion_common/config.hpp>
 
-// for velocity smoother
-// TODO(mitsudome-r): change the package name or split into different package?
-// #include <object_collision_estimator/object_collision_estimator.hpp>
 #include <trajectory_smoother/trajectory_smoother.hpp>
 
 #include <lanelet2_core/LaneletMap.h>

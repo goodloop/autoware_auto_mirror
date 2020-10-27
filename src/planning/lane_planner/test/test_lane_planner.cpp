@@ -24,7 +24,6 @@ using autoware_auto_msgs::msg::TrajectoryPoint;
 
 using motion::motion_common::VehicleConfig;
 using motion::planning::trajectory_smoother::TrajectorySmootherConfig;
-// using motion::planning::trajectory_smoother::TrajectorySmoother;
 
 using autoware::common::types::bool8_t;
 using autoware::common::types::float32_t;
