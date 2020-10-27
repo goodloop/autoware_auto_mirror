@@ -29,7 +29,8 @@
 
 // for velocity smoother
 // TODO(mitsudome-r): change the package name or split into different package?
-#include <object_collision_estimator/object_collision_estimator.hpp>
+// #include <object_collision_estimator/object_collision_estimator.hpp>
+#include <trajectory_smoother/trajectory_smoother.hpp>
 
 #include <lanelet2_core/LaneletMap.h>
 #include <lanelet2_core/primitives/Point.h>
@@ -52,8 +53,8 @@ using autoware_auto_msgs::msg::Route;
 using autoware_auto_msgs::msg::Trajectory;
 using Heading = decltype(decltype(State::state)::heading);
 
-using motion::planning::object_collision_estimator::TrajectorySmootherConfig;
-using motion::planning::object_collision_estimator::TrajectorySmoother;
+using motion::planning::trajectory_smoother::TrajectorySmootherConfig;
+using motion::planning::trajectory_smoother::TrajectorySmoother;
 
 using autoware::common::types::bool8_t;
 using autoware::common::types::float32_t;
