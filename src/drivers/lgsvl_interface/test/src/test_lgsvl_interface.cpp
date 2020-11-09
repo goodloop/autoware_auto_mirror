@@ -69,17 +69,12 @@ TEST_F(LgsvlInterface_test, gear_mapping_state_command)
     };
 
   // Tests
-  wait_for_subscription_callback(
-    VSC::GEAR_DRIVE,
-    static_cast<lgsvl_interface::GEAR_TYPE>(lgsvl_interface::LGSVL_GEAR::DRIVE));
+  wait_for_subscription_callback(VSC::GEAR_DRIVE, lgsvl_interface::VSD::GEAR_DRIVE);
 
-  wait_for_subscription_callback(
-    VSC::GEAR_REVERSE,
-    static_cast<lgsvl_interface::GEAR_TYPE>(lgsvl_interface::LGSVL_GEAR::REVERSE));
+  wait_for_subscription_callback(VSC::GEAR_REVERSE, lgsvl_interface::VSD::GEAR_REVERSE);
 
-  wait_for_subscription_callback(
-    static_cast<lgsvl_interface::GEAR_TYPE>(99u),
-    static_cast<lgsvl_interface::GEAR_TYPE>(lgsvl_interface::LGSVL_GEAR::DRIVE));
+  wait_for_subscription_callback(static_cast<lgsvl_interface::GEAR_TYPE>(99u),
+                                 lgsvl_interface::VSD::GEAR_DRIVE);
 }
 
 TEST_F(LgsvlInterface_test, gear_mapping_state_report)
@@ -108,12 +103,10 @@ TEST_F(LgsvlInterface_test, gear_mapping_state_report)
   // Tests
   EXPECT_EQ(lgsvl_interface_->get_state_report().gear, 0);
 
-  publish_gear_and_wait(
-    static_cast<lgsvl_interface::GEAR_TYPE>(lgsvl_interface::LGSVL_GEAR::DRIVE));
+  publish_gear_and_wait(lgsvl_interface::VSD::GEAR_DRIVE);
   EXPECT_EQ(lgsvl_interface_->get_state_report().gear, VSC::GEAR_DRIVE);
 
-  publish_gear_and_wait(
-    static_cast<lgsvl_interface::GEAR_TYPE>(lgsvl_interface::LGSVL_GEAR::REVERSE));
+  publish_gear_and_wait(lgsvl_interface::VSD::GEAR_REVERSE);
   EXPECT_EQ(lgsvl_interface_->get_state_report().gear, VSC::GEAR_REVERSE);
 
   publish_gear_and_wait(static_cast<lgsvl_interface::GEAR_TYPE>(99u));
