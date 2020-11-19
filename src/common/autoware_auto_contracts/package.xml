@@ -7,7 +7,7 @@
   <maintainer email="jeff@mapless.ai">Jeffrey Kane Johnson</maintainer>
   <license>Apache 2.0</license>
 
-  <buildtool_depend>ament_cmake_ros</buildtool_depend>
+  <buildtool_depend>ament_cmake_auto</buildtool_depend>
 
   <depend>rclcpp</depend>
   <depend>contracts_lite_vendor</depend>

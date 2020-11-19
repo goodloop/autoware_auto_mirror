@@ -11,31 +11,13 @@ if(NOT CMAKE_CXX_STANDARD)
   set(CMAKE_CXX_STANDARD 14)
 endif()
 
-set(CMAKE_BUILD_TYPE RelWithDebInfo)
-#set(CMAKE_BUILD_TYPE Release)
-#set(CMAKE_BUILD_TYPE Debug)
-
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 
 # find dependencies
-find_package(ament_cmake REQUIRED)
-find_package(ament_cmake_ros REQUIRED)
-find_package(contracts_lite_vendor REQUIRED)
-find_package(autoware_auto_common REQUIRED)
-find_package(rclcpp REQUIRED)
-
-install(
-  DIRECTORY include/
-  DESTINATION include
-)
-
-ament_export_include_directories(include)
-ament_export_dependencies(
-  "rclcpp"
-  "contracts_lite_vendor"
-  "autoware_auto_common")
+find_package(ament_cmake_auto REQUIRED)
+ament_auto_find_build_dependencies()
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
@@ -66,8 +48,7 @@ if(BUILD_TESTING)
     test/test_size_bound.cpp
     test/test_strictly_eps_positive_real.cpp
     test/test_strictly_positive_real.cpp
-    test/test_dimensional_analysis.cpp
-    test/gtest_main.cpp)
+    test/test_dimensional_analysis.cpp)
   target_include_directories(${TEST_AUTOWARE_AUTO_CONTRACTS_EXE} PRIVATE include)
   target_compile_definitions(${TEST_AUTOWARE_AUTO_CONTRACTS_EXE} PRIVATE ${BUILD_DEFINITIONS})
   ament_target_dependencies(${TEST_AUTOWARE_AUTO_CONTRACTS_EXE}
@@ -76,4 +57,4 @@ if(BUILD_TESTING)
     "autoware_auto_common")
 endif()
 
-ament_package()
+ament_auto_package()
