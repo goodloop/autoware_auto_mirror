@@ -33,8 +33,8 @@ namespace geometry
 /// \param[in] pt first point
 /// \param[in] q second point
 /// \return 3d scalar dot product
-template<typename T>
-inline float32_t dot_3d(const T & pt, const T & q)
+template<typename T1, typename T2>
+inline auto dot_3d(const T1 & pt, const T2 & q)
 {
   using point_adapter::x_;
   using point_adapter::y_;

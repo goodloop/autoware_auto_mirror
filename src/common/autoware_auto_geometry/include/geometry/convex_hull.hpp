@@ -48,8 +48,8 @@ namespace details
 /// \param[inout] hull An empty list of points, assumed to have same allocator as points
 ///                    (for splice)
 /// \tparam PointT The point type
-template<typename PointT>
-void form_lower_hull(std::list<PointT> & points, std::list<PointT> & hull)
+template<typename PointT, typename HullT>
+void form_lower_hull(std::list<PointT> & points, std::list<HullT> & hull)
 {
   auto hull_it = hull.cbegin();
   auto point_it = points.cbegin();
@@ -85,8 +85,8 @@ void form_lower_hull(std::list<PointT> & points, std::list<PointT> & hull)
 /// \param[inout] hull An list of points, assumed to have same allocator as points (for splice),
 ///                    and to contain the lower hull (minus the left-most point)
 /// \tparam PointT The point type
-template<typename PointT>
-void form_upper_hull(std::list<PointT> & points, std::list<PointT> & hull)
+template<typename PointT, typename HullT>
+void form_upper_hull(std::list<PointT> & points, std::list<HullT> & hull)
 {
   // TODO(c.ho) consider reverse iterators, not sure if they work with splice()
   auto hull_it = hull.cend();
