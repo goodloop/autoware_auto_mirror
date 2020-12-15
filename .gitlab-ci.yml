@@ -354,6 +354,7 @@ test_amd64_dashing:
   <<: *test_base
   needs:
     - build_amd64_dashing
+  allow_failure: true
 
 test_arm64_dashing:
   variables:
@@ -372,6 +373,7 @@ test_arm64_dashing:
     - branches@autowarefoundation/autoware.auto/AutowareAuto
   needs:
     - build_arm64_dashing
+  allow_failure: true
 
 test_amd64_foxy:
   variables:
@@ -381,7 +383,6 @@ test_amd64_foxy:
   <<: *test_base
   needs:
     - build_amd64_foxy
-  allow_failure: true
 
 test_arm64_foxy:
   variables:
@@ -400,11 +401,10 @@ test_arm64_foxy:
     - branches@autowarefoundation/autoware.auto/AutowareAuto
   needs:
     - build_arm64_foxy
-  allow_failure: true
 
 coverage:
   stage: test
-  image: $CI_REGISTRY_IMAGE/amd64/ade-dashing:commit-$CI_COMMIT_SHA
+  image: $CI_REGISTRY_IMAGE/amd64/ade-foxy:commit-$CI_COMMIT_SHA
   script:
     - vcs import < autoware.auto.$ROS_DISTRO.repos
     - './tools/coverage/coverage.sh -u'
@@ -421,7 +421,7 @@ coverage:
 
 docs:
   stage: build
-  image: $CI_REGISTRY_IMAGE/amd64/ade-dashing:commit-$CI_COMMIT_SHA
+  image: $CI_REGISTRY_IMAGE/amd64/ade-foxy:commit-$CI_COMMIT_SHA
   script:
     - docs/.doxygen/build.py
   artifacts:
@@ -429,7 +429,7 @@ docs:
     paths:
       - docs/_build/html
   needs:
-    - ade_amd64_dashing
+    - ade_amd64_foxy
 
 pages:
   stage: deploy
@@ -461,6 +461,7 @@ volume_amd64_dashing:
   <<: *volume_base
   needs:
     - test_amd64_dashing
+  allow_failure: true
 
 volume_arm64_dashing:
   stage: deploy
@@ -480,6 +481,7 @@ volume_arm64_dashing:
     - branches@autowarefoundation/autoware.auto/AutowareAuto
   needs:
     - test_arm64_dashing
+  allow_failure: true
 
 volume_amd64_foxy:
   stage: deploy
@@ -495,7 +497,6 @@ volume_amd64_foxy:
   <<: *volume_base
   needs:
     - test_amd64_foxy
-  allow_failure: true
 
 volume_arm64_foxy:
   stage: deploy
@@ -515,4 +516,3 @@ volume_arm64_foxy:
     - branches@autowarefoundation/autoware.auto/AutowareAuto
   needs:
     - test_arm64_foxy
-  allow_failure: true
