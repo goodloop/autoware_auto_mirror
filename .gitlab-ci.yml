@@ -387,6 +387,13 @@ test_amd64_dashing:
     - tar cfz opt.tar.gz /opt/AutowareAuto
   after_script:
     - colcon test-result --verbose
+  artifacts:
+    name: "$CI_JOB_NAME"
+    paths:
+      - log
+      - opt.tar.gz
+    reports:
+      junit: test-results.xml
   needs:
     - build_amd64_dashing
   allow_failure: true
@@ -439,6 +446,8 @@ test_arm64_dashing:
     paths:
       - log
       - opt.tar.gz
+    reports:
+      junit: test-results.xml
   only:
     - branches@autowarefoundation/autoware.auto/AutowareAuto
   needs:
