@@ -179,11 +179,10 @@ LgsvlInterface::LgsvlInterface(
     sim_veh_odom_topic,
     rclcpp::QoS{10},
     [this](lgsvl_msgs::msg::VehicleOdometry::SharedPtr msg) {
-      auto odom = odometry();
-      odom.set__stamp(msg->header.stamp);
-      odom.set__velocity_mps(msg->velocity);
-      odom.set__rear_wheel_angle_rad(msg->rear_wheel_angle);
-      odom.set__front_wheel_angle_rad(msg->front_wheel_angle);
+      odometry().set__stamp(msg->header.stamp);
+      odometry().set__velocity_mps(msg->velocity);
+      odometry().set__rear_wheel_angle_rad(msg->rear_wheel_angle);
+      odometry().set__front_wheel_angle_rad(msg->front_wheel_angle);
     });
 }
 
