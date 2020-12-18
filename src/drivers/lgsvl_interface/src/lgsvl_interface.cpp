@@ -152,20 +152,20 @@ LgsvlInterface::LgsvlInterface(
       } else if (msg->right_turn_signal_active) {
         state_report.set__blinker(autoware_auto_msgs::msg::VehicleStateReport::BLINKER_RIGHT);
       } else {
-      state_report.set__blinker(autoware_auto_msgs::msg::VehicleStateReport::BLINKER_OFF);
+        state_report.set__blinker(autoware_auto_msgs::msg::VehicleStateReport::BLINKER_OFF);
       }
       if (msg->low_beams_active) {
         state_report.set__headlight(autoware_auto_msgs::msg::VehicleStateReport::HEADLIGHT_ON);
       } else if (msg->high_beams_active) {
         state_report.set__headlight(autoware_auto_msgs::msg::VehicleStateReport::HEADLIGHT_HIGH);
       } else {
-      state_report.set__headlight(autoware_auto_msgs::msg::VehicleStateReport::HEADLIGHT_OFF);
+        state_report.set__headlight(autoware_auto_msgs::msg::VehicleStateReport::HEADLIGHT_OFF);
       }
 
       if (msg->wipers_active) {
-      state_report.set__wiper(autoware_auto_msgs::msg::VehicleStateReport::WIPER_LOW);
+        state_report.set__wiper(autoware_auto_msgs::msg::VehicleStateReport::WIPER_LOW);
       } else {
-      state_report.set__wiper(autoware_auto_msgs::msg::VehicleStateReport::WIPER_OFF);
+        state_report.set__wiper(autoware_auto_msgs::msg::VehicleStateReport::WIPER_OFF);
       }
 
       state_report.set__gear(static_cast<uint8_t>(msg->selected_gear));
@@ -290,9 +290,9 @@ bool8_t LgsvlInterface::send_control_command(const autoware_auto_msgs::msg::RawC
 {
   // Front steer semantically is z up, ccw positive, but LGSVL thinks its the opposite
   lgsvl_msgs::msg::VehicleControlData control_data;
-  control_data.set__acceleration_pct(static_cast<float>(msg.throttle)/100.f);
-  control_data.set__braking_pct(static_cast<float>(msg.brake)/100.f);
-  control_data.set__target_wheel_angle(-static_cast<float>(msg.front_steer)/100.f);
+  control_data.set__acceleration_pct(static_cast<float>(msg.throttle) / 100.f);
+  control_data.set__braking_pct(static_cast<float>(msg.brake) / 100.f);
+  control_data.set__target_wheel_angle(-static_cast<float>(msg.front_steer) / 100.f);
   // control_data.set__target_wheel_angular_rate();  // Missing angular rate in raw command
   // control_data.set__target_gear(); // Missing target gear in raw command
   m_cmd_pub->publish(control_data);

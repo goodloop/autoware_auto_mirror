@@ -73,12 +73,12 @@ TEST_F(LgsvlInterface_test, gear_mapping_state_command)
   wait_for_subscription_callback(VSC::GEAR_REVERSE, lgsvl_interface::VSD::GEAR_REVERSE);
 
   wait_for_subscription_callback(static_cast<lgsvl_interface::GEAR_TYPE>(99u),
-                                 lgsvl_interface::VSD::GEAR_DRIVE);
+    lgsvl_interface::VSD::GEAR_DRIVE);
 }
 
 TEST_F(LgsvlInterface_test, gear_mapping_state_report)
 {
-  VSR vsr_msg;
+  lgsvl_msgs::msg::CanBusData cbd_msg;
 
   // Setup Node execution
   const auto pub_node = std::make_shared<rclcpp::Node>(
@@ -88,13 +88,14 @@ TEST_F(LgsvlInterface_test, gear_mapping_state_report)
   executor.add_node(node_);
 
   // Setup Publisher
-  const auto pub_ptr = pub_node->create_publisher<VSR>(sim_state_rpt_topic, rclcpp::QoS{10});
+  const auto pub_ptr = pub_node->create_publisher<lgsvl_msgs::msg::CanBusData>(sim_state_rpt_topic,
+      rclcpp::QoS{10});
   wait_for_subscriber(pub_ptr);
 
   auto publish_gear_and_wait =
-    [&vsr_msg, &pub_ptr, &executor](lgsvl_interface::GEAR_TYPE gear) -> void {
-      vsr_msg.gear = gear;
-      pub_ptr->publish(vsr_msg);
+    [&cbd_msg, &pub_ptr, &executor](lgsvl_interface::GEAR_TYPE gear) -> void {
+      cbd_msg.selected_gear = static_cast<int8_t>(gear);
+      pub_ptr->publish(cbd_msg);
       rclcpp::sleep_for(std::chrono::milliseconds(100));
       executor.spin_some();
     };
