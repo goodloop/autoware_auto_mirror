@@ -22,14 +22,14 @@ TEST_F(LgsvlInterface_test, gear_mapping_state_command)
 
   // Setup subscribtion
   auto handle_state_cmd = [&expected_result, &test_completed]
-      (const VSC::SharedPtr msg) -> void {
-      EXPECT_EQ(msg->gear, expected_result.gear);
+      (const lgsvl_interface::VSD::SharedPtr msg) -> void {
+      EXPECT_EQ(msg->current_gear, expected_result.gear);
       test_completed = true;
     };
   const auto sub_node = std::make_shared<rclcpp::Node>(
     "test_lgsvl_interface_sub_state_command",
     "/gtest");
-  auto sub_ptr = sub_node->create_subscription<lgsvl_interface::VSC>(
+  auto sub_ptr = sub_node->create_subscription<lgsvl_interface::VSD>(
     sim_state_cmd_topic, rclcpp::QoS(10), handle_state_cmd);
 
   // Setup Node execution
@@ -37,7 +37,6 @@ TEST_F(LgsvlInterface_test, gear_mapping_state_command)
   executor.add_node(node_);
   executor.add_node(sub_node);
   wait_for_publisher(sub_ptr);
-
 
   auto wait_for_subscription_callback =
     [&test_completed, &expected_result, &executor, this](lgsvl_interface::GEAR_TYPE gear,
