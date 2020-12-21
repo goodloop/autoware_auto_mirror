@@ -40,7 +40,7 @@ namespace details
 
 // reinterpret_cast is not possible here since it is undefined behavior to read or modify
 // data through a pointer of another type, with a few exceptions that do not apply here.
-static Points points_from_bytes(const sensor_msgs::msg::PointCloud2& pc) {
+static Points points_from_bytes(const sensor_msgs::msg::PointCloud2 & pc) {
   if (pc.data.size() == 0) {
     throw std::runtime_error("Tried to compute bounding box of empty point cloud");
   }
