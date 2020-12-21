@@ -36,15 +36,7 @@ using BoundingBoxArray = autoware_auto_msgs::msg::BoundingBoxArray;
 /// \brief Common euclidean cluster nodes functions not intended for external use
 namespace details
 {
-/// \brief Compute lfit bounding box from individual cluster
-/// \param[inout] cls The cluster for which to compute the bounding box, gets shuffled
-/// \return Lfit bounding box
-EUCLIDEAN_CLUSTER_NODES_PUBLIC
-BoundingBox compute_lfit_bounding_box(euclidean_cluster::Cluster & cls);
-/// \brief Compute eigenbox from individual cluster
-/// \param[in] cls The cluster for which to compute the bounding box
-/// \return Best fit eigenbox
-EUCLIDEAN_CLUSTER_NODES_PUBLIC BoundingBox compute_eigenbox(const euclidean_cluster::Cluster & cls);
+using Points = std::vector<euclidean_cluster::PointXYZI>;
 /// \brief Compute lfit bounding boxes from clusters
 /// \param[out] boxes Message that gets filled with the resulting bounding boxes
 /// \param[inout] clusters A set of clusters for which to compute the bounding boxes. Individual
