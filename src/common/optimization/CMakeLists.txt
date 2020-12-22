@@ -60,7 +60,8 @@ if(BUILD_TESTING)
           test/test_newton_optimization.cpp
           test/test_more_thuente_line_search.cpp)
   target_link_libraries(${OPTIMIZATION_TEST} ${PROJECT_NAME})
-  target_compile_options(${OPTIMIZATION_TEST} PRIVATE PRIVATE "-Wno-variadic-macros")
+  # Temporary fix for variadic macro warnings until we move to Foxy, see !751
+  target_compile_options(${OPTIMIZATION_TEST} PRIVATE PRIVATE -Wno-pedantic)
 endif()
 
 list(APPEND ${PROJECT_NAME}_CONFIG_EXTRAS "optimization-extras.cmake")

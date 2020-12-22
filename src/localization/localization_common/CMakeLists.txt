@@ -45,7 +45,8 @@ if(BUILD_TESTING)
 
   target_link_libraries(${LOCALIZATION_COMMON_TEST} ${PROJECT_NAME})
   ament_target_dependencies(${LOCALIZATION_COMMON_TEST} "time_utils")
-  target_compile_options(${LOCALIZATION_COMMON_TEST} PRIVATE "-Wno-variadic-macros")
+  # Temporary fix for variadic macro warnings until we move to Foxy, see !751
+  target_compile_options(${LOCALIZATION_COMMON_TEST} PRIVATE -Wno-pedantic)
 endif()
 
 ament_auto_package()

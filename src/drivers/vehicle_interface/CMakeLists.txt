@@ -46,7 +46,8 @@ if(BUILD_TESTING)
     "rclcpp"
     "reference_tracking_controller"
     "signal_filters")
-  target_compile_options(vehicle_interface_test PRIVATE "-Wno-variadic-macros")
+  # Temporary fix for variadic macro warnings until we move to Foxy, see !751
+  target_compile_options(vehicle_interface_test PRIVATE -Wno-pedantic)
 endif()
 
 ament_auto_package(INSTALL_TO_SHARE param)

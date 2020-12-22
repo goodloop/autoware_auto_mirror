@@ -56,7 +56,8 @@ if(BUILD_TESTING)
   target_link_libraries(${VOXEL_GRID_GTEST} ${PROJECT_NAME})
   target_include_directories(${VOXEL_GRID_GTEST} PRIVATE "test/include" "include")
   ament_target_dependencies(${VOXEL_GRID_GTEST} "geometry_msgs")
-  target_compile_options(${VOXEL_GRID_GTEST} PRIVATE "-Wno-variadic-macros")
+  # Temporary fix for variadic macro warnings until we move to Foxy, see !751
+  target_compile_options(${VOXEL_GRID_GTEST} PRIVATE -Wno-pedantic)
 endif()
 
 # Ament Exporting

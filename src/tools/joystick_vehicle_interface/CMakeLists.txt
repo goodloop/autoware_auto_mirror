@@ -36,7 +36,8 @@ if(BUILD_TESTING)
   target_link_libraries(joystick_vehicle_interface_test joystick_vehicle_interface_node)
   ament_target_dependencies(joystick_vehicle_interface_test
     "rclcpp" "autoware_auto_msgs" "sensor_msgs")
-  target_compile_options(joystick_vehicle_interface_test PRIVATE "-Wno-variadic-macros")
+  # Temporary fix for variadic macro warnings until we move to Foxy, see !751
+  target_compile_options(joystick_vehicle_interface_test PRIVATE -Wno-pedantic)
 endif()
 
 ament_auto_package(INSTALL_TO_SHARE param launch)
