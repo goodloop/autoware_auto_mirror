@@ -47,7 +47,7 @@ static Points points_from_bytes(const sensor_msgs::msg::PointCloud2 & pc)
   }
   Points dest;
   std::size_t length = pc.data.size() / pc.point_step;
-  dest.reserve(length);
+  dest.resize(length);
   const void * const src = &pc.data[0U];
   (void)std::memcpy(&dest, src, length);
   return dest;
