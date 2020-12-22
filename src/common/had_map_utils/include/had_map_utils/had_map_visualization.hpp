@@ -136,6 +136,10 @@ visualization_msgs::msg::MarkerArray HAD_MAP_UTILS_PUBLIC laneletsAsTriangleMark
   const rclcpp::Time & t, const std::string & ns, const lanelet::ConstLanelets & lanelets,
   const std_msgs::msg::ColorRGBA & c);
 
+visualization_msgs::msg::MarkerArray HAD_MAP_UTILS_PUBLIC areasAsTriangleMarkerArray(
+  const rclcpp::Time & t, const std::string & ns, const lanelet::Areas & lanelets,
+  const std_msgs::msg::ColorRGBA & c);
+
 }  // namespace had_map_utils
 }  // namespace common
 }  // namespace autoware

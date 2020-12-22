@@ -579,6 +579,32 @@ visualization_msgs::msg::MarkerArray lineStringsAsTriangleMarkerArray(
   return marker_array;
 }
 
+visualization_msgs::msg::MarkerArray areasAsTriangleMarkerArray(
+  const rclcpp::Time & t, const std::string & ns, const lanelet::Areas & areas,
+  const std_msgs::msg::ColorRGBA & c)
+{
+  visualization_msgs::msg::MarkerArray marker_array;
+
+  if (areas.empty()) {
+    return marker_array;
+  }
+
+  // convert to linestrings to use lineStringsAsTriangleMarkerArray
+  lanelet::LineStrings3d linestrings;
+  for (auto area : areas) {
+    lanelet::LineString3d ls;
+    ls.setId(area.id());
+    const auto compound_polygon = area.outerBoundPolygon();
+    for(auto pt : compound_polygon)
+    {
+      ls.push_back(lanelet::Point3d(pt.id(), pt.basicPoint()));
+    }
+    linestrings.push_back(ls);
+  }
+
+  return lineStringsAsTriangleMarkerArray(t, ns, linestrings, c);
+}
+
 }  // namespace had_map_utils
 }  // namespace common
 }  // namespace autoware
