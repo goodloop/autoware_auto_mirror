@@ -151,9 +151,9 @@ TEST_P(velodyne_node_integration, test)
 INSTANTIATE_TEST_CASE_P(
   cloud,
   velodyne_node_integration,
-  ::testing::Values(VelodyneNodeTestParam{55000U, 30000U, 100.0F, true}),);
+  ::testing::Values(VelodyneNodeTestParam{55000U, 30000U, 100.0F, true}));
 
 INSTANTIATE_TEST_CASE_P(
   half_cloud,
   velodyne_node_integration,
-  ::testing::Values(VelodyneNodeTestParam{10700U, 10700U, 50.0F, true}),);
+  ::testing::Values(VelodyneNodeTestParam{10700U, 10700U, 50.0F, true}));

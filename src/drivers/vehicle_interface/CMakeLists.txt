@@ -46,6 +46,7 @@ if(BUILD_TESTING)
     "rclcpp"
     "reference_tracking_controller"
     "signal_filters")
+  target_compile_options(vehicle_interface_test PRIVATE "-Wno-variadic-macros")
 endif()
 
 ament_auto_package(INSTALL_TO_SHARE param)

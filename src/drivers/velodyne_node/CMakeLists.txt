@@ -63,6 +63,7 @@ if(BUILD_TESTING)
     target_include_directories(${VELODYNE_NODE_GTEST} PRIVATE include)
     target_link_libraries(${VELODYNE_NODE_GTEST} ${CLOUD_LIB} ${BLOCK_LIB})
     ament_target_dependencies(${VELODYNE_NODE_GTEST} "lidar_integration")
+    target_compile_options(${VELODYNE_NODE_GTEST} PRIVATE "-Wno-variadic-macros")
 
     add_ros_test(
       test/velodyne_node.test.py
