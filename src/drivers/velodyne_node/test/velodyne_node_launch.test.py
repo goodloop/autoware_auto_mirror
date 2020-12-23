@@ -22,6 +22,7 @@ import launch_testing
 
 import pytest
 
+
 @pytest.mark.launch_test
 def generate_test_description(ready_fn):
     # The node under test and the checker node that will pass/fail our tests:
@@ -50,16 +51,9 @@ def generate_test_description(ready_fn):
     ), context
 
 
-# Active test cases waiting for shutdown
-# class TestWaitForShutdown(unittest.TestCase):
-
-#     def test_wait_for_exit(self, proc_info, vel_node):
-#         proc_info.assertWaitForShutdown(process=vel_node, timeout=20)
-
-
 @launch_testing.post_shutdown_test()
 class TestProcessOutput(unittest.TestCase):
 
     def test_exit_code(self, proc_output, proc_info, vel_node):
-        # Check that process exits with code 15 code: termination request, sent to the program
-        launch_testing.asserts.assertExitCodes(proc_info, [15], process=vel_node)
+        # Check that process exits with code -15 code: termination request, sent to the program
+        launch_testing.asserts.assertExitCodes(proc_info, [-15], process=vel_node)
