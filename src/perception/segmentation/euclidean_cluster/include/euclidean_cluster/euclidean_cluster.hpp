@@ -166,11 +166,15 @@ public:
   }
 
   /// \brief Compute the clusters from the inserted points
+  /// It should in theory be ok to reinterpret_cast the points into a PointXYZI. Internally, they
+  /// were constructed in place using placement new, so the dynamic type should be correct.
   /// \return A reference to the resulting clusters
   const Clusters & cluster(const builtin_interfaces::msg::Time stamp);
 
   /// \brief Compute the clusters from the inserted points, where the final clusters object lives in
   ///        another scope. The final clusters object should return_clusters after being used
+  /// It should in theory be ok to reinterpret_cast the points into a PointXYZI. Internally, they
+  /// were constructed in place using placement new, so the dynamic type should be correct.
   /// \param[inout] clusters The clusters object
   void cluster(Clusters & clusters);
 
