@@ -62,8 +62,7 @@ if(BUILD_TESTING)
     "autoware_auto_msgs"
     "geometry_msgs"
     "osrf_testing_tools_cpp")
-  # Temporary fix for variadic macro warnings until we move to Foxy, see !751
-  target_compile_options(${GEOMETRY_GTEST} PRIVATE -Wno-pedantic)
+  target_compile_options(${GEOMETRY_GTEST} PRIVATE "-Wno-variadic-macros")
   target_link_libraries(${GEOMETRY_GTEST} ${PROJECT_NAME})
 endif()
 
