@@ -62,7 +62,6 @@ if(BUILD_TESTING)
     "autoware_auto_msgs"
     "geometry_msgs"
     "osrf_testing_tools_cpp")
-  target_compile_options(${GEOMETRY_GTEST} PRIVATE "-Wno-variadic-macros")
   target_link_libraries(${GEOMETRY_GTEST} ${PROJECT_NAME})
 endif()
 

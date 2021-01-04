@@ -24,7 +24,6 @@ if(BUILD_TESTING)
   ament_add_gtest(signal_filter_test test/sanity_check.cpp test/gtest_main.cpp)
   target_include_directories(signal_filter_test PRIVATE include)
   ament_target_dependencies(signal_filter_test "autoware_auto_common")
-  target_compile_options(signal_filter_test PRIVATE "-Wno-variadic-macros")
 endif()
 
 ament_auto_package()
