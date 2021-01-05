@@ -15,7 +15,7 @@ find_package(ament_cmake_auto REQUIRED)
 ament_auto_find_build_dependencies()
 # Node library
 set(JOYSTICK_VEHICLE_INTERFACE_LIB_NODE joystick_vehicle_interface_node)
-ament_auto_add_library(${JOYSTICK_VEHICLE_INTERFACE_LIB_NODE} src/joystick_vehicle_interface_node.cpp)
+ament_auto_add_library(${JOYSTICK_VEHICLE_INTERFACE_LIB_NODE} SHARED src/joystick_vehicle_interface_node.cpp)
 autoware_set_compile_options(${JOYSTICK_VEHICLE_INTERFACE_LIB_NODE})
 
 # Node executable
