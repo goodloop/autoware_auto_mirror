@@ -20,15 +20,15 @@
 /// \file
 /// \brief This file defines a simple ROS 2 xsens driver that publishes full point clouds
 
-#ifndef XSENS_NODE__XSENS_IMU_NODE_HPP_
-#define XSENS_NODE__XSENS_IMU_NODE_HPP_
+#ifndef XSENS_NODES__XSENS_IMU_NODE_HPP_
+#define XSENS_NODES__XSENS_IMU_NODE_HPP_
 
 #include <string>
 #include <vector>
 #include "serial_driver/serial_driver_node.hpp"
 #include "xsens_driver/xsens_imu_translator.hpp"
-#include "xsens_node/xsens_common_node.hpp"
-#include "xsens_node/visibility_control.hpp"
+#include "xsens_nodes/xsens_common_node.hpp"
+#include "xsens_nodes/visibility_control.hpp"
 #include "sensor_msgs/msg/imu.hpp"
 
 
@@ -37,15 +37,15 @@ namespace autoware
 namespace drivers
 {
 /// \brief Resources for nodes that use the `xsens_driver`
-namespace xsens_node
+namespace xsens_nodes
 {
 
 using XsensImuNode = XsensCommonNode<
   xsens_driver::XsensImuTranslator, sensor_msgs::msg::Imu
 >;
 
-}  // namespace xsens_node
+}  // namespace xsens_nodes
 }  // namespace drivers
 }  // namespace autoware
 
-#endif  // XSENS_NODE__XSENS_IMU_NODE_HPP_
+#endif  // XSENS_NODES__XSENS_IMU_NODE_HPP_

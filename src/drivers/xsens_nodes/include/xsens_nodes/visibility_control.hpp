@@ -14,26 +14,26 @@
 //
 // Co-developed by Tier IV, Inc. and Apex.AI, Inc.
 
-#ifndef XSENS_NODE__VISIBILITY_CONTROL_HPP_
-#define XSENS_NODE__VISIBILITY_CONTROL_HPP_
+#ifndef XSENS_NODES__VISIBILITY_CONTROL_HPP_
+#define XSENS_NODES__VISIBILITY_CONTROL_HPP_
 
 ////////////////////////////////////////////////////////////////////////////////
 #if defined(__WIN32)
-  #if defined(XSENS_NODE_BUILDING_DLL) || defined(XSENS_NODE_EXPORTS)
-    #define XSENS_NODE_PUBLIC __declspec(dllexport)
-    #define XSENS_NODE_LOCAL
-  #else  // defined(XSENS_NODE_BUILDING_DLL) || defined(XSENS_NODE_EXPORTS)
-    #define XSENS_NODE_PUBLIC __declspec(dllimport)
-    #define XSENS_NODE_LOCAL
-  #endif  // defined(XSENS_NODE_BUILDING_DLL) || defined(XSENS_NODE_EXPORTS)
+  #if defined(XSENS_NODES_BUILDING_DLL) || defined(XSENS_NODES_EXPORTS)
+    #define XSENS_NODES_PUBLIC __declspec(dllexport)
+    #define XSENS_NODES_LOCAL
+  #else  // defined(XSENS_NODES_BUILDING_DLL) || defined(XSENS_NODES_EXPORTS)
+    #define XSENS_NODES_PUBLIC __declspec(dllimport)
+    #define XSENS_NODES_LOCAL
+  #endif  // defined(XSENS_NODES_BUILDING_DLL) || defined(XSENS_NODES_EXPORTS)
 #elif defined(__linux__)
-  #define XSENS_NODE_PUBLIC __attribute__((visibility("default")))
-  #define XSENS_NODE_LOCAL __attribute__((visibility("hidden")))
+  #define XSENS_NODES_PUBLIC __attribute__((visibility("default")))
+  #define XSENS_NODES_LOCAL __attribute__((visibility("hidden")))
 #elif defined(__APPLE__)
-  #define XSENS_NODE_PUBLIC __attribute__((visibility("default")))
-  #define XSENS_NODE_LOCAL __attribute__((visibility("hidden")))
+  #define XSENS_NODES_PUBLIC __attribute__((visibility("default")))
+  #define XSENS_NODES_LOCAL __attribute__((visibility("hidden")))
 #else  // defined(LINUX)
   #error "Unsupported Build Configuration"
 #endif  // defined(WINDOWS)
 
-#endif  // XSENS_NODE__VISIBILITY_CONTROL_HPP_
+#endif  // XSENS_NODES__VISIBILITY_CONTROL_HPP_

@@ -20,14 +20,14 @@
 /// \file
 /// \brief This file defines a simple ROS 2 xsens driver that publishes full point clouds
 
-#ifndef XSENS_NODE__XSENS_COMMON_NODE_HPP_
-#define XSENS_NODE__XSENS_COMMON_NODE_HPP_
+#ifndef XSENS_NODES__XSENS_COMMON_NODE_HPP_
+#define XSENS_NODES__XSENS_COMMON_NODE_HPP_
 
 #include <string>
 #include <vector>
 #include "common/types.hpp"
 #include "serial_driver/serial_driver_node.hpp"
-#include "xsens_node/visibility_control.hpp"
+#include "xsens_nodes/visibility_control.hpp"
 
 using autoware::common::types::bool8_t;
 
@@ -36,7 +36,7 @@ namespace autoware
 namespace drivers
 {
 /// \brief Resources for nodes that use the `xsens_driver`
-namespace xsens_node
+namespace xsens_nodes
 {
 
 using autoware::drivers::serial_driver::flow_control_t;
@@ -44,7 +44,7 @@ using autoware::drivers::serial_driver::parity_t;
 using autoware::drivers::serial_driver::stop_bits_t;
 
 template<typename TranslatorT, typename MessageT>
-class XSENS_NODE_PUBLIC XsensCommonNode
+class XSENS_NODES_PUBLIC XsensCommonNode
   : public serial_driver::SerialDriverNode<
     XsensCommonNode<TranslatorT, MessageT>,
     typename TranslatorT::Packet,
@@ -124,8 +124,8 @@ private:
   std::vector<MessageT> m_imu;
 };  // class XsensCommonNode
 
-}  // namespace xsens_node
+}  // namespace xsens_nodes
 }  // namespace drivers
 }  // namespace autoware
 
-#endif  // XSENS_NODE__XSENS_COMMON_NODE_HPP_
+#endif  // XSENS_NODES__XSENS_COMMON_NODE_HPP_

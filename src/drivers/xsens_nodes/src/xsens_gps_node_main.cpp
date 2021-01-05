@@ -14,7 +14,7 @@
 //
 // Co-developed by Tier IV, Inc. and Apex.AI, Inc.
 
-#include <xsens_node/xsens_imu_node.hpp>
+#include <xsens_nodes/xsens_gps_node.hpp>
 
 
 //lint -e537 NOLINT  // cpplint vs pclint
@@ -33,8 +33,8 @@ int32_t main(const int32_t argc, char ** const argv)
   try {
     rclcpp::init(argc, argv);
 
-    auto vptr = std::make_shared<autoware::drivers::xsens_node::XsensImuNode>(
-      "xsens_imu_driver_node");
+    auto vptr = std::make_shared<autoware::drivers::xsens_nodes::XsensGpsNode>(
+      "xsens_gps_driver_node");
 
     vptr->run();
   } catch (const std::exception & err) {

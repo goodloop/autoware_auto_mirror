@@ -14,8 +14,8 @@
 //
 // Co-developed by Tier IV, Inc. and Apex.AI, Inc.
 
-#include "xsens_node/xsens_imu_node.hpp"
+#include "xsens_nodes/xsens_gps_node.hpp"
 
-template class autoware::drivers::xsens_node::XsensCommonNode<
-    autoware::drivers::xsens_driver::XsensImuTranslator, sensor_msgs::msg::Imu
+template class autoware::drivers::xsens_nodes::XsensCommonNode<
+    autoware::drivers::xsens_driver::XsensGpsTranslator, sensor_msgs::msg::NavSatFix
 >;

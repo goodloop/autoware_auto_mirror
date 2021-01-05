@@ -15,7 +15,7 @@
 cmake_minimum_required(VERSION 3.5)
 
 ### Build the nodes
-project(xsens_node)
+project(xsens_nodes)
 
 # Default to C++14
 if(NOT CMAKE_CXX_STANDARD)
@@ -34,16 +34,16 @@ find_package(Boost REQUIRED COMPONENTS system)
 
 set(XSENS_IMU_NODE_LIB xsens_imu_node)
 ament_auto_add_library(${XSENS_IMU_NODE_LIB} SHARED
-  include/xsens_node/xsens_common_node.hpp
-  include/xsens_node/visibility_control.hpp
+  include/xsens_nodes/xsens_common_node.hpp
+  include/xsens_nodes/visibility_control.hpp
   src/xsens_imu_node.cpp)
 autoware_set_compile_options(${XSENS_IMU_NODE_LIB})
 target_link_libraries(${XSENS_IMU_NODE_LIB} ${Boost_LIBRARIES})
 
 set(XSENS_GPS_NODE_LIB xsens_gps_node)
 ament_auto_add_library(${XSENS_GPS_NODE_LIB} SHARED
-  include/xsens_node/xsens_common_node.hpp
-  include/xsens_node/visibility_control.hpp
+  include/xsens_nodes/xsens_common_node.hpp
+  include/xsens_nodes/visibility_control.hpp
   src/xsens_gps_node.cpp)
 autoware_set_compile_options(${XSENS_GPS_NODE_LIB})
 target_link_libraries(${XSENS_GPS_NODE_LIB} ${Boost_LIBRARIES})
