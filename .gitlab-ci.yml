@@ -138,7 +138,7 @@ stages:
     - 'colcon test
            --merge-install
            --install-base /opt/AutowareAuto
-           --skip-packages $(cat external_deps.txt)
+           --packages-skip $(cat external_deps.txt)
            --return-code-on-test-failure
       '
     - 'colcon test-result --all |grep xml |cut -d":" -f1 |xargs .gitlab-ci/merge-test-results test-results.xml || true'

@@ -46,7 +46,7 @@ fi
 if [ ${SKIP_TEST} -eq 0 ]; then
   colcon test \
     --return-code-on-test-failure \
-    --skip-packages $(grep -h -r -o -P '(?<=\<name\>).*(?=\<\/name\>)' $(find src/external -name package.xml) | sort)
+    --packages-skip $(grep -h -r -o -P '(?<=\<name\>).*(?=\<\/name\>)' $(find src/external -name package.xml) | sort)
 
   mv log/latest_lcov_stdout.logs log/latest/lcov_stdout.logs  # 'latest' will be the latest test job
   lcov --config-file .lcovrc --base-directory ${PWD} --capture --directory build -o lcov.test >> log/latest/lcov_stdout.logs
