@@ -136,6 +136,7 @@ stages:
     - 'colcon test
            --merge-install
            --install-base /opt/AutowareAuto
+           --skip-packages $(grep -h -r -o -P "(?<=\<name\>).*(?=\<\/name\>)" $(find src/external -name package.xml) | sort)
            --return-code-on-test-failure
       '
     - 'colcon test-result --all |grep xml |cut -d":" -f1 |xargs .gitlab-ci/merge-test-results test-results.xml || true'
@@ -151,7 +152,6 @@ stages:
     - cd /tmp/tmp_ws
     - colcon build --packages-select my_cool_pkg
     - colcon test --packages-select my_cool_pkg
-    - colcon test-result --verbose
     - cd -
 
     # prepare volume artifact
