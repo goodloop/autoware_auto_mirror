@@ -25,6 +25,7 @@
 
   <exec_depend>joy</exec_depend>
   <exec_depend>launch_ros</exec_depend>
+  <exec_depend>lgsvl_interface</exec_depend>
 
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>
