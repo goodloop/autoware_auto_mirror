@@ -20,7 +20,7 @@ autoware_set_compile_options(${JOYSTICK_VEHICLE_INTERFACE_LIB_NODE})
 
 # Node executable
 rclcpp_components_register_node(${JOYSTICK_VEHICLE_INTERFACE_LIB_NODE}
-  PLUGIN "autoware::covariance_insertion_node::CovarianceInsertionNode"
+  PLUGIN "joystick_vehicle_interface::JoystickVehicleInterfaceNode"
   EXECUTABLE ${JOYSTICK_VEHICLE_INTERFACE_LIB_NODE}_exe
 )
 
