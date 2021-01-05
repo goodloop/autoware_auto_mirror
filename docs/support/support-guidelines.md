@@ -31,7 +31,7 @@ If your question is not answered within a timely manner (read: at least 1 week -
 
 # General Discussion: ROS Discourse{#support-guidelines-general-discussion}
 
-If you want to discuss a topic with the general Autoware community or ask a question not related to a problem with Autoware, head over to [the Autoware category on ROS Discourse](https://discourse.ros.rog/c/autoware).
+If you want to discuss a topic with the general Autoware community or ask a question not related to a problem with Autoware, head over to [the Autoware category on ROS Discourse](https://discourse.ros.org/c/autoware).
 The Autoware category is also where high-level announcements are made about Autoware by the Foundation.
 
 # Confirmed Bugs or Feature Requests: Gitlab Issues{#support-guidelines-gitlab-issues}
