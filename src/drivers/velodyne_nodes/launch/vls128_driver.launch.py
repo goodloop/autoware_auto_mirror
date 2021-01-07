@@ -28,7 +28,7 @@ from launch.substitutions import LaunchConfiguration
 def generate_launch_description():
     """Launch VLS128 Driver Node."""
     vls128_param_file = os.path.join(
-        get_package_share_directory('velodyne_node'),
+        get_package_share_directory('velodyne_nodes'),
         'param/vls128_test.param.yaml')
 
     vls128_node_param = DeclareLaunchArgument(
@@ -38,7 +38,7 @@ def generate_launch_description():
     )
 
     vls128_node = launch_ros.actions.Node(
-        package='velodyne_node',
+        package='velodyne_nodes',
         node_namespace="lidar_front",
         node_executable='velodyne_cloud_node_exe',
         parameters=[LaunchConfiguration('vls128_node_param_file')],

@@ -19,7 +19,7 @@
   <exec_depend>ray_ground_classifier_nodes</exec_depend>
   <exec_depend>rviz2</exec_depend>
   <exec_depend>state_estimation_node</exec_depend>
-  <exec_depend>velodyne_node</exec_depend>
+  <exec_depend>velodyne_nodes</exec_depend>
   <exec_depend>voxel_grid_nodes</exec_depend>
 
   <export>

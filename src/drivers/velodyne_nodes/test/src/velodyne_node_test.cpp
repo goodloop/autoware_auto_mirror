@@ -16,7 +16,7 @@
 
 #include <common/types.hpp>
 #include <gtest/gtest.h>
-#include <velodyne_node/velodyne_cloud_node.hpp>
+#include <velodyne_nodes/velodyne_cloud_node.hpp>
 #include <lidar_integration/lidar_integration.hpp>
 #include <lidar_integration/udp_sender.hpp>
 #include <memory>
@@ -39,7 +39,7 @@ TEST(velodyne_node, constructor)
   using autoware::drivers::velodyne_driver::Vlp16Translator;
   const auto config = Vlp16Translator::Config{600.0F};
 
-  using VelodyneCloudNode = autoware::drivers::velodyne_node::VLP16DriverNode;
+  using VelodyneCloudNode = autoware::drivers::velodyne_nodes::VLP16DriverNode;
   EXPECT_NO_THROW(
     VelodyneCloudNode(
       name,
@@ -92,7 +92,7 @@ TEST_P(velodyne_node_integration, test)
   const auto config = Vlp16Translator::Config{600.0F};
 
   // Node
-  using VelodyneCloudNode = autoware::drivers::velodyne_node::VLP16DriverNode;
+  using VelodyneCloudNode = autoware::drivers::velodyne_nodes::VLP16DriverNode;
   std::shared_ptr<VelodyneCloudNode> nd_ptr = std::make_shared<VelodyneCloudNode>(
     name,
     ip,

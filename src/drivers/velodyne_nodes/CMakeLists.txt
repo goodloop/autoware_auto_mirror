@@ -15,7 +15,7 @@
 cmake_minimum_required(VERSION 3.5)
 
 ### Build the nodes
-project(velodyne_node)
+project(velodyne_nodes)
 
 # Default to C++14
 if(NOT CMAKE_CXX_STANDARD)
@@ -33,8 +33,8 @@ ament_auto_find_build_dependencies()
 # The library that generates PointCloud2 is separate so that we don't have to lug around unused code
 set(CLOUD_LIB velodyne_cloud_node)
 ament_auto_add_library(${CLOUD_LIB} SHARED
-  include/velodyne_node/velodyne_cloud_node.hpp
-  include/velodyne_node/visibility_control.hpp
+  include/velodyne_nodes/velodyne_cloud_node.hpp
+  include/velodyne_nodes/visibility_control.hpp
   src/velodyne_cloud_node.cpp)
 autoware_set_compile_options(${CLOUD_LIB})
 

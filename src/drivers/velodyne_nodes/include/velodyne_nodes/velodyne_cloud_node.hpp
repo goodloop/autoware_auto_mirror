@@ -20,8 +20,8 @@
 /// \file
 /// \brief This file defines a simple ROS 2 velodyne driver that publishes full point clouds
 
-#ifndef VELODYNE_NODE__VELODYNE_CLOUD_NODE_HPP_
-#define VELODYNE_NODE__VELODYNE_CLOUD_NODE_HPP_
+#ifndef VELODYNE_NODES__VELODYNE_CLOUD_NODE_HPP_
+#define VELODYNE_NODES__VELODYNE_CLOUD_NODE_HPP_
 
 #include <string>
 #include <vector>
@@ -29,7 +29,7 @@
 #include "lidar_utils/point_cloud_utils.hpp"
 #include "udp_driver/udp_driver_node.hpp"
 #include "velodyne_driver/velodyne_translator.hpp"
-#include "velodyne_node/visibility_control.hpp"
+#include "velodyne_nodes/visibility_control.hpp"
 #include "sensor_msgs/msg/point_cloud2.hpp"
 
 using autoware::common::types::bool8_t;
@@ -39,14 +39,14 @@ namespace autoware
 namespace drivers
 {
 /// \brief Resources for nodes that use the `velodyne_driver`
-namespace velodyne_node
+namespace velodyne_nodes
 {
 
 /// Template class for the velodyne driver node that receives veldyne `packet`s via
 /// UDP, converts the packet into a PointCloud2 message and publishes this cloud.
 /// \tparam SensorData SensorData implementation for the specific velodyne sensor model.
 template<typename SensorData>
-class VELODYNE_NODE_PUBLIC VelodyneCloudNode
+class VELODYNE_NODES_PUBLIC VelodyneCloudNode
   : public udp_driver::UdpDriverNode<
     typename velodyne_driver::VelodyneTranslator<SensorData>::Packet,
     sensor_msgs::msg::PointCloud2>
@@ -109,8 +109,8 @@ private:
 using VLP16DriverNode = VelodyneCloudNode<velodyne_driver::VLP16Data>;
 using VLP32CDriverNode = VelodyneCloudNode<velodyne_driver::VLP32CData>;
 using VLS128DriverNode = VelodyneCloudNode<velodyne_driver::VLS128Data>;
-}  // namespace velodyne_node
+}  // namespace velodyne_nodes
 }  // namespace drivers
 }  // namespace autoware
 
-#endif  // VELODYNE_NODE__VELODYNE_CLOUD_NODE_HPP_
+#endif  // VELODYNE_NODES__VELODYNE_CLOUD_NODE_HPP_

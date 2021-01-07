@@ -14,7 +14,7 @@
 //
 // Co-developed by Tier IV, Inc. and Apex.AI, Inc.
 
-#include <velodyne_node/velodyne_cloud_node.hpp>
+#include <velodyne_nodes/velodyne_cloud_node.hpp>
 #include <rcutils/cmdline_parser.h>
 
 //lint -e537 NOLINT  // cpplint vs pclint
@@ -46,15 +46,15 @@ int32_t main(const int32_t argc, char ** const argv)
       if (model == "vlp16") {
         run(
           std::make_shared<
-            autoware::drivers::velodyne_node::VLP16DriverNode>("vlp16_driver_node"));
+            autoware::drivers::velodyne_nodes::VLP16DriverNode>("vlp16_driver_node"));
       } else if (model == "vlp32c") {
         run(
           std::make_shared<
-            autoware::drivers::velodyne_node::VLP32CDriverNode>("vlp32c_driver_node"));
+            autoware::drivers::velodyne_nodes::VLP32CDriverNode>("vlp32c_driver_node"));
       } else if (model == "vls128") {
         run(
           std::make_shared<
-            autoware::drivers::velodyne_node::VLS128DriverNode>("vls128_driver_node"));
+            autoware::drivers::velodyne_nodes::VLS128DriverNode>("vls128_driver_node"));
       } else {
         throw std::runtime_error("Model " + model + " is not supperted.");
       }

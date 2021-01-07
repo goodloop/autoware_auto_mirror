@@ -26,25 +26,25 @@ from launch.substitutions import LaunchConfiguration
 
 
 def generate_launch_description():
-    """Launch VLP32c Driver Node."""
-    vlp32c_param_file = os.path.join(
-        get_package_share_directory('velodyne_node'),
-        'param/vlp32c_test.param.yaml')
+    """Launch VLP16 Driver Node."""
+    vlp16_param_file = os.path.join(
+        get_package_share_directory('velodyne_nodes'),
+        'param/vlp16_test.param.yaml')
 
-    vlp32c_node_param = DeclareLaunchArgument(
-        'vlp32c_node_param_file',
-        default_value=vlp32c_param_file,
-        description='Path to config file fo the vlp32c node.'
+    vlp16_node_param = DeclareLaunchArgument(
+        'vlp16_node_param_file',
+        default_value=vlp16_param_file,
+        description='Path to config file fo the vlp16 node.'
     )
 
-    vlp32c_node = launch_ros.actions.Node(
-        package='velodyne_node',
+    vlp16_node = launch_ros.actions.Node(
+        package='velodyne_nodes',
         node_namespace="lidar_front",
         node_executable='velodyne_cloud_node_exe',
-        parameters=[LaunchConfiguration('vlp32c_node_param_file')],
+        parameters=[LaunchConfiguration('vlp16_node_param_file')],
         remappings=[("topic", "points_raw")],
-        arguments=["--model", "vlp32c"])
+        arguments=["--model", "vlp16"])
 
     return launch.LaunchDescription([
-        vlp32c_node_param,
-        vlp32c_node])
+        vlp16_node_param,
+        vlp16_node])

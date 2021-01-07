@@ -21,7 +21,7 @@
 #include "common/types.hpp"
 #include "lidar_utils/point_cloud_utils.hpp"
 #include "sensor_msgs/point_cloud2_iterator.hpp"
-#include "velodyne_node/velodyne_cloud_node.hpp"
+#include "velodyne_nodes/velodyne_cloud_node.hpp"
 
 using autoware::common::types::bool8_t;
 using autoware::common::types::float32_t;
@@ -30,7 +30,7 @@ namespace autoware
 {
 namespace drivers
 {
-namespace velodyne_node
+namespace velodyne_nodes
 {
 template<typename T>
 VelodyneCloudNode<T>::VelodyneCloudNode(
@@ -150,6 +150,6 @@ bool8_t VelodyneCloudNode<T>::get_output_remainder(sensor_msgs::msg::PointCloud2
 template class VelodyneCloudNode<velodyne_driver::VLP16Data>;
 template class VelodyneCloudNode<velodyne_driver::VLP32CData>;
 template class VelodyneCloudNode<velodyne_driver::VLS128Data>;
-}  // namespace velodyne_node
+}  // namespace velodyne_nodes
 }  // namespace drivers
 }  // namespace autoware
