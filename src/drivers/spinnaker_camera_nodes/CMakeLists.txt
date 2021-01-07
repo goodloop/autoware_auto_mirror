@@ -15,7 +15,7 @@
 cmake_minimum_required(VERSION 3.5)
 
 ### Build the nodes
-project(spinnaker_camera_node)
+project(spinnaker_camera_nodes)
 
 # Default to C++14
 if(NOT CMAKE_CXX_STANDARD)
@@ -41,7 +41,7 @@ find_package(SPINNAKER)
 if(SPINNAKER_FOUND)
   ament_auto_find_build_dependencies()
   ament_auto_add_library(${PROJECT_NAME} SHARED
-    "include/spinnaker_camera_node/spinnaker_camera_node.hpp"
+    "include/spinnaker_camera_nodes/spinnaker_camera_node.hpp"
     "src/spinnaker_camera_node.cpp")
   autoware_set_compile_options(${PROJECT_NAME})
 
@@ -61,7 +61,7 @@ if(SPINNAKER_FOUND)
     )
   endif()
 else()
-  message(WARNING "SPINNAKER SDK not found, so spinnaker_camera_node could not be built.")
+  message(WARNING "SPINNAKER SDK not found, so spinnaker_camera_nodes could not be built.")
 endif()
 
 ament_auto_package(

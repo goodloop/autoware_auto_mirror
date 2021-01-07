@@ -27,11 +27,11 @@ def generate_test_description(ready_fn):
     # The node under test and the checker node that will pass/fail our tests:
     test_topic = "spinnaker_camera_node_test_topic"
     spinnaker_camera_node = launch_ros.actions.LifecycleNode(
-        package="spinnaker_camera_node",
+        package="spinnaker_camera_nodes",
         node_executable="spinnaker_camera_node_exe",
         parameters=[
             "{}/param/spinnaker_camera_test.param.yaml".format(
-                ament_index_python.get_package_share_directory("spinnaker_camera_node")
+                ament_index_python.get_package_share_directory("spinnaker_camera_nodes")
             ),
             {}
         ]

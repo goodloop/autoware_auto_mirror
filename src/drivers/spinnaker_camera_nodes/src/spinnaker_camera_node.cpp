@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <spinnaker_camera_node/spinnaker_camera_node.hpp>
+#include <spinnaker_camera_nodes/spinnaker_camera_node.hpp>
 
 #include <rcutils/logging_macros.h>
 #include <rclcpp_components/register_node_macro.hpp>
