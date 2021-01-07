@@ -24,9 +24,9 @@
 #include <memory>
 #include <thread>
 
-#include "object_collision_estimator_node/object_collision_estimator_node.hpp"
+#include "object_collision_estimator_nodes/object_collision_estimator_node.hpp"
 
-using motion::planning::object_collision_estimator_node::ObjectCollisionEstimatorNode;
+using motion::planning::object_collision_estimator_nodes::ObjectCollisionEstimatorNode;
 using motion::motion_testing::constant_velocity_trajectory;
 using autoware_auto_msgs::msg::BoundingBoxArray;
 using autoware_auto_msgs::msg::BoundingBox;

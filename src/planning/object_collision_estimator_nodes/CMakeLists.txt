@@ -14,7 +14,7 @@
 
 cmake_minimum_required(VERSION 3.5)
 
-project(object_collision_estimator_node)
+project(object_collision_estimator_nodes)
 
 # dependencies
 find_package(ament_cmake_auto REQUIRED)
@@ -35,23 +35,24 @@ set(OBJECT_COLLISION_ESTIMATOR_NODE_SRC
 
 # List headers
 set(OBJECT_COLLISION_ESTIMATOR_NODE_HEADERS
-  include/object_collision_estimator_node/object_collision_estimator_node.hpp
-  include/object_collision_estimator_node/visibility_control.hpp
-  include/object_collision_estimator_node/visualize.hpp
+  include/object_collision_estimator_nodes/object_collision_estimator_node.hpp
+  include/object_collision_estimator_nodes/visibility_control.hpp
+  include/object_collision_estimator_nodes/visualize.hpp
 )
 
 # Create a library
-ament_auto_add_library(${PROJECT_NAME} SHARED
+set(OBJECT_COLLISION_ESTIMATOR_NODE_LIB object_collision_estimator_node)
+ament_auto_add_library(${OBJECT_COLLISION_ESTIMATOR_NODE_LIB} SHARED
   ${OBJECT_COLLISION_ESTIMATOR_NODE_SRC}
   ${OBJECT_COLLISION_ESTIMATOR_NODE_HEADERS}
 )
-target_include_directories(${PROJECT_NAME} SYSTEM PUBLIC ${tf2_INCLUDE_DIRS})
-autoware_set_compile_options(${PROJECT_NAME})
+target_include_directories(${OBJECT_COLLISION_ESTIMATOR_NODE_LIB} SYSTEM PUBLIC ${tf2_INCLUDE_DIRS})
+autoware_set_compile_options(${OBJECT_COLLISION_ESTIMATOR_NODE_LIB})
 
 # Create the node executable linking the library
-rclcpp_components_register_node(${PROJECT_NAME}
-  PLUGIN "motion::planning::object_collision_estimator_node::ObjectCollisionEstimatorNode"
-  EXECUTABLE ${PROJECT_NAME}_exe
+rclcpp_components_register_node(${OBJECT_COLLISION_ESTIMATOR_NODE_LIB}
+  PLUGIN "motion::planning::object_collision_estimator_nodes::ObjectCollisionEstimatorNode"
+  EXECUTABLE ${OBJECT_COLLISION_ESTIMATOR_NODE_LIB}_exe
 )
 
 # Build tests
@@ -61,10 +62,10 @@ if(BUILD_TESTING)
   ament_lint_auto_find_test_dependencies()
 
   # Build unit test
-  ament_add_gtest(${PROJECT_NAME}_unit_tests
-    test/${PROJECT_NAME}_test.cpp)
-  target_link_libraries(${PROJECT_NAME}_unit_tests ${PROJECT_NAME})
-  target_include_directories(${PROJECT_NAME}_unit_tests PRIVATE "include")
+  ament_add_gtest(${OBJECT_COLLISION_ESTIMATOR_NODE_LIB}_unit_tests
+    test/${OBJECT_COLLISION_ESTIMATOR_NODE_LIB}_test.cpp)
+  target_link_libraries(${OBJECT_COLLISION_ESTIMATOR_NODE_LIB}_unit_tests ${OBJECT_COLLISION_ESTIMATOR_NODE_LIB})
+  target_include_directories(${OBJECT_COLLISION_ESTIMATOR_NODE_LIB}_unit_tests PRIVATE "include")
 endif()
 
 # ament package generation and installing

@@ -1,4 +1,4 @@
-Object Collision Estimator Node {#object-collision-estimator-node}
+Object Collision Estimator Nodes {#object-collision-estimator-nodes}
 ===========
 
 # Purpose / Use cases

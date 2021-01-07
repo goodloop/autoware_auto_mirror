@@ -23,16 +23,16 @@
 #include <string>
 
 #include "object_collision_estimator/object_collision_estimator.hpp"
-#include "object_collision_estimator_node/visibility_control.hpp"
+#include "object_collision_estimator_nodes/visibility_control.hpp"
 
-#ifndef OBJECT_COLLISION_ESTIMATOR_NODE__OBJECT_COLLISION_ESTIMATOR_NODE_HPP_
-#define OBJECT_COLLISION_ESTIMATOR_NODE__OBJECT_COLLISION_ESTIMATOR_NODE_HPP_
+#ifndef OBJECT_COLLISION_ESTIMATOR_NODES__OBJECT_COLLISION_ESTIMATOR_NODE_HPP_
+#define OBJECT_COLLISION_ESTIMATOR_NODES__OBJECT_COLLISION_ESTIMATOR_NODE_HPP_
 
 namespace motion
 {
 namespace planning
 {
-namespace object_collision_estimator_node
+namespace object_collision_estimator_nodes
 {
 
 using motion::planning::object_collision_estimator::ObjectCollisionEstimator;
@@ -45,7 +45,7 @@ using visualization_msgs::msg::Marker;
 ///        1. Subscribe to a topic to obtain obstacle bounding boxes from perception stack.
 ///        2. Present as a service to other nodes. This service takes a trajectory as an input and
 ///           outputs a modified trajectory avoiding collisions.
-class OBJECT_COLLISION_ESTIMATOR_NODE_PUBLIC ObjectCollisionEstimatorNode : public rclcpp::Node
+class OBJECT_COLLISION_ESTIMATOR_NODES_PUBLIC ObjectCollisionEstimatorNode : public rclcpp::Node
 {
 public:
   /// \brief Construct a new Object Collision Estimator Node object
@@ -108,8 +108,8 @@ private:
   static constexpr const char * OBSTACLE_TOPIC = "obstacle_topic";
 };
 
-}  // namespace object_collision_estimator_node
+}  // namespace object_collision_estimator_nodes
 }  // namespace planning
 }  // namespace motion
 
-#endif  // OBJECT_COLLISION_ESTIMATOR_NODE__OBJECT_COLLISION_ESTIMATOR_NODE_HPP_
+#endif  // OBJECT_COLLISION_ESTIMATOR_NODES__OBJECT_COLLISION_ESTIMATOR_NODE_HPP_

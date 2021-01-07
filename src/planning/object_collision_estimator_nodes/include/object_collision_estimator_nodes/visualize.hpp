@@ -22,14 +22,14 @@
 #include <algorithm>
 #include <memory>
 
-#ifndef OBJECT_COLLISION_ESTIMATOR_NODE__VISUALIZE_HPP_
-#define OBJECT_COLLISION_ESTIMATOR_NODE__VISUALIZE_HPP_
+#ifndef OBJECT_COLLISION_ESTIMATOR_NODES__VISUALIZE_HPP_
+#define OBJECT_COLLISION_ESTIMATOR_NODES__VISUALIZE_HPP_
 
 namespace motion
 {
 namespace planning
 {
-namespace object_collision_estimator_node
+namespace object_collision_estimator_nodes
 {
 
 using autoware_auto_msgs::msg::BoundingBoxArray;
@@ -91,8 +91,8 @@ MarkerArray toVisualizationMarkerArray(const BoundingBoxArray bboxes, const size
 
   return marker_array;
 }
-}  // namespace object_collision_estimator_node
+}  // namespace object_collision_estimator_nodes
 }  // namespace planning
 }  // namespace motion
 
-#endif  // OBJECT_COLLISION_ESTIMATOR_NODE__VISUALIZE_HPP_
+#endif  // OBJECT_COLLISION_ESTIMATOR_NODES__VISUALIZE_HPP_

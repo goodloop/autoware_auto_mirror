@@ -12,7 +12,7 @@ Planning {#autoware-planning-design}
   - @subpage lane-planner-nodes
 - Object Collision Estimator
   - @subpage object-collision-estimator
-  - @subpage object-collision-estimator-node
+  - @subpage object-collision-estimator-nodes
 - Parking planner
   - @subpage parking-planner
   - @subpage parking-planner-nodes

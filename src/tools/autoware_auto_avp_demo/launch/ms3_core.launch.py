@@ -218,7 +218,7 @@ def generate_launch_description():
         remappings=[('HAD_Map_Service', '/had_maps/HAD_Map_Service')]
     )
     object_collision_estimator = Node(
-        package='object_collision_estimator_node',
+        package='object_collision_estimator_nodes',
         node_name='object_collision_estimator_node',
         node_namespace='planning',
         node_executable='object_collision_estimator_node_exe',

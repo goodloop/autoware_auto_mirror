@@ -21,15 +21,15 @@
 #include <string>
 #include <memory>
 
-#include "object_collision_estimator_node/object_collision_estimator_node.hpp"
-#include "object_collision_estimator_node/visualize.hpp"
+#include "object_collision_estimator_nodes/object_collision_estimator_node.hpp"
+#include "object_collision_estimator_nodes/visualize.hpp"
 #include "object_collision_estimator/object_collision_estimator.hpp"
 
 namespace motion
 {
 namespace planning
 {
-namespace object_collision_estimator_node
+namespace object_collision_estimator_nodes
 {
 
 using namespace std::chrono_literals;
@@ -214,10 +214,10 @@ void ObjectCollisionEstimatorNode::estimate_collision(
   m_trajectory_bbox_pub->publish(marker);
 }
 
-}  // namespace object_collision_estimator_node
+}  // namespace object_collision_estimator_nodes
 }  // namespace planning
 }  // namespace motion
 
 #include <rclcpp_components/register_node_macro.hpp>  // NOLINT
 RCLCPP_COMPONENTS_REGISTER_NODE(
-  motion::planning::object_collision_estimator_node::ObjectCollisionEstimatorNode)
+  motion::planning::object_collision_estimator_nodes::ObjectCollisionEstimatorNode)
