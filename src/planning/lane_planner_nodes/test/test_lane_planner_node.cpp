@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <lane_planner_node/lane_planner_node.hpp>
+#include <lane_planner_nodes/lane_planner_node.hpp>
 #include <had_map_utils/had_map_conversion.hpp>
 
 #include <memory>
@@ -109,7 +109,7 @@ public:
 
     node_options.append_parameter_override("lane_planner.trajectory_resolution", 1.0F);
 
-    m_planner_ptr = std::make_shared<autoware::lane_planner_node::LanePlannerNode>(node_options);
+    m_planner_ptr = std::make_shared<autoware::lane_planner_nodes::LanePlannerNode>(node_options);
     m_lane_id = lanelet::utils::getId();
   }
 
@@ -126,7 +126,7 @@ public:
     response->map = map_msg;
   }
 
-  std::shared_ptr<autoware::lane_planner_node::LanePlannerNode> m_planner_ptr;
+  std::shared_ptr<autoware::lane_planner_nodes::LanePlannerNode> m_planner_ptr;
   rclcpp::Node::SharedPtr m_fake_node{nullptr};
   rclcpp::Service<HADMapService>::SharedPtr m_fake_map_service;
   rclcpp_action::Client<PlanTrajectory>::SharedPtr m_trajectory_client;

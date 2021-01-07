@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
-  <name>lane_planner_node</name>
+  <name>lane_planner_nodes</name>
   <version>0.0.1</version>
   <description>ROS2 wrapper for lane_planner</description>
   <maintainer email="ryohsuke.mitsudome@tier4.jp">mitsudome-r</maintainer>

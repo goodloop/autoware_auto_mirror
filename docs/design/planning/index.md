@@ -9,7 +9,7 @@ Planning {#autoware-planning-design}
   - @subpage recordreplay-planner-nodes
 - Lane planner
   - @subpage lane-planner
-  - @subpage lane-planner-node
+  - @subpage lane-planner-nodes
 - Object Collision Estimator
   - @subpage object-collision-estimator
   - @subpage object-collision-estimator-node

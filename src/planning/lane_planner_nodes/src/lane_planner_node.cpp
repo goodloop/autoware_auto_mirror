@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "lane_planner_node/lane_planner_node.hpp"
+#include "lane_planner_nodes/lane_planner_node.hpp"
 #include <had_map_utils/had_map_conversion.hpp>
 
 #include <string>
@@ -20,7 +20,7 @@
 
 namespace autoware
 {
-namespace lane_planner_node
+namespace lane_planner_nodes
 {
 
 LanePlannerNode::LanePlannerNode(const rclcpp::NodeOptions & node_options)
@@ -75,9 +75,9 @@ Trajectory LanePlannerNode::plan_trajectory(
 }
 
 
-}  // namespace lane_planner_node
+}  // namespace lane_planner_nodes
 }  // namespace autoware
 
 #include "rclcpp_components/register_node_macro.hpp"  // NOLINT
 RCLCPP_COMPONENTS_REGISTER_NODE(
-  autoware::lane_planner_node::LanePlannerNode)
+  autoware::lane_planner_nodes::LanePlannerNode)

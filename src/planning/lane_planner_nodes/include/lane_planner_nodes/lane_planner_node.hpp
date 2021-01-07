@@ -16,10 +16,10 @@
 /// \file
 /// \brief This file defines the lane_planner_node class.
 
-#ifndef LANE_PLANNER_NODE__LANE_PLANNER_NODE_HPP_
-#define LANE_PLANNER_NODE__LANE_PLANNER_NODE_HPP_
+#ifndef LANE_PLANNER_NODES__LANE_PLANNER_NODE_HPP_
+#define LANE_PLANNER_NODES__LANE_PLANNER_NODE_HPP_
 
-#include <lane_planner_node/visibility_control.hpp>
+#include <lane_planner_nodes/visibility_control.hpp>
 
 #include <lane_planner/lane_planner.hpp>
 #include <trajectory_planner_node_base/trajectory_planner_node_base.hpp>
@@ -29,7 +29,7 @@
 
 namespace autoware
 {
-namespace lane_planner_node
+namespace lane_planner_nodes
 {
 
 using trajectory_planner_node_base::TrajectoryPlannerNodeBase;
@@ -69,7 +69,7 @@ private:
 };
 
 
-}  // namespace lane_planner_node
+}  // namespace lane_planner_nodes
 }  // namespace autoware
 
-#endif  // LANE_PLANNER_NODE__LANE_PLANNER_NODE_HPP_
+#endif  // LANE_PLANNER_NODES__LANE_PLANNER_NODE_HPP_

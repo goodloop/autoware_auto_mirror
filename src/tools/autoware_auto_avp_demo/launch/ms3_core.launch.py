@@ -202,7 +202,7 @@ def generate_launch_description():
                     ('vehicle_kinematic_state', '/vehicle/vehicle_kinematic_state')]
     )
     lane_planner = Node(
-        package='lane_planner_node',
+        package='lane_planner_nodes',
         node_name='lane_planner_node',
         node_namespace='planning',
         node_executable='lane_planner_node_exe',

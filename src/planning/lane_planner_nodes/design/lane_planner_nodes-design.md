@@ -1,7 +1,7 @@
-Lane planner node {#lane-planner-node}
+Lane planner nodes {#lane-planner-nodes}
 ===========
 
-This is the design document for the `lane_planner_node` package.
+This is the design document for the `lane_planner_nodes` package.
 
 
 # Purpose / Use cases
