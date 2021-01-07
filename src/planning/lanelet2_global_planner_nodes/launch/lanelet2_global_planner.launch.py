@@ -25,7 +25,7 @@ def generate_launch_description():
     global_planner_node_runner = launch_ros.actions.Node(
         node_name='lanelet2_global_planner_node',
         node_namespace='planning',
-        package='lanelet2_global_planner_node',
+        package='lanelet2_global_planner_nodes',
         node_executable='lanelet2_global_planner_node_exe',
         output='screen',
         remappings=[('HAD_Map_Client', '/had_maps/HAD_Map_Service'),

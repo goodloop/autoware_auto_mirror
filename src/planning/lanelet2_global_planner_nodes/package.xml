@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
-  <name>lanelet2_global_planner_node</name>
+  <name>lanelet2_global_planner_nodes</name>
   <version>0.0.1</version>
   <description>lanelet2 global path planner node</description>
   <maintainer email="punnu@parkopedia.com">Punnu Pahiratt</maintainer>

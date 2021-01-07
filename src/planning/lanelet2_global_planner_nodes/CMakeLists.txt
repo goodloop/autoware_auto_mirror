@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.5)
-project(lanelet2_global_planner_node)
+project(lanelet2_global_planner_nodes)
 
 # Default to C++14
 if(NOT CMAKE_CXX_STANDARD)
@@ -17,15 +17,15 @@ ament_auto_find_build_dependencies()
 # build
 set(GB_PLANNER_NODE_LIB lanelet2_global_planner_node)
 ament_auto_add_library(${GB_PLANNER_NODE_LIB} SHARED
-  include/lanelet2_global_planner_node/lanelet2_global_planner_node.hpp
-  include/lanelet2_global_planner_node/visibility_control.hpp
+  include/lanelet2_global_planner_nodes/lanelet2_global_planner_node.hpp
+  include/lanelet2_global_planner_nodes/visibility_control.hpp
   src/lanelet2_global_planner_node.cpp
 )
 target_include_directories(${GB_PLANNER_NODE_LIB} SYSTEM PUBLIC ${tf2_INCLUDE_DIRS})
 
 set(GB_PLANNER_NODE_EXE ${GB_PLANNER_NODE_LIB}_exe)
 rclcpp_components_register_node(${GB_PLANNER_NODE_LIB}
-  PLUGIN "autoware::motion::planning::lanelet2_global_planner_node::Lanelet2GlobalPlannerNode"
+  PLUGIN "autoware::motion::planning::lanelet2_global_planner_nodes::Lanelet2GlobalPlannerNode"
   EXECUTABLE ${GB_PLANNER_NODE_EXE}
 )
 

@@ -194,7 +194,7 @@ def generate_launch_description():
         node_namespace='had_maps'
     )
     global_planner = Node(
-        package='lanelet2_global_planner_node',
+        package='lanelet2_global_planner_nodes',
         node_name='lanelet2_global_planner_node',
         node_namespace='planning',
         node_executable='lanelet2_global_planner_node_exe',

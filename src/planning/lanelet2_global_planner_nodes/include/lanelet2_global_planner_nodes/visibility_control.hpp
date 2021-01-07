@@ -14,24 +14,24 @@
 //
 // Co-developed by Tier IV, Inc. and Apex.AI, Inc.
 
-#ifndef LANELET2_GLOBAL_PLANNER_NODE__VISIBILITY_CONTROL_HPP_
-#define LANELET2_GLOBAL_PLANNER_NODE__VISIBILITY_CONTROL_HPP_
+#ifndef LANELET2_GLOBAL_PLANNER_NODES__VISIBILITY_CONTROL_HPP_
+#define LANELET2_GLOBAL_PLANNER_NODES__VISIBILITY_CONTROL_HPP_
 
 #if defined(__WIN32)
-  #if defined(LANELET2_GLOBAL_PLANNER_NODE_BUILDING_DLL) || \
-  defined(LANELET2_GLOBAL_PLANNER_NODE_EXPORTS)
-    #define LANELET2_GLOBAL_PLANNER_NODE_PUBLIC __declspec(dllexport)
-    #define LANELET2_GLOBAL_PLANNER_NODE_LOCAL
+  #if defined(LANELET2_GLOBAL_PLANNER_NODES_BUILDING_DLL) || \
+  defined(LANELET2_GLOBAL_PLANNER_NODES_EXPORTS)
+    #define LANELET2_GLOBAL_PLANNER_NODES_PUBLIC __declspec(dllexport)
+    #define LANELET2_GLOBAL_PLANNER_NODES_LOCAL
   #else
-    #define LANELET2_GLOBAL_PLANNER_NODE_PUBLIC __declspec(dllimport)
-    #define LANELET2_GLOBAL_PLANNER_NODE_LOCAL
+    #define LANELET2_GLOBAL_PLANNER_NODES_PUBLIC __declspec(dllimport)
+    #define LANELET2_GLOBAL_PLANNER_NODES_LOCAL
   #endif
 #elif defined(__linux__)
-  #define LANELET2_GLOBAL_PLANNER_NODE_PUBLIC __attribute__((visibility("default")))
-  #define LANELET2_GLOBAL_PLANNER_NODE_LOCAL __attribute__((visibility("hidden")))
+  #define LANELET2_GLOBAL_PLANNER_NODES_PUBLIC __attribute__((visibility("default")))
+  #define LANELET2_GLOBAL_PLANNER_NODES_LOCAL __attribute__((visibility("hidden")))
 #elif defined(__APPLE__)
-  #define LANELET2_GLOBAL_PLANNER_NODE_PUBLIC __attribute__((visibility("default")))
-  #define LANELET2_GLOBAL_PLANNER_NODE_LOCAL __attribute__((visibility("hidden")))
+  #define LANELET2_GLOBAL_PLANNER_NODES_PUBLIC __attribute__((visibility("default")))
+  #define LANELET2_GLOBAL_PLANNER_NODES_LOCAL __attribute__((visibility("hidden")))
 #else
   #error "Unsupported Build Configuration"
 #endif

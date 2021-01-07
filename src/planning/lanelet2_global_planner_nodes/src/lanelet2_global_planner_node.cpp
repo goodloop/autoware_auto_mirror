@@ -24,7 +24,7 @@
 #include <motion_common/motion_common.hpp>
 
 #include <autoware_auto_msgs/msg/complex32.hpp>
-#include <lanelet2_global_planner_node/lanelet2_global_planner_node.hpp>
+#include <lanelet2_global_planner_nodes/lanelet2_global_planner_node.hpp>
 #include <std_msgs/msg/string.hpp>
 #include <common/types.hpp>
 
@@ -50,7 +50,7 @@ namespace motion
 {
 namespace planning
 {
-namespace lanelet2_global_planner_node
+namespace lanelet2_global_planner_nodes
 {
 
 autoware_auto_msgs::msg::TrajectoryPoint convertToTrajectoryPoint(
@@ -286,4 +286,4 @@ bool8_t Lanelet2GlobalPlannerNode::transform_pose_to_map(
 }  // namespace autoware
 
 RCLCPP_COMPONENTS_REGISTER_NODE(
-  autoware::motion::planning::lanelet2_global_planner_node::Lanelet2GlobalPlannerNode)
+  autoware::motion::planning::lanelet2_global_planner_nodes::Lanelet2GlobalPlannerNode)

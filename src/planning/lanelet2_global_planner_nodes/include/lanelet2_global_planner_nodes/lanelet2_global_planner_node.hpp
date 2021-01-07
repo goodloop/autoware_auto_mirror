@@ -14,8 +14,8 @@
 //
 // Co-developed by Tier IV, Inc. and Apex.AI, Inc.
 
-#ifndef  LANELET2_GLOBAL_PLANNER_NODE__LANELET2_GLOBAL_PLANNER_NODE_HPP_
-#define  LANELET2_GLOBAL_PLANNER_NODE__LANELET2_GLOBAL_PLANNER_NODE_HPP_
+#ifndef  LANELET2_GLOBAL_PLANNER_NODES__LANELET2_GLOBAL_PLANNER_NODE_HPP_
+#define  LANELET2_GLOBAL_PLANNER_NODES__LANELET2_GLOBAL_PLANNER_NODE_HPP_
 // ros2
 #include <rclcpp/rclcpp.hpp>
 #include <rclcpp_action/rclcpp_action.hpp>
@@ -26,7 +26,7 @@
 #include <time_utils/time_utils.hpp>
 
 // autoware
-#include <lanelet2_global_planner_node/visibility_control.hpp>
+#include <lanelet2_global_planner_nodes/visibility_control.hpp>
 #include <lanelet2_global_planner/lanelet2_global_planner.hpp>
 #include <lanelet2_core/LaneletMap.h>
 #include <common/types.hpp>
@@ -55,9 +55,9 @@ namespace motion
 {
 namespace planning
 {
-namespace lanelet2_global_planner_node
+namespace lanelet2_global_planner_nodes
 {
-class LANELET2_GLOBAL_PLANNER_NODE_PUBLIC Lanelet2GlobalPlannerNode : public rclcpp::Node
+class LANELET2_GLOBAL_PLANNER_NODES_PUBLIC Lanelet2GlobalPlannerNode : public rclcpp::Node
 {
 public:
   explicit Lanelet2GlobalPlannerNode(const rclcpp::NodeOptions & node_options);
@@ -86,9 +86,9 @@ private:
   tf2::BufferCore tf_buffer;
   tf2_ros::TransformListener tf_listener;
 };
-}  // namespace lanelet2_global_planner_node
+}  // namespace lanelet2_global_planner_nodes
 }  // namespace planning
 }  // namespace motion
 }  // namespace autoware
 
-#endif  // LANELET2_GLOBAL_PLANNER_NODE__LANELET2_GLOBAL_PLANNER_NODE_HPP_
+#endif  // LANELET2_GLOBAL_PLANNER_NODES__LANELET2_GLOBAL_PLANNER_NODE_HPP_
