@@ -24,7 +24,7 @@
     <exec_depend>launch_ros</exec_depend>
     <exec_depend>lexus_rx_450h_description</exec_depend>
     <exec_depend>lgsvl_interface</exec_depend>
-    <exec_depend>mpc_controller_node</exec_depend>
+    <exec_depend>mpc_controller_nodes</exec_depend>
     <exec_depend>ndt_nodes</exec_depend>
     <exec_depend>object_collision_estimator_node</exec_depend>
     <exec_depend>parking_planner_node</exec_depend>

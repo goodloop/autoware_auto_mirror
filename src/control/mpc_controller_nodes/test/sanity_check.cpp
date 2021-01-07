@@ -15,7 +15,7 @@
 #include <motion_testing/motion_testing.hpp>
 #include <motion_testing_nodes/motion_testing_publisher.hpp>
 #include <motion_testing_nodes/wait_for_matched.hpp>
-#include <mpc_controller_node/mpc_controller_node.hpp>
+#include <mpc_controller_nodes/mpc_controller_node.hpp>
 #include <time_utils/time_utils.hpp>
 
 #include <rclcpp/rclcpp.hpp>
@@ -216,7 +216,7 @@ TEST_F(sanity_check, basic)
     Interpolation::NO
   };
 
-  using motion::control::mpc_controller_node::MpcControllerNode;
+  using motion::control::mpc_controller_nodes::MpcControllerNode;
   const auto ctrl = std::make_shared<MpcControllerNode>(
     "mpc_ctrl_test_node",
     "",

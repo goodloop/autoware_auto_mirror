@@ -11,10 +11,10 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#ifndef MPC_CONTROLLER_NODE__MPC_CONTROLLER_NODE_HPP_
-#define MPC_CONTROLLER_NODE__MPC_CONTROLLER_NODE_HPP_
+#ifndef MPC_CONTROLLER_NODES__MPC_CONTROLLER_NODE_HPP_
+#define MPC_CONTROLLER_NODES__MPC_CONTROLLER_NODE_HPP_
 
-#include <mpc_controller_node/visibility_control.hpp>
+#include <mpc_controller_nodes/visibility_control.hpp>
 #include <controller_common_nodes/controller_base_node.hpp>
 #include <mpc_controller/mpc_controller.hpp>
 
@@ -24,9 +24,9 @@ namespace motion
 {
 namespace control
 {
-namespace mpc_controller_node
+namespace mpc_controller_nodes
 {
-class MPC_CONTROLLER_NODE_PUBLIC MpcControllerNode
+class MPC_CONTROLLER_NODES_PUBLIC MpcControllerNode
   : public controller_common_nodes::ControllerBaseNode
 {
 public:
@@ -48,8 +48,8 @@ private:
   rclcpp::Publisher<autoware_auto_msgs::msg::Trajectory>::SharedPtr m_debug_traj_pub{};
   rclcpp::TimerBase::SharedPtr m_debug_timer{};
 };  // class MpcControllerNode
-}  // namespace mpc_controller_node
+}  // namespace mpc_controller_nodes
 }  // namespace control
 }  // namespace motion
 
-#endif  // MPC_CONTROLLER_NODE__MPC_CONTROLLER_NODE_HPP_
+#endif  // MPC_CONTROLLER_NODES__MPC_CONTROLLER_NODE_HPP_

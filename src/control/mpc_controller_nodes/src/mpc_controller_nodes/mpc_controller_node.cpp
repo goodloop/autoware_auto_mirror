@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "mpc_controller_node/mpc_controller_node.hpp"
+#include "mpc_controller_nodes/mpc_controller_node.hpp"
 
 #include <memory>
 #include <string>
@@ -22,7 +22,7 @@ namespace motion
 {
 namespace control
 {
-namespace mpc_controller_node
+namespace mpc_controller_nodes
 {
 ////////////////////////////////////////////////////////////////////////////////
 MpcControllerNode::MpcControllerNode(const std::string & name, const std::string & ns)
@@ -192,6 +192,6 @@ MpcControllerNode::MpcControllerNode(
 {
   set_controller(std::make_unique<mpc_controller::MpcController>(config));
 }
-}  // namespace mpc_controller_node
+}  // namespace mpc_controller_nodes
 }  // namespace control
 }  // namespace motion

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "mpc_controller_node/mpc_controller_node.hpp"
+#include "mpc_controller_nodes/mpc_controller_node.hpp"
 
 #include <memory>
 
@@ -20,7 +20,7 @@ int32_t main(int32_t argc, char ** argv)
 {
   rclcpp::init(argc, argv);
 
-  using motion::control::mpc_controller_node::MpcControllerNode;
+  using motion::control::mpc_controller_nodes::MpcControllerNode;
   const auto nd = std::make_shared<MpcControllerNode>("mpc_controller", "");
 
   rclcpp::spin(nd);
