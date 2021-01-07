@@ -11,12 +11,12 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#ifndef RECORDREPLAY_PLANNER_NODE__RECORDREPLAY_PLANNER_NODE_HPP_
-#define RECORDREPLAY_PLANNER_NODE__RECORDREPLAY_PLANNER_NODE_HPP_
+#ifndef RECORDREPLAY_PLANNER_NODES__RECORDREPLAY_PLANNER_NODE_HPP_
+#define RECORDREPLAY_PLANNER_NODES__RECORDREPLAY_PLANNER_NODE_HPP_
 
 #include <tf2_ros/transform_listener.h>
 #include <tf2_ros/buffer.h>
-#include <recordreplay_planner_node/visibility_control.hpp>
+#include <recordreplay_planner_nodes/visibility_control.hpp>
 #include <recordreplay_planner/recordreplay_planner.hpp>
 #include <recordreplay_planner_actions/action/record_trajectory.hpp>
 #include <recordreplay_planner_actions/action/replay_trajectory.hpp>
@@ -41,7 +41,7 @@ namespace motion
 {
 namespace planning
 {
-namespace recordreplay_planner_node
+namespace recordreplay_planner_nodes
 {
 using PlannerPtr = std::unique_ptr<motion::planning::recordreplay_planner::RecordReplayPlanner>;
 using autoware_auto_msgs::msg::BoundingBoxArray;
@@ -53,7 +53,7 @@ using Transform = geometry_msgs::msg::TransformStamped;
 using motion::motion_common::VehicleConfig;
 using motion::motion_common::Real;
 
-class RECORDREPLAY_PLANNER_NODE_PUBLIC RecordReplayPlannerNode : public rclcpp::Node
+class RECORDREPLAY_PLANNER_NODES_PUBLIC RecordReplayPlannerNode : public rclcpp::Node
 {
 public:
   using GoalHandleRecordTrajectory = rclcpp_action::ServerGoalHandle<RecordTrajectory>;
@@ -77,7 +77,7 @@ protected:
   PlannerPtr m_planner{nullptr};
 
 private:
-  RECORDREPLAY_PLANNER_NODE_LOCAL void init(
+  RECORDREPLAY_PLANNER_NODES_LOCAL void init(
     const std::string & ego_topic,
     const std::string & trajectory_topic,
     const std::string & bounding_boxes_topic,
@@ -86,26 +86,26 @@ private:
     const float64_t min_record_distance);
 
 
-  RECORDREPLAY_PLANNER_NODE_LOCAL void on_ego(const State::SharedPtr & msg);
-  RECORDREPLAY_PLANNER_NODE_LOCAL void on_bounding_box(const BoundingBoxArray::SharedPtr & msg);
+  RECORDREPLAY_PLANNER_NODES_LOCAL void on_ego(const State::SharedPtr & msg);
+  RECORDREPLAY_PLANNER_NODES_LOCAL void on_bounding_box(const BoundingBoxArray::SharedPtr & msg);
 
   // TODO(s.me) there does not seem to be a RecordTrajectory::SharedPtr? Also
   // the return types need to be changed to the rclcpp_action types once the package
   // is available.
-  RECORDREPLAY_PLANNER_NODE_LOCAL rclcpp_action::GoalResponse record_handle_goal(
+  RECORDREPLAY_PLANNER_NODES_LOCAL rclcpp_action::GoalResponse record_handle_goal(
     const rclcpp_action::GoalUUID & uuid,
     const std::shared_ptr<const RecordTrajectory::Goal> goal);
-  RECORDREPLAY_PLANNER_NODE_LOCAL rclcpp_action::CancelResponse record_handle_cancel(
+  RECORDREPLAY_PLANNER_NODES_LOCAL rclcpp_action::CancelResponse record_handle_cancel(
     const std::shared_ptr<GoalHandleRecordTrajectory> goal_handle);
-  RECORDREPLAY_PLANNER_NODE_LOCAL void record_handle_accepted(
+  RECORDREPLAY_PLANNER_NODES_LOCAL void record_handle_accepted(
     const std::shared_ptr<GoalHandleRecordTrajectory> goal_handle);
 
-  RECORDREPLAY_PLANNER_NODE_LOCAL rclcpp_action::GoalResponse replay_handle_goal(
+  RECORDREPLAY_PLANNER_NODES_LOCAL rclcpp_action::GoalResponse replay_handle_goal(
     const rclcpp_action::GoalUUID & uuid,
     const std::shared_ptr<const ReplayTrajectory::Goal> goal);
-  RECORDREPLAY_PLANNER_NODE_LOCAL rclcpp_action::CancelResponse replay_handle_cancel(
+  RECORDREPLAY_PLANNER_NODES_LOCAL rclcpp_action::CancelResponse replay_handle_cancel(
     const std::shared_ptr<GoalHandleReplayTrajectory> goal_handle);
-  RECORDREPLAY_PLANNER_NODE_LOCAL void replay_handle_accepted(
+  RECORDREPLAY_PLANNER_NODES_LOCAL void replay_handle_accepted(
     const std::shared_ptr<GoalHandleReplayTrajectory> goal_handle);
 
   std::string m_odom_frame_id{};
@@ -114,8 +114,8 @@ private:
 
   bool m_enable_obstacle_detection{true};
 };  // class RecordReplayPlannerNode
-}  // namespace recordreplay_planner_node
+}  // namespace recordreplay_planner_nodes
 }  // namespace planning
 }  // namespace motion
 
-#endif  // RECORDREPLAY_PLANNER_NODE__RECORDREPLAY_PLANNER_NODE_HPP_
+#endif  // RECORDREPLAY_PLANNER_NODES__RECORDREPLAY_PLANNER_NODE_HPP_

@@ -171,7 +171,7 @@ def generate_launch_description():
         ]
     )
     recordreplay_planner = Node(
-        package='recordreplay_planner_node',
+        package='recordreplay_planner_nodes',
         node_executable='recordreplay_planner_node_exe',
         node_name='recordreplay_planner',
         node_namespace='planning',

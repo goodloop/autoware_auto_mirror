@@ -14,7 +14,7 @@
 
 
 #include <common/types.hpp>
-#include <recordreplay_planner_node/recordreplay_planner_node.hpp>
+#include <recordreplay_planner_nodes/recordreplay_planner_node.hpp>
 #include <autoware_auto_tf2/tf2_autoware_auto_msgs.hpp>
 #include <memory>
 #include <string>
@@ -27,7 +27,7 @@ namespace motion
 {
 namespace planning
 {
-namespace recordreplay_planner_node
+namespace recordreplay_planner_nodes
 {
 RecordReplayPlannerNode::RecordReplayPlannerNode(const rclcpp::NodeOptions & node_options)
 : Node{"recordreplay_planner", node_options}
@@ -282,10 +282,10 @@ void RecordReplayPlannerNode::replay_handle_accepted(
   // Start the replaying process
   m_planner->start_replaying();
 }
-}  // namespace recordreplay_planner_node
+}  // namespace recordreplay_planner_nodes
 }  // namespace planning
 }  // namespace motion
 
 #include "rclcpp_components/register_node_macro.hpp"  // NOLINT
 RCLCPP_COMPONENTS_REGISTER_NODE(
-  motion::planning::recordreplay_planner_node::RecordReplayPlannerNode)
+  motion::planning::recordreplay_planner_nodes::RecordReplayPlannerNode)

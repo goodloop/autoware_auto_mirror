@@ -13,7 +13,7 @@
 // limitations under the License.
 
 #include <gtest/gtest.h>
-#include <recordreplay_planner_node/recordreplay_planner_node.hpp>
+#include <recordreplay_planner_nodes/recordreplay_planner_node.hpp>
 #include <autoware_auto_msgs/msg/trajectory.hpp>
 #include <motion_testing/motion_testing.hpp>
 #include <rclcpp/rclcpp.hpp>
@@ -23,7 +23,7 @@
 #include <algorithm>
 #include <memory>
 
-using motion::planning::recordreplay_planner_node::RecordReplayPlannerNode;
+using motion::planning::recordreplay_planner_nodes::RecordReplayPlannerNode;
 using motion::motion_testing::make_state;
 using std::chrono::system_clock;
 using autoware_auto_msgs::msg::Trajectory;

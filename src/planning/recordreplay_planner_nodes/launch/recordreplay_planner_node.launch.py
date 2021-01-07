@@ -22,7 +22,7 @@ def generate_launch_description():
     """Launch recordreplay_planner_node with default configuration."""
     # -------------------------------- Nodes-----------------------------------
     recordreplay_planner_node = launch_ros.actions.Node(
-        package='recordreplay_planner_node',
+        package='recordreplay_planner_nodes',
         node_executable='recordreplay_planner_node_exe',
         node_name='recordreplay_planner',
         node_namespace='planning',
@@ -30,7 +30,7 @@ def generate_launch_description():
         parameters=[
             "{}/param/defaults.param.yaml".format(
                 ament_index_python.get_package_share_directory(
-                    "recordreplay_planner_node"
+                    "recordreplay_planner_nodes"
                 )
             ),
         ],
