@@ -15,11 +15,11 @@
 /// \copyright Copyright 2020 Apex.AI, Inc.
 /// All rights reserved.
 
-#include <covariance_insertion_node/convert.hpp>
+#include <covariance_insertion_nodes/convert.hpp>
 
 namespace autoware
 {
-namespace covariance_insertion_node
+namespace covariance_insertion_nodes
 {
 
 template<>
@@ -60,5 +60,5 @@ typename geometry_msgs::msg::TwistWithCovarianceStamped convert(
   return out_msg;
 }
 
-}  // namespace covariance_insertion_node
+}  // namespace covariance_insertion_nodes
 }  // namespace autoware

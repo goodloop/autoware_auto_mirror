@@ -13,7 +13,7 @@
 # limitations under the License.
 
 cmake_minimum_required(VERSION 3.5)
-project(covariance_insertion_node)
+project(covariance_insertion_nodes)
 
 # dependencies
 find_package(ament_cmake_auto REQUIRED)
@@ -25,12 +25,12 @@ set(MESSAGE_MODIFYING_NODE_LIB_SRC
 )
 
 set(MESSAGE_MODIFYING_NODE_LIB_HEADERS
-  include/covariance_insertion_node/covariance_insertion_node.hpp
-  include/covariance_insertion_node/convert.hpp
-  include/covariance_insertion_node/add_covariance.hpp
-  include/covariance_insertion_node/output_type_trait.hpp
-  include/covariance_insertion_node/traits.hpp
-  include/covariance_insertion_node/visibility_control.hpp
+  include/covariance_insertion_nodes/covariance_insertion_node.hpp
+  include/covariance_insertion_nodes/convert.hpp
+  include/covariance_insertion_nodes/add_covariance.hpp
+  include/covariance_insertion_nodes/output_type_trait.hpp
+  include/covariance_insertion_nodes/traits.hpp
+  include/covariance_insertion_nodes/visibility_control.hpp
 )
 
 # generate library
@@ -41,7 +41,7 @@ ament_auto_add_library(${PROJECT_NAME} SHARED
 autoware_set_compile_options(${PROJECT_NAME})
 
 rclcpp_components_register_node(${PROJECT_NAME}
-  PLUGIN "autoware::covariance_insertion_node::CovarianceInsertionNode"
+  PLUGIN "autoware::covariance_insertion_nodes::CovarianceInsertionNode"
   EXECUTABLE ${PROJECT_NAME}_exe
 )
 

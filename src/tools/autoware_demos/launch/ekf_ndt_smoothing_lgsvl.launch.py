@@ -137,7 +137,7 @@ def generate_launch_description():
     )
 
     covariance_override_node = Node(
-        package='covariance_insertion_node',
+        package='covariance_insertion_nodes',
         node_executable='covariance_insertion_node_exe',
         node_namespace='localization',
         output="screen",

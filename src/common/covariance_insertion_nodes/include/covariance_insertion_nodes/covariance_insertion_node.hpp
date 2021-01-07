@@ -15,8 +15,8 @@
 /// \copyright Copyright 2020 Apex.AI, Inc.
 /// All rights reserved.
 
-#ifndef COVARIANCE_INSERTION_NODE__COVARIANCE_INSERTION_NODE_HPP_
-#define COVARIANCE_INSERTION_NODE__COVARIANCE_INSERTION_NODE_HPP_
+#ifndef COVARIANCE_INSERTION_NODES__COVARIANCE_INSERTION_NODE_HPP_
+#define COVARIANCE_INSERTION_NODES__COVARIANCE_INSERTION_NODE_HPP_
 
 #include <rclcpp/rclcpp.hpp>
 #include <rclcpp/publisher.hpp>
@@ -24,9 +24,9 @@
 
 #include <common/types.hpp>
 #include <mpark_variant_vendor/variant.hpp>
-#include <covariance_insertion_node/visibility_control.hpp>
-#include <covariance_insertion_node/add_covariance.hpp>
-#include <covariance_insertion_node/convert.hpp>
+#include <covariance_insertion_nodes/visibility_control.hpp>
+#include <covariance_insertion_nodes/add_covariance.hpp>
+#include <covariance_insertion_nodes/convert.hpp>
 
 #include <string>
 #include <map>
@@ -34,15 +34,15 @@
 
 namespace autoware
 {
-namespace covariance_insertion_node
+namespace covariance_insertion_nodes
 {
 
 ///
 /// @class      CovarianceInsertionNode
 ///
-/// @brief      ROS 2 Node for the covariance_insertion_node.
+/// @brief      ROS 2 Node for the covariance_insertion_nodes.
 ///
-class COVARIANCE_INSERTION_NODE_PUBLIC CovarianceInsertionNode : public rclcpp::Node
+class COVARIANCE_INSERTION_NODES_PUBLIC CovarianceInsertionNode : public rclcpp::Node
 {
 public:
   /// @brief      A variant that holds all possible message types that this node can work with.
@@ -83,7 +83,7 @@ private:
   std::string m_input_msg_type_name{};
   std::map<std::string, std::vector<common::types::float64_t>> m_covariances{};
 };
-}  // namespace covariance_insertion_node
+}  // namespace covariance_insertion_nodes
 }  // namespace autoware
 
-#endif  // COVARIANCE_INSERTION_NODE__COVARIANCE_INSERTION_NODE_HPP_
+#endif  // COVARIANCE_INSERTION_NODES__COVARIANCE_INSERTION_NODE_HPP_

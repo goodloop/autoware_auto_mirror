@@ -15,7 +15,7 @@
 /// \copyright Copyright 2020 Apex.AI, Inc.
 /// All rights reserved.
 
-#include "covariance_insertion_node/covariance_insertion_node.hpp"
+#include "covariance_insertion_nodes/covariance_insertion_node.hpp"
 
 #include <rclcpp_components/register_node_macro.hpp>
 
@@ -26,7 +26,7 @@
 
 namespace autoware
 {
-namespace covariance_insertion_node
+namespace covariance_insertion_nodes
 {
 
 namespace
@@ -70,7 +70,7 @@ void set_all_covariances(
 }  // namespace
 
 CovarianceInsertionNode::CovarianceInsertionNode(const rclcpp::NodeOptions & options)
-:  Node("covariance_insertion_node", options)
+:  Node("covariance_insertion_nodes", options)
 {
   const auto history_size{declare_parameter(kHistorySizeTag, kDefaultHistorySize)};
   if (history_size <= 0) {throw std::domain_error("History size must be positive.");}
@@ -152,7 +152,7 @@ void CovarianceInsertionNode::create_pub_sub(const MsgVariant & msg_variant)
     }, msg_variant);
 }
 
-}  // namespace covariance_insertion_node
+}  // namespace covariance_insertion_nodes
 }  // namespace autoware
 
-RCLCPP_COMPONENTS_REGISTER_NODE(autoware::covariance_insertion_node::CovarianceInsertionNode)
+RCLCPP_COMPONENTS_REGISTER_NODE(autoware::covariance_insertion_nodes::CovarianceInsertionNode)

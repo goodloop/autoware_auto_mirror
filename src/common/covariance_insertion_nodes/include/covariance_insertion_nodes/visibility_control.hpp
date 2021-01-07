@@ -15,26 +15,26 @@
 /// \copyright Copyright 2020 Apex.AI, Inc.
 /// All rights reserved.
 
-#ifndef COVARIANCE_INSERTION_NODE__VISIBILITY_CONTROL_HPP_
-#define COVARIANCE_INSERTION_NODE__VISIBILITY_CONTROL_HPP_
+#ifndef COVARIANCE_INSERTION_NODES__VISIBILITY_CONTROL_HPP_
+#define COVARIANCE_INSERTION_NODES__VISIBILITY_CONTROL_HPP_
 
 ////////////////////////////////////////////////////////////////////////////////
 #if defined(__WIN32)
   #if defined(MESSAGE_MODIFYING_NODE_BUILDING_DLL) || defined(MESSAGE_MODIFYING_NODE_EXPORTS)
-    #define COVARIANCE_INSERTION_NODE_PUBLIC __declspec(dllexport)
+    #define COVARIANCE_INSERTION_NODES_PUBLIC __declspec(dllexport)
     #define MESSAGE_MODIFYING_NODE_LOCAL
   #else  // defined(MESSAGE_MODIFYING_NODE_BUILDING_DLL) || defined(MESSAGE_MODIFYING_NODE_EXPORTS)
-    #define COVARIANCE_INSERTION_NODE_PUBLIC __declspec(dllimport)
+    #define COVARIANCE_INSERTION_NODES_PUBLIC __declspec(dllimport)
     #define MESSAGE_MODIFYING_NODE_LOCAL
   #endif  // defined(MESSAGE_MODIFYING_NODE_BUILDING_DLL) || defined(MESSAGE_MODIFYING_NODE_EXPORTS)
 #elif defined(__linux__)
-  #define COVARIANCE_INSERTION_NODE_PUBLIC __attribute__((visibility("default")))
+  #define COVARIANCE_INSERTION_NODES_PUBLIC __attribute__((visibility("default")))
   #define MESSAGE_MODIFYING_NODE_LOCAL __attribute__((visibility("hidden")))
 #elif defined(__APPLE__)
-  #define COVARIANCE_INSERTION_NODE_PUBLIC __attribute__((visibility("default")))
+  #define COVARIANCE_INSERTION_NODES_PUBLIC __attribute__((visibility("default")))
   #define MESSAGE_MODIFYING_NODE_LOCAL __attribute__((visibility("hidden")))
 #else
   #error "Unsupported Build Configuration"
 #endif
 
-#endif  // COVARIANCE_INSERTION_NODE__VISIBILITY_CONTROL_HPP_
+#endif  // COVARIANCE_INSERTION_NODES__VISIBILITY_CONTROL_HPP_

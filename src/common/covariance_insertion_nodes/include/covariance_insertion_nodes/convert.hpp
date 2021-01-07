@@ -15,14 +15,14 @@
 /// \copyright Copyright 2020 Apex.AI, Inc.
 /// All rights reserved.
 
-#ifndef COVARIANCE_INSERTION_NODE__CONVERT_HPP_
-#define COVARIANCE_INSERTION_NODE__CONVERT_HPP_
+#ifndef COVARIANCE_INSERTION_NODES__CONVERT_HPP_
+#define COVARIANCE_INSERTION_NODES__CONVERT_HPP_
 
-#include <covariance_insertion_node/output_type_trait.hpp>
+#include <covariance_insertion_nodes/output_type_trait.hpp>
 
 namespace autoware
 {
-namespace covariance_insertion_node
+namespace covariance_insertion_nodes
 {
 
 template<typename InputT>
@@ -51,7 +51,7 @@ template<>
 typename geometry_msgs::msg::TwistWithCovarianceStamped convert(
   const geometry_msgs::msg::TwistStamped & input_msg) noexcept;
 
-}  // namespace covariance_insertion_node
+}  // namespace covariance_insertion_nodes
 }  // namespace autoware
 
-#endif  // COVARIANCE_INSERTION_NODE__CONVERT_HPP_
+#endif  // COVARIANCE_INSERTION_NODES__CONVERT_HPP_

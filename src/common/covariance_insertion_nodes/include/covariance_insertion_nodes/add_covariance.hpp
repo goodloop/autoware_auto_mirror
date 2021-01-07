@@ -15,18 +15,18 @@
 /// \copyright Copyright 2020 Apex.AI, Inc.
 /// All rights reserved.
 
-#ifndef COVARIANCE_INSERTION_NODE__ADD_COVARIANCE_HPP_
-#define COVARIANCE_INSERTION_NODE__ADD_COVARIANCE_HPP_
+#ifndef COVARIANCE_INSERTION_NODES__ADD_COVARIANCE_HPP_
+#define COVARIANCE_INSERTION_NODES__ADD_COVARIANCE_HPP_
 
-#include <covariance_insertion_node/traits.hpp>
-#include <covariance_insertion_node/output_type_trait.hpp>
+#include <covariance_insertion_nodes/traits.hpp>
+#include <covariance_insertion_nodes/output_type_trait.hpp>
 
 #include <string>
 #include <vector>
 
 namespace autoware
 {
-namespace covariance_insertion_node
+namespace covariance_insertion_nodes
 {
 
 namespace detail
@@ -122,7 +122,7 @@ void add_covariance(
   }
 }
 
-}  // namespace covariance_insertion_node
+}  // namespace covariance_insertion_nodes
 }  // namespace autoware
 
-#endif  // COVARIANCE_INSERTION_NODE__ADD_COVARIANCE_HPP_
+#endif  // COVARIANCE_INSERTION_NODES__ADD_COVARIANCE_HPP_

@@ -16,13 +16,13 @@
 /// All rights reserved.
 
 #include <gtest/gtest.h>
-#include <covariance_insertion_node/covariance_insertion_node.hpp>
+#include <covariance_insertion_nodes/covariance_insertion_node.hpp>
 
 #include <memory>
 #include <string>
 #include <vector>
 
-using autoware::covariance_insertion_node::CovarianceInsertionNode;
+using autoware::covariance_insertion_nodes::CovarianceInsertionNode;
 
 class CovarianceInsertionNodeTest : public ::testing::Test
 {
