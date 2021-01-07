@@ -29,20 +29,20 @@ set(BEHAVIOR_PLANNER_NODE_HEADERS
 )
 
 # generate component node library
-ament_auto_add_library(${PROJECT_NAME} SHARED
+ament_auto_add_library(behavior_planner_node SHARED
   ${BEHAVIOR_PLANNER_NODE_SRC}
   ${BEHAVIOR_PLANNER_NODE_HEADERS}
 )
-autoware_set_compile_options(${PROJECT_NAME})
-rclcpp_components_register_node(${PROJECT_NAME}
+autoware_set_compile_options(behavior_planner_node)
+rclcpp_components_register_node(behavior_planner_node
   PLUGIN "autoware::behavior_planner_nodes::BehaviorPlannerNode"
-  EXECUTABLE ${PROJECT_NAME}_exe
+  EXECUTABLE behavior_planner_node_exe
 )
 
 # required for tf2
-target_compile_options(${PROJECT_NAME} PRIVATE -Wno-sign-conversion -Wno-conversion -Wno-old-style-cast
+target_compile_options(behavior_planner_node PRIVATE -Wno-sign-conversion -Wno-conversion -Wno-old-style-cast
         -Wno-useless-cast -Wno-double-promotion -Wno-nonnull-compare -Wuseless-cast)
-target_include_directories(${PROJECT_NAME} SYSTEM PUBLIC ${tf2_INCLUDE_DIRS})
+target_include_directories(behavior_planner_node SYSTEM PUBLIC ${tf2_INCLUDE_DIRS})
 
 # Testing
 if(BUILD_TESTING)
@@ -53,7 +53,7 @@ if(BUILD_TESTING)
   set(TEST_SOURCES test/test_behavior_planner_node.cpp)
   set(TEST_BEHAVIOR_PLANNER_NODE_EXE test_behavior_planner_node)
   ament_add_gtest(${TEST_BEHAVIOR_PLANNER_NODE_EXE} ${TEST_SOURCES})
-  target_link_libraries(${TEST_BEHAVIOR_PLANNER_NODE_EXE} ${PROJECT_NAME})
+  target_link_libraries(${TEST_BEHAVIOR_PLANNER_NODE_EXE} behavior_planner_node)
 endif()
 
 # ament package generation and installing

@@ -9,10 +9,10 @@ ament_auto_find_build_dependencies()
 set(CMAKE_CXX_STANDARD 14)
 
 ### Build
-ament_auto_add_library(${PROJECT_NAME} SHARED
+ament_auto_add_library(mpc_controller_node SHARED
   src/mpc_controller_nodes/mpc_controller_node.cpp)
 
-ament_auto_add_executable(${PROJECT_NAME}_exe
+ament_auto_add_executable(mpc_controller_node_exe
   src/mpc_controller_nodes/mpc_controller_main.cpp)
 
 ### Test
@@ -24,8 +24,8 @@ if(BUILD_TESTING)
   ament_add_gtest(mpc_controller_nodes_unit_tests
     test/gtest_main.cpp
     test/sanity_check.cpp)
-  target_link_libraries(mpc_controller_nodes_unit_tests ${PROJECT_NAME})
-  add_dependencies(mpc_controller_nodes_unit_tests ${PROJECT_NAME})
+  target_link_libraries(mpc_controller_nodes_unit_tests mpc_controller_node)
+  add_dependencies(mpc_controller_nodes_unit_tests mpc_controller_node)
 endif()
 
 ament_auto_package(INSTALL_TO_SHARE param/)

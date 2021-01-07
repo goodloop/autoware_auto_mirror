@@ -34,15 +34,15 @@ set(MESSAGE_MODIFYING_NODE_LIB_HEADERS
 )
 
 # generate library
-ament_auto_add_library(${PROJECT_NAME} SHARED
+ament_auto_add_library(covariance_insertion_node SHARED
   ${MESSAGE_MODIFYING_NODE_LIB_SRC}
   ${MESSAGE_MODIFYING_NODE_LIB_HEADERS}
 )
-autoware_set_compile_options(${PROJECT_NAME})
+autoware_set_compile_options(covariance_insertion_node)
 
-rclcpp_components_register_node(${PROJECT_NAME}
+rclcpp_components_register_node(covariance_insertion_node
   PLUGIN "autoware::covariance_insertion_nodes::CovarianceInsertionNode"
-  EXECUTABLE ${PROJECT_NAME}_exe
+  EXECUTABLE covariance_insertion_node_exe
 )
 
 # Testing
@@ -54,7 +54,7 @@ if(BUILD_TESTING)
   set(TEST_SOURCES test/test_covariance_insertion_node.cpp)
   set(TEST_MESSAGE_MODIFYING_NODE_EXE test_covariance_insertion_node)
   ament_add_gtest(${TEST_MESSAGE_MODIFYING_NODE_EXE} ${TEST_SOURCES})
-  target_link_libraries(${TEST_MESSAGE_MODIFYING_NODE_EXE} ${PROJECT_NAME})
+  target_link_libraries(${TEST_MESSAGE_MODIFYING_NODE_EXE} covariance_insertion_node)
 endif()
 
 # ament package generation and installing

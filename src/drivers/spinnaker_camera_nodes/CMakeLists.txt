@@ -40,14 +40,14 @@ find_package(SPINNAKER)
 
 if(SPINNAKER_FOUND)
   ament_auto_find_build_dependencies()
-  ament_auto_add_library(${PROJECT_NAME} SHARED
+  ament_auto_add_library(spinnaker_camera_node SHARED
     "include/spinnaker_camera_nodes/spinnaker_camera_node.hpp"
     "src/spinnaker_camera_node.cpp")
-  autoware_set_compile_options(${PROJECT_NAME})
+  autoware_set_compile_options(spinnaker_camera_node)
 
-  rclcpp_components_register_node(${PROJECT_NAME}
+  rclcpp_components_register_node(spinnaker_camera_node
     PLUGIN "autoware::drivers::camera::SpinnakerCameraNode"
-    EXECUTABLE ${PROJECT_NAME}_exe
+    EXECUTABLE spinnaker_camera_node_exe
   )
 
   ## Testing
