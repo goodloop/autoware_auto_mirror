@@ -15,10 +15,10 @@
 /// \copyright Copyright 2020 Apex.AI, Inc.
 /// All rights reserved.
 
-#ifndef STATE_ESTIMATION_NODE__MEASUREMENT_CONVERSION_HPP_
-#define STATE_ESTIMATION_NODE__MEASUREMENT_CONVERSION_HPP_
+#ifndef STATE_ESTIMATION_NODES__MEASUREMENT_CONVERSION_HPP_
+#define STATE_ESTIMATION_NODES__MEASUREMENT_CONVERSION_HPP_
 
-#include <state_estimation_node/measurement.hpp>
+#include <state_estimation_nodes/measurement.hpp>
 #include <motion_model/constant_acceleration.hpp>
 #include <nav_msgs/msg/odometry.hpp>
 #include <geometry_msgs/msg/pose_with_covariance_stamped.hpp>
@@ -98,7 +98,7 @@ static constexpr Eigen::Transform<
 /// @return     The measurement containing pose and speed.
 ///
 template<>
-STATE_ESTIMATION_NODE_PUBLIC MeasurementPoseAndSpeed message_to_measurement(
+STATE_ESTIMATION_NODES_PUBLIC MeasurementPoseAndSpeed message_to_measurement(
   const nav_msgs::msg::Odometry & msg,
   const Eigen::Isometry3f & tf_world_message);
 
@@ -111,7 +111,7 @@ STATE_ESTIMATION_NODE_PUBLIC MeasurementPoseAndSpeed message_to_measurement(
 /// @return     The measurement containing speed.
 ///
 template<>
-STATE_ESTIMATION_NODE_PUBLIC MeasurementSpeed message_to_measurement(
+STATE_ESTIMATION_NODES_PUBLIC MeasurementSpeed message_to_measurement(
   const geometry_msgs::msg::TwistWithCovarianceStamped & msg,
   const Eigen::Isometry3f & tf_world_message);
 
@@ -124,7 +124,7 @@ STATE_ESTIMATION_NODE_PUBLIC MeasurementSpeed message_to_measurement(
 /// @return     The measurement containing pose.
 ///
 template<>
-STATE_ESTIMATION_NODE_PUBLIC MeasurementPose message_to_measurement(
+STATE_ESTIMATION_NODES_PUBLIC MeasurementPose message_to_measurement(
   const geometry_msgs::msg::PoseWithCovarianceStamped & msg,
   const Eigen::Isometry3f & tf_world_message);
 
@@ -132,4 +132,4 @@ STATE_ESTIMATION_NODE_PUBLIC MeasurementPose message_to_measurement(
 }  // namespace autoware
 
 
-#endif  // STATE_ESTIMATION_NODE__MEASUREMENT_CONVERSION_HPP_
+#endif  // STATE_ESTIMATION_NODES__MEASUREMENT_CONVERSION_HPP_

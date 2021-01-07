@@ -150,7 +150,7 @@ def generate_launch_description():
     )
 
     ekf_smoother_node = Node(
-        package='state_estimation_node',
+        package='state_estimation_nodes',
         node_executable='state_estimation_node_exe',
         node_namespace='localization',
         output="screen",

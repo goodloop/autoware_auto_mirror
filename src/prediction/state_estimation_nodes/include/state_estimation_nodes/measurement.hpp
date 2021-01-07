@@ -15,12 +15,12 @@
 /// \copyright Copyright 2020 Apex.AI, Inc.
 /// All rights reserved.
 
-#ifndef STATE_ESTIMATION_NODE__MEASUREMENT_HPP_
-#define STATE_ESTIMATION_NODE__MEASUREMENT_HPP_
+#ifndef STATE_ESTIMATION_NODES__MEASUREMENT_HPP_
+#define STATE_ESTIMATION_NODES__MEASUREMENT_HPP_
 
 #include <common/types.hpp>
-#include <state_estimation_node/visibility_control.hpp>
-#include <state_estimation_node/time.hpp>
+#include <state_estimation_nodes/visibility_control.hpp>
+#include <state_estimation_nodes/time.hpp>
 
 #include <Eigen/Core>
 
@@ -43,7 +43,7 @@ namespace prediction
 /// @tparam     kMeasurementModalities  Which modalities does this measurement represent.
 ///
 template<typename T, std::uint32_t... kMeasurementModalities>
-class STATE_ESTIMATION_NODE_PUBLIC Measurement
+class STATE_ESTIMATION_NODES_PUBLIC Measurement
 {
   static constexpr std::int32_t EntriesCount = sizeof...(kMeasurementModalities);
 
@@ -161,4 +161,4 @@ Measurement<T, kMeasurementModalities...>::kMeasurementModalitiesArray;
 }  // namespace autoware
 
 
-#endif  // STATE_ESTIMATION_NODE__MEASUREMENT_HPP_
+#endif  // STATE_ESTIMATION_NODES__MEASUREMENT_HPP_

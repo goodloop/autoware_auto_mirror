@@ -15,8 +15,8 @@
 /// \copyright Copyright 2020 Apex.AI, Inc.
 /// All rights reserved.
 
-#ifndef STATE_ESTIMATION_NODE__TIME_HPP_
-#define STATE_ESTIMATION_NODE__TIME_HPP_
+#ifndef STATE_ESTIMATION_NODES__TIME_HPP_
+#define STATE_ESTIMATION_NODES__TIME_HPP_
 
 
 #include <common/types.hpp>
@@ -143,4 +143,4 @@ using GlobalTime = Time<TimeReferenceFrame::kGlobal>;
 }  // namespace prediction
 }  // namespace autoware
 
-#endif  // STATE_ESTIMATION_NODE__TIME_HPP_
+#endif  // STATE_ESTIMATION_NODES__TIME_HPP_

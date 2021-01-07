@@ -15,11 +15,11 @@
 /// \copyright Copyright 2020 Apex.AI, Inc.
 /// All rights reserved.
 
-#ifndef STATE_ESTIMATION_NODE__MEASUREMENT_TIME_KEEPER_HPP_
-#define STATE_ESTIMATION_NODE__MEASUREMENT_TIME_KEEPER_HPP_
+#ifndef STATE_ESTIMATION_NODES__MEASUREMENT_TIME_KEEPER_HPP_
+#define STATE_ESTIMATION_NODES__MEASUREMENT_TIME_KEEPER_HPP_
 
 #include <common/types.hpp>
-#include <state_estimation_node/measurement.hpp>
+#include <state_estimation_nodes/measurement.hpp>
 
 #include <algorithm>
 #include <chrono>
@@ -163,4 +163,4 @@ private:
 }  // namespace prediction
 }  // namespace autoware
 
-#endif  // STATE_ESTIMATION_NODE__MEASUREMENT_TIME_KEEPER_HPP_
+#endif  // STATE_ESTIMATION_NODES__MEASUREMENT_TIME_KEEPER_HPP_

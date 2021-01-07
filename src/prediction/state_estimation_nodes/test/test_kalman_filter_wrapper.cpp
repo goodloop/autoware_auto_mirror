@@ -17,7 +17,7 @@
 
 #include <gtest/gtest.h>
 
-#include <state_estimation_node/kalman_filter_wrapper.hpp>
+#include <state_estimation_nodes/kalman_filter_wrapper.hpp>
 
 #include <limits>
 

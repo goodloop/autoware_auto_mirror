@@ -15,10 +15,10 @@
 /// \copyright Copyright 2020 Apex.AI, Inc.
 /// All rights reserved.
 
-#include <state_estimation_node/state_estimation_node.hpp>
+#include <state_estimation_nodes/state_estimation_node.hpp>
 
-#include <state_estimation_node/time.hpp>
-#include <state_estimation_node/measurement_conversion.hpp>
+#include <state_estimation_nodes/time.hpp>
+#include <state_estimation_nodes/measurement_conversion.hpp>
 #include <rclcpp_components/register_node_macro.hpp>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 #include <tf2_eigen/tf2_eigen.h>
@@ -157,7 +157,7 @@ namespace autoware
 {
 namespace prediction
 {
-namespace state_estimation_node
+namespace state_estimation_nodes
 {
 
 StateEstimationNode::StateEstimationNode(
@@ -354,8 +354,8 @@ template void StateEstimationNode::create_subscriptions<StateEstimationNode::Twi
   CallbackFnT<StateEstimationNode::TwistMsgT>);
 
 
-}  // namespace state_estimation_node
+}  // namespace state_estimation_nodes
 }  // namespace prediction
 }  // namespace autoware
 
-RCLCPP_COMPONENTS_REGISTER_NODE(autoware::prediction::state_estimation_node::StateEstimationNode)
+RCLCPP_COMPONENTS_REGISTER_NODE(autoware::prediction::state_estimation_nodes::StateEstimationNode)

@@ -16,14 +16,14 @@
 /// All rights reserved.
 
 #include <gtest/gtest.h>
-#include <state_estimation_node/state_estimation_node.hpp>
+#include <state_estimation_nodes/state_estimation_node.hpp>
 
 #include <memory>
 #include <string>
 #include <vector>
 
 using nav_msgs::msg::Odometry;
-using autoware::prediction::state_estimation_node::StateEstimationNode;
+using autoware::prediction::state_estimation_nodes::StateEstimationNode;
 
 namespace
 {

@@ -13,29 +13,29 @@
 # limitations under the License.
 
 cmake_minimum_required(VERSION 3.5)
-project(state_estimation_node)
+project(state_estimation_nodes)
 
 find_package(ament_cmake_auto REQUIRED)
 find_package(Eigen3 REQUIRED)
 ament_auto_find_build_dependencies()
 
-ament_auto_add_library(${PROJECT_NAME} SHARED
-  include/state_estimation_node/time.hpp
-  include/state_estimation_node/measurement.hpp
-  include/state_estimation_node/measurement_conversion.hpp
-  include/state_estimation_node/kalman_filter_wrapper.hpp
-  include/state_estimation_node/state_estimation_node.hpp
+ament_auto_add_library(state_estimation_node SHARED
+  include/state_estimation_nodes/time.hpp
+  include/state_estimation_nodes/measurement.hpp
+  include/state_estimation_nodes/measurement_conversion.hpp
+  include/state_estimation_nodes/kalman_filter_wrapper.hpp
+  include/state_estimation_nodes/state_estimation_node.hpp
   src/measurement_conversion.cpp
   src/kalman_filter_wrapper.cpp
   src/state_estimation_node.cpp)
 # TODO(igor): Remove this once tf2 warnings are removed.
-target_include_directories(${PROJECT_NAME} SYSTEM PUBLIC ${tf2_INCLUDE_DIRS})
-target_link_libraries(${PROJECT_NAME} Eigen3::Eigen)
-autoware_set_compile_options(${PROJECT_NAME})
+target_include_directories(state_estimation_node SYSTEM PUBLIC ${tf2_INCLUDE_DIRS})
+target_link_libraries(state_estimation_node Eigen3::Eigen)
+autoware_set_compile_options(state_estimation_node)
 
-rclcpp_components_register_node(${PROJECT_NAME}
-  PLUGIN "autoware::prediction::state_estimation_node::StateEstimationNode"
-  EXECUTABLE ${PROJECT_NAME}_exe
+rclcpp_components_register_node(state_estimation_node
+  PLUGIN "autoware::prediction::state_estimation_nodes::StateEstimationNode"
+  EXECUTABLE state_estimation_node_exe
 )
 
 ## Testing
@@ -44,14 +44,14 @@ if(BUILD_TESTING)
   ament_lint_auto_find_test_dependencies()
 
   find_package(ament_cmake_gtest REQUIRED)
-  ament_add_gtest(test_${PROJECT_NAME}
+  ament_add_gtest(test_state_estimation_node
           test/test_measurement.cpp
           test/test_measurement_conversion.cpp
           test/test_kalman_filter_wrapper.cpp
           test/test_state_estimation_node.cpp
   )
-  add_dependencies(test_${PROJECT_NAME} ${PROJECT_NAME})
-  target_link_libraries(test_${PROJECT_NAME} ${PROJECT_NAME})
+  add_dependencies(test_state_estimation_node state_estimation_node)
+  target_link_libraries(test_state_estimation_node state_estimation_node)
 
   find_package(ros_testing REQUIRED)
   add_ros_test(

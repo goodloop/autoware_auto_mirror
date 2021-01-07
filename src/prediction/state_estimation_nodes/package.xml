@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
-    <name>state_estimation_node</name>
+    <name>state_estimation_nodes</name>
     <version>0.0.1</version>
     <description>A node for state estimation that can be used in place of robot_localization ros package.</description>
     <maintainer email="opensource@apex.ai">Apex.AI, Inc.</maintainer>

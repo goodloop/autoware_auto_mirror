@@ -15,16 +15,16 @@
 /// \copyright Copyright 2020 Apex.AI, Inc.
 /// All rights reserved.
 
-#ifndef STATE_ESTIMATION_NODE__KALMAN_FILTER_WRAPPER_HPP_
-#define STATE_ESTIMATION_NODE__KALMAN_FILTER_WRAPPER_HPP_
+#ifndef STATE_ESTIMATION_NODES__KALMAN_FILTER_WRAPPER_HPP_
+#define STATE_ESTIMATION_NODES__KALMAN_FILTER_WRAPPER_HPP_
 
 #include <common/types.hpp>
 #include <kalman_filter/esrcf.hpp>
 #include <motion_model/constant_acceleration.hpp>
 #include <nav_msgs/msg/odometry.hpp>
-#include <state_estimation_node/measurement.hpp>
-#include <state_estimation_node/measurement_time_keeper.hpp>
-#include <state_estimation_node/visibility_control.hpp>
+#include <state_estimation_nodes/measurement.hpp>
+#include <state_estimation_nodes/measurement_time_keeper.hpp>
+#include <state_estimation_nodes/visibility_control.hpp>
 
 #include <Eigen/Core>
 #include <Eigen/Geometry>
@@ -48,7 +48,7 @@ namespace prediction
 /// @tparam     kNumOfStates  Number of states of the system.
 ///
 template<typename MotionModelT, std::int32_t kNumOfStates, std::int32_t kProcessNoiseDim>
-class STATE_ESTIMATION_NODE_PUBLIC KalmanFilterWrapper
+class STATE_ESTIMATION_NODES_PUBLIC KalmanFilterWrapper
 {
   using FilterT = prediction::kalman_filter::Esrcf<kNumOfStates, kProcessNoiseDim>;
 
@@ -209,4 +209,4 @@ using ConstantAccelerationFilter =
 }  // namespace prediction
 }  // namespace autoware
 
-#endif  // STATE_ESTIMATION_NODE__KALMAN_FILTER_WRAPPER_HPP_
+#endif  // STATE_ESTIMATION_NODES__KALMAN_FILTER_WRAPPER_HPP_

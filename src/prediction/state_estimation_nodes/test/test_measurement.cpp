@@ -17,7 +17,7 @@
 
 #include <gtest/gtest.h>
 
-#include <state_estimation_node/measurement.hpp>
+#include <state_estimation_nodes/measurement.hpp>
 
 using autoware::prediction::Measurement;
 using autoware::prediction::MeasurementBasedTime;

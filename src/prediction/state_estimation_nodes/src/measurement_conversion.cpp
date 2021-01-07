@@ -15,7 +15,7 @@
 /// \copyright Copyright 2020 Apex.AI, Inc.
 /// All rights reserved.
 
-#include <state_estimation_node/measurement_conversion.hpp>
+#include <state_estimation_nodes/measurement_conversion.hpp>
 
 namespace
 {

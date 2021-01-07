@@ -16,8 +16,8 @@
 /// All rights reserved.
 
 
-#ifndef STATE_ESTIMATION_NODE__STATE_ESTIMATION_NODE_HPP_
-#define STATE_ESTIMATION_NODE__STATE_ESTIMATION_NODE_HPP_
+#ifndef STATE_ESTIMATION_NODES__STATE_ESTIMATION_NODE_HPP_
+#define STATE_ESTIMATION_NODES__STATE_ESTIMATION_NODE_HPP_
 
 
 #include <common/types.hpp>
@@ -30,9 +30,9 @@
 #include <rclcpp/publisher.hpp>
 #include <rclcpp/rclcpp.hpp>
 #include <rclcpp/subscription.hpp>
-#include <state_estimation_node/kalman_filter_wrapper.hpp>
-#include <state_estimation_node/measurement.hpp>
-#include <state_estimation_node/visibility_control.hpp>
+#include <state_estimation_nodes/kalman_filter_wrapper.hpp>
+#include <state_estimation_nodes/measurement.hpp>
+#include <state_estimation_nodes/visibility_control.hpp>
 
 #include <tf2/buffer_core.h>
 #include <tf2_ros/transform_listener.h>
@@ -48,13 +48,13 @@ namespace autoware
 {
 namespace prediction
 {
-namespace state_estimation_node
+namespace state_estimation_nodes
 {
 
 ///
 /// A node that uses EKF to estimate the state.
 ///
-class STATE_ESTIMATION_NODE_PUBLIC StateEstimationNode : public rclcpp::Node
+class STATE_ESTIMATION_NODES_PUBLIC StateEstimationNode : public rclcpp::Node
 {
 public:
   ///
@@ -145,8 +145,8 @@ private:
   common::types::float64_t m_min_speed_to_use_speed_orientation{};
 };
 
-}  // namespace state_estimation_node
+}  // namespace state_estimation_nodes
 }  // namespace prediction
 }  // namespace autoware
 
-#endif  // STATE_ESTIMATION_NODE__STATE_ESTIMATION_NODE_HPP_
+#endif  // STATE_ESTIMATION_NODES__STATE_ESTIMATION_NODE_HPP_
