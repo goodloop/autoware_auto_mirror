@@ -15,7 +15,7 @@
 #include <CGAL/Boolean_set_operations_2.h>
 
 #include <common/types.hpp>
-#include <parking_planner_node/parking_planner_node.hpp>
+#include <parking_planner_nodes/parking_planner_node.hpp>
 #include <parking_planner/parking_planner.hpp>
 #include <parking_planner/configuration.hpp>
 #include <parking_planner/geometry.hpp>
@@ -60,7 +60,7 @@ namespace motion
 {
 namespace planning
 {
-namespace parking_planner_node
+namespace parking_planner_nodes
 {
 
 // Bring in some classes from the parking planner and give them names
@@ -646,9 +646,9 @@ AutowareTrajectory ParkingPlannerNode::plan_trajectory(
   return trajectory;
 }
 
-}  // namespace parking_planner_node
+}  // namespace parking_planner_nodes
 }  // namespace planning
 }  // namespace motion
 }  // namespace autoware
 RCLCPP_COMPONENTS_REGISTER_NODE( \
-  autoware::motion::planning::parking_planner_node::ParkingPlannerNode)
+  autoware::motion::planning::parking_planner_nodes::ParkingPlannerNode)

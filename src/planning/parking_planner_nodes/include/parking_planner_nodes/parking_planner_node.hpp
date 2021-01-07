@@ -11,12 +11,12 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#ifndef PARKING_PLANNER_NODE__PARKING_PLANNER_NODE_HPP_
-#define PARKING_PLANNER_NODE__PARKING_PLANNER_NODE_HPP_
+#ifndef PARKING_PLANNER_NODES__PARKING_PLANNER_NODE_HPP_
+#define PARKING_PLANNER_NODES__PARKING_PLANNER_NODE_HPP_
 
 #include <tf2_ros/transform_listener.h>
 #include <tf2_ros/buffer.h>
-#include <parking_planner_node/visibility_control.hpp>
+#include <parking_planner_nodes/visibility_control.hpp>
 #include <parking_planner/parking_planner.hpp>
 
 #include <trajectory_planner_node_base/trajectory_planner_node_base.hpp>
@@ -53,7 +53,7 @@ namespace motion
 {
 namespace planning
 {
-namespace parking_planner_node
+namespace parking_planner_nodes
 {
 using PlannerPtr = std::unique_ptr<autoware::motion::planning::parking_planner::ParkingPlanner>;
 using HADMapService = autoware_auto_msgs::srv::HADMapService;
@@ -67,7 +67,7 @@ using ParkingPlanner = autoware::motion::planning::parking_planner::ParkingPlann
 using autoware_auto_msgs::msg::TrajectoryPoint;
 using AutowareTrajectory = autoware_auto_msgs::msg::Trajectory;
 
-class PARKING_PLANNER_NODE_PUBLIC ParkingPlannerNode : public
+class PARKING_PLANNER_NODES_PUBLIC ParkingPlannerNode : public
   autoware::trajectory_planner_node_base::TrajectoryPlannerNodeBase
 {
 public:
@@ -89,7 +89,7 @@ protected:
     m_debug_start_end_publisher;
 
 private:
-  PARKING_PLANNER_NODE_LOCAL void init(
+  PARKING_PLANNER_NODES_LOCAL void init(
     const VehicleConfig & vehicle_param,
     const ParkerNLPCostWeights & optimization_weights,
     const ParkerVehicleState & lower_state_bounds,
@@ -98,19 +98,19 @@ private:
     const ParkerVehicleCommand & upper_command_bounds
   );
 
-  PARKING_PLANNER_NODE_LOCAL void debug_publish_obstacles(
+  PARKING_PLANNER_NODES_LOCAL void debug_publish_obstacles(
     const std::vector<ParkingPolytope> & obstacles);
 
-  PARKING_PLANNER_NODE_LOCAL void debug_publish_start_and_end(
+  PARKING_PLANNER_NODES_LOCAL void debug_publish_start_and_end(
     const ParkerVehicleState & start,
     const ParkerVehicleState & end);
 
-  PARKING_PLANNER_NODE_LOCAL void debug_publish_trajectory(
+  PARKING_PLANNER_NODES_LOCAL void debug_publish_trajectory(
     const AutowareTrajectory & trajectory);
 };  // class parkingPlannerNode
-}  // namespace parking_planner_node
+}  // namespace parking_planner_nodes
 }  // namespace planning
 }  // namespace motion
 }  // namespace autoware
 
-#endif  // PARKING_PLANNER_NODE__PARKING_PLANNER_NODE_HPP_
+#endif  // PARKING_PLANNER_NODES__PARKING_PLANNER_NODE_HPP_

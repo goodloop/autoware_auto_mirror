@@ -210,7 +210,7 @@ def generate_launch_description():
         remappings=[('HAD_Map_Service', '/had_maps/HAD_Map_Service')]
     )
     parking_planner = Node(
-        package='parking_planner_node',
+        package='parking_planner_nodes',
         node_name='parking_planner_node',
         node_namespace='planning',
         node_executable='parking_planner_node_exe',

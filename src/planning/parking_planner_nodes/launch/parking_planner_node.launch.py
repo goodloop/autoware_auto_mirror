@@ -22,7 +22,7 @@ def generate_launch_description():
     """Launch parking_planner_node with default configuration."""
     # -------------------------------- Nodes-----------------------------------
     parking_planner_node = launch_ros.actions.Node(
-        package='parking_planner_node',
+        package='parking_planner_nodes',
         node_executable='parking_planner_node_exe',
         node_name='parking_planner',
         node_namespace='',
@@ -30,7 +30,7 @@ def generate_launch_description():
         parameters=[
             "{}/param/defaults.param.yaml".format(
                 ament_index_python.get_package_share_directory(
-                    "parking_planner_node"
+                    "parking_planner_nodes"
                 )
             ),
         ],

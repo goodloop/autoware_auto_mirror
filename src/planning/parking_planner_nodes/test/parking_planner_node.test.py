@@ -81,13 +81,13 @@ class MockActionCaller(Node):
 
 def generate_test_description(ready_fn):
     test_nodes = launch_ros.actions.Node(
-        package="parking_planner_node",
+        package="parking_planner_nodes",
         node_executable="parking_planner_node_exe",
         node_name="parking_planner",
         parameters=[
             "{}/defaults.param.yaml".format(
                 ament_index_python.get_package_share_directory(
-                    "parking_planner_node"
+                    "parking_planner_nodes"
                 )
             )
         ],

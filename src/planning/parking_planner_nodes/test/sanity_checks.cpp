@@ -13,7 +13,7 @@
 // limitations under the License.
 
 #include <gtest/gtest.h>
-#include <parking_planner_node/parking_planner_node.hpp>
+#include <parking_planner_nodes/parking_planner_node.hpp>
 #include <autoware_auto_msgs/msg/trajectory.hpp>
 #include <autoware_auto_msgs/action/plan_trajectory.hpp>
 #include <motion_testing/motion_testing.hpp>
@@ -29,7 +29,7 @@
 #include <memory>
 
 using autoware_auto_msgs::srv::HADMapService;
-using autoware::motion::planning::parking_planner_node::ParkingPlannerNode;
+using autoware::motion::planning::parking_planner_nodes::ParkingPlannerNode;
 using motion::motion_testing::make_state;
 using std::chrono::system_clock;
 using autoware_auto_msgs::msg::Trajectory;
