@@ -14,13 +14,13 @@
 
 /// \copyright Copyright 2020 The Autoware Foundation
 /// \file
-/// \brief This file defines the behavior_planner_node_node class.
+/// \brief This file defines the behavior_planner_nodes_node class.
 
-#ifndef BEHAVIOR_PLANNER_NODE__BEHAVIOR_PLANNER_NODE_HPP_
-#define BEHAVIOR_PLANNER_NODE__BEHAVIOR_PLANNER_NODE_HPP_
+#ifndef BEHAVIOR_PLANNER_NODES__BEHAVIOR_PLANNER_NODE_HPP_
+#define BEHAVIOR_PLANNER_NODES__BEHAVIOR_PLANNER_NODE_HPP_
 
-#include <behavior_planner_node/behavior_planner_node.hpp>
-#include <behavior_planner_node/visibility_control.hpp>
+#include <behavior_planner_nodes/behavior_planner_node.hpp>
+#include <behavior_planner_nodes/visibility_control.hpp>
 
 // rclcpp headers
 #include <rclcpp/rclcpp.hpp>
@@ -49,7 +49,7 @@
 
 namespace autoware
 {
-namespace behavior_planner_node
+namespace behavior_planner_nodes
 {
 using PlanTrajectoryAction = autoware_auto_msgs::action::PlanTrajectory;
 using PlanTrajectoryGoalHandle = rclcpp_action::ClientGoalHandle<PlanTrajectoryAction>;
@@ -71,7 +71,7 @@ using autoware::common::types::float64_t;
 
 /// \class BehaviorPlannerNode
 /// \brief ROS 2 Node for wrapping behavior planner
-class BEHAVIOR_PLANNER_NODE_PUBLIC BehaviorPlannerNode : public rclcpp::Node
+class BEHAVIOR_PLANNER_NODES_PUBLIC BehaviorPlannerNode : public rclcpp::Node
 {
 public:
   /// \brief default constructor, starts the planner
@@ -133,7 +133,7 @@ private:
   State transform_to_map(const State & state);
   void request_trajectory(const RouteWithType & route_with_type);
 };
-}  // namespace behavior_planner_node
+}  // namespace behavior_planner_nodes
 }  // namespace autoware
 
-#endif  // BEHAVIOR_PLANNER_NODE__BEHAVIOR_PLANNER_NODE_HPP_
+#endif  // BEHAVIOR_PLANNER_NODES__BEHAVIOR_PLANNER_NODE_HPP_

@@ -13,7 +13,7 @@
 // limitations under the License.
 
 #include "gtest/gtest.h"
-#include "behavior_planner_node/behavior_planner_node.hpp"
+#include "behavior_planner_nodes/behavior_planner_node.hpp"
 
 TEST(test_behavior_planner_node, test_hello) {
   // rclcpp::NodeOptions node_options{};
@@ -21,5 +21,5 @@ TEST(test_behavior_planner_node, test_hello) {
   // node_options.append_parameter_override("stop_velocity_thresh", 0.1F);
   // node_options.append_parameter_override("heading_weight", 0.1F);
 
-  // autoware::behavior_planner_node::BehaviorPlannerNode node(node_options);
+  // autoware::behavior_planner_nodes::BehaviorPlannerNode node(node_options);
 }

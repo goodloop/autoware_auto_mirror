@@ -13,7 +13,7 @@
 # limitations under the License.
 cmake_minimum_required(VERSION 3.5)
 
-project(behavior_planner_node)
+project(behavior_planner_nodes)
 
 # dependencies
 find_package(ament_cmake_auto REQUIRED)
@@ -24,8 +24,8 @@ set(BEHAVIOR_PLANNER_NODE_SRC
 )
 
 set(BEHAVIOR_PLANNER_NODE_HEADERS
-  include/behavior_planner_node/behavior_planner_node.hpp
-  include/behavior_planner_node/visibility_control.hpp
+  include/behavior_planner_nodes/behavior_planner_node.hpp
+  include/behavior_planner_nodes/visibility_control.hpp
 )
 
 # generate component node library
@@ -35,7 +35,7 @@ ament_auto_add_library(${PROJECT_NAME} SHARED
 )
 autoware_set_compile_options(${PROJECT_NAME})
 rclcpp_components_register_node(${PROJECT_NAME}
-  PLUGIN "autoware::behavior_planner_node::BehaviorPlannerNode"
+  PLUGIN "autoware::behavior_planner_nodes::BehaviorPlannerNode"
   EXECUTABLE ${PROJECT_NAME}_exe
 )
 

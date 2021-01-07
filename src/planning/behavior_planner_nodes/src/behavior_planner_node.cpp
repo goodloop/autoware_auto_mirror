@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "behavior_planner_node/behavior_planner_node.hpp"
+#include "behavior_planner_nodes/behavior_planner_node.hpp"
 #include <had_map_utils/had_map_conversion.hpp>
 #include <motion_common/config.hpp>
 #include <geometry/common_2d.hpp>
@@ -24,7 +24,7 @@
 
 namespace autoware
 {
-namespace behavior_planner_node
+namespace behavior_planner_nodes
 {
 
 BehaviorPlannerNode::BehaviorPlannerNode(const rclcpp::NodeOptions & options)
@@ -383,7 +383,7 @@ void BehaviorPlannerNode::map_response(rclcpp::Client<HADMapService>::SharedFutu
   }
   m_debug_checkpoints_pub->publish(checkpoints);
 }
-}  // namespace behavior_planner_node
+}  // namespace behavior_planner_nodes
 }  // namespace autoware
 
-RCLCPP_COMPONENTS_REGISTER_NODE(autoware::behavior_planner_node::BehaviorPlannerNode)
+RCLCPP_COMPONENTS_REGISTER_NODE(autoware::behavior_planner_nodes::BehaviorPlannerNode)

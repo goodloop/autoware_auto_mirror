@@ -228,7 +228,7 @@ def generate_launch_description():
         ]
     )
     behavior_planner = Node(
-        package='behavior_planner_node',
+        package='behavior_planner_nodes',
         node_name='behavior_planner_node',
         node_namespace='planning',
         node_executable='behavior_planner_node_exe',
