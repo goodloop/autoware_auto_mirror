@@ -78,7 +78,7 @@ if(BUILD_TESTING)
     )
     add_ros_test(
       test/velodyne_node_launch.test.py
-      TIMEOUT "50"
+      TIMEOUT "30"
     )
 endif()
 
