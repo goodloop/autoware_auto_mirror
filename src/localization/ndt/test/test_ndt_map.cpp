@@ -364,7 +364,7 @@ TEST_F(NDTMapTest, map_representation_bad_input) {
   sensor_msgs::PointCloud2Iterator<uint32_t> invalid_cell_it(invalid_pc3, "cell_id");
   EXPECT_NE(invalid_cell_it, invalid_cell_it.end());
 
-  const auto actual_idx = grid_config.index(Eigen::Vector3d::zero());
+  const auto actual_idx = grid_config.index(Eigen::Vector3d::Zero());
   const auto invalid_id = actual_idx + 1U;
   std::memcpy(&invalid_cell_it[0], &invalid_id, sizeof(actual_idx));
 
