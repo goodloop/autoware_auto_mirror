@@ -469,7 +469,7 @@ coverage:
       - log
   coverage: /\s*lines.*:\s(\d+\.\d+\%\s\(\d+\sof\s\d+.*\))/
   needs:
-    - ade_amd64_dashing
+    - ade_amd64_foxy
 
 docs:
   stage: build
