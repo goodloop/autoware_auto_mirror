@@ -74,9 +74,6 @@ struct VelodyneNodeTestParam
 
 class velodyne_node_integration : public ::testing::TestWithParam<VelodyneNodeTestParam>
 {
-public:
-
-protected:
 };  // class velodyne_node_integration
 
 TEST_P(velodyne_node_integration, test)
