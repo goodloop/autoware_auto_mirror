@@ -133,7 +133,7 @@ INSTANTIATE_TEST_CASE_P(
   std::chrono::milliseconds{100},
   std::chrono::milliseconds{50}
 }
-  // cppcheck-suppress syntaxError
+    // cppcheck-suppress syntaxError
   ), );
 
 /////////// Helper function implementations:
