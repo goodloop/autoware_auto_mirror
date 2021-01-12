@@ -378,6 +378,15 @@ test_amd64_dashing:
     - colcon test --packages-select my_cool_pkg
     - colcon test-result --verbose
     - cd -
+
+    # prepare volume artifact
+    - mkdir /opt/AutowareAuto/src
+    - '(cd src && git archive --format=tar HEAD | (cd /opt/AutowareAuto/src && tar xf -))'
+    - cp -a LICENSE /opt/AutowareAuto
+    - chmod -R og-w /opt/AutowareAuto
+    - tar cfz opt.tar.gz /opt/AutowareAuto
+  after_script:
+    - colcon test-result --verbose
   needs:
     - build_amd64_dashing
   allow_failure: true
@@ -416,6 +425,15 @@ test_arm64_dashing:
     - colcon test --packages-select my_cool_pkg
     - colcon test-result --verbose
     - cd -
+
+    # prepare volume artifact
+    - mkdir /opt/AutowareAuto/src
+    - '(cd src && git archive --format=tar HEAD | (cd /opt/AutowareAuto/src && tar xf -))'
+    - cp -a LICENSE /opt/AutowareAuto
+    - chmod -R og-w /opt/AutowareAuto
+    - tar cfz opt.tar.gz /opt/AutowareAuto
+  after_script:
+    - colcon test-result --verbose
   artifacts:
     name: "$CI_JOB_NAME"
     paths:
