@@ -1,4 +1,4 @@
-// Copyright 2020 The Autoware Foundation
+// Copyright 2020-2021 The Autoware Foundation
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,6 +14,8 @@
 
 #include "trajectory_smoother/trajectory_smoother.hpp"
 
+#include <algorithm>
+#include <vector>
 namespace motion
 {
 namespace planning
@@ -25,7 +27,7 @@ using autoware::common::types::float32_t;
 
 TrajectorySmoother::TrajectorySmoother(TrajectorySmootherConfig config)
 {
-	float32_t s = 2 * config.standard_deviation * config.standard_deviation;
+  float32_t s = 2 * config.standard_deviation * config.standard_deviation;
   float32_t sum = 0.0;
 
   // Generate a gaussian filter kernel
@@ -44,7 +46,7 @@ TrajectorySmoother::TrajectorySmoother(TrajectorySmootherConfig config)
 
 void TrajectorySmoother::Filter(Trajectory & trajectory)
 {
-	if (trajectory.points.size() > 2) {
+  if (trajectory.points.size() > 2) {
     // zero out velocity at a few points at the end of trajectory so that the post filter velocity
     // gradually ramp down to zero. The last point would have already been zeroed by the
     // estimator.
