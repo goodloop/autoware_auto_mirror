@@ -12,19 +12,19 @@ Every developer is encouraged to be familiar with our [contributor guidelines](h
    1. [ ] "WIP" or "Draft" removed from the MR title
    1. [ ] MR title and description help a friendly human understand the problem solved
    1. [ ] MR has a link to the original issue in description
-   1. [ ] MR is configured to *allow commits from developers with access to push to the target branch*
+   1. [ ] If the source branch is on a fork, MR is configured to *allow commits from developers with access to push to the target branch*
    1. [ ] Sensible notes for the reviewer added to the section above to facilitate review
    1. [ ] Target branch set correctly. Default: `master`
    1. [ ] MR assigned to a capable reviewer. Default: @JWhitleyWork
    1. [ ] Splitting the MR into smaller, easier-to-review merge requests was considered
 1. Code and tests
    1. [ ] Code is properly [formatted](https://autowarefoundation.gitlab.io/autoware.auto/AutowareAuto/contributor-guidelines.html#autotoc_md11)
-   1. [ ] [Tests]((https://autowarefoundation.gitlab.io/autoware.auto/AutowareAuto/contributor-guidelines.html#autotoc_md22)) affected by new code pass locally
+   1. [ ] [Tests](https://autowarefoundation.gitlab.io/autoware.auto/AutowareAuto/contributor-guidelines.html#autotoc_md22) affected by new code pass locally
    1. [ ] Reasonable [coverage with unit tests](https://autowarefoundation.gitlab.io/autoware.auto/AutowareAuto/contributor-guidelines.html#autotoc_md12) of 90+%; else create a follow-up ticket
    1. [ ] Review any `// TODO` item added in the MR that can be addressed without the reviewer's help
 1. Documentation
-   1. [ ] New and modified code has accurate doxygen documentation
-   1. [ ] Diagrams are committed
+   1. [ ] Any new and modified code has accurate doxygen documentation
+   1. [ ] Any diagrams are committed
 
 ## Checklist for the reviewer
 
