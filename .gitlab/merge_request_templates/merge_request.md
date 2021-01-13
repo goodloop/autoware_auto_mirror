@@ -42,7 +42,7 @@ If the MR provides an improvement, don't hesitate to add a :thumbsup: emoji for 
 
 Mark all the items that are done.
 <details>
-<summary markdown="span">Checklist for development</summary>
+<summary markdown="span"><a name="general">Checklist for development</a></summary>
 
 1. Basic checks
    1. [ ] The MR title describes what is being done on the ticket
