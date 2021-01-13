@@ -20,7 +20,6 @@ from launch.actions import DeclareLaunchArgument
 from launch.conditions import IfCondition
 from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
-from pathlib import Path
 
 import launch.actions
 import os

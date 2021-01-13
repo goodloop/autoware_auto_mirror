@@ -24,10 +24,8 @@ from launch.conditions import IfCondition
 from launch.conditions import UnlessCondition
 from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
-from pathlib import Path
 
 import os
-
 
 
 def generate_launch_description():

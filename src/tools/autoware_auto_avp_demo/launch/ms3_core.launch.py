@@ -23,10 +23,8 @@ from launch.actions import ExecuteProcess
 from launch.conditions import IfCondition
 from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
-from pathlib import Path
 
 import os
-
 
 
 def generate_launch_description():
