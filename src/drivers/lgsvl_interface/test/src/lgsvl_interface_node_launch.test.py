@@ -58,7 +58,7 @@ def generate_test_description(ready_fn):
         parameters=[
             LaunchConfiguration('lgsvl_interface_param'),
             # overwrite parameters from yaml here
-            {"control_command.name": LaunchConfiguration('control_command')}
+            {"control_command": LaunchConfiguration('control_command')}
         ],
         remappings=[
             ("vehicle_control_cmd", "/lgsvl/vehicle_control_cmd"),
