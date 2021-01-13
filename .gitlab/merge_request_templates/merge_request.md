@@ -11,7 +11,7 @@ Every developer is encouraged to be familiar with our [contributor guidelines](h
 1. MR formalities
    1. [ ] "WIP" or "Draft" removed from the MR title
    1. [ ] MR title and description help a friendly human understand the problem solved
-   1. [ ] MR has a link to the original issue in description
+   1. [ ] MR has a link to the original issue in the description, if it exists
    1. [ ] If the source branch is on a fork, MR is configured to *allow commits from developers with access to push to the target branch*
    1. [ ] Sensible notes for the reviewer added to the section above to facilitate review
    1. [ ] Target branch set correctly. Default: `master`
