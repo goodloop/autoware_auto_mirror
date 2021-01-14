@@ -75,6 +75,10 @@ if(BUILD_TESTING)
     test/ndt_map_publisher_launch.test.py
     TIMEOUT "30"
   )
+  add_ros_test(
+    test/ndt_localizer_launch.test.py
+    TIMEOUT "30"
+  )
 
   # gtest
   set(NDT_NODES_TEST ndt_nodes_gtest)
