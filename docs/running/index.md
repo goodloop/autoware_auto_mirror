@@ -22,3 +22,6 @@ The following pages describe how to run demonstrations which showcase specific p
 - @subpage test-behavior-planner
 - @subpage test-global-planner
 - @subpage test-ndt
+- @subpage autoware-demos
+- @subpage trajectory-following
+- @subpage perception-stack
