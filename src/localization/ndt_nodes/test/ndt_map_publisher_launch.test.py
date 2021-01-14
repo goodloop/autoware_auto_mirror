@@ -16,7 +16,6 @@
 
 from ament_index_python import get_package_share_directory
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument
 from launch.actions import OpaqueFunction
 from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
@@ -56,10 +55,10 @@ def generate_test_description(ready_fn):
         node_executable="ndt_map_publisher_exe",
         node_namespace="localization",
         parameters=[map_provider_param_file,
-                    map_yaml_file_param,
-                    map_pcd_file_param])
+                    {'map_yaml_file': map_yaml_file_param},
+                    {'map_pcd_file': map_pcd_file_param}])
 
-    context = {'ndt_map_publisher_node': ndt_map_publisher_node}
+    context = {'map_provider_node_runner': map_provider_node_runner}
 
     return LaunchDescription([
         map_provider_node_runner,
