@@ -71,6 +71,11 @@ if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
   ament_lint_auto_find_test_dependencies()
 
+  add_ros_test(
+    test/ndt_map_publisher_launch.test.py
+    TIMEOUT "30"
+  )
+
   # gtest
   set(NDT_NODES_TEST ndt_nodes_gtest)
 
