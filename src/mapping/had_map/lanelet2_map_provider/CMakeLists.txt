@@ -88,6 +88,10 @@ if(BUILD_TESTING)
     test/lanelet2_map_provider_launch.test.py
     TIMEOUT "30"
   )
+  add_ros_test(
+    test/lanelet2_map_visualizer_launch.test.py
+    TIMEOUT "30"
+  )
 
   # Unit tests
   set(TEST_SOURCES test/test_lanelet2_map_provider.cpp)
