@@ -304,7 +304,7 @@ TYPED_TEST(sanity_check, basic)
   // matches theoretical performance of filter
   auto has_nonzero_response = false;
   for (const auto & resp : filtered_response) {
-    if (!comp::abs_eq_zero(resp.second, autoware::common::types::FEPS)) {
+    if (!comp::abs_eq_zero(resp.second, autoware::common::types::DEPS)) {
       has_nonzero_response = true;
     }
   }
