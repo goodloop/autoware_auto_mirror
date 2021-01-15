@@ -84,6 +84,11 @@ if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
   ament_lint_auto_find_test_dependencies()
 
+  add_ros_test(
+    test/lanelet2_map_provider_launch.test.py
+    TIMEOUT "30"
+  )
+
   # Unit tests
   set(TEST_SOURCES test/test_lanelet2_map_provider.cpp)
   set(TEST_LANELET2_MAP_PROVIDER_EXE test_lanelet2_map_provider)
