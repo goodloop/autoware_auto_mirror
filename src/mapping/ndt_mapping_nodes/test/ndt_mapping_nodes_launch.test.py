@@ -17,7 +17,6 @@
 from ament_index_python import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import OpaqueFunction
-from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
 import launch_testing
 
@@ -33,19 +32,15 @@ def get_share_file(package_name, file_name):
 @pytest.mark.launch_test
 def generate_test_description(ready_fn):
 
-    ndt_mapper_param_file = get_share_file(
-        'ndt_mapping_nodes', 'param/ndt_mapper.param.yaml'
-    )
-
     ndt_mapper = Node(
         package='ndt_mapping_nodes',
         node_executable='ndt_mapper_node_exe',
         node_name='ndt_mapper_node',
         node_namespace='mapper',
         output='screen',
-        parameters=[LaunchConfiguration(
-            'ndt_param_param_file',
-            default=ndt_mapper_param_file)],
+        parameters=[get_share_file(
+            'ndt_mapping_nodes', 'param/ndt_mapper.param.yaml'
+        )],
     )
 
     context = {'ndt_mapper': ndt_mapper}

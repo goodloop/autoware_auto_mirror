@@ -17,7 +17,6 @@
 from ament_index_python import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import OpaqueFunction
-from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
 import launch_testing
 
@@ -33,22 +32,17 @@ def get_share_file(package_name, file_name):
 @pytest.mark.launch_test
 def generate_test_description(ready_fn):
 
-    lanelet2_map_provider_param_file = get_share_file(
-        'lanelet2_map_provider', 'param/lanelet2_map_provider.param.yaml'
-    )
-
-    map_osm_file = LaunchConfiguration(
-        'map_osm_file', default=[get_share_file(
-            'autoware_auto_avp_demo', 'data/autonomoustuff_parking_lot.osm')]
-    )
+    map_osm_file = os.path.join(os.path.dirname(__file__), 'data/test_map.osm')
 
     lanelet2_map_provider = Node(
         package='lanelet2_map_provider',
         node_executable='lanelet2_map_provider_exe',
         node_namespace='had_maps',
-        parameters=[LaunchConfiguration(
-            'lanelet2_map_provider_param_file', default=[lanelet2_map_provider_param_file]),
-            {'map_osm_file': map_osm_file}]
+        parameters=[
+            get_share_file('lanelet2_map_provider', 'param/lanelet2_map_provider.param.yaml'),
+            {
+                'map_osm_file': map_osm_file
+            }]
     )
 
     context = {'lanelet2_map_provider': lanelet2_map_provider}
