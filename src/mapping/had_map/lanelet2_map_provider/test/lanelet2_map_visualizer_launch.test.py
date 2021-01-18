@@ -14,19 +14,13 @@
 #
 # Co-developed by Tier IV, Inc. and Apex.AI, Inc.
 
-from ament_index_python import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import OpaqueFunction
 from launch_ros.actions import Node
 import launch_testing
 
-import os
 import pytest
 import unittest
-
-
-def get_share_file(package_name, file_name):
-    return os.path.join(get_package_share_directory(package_name), file_name)
 
 
 @pytest.mark.launch_test
