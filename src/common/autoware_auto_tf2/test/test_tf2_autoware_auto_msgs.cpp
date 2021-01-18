@@ -24,7 +24,6 @@
 #include <memory>
 
 std::unique_ptr<tf2_ros::Buffer> tf_buffer = nullptr;
-constexpr double EPS = 1e-3;
 
 geometry_msgs::msg::TransformStamped filled_transfom()
 {
@@ -56,9 +55,9 @@ TEST(Tf2AutowareAuto, DoTransformPoint32)
   geometry_msgs::msg::Point32 p_out;
   tf2::doTransform(p1, p_out, trans);
 
-  EXPECT_NEAR(p_out.x, 11, EPS);
-  EXPECT_NEAR(p_out.y, 18, EPS);
-  EXPECT_NEAR(p_out.z, 27, EPS);
+  EXPECT_NEAR(p_out.x, 11, autoware::common::types::FEPS);
+  EXPECT_NEAR(p_out.y, 18, autoware::common::types::FEPS);
+  EXPECT_NEAR(p_out.z, 27, autoware::common::types::FEPS);
 }
 
 
@@ -75,10 +74,10 @@ TEST(Tf2AutowareAuto, DoTransformQuaternion32)
   autoware_auto_msgs::msg::Quaternion32 q_out;
   tf2::doTransform(q1, q_out, trans);
 
-  EXPECT_NEAR(q_out.x, 0.0, EPS);
-  EXPECT_NEAR(q_out.y, 1.0, EPS);
-  EXPECT_NEAR(q_out.z, 0.0, EPS);
-  EXPECT_NEAR(q_out.w, 0.0, EPS);
+  EXPECT_NEAR(q_out.x, 0.0, autoware::common::types::FEPS);
+  EXPECT_NEAR(q_out.y, 1.0, autoware::common::types::FEPS);
+  EXPECT_NEAR(q_out.z, 0.0, autoware::common::types::FEPS);
+  EXPECT_NEAR(q_out.w, 0.0, autoware::common::types::FEPS);
 }
 
 
@@ -110,25 +109,25 @@ TEST(Tf2AutowareAuto, DoTransformBoundingBox)
   BoundingBox bb_out;
   tf2::doTransform(bb1, bb_out, trans);
 
-  EXPECT_NEAR(bb_out.orientation.x, 0.0, EPS);
-  EXPECT_NEAR(bb_out.orientation.y, 1.0, EPS);
-  EXPECT_NEAR(bb_out.orientation.z, 0.0, EPS);
-  EXPECT_NEAR(bb_out.orientation.w, 0.0, EPS);
-  EXPECT_NEAR(bb_out.centroid.x, 11, EPS);
-  EXPECT_NEAR(bb_out.centroid.y, 18, EPS);
-  EXPECT_NEAR(bb_out.centroid.z, 27, EPS);
-  EXPECT_NEAR(bb_out.corners[0].x, 14, EPS);
-  EXPECT_NEAR(bb_out.corners[0].y, 15, EPS);
-  EXPECT_NEAR(bb_out.corners[0].z, 24, EPS);
-  EXPECT_NEAR(bb_out.corners[1].x, 17, EPS);
-  EXPECT_NEAR(bb_out.corners[1].y, 12, EPS);
-  EXPECT_NEAR(bb_out.corners[1].z, 21, EPS);
-  EXPECT_NEAR(bb_out.corners[2].x, 20, EPS);
-  EXPECT_NEAR(bb_out.corners[2].y, 9, EPS);
-  EXPECT_NEAR(bb_out.corners[2].z, 18, EPS);
-  EXPECT_NEAR(bb_out.corners[3].x, 23, EPS);
-  EXPECT_NEAR(bb_out.corners[3].y, 6, EPS);
-  EXPECT_NEAR(bb_out.corners[3].z, 15, EPS);
+  EXPECT_NEAR(bb_out.orientation.x, 0.0, autoware::common::types::FEPS);
+  EXPECT_NEAR(bb_out.orientation.y, 1.0, autoware::common::types::FEPS);
+  EXPECT_NEAR(bb_out.orientation.z, 0.0, autoware::common::types::FEPS);
+  EXPECT_NEAR(bb_out.orientation.w, 0.0, autoware::common::types::FEPS);
+  EXPECT_NEAR(bb_out.centroid.x, 11, autoware::common::types::FEPS);
+  EXPECT_NEAR(bb_out.centroid.y, 18, autoware::common::types::FEPS);
+  EXPECT_NEAR(bb_out.centroid.z, 27, autoware::common::types::FEPS);
+  EXPECT_NEAR(bb_out.corners[0].x, 14, autoware::common::types::FEPS);
+  EXPECT_NEAR(bb_out.corners[0].y, 15, autoware::common::types::FEPS);
+  EXPECT_NEAR(bb_out.corners[0].z, 24, autoware::common::types::FEPS);
+  EXPECT_NEAR(bb_out.corners[1].x, 17, autoware::common::types::FEPS);
+  EXPECT_NEAR(bb_out.corners[1].y, 12, autoware::common::types::FEPS);
+  EXPECT_NEAR(bb_out.corners[1].z, 21, autoware::common::types::FEPS);
+  EXPECT_NEAR(bb_out.corners[2].x, 20, autoware::common::types::FEPS);
+  EXPECT_NEAR(bb_out.corners[2].y, 9, autoware::common::types::FEPS);
+  EXPECT_NEAR(bb_out.corners[2].z, 18, autoware::common::types::FEPS);
+  EXPECT_NEAR(bb_out.corners[3].x, 23, autoware::common::types::FEPS);
+  EXPECT_NEAR(bb_out.corners[3].y, 6, autoware::common::types::FEPS);
+  EXPECT_NEAR(bb_out.corners[3].z, 15, autoware::common::types::FEPS);
 
   // Testing unused fields are unmodified
   EXPECT_EQ(bb_out.size, bb1.size);
@@ -197,46 +196,46 @@ TEST(Tf2AutowareAuto, TransformBoundingBoxArray)
   EXPECT_EQ(bba_simple.header.frame_id, "B");
 
   // checking boxes[0]
-  EXPECT_NEAR(bba_simple.boxes[0].orientation.x, 0.0, EPS);
-  EXPECT_NEAR(bba_simple.boxes[0].orientation.y, 1.0, EPS);
-  EXPECT_NEAR(bba_simple.boxes[0].orientation.z, 0.0, EPS);
-  EXPECT_NEAR(bba_simple.boxes[0].orientation.w, 0.0, EPS);
-  EXPECT_NEAR(bba_simple.boxes[0].centroid.x, 10, EPS);
-  EXPECT_NEAR(bba_simple.boxes[0].centroid.y, -1, EPS);
-  EXPECT_NEAR(bba_simple.boxes[0].centroid.z, 8, EPS);
-  EXPECT_NEAR(bba_simple.boxes[0].corners[0].x, 13, EPS);
-  EXPECT_NEAR(bba_simple.boxes[0].corners[0].y, -4, EPS);
-  EXPECT_NEAR(bba_simple.boxes[0].corners[0].z, 5, EPS);
-  EXPECT_NEAR(bba_simple.boxes[0].corners[1].x, 16, EPS);
-  EXPECT_NEAR(bba_simple.boxes[0].corners[1].y, -7, EPS);
-  EXPECT_NEAR(bba_simple.boxes[0].corners[1].z, 2, EPS);
-  EXPECT_NEAR(bba_simple.boxes[0].corners[2].x, 19, EPS);
-  EXPECT_NEAR(bba_simple.boxes[0].corners[2].y, -10, EPS);
-  EXPECT_NEAR(bba_simple.boxes[0].corners[2].z, -1, EPS);
-  EXPECT_NEAR(bba_simple.boxes[0].corners[3].x, 22, EPS);
-  EXPECT_NEAR(bba_simple.boxes[0].corners[3].y, -13, EPS);
-  EXPECT_NEAR(bba_simple.boxes[0].corners[3].z, -4, EPS);
+  EXPECT_NEAR(bba_simple.boxes[0].orientation.x, 0.0, autoware::common::types::FEPS);
+  EXPECT_NEAR(bba_simple.boxes[0].orientation.y, 1.0, autoware::common::types::FEPS);
+  EXPECT_NEAR(bba_simple.boxes[0].orientation.z, 0.0, autoware::common::types::FEPS);
+  EXPECT_NEAR(bba_simple.boxes[0].orientation.w, 0.0, autoware::common::types::FEPS);
+  EXPECT_NEAR(bba_simple.boxes[0].centroid.x, 10, autoware::common::types::FEPS);
+  EXPECT_NEAR(bba_simple.boxes[0].centroid.y, -1, autoware::common::types::FEPS);
+  EXPECT_NEAR(bba_simple.boxes[0].centroid.z, 8, autoware::common::types::FEPS);
+  EXPECT_NEAR(bba_simple.boxes[0].corners[0].x, 13, autoware::common::types::FEPS);
+  EXPECT_NEAR(bba_simple.boxes[0].corners[0].y, -4, autoware::common::types::FEPS);
+  EXPECT_NEAR(bba_simple.boxes[0].corners[0].z, 5, autoware::common::types::FEPS);
+  EXPECT_NEAR(bba_simple.boxes[0].corners[1].x, 16, autoware::common::types::FEPS);
+  EXPECT_NEAR(bba_simple.boxes[0].corners[1].y, -7, autoware::common::types::FEPS);
+  EXPECT_NEAR(bba_simple.boxes[0].corners[1].z, 2, autoware::common::types::FEPS);
+  EXPECT_NEAR(bba_simple.boxes[0].corners[2].x, 19, autoware::common::types::FEPS);
+  EXPECT_NEAR(bba_simple.boxes[0].corners[2].y, -10, autoware::common::types::FEPS);
+  EXPECT_NEAR(bba_simple.boxes[0].corners[2].z, -1, autoware::common::types::FEPS);
+  EXPECT_NEAR(bba_simple.boxes[0].corners[3].x, 22, autoware::common::types::FEPS);
+  EXPECT_NEAR(bba_simple.boxes[0].corners[3].y, -13, autoware::common::types::FEPS);
+  EXPECT_NEAR(bba_simple.boxes[0].corners[3].z, -4, autoware::common::types::FEPS);
 
   // checking boxes[1]
-  EXPECT_NEAR(bba_simple.boxes[1].orientation.x, 0.707, EPS);
-  EXPECT_NEAR(bba_simple.boxes[1].orientation.y, 0.0, EPS);
-  EXPECT_NEAR(bba_simple.boxes[1].orientation.z, 0.0, EPS);
-  EXPECT_NEAR(bba_simple.boxes[1].orientation.w, 0.707, EPS);
-  EXPECT_NEAR(bba_simple.boxes[1].centroid.x, 40, EPS);
-  EXPECT_NEAR(bba_simple.boxes[1].centroid.y, -31, EPS);
-  EXPECT_NEAR(bba_simple.boxes[1].centroid.z, -22, EPS);
-  EXPECT_NEAR(bba_simple.boxes[1].corners[0].x, 43, EPS);
-  EXPECT_NEAR(bba_simple.boxes[1].corners[0].y, -34, EPS);
-  EXPECT_NEAR(bba_simple.boxes[1].corners[0].z, -25, EPS);
-  EXPECT_NEAR(bba_simple.boxes[1].corners[1].x, 46, EPS);
-  EXPECT_NEAR(bba_simple.boxes[1].corners[1].y, -37, EPS);
-  EXPECT_NEAR(bba_simple.boxes[1].corners[1].z, -28, EPS);
-  EXPECT_NEAR(bba_simple.boxes[1].corners[2].x, 49, EPS);
-  EXPECT_NEAR(bba_simple.boxes[1].corners[2].y, -30, EPS);
-  EXPECT_NEAR(bba_simple.boxes[1].corners[2].z, -21, EPS);
-  EXPECT_NEAR(bba_simple.boxes[1].corners[3].x, 42, EPS);
-  EXPECT_NEAR(bba_simple.boxes[1].corners[3].y, -33, EPS);
-  EXPECT_NEAR(bba_simple.boxes[1].corners[3].z, -24, EPS);
+  EXPECT_NEAR(bba_simple.boxes[1].orientation.x, 0.707, autoware::common::types::FEPS);
+  EXPECT_NEAR(bba_simple.boxes[1].orientation.y, 0.0, autoware::common::types::FEPS);
+  EXPECT_NEAR(bba_simple.boxes[1].orientation.z, 0.0, autoware::common::types::FEPS);
+  EXPECT_NEAR(bba_simple.boxes[1].orientation.w, 0.707, autoware::common::types::FEPS);
+  EXPECT_NEAR(bba_simple.boxes[1].centroid.x, 40, autoware::common::types::FEPS);
+  EXPECT_NEAR(bba_simple.boxes[1].centroid.y, -31, autoware::common::types::FEPS);
+  EXPECT_NEAR(bba_simple.boxes[1].centroid.z, -22, autoware::common::types::FEPS);
+  EXPECT_NEAR(bba_simple.boxes[1].corners[0].x, 43, autoware::common::types::FEPS);
+  EXPECT_NEAR(bba_simple.boxes[1].corners[0].y, -34, autoware::common::types::FEPS);
+  EXPECT_NEAR(bba_simple.boxes[1].corners[0].z, -25, autoware::common::types::FEPS);
+  EXPECT_NEAR(bba_simple.boxes[1].corners[1].x, 46, autoware::common::types::FEPS);
+  EXPECT_NEAR(bba_simple.boxes[1].corners[1].y, -37, autoware::common::types::FEPS);
+  EXPECT_NEAR(bba_simple.boxes[1].corners[1].z, -28, autoware::common::types::FEPS);
+  EXPECT_NEAR(bba_simple.boxes[1].corners[2].x, 49, autoware::common::types::FEPS);
+  EXPECT_NEAR(bba_simple.boxes[1].corners[2].y, -30, autoware::common::types::FEPS);
+  EXPECT_NEAR(bba_simple.boxes[1].corners[2].z, -21, autoware::common::types::FEPS);
+  EXPECT_NEAR(bba_simple.boxes[1].corners[3].x, 42, autoware::common::types::FEPS);
+  EXPECT_NEAR(bba_simple.boxes[1].corners[3].y, -33, autoware::common::types::FEPS);
+  EXPECT_NEAR(bba_simple.boxes[1].corners[3].z, -24, autoware::common::types::FEPS);
 
 
   // advanced api
@@ -247,46 +246,46 @@ TEST(Tf2AutowareAuto, TransformBoundingBoxArray)
   EXPECT_EQ(bba_advanced.header.frame_id, "B");
 
   // checking boxes[0]
-  EXPECT_NEAR(bba_advanced.boxes[0].orientation.x, 0.0, EPS);
-  EXPECT_NEAR(bba_advanced.boxes[0].orientation.y, 1.0, EPS);
-  EXPECT_NEAR(bba_advanced.boxes[0].orientation.z, 0.0, EPS);
-  EXPECT_NEAR(bba_advanced.boxes[0].orientation.w, 0.0, EPS);
-  EXPECT_NEAR(bba_advanced.boxes[0].centroid.x, 10, EPS);
-  EXPECT_NEAR(bba_advanced.boxes[0].centroid.y, -1, EPS);
-  EXPECT_NEAR(bba_advanced.boxes[0].centroid.z, 8, EPS);
-  EXPECT_NEAR(bba_advanced.boxes[0].corners[0].x, 13, EPS);
-  EXPECT_NEAR(bba_advanced.boxes[0].corners[0].y, -4, EPS);
-  EXPECT_NEAR(bba_advanced.boxes[0].corners[0].z, 5, EPS);
-  EXPECT_NEAR(bba_advanced.boxes[0].corners[1].x, 16, EPS);
-  EXPECT_NEAR(bba_advanced.boxes[0].corners[1].y, -7, EPS);
-  EXPECT_NEAR(bba_advanced.boxes[0].corners[1].z, 2, EPS);
-  EXPECT_NEAR(bba_advanced.boxes[0].corners[2].x, 19, EPS);
-  EXPECT_NEAR(bba_advanced.boxes[0].corners[2].y, -10, EPS);
-  EXPECT_NEAR(bba_advanced.boxes[0].corners[2].z, -1, EPS);
-  EXPECT_NEAR(bba_advanced.boxes[0].corners[3].x, 22, EPS);
-  EXPECT_NEAR(bba_advanced.boxes[0].corners[3].y, -13, EPS);
-  EXPECT_NEAR(bba_advanced.boxes[0].corners[3].z, -4, EPS);
+  EXPECT_NEAR(bba_advanced.boxes[0].orientation.x, 0.0, autoware::common::types::FEPS);
+  EXPECT_NEAR(bba_advanced.boxes[0].orientation.y, 1.0, autoware::common::types::FEPS);
+  EXPECT_NEAR(bba_advanced.boxes[0].orientation.z, 0.0, autoware::common::types::FEPS);
+  EXPECT_NEAR(bba_advanced.boxes[0].orientation.w, 0.0, autoware::common::types::FEPS);
+  EXPECT_NEAR(bba_advanced.boxes[0].centroid.x, 10, autoware::common::types::FEPS);
+  EXPECT_NEAR(bba_advanced.boxes[0].centroid.y, -1, autoware::common::types::FEPS);
+  EXPECT_NEAR(bba_advanced.boxes[0].centroid.z, 8, autoware::common::types::FEPS);
+  EXPECT_NEAR(bba_advanced.boxes[0].corners[0].x, 13, autoware::common::types::FEPS);
+  EXPECT_NEAR(bba_advanced.boxes[0].corners[0].y, -4, autoware::common::types::FEPS);
+  EXPECT_NEAR(bba_advanced.boxes[0].corners[0].z, 5, autoware::common::types::FEPS);
+  EXPECT_NEAR(bba_advanced.boxes[0].corners[1].x, 16, autoware::common::types::FEPS);
+  EXPECT_NEAR(bba_advanced.boxes[0].corners[1].y, -7, autoware::common::types::FEPS);
+  EXPECT_NEAR(bba_advanced.boxes[0].corners[1].z, 2, autoware::common::types::FEPS);
+  EXPECT_NEAR(bba_advanced.boxes[0].corners[2].x, 19, autoware::common::types::FEPS);
+  EXPECT_NEAR(bba_advanced.boxes[0].corners[2].y, -10, autoware::common::types::FEPS);
+  EXPECT_NEAR(bba_advanced.boxes[0].corners[2].z, -1, autoware::common::types::FEPS);
+  EXPECT_NEAR(bba_advanced.boxes[0].corners[3].x, 22, autoware::common::types::FEPS);
+  EXPECT_NEAR(bba_advanced.boxes[0].corners[3].y, -13, autoware::common::types::FEPS);
+  EXPECT_NEAR(bba_advanced.boxes[0].corners[3].z, -4, autoware::common::types::FEPS);
 
   // checking boxes[1]
-  EXPECT_NEAR(bba_advanced.boxes[1].orientation.x, 0.707, EPS);
-  EXPECT_NEAR(bba_advanced.boxes[1].orientation.y, 0.0, EPS);
-  EXPECT_NEAR(bba_advanced.boxes[1].orientation.z, 0.0, EPS);
-  EXPECT_NEAR(bba_advanced.boxes[1].orientation.w, 0.707, EPS);
-  EXPECT_NEAR(bba_advanced.boxes[1].centroid.x, 40, EPS);
-  EXPECT_NEAR(bba_advanced.boxes[1].centroid.y, -31, EPS);
-  EXPECT_NEAR(bba_advanced.boxes[1].centroid.z, -22, EPS);
-  EXPECT_NEAR(bba_advanced.boxes[1].corners[0].x, 43, EPS);
-  EXPECT_NEAR(bba_advanced.boxes[1].corners[0].y, -34, EPS);
-  EXPECT_NEAR(bba_advanced.boxes[1].corners[0].z, -25, EPS);
-  EXPECT_NEAR(bba_advanced.boxes[1].corners[1].x, 46, EPS);
-  EXPECT_NEAR(bba_advanced.boxes[1].corners[1].y, -37, EPS);
-  EXPECT_NEAR(bba_advanced.boxes[1].corners[1].z, -28, EPS);
-  EXPECT_NEAR(bba_advanced.boxes[1].corners[2].x, 49, EPS);
-  EXPECT_NEAR(bba_advanced.boxes[1].corners[2].y, -30, EPS);
-  EXPECT_NEAR(bba_advanced.boxes[1].corners[2].z, -21, EPS);
-  EXPECT_NEAR(bba_advanced.boxes[1].corners[3].x, 42, EPS);
-  EXPECT_NEAR(bba_advanced.boxes[1].corners[3].y, -33, EPS);
-  EXPECT_NEAR(bba_advanced.boxes[1].corners[3].z, -24, EPS);
+  EXPECT_NEAR(bba_advanced.boxes[1].orientation.x, 0.707, autoware::common::types::FEPS);
+  EXPECT_NEAR(bba_advanced.boxes[1].orientation.y, 0.0, autoware::common::types::FEPS);
+  EXPECT_NEAR(bba_advanced.boxes[1].orientation.z, 0.0, autoware::common::types::FEPS);
+  EXPECT_NEAR(bba_advanced.boxes[1].orientation.w, 0.707, autoware::common::types::FEPS);
+  EXPECT_NEAR(bba_advanced.boxes[1].centroid.x, 40, autoware::common::types::FEPS);
+  EXPECT_NEAR(bba_advanced.boxes[1].centroid.y, -31, autoware::common::types::FEPS);
+  EXPECT_NEAR(bba_advanced.boxes[1].centroid.z, -22, autoware::common::types::FEPS);
+  EXPECT_NEAR(bba_advanced.boxes[1].corners[0].x, 43, autoware::common::types::FEPS);
+  EXPECT_NEAR(bba_advanced.boxes[1].corners[0].y, -34, autoware::common::types::FEPS);
+  EXPECT_NEAR(bba_advanced.boxes[1].corners[0].z, -25, autoware::common::types::FEPS);
+  EXPECT_NEAR(bba_advanced.boxes[1].corners[1].x, 46, autoware::common::types::FEPS);
+  EXPECT_NEAR(bba_advanced.boxes[1].corners[1].y, -37, autoware::common::types::FEPS);
+  EXPECT_NEAR(bba_advanced.boxes[1].corners[1].z, -28, autoware::common::types::FEPS);
+  EXPECT_NEAR(bba_advanced.boxes[1].corners[2].x, 49, autoware::common::types::FEPS);
+  EXPECT_NEAR(bba_advanced.boxes[1].corners[2].y, -30, autoware::common::types::FEPS);
+  EXPECT_NEAR(bba_advanced.boxes[1].corners[2].z, -21, autoware::common::types::FEPS);
+  EXPECT_NEAR(bba_advanced.boxes[1].corners[3].x, 42, autoware::common::types::FEPS);
+  EXPECT_NEAR(bba_advanced.boxes[1].corners[3].y, -33, autoware::common::types::FEPS);
+  EXPECT_NEAR(bba_advanced.boxes[1].corners[3].z, -24, autoware::common::types::FEPS);
 }
 
 int main(int argc, char ** argv)
