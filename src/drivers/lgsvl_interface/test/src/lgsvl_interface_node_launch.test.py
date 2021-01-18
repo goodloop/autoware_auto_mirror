@@ -16,7 +16,6 @@
 
 from ament_index_python import get_package_share_directory
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument
 from launch.actions import OpaqueFunction
 from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
@@ -34,20 +33,6 @@ def get_share_file(package_name, file_name):
 @pytest.mark.launch_test
 def generate_test_description(ready_fn):
 
-    # Declare the parameter files needed for launching the node
-    control_command_param = DeclareLaunchArgument(
-        'control_command',
-        default_value="raw",  # use "raw", "basic" or "high_level"
-        description='command control mode topic name')
-
-    # Default lgsvl_interface params
-    lgsvl_interface_param = DeclareLaunchArgument(
-        'lgsvl_interface_param',
-        default_value=[
-            get_share_file('lgsvl_interface', 'param/lgsvl.param.yaml')
-        ],
-        description='Path to config file for lgsvl interface')
-
     # The node under test and the checker node that will pass/fail our tests:
     lgsvl_interface_node = Node(
         package="lgsvl_interface",
@@ -56,25 +41,15 @@ def generate_test_description(ready_fn):
         output='screen',
 
         parameters=[
-            LaunchConfiguration('lgsvl_interface_param'),
-            # overwrite parameters from yaml here
-            {"control_command": LaunchConfiguration('control_command')}
+            LaunchConfiguration('lgsvl_interface_param', default=[
+                get_share_file('lgsvl_interface', 'param/lgsvl.param.yaml')]),
+            {"control_command": "raw"}
         ],
-        remappings=[
-            ("vehicle_control_cmd", "/lgsvl/vehicle_control_cmd"),
-            ("vehicle_state_cmd", "/lgsvl/vehicle_state_cmd"),
-            ("state_report", "/lgsvl/state_report"),
-            ("state_report_out", "state_report"),
-            ("gnss_odom", "/lgsvl/gnss_odom"),
-            ("vehicle_odom", "/lgsvl/vehicle_odom")
-        ]
     )
 
     context = {'lgsvl_interface_node': lgsvl_interface_node}
 
     return LaunchDescription([
-        control_command_param,
-        lgsvl_interface_param,
         lgsvl_interface_node,
         # Start tests right away - no need to wait for anything
         OpaqueFunction(function=lambda context: ready_fn())]
