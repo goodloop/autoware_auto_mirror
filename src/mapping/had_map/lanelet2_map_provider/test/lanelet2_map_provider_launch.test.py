@@ -34,7 +34,7 @@ def generate_test_description(ready_fn):
         node_executable='lanelet2_map_provider_exe',
         node_namespace='had_maps',
         parameters=[
-            os.path.join(os.path.dirname(__file__), 'data/test.param.yaml'),
+            os.path.join(os.path.dirname(__file__), 'param/test.param.yaml'),
             {
                 'map_osm_file': map_osm_file
             }]
