@@ -9,9 +9,16 @@ In order to build a robust AV system in a scalable manner, testing at various le
 In this proposal, suggestions are made for automated integration and system-level tests that can run
 in CI.
 
-Much of  AV career can be spent on debugging functional issues when putting a system of nodes together (which is no fun), so unit tests alone do not solidify the algorithm functionality of a whole system or sub-system. An AV system is very complex, so how different algorithms work together in a system must be tested together as "sub-system" tests. All it takes is external factors, like wrong calibration, or configuration of the modules working together, or colleagues working on different parts of the system mis-understanding one another, to make a sub-system fail while the unit tests pass. Only once such tests have been in place have we observed AV systems starting to become stable with reduced debugging times in the vehicle itself and more problems being caught early in the CI.
+Much of AV career can be spent on debugging functional issues when putting a system of nodes together (which is no fun),
+so unit tests alone do not solidify the algorithm functionality of a whole system or sub-system. An AV system is very
+complex, so how different algorithms work together in a system must be tested together as "sub-system" tests. All it
+takes is external factors, like wrong calibration, or configuration of the modules working together, or colleagues
+working on different parts of the system mis-understanding one another, to make a sub-system fail while the unit tests
+pass. Only once such tests have been in place have we observed AV systems starting to become stable with reduced
+debugging times in the vehicle itself and more problems being caught early in the CI.
 
-Out of scope: creating simulation scenarios to exercise the complete system within an ODD. This is essential to development e.g. at Aurora or Waymo but deserves special treatment.
+Out of scope: creating simulation scenarios to exercise the complete system within an ODD. This is essential to
+development e.g. at Aurora or Waymo but deserves special treatment.
 
 # Current status in Autoware Auto
 
@@ -40,7 +47,9 @@ There seems to be no more use of `integration_tests`.
 - `velodyne` driver
 - `pure_pursuit`
 
-There are no integration tests for many components of the stack of the AVP system. Relying only on in-vehicle testing is expensive and error prone, as a commit that breaks a subsystem may go unnoticed for months before the next round of in-vehicle testing.
+There are no integration tests for many components of the stack of the AVP system. Relying only on in-vehicle testing is
+expensive and error prone, as a commit that breaks a subsystem may go unnoticed for months before the next round of
+in-vehicle testing.
 
 # Current status at Apex.AI
 
@@ -91,8 +100,15 @@ Integration tests are mandatory for adding a new node/feature for the cargo-deli
 
 ## New code
 
-New nodes should come with unit tests and with at least a simple integration test to ensure a node consumes/produces the desired output in line with the high-level documentation of its design document.
+New nodes should come with unit tests and at least two integration tests:
+
+1. A smoke test ensures that the node can be
+    1. launched with its default configuration and doesn't crash
+    1. shut down through a `SIGINT` signal with the corresponding process return code.
+1. An interface test ensures that a node consumes/produces the desired output in line with the high-level documentation
+   of its design document.
 
 ## ODD development
 
-As one ore more nodes become part of the ODD system, the system architects should propose reasonable subsystems that need to be tested in subsytem tests.
+As one ore more nodes become part of the ODD system, the system architects should propose reasonable subsystems that
+need to be tested in subsytem tests.
