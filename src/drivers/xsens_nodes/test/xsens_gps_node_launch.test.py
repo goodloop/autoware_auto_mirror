@@ -17,7 +17,6 @@
 from ament_index_python import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import OpaqueFunction
-from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
 import launch_testing
 
@@ -39,11 +38,8 @@ def generate_test_description(ready_fn):
         node_executable="xsens_gps_node_exe",
         node_namespace="vehicle",
         output='screen',
-
         parameters=[
-            LaunchConfiguration('xsens_node_param', default=[
-                get_share_file('xsens_nodes', 'param/xsens_test.param.yaml')
-            ])
+            get_share_file('xsens_nodes', 'param/xsens_test.param.yaml')
         ],
     )
 
