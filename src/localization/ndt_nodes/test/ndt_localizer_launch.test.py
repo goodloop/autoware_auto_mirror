@@ -14,10 +14,8 @@
 #
 # Co-developed by Tier IV, Inc. and Apex.AI, Inc.
 
-from ament_index_python import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import OpaqueFunction
-from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
 import launch_testing
 
@@ -26,24 +24,17 @@ import pytest
 import unittest
 
 
-def get_share_file(package_name, file_name):
-    return os.path.join(get_package_share_directory(package_name), file_name)
-
-
 @pytest.mark.launch_test
 def generate_test_description(ready_fn):
-    # P2D NDT localizer parameter file definition.
-    p2d_ndt_localizer_file_path = get_share_file(
-        'ndt_nodes', 'param/p2d_ndt_node.default.param.yaml')
-    p2d_ndt_localizer_param_file = LaunchConfiguration(
-        'params', default=[p2d_ndt_localizer_file_path])
 
     # P2D NDT localizer node execution definition.
     p2d_ndt_localizer_runner = Node(
         package='ndt_nodes',
         node_executable='p2d_ndt_localizer_exe',
-        parameters=[p2d_ndt_localizer_param_file],
-        remappings=[("points_in", "points_nonground")])
+        parameters=[
+            os.path.join(os.path.dirname(__file__), 'param/test_localizer.param.yaml')
+        ]
+    )
 
     context = {'p2d_ndt_localizer_runner': p2d_ndt_localizer_runner}
 

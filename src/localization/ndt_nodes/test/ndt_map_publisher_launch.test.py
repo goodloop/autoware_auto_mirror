@@ -14,10 +14,8 @@
 #
 # Co-developed by Tier IV, Inc. and Apex.AI, Inc.
 
-from ament_index_python import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import OpaqueFunction
-from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
 import launch_testing
 
@@ -26,37 +24,24 @@ import pytest
 import unittest
 
 
-def get_share_file(package_name, file_name):
-    return os.path.join(get_package_share_directory(package_name), file_name)
-
-
 @pytest.mark.launch_test
 def generate_test_description(ready_fn):
-    # map_provider parameter file definition
-    ndt_map_provider_file_path = get_share_file(
-        'autoware_auto_avp_demo', 'param/map_publisher.param.yaml'
-    )
-    map_provider_param_file = LaunchConfiguration(
-        'params', default=[ndt_map_provider_file_path])
 
     # map provide map file arguments
-    map_yaml_file_param = LaunchConfiguration(
-        'map_yaml_file', default=[get_share_file(
-            'autoware_auto_avp_demo', 'data/autonomoustuff_parking_lot_lgsvl.yaml')]
-    )
-    map_pcd_file_param = LaunchConfiguration(
-        'map_pcd_file', default=[get_share_file(
-            'autoware_auto_avp_demo', 'data/autonomoustuff_parking_lot_lgsvl.pcd')]
-    )
+    map_yaml_file_param = os.path.join(os.path.dirname(__file__), 'data/test_map.yaml')
+    map_pcd_file_param = os.path.join(os.path.dirname(__file__), 'data/test_map.pcd')
 
     # map_provide node execution definition
     map_provider_node_runner = Node(
         package="ndt_nodes",
         node_executable="ndt_map_publisher_exe",
         node_namespace="localization",
-        parameters=[map_provider_param_file,
-                    {'map_yaml_file': map_yaml_file_param},
-                    {'map_pcd_file': map_pcd_file_param}])
+        parameters=[
+            os.path.join(os.path.dirname(__file__), 'param/test_map_publisher.param.yaml'),
+            {'map_yaml_file': map_yaml_file_param},
+            {'map_pcd_file': map_pcd_file_param}
+        ]
+    )
 
     context = {'map_provider_node_runner': map_provider_node_runner}
 
