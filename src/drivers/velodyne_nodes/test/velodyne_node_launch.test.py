@@ -13,7 +13,7 @@
 # limitations under the License.
 #
 # Co-developed by Tier IV, Inc. and Apex.AI, Inc.
-from ament_index_python import get_package_share_directory
+
 from launch import LaunchDescription
 from launch.actions import OpaqueFunction
 from launch_ros.actions import Node
@@ -24,23 +24,17 @@ import pytest
 import unittest
 
 
-def get_share_file(package_name, file_name):
-    return os.path.join(get_package_share_directory(package_name), file_name)
-
-
 @pytest.mark.launch_test
 def generate_test_description(ready_fn):
-    # The node under test and the checker node that will pass/fail our tests:
-    test_topic = "veloyne_cloud_node_test_topic"
+
     velodyne_cloud_node = Node(
         package="velodyne_nodes",
         node_executable="velodyne_cloud_node_exe",
         node_name="vlp16_driver_node",
         node_namespace="lidar_front",
         parameters=[
-            get_share_file("velodyne_nodes", "param/vlp16_test.param.yaml")
+            os.path.join(os.path.dirname(__file__), 'data/test.param.yaml')
         ],
-        remappings=[("points_raw", test_topic)],
         arguments=["--model", "vlp16"]
     )
 
