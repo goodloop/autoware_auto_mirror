@@ -16,7 +16,6 @@
 
 from ament_index_python import get_package_share_directory
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument
 from launch.actions import OpaqueFunction
 from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
@@ -33,31 +32,25 @@ def get_share_file(package_name, file_name):
 
 @pytest.mark.launch_test
 def generate_test_description(ready_fn):
-    # Default lgsvl_interface params
-    xsens_node_param = DeclareLaunchArgument(
-        'xsens_node_param',
-        default_value=[
-            get_share_file('xsens_node', 'param/xsens_test.param.yaml')
-        ],
-        description='Path to config file for xsens node')
 
-    xsens_imu_node = Node(
-        package='xsens_node',
-        node_name='xsens_imu_node',
-        node_executable="xsens_imu_node_exe",
+    xsens_gps_node = Node(
+        package='xsens_nodes',
+        node_name='xsens_gps_node',
+        node_executable="xsens_gps_node_exe",
         node_namespace="vehicle",
         output='screen',
 
         parameters=[
-            LaunchConfiguration('xsens_node_param'),
+            LaunchConfiguration('xsens_node_param', default=[
+                get_share_file('xsens_nodes', 'param/xsens_test.param.yaml')
+            ])
         ],
     )
 
-    context = {'xsens_imu_node': xsens_imu_node}
+    context = {'xsens_gps_node': xsens_gps_node}
 
     return LaunchDescription([
-        xsens_node_param,
-        xsens_imu_node,
+        xsens_gps_node,
         # Start tests right away - no need to wait for anything
         OpaqueFunction(function=lambda context: ready_fn())]
     ), context
@@ -66,6 +59,6 @@ def generate_test_description(ready_fn):
 @launch_testing.post_shutdown_test()
 class TestProcessOutput(unittest.TestCase):
 
-    def test_exit_code(self, proc_output, proc_info, xsens_imu_node):
+    def test_exit_code(self, proc_output, proc_info, xsens_gps_node):
         # In this case the device itself is not available at the determined port
-        launch_testing.asserts.assertExitCodes(proc_info, [2], process=xsens_imu_node)
+        launch_testing.asserts.assertExitCodes(proc_info, [2], process=xsens_gps_node)
