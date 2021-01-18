@@ -42,10 +42,10 @@ class command_clamp : public state_machine, public ::testing::WithParamInterface
   {
     // Check positive threshold, big enough, symmetric limits
     ASSERT_GT(accel_threshold, decltype(accel_threshold) {});
-    ASSERT_GT(accel_threshold, std::numeric_limits<decltype(max_accel)>::epsilon());
+    ASSERT_GT(accel_threshold, autoware::common::types::FEPS);
     ASSERT_FLOAT_EQ(-max_accel, min_accel);
     ASSERT_GT(front_steer_threshold, decltype(front_steer_threshold) {});
-    ASSERT_GT(front_steer_threshold, std::numeric_limits<decltype(max_front_steer)>::epsilon());
+    ASSERT_GT(front_steer_threshold, autoware::common::types::FEPS);
     ASSERT_FLOAT_EQ(-max_front_steer, min_front_steer);
   }
 };
@@ -79,23 +79,23 @@ INSTANTIATE_TEST_CASE_P(
   ::testing::Values(
     // Accel
     CommandClamp{max_accel, 0.0F, false},
-    CommandClamp{max_accel + std::numeric_limits<decltype(max_accel)>::epsilon(), 0.0F, false},
-    CommandClamp{max_accel + std::numeric_limits<decltype(max_accel)>::epsilon() + accel_threshold,
+    CommandClamp{max_accel + autoware::common::types::FEPS, 0.0F, false},
+    CommandClamp{max_accel + autoware::common::types::FEPS + accel_threshold,
       0.0F, true},
     CommandClamp{min_accel, 0.0F, false},
-    CommandClamp{min_accel - std::numeric_limits<decltype(min_accel)>::epsilon(), 0.0F, false},
-    CommandClamp{min_accel - std::numeric_limits<decltype(min_accel)>::epsilon() - accel_threshold,
+    CommandClamp{min_accel - autoware::common::types::FEPS, 0.0F, false},
+    CommandClamp{min_accel - autoware::common::types::FEPS - accel_threshold,
       0.0F, true},
     // Front steer
     CommandClamp{0.0F, max_front_steer, false},
     CommandClamp{0.0F,
-      max_front_steer + std::numeric_limits<decltype(max_accel)>::epsilon(), false},
-    CommandClamp{0.0F, max_front_steer + std::numeric_limits<decltype(max_front_steer)>::epsilon() +
+      max_front_steer + autoware::common::types::FEPS, false},
+    CommandClamp{0.0F, max_front_steer + autoware::common::types::FEPS +
       front_steer_threshold, true},
     CommandClamp{0.0F, min_front_steer, false},
     CommandClamp{0.0F,
-      min_front_steer - std::numeric_limits<decltype(min_accel)>::epsilon(), false},
-    CommandClamp{0.0F, min_front_steer - std::numeric_limits<decltype(min_front_steer)>::epsilon() -
+      min_front_steer - autoware::common::types::FEPS, false},
+    CommandClamp{0.0F, min_front_steer - autoware::common::types::FEPS -
       front_steer_threshold, true}
     // cppcheck-suppress syntaxError
   ),

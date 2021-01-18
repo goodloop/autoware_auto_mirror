@@ -308,8 +308,7 @@ uint8_t SafetyStateMachine::automatic_gear_shift(
   const auto v_next = dv + velocity;
   const auto accel_switches_sign = Real{} > (velocity * v_next);
   // Nonzero velocity and acceleration doesn't switch sign -> stay as is
-  constexpr auto EPS = std::numeric_limits<Real>::epsilon();
-  if (!comp::abs_eq_zero(velocity, EPS) && (!accel_switches_sign)) {
+  if (!comp::abs_eq_zero(velocity, autoware::common::types::FEPS) && (!accel_switches_sign)) {
     return state.gear;
   }
   // Zero velocity -> any acceleration should be a gear shift
