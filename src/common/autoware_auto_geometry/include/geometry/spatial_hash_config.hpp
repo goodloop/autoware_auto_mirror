@@ -116,11 +116,10 @@ public:
     }
     // small fudging to prevent weird boundary effects
     // (e.g (x=xmax, y) rolls index over to (x=0, y+1)
-    constexpr auto FEPS = std::numeric_limits<float32_t>::epsilon();
     //lint -e{1938} read only access is fine NOLINT
-    m_max_x -= FEPS;
-    m_max_y -= FEPS;
-    m_max_z -= FEPS;
+    m_max_x -= autoware::common::types::FEPS;
+    m_max_y -= autoware::common::types::FEPS;
+    m_max_z -= autoware::common::types::FEPS;
     if ((m_z_stride + m_max_z_idx) > std::numeric_limits<Index>::max() / 2U) {
       // TODO(c.ho) properly check for multiplication overflow
       throw std::domain_error("SpatialHash::Config: voxel index may overflow!");

@@ -78,7 +78,7 @@ typename std::vector<std::vector<typename std::iterator_traits<Iter1>::value_typ
           return norm_2d(
             minus_2d(
               hull_entry,
-              *p)) < std::numeric_limits<float32_t>::epsilon();
+              *p)) < autoware::common::types::FEPS;
         });
     };
 
