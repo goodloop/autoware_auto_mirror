@@ -33,7 +33,7 @@ def generate_test_description(ready_fn):
         node_name="vlp16_driver_node",
         node_namespace="lidar_front",
         parameters=[
-            os.path.join(os.path.dirname(__file__), 'data/test.param.yaml')
+            os.path.join(os.path.dirname(__file__), 'param/test.param.yaml')
         ],
         arguments=["--model", "vlp16"]
     )

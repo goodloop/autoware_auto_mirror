@@ -35,7 +35,7 @@ def generate_test_description(ready_fn):
         node_namespace='vehicle',
         output='screen',
         parameters=[
-            os.path.join(os.path.dirname(__file__), 'data/test.param.yaml')
+            os.path.join(os.path.dirname(__file__), 'param/test.param.yaml')
         ]
     )
 
