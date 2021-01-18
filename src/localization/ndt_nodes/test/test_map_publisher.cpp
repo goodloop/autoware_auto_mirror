@@ -236,11 +236,11 @@ TEST_F(MapPublisherTest, core_functionality)
     EXPECT_TRUE(
       received_cell.centroid().isApprox(
         reference_cell.centroid(),
-        std::numeric_limits<Real>::epsilon()));
+        autoware::common::types::FEPS));
     EXPECT_TRUE(
       received_cell.inverse_covariance().isApprox(
         reference_cell.inverse_covariance(),
-        std::numeric_limits<Real>::epsilon() * 1e2));
+        autoware::common::types::FEPS * 1e2));
   }
   remove(pcl_file_name);
   remove(yaml_file_name.c_str());
