@@ -11,7 +11,6 @@ Each article below contains instructions on how to set up, launch and control on
 For demonstrations that work on a real car, the hardware requirements are also described.
 
 The demonstration documentation assumes a working knowledge of Autoware.Auto.
-For articles on how to achieve specific tasks with Autoware.Auto, see our \ref tutorials.
 
 - @subpage avpdemo
 
