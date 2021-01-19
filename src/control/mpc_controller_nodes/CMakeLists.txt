@@ -20,6 +20,11 @@ if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
   # Linters
   ament_lint_auto_find_test_dependencies()
+
+  add_ros_test(
+    test/mpc_controller_nodes_launch.test.py
+    TIMEOUT "30"
+  )
   # Unit test
   ament_add_gtest(mpc_controller_nodes_unit_tests
     test/gtest_main.cpp
