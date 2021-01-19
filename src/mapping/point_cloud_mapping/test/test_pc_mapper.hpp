@@ -26,6 +26,7 @@
 #include <limits>
 #include <string>
 
+static constexpr auto EPS = std::numeric_limits<float_t>::epsilon();
 namespace comp = autoware::common::helper_functions::comparisons;
 
 namespace autoware
@@ -107,9 +108,9 @@ bool check_pc_equal(PCLCloud & pc1, PCLCloud & pc2)
   // TODO(yunus.caliskan): do the check orderless?
   return std::equal(
     pc1.begin(), pc1.end(), pc2.begin(), [](const auto & pt1, const auto & pt2) {
-      return comp::abs_eq(pt1.x, pt2.x, autoware::common::types::FEPS) &&
-      comp::abs_eq(pt1.y, pt2.y, autoware::common::types::FEPS) &&
-      comp::abs_eq(pt1.z, pt2.z, autoware::common::types::FEPS);
+      return comp::abs_eq(pt1.x, pt2.x, EPS) &&
+      comp::abs_eq(pt1.y, pt2.y, EPS) &&
+      comp::abs_eq(pt1.z, pt2.z, EPS);
     });
 }
 
