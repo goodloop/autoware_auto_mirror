@@ -250,7 +250,8 @@ bool8_t LgsvlInterface::send_state_command(const autoware_auto_msgs::msg::Vehicl
   state_data.set__vehicle_mode(msg_corrected.mode);
   state_data.set__hand_brake_active(msg_corrected.hand_brake);
   state_data.set__horn_active(msg_corrected.horn);
-  state_data.set__autonomous_mode_active(msg_corrected.mode ==
+  state_data.set__autonomous_mode_active(
+    msg_corrected.mode ==
     VSD::VEHICLE_MODE_COMPLETE_AUTO_DRIVE ? true : false);
 
   m_state_pub->publish(state_data);

@@ -72,7 +72,8 @@ TEST_F(LgsvlInterface_test, gear_mapping_state_command)
 
   wait_for_subscription_callback(VSC::GEAR_REVERSE, lgsvl_interface::VSD::GEAR_REVERSE);
 
-  wait_for_subscription_callback(static_cast<lgsvl_interface::GEAR_TYPE>(99u),
+  wait_for_subscription_callback(
+    static_cast<lgsvl_interface::GEAR_TYPE>(99u),
     lgsvl_interface::VSD::GEAR_DRIVE);
 }
 
@@ -88,8 +89,9 @@ TEST_F(LgsvlInterface_test, gear_mapping_state_report)
   executor.add_node(node_);
 
   // Setup Publisher
-  const auto pub_ptr = pub_node->create_publisher<lgsvl_msgs::msg::CanBusData>(sim_state_rpt_topic,
-      rclcpp::QoS{10});
+  const auto pub_ptr = pub_node->create_publisher<lgsvl_msgs::msg::CanBusData>(
+    sim_state_rpt_topic,
+    rclcpp::QoS{10});
   wait_for_subscriber(pub_ptr);
 
   auto publish_gear_and_wait =
