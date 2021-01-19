@@ -20,6 +20,7 @@
 #define COMMON__TYPES_HPP_
 
 #include <cstdint>
+#include <limits>
 #include <vector>
 
 #include "common/visibility_control.hpp"
@@ -43,8 +44,8 @@ constexpr float32_t PI_2 = 1.5707963267948966F;
 /// tau = 2 pi
 constexpr float32_t TAU = 6.283185307179586476925286766559F;
 /// arbitrary small constant: 1.0E-6F
-constexpr float32_t FEPS = 1e-6f;
-constexpr float64_t DEPS = 1e-15;
+constexpr float32_t FEPS = std::numeric_limits<float32_t>::epsilon();
+constexpr float64_t DEPS = std::numeric_limits<float64_t>::epsilon();
 
 struct COMMON_PUBLIC PointXYZIF
 {
