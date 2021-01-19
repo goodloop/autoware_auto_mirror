@@ -52,6 +52,7 @@ Mark all the items that are done.
    1. [ ] The problem/feature is solved (reproducibly)
    1. [ ] The solution is performant enough for the use case in mind
    1. [ ] Any disabled lints inside the code or at the package level are justified
+   1. [ ] All dependencies are explicitly included in `package.xml` with the proper `<*depend>` declaration
    1. [ ] No 3rd-party license issue
 1. Open work
    1. [ ] Any added source-code comment about future work refers to a follow-up GitLab issue explicitly; e.g., `// TODO #551 refactor code below`
@@ -83,7 +84,6 @@ Mark all the items that are done.
    1. [ ] The package name and organization into files is sensible
    1. [ ] Core functionality is separated from the ROS2-specific part where reasonable
    1. [ ] There is a design document that explains the package at a high level
-   1. [ ] All dependencies are explicitly included in `package.xml` with the proper `<*depend>` declaration
 
 When starting from scratch, new packages should be created with the [`autoware_auto_create_pkg`](https://autowarefoundation.gitlab.io/autoware.auto/AutowareAuto/autoware_auto_create_pkg-package-design.html) macro and they will automatically satisfy the following criteria.
 
