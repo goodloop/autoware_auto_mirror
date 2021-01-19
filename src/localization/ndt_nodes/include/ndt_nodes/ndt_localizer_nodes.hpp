@@ -74,6 +74,7 @@ public:
 
   using EigTranslation = Eigen::Vector3d;
   using EigRotation = Eigen::Quaterniond;
+  static constexpr auto EPS = std::numeric_limits<ndt::Real>::epsilon();
 
   /// Constructor
   /// \param node_name node name
@@ -159,7 +160,7 @@ private:
       guess.transform.translation.y,
       guess.transform.translation.z};
     EigTranslation diff = pose_translation - guess_translation;
-    return diff.norm() <= (m_predict_translation_threshold + autoware::common::types::FEPS);
+    return diff.norm() <= (m_predict_translation_threshold + EPS);
   }
 
   /// Check if rotation of pose estimate is within the allowed range from the initial guess.
@@ -179,7 +180,7 @@ private:
       guess.transform.rotation.z
     };
     return std::fabs(pose_rotation.angularDistance(guess_rotation)) <=
-           (m_predict_rotation_threshold + autoware::common::types::FEPS);
+           (m_predict_rotation_threshold + EPS);
   }
 
   void init()
