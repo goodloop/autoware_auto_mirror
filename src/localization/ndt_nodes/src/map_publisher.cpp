@@ -14,17 +14,14 @@
 //
 // Co-developed by Tier IV, Inc. and Apex.AI, Inc.
 
-#include <ndt_nodes/map_publisher.hpp>
-
 #include <common/types.hpp>
-#include <tf2/LinearMath/Quaternion.h>
-#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
-#include <yaml-cpp/yaml.h>
+#include <ndt_nodes/map_publisher.hpp>
 #include <rclcpp_components/register_node_macro.hpp>
+#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
+#include <tf2/LinearMath/Quaternion.h>
 
 #include <memory>
 #include <string>
-#include <utility>
 
 using autoware::common::types::bool8_t;
 using autoware::common::types::float32_t;
