@@ -78,9 +78,7 @@ void read_from_pcd(const std::string & file_name, sensor_msgs::msg::PointCloud2 
 
   // Convert to sensor_msgs in order to check the available fields
   sensor_msgs::msg::PointCloud2 cloud;
-  // Don't use pcl_conversion::fromPCL in order to move instead of copying
-  pcl_conversions::copyPCLPointCloud2MetaData(pcl_cloud, cloud);
-  cloud.data = std::move(pcl_cloud.data);
+  pcl_conversions::moveFromPCL(pcl_cloud, cloud);
 
   // Ensure that we have at least the x, y, z fields and check whether we have intensity
   const auto has_intensity = common::lidar_utils::has_intensity_and_throw_if_no_xyz(cloud);
