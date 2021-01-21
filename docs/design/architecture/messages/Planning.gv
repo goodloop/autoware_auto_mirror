@@ -1,0 +1,20 @@
+digraph {
+node [shape=box, style=filled]
+subgraph cluster_Planning
+{
+label = "Planning"
+Any [label="Any"]
+Any [label="Any"]
+Any [label="Any"]
+}
+
+node [style=rounded]
+
+Any_out[label=<<TABLE BORDER="0"><TR><TD><b>autoware_auto_msgs/msg/Trajectory</b></TD></TR><TR><TD>/planning/trajectory</TD></TR></TABLE>>]
+Any_1_out[label=<<TABLE BORDER="0"><TR><TD><b>autoware_auto_msgs/msg/Route (revised)</b></TD></TR><TR><TD>/planning/global_route</TD></TR></TABLE>>]
+Any_2_out[label=<<TABLE BORDER="0"><TR><TD><b>autoware_auto_msgs/msg/VehicleStateCommand (revised)</b></TD></TR><TR><TD>/planning/vehicle_state</TD></TR></TABLE>>]
+
+Any -> Any_out
+Any -> Any_1_out
+Any -> Any_2_out
+}

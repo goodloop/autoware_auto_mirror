@@ -1,0 +1,29 @@
+digraph {
+node [shape=box, style=filled]
+subgraph cluster_Perception
+{
+label = "Perception"
+Object_Detection [label="Object Detection"]
+Object_Tracking [label="Object Tracking"]
+Object_Prediction [label="Object Prediction"]
+Traffic_Light_Recognition [label="Traffic Light Recognition"]
+Environmental_Recognition [label="Environmental Recognition"]
+Free_Space_Recognition [label="Free Space Recognition"]
+}
+
+node [style=rounded]
+
+Object_Detection_out[label=<<TABLE BORDER="0"><TR><TD><b>autoware_auto_msgs/msg/DetectedDynamicObjectArray</b></TD></TR><TR><TD>/perception/detected_objects</TD></TR></TABLE>>]
+Object_Tracking_out[label=<<TABLE BORDER="0"><TR><TD><b>autoware_auto_msgs/msg/TrackedDynamicObjectArray</b></TD></TR><TR><TD>/perception/tracked_objects</TD></TR></TABLE>>]
+Object_Prediction_out[label=<<TABLE BORDER="0"><TR><TD><b>autoware_auto_msgs/msg/PredictedDynamicObjectArray</b></TD></TR><TR><TD>/perception/predicted_objects</TD></TR></TABLE>>]
+Traffic_Light_Recognition_out[label=<<TABLE BORDER="0"><TR><TD><b>autoware_auto_msgs/msg/DetectedTrafficLightsArray</b></TD></TR><TR><TD>/perception/traffic_lights</TD></TR></TABLE>>]
+Environmental_Recognition_out[label=<<TABLE BORDER="0"><TR><TD><b>autoware_auto_msgs/msg/EnvironmentalConditions</b></TD></TR><TR><TD>/perception/environment</TD></TR></TABLE>>]
+Free_Space_Recognition_out[label=<<TABLE BORDER="0"><TR><TD><b>autoware_auto_msgs/msg/PopulatedVoxelGrid</b></TD></TR><TR><TD>/perception/free_space</TD></TR></TABLE>>]
+
+Object_Detection -> Object_Detection_out
+Object_Tracking -> Object_Tracking_out
+Object_Prediction -> Object_Prediction_out
+Traffic_Light_Recognition -> Traffic_Light_Recognition_out
+Environmental_Recognition -> Environmental_Recognition_out
+Free_Space_Recognition -> Free_Space_Recognition_out
+}

@@ -1,0 +1,35 @@
+digraph {
+node [shape=box, style=filled]
+subgraph cluster_Sensing
+{
+label = "Sensing"
+_3D_Lidar [label="3D Lidar"]
+_2D_Lidar [label="2D Lidar"]
+Camera__All_EM_ranges_ [label="Camera (All EM ranges)"]
+IMU [label="IMU"]
+GNSS [label="GNSS"]
+Radar [label="Radar"]
+Ultrasonic [label="Ultrasonic"]
+Wheel_Encoder [label="Wheel Encoder"]
+}
+
+node [style=rounded]
+
+_3D_Lidar_out[label=<<TABLE BORDER="0"><TR><TD><b>sensor_msgs/msg/PointCloud2</b></TD></TR><TR><TD>/sensors/lidar/points_processed</TD></TR></TABLE>>]
+_2D_Lidar_out[label=<<TABLE BORDER="0"><TR><TD><b>sensor_msgs/msg/LaserScan</b></TD></TR><TR><TD>/sensors/lidar/scans_processed</TD></TR></TABLE>>]
+Camera__All_EM_ranges__out[label=<<TABLE BORDER="0"><TR><TD><b>sensor_msgs/msg/Image</b></TD></TR><TR><TD>/sensors/camera_N/image_processed</TD></TR></TABLE>>]
+IMU_out[label=<<TABLE BORDER="0"><TR><TD><b>sensor_msgs/msg/Imu</b></TD></TR><TR><TD>/sensors/imu/imu_processed</TD></TR></TABLE>>]
+GNSS_out[label=<<TABLE BORDER="0"><TR><TD><b>geometry_msgs/msg/PoseWithCovarianceStamped</b></TD></TR><TR><TD>/sensors/gnss/pose_processed</TD></TR></TABLE>>]
+Radar_out[label=<<TABLE BORDER="0"><TR><TD><b>radar_msgs/msg/RadarTrack</b></TD></TR><TR><TD>/sensors/radar/tracks_processed</TD></TR></TABLE>>]
+Ultrasonic_out[label=<<TABLE BORDER="0"><TR><TD><b>autoware_auto_msgs/msg/Ultrasonics</b></TD></TR><TR><TD>/sensors/ultrasonic/ranges_processed</TD></TR></TABLE>>]
+Wheel_Encoder_out[label=<<TABLE BORDER="0"><TR><TD><b>autoware_auto_msgs/msg/WheelEncoder</b></TD></TR><TR><TD>/sensors/wheel_encoder_N/encoders_processed</TD></TR></TABLE>>]
+
+_3D_Lidar -> _3D_Lidar_out
+_2D_Lidar -> _2D_Lidar_out
+Camera__All_EM_ranges_ -> Camera__All_EM_ranges__out
+IMU -> IMU_out
+GNSS -> GNSS_out
+Radar -> Radar_out
+Ultrasonic -> Ultrasonic_out
+Wheel_Encoder -> Wheel_Encoder_out
+}

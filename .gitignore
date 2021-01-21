@@ -68,3 +68,7 @@ target_fs/
 *.swo
 *.gch
 *.patch
+
+## message-visualization outputs
+docs/design/architecture/messages/*.pdf
+docs/design/architecture/messages/*.png

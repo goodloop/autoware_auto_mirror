@@ -1,0 +1,17 @@
+digraph {
+node [shape=box, style=filled]
+subgraph cluster_Localization
+{
+label = "Localization"
+Any [label="Any"]
+Any [label="Any"]
+}
+
+node [style=rounded]
+
+Any_out[label=<<TABLE BORDER="0"><TR><TD><b>geometry_msgs/msg/TransformStamped</b></TD></TR><TR><TD>/tf</TD></TR></TABLE>>]
+Any_1_out[label=<<TABLE BORDER="0"><TR><TD><b>nav_msgs/msg/Odometry</b></TD></TR><TR><TD>/localization/pose</TD></TR></TABLE>>]
+
+Any -> Any_out
+Any -> Any_1_out
+}

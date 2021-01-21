@@ -1,0 +1,7 @@
+"Sub-module Pipeline","Message Type","Topic"
+"Object Detection","autoware_auto_msgs/msg/DetectedDynamicObjectArray","/perception/detected_objects"
+"Object Tracking","autoware_auto_msgs/msg/TrackedDynamicObjectArray","/perception/tracked_objects"
+"Object Prediction","autoware_auto_msgs/msg/PredictedDynamicObjectArray","/perception/predicted_objects"
+"Traffic Light Recognition","autoware_auto_msgs/msg/DetectedTrafficLightsArray","/perception/traffic_lights"
+"Environmental Recognition","autoware_auto_msgs/msg/EnvironmentalConditions","/perception/environment"
+"Free Space Recognition","autoware_auto_msgs/msg/PopulatedVoxelGrid","/perception/free_space"

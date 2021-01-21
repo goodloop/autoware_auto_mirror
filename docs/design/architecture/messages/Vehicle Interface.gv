@@ -1,0 +1,20 @@
+digraph {
+node [shape=box, style=filled]
+subgraph cluster_Vehicle_Interface
+{
+label = "Vehicle Interface"
+Any [label="Any"]
+Any [label="Any"]
+Any [label="Any"]
+}
+
+node [style=rounded]
+
+Any_out[label=<<TABLE BORDER="0"><TR><TD><b>diagnostic_msgs/msg/DiagnosticArray</b></TD></TR><TR><TD>/vehicle/diagnostic_state</TD></TR></TABLE>>]
+Any_1_out[label=<<TABLE BORDER="0"><TR><TD><b>autoware_auto_msgs/msg/VehicleStateReport (revised)</b></TD></TR><TR><TD>/vehicle/state_report</TD></TR></TABLE>>]
+Any_2_out[label=<<TABLE BORDER="0"><TR><TD><b>autoware_auto_msgs/msg/AckermannControlReport</b></TD></TR><TR><TD>/vehicle/odometry</TD></TR></TABLE>>]
+
+Any -> Any_out
+Any -> Any_1_out
+Any -> Any_2_out
+}

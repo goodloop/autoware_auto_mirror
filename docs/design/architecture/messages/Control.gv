@@ -1,0 +1,17 @@
+digraph {
+node [shape=box, style=filled]
+subgraph cluster_Control
+{
+label = "Control"
+Any [label="Any"]
+Any [label="Any"]
+}
+
+node [style=rounded]
+
+Any_out[label=<<TABLE BORDER="0"><TR><TD><b>autoware_auto_msgs/msg/AckermannControlCommand</b></TD></TR><TR><TD>/control/vehicle_command</TD></TR></TABLE>>]
+Any_1_out[label=<<TABLE BORDER="0"><TR><TD><b>autoware_auto_msgs/msg/AckermannControlReport</b></TD></TR><TR><TD>/control/vehicle_report</TD></TR></TABLE>>]
+
+Any -> Any_out
+Any -> Any_1_out
+}

@@ -1,0 +1,4 @@
+Sub-module Pipeline,Message Type,topic
+Any,autoware_auto_msgs/msg/Trajectory,/planning/trajectory
+Any,autoware_auto_msgs/msg/Route (revised),/planning/global_route
+Any,autoware_auto_msgs/msg/VehicleStateCommand (revised),/planning/vehicle_state

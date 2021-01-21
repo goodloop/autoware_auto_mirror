@@ -1,0 +1,3 @@
+Sub-module Pipeline,Message Type,Topic
+Any,autoware_auto_msgs/msg/AckermannControlCommand,/control/vehicle_command
+Any,autoware_auto_msgs/msg/AckermannControlReport,/control/vehicle_report

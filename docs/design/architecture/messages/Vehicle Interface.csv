@@ -1,0 +1,4 @@
+Sub-module Pipeline,Message Type,Topic
+Any,diagnostic_msgs/msg/DiagnosticArray,/vehicle/diagnostic_state
+Any,autoware_auto_msgs/msg/VehicleStateReport (revised),/vehicle/state_report
+Any,autoware_auto_msgs/msg/AckermannControlReport,/vehicle/odometry
