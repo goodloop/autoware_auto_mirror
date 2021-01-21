@@ -98,6 +98,7 @@ stages:
           git
           clang-tidy
       '
+    - 'GIT_TRACE=1 GIT_TRACE_PACKET=1 GIT_TRACE_PERFORMANCE=1 GIT_TRACE_SETUP=1 GIT_CURL_VERBOSE=1 GIT_TRANSFER_TRACE=1 git lfs fetch --all && git lfs checkout'
     - 'git lfs pull --include="*" --exclude=""'
     - 'vcs import < autoware.auto.$ROS_DISTRO.repos'
     # build and test
@@ -135,6 +136,7 @@ stages:
     - tar xzf opt.tar.gz -C /
     - rm opt.tar.gz
     - source /opt/AutowareAuto/setup.bash
+    - 'GIT_TRACE=1 GIT_TRACE_PACKET=1 GIT_TRACE_PERFORMANCE=1 GIT_TRACE_SETUP=1 GIT_CURL_VERBOSE=1 GIT_TRANSFER_TRACE=1 git lfs fetch --all && git lfs checkout'
     - 'colcon test
            --merge-install
            --install-base /opt/AutowareAuto
