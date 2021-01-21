@@ -14,6 +14,7 @@
 #
 # Co-developed by Tier IV, Inc. and Apex.AI, Inc.
 
+from ament_index_python import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import OpaqueFunction
 from launch_ros.actions import Node
@@ -27,13 +28,14 @@ import unittest
 @pytest.mark.launch_test
 def generate_test_description(ready_fn):
 
+    test_param_file = \
+      os.path.join(get_package_share_directory('ndt_nodes'), 'param/test_localizer.param.yaml')
+
     # P2D NDT localizer node execution definition.
     p2d_ndt_localizer_runner = Node(
         package='ndt_nodes',
         node_executable='p2d_ndt_localizer_exe',
-        parameters=[
-            os.path.join(os.path.dirname(__file__), 'param/test_localizer.param.yaml')
-        ]
+        parameters=[test_param_file]
     )
 
     context = {'p2d_ndt_localizer_runner': p2d_ndt_localizer_runner}

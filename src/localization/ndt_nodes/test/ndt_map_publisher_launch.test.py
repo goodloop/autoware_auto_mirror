@@ -14,6 +14,7 @@
 #
 # Co-developed by Tier IV, Inc. and Apex.AI, Inc.
 
+from ament_index_python import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import OpaqueFunction
 from launch_ros.actions import Node
@@ -28,8 +29,14 @@ import unittest
 def generate_test_description(ready_fn):
 
     # map provide map file arguments
-    map_yaml_file_param = os.path.join(os.path.dirname(__file__), 'data/test_map.yaml')
-    map_pcd_file_param = os.path.join(os.path.dirname(__file__), 'data/test_map.pcd')
+    map_param_file = \
+        os.path.join(
+            get_package_share_directory('ndt_nodes'),
+            'param/test_map_publisher.param.yaml')
+    map_yaml_file_param = \
+        os.path.join(get_package_share_directory('ndt_nodes'), 'data/test_map.yaml')
+    map_pcd_file_param = \
+        os.path.join(get_package_share_directory('ndt_nodes'), 'data/test_map.pcd')
 
     # map_provide node execution definition
     map_provider_node_runner = Node(
@@ -37,7 +44,7 @@ def generate_test_description(ready_fn):
         node_executable="ndt_map_publisher_exe",
         node_namespace="localization",
         parameters=[
-            os.path.join(os.path.dirname(__file__), 'param/test_map_publisher.param.yaml'),
+            map_param_file,
             {'map_yaml_file': map_yaml_file_param},
             {'map_pcd_file': map_pcd_file_param}
         ]
