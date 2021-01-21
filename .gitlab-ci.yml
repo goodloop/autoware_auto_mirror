@@ -396,7 +396,6 @@ coverage:
   stage: test
   image: $CI_REGISTRY_IMAGE/amd64/ade-foxy:commit-$CI_COMMIT_SHA
   script:
-    - 'GIT_TRACE=1 GIT_TRACE_PACKET=1 GIT_TRACE_PERFORMANCE=1 GIT_TRACE_SETUP=1 GIT_CURL_VERBOSE=1 GIT_TRANSFER_TRACE=1 git lfs fetch --all && git lfs checkout'
     - vcs import < autoware.auto.$ROS_DISTRO.repos
     - './tools/coverage/coverage.sh -u'
   after_script:
