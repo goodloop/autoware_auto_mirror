@@ -42,8 +42,9 @@ const auto NaN = std::numeric_limits<double>::quiet_NaN();
 
 TEST(Geometry_Interval, abs_eq) {
   const auto i1 = Interval_d(-1.0, 1.0);
-  const auto i2 = Interval_d(-1.0 + 0.5 * autoware::common::types::FEPS,
-      1.0 + 0.5 * autoware::common::types::FEPS);
+  const auto i2 = Interval_d(
+    -1.0 + 0.5 * autoware::common::types::FEPS,
+    1.0 + 0.5 * autoware::common::types::FEPS);
   const auto shift = (2.0 * autoware::common::types::FEPS);
   const auto i3 = Interval_d(-1.0 + shift, 1.0 + shift);
   const auto i_empty = Interval_d();
