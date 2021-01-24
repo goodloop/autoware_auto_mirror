@@ -21,7 +21,6 @@
 #include <recordreplay_planner_actions/action/record_trajectory.hpp>
 #include <recordreplay_planner_actions/action/replay_trajectory.hpp>
 
-#include <autoware_auto_msgs/msg/bounding_box_array.hpp>
 #include <autoware_auto_msgs/msg/trajectory.hpp>
 #include <autoware_auto_msgs/msg/vehicle_kinematic_state.hpp>
 #include <geometry_msgs/msg/transform_stamped.hpp>
@@ -44,13 +43,11 @@ namespace planning
 namespace recordreplay_planner_nodes
 {
 using PlannerPtr = std::unique_ptr<motion::planning::recordreplay_planner::RecordReplayPlanner>;
-using autoware_auto_msgs::msg::BoundingBoxArray;
 using autoware_auto_msgs::msg::Trajectory;
 using recordreplay_planner_actions::action::RecordTrajectory;
 using recordreplay_planner_actions::action::ReplayTrajectory;
 using State = autoware_auto_msgs::msg::VehicleKinematicState;
 using Transform = geometry_msgs::msg::TransformStamped;
-using motion::motion_common::VehicleConfig;
 using motion::motion_common::Real;
 
 class RECORDREPLAY_PLANNER_NODES_PUBLIC RecordReplayPlannerNode : public rclcpp::Node
@@ -69,25 +66,18 @@ protected:
   std::shared_ptr<GoalHandleReplayTrajectory> m_replaygoalhandle{nullptr};
 
   rclcpp::Subscription<State>::SharedPtr m_ego_sub{};
-  rclcpp::Subscription<BoundingBoxArray>::SharedPtr m_boundingbox_sub{};
   rclcpp::Publisher<Trajectory>::SharedPtr m_trajectory_pub{};
-  rclcpp::Publisher<BoundingBoxArray>::SharedPtr m_trajectory_boundingbox_pub{};
-  rclcpp::Publisher<BoundingBoxArray>::SharedPtr m_collison_boundingbox_pub{};
-  rclcpp::Publisher<BoundingBoxArray>::SharedPtr m_transformed_boundingbox_pub{};
   PlannerPtr m_planner{nullptr};
 
 private:
   RECORDREPLAY_PLANNER_NODES_LOCAL void init(
     const std::string & ego_topic,
     const std::string & trajectory_topic,
-    const std::string & bounding_boxes_topic,
-    const VehicleConfig & vehicle_param,
     const float64_t heading_weight,
     const float64_t min_record_distance);
 
 
   RECORDREPLAY_PLANNER_NODES_LOCAL void on_ego(const State::SharedPtr & msg);
-  RECORDREPLAY_PLANNER_NODES_LOCAL void on_bounding_box(const BoundingBoxArray::SharedPtr & msg);
 
   // TODO(s.me) there does not seem to be a RecordTrajectory::SharedPtr? Also
   // the return types need to be changed to the rclcpp_action types once the package

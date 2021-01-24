@@ -34,35 +34,17 @@ RecordReplayPlannerNode::RecordReplayPlannerNode(const rclcpp::NodeOptions & nod
 {
   const auto ego_topic = "vehicle_state";
   const auto trajectory_topic = "planned_trajectory";
-  const auto bounding_boxes_topic = "obstacle_bounding_boxes";
   const auto heading_weight =
     static_cast<float64_t>(declare_parameter("heading_weight").get<float32_t>());
   const auto min_record_distance =
     static_cast<float64_t>(declare_parameter("min_record_distance").get<float32_t>());
-  m_enable_obstacle_detection = static_cast<bool>(
-    declare_parameter("enable_obstacle_detection").get<bool>());
 
-  const VehicleConfig vehicle_param{
-    static_cast<Real>(declare_parameter("vehicle.cg_to_front_m").get<float32_t>()),
-    static_cast<Real>(declare_parameter("vehicle.cg_to_rear_m").get<float32_t>()),
-    static_cast<Real>(declare_parameter("vehicle.front_corner_stiffness").get<float32_t>()),
-    static_cast<Real>(declare_parameter("vehicle.rear_corner_stiffness").get<float32_t>()),
-    static_cast<Real>(declare_parameter("vehicle.mass_kg").get<float32_t>()),
-    static_cast<Real>(declare_parameter("vehicle.yaw_inertia_kgm2").get<float32_t>()),
-    static_cast<Real>(declare_parameter("vehicle.width_m").get<float32_t>()),
-    static_cast<Real>(declare_parameter("vehicle.front_overhang_m").get<float32_t>()),
-    static_cast<Real>(declare_parameter("vehicle.rear_overhang_m").get<float32_t>())
-  };
-  init(
-    ego_topic, trajectory_topic, bounding_boxes_topic, vehicle_param, heading_weight,
-    min_record_distance);
+  init(ego_topic, trajectory_topic, heading_weight, min_record_distance);
 }
 
 void RecordReplayPlannerNode::init(
   const std::string & ego_topic,
   const std::string & trajectory_topic,
-  const std::string & bounding_boxes_topic,
-  const VehicleConfig & vehicle_param,
   const float64_t heading_weight,
   const float64_t min_record_distance
 )
@@ -103,29 +85,13 @@ void RecordReplayPlannerNode::init(
     ego_topic, QoS{10},
     [this](const State::SharedPtr msg) {on_ego(msg);}, SubAllocT{});
 
-  if (m_enable_obstacle_detection) {
-    using SubAllocT =
-      rclcpp::SubscriptionOptionsWithAllocator<std::allocator<void>>;
-    m_boundingbox_sub = create_subscription<BoundingBoxArray>(
-      bounding_boxes_topic, QoS{10},
-      [this](const BoundingBoxArray::SharedPtr msg) {on_bounding_box(msg);},
-      SubAllocT{});
-  }
-
   // Set up publishers
   using PubAllocT = rclcpp::PublisherOptionsWithAllocator<std::allocator<void>>;
   m_trajectory_pub =
     create_publisher<Trajectory>(trajectory_topic, QoS{10}, PubAllocT{});
 
-  m_trajectory_boundingbox_pub = create_publisher<BoundingBoxArray>(
-    "debug/trajectory_boxes",
-    QoS{10});
-  m_collison_boundingbox_pub = create_publisher<BoundingBoxArray>("debug/collison_boxes", QoS{10});
-  m_transformed_boundingbox_pub = create_publisher<BoundingBoxArray>(
-    "debug/transformed_obstacle_boxes", QoS{10});
-
   // Create and set a planner object that we'll talk to
-  m_planner = std::make_unique<recordreplay_planner::RecordReplayPlanner>(vehicle_param);
+  m_planner = std::make_unique<recordreplay_planner::RecordReplayPlanner>();
   m_planner->set_heading_weight(heading_weight);
   m_planner->set_min_record_distance(min_record_distance);
 }
@@ -152,41 +118,10 @@ void RecordReplayPlannerNode::on_ego(const State::SharedPtr & msg)
     const auto & traj = m_planner->plan(*msg);
     m_trajectory_pub->publish(traj);
 
-    if (m_trajectory_boundingbox_pub->get_subscription_count() > 0U) {
-      m_trajectory_boundingbox_pub->publish(m_planner->get_traj_boxes());
-    }
-    if (m_collison_boundingbox_pub->get_subscription_count() > 0U) {
-      m_collison_boundingbox_pub->publish(m_planner->get_collision_boxes());
-    }
-
     // Publish replaying feedback information
     auto feedback_msg = std::make_shared<ReplayTrajectory::Feedback>();
     feedback_msg->remaining_length = static_cast<int32_t>(traj.points.size());
     m_replaygoalhandle->publish_feedback(feedback_msg);
-  }
-}
-
-void RecordReplayPlannerNode::on_bounding_box(const BoundingBoxArray::SharedPtr & msg)
-{
-  // Update most recent bounding box internally
-  if (msg->header.frame_id == m_odom_frame_id) {
-    m_planner->update_bounding_boxes(*msg);
-  } else {
-    tf2::Duration timeout = tf2::durationFromSec(0.2);
-    if (tf_buffer_->canTransform(
-        m_odom_frame_id, msg->header.frame_id,
-        tf2_ros::fromMsg(msg->header.stamp), timeout) )
-    {
-      auto msg_tansformed = tf_buffer_->transform(*msg, m_odom_frame_id, timeout);
-      if (m_transformed_boundingbox_pub->get_subscription_count() > 0U) {
-        m_transformed_boundingbox_pub->publish(msg_tansformed);
-      }
-      m_planner->update_bounding_boxes(msg_tansformed);
-    } else {
-      RCLCPP_WARN(
-        this->get_logger(), "on_bounding_box cannot transform %s to %s",
-        msg->header.frame_id.c_str(), m_odom_frame_id.c_str());
-    }
   }
 }
 

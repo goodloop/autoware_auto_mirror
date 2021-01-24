@@ -21,16 +21,16 @@ ament_auto_add_library(${PROJECT_NAME} SHARED
 autoware_set_compile_options(${PROJECT_NAME})
 
 ### Test
-if(BUILD_TESTING)
-  # Linters
-  find_package(ament_lint_auto REQUIRED)
-  ament_lint_auto_find_test_dependencies()
-  ## Unit test
-  ament_add_gtest(recordreplay_planner_unit_tests
-    test/gtest_main.cpp
-    test/sanity_checks.cpp)
-  target_link_libraries(recordreplay_planner_unit_tests ${PROJECT_NAME})
-  target_include_directories(recordreplay_planner_unit_tests PRIVATE "include")
-endif()
+# if(BUILD_TESTING)
+#   # Linters
+#   find_package(ament_lint_auto REQUIRED)
+#   ament_lint_auto_find_test_dependencies()
+#   ## Unit test
+#   ament_add_gtest(recordreplay_planner_unit_tests
+#     test/gtest_main.cpp
+#     test/sanity_checks.cpp)
+#   target_link_libraries(recordreplay_planner_unit_tests ${PROJECT_NAME})
+#   target_include_directories(recordreplay_planner_unit_tests PRIVATE "include")
+# endif()
 
 ament_auto_package()
