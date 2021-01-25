@@ -23,6 +23,7 @@
 
 #include <autoware_auto_msgs/msg/trajectory.hpp>
 #include <autoware_auto_msgs/msg/vehicle_kinematic_state.hpp>
+#include <autoware_auto_msgs/srv/modify_trajectory.hpp>
 #include <geometry_msgs/msg/transform_stamped.hpp>
 #include <motion_common/motion_common.hpp>
 #include <motion_common/config.hpp>
@@ -44,6 +45,7 @@ namespace recordreplay_planner_nodes
 {
 using PlannerPtr = std::unique_ptr<motion::planning::recordreplay_planner::RecordReplayPlanner>;
 using autoware_auto_msgs::msg::Trajectory;
+using autoware_auto_msgs::srv::ModifyTrajectory;
 using recordreplay_planner_actions::action::RecordTrajectory;
 using recordreplay_planner_actions::action::ReplayTrajectory;
 using State = autoware_auto_msgs::msg::VehicleKinematicState;
@@ -62,6 +64,7 @@ public:
 protected:
   rclcpp_action::Server<RecordTrajectory>::SharedPtr m_recordserver;
   rclcpp_action::Server<ReplayTrajectory>::SharedPtr m_replayserver;
+  rclcpp::Client<ModifyTrajectory>::SharedPtr m_modify_trajectory_client;
   std::shared_ptr<GoalHandleRecordTrajectory> m_recordgoalhandle{nullptr};
   std::shared_ptr<GoalHandleReplayTrajectory> m_replaygoalhandle{nullptr};
 
@@ -78,6 +81,9 @@ private:
 
 
   RECORDREPLAY_PLANNER_NODES_LOCAL void on_ego(const State::SharedPtr & msg);
+
+  RECORDREPLAY_PLANNER_NODES_LOCAL void modify_trajectory_response(
+    rclcpp::Client<ModifyTrajectory>::SharedFuture future);
 
   // TODO(s.me) there does not seem to be a RecordTrajectory::SharedPtr? Also
   // the return types need to be changed to the rclcpp_action types once the package

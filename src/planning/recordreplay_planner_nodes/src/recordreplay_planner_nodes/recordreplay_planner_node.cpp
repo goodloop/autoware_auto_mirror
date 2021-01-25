@@ -50,6 +50,7 @@ void RecordReplayPlannerNode::init(
 )
 {
   using rclcpp::QoS;
+  using namespace std::chrono_literals;
 
   // Setup Tf Buffer with listener
   rclcpp::Clock::SharedPtr clock = std::make_shared<rclcpp::Clock>(RCL_ROS_TIME);
@@ -90,6 +91,17 @@ void RecordReplayPlannerNode::init(
   m_trajectory_pub =
     create_publisher<Trajectory>(trajectory_topic, QoS{10}, PubAllocT{});
 
+  // Set up services
+  m_modify_trajectory_client = this->create_client<ModifyTrajectory>("estimate_collision");
+  while (!m_modify_trajectory_client->wait_for_service(3s)) {
+    if (!rclcpp::ok()) {
+      RCLCPP_ERROR(get_logger(), "Interrupted while waiting for service.");
+      rclcpp::shutdown();
+      return;
+    }
+    RCLCPP_INFO(get_logger(), "Waiting for service connection...");
+  }
+
   // Create and set a planner object that we'll talk to
   m_planner = std::make_unique<recordreplay_planner::RecordReplayPlanner>();
   m_planner->set_heading_weight(heading_weight);
@@ -115,14 +127,27 @@ void RecordReplayPlannerNode::on_ego(const State::SharedPtr & msg)
 
   if (m_planner->is_replaying()) {
     RCLCPP_INFO_ONCE(this->get_logger(), "Replaying recorded ego postion as trajectory");
-    const auto & traj = m_planner->plan(*msg);
-    m_trajectory_pub->publish(traj);
+    const auto & traj_raw = m_planner->plan(*msg);
 
-    // Publish replaying feedback information
-    auto feedback_msg = std::make_shared<ReplayTrajectory::Feedback>();
-    feedback_msg->remaining_length = static_cast<int32_t>(traj.points.size());
-    m_replaygoalhandle->publish_feedback(feedback_msg);
+    // Request service to consider object collision
+    auto request = std::make_shared<ModifyTrajectory::Request>();
+    request->original_trajectory = traj_raw;
+    auto result = m_modify_trajectory_client->async_send_request(
+      request, std::bind(&RecordReplayPlannerNode::modify_trajectory_response,
+      this, std::placeholders::_1));
   }
+}
+
+void RecordReplayPlannerNode::modify_trajectory_response(
+  rclcpp::Client<ModifyTrajectory>::SharedFuture future)
+{
+  auto traj = future.get()->modified_trajectory;
+  m_trajectory_pub->publish(traj);
+
+  // Publish replaying feedback information
+  auto feedback_msg = std::make_shared<ReplayTrajectory::Feedback>();
+  feedback_msg->remaining_length = static_cast<int32_t>(traj.points.size());
+  m_replaygoalhandle->publish_feedback(feedback_msg);
 }
 
 rclcpp_action::GoalResponse RecordReplayPlannerNode::record_handle_goal(
