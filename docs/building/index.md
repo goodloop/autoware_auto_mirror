@@ -71,7 +71,7 @@ colcon build --cmake-args -DCMAKE_CXX_FLAGS="-fsanitize=undefined"
 rm -rf {build,install}/my_package
 ```
 
-or, if you don't want to delete the old binaries, you can specify custom build and install directories:
+to remove all build artifacts associated with that package. Alternatively, if you don't want to delete the old binaries, you can specify custom build and install directories:
 
 ```bash
 colcon build --build-base build_mybranch --install-base install_mybranch
