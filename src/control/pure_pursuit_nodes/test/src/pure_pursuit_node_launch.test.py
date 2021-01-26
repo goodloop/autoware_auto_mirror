@@ -14,6 +14,7 @@
 #
 # Co-developed by Tier IV, Inc. and Apex.AI, Inc.
 
+from ament_index_python import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import OpaqueFunction
 from launch_ros.actions import Node
@@ -32,7 +33,10 @@ def generate_test_description(ready_fn):
         node_executable="pure_pursuit_node_exe",
         node_name="pure_pursuit_node",
         parameters=[
-            os.path.join(os.path.dirname(__file__), '../param/test.param.yaml')
+            os.path.join(
+                get_package_share_directory('pure_pursuit_nodes'),
+                'param/test.param.yaml'
+            )
         ]
     )
 

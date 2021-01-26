@@ -33,4 +33,4 @@ if(BUILD_TESTING)
   add_dependencies(mpc_controller_nodes_unit_tests mpc_controller_node)
 endif()
 
-ament_auto_package(INSTALL_TO_SHARE param/)
+ament_auto_package(INSTALL_TO_SHARE param)

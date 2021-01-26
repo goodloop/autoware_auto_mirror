@@ -14,6 +14,7 @@
 #
 # Co-developed by Tier IV, Inc. and Apex.AI, Inc.
 
+from ament_index_python import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import OpaqueFunction
 from launch_ros.actions import Node
@@ -27,7 +28,10 @@ import unittest
 @pytest.mark.launch_test
 def generate_test_description(ready_fn):
 
-    mpc_controller_param_file = os.path.join(os.path.dirname(__file__), 'param/test.param.yaml')
+    mpc_controller_param_file = os.path.join(
+        get_package_share_directory('mpc_controller_nodes'),
+        'param/test.param.yaml'
+    )
 
     # mpc_controller
     mpc_controller_node = Node(
