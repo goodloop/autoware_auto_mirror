@@ -116,6 +116,7 @@ target_compile_options(${LANELET2_MAP_NODES} PRIVATE -Wno-sign-conversion -Wno-c
 
 # ament package generation and installing
 ament_auto_package(INSTALL_TO_SHARE
+  data
   launch
   param
 )

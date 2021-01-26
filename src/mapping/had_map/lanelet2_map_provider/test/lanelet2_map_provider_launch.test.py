@@ -14,6 +14,7 @@
 #
 # Co-developed by Tier IV, Inc. and Apex.AI, Inc.
 
+from ament_index_python import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import OpaqueFunction
 from launch_ros.actions import Node
@@ -27,14 +28,20 @@ import unittest
 @pytest.mark.launch_test
 def generate_test_description(ready_fn):
 
-    map_osm_file = os.path.join(os.path.dirname(__file__), 'data/test_map.osm')
+    map_osm_file = os.path.join(
+        get_package_share_directory('lanelet2_map_provider'),
+        'data/test_map.osm'
+    )
 
     lanelet2_map_provider = Node(
         package='lanelet2_map_provider',
         node_executable='lanelet2_map_provider_exe',
         node_namespace='had_maps',
         parameters=[
-            os.path.join(os.path.dirname(__file__), 'param/test.param.yaml'),
+            os.path.join(
+                get_package_share_directory('lanelet2_map_provider'),
+                'param/test.param.yaml'
+            ),
             {
                 'map_osm_file': map_osm_file
             }]
