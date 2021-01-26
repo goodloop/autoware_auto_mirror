@@ -133,8 +133,9 @@ void RecordReplayPlannerNode::on_ego(const State::SharedPtr & msg)
     auto request = std::make_shared<ModifyTrajectory::Request>();
     request->original_trajectory = traj_raw;
     auto result = m_modify_trajectory_client->async_send_request(
-      request, std::bind(&RecordReplayPlannerNode::modify_trajectory_response,
-      this, std::placeholders::_1));
+      request, std::bind(
+        &RecordReplayPlannerNode::modify_trajectory_response,
+        this, std::placeholders::_1));
   }
 }
 

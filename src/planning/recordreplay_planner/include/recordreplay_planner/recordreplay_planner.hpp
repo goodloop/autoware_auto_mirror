@@ -49,7 +49,7 @@ enum class RecordReplayState
 class RECORDREPLAY_PLANNER_PUBLIC RecordReplayPlanner
 {
 public:
-  explicit RecordReplayPlanner();
+  RecordReplayPlanner();
 
   // Record and replay control
   bool8_t is_recording() const noexcept;
