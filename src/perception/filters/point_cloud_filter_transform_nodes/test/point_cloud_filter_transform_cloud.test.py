@@ -16,7 +16,7 @@
 
 import os
 
-import ament_index_python
+from ament_index_python import get_package_share_directory
 import launch
 import launch.actions
 import launch_ros.actions
@@ -35,7 +35,7 @@ def generate_test_description(ready_fn):
         node_namespace="lidar_front",
         parameters=[
             os.path.join(
-                ament_index_python.get_package_share_directory("velodyne_nodes"),
+                get_package_share_directory("velodyne_nodes"),
                 "param",
                 "vlp16_test.param.yaml"
             ),
@@ -54,7 +54,10 @@ def generate_test_description(ready_fn):
         node_name="point_cloud_filter_transform_node",
         node_namespace="lidar_front",
         parameters=[
-            os.path.join(os.path.dirname(__file__), 'param/test.param.yaml'),
+            os.path.join(
+                get_package_share_directory('point_cloud_filter_transform_nodes'),
+                'param/test.param.yaml'
+            ),
             {
                 "expected_num_subscribers": 1,
                 "expected_num_publishers":  1,

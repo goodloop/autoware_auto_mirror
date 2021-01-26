@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from ament_index_python import get_package_share_directory
 import launch
 import launch.actions
 import launch_ros.actions
@@ -27,7 +28,10 @@ def generate_test_description(ready_fn):
         package="ray_ground_classifier_nodes",
         node_executable="ray_ground_classifier_cloud_node_exe",
         node_name="ray_ground_classifier",
-        parameters=[os.path.join(os.path.dirname(__file__), 'param/test.param.yaml')],
+        parameters=[os.path.join(
+            get_package_share_directory('ray_ground_classifier_nodes'),
+            'param/test.param.yaml'
+        )],
         remappings=[
             ("points_in", test_topic)
         ])

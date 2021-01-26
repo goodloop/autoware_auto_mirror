@@ -14,6 +14,7 @@
 #
 # Co-developed by Tier IV, Inc. and Apex.AI, Inc.
 
+from ament_index_python import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import OpaqueFunction
 from launch_ros.actions import Node
@@ -31,7 +32,10 @@ def generate_test_description(ready_fn):
         package='voxel_grid_nodes',
         node_executable='voxel_grid_node_exe',
         node_namespace='test',
-        parameters=[os.path.join(os.path.dirname(__file__), 'param/test.param.yaml')]
+        parameters=[os.path.join(
+            get_package_share_directory('voxel_grid_nodes'),
+            'param/test.param.yaml'
+        )]
     )
 
     context = {'voxel_grid_node': voxel_grid_node}
