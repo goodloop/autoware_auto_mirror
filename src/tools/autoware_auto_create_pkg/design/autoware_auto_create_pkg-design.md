@@ -49,6 +49,11 @@ There is also [some argument](https://gcc.gnu.org/wiki/Visibility) that it impro
 
 To use the tool, run the following:
 
+<!-- TODO mkdir -->
+<!-- TODO why is destination a required argument? -->
+<!-- @ade:~/AutowareAuto/src/fred (796-expand-contributor-guidelines *$% u+17-3)$ ros2 run autoware_auto_create_pkg main.py --email frederik.beaujean@apex.ai --description "Test package" --pkg-name "foo" --maintainer "Frederik Beaujean" --destination . -->
+<!-- Package foo has been generated in .. -->
+
 ```
 $ ade enter
 ade$ source /opt/AutowareAuto/setup.bash
@@ -71,3 +76,4 @@ Once your new package has been created, you will need to clean up the specifics 
 
 - https://gitlab.com/autowarefoundation/autoware.auto/AutowareAuto/-/issues/462
 - https://gitlab.com/autowarefoundation/autoware.auto/AutowareAuto/-/issues/561
+- https://gitlab.com/autowarefoundation/autoware.auto/AutowareAuto/-/issues/624
