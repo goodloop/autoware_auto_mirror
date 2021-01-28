@@ -23,6 +23,7 @@ HelloWorldNode::HelloWorldNode(const rclcpp::NodeOptions & options)
 :  Node("hello_world", options),
   verbose(true)
 {
+  print_hello();
 }
 
 int32_t HelloWorldNode::print_hello() const

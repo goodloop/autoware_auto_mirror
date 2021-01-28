@@ -36,7 +36,7 @@ public:
   void bazzle();  // public visibility
 
 private:
-  FOO_LOCAL gaddle();  // LOCAL visibily -> can't be linked to
+  FOO_LOCAL gaddle();  // LOCAL visibility -> can't be linked to
 };
 ```
 
@@ -49,27 +49,48 @@ There is also [some argument](https://gcc.gnu.org/wiki/Visibility) that it impro
 
 To use the tool, run the following:
 
-<!-- TODO mkdir -->
-<!-- TODO why is destination a required argument? -->
-<!-- @ade:~/AutowareAuto/src/fred (796-expand-contributor-guidelines *$% u+17-3)$ ros2 run autoware_auto_create_pkg main.py --email frederik.beaujean@apex.ai --description "Test package" --pkg-name "foo" --maintainer "Frederik Beaujean" --destination . -->
-<!-- Package foo has been generated in .. -->
-
 ```
 $ ade enter
 ade$ source /opt/AutowareAuto/setup.bash
 ade$ cd AutowareAuto/src/<path_to_folder_containing_your_new_package>
-ade$ ros2 run autoware_auto_create_pkg main.py --destination DESTINATION --pkg-name PKG_NAME --maintainer MAINTAINER --email EMAIL --description DESCRIPTION
+ade$ ros2 run autoware_auto_create_pkg main.py --pkg-name PKG_NAME --maintainer MAINTAINER --email EMAIL --description DESCRIPTION
 ```
 
 In the above commands, replace `<path_to_folder_containing_your_new_package>` with the path to the folder where you want to create your package.
+Alternatively, add the `--destination <path_to_folder_containing_your_new_package>` argument to generate the package in a different location than the current working directory.
 Also replace the flag values in ALL_CAPS with appropriate values for your new package.
 Once your new package has been created, you will need to clean up the specifics (license, dependencies, design document, etc.).
+
+To obtain more details on the command-line usage, call:
+
+```
+ade$ ros run autoware_auto_create_pkg main.py --help
+```
+
+Once the package has been created with for example `--pkg-name foo`, follow these steps to launch the node:
+
+```
+colcon build --packages-select foo
+colcon test  --packages-select foo
+
+source install/setup.bash
+ros2 launch foo foo.launch.py
+```
+
+The output of the launch should be similar to:
+
+```
+[component_container-1] [INFO] [1611837756.040093566] [foo_container]: Found class: rclcpp_components::NodeFactoryTemplate<autoware::foo::FooNode>
+[component_container-1] [INFO] [1611837756.040216958] [foo_container]: Instantiate class: rclcpp_components::NodeFactoryTemplate<autoware::foo::FooNode>
+[component_container-1] Hello World
+[INFO] [launch_ros.actions.load_composable_nodes]: Loaded node '/foo_node' in container '/foo_container'
+```
 
 ## References / External links
 <!-- Optional -->
 
 - Basic instructions for creating a new ROS 2 package can be found [in this tutorial](https://index.ros.org//doc/ros2/Tutorials/Colcon-Tutorial/#create-your-own-package).
-
+- Basic instructions regarding [ROS2 composition](https://index.ros.org/doc/ros2/Tutorials/Composition/)
 
 ## Related issues
 <!-- Required -->

@@ -16,14 +16,8 @@ cmake_minimum_required(VERSION 3.5)
 
 project(hello_world)
 
-if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-  add_compile_options(-Wall -Wextra -Wpedantic -Wno-unused-parameter)
-endif()
-
 if(NOT CMAKE_CXX_STANDARD)
   set(CMAKE_CXX_STANDARD 14)
-  set(CMAKE_CXX_STANDARD_REQUIRED ON)
-  set(CMAKE_CXX_EXTENSIONS OFF)
 endif()
 
 # require that dependencies from package.xml be available
@@ -74,10 +68,11 @@ if(BUILD_TESTING)
   set(TEST_SOURCES test/test_hello_world.cpp)
   set(TEST_HELLO_WORLD_EXE test_hello_world)
   ament_add_gtest(${TEST_HELLO_WORLD_EXE} ${TEST_SOURCES})
-  # TODO Should we add these compile options to the test executable?
-  # autoware_set_compile_options(${PROJECT_NAME}_exe)
+  autoware_set_compile_options(${TEST_HELLO_WORLD_EXE})
   target_link_libraries(${TEST_HELLO_WORLD_EXE} ${PROJECT_NAME})
 endif()
 
 # ament package generation and installing
-ament_auto_package()
+ament_auto_package(INSTALL_TO_SHARE
+  launch
+)
