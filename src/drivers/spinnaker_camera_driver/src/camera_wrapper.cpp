@@ -209,6 +209,7 @@ void CameraWrapper::configure_camera(
 
   using Spinnaker::GenApi::IsAvailable;
   using Spinnaker::GenApi::IsWritable;
+  using Spinnaker::GenApi::IsReadable;
 
   m_frame_id = camera_settings.get_frame_id();
 
@@ -219,8 +220,14 @@ void CameraWrapper::configure_camera(
       return IsAvailable(value) && IsWritable(value);
     };
 
-  if (IsAvailable(m_camera->DeviceType)) {
-    if (m_camera->DeviceType.GetCurrentEntry()->GetSymbolic() == "GEV") {
+  using Spinnaker::GenApi::INodeMap;
+  using Spinnaker::GenApi::CBooleanPtr;
+  using Spinnaker::GenApi::CEnumerationPtr;
+  using Spinnaker::GenApi::CFloatPtr;
+
+  CEnumerationPtr ptrDeviceType = m_camera->GetTLDeviceNodeMap().GetNode("DeviceType");
+  if (IsAvailable(ptrDeviceType) && IsReadable(ptrDeviceType)) {
+    if (ptrDeviceType->GetIntValue() == Spinnaker::DeviceType_GigEVision) {
       if (IsAvailableAndWritable(m_camera->DeviceLinkThroughputLimit)) {
         m_camera->DeviceLinkThroughputLimit.SetValue(
           camera_settings.get_device_link_throughput_limit());
@@ -229,12 +236,15 @@ void CameraWrapper::configure_camera(
       }
     }
   }
-  if (IsAvailableAndWritable(m_camera->AcquisitionFrameRateEnable))
-  {
-    m_camera->AcquisitionFrameRateEnable.SetValue(true);
-    if(IsAvailableAndWritable(m_camera->AcquisitionFrameRate))
-    {
-      m_camera->AcquisitionFrameRate.SetValue(camera_settings.get_fps());
+
+  CBooleanPtr ptrFrameRateEnable = m_camera->GetNodeMap().GetNode("AcquisitionFrameRateEnable");
+  INodeMap& nodeMap = m_camera->GetNodeMap();
+  CFloatPtr ptrAcquisitionFrameRate = nodeMap.GetNode("AcquisitionFrameRate");
+
+  if (IsAvailable(ptrFrameRateEnable) && IsWritable(ptrFrameRateEnable)) {
+    ptrFrameRateEnable->SetValue(true);
+    if (IsAvailable(ptrAcquisitionFrameRate) && IsWritable(ptrAcquisitionFrameRate)) {
+      ptrAcquisitionFrameRate->SetValue(camera_settings.get_fps());
     }
   }
   if (IsAvailableAndWritable(m_camera->PixelFormat)) {
