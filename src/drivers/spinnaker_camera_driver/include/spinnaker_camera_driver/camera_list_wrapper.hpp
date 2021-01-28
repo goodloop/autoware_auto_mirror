@@ -16,7 +16,7 @@
 #define SPINNAKER_CAMERA_DRIVER__CAMERA_LIST_WRAPPER_HPP_
 
 #ifndef DOXYGEN_SKIP
-#include <spinnaker/Spinnaker.h>
+#include <Spinnaker.h>
 #endif
 
 #include <sensor_msgs/msg/image.hpp>

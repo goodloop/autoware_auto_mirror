@@ -16,7 +16,7 @@
 #include <spinnaker_camera_driver/camera_wrapper.hpp>
 #include <spinnaker_camera_driver/camera_settings.hpp>
 
-#include <spinnaker/Spinnaker.h>
+#include <Spinnaker.h>
 
 #include <memory>
 #include <string>
