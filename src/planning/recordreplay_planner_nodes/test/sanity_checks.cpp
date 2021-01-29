@@ -61,7 +61,7 @@ TEST(mytest_base, basic)
 
   node_options_rr.append_parameter_override("heading_weight", heading_weight);
   node_options_rr.append_parameter_override("min_record_distance", min_record_distance);
-  node_options_rr.append_parameter_override("enable_obstacle_detection", true);
+  node_options_rr.append_parameter_override("enable_object_collision_estimator", true);
   auto plannernode = std::make_shared<RecordReplayPlannerNode>(node_options_rr);
 
   using PubAllocT = rclcpp::PublisherOptionsWithAllocator<std::allocator<void>>;

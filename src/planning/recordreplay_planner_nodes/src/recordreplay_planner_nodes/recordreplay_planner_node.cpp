@@ -22,6 +22,7 @@
 
 using autoware::common::types::float32_t;
 using autoware::common::types::float64_t;
+using autoware::common::types::bool8_t;
 
 namespace motion
 {
@@ -38,6 +39,9 @@ RecordReplayPlannerNode::RecordReplayPlannerNode(const rclcpp::NodeOptions & nod
     static_cast<float64_t>(declare_parameter("heading_weight").get<float32_t>());
   const auto min_record_distance =
     static_cast<float64_t>(declare_parameter("min_record_distance").get<float32_t>());
+
+  m_enable_object_collision_estimator =
+    static_cast<bool8_t>(declare_parameter("enable_object_collision_estimator").get<bool8_t>());
 
   init(ego_topic, trajectory_topic, heading_weight, min_record_distance);
 }
@@ -130,12 +134,21 @@ void RecordReplayPlannerNode::on_ego(const State::SharedPtr & msg)
     const auto & traj_raw = m_planner->plan(*msg);
 
     // Request service to consider object collision
-    auto request = std::make_shared<ModifyTrajectory::Request>();
-    request->original_trajectory = traj_raw;
-    auto result = m_modify_trajectory_client->async_send_request(
-      request, std::bind(
-        &RecordReplayPlannerNode::modify_trajectory_response,
-        this, std::placeholders::_1));
+    if (m_enable_object_collision_estimator) {
+      auto request = std::make_shared<ModifyTrajectory::Request>();
+      request->original_trajectory = traj_raw;
+      auto result = m_modify_trajectory_client->async_send_request(
+        request, std::bind(
+          &RecordReplayPlannerNode::modify_trajectory_response,
+          this, std::placeholders::_1));
+    } else {
+      m_trajectory_pub->publish(traj_raw);
+
+      // Publish replaying feedback information
+      auto feedback_msg = std::make_shared<ReplayTrajectory::Feedback>();
+      feedback_msg->remaining_length = static_cast<int32_t>(traj_raw.points.size());
+      m_replaygoalhandle->publish_feedback(feedback_msg);
+    }
   }
 }
 
