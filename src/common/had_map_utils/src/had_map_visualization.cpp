@@ -614,8 +614,7 @@ visualization_msgs::msg::MarkerArray areasAsTriangleMarkerArray(
     lanelet::LineString3d ls;
     ls.setId(area.id());
     const auto compound_polygon = area.outerBoundPolygon();
-    for(auto pt : compound_polygon)
-    {
+    for (auto pt : compound_polygon) {
       ls.push_back(lanelet::Point3d(pt.id(), pt.basicPoint()));
     }
     linestrings.push_back(ls);

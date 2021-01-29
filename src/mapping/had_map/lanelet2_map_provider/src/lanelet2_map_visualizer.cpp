@@ -103,7 +103,8 @@ void Lanelet2MapVisualizer::visualize_map_callback(
   // for parking spots defined as areas (LaneletOSM definition)
   auto ll_areas = autoware::common::had_map_utils::getAreaLayer(sub_map);
   auto ll_parking_areas = autoware::common::had_map_utils::subtypeAreas(ll_areas, "parking_spot");
-  auto ll_parking_access_areas = autoware::common::had_map_utils::subtypeAreas(ll_areas, "parking_access");
+  auto ll_parking_access_areas = autoware::common::had_map_utils::subtypeAreas(ll_areas,
+      "parking_access");
 
   insertMarkerArray(
     map_marker_array,
