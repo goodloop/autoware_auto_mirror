@@ -97,7 +97,9 @@ void RecordReplayPlannerNode::init(
 
   // Set up services
   m_modify_trajectory_client = this->create_client<ModifyTrajectory>("estimate_collision");
-  while (!m_modify_trajectory_client->wait_for_service(3s)) {
+  while (m_enable_object_collision_estimator &&
+    !m_modify_trajectory_client->wait_for_service(3s))
+  {
     if (!rclcpp::ok()) {
       RCLCPP_ERROR(get_logger(), "Interrupted while waiting for service.");
       rclcpp::shutdown();
