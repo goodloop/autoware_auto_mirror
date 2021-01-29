@@ -482,6 +482,25 @@ void lineString2Polygon(
   }
 }
 
+void area2Polygon(
+  const lanelet::Area & area,
+  geometry_msgs::msg::Polygon * polygon)
+{
+  if (polygon == nullptr) {
+    throw std::runtime_error("lineString2Polygon() polygon is null pointer!");
+    return;
+  }
+
+  polygon->points.clear();
+  polygon->points.reserve(area.outerBoundPolygon().size());
+
+  for (const auto & pt : area.outerBoundPolygon()) {
+    geometry_msgs::msg::Point32 pt32;
+    toGeomMsgPt32(pt.basicPoint(), &pt32);
+    polygon->points.push_back(pt32);
+  }
+}
+
 void lanelet2Polygon(
   const lanelet::ConstLanelet & ll,
   geometry_msgs::msg::Polygon * polygon)

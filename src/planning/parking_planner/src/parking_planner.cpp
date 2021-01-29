@@ -355,6 +355,10 @@ lanelet::Polygon3d coalesce_drivable_areas(
       // The ID corresponds to a lanelet, so the find() call below should not become null
       lanelet::ConstLanelet current_area = *lanelet_map_ptr->laneletLayer.find(map_primitive.id);
       autoware::common::had_map_utils::lanelet2Polygon(current_area, &current_area_polygon);
+    } else if (lanelet_map_ptr->areaLayer.exists(map_primitive.id)) {
+      // The ID corresponds to a lanelet, so the find() call below should not become null
+      lanelet::Area current_area = *lanelet_map_ptr->areaLayer.find(map_primitive.id);
+      autoware::common::had_map_utils::area2Polygon(current_area, &current_area_polygon);
     } else {
       // This might happen if a primitive is on the route, but outside of the bounding box that we
       // query the map for. Not sure how to deal with this at this point though.

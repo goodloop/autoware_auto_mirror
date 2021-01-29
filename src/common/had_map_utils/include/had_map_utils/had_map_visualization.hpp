@@ -124,6 +124,10 @@ void HAD_MAP_UTILS_PUBLIC lineString2Polygon(
   const lanelet::LineString3d & ls,
   geometry_msgs::msg::Polygon * polygon);
 
+void HAD_MAP_UTILS_PUBLIC area2Polygon(
+  const lanelet::Area & area,
+  geometry_msgs::msg::Polygon * polygon);
+
 void HAD_MAP_UTILS_PUBLIC lanelet2Polygon(
   const lanelet::ConstLanelet & ll,
   geometry_msgs::msg::Polygon * polygon);
