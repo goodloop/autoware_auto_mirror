@@ -67,23 +67,32 @@ To obtain more details on the command-line usage, call:
 ade$ ros run autoware_auto_create_pkg main.py --help
 ```
 
-Once the package has been created with for example `--pkg-name foo`, follow these steps to launch the node:
+Once the package has been created with for example `--pkg-name foo`, build and test it.
 
 ```
 colcon build --packages-select foo
 colcon test  --packages-select foo
+```
 
+Then follow these steps to run the node from a launch file:
+
+```
 source install/setup.bash
 ros2 launch foo foo.launch.py
 ```
 
-The output of the launch should be similar to:
+The output should be similar to:
 
 ```
-[component_container-1] [INFO] [1611837756.040093566] [foo_container]: Found class: rclcpp_components::NodeFactoryTemplate<autoware::foo::FooNode>
-[component_container-1] [INFO] [1611837756.040216958] [foo_container]: Instantiate class: rclcpp_components::NodeFactoryTemplate<autoware::foo::FooNode>
 [component_container-1] Hello World
 [INFO] [launch_ros.actions.load_composable_nodes]: Loaded node '/foo_node' in container '/foo_container'
+```
+
+Alternatively run the node executable directly:
+
+```
+source install/setup.bash
+ros2 run foo foo_node_exe
 ```
 
 ## References / External links

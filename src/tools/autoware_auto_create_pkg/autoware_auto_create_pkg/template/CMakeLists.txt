@@ -57,7 +57,10 @@ ament_auto_add_library(${PROJECT_NAME}_node SHARED
   ${HELLO_WORLD_NODE_HEADERS}
 )
 autoware_set_compile_options(${PROJECT_NAME}_node)
-rclcpp_components_register_nodes(${PROJECT_NAME}_node "autoware::hello_world::HelloWorldNode")
+rclcpp_components_register_node(${PROJECT_NAME}_node
+  PLUGIN "autoware::hello_world::HelloWorldNode"
+  EXECUTABLE ${PROJECT_NAME}_node_exe
+)
 
 # Testing
 if(BUILD_TESTING)
