@@ -2,4 +2,4 @@
 
 ## Domain Description
 
-### Examples
+The `urdf` sub-directory contains descriptions of the vehicle dimentions and sensor layouts.
