@@ -30,7 +30,6 @@ from tf2_msgs.msg import TFMessage
 from nav_msgs.msg import Odometry
 
 import math
-import os
 import sys
 
 import matplotlib.pyplot as pp
@@ -198,7 +197,8 @@ class ControllerTestingNode(Node):
             # assuming non-realtime is at least 10 times faster, and adding 1 sec buffer
             assumed_timeout = (self.param_stop_n_report_time_s / 10.0) + 1.0
             if (self.get_clock().now() - self.init_time) > Duration(seconds=assumed_timeout):
-                self.final_report()
+                # only call in manual testing
+                # self.final_report()
                 self.shutdown()
 
     def control_callback(self, current_command_msg):
@@ -225,7 +225,8 @@ class ControllerTestingNode(Node):
         # Check if we want to continue with the simulation
         if self.param_stop_n_report_time_s != 0:
             if self._simulator.simulation_time >= self.param_stop_n_report_time_s:
-                self.final_report()
+                # only call in manual testing
+                # self.final_report()
                 self.shutdown()
 
         # Trigger one simulation step and update current state. In externally
@@ -287,10 +288,6 @@ class ControllerTestingNode(Node):
         self._traj_cache = init_trajectory_msg
 
     def final_report(self):
-        # no-op in CI because no graphical output available
-        if "CI_MERGE_REQUEST_ID" in os.environ:
-            return
-
         # TODO(s.merkli) expand on this - maybe also write the data to a file and analyze
         # in separate code.
 
