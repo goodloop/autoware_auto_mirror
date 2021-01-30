@@ -82,48 +82,6 @@ To see the compiler and linker invocations for a package, use
 ```bash
 `VERBOSE=1 colcon build --packages-up-to <package_name> --event-handlers console_direct+
 ```
-and see [the colcon documentation](https://colcon.readthedocs.io/en/released/user/quick-start.html). In the following, a few of the most useful options are listed.
-Note that `colcon` options are spelled with an underscore instead of a dash – this is a common cause of typos.
-
-
-### Selecting packages to build
-To just build a single package:
-
-```bash
-colcon build --packages-select <package_name>
-```
-
-Note that this does not automatically also build or rebuild its dependencies recursively. To do that:
-
-```bash
-colcon build --packages-up-to <package_name>
-```
-
-These options are also accepted by `colcon test`.
-
-To add a compiler flag to all packages, e.g. for enabling the undefined behavior sanitizer:
-```bash
-colcon build --cmake-args -DCMAKE_CXX_FLAGS="-fsanitize=undefined"
-```
-
-### Cleaning the build output
-`colcon` isn't very good at being stateless, so when you build, make changes, and build again, you can sometimes end up with a different result than when you build from scratch. To make sure you're getting a fresh build of a package, just do
-
-```bash
-rm -rf {build,install}/my_package
-```
-
-to remove all build artifacts associated with that package. Alternatively, if you don't want to delete the old binaries, you can specify custom build and install directories:
-
-```bash
-colcon build --build-base build_mybranch --install-base install_mybranch
-```
-
-### Seeing compiler commands
-To see the compiler and linker invocations for a package, use 
-```bash
-`VERBOSE=1 colcon build --packages-up-to <package_name> --event-handlers console_direct+
-```
 
 
 ## Starting from a clean slate
