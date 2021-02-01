@@ -86,6 +86,7 @@ void ControllerBaseNode::init(
   using rclcpp::QoS;
   // Subs
   using SubAllocT = rclcpp::SubscriptionOptionsWithAllocator<std::allocator<void>>;
+  const QoS transient_local_qos = QoS{10}.transient_local();
   m_state_sub = create_subscription<State>(
     state_topic, QoS{10},
     [this](const State::SharedPtr msg) {on_state(msg);}, SubAllocT{});
@@ -96,7 +97,7 @@ void ControllerBaseNode::init(
     tf_topic, QoS{10},
     [this](const TFMessage::SharedPtr msg) {on_tf(msg);}, SubAllocT{});
   m_static_tf_sub = create_subscription<TFMessage>(
-    static_tf_topic, QoS{10},
+    static_tf_topic, transient_local_qos,
     [this](const TFMessage::SharedPtr msg) {on_static_tf(msg);}, SubAllocT{});
   // Pubs
   using PubAllocT = rclcpp::PublisherOptionsWithAllocator<std::allocator<void>>;
