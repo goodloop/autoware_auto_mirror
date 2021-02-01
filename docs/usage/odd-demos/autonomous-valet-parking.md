@@ -40,7 +40,7 @@ A sample car is available, based on a real-life vehicle used by many members of 
 
 ## Physical demo
 
-The physical AVP demo was tested with a Lexus 450 LH with
+The physical AVP demo was tested with a Lexus RX 450h with
 
 - the [Pacmod 3.0](https://autonomoustuff.com/product/small-ev-by-wire-kits/) DBW interface
 - 2 [Velodyne VLP-32Cs](https://velodynelidar.com/products/ultra-puck/)
