@@ -1,5 +1,5 @@
-# URDF
+URDF {#autoware-urdf-design}
 
-## Domain Description
+# Domain Description
 
 The `urdf` sub-directory contains descriptions of the vehicle dimentions and sensor layouts.

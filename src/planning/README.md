@@ -1,11 +1,11 @@
 Planning {#autoware-planning-design}
 ========
 
-## Domain Description
+# Domain Description
 
 The `planning` sub-directory contains nodes and libraries related to producing a trajectory towards the goal destination. These include packages may not necessarily be able to produce a refined trajectory but are involved in the planning process in order to alleviate the complexity of the path planning optimization problem. In addition, this directory also contains nodes used for testing and recording of the trajectory generation process.
 
-## Subpages
+# Subpages
 
 - Behavior planner
   - @subpage behavior-planner

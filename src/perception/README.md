@@ -1,12 +1,12 @@
 Perception {#autoware-perception-design}
 ==========
 
-## Domain Description
+# Domain Description
 
 The `perception` sub-directory is divided into two sections `filters` and `segmentation`. The `filters` directory contains nodes and libraries part of the filter pipeline for sensor outputs. Nodes in this directory are able to work as a standalone filtering modules or cascaded with other filtering algorithms working on the same sensor data types. Packages under the `segmentation` directory enable sensor data to be classified and grouped into part or objects of interest which can provide downstream procsses more information about the environment.
 
-## Subpages
+# Subpages
 
 - @subpage autoware-perception-filters-design
 - @subpage autoware-perception-segmentation-design
-- @subpage lidar-integration-design
+<!-- - @subpage lidar-integration-design -->
