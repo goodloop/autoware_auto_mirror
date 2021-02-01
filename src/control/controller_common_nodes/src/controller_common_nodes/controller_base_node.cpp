@@ -86,6 +86,9 @@ void ControllerBaseNode::init(
   using rclcpp::QoS;
   // Subs
   using SubAllocT = rclcpp::SubscriptionOptionsWithAllocator<std::allocator<void>>;
+  // Since Foxy, static transforms are not published periodically but instead with
+  // a StaticBroadcasterQoS which has transient_local durability. If the subscriber
+  // isn't also transient_local, it will often miss the static transform message.
   const QoS transient_local_qos = QoS{10}.transient_local();
   m_state_sub = create_subscription<State>(
     state_topic, QoS{10},
