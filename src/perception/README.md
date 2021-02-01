@@ -9,4 +9,3 @@ The `perception` sub-directory is divided into two sections `filters` and `segme
 
 - @subpage autoware-perception-filters-design
 - @subpage autoware-perception-segmentation-design
-<!-- - @subpage lidar-integration-design -->

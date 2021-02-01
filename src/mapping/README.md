@@ -7,5 +7,6 @@ The `mapping` sub-directory contains nodes and libaries which create and publish
 
 # Subpages
 
+- @subpage mapping-design
 - @subpage ndt-mapping-nodes
 - @subpage lanelet2-map-provider

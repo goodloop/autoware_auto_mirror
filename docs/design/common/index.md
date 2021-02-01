@@ -10,3 +10,5 @@ Common {#autoware-common-design}
 - @subpage mpark_variant_vendor-package-design
 - @subpage motion-model
 - @subpage reference-tracking-controller-design
+- @subpage lidar-integration-design
+- @subpage signal-filters-design

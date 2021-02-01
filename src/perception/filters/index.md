@@ -3,7 +3,6 @@ Filters {#autoware-perception-filters-design}
 
 # Subpages
 
-<!-- - @subpage signal-filters-design -->
 - @subpage point-cloud-filter-transform-nodes
 - @subpage point-cloud-fusion-nodes
 - @subpage ray-aggregator-design
