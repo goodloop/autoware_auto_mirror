@@ -22,7 +22,7 @@ Every developer is encouraged to be familiar with our [contributor guidelines](h
 
 This is a template with a trimmed-down checklist for small MRs. Use it when no new functions, classes or other things that require testing have been added.
 
-Examples are pure documentation MRs, a fix for an off-by-one error, or changing log messages to be more informative. When in doubt, use the regular template.
+Examples are changes to documentation only, a fix for an off-by-one error, improving the CI, or changing log messages to be more informative. When in doubt, use the regular template.
 
 </details>
 
