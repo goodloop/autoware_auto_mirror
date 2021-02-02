@@ -70,7 +70,7 @@ Mark all the items that are done.
 <details>
   <summary markdown="span"><a name="new-node">Checklist for new ROS2 nodes</a></summary>
 
-1. [ ] Every nodes is [registered as a component](https://autowarefoundation.gitlab.io/autoware.auto/AutowareAuto/contributor-guidelines.html#contributors-guidelines-components)
+1. [ ] Every node is [registered as a component](https://autowarefoundation.gitlab.io/autoware.auto/AutowareAuto/contributor-guidelines.html#contributors-guidelines-components)
 1. [ ] The [naming conventions](https://autowarefoundation.gitlab.io/autoware.auto/AutowareAuto/autoware-common-naming-guidelines.html) are followed
 1. [ ] At least the basic launch integration test is included
 
