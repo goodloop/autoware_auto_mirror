@@ -89,6 +89,9 @@ public:
   void set_image_callback(CameraWrapper::ImageCallbackFunction callback);
 
 private:
+  /// Get the serial number of camera.
+  static std::string get_camera_serial_number(const Spinnaker::CameraPtr camera);
+
   /// A handle to the camera list pointer.
   Spinnaker::CameraList m_camera_list{};
   /// We also store the cameras along with the camera list.
