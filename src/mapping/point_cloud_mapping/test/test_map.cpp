@@ -153,8 +153,8 @@ void autoware::mapping::point_cloud_mapping::check_pc(PclCloud & pc, std::size_t
   std::transform(
     pc.begin(), pc.end(), std::inserter(read_pts, read_pts.end()), [](
       const auto & pt) {
-      EXPECT_NEAR(pt.x, pt.y, autoware::common::types::FEPS);
-      EXPECT_NEAR(pt.z, pt.y, autoware::common::types::FEPS);
+      EXPECT_NEAR(pt.x, pt.y, autoware::common::types::FEPS * 10);
+      EXPECT_NEAR(pt.z, pt.y, autoware::common::types::FEPS * 10);
       return static_cast<size_t>(pt.x);
     });
   for (auto i = 0U; i < size; ++i) {
