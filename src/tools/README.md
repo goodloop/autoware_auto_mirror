@@ -3,7 +3,9 @@ Tools {#autoware-tools-design}
 
 # Domain Description
 
-The `tools` sub-directory contains nodes and packages which support the development of the Autoware.Auto software by providing developer tools for automating simple tasks and providing visualization tools and interfaces for debugging.
+The `tools` sub-directory contains nodes and packages which support the development of the 
+Autoware.Auto software by providing developer tools for automating simple tasks and providing 
+visualization tools and interfaces for debugging.
 
 # Subpages
 
