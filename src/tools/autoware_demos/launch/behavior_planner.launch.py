@@ -148,22 +148,6 @@ def generate_launch_description():
         parameters=[LaunchConfiguration('mpc_controller_param_file')]
     )
 
-    object_collision_estimator_param = DeclareLaunchArgument(
-        'object_collision_estimator_param_file',
-        default_value=str(param_path / 'object_collision_estimator.param.yaml'),
-        description='Path to paramter file for object collision estimator'
-    )
-    object_collision_estimator = Node(
-        package='object_collision_estimator_nodes',
-        node_name='object_collision_estimator_node',
-        node_namespace='planning',
-        node_executable='object_collision_estimator_node_exe',
-        parameters=[LaunchConfiguration('object_collision_estimator_param_file')],
-        remappings=[
-            ('obstacle_topic', '/perception/lidar_bounding_boxes'),
-        ]
-    )
-
     parking_planner_param = DeclareLaunchArgument(
         'parking_planner_param_file',
         default_value=str(param_path / 'parking_planner.param.yaml'),
@@ -210,8 +194,6 @@ def generate_launch_description():
         map_publisher,
         mpc_controller_param,
         mpc_controller,
-        object_collision_estimator_param,
-        object_collision_estimator,
         parking_planner_param,
         parking_planner,
         rviz2,
