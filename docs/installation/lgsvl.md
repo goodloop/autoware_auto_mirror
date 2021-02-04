@@ -49,14 +49,18 @@ ade$ /opt/lgsvl/simulator
 
 Now start your favorite browser and go to [http://127.0.0.1:8080](http://127.0.0.1:8080) where simulations can be configured.
 
-**Note:** Since CycloneDDS is now the default DDS implementation in `ade`, prefixing `RMW_IMPLEMENTATION=rmw_cyclonedds_cpp` to the simulator command is no longer necessary.
-However, if you are not using the latest version of the Autoware.Auto Docker containers or source code, you may receive errors when launching LGSVL.
-If this is the case, try prefixing the command above with `RMW_IMPLEMENTATION=rmw_cyclonedds_cpp`.
-
 **Note:** When running LGSVL Simulator in a Docker container, the "Open Browser..." button in the simulator window does not work.
 
 **Note:** When running LGSVL Simulator for the first time, you may be asked to log into [https://account.lgsvlsimulator.com/](https://account.lgsvlsimulator.com/).
 If you have an account, log in. If you do not have an account, create one, then log in.
+
+#### Troubleshooting
+
+In case the simulator window opens up with a black screen and the application immediately terminates, remove conflicting graphics drivers from ADE with
+
+```
+ade$ sudo apt remove mesa-vulkan-drivers
+```
 
 ### Configuring a vehicle
 
@@ -66,8 +70,8 @@ To configure the Lexus model, do the following in the browser:
 to add it and use the URL `https://assets.lgsvlsimulator.com/ea5e32fe566065c6d1bbf1f0728d6654c94e375d/vehicle_AWFLexus2016RXHybrid`
 
   - Click on the wrench icon for the Lexus vehicle
-  - Change the bridge type to `ROS2 Native`
-  - In the `Sensors:` box, copy and paste the content of the `lgsvl-sensors.json` file in the root of the AutowareAuto repository
+  - Change the bridge type to `Ros2NativeBridge` (Dashing: `ROS2 Native`)
+  - In the `Sensors` box, copy and paste the content of the `lgsvl-sensors.json` [file](https://gitlab.com/autowarefoundation/autoware.auto/AutowareAuto/-/blob/master/lgsvl-sensors.json) located at the root of the AutowareAuto repository
 
 The above steps are a modified version of the
 [LGSVL documentation](https://www.lgsvlsimulator.com/docs/autoware-auto-instructions/#run-simulator-alongside-autowareauto)
@@ -80,12 +84,13 @@ To create a new simulation, follow the below steps:
 
 - Switch to the Simulations tab and click the `Add new` button
 - Enter a name and switch to the `Map & Vehicles` tab
-- Select a map from the drop down menu. If none are available follow [this guide](https://www.lgsvlsimulator.com/docs/maps-tab/#where-to-find-maps) to get a map.
-- Select the `Lexus2016RXHybrid` from the drop down menu. In the bridge connection box to the right enter the bridge address. For the default setting, use `127.0.0.1:9090`.
+- Select a map from the drop down menu. If none is available, follow [this guide](https://www.lgsvlsimulator.com/docs/maps-tab/#where-to-find-maps) to get a map.
+- Select the `Lexus2016RXHybrid` from the drop-down menu. In the bridge connection box to the right, enter the bridge address. For the default setting, use `127.0.0.1:9090`.
 - Click submit
 
-Once the simulation has been created, you can select and run it.
+Once the simulation has been created, you can select and run it by clicking the play button.
 
+TODO @Josh do we still need the next paragraph?
 ### Using the ROS2 Native Bridge
 
 The "ROS2 Native Bridge" is a special bridge type which does not require a websocket-based bridge.
@@ -99,7 +104,7 @@ simulator expects
 -# Provides a mapping from `VehicleControlCommand` to the `RawControlCommand` LGSVL expects via
 parametrizable 1D lookup tables
 
-To run the `lgsvl_interface`, enter the following in a new terminal window:
+To run the `lgsvl_interface` manually, enter the following in a new terminal window:
 
 ```
 $ ade enter
@@ -125,18 +130,7 @@ ade$ ros2 launch lgsvl_interface lgsvl_vehicle_control_command.launch.py
 
 ## Troubleshooting
 
-### You don't see the "ROS2 Native" bridge option
-
-Your version of the `ade` container for LGSVL is probably out-of-date.
-Update it using the following commands, once you have left `ade` with `exit`:
-
-```
-ade stop
-git pull
-source .aderc-lgsvl
-ade start --update --enter
-```
-
+<!-- TODO COuldn't test this with joystick myself -->
 ### The brake/throttle/steering does not work
 
 The joystick control mapping is not deterministic. It is occasionally necessary to modify the axis
@@ -159,7 +153,7 @@ make a copy.
 
 ### There are no data on the /joy topic
 
-Ensure that `/dev/input/js0` is available from within ade.
+Ensure that `/dev/input/js0` is available from within ADE.
 
 **Note:**  Sourcing the `.aderc-lgsvl` file should achieve this through the `ADE_DOCKER_RUN_ARGS` environment variable.
 
