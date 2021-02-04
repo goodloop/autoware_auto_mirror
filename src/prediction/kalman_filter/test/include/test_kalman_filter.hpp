@@ -262,7 +262,7 @@ TEST(srcf_core, triangularization)
     1, -1, 1,
     1, 1, 0;
   Matrix<float32_t, 3, 3> C(A), D(A), E(A);
-  Matrix<float32_t, 3, 1> B;  // zero
+  Matrix<float32_t, 3, 1> B{Matrix<float32_t, 3, 1>::Zero()};
   // TODO(ltbj): implement memory_test after the completion of #39
   // osrf_testing_tools_cpp::memory_test::start();
   core.right_lower_triangularize_matrices(A, B);
@@ -357,7 +357,7 @@ TEST(esrcf, convergence)
     0.0F, 0.0F, 0.1F, 0.0F,
     0.0F, 0.0F, 0.0F, 0.1F;
 
-  Matrix<float32_t, 4, 1> x({0, 0, 1, -1});  // all 0's
+  Matrix<float32_t, 4, 1> x({0, 0, 1, -1});
   // cholesky of: (so there is some covariance wrt hidden state
   // 1   0   0.5 0
   // 0   1   0   0.5
@@ -570,14 +570,16 @@ TEST(esrcf, hidden_state)
 TEST(esrcf, imm_mix)
 {
   static const uint32_t dim = 2U;
-  Matrix<float32_t, dim, dim> P1, P2, P, C, GQ;
-  Matrix<float32_t, dim, 1> x1, x2, x_mix;
+  Matrix<float32_t, dim, dim> P1, P2, P, C;
   P1 << 2.0F, 2.0F, 2.0F, 4.0F;
   P2 << 2.0F, 1.0F, 1.0F, 2.0F;
   C = P1;
-  Eigen::LLT<Eigen::Ref<decltype(C)>> llt(C);
+  Matrix<float32_t, dim, dim> GQ{Matrix<float32_t, dim, dim>::Zero()};
 
+  Eigen::LLT<Eigen::Ref<decltype(C)>> llt(C);
   C(0U, 1U) = 0.0F;
+
+  Matrix<float32_t, dim, 1> x1, x2, x_mix;
   const float32_t u1 = 0.75F;
   const float32_t u2 = 0.25F;
   x1 = {-3.0F, 5.0F};
