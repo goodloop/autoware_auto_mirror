@@ -25,11 +25,12 @@ $ pip3 install -U colcon-common-extensions vcstool
 # ROS 2 core {#installation-noade-ros2-core}
 
 First, the [ROS 2](https://index.ros.org/doc/ros2/) core components and tools must be installed. The full guide is available at [ROS 2 Installation](https://index.ros.org/doc/ros2/Installation/).
-Once installed source the setup file.
+Once installed source the setup file:
 
 ```{bash}
-source /opt/ros/<distro>/setup.bash
+source /opt/ros/$ROS_DISTRO/setup.bash
 ```
+where `ROS_DISTRO` is one of the supported version mentioned in @ref target-environments-software.
 
 # ROS 2 package dependencies {#installation-noade-ros2-dependencies}
 

@@ -31,22 +31,6 @@ Guidelines and Best Practices {#contributor-guidelines}
   3. If another merge request is merged before yours, your merge request is out of date and needs to be rebased and CI needs to run again.
 
 
-# System Dependencies and Target Environments
-
-Autoware.Auto targets the environments and applications listed below. These may change in future versions.
-
-## Target Platforms
-
-- `amd64` / `x86_64` (Intel/AMD)
-- `arm64` / `aarch64` / `arm64v8` (ARM v8, 64-bit)
-
-## Target Versions
-
-| ROS Version                         | Operating System | System Dependencies
-|-------------------------------------|------------------|------------------------------------------------------------------------------------------------|
-| ROS2 Foxy (**active development**)  | Ubuntu 20.04 LTS | [REP-2000 section](https://www.ros.org/reps/rep-2000.html#foxy-fitzroy-may-2020-may-2023)      |
-| ROS2 Dashing (**maintenance only**) | Ubuntu 18.04 LTS | [REP-2000 section](https://www.ros.org/reps/rep-2000.html#dashing-diademata-may-2019-may-2021) |
-
 # Guidelines for General Code Development
 
 Only C++14 and below is allowed for functional code.
@@ -55,7 +39,7 @@ CMake is the preferred build system, it should integrate with Colcon.
 Deviations need to be approved by the maintainers.
 
 The requirements for C++14 and Python 3.7+ align with compiler and tooling support found in ROS Foxy.
-This may change in the future as new OS or ROS environments are targeted.
+This may change in the future as new OS or ROS environments are targeted; see @ref target-environments for details.
 
 ## Building
 See @ref building.

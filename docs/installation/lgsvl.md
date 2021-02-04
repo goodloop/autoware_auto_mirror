@@ -25,7 +25,7 @@ Using the simulator involves the following steps:
 -# Configure a vehicle
 -# Choose or create a simulation
 -# Bridge the simulator with Autoware.Auto
--# Start the simulations
+-# Start the simulation
 
 This section outlines these steps.
 
