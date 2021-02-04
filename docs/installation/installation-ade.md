@@ -42,7 +42,8 @@ parent directories to identify the ADE home directory to be mounted.
 
 ```
 $ mkdir adehome
-$ cd adehome
+$ mkdir -p ~/adehome
+$ cd ~/adehome
 $ touch .adehome
 ```
 
