@@ -90,7 +90,7 @@ To create a new simulation, follow the below steps:
 
 Once the simulation has been created, you can select and run it by clicking the play button.
 
-TODO @Josh do we still need the next paragraph?
+TODO Josh do we still need the next paragraph?
 ### Using the ROS2 Native Bridge
 
 The "ROS2 Native Bridge" is a special bridge type which does not require a websocket-based bridge.
