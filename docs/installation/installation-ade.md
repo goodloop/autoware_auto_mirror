@@ -41,7 +41,6 @@ starting with the current working directory and continuing with the
 parent directories to identify the ADE home directory to be mounted.
 
 ```
-$ mkdir adehome
 $ mkdir -p ~/adehome
 $ cd ~/adehome
 $ touch .adehome
