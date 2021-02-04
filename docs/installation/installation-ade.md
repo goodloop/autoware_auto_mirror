@@ -60,9 +60,9 @@ $ git clone https://gitlab.com/autowarefoundation/autoware.auto/AutowareAuto.git
 ```
 
 ## Sharing files between your host and ADE
-You might want to share files such as dotfiles or handy programs from your host machine with ADE.
-One way to do that without duplicating them is to move them inside the `adehome` directory, then symlink
-them to their regular location. For instance, you could move `~/.bashrc` to `~/adehome/.bashrc` and make
+You might want to share files such as dotfiles or handy programs from your host machine with ADE. If you only have
+a single `adehome` directory, there is a way to do that without duplicating them: move them inside the `adehome` directory,
+then symlink them to their regular location. For instance, you could move `~/.bashrc` to `~/adehome/.bashrc` and make
 `~/.bashrc` be a symlink to that. It will then appear as `~/.bashrc` to the host machine and to ADE. You
 can also put handy programs in `~/.local/bin` and move the entire `~/.local` directory. The opposite direction
 will not work, files in a Docker container can not be symlinks to the outside.
