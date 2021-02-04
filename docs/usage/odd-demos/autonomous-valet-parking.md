@@ -1,6 +1,8 @@
 Autonomous Valet Parking demonstration {#avpdemo}
 =================================================
 
+[TOC]
+
 The Autonomous Valet Parking (AVP) demonstration uses Autoware.Auto to provide a valet parking service in the parking lot ODD.
 
 ![Autonomous valet parking](images/valet_parking.jpeg)

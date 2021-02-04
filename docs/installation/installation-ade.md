@@ -21,7 +21,7 @@ Follow the [install](https://ade-cli.readthedocs.io/en/latest/install.html) inst
 4. Make the binary executable: `chmod +x ade`
 5. Check that it is installed:
 
-```bash
+```{bash}
 $ which ade
 /path/to/ade
 $ ade --version
@@ -86,7 +86,7 @@ drive. Follow the steps below to clean the Docker filesytem of stale images.
 
 First, verify that ADE is running:
 
-```bash
+```{bash}
 $ cd ~/adehome/AutowareAuto
 $ ade start
 ```
