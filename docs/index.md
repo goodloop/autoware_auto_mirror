@@ -32,6 +32,12 @@ Each use case is designed with respect to a target Operational Design Domain (OD
 * First, install Autoware.Auto: @subpage installation.
 * After that, continue with @subpage usage.
 
+
+# Help
+
+Check the @subpage support-guidelines for various ways to get help.
+
+
 # Contributing
 * @subpage building has instructions and troubleshooting for compiling Autoware.Auto.
 * To get an overview of the algorithms and individual packages in Autoware.Auto, read @subpage design.
