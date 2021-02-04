@@ -1,4 +1,4 @@
-How to write tests and measure coverage {#how-to-write-tests-and-measure-coverage}
+How to Write Tests and Measure Coverage {#how-to-write-tests-and-measure-coverage}
 ========
 
 [TOC]

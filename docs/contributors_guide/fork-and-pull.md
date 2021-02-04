@@ -1,4 +1,4 @@
-How to develop in a fork {#develop-in-a-fork}
+How to Develop in a Fork {#develop-in-a-fork}
 ========================
 
 # Using fork-and-pull {#fork-and-pull}

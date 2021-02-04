@@ -1,35 +1,34 @@
-Guidelines and Best-Practices {#contributor-guidelines}
+Guidelines and Best Practices {#contributor-guidelines}
 ===========
 
 [TOC]
 
 # Contribution Workflow
 
-1. [Create an issue](https://gitlab.com/autowarefoundation/autoware.auto/AutowareAuto/-/issues/new?issue%5Bassignee_id%5D=&issue%5Bmilestone_id%5D=) defining your intended contribution.
+1. [Create an issue](https://gitlab.com/autowarefoundation/autoware.auto/AutowareAuto/-/issues/new?issue%5Bassignee_id%5D=&issue%5Bmilestone_id%5D=) defining your intended contribution
   1. Use one of the provided templates [by selecting one from the drop-down list](https://docs.gitlab.com/ee/user/project/description_templates.html#using-the-templates).
   2. Select yourself in the `Assignee` field.
   3. If you have permissions to do so, assign to an appropriate milestone. If you do not have permissions, [mention](https://about.gitlab.com/blog/2016/03/08/gitlab-tutorial-its-all-connected/#mention-others-and-assign) a [maintainer](https://gitlab.com/groups/autowarefoundation/autoware.auto/committers/-/group_members) in the issue for milestone assignment.
   4. The issue template you choose will assign one appropriate label for the issue type (bug, discussion, feature, or improvement).
      Assign any additional labels from the available list that you feel are appropriate for the issue's status or other attributes.
 
-2. Create a Fork
+2. Create a fork
   1. For more information about the fork-and-pull model, see the [Develop in a Fork](@ref develop-in-a-fork) page.
 
-3. Develop
-  1. See the rest of this document for guidelines and best-practices on contributing to Autoware.Auto.
+3. Write code
 
-4. Create a Merge Request
+4. Create a merge request
   1. For more information about the fork-and-pull model, see the [Develop in a Fork](@ref develop-in-a-fork) page.
 
-5. Finish a Merge Request
+5. Finish a merge request
   1. In order for a merge request to be merged to Autoware.Auto, it must meet the following criteria:
     - All discussions on the merge request must be resolved.
+    - All items of the merge-request checklist are checked off.
     - It must be approved by at least one maintainer.
     - CI jobs for the merge request must have passed successfully.
   2. If you have permissions, the "Merge" button will show up automatically on your merge request once the above criteria are met.
-     If you do not have permissions, ask a maintainer to merge the merge request if the above criteria are met.
-  3. If your merge request is from your fork to the Autoware.Auto repository and you have to rebase prior to merging, make sure you notify a maintainer as soon as possible after your rebase.
-     If another merge request is merged after you rebase, but before yours is merged, you will have to rebase again, which will trigger CI jobs to run again and slow down the merging of your merge request.
+     If you do not have permissions and the above criteria are met, assign the merge request to a [maintainer](https://gitlab.com/autowarefoundation/autoware.auto/AutowareAuto/-/project_members).
+  3. If another merge request is merged before yours, your merge request is out of date and needs to be rebased and CI needs to run again.
 
 
 # System Dependencies and Target Environments

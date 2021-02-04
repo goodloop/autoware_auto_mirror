@@ -24,7 +24,7 @@ Autoware.Auto initially targets the following two use cases:
 As of January 2021, the valet parking functionality has been implemented and was showcased in a [live vehicle demonstration](https://www.youtube.com/watch?v=MC7n8vwiLcg). It allows maneuvering at low speeds on a parking lot.
 
 The cargo delivery functionality is in development. It will allow driving in a more difficult environment with intersections and indoor navigation, at moderate speeds.
-Each use case is designed with respect to a target Operational Design Domain (ODD), and the current milestones for development can be viewed [here](https://gitlab.com/autowarefoundation/autoware.auto/-/milestones).
+Each use case is designed with respect to a target Operational Design Domain (ODD), and the current milestones for development can be viewed [here](https://gitlab.com/autowarefoundation/autoware.auto/AutowareAuto/-/milestones).
 
 
 # Getting started

@@ -1,4 +1,4 @@
-How to write integration tests {#integration-testing}
+How to Write Integration Tests {#integration-testing}
 ========
 
 [TOC]

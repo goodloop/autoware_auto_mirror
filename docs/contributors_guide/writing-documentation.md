@@ -1,4 +1,4 @@
-Writing documentation {#writing-documentation}
+Writing Documentation {#writing-documentation}
 =====================
 
 [TOC]
