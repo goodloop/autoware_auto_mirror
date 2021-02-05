@@ -18,7 +18,7 @@ The AVP demonstration uses Autoware.Auto to provide the following functions:
 4. Drive to a pre-defined pick-up zone (e.g. the exit from a carpark).
 5. Automatically stop for obstacles while achieving the above.
 
-The easiest way repeat the demonstration is to run it in simulation at home described in @ref avpdemo-simulation.
+The easiest way repeat the demonstration is to run it as @ref avpdemo-simulation.
 Given appropriate hardware, it can of course be repeated in real life as well as detailed in @ref avpdemo-physical.
 
 # Simulation demonstration {#avpdemo-simulation}
@@ -28,31 +28,40 @@ To run the LGSVL simulator, you will need an NVIDIA graphics card. Additional in
 
 @warning If the machine is oversubscribed by running both the simulation and the autonomous-driving stack, expect a performance degradation due to latencies, for example in the localization module.
 
-## Setup and launching
-
-- A simulated world of a carpark, if the demo will be run on a simulator.
-- A simulated version of your car.
-
-The AVP demo can be run in the LGSVL simulator.
-You can use the included sample carpark, or your own carpark.
-If using your own carpark, you will need to provide a simulated world for it as described in @ref avpdemo-prerequisites.
-
--# @ref installation-and-development-install-ade.
--# Follow the instructions on the @ref lgsvl page to install, launch, and configure a vehicle and simulation using the AutonomousStuff Parking Lot map (AS Parking Lot).
--# In a new terminal, run the launch file for Milestone 3:
-
-        $ ade enter
-        ade$ source /opt/AutowareAuto/setup.bash
-        ade$ ros2 launch autoware_auto_avp_demo ms3_sim.launch.py
-
-TODO describe how to initialize localization, what to do as a user
-
 # Prerequisites {#avpdemo-prerequisites}
 
 To run this demo, the following inputs are needed:
 
 - A point-cloud map of a carpark, for localization.
 - An HDMap (vector map) of a carpark, for navigation.
+
+If @ref lgsvl is set up as explained, these two components should be available out of the box in simulation.
+
+@todo Do we have the list of requirements on the map? It's seems quite vague here and I'm sure the demo would just fail if some subtle detail in the map is off
+
+## Setup and launching
+
+-# @ref installation-and-development-install-ade.
+-# Follow the instructions on the @ref lgsvl page to install, launch, and configure a vehicle and simulation using the AutonomousStuff Parking Lot map.
+-# In a new terminal, run the launch file for Milestone 3:
+
+        $ ade enter
+        ade$ source /opt/AutowareAuto/setup.bash
+        ade$ ros2 launch autoware_auto_avp_demo ms3_sim.launch.py
+
+## Initializing the localization
+
+## Controlling the vehicle through a web interface
+
+Open `http://127.0.0.1:8000/` on the host system in a web browser to send goal poses to the vehicle. This requires that
+
+- the vehicle is manually driven to the location on the map indicated in the image below
+- the stack was initialized and can localize in the map
+
+@image html images/avp-web-interface.png "Autonomous valet parking web interface"
+
+TODO describe how to initialize localization, what to do as a user
+
 
 # Hardware requirements
 
