@@ -5,11 +5,17 @@ LGSVL simulator {#lgsvl}
 
 # LGSVL simulator: running the LGSVL simulator alongside Autoware.Auto
 
-The following guide assumes that the LGSVL simulator will be run from inside an ADE container, although it is not strictly required.
+LGSVL is a Unity-based multi-robot simulator for autonomous vehicle developers. It provides a simulated world to
+
+- create sensor inputs to Autoware.Auto,
+- allow the user to manually steer the ego vehicle similar to a computer game,
+- place other moving traffic participants in a scene.
 
 For more information about the simulator, see [https://www.lgsvlsimulator.com/docs/](https://www.lgsvlsimulator.com/docs/).
 
 ## Requirements
+
+The following guide assumes that the LGSVL simulator will be run from inside an ADE container, although it is not strictly required.
 
 - ADE 4.2.0 or later. Follow the
 [ADE installation instructions](https://ade-cli.readthedocs.io/en/latest/install.html) to install it
@@ -61,6 +67,7 @@ In case the simulator window opens up with a black screen and the application im
 ```
 ade$ sudo apt remove mesa-vulkan-drivers
 ```
+and launch the simulator again.
 
 ### Configuring a vehicle
 
@@ -71,7 +78,7 @@ to add it and use the URL `https://assets.lgsvlsimulator.com/ea5e32fe566065c6d1b
 
   - Click on the wrench icon for the Lexus vehicle
   - Change the bridge type to `Ros2NativeBridge` (Dashing: `ROS2 Native`)
-  - In the `Sensors` box, copy and paste the content of the `lgsvl-sensors.json` [file](https://gitlab.com/autowarefoundation/autoware.auto/AutowareAuto/-/blob/master/lgsvl-sensors.json) located at the root of the AutowareAuto repository
+  - In the `Sensors` box, copy and paste the content of  [`lgsvl-sensors.json`](https://gitlab.com/autowarefoundation/autoware.auto/AutowareAuto/-/blob/master/lgsvl-sensors.json) located at the root of the Autoware.Auto repository
 
 The above steps are a modified version of the
 [LGSVL documentation](https://www.lgsvlsimulator.com/docs/autoware-auto-instructions/#run-simulator-alongside-autowareauto)
@@ -80,12 +87,14 @@ The above steps are a modified version of the
 
 Choose `Simulations` on the left to see the simulations screen. The LGSVL simulator lets you store and reuse multiple simulation configurations. To use an existing simulation, select the desired simulation and press the play button in the bottom right corner of the screen. The simulator should now start in the LGSVL window.
 
+<!-- TODO add  screenshots -->
+
 To create a new simulation, follow the below steps:
 
 - Switch to the Simulations tab and click the `Add new` button
 - Enter a name and switch to the `Map & Vehicles` tab
-- Select a map from the drop down menu. If none is available, follow [this guide](https://www.lgsvlsimulator.com/docs/maps-tab/#where-to-find-maps) to get a map.
-- Select the `Lexus2016RXHybrid` from the drop-down menu. In the bridge connection box to the right, enter the bridge address. For the default setting, use `127.0.0.1:9090`.
+- Select a map from the drop down menu. If none is available, follow [this guide](https://www.lgsvlsimulator.com/docs/maps-tab/#where-to-find-maps) to get a map. The URL to the desired AssetBundle is `https://assets.lgsvlsimulator.com/ec057870762b5a967a451c93444b67d0b64e9656/environment_AutonomouStuff`
+- Select the `Lexus2016RXHybrid` from the drop-down menu.
 - Click submit
 
 Once the simulation has been created, you can select and run it by clicking the play button.
