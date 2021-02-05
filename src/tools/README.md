@@ -11,4 +11,5 @@ visualization tools and interfaces for debugging.
 
 - @subpage autoware_auto_create_pkg-package-design
 - @subpage avp_web_interface-package-design
+- @subpage lidar-integration-design
 - @subpage test_trajectory_following-package-design
