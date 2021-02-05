@@ -8,4 +8,4 @@ multiple observations in order to enhance the accuracy of observations or provid
 or insight into the existing observations.
 
 # Subpages
-- @subpage md_src_fusion_hungarian_assigner_design_hungarian_assigner-design
+- @subpage hungarian-assigner-design
