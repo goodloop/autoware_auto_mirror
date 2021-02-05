@@ -24202,6 +24202,10 @@
     <tag k='subtype' v='parking_spot' />
     <tag k='type' v='area' />
   </way>
+  <way id='-116104' action='modify' visible='true'>
+    <nd ref='8936' />
+    <nd ref='7436' />
+  </way>
   <way id='1000' visible='true' version='1'>
     <nd ref='1001' />
     <nd ref='1002' />
@@ -38432,17 +38436,6 @@
     <tag k='subtype' v='parking_spot' />
     <tag k='type' v='area' />
   </way>
-  <relation id='101930' action='modify' visible='true' version='1'>
-    <member type='way' ref='101930' role='outer' />
-    <member type='way' ref='-115297' role='outer' />
-    <tag k='cad_id' v='486828' />
-    <tag k='center' v='104613' />
-    <tag k='drivable' v='True' />
-    <tag k='level' v='1' />
-    <tag k='parking_accesses' v='9140' />
-    <tag k='subtype' v='parking_spot' />
-    <tag k='type' v='multipolygon' />
-  </relation>
   <relation id='6252' visible='true' version='1'>
     <member type='way' ref='6256' role='left' />
     <member type='way' ref='6260' role='right' />
@@ -42642,33 +42635,8 @@
     <tag k='subtype' v='parking_spot' />
     <tag k='type' v='multipolygon' />
   </relation>
-  <relation id='8932' visible='true' version='1'>
-    <member type='way' ref='-115366' role='outer' />
-    <member type='way' ref='-115365' role='outer' />
-    <member type='way' ref='-115364' role='outer' />
-    <member type='way' ref='-115363' role='outer' />
-    <member type='way' ref='-115362' role='outer' />
-    <member type='way' ref='-115367' role='outer' />
-    <member type='way' ref='-115361' role='outer' />
-    <member type='way' ref='-115368' role='outer' />
-    <member type='way' ref='-115360' role='outer' />
-    <member type='way' ref='-115359' role='outer' />
-    <member type='way' ref='-115358' role='outer' />
-    <member type='way' ref='-115357' role='outer' />
-    <member type='way' ref='-115356' role='outer' />
-    <member type='way' ref='-115369' role='outer' />
-    <member type='way' ref='-115370' role='outer' />
-    <member type='way' ref='-115355' role='outer' />
-    <member type='way' ref='-115371' role='outer' />
-    <member type='way' ref='-115372' role='outer' />
-    <member type='way' ref='-115373' role='outer' />
-    <member type='way' ref='-115374' role='outer' />
-    <member type='way' ref='-115375' role='outer' />
-    <member type='way' ref='-115376' role='outer' />
-    <member type='way' ref='-115354' role='outer' />
-    <member type='way' ref='-115353' role='outer' />
-    <member type='way' ref='-115377' role='outer' />
-    <member type='way' ref='-115378' role='outer' />
+  <relation id='8932' action='modify' visible='true' version='1'>
+    <member type='way' ref='-116104' role='outer' />
     <member type='way' ref='-115087' role='outer' />
     <member type='way' ref='-115088' role='outer' />
     <member type='way' ref='104785' role='outer' />
@@ -44007,6 +43975,17 @@
     <tag k='drivable' v='True' />
     <tag k='level' v='1' />
     <tag k='parking_accesses' v='8399' />
+    <tag k='subtype' v='parking_spot' />
+    <tag k='type' v='multipolygon' />
+  </relation>
+  <relation id='101930' action='modify' visible='true' version='1'>
+    <member type='way' ref='101930' role='outer' />
+    <member type='way' ref='-115297' role='outer' />
+    <tag k='cad_id' v='486828' />
+    <tag k='center' v='104613' />
+    <tag k='drivable' v='True' />
+    <tag k='level' v='1' />
+    <tag k='parking_accesses' v='9140' />
     <tag k='subtype' v='parking_spot' />
     <tag k='type' v='multipolygon' />
   </relation>
