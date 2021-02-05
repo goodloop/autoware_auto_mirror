@@ -215,14 +215,6 @@ visualization_msgs::msg::MarkerArray HAD_MAP_UTILS_PUBLIC boundingBoxAsMarkerArr
   const std_msgs::msg::ColorRGBA & c);
 
 /**
- * \brief converts area enclosed by lanelet::LineString into list of triangles.
- * \param ls input linestring
- * \return result of traingulation
- */
-std::vector<geometry_msgs::msg::Polygon> HAD_MAP_UTILS_PUBLIC lineString2Triangle(
-  const lanelet::LineString3d & ls);
-
-/**
  * \brief converts area enclosed by lanelet::Lanelet into list of triangles.
  * \param ll input lanelet
  * \return result of traingulation
@@ -239,14 +231,6 @@ std::vector<geometry_msgs::msg::Polygon> HAD_MAP_UTILS_PUBLIC polygon2Triangle(
   const geometry_msgs::msg::Polygon & polygon);
 
 /**
- * \brief converts lanelet::LineString into geometry_msgs::msg::Polygon type
- * \param ls input linestring
- * \return converted geometry_msgs::msg::Polygon
- */
-geometry_msgs::msg::Polygon HAD_MAP_UTILS_PUBLIC lineString2Polygon(
-  const lanelet::LineString3d & ls);
-
-/**
  * \brief converts lanelet::Area into geometry_msgs::msg::Polygon type
  * \param area input area
  * \return converted geometry_msgs::msg::Polygon
@@ -261,18 +245,6 @@ geometry_msgs::msg::Polygon HAD_MAP_UTILS_PUBLIC area2Polygon(
  */
 geometry_msgs::msg::Polygon HAD_MAP_UTILS_PUBLIC lanelet2Polygon(
   const lanelet::ConstLanelet & ll);
-
-/**
- * \brief converts bounded area by lanelet::LineString into triangle markers
- * \param t Time set to returned marker message
- * \param ns Namespace set to returned marker message
- * \param linestrings input lanelet::LineString
- * \param c Color of the marker array
- * \return Converted triangle markers enclosed by the linestring
- */
-visualization_msgs::msg::MarkerArray HAD_MAP_UTILS_PUBLIC lineStringsAsTriangleMarkerArray(
-  const rclcpp::Time & t, const std::string & ns, const lanelet::LineStrings3d & linestrings,
-  const std_msgs::msg::ColorRGBA & c);
 
 /**
  * \brief converts bounded area by lanelet::Lanelet into triangle markers

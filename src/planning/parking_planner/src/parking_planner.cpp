@@ -347,11 +347,7 @@ lanelet::Polygon3d coalesce_drivable_areas(
   for (const auto & map_primitive : route.primitives) {
     // Attempt to obtain a polygon from the primitive ID
     geometry_msgs::msg::Polygon current_area_polygon{};
-    if (lanelet_map_ptr->lineStringLayer.exists(map_primitive.id) ) {
-      // The ID corresponds to a linestring, so the find() call below should not become null
-      lanelet::LineString3d current_area = *lanelet_map_ptr->lineStringLayer.find(map_primitive.id);
-      current_area_polygon = autoware::common::had_map_utils::lineString2Polygon(current_area);
-    } else if (lanelet_map_ptr->laneletLayer.exists(map_primitive.id)) {
+    if (lanelet_map_ptr->laneletLayer.exists(map_primitive.id)) {
       // The ID corresponds to a lanelet, so the find() call below should not become null
       lanelet::ConstLanelet current_area = *lanelet_map_ptr->laneletLayer.find(map_primitive.id);
       current_area_polygon = autoware::common::had_map_utils::lanelet2Polygon(current_area);

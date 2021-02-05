@@ -78,7 +78,7 @@ void Lanelet2GlobalPlanner::parse_lanelet_element()
         lanelet::Id lane_cad_id = *lanelet.attribute("cad_id").asId();
         result_lane = near_road_map.emplace(lane_cad_id, lane_id);
         if (!result_lane.second) {
-          throw std::runtime_error("Lanelet2GlobalPlanner: Parsing osm lane map fail");
+          throw std::runtime_error("Lanelet2GlobalPlanner: Parsing osm lane from map fail");
         }
       }
     }
@@ -242,7 +242,7 @@ const
   if (!osm_map->areaLayer.exists(parking_id)) {
     return input_point;
   }
-  const auto parking_poly = osm_map->areaLayer.get(parking_id).basicPolygonWithHoles3d().outer;
+  const auto parking_poly = osm_map->areaLayer.get(parking_id).outerBoundPolygon().basicPolygon();
 
   // we assume that parking spot is rectangle shape which has 5 points
   // where first and last point overlap
@@ -299,7 +299,7 @@ const
 {
   if (osm_map->areaLayer.exists(parking_id)) {
     const auto parking_area = osm_map->areaLayer.get(parking_id);
-    const auto parking_poly = parking_area.basicPolygonWithHoles3d().outer;
+    const auto parking_poly = parking_area.outerBoundPolygon().basicPolygon();
 
     return lanelet::geometry::within(point, parking_poly);
   } else {
@@ -474,7 +474,7 @@ bool8_t Lanelet2GlobalPlanner::compute_parking_center(
     float64_t mean_x = 0.0;
     float64_t mean_y = 0.0;
     float64_t mean_z = 0.0;
-    const auto area3d = osm_map->areaLayer.get(parking_id).basicPolygonWithHoles3d().outer;
+    const auto area3d = osm_map->areaLayer.get(parking_id).outerBoundPolygon().basicPolygon();
     size_t num_points = area3d.size();
     std::for_each(
       area3d.begin(), area3d.end(), [&](lanelet::BasicPoint3d p)
