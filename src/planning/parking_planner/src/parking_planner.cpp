@@ -353,7 +353,8 @@ lanelet::Polygon3d coalesce_drivable_areas(
     const auto & current_area_candidate = area_layer.find(map_primitive.id);
     if (current_lanelet_candidate != lanelet_layer.end()) {
       // The ID corresponds to a lanelet, so the candidate iterator should not become null
-      current_area_polygon = autoware::common::had_map_utils::lanelet2Polygon(*current_lanelet_candidate);
+      current_area_polygon = autoware::common::had_map_utils::lanelet2Polygon(
+        *current_lanelet_candidate);
     } else if (current_area_candidate != area_layer.end()) {
       // The ID corresponds to an area, so the candidate iterator should not become null
       current_area_polygon = autoware::common::had_map_utils::area2Polygon(*current_area_candidate);
