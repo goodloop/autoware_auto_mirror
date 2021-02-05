@@ -26,6 +26,8 @@ Given appropriate hardware, it can of course be repeated in real life as well as
 The simulation AVP demo was tested with hardware that satisfies requirements for the LGSVL simulator.
 To run the LGSVL simulator, you will need an NVIDIA graphics card. Additional information about requirements can be found [here](https://www.lgsvlsimulator.com/docs/faq/#what-are-the-recommended-system-specs-what-are-the-minimum-required-system-specs).
 
+@warning If the machine is oversubscribed by running both the simulation and the autonomous-driving stack, expect a performance degradation due to latencies, for example in the localization module.
+
 ## Setup and launching
 
 - A simulated world of a carpark, if the demo will be run on a simulator.
