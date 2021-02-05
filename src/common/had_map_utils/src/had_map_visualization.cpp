@@ -447,7 +447,7 @@ std::vector<geometry_msgs::msg::Polygon> polygon2Triangle(
 
 
 geometry_msgs::msg::Polygon area2Polygon(
-  const lanelet::Area & area)
+  const lanelet::ConstArea & area)
 {
   geometry_msgs::msg::Polygon polygon;
   polygon.points.clear();

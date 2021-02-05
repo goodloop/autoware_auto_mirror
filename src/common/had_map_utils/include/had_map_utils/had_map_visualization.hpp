@@ -236,7 +236,7 @@ std::vector<geometry_msgs::msg::Polygon> HAD_MAP_UTILS_PUBLIC polygon2Triangle(
  * \return converted geometry_msgs::msg::Polygon
  */
 geometry_msgs::msg::Polygon HAD_MAP_UTILS_PUBLIC area2Polygon(
-  const lanelet::Area & area);
+  const lanelet::ConstArea & area);
 
 /**
  * \brief converts lanelet::Lanelet into geometry_msgs::msg::Polygon type

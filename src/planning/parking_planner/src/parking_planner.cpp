@@ -347,14 +347,16 @@ lanelet::Polygon3d coalesce_drivable_areas(
   for (const auto & map_primitive : route.primitives) {
     // Attempt to obtain a polygon from the primitive ID
     geometry_msgs::msg::Polygon current_area_polygon{};
-    if (lanelet_map_ptr->laneletLayer.exists(map_primitive.id)) {
-      // The ID corresponds to a lanelet, so the find() call below should not become null
-      lanelet::ConstLanelet current_area = *lanelet_map_ptr->laneletLayer.find(map_primitive.id);
-      current_area_polygon = autoware::common::had_map_utils::lanelet2Polygon(current_area);
-    } else if (lanelet_map_ptr->areaLayer.exists(map_primitive.id)) {
-      // The ID corresponds to a lanelet, so the find() call below should not become null
-      lanelet::Area current_area = *lanelet_map_ptr->areaLayer.find(map_primitive.id);
-      current_area_polygon = autoware::common::had_map_utils::area2Polygon(current_area);
+    const auto & lanelet_layer = lanelet_map_ptr->laneletLayer;
+    const auto & area_layer = lanelet_map_ptr->areaLayer;
+    const auto & current_lanelet_candidate = lanelet_layer.find(map_primitive.id);
+    const auto & current_area_candidate = area_layer.find(map_primitive.id);
+    if (current_lanelet_candidate != lanelet_layer.end()) {
+      // The ID corresponds to a lanelet, so the candidate iterator should not become null
+      current_area_polygon = autoware::common::had_map_utils::lanelet2Polygon(*current_lanelet_candidate);
+    } else if (current_area_candidate != area_layer.end()) {
+      // The ID corresponds to an area, so the candidate iterator should not become null
+      current_area_polygon = autoware::common::had_map_utils::area2Polygon(*current_area_candidate);
     } else {
       // This might happen if a primitive is on the route, but outside of the bounding box that we
       // query the map for. Not sure how to deal with this at this point though.
