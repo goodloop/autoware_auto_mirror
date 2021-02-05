@@ -102,7 +102,7 @@ void Lanelet2GlobalPlanner::parse_lanelet_element()
         std::vector<lanelet::Id> near_road_ids = lanelet_chr2num(lanes_str);
         result = parking_lane_map.emplace(parking_id, near_road_ids);
         if (!result.second) {
-          throw std::runtime_error("Lanelet2GlobalPlanner: Parsing osm parking_lane map fail");
+          throw std::runtime_error("Lanelet2GlobalPlanner: Parsing osm parking_lane from map fail");
         }
       }
 
