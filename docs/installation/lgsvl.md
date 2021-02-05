@@ -28,7 +28,6 @@ The following guide assumes that the LGSVL simulator will be run from inside an 
 Using the simulator involves the following steps:
 
 -# Launch it
--# Configure a vehicle
 -# Choose or create a simulation
 -# Bridge the simulator with Autoware.Auto
 -# Start the simulation
@@ -55,9 +54,9 @@ ade$ /opt/lgsvl/simulator
 
 Now start your favorite browser and go to [http://127.0.0.1:8080](http://127.0.0.1:8080) where simulations can be configured.
 
-**Note:** When running LGSVL Simulator in a Docker container, the "Open Browser..." button in the simulator window does not work.
+@note When running LGSVL Simulator in a Docker container, the "Open Browser..." button in the simulator window does not work.
 
-**Note:** When running LGSVL Simulator for the first time, you may be asked to log into [https://account.lgsvlsimulator.com/](https://account.lgsvlsimulator.com/).
+@note When running LGSVL Simulator for the first time, you may be asked to log into [https://account.lgsvlsimulator.com/](https://account.lgsvlsimulator.com/).
 If you have an account, log in. If you do not have an account, create one, then log in.
 
 #### Troubleshooting
@@ -69,41 +68,75 @@ ade$ sudo apt remove mesa-vulkan-drivers
 ```
 and launch the simulator again.
 
-### Configuring a vehicle
+### Creating a simulation
 
-To configure the Lexus model, do the following in the browser:
+Creating a simulation configuration takes only a few clicks in the browser. The following steps assume that the launch was successful and illustrate the configuration process with the setup for the @ref avpdemo.
 
-- In the Vehicles tab look for `Lexus2016RXHybrid`. If not available, follow [these instructions](https://www.lgsvlsimulator.com/docs/vehicles-tab/#how-to-add-a-vehicle)
-to add it and use the URL `https://assets.lgsvlsimulator.com/ea5e32fe566065c6d1bbf1f0728d6654c94e375d/vehicle_AWFLexus2016RXHybrid`
+#### Choosing a map
 
-  - Click on the wrench icon for the Lexus vehicle
-  - Change the bridge type to `Ros2NativeBridge` (Dashing: `ROS2 Native`)
-  - In the `Sensors` box, copy and paste the content of  [`lgsvl-sensors.json`](https://gitlab.com/autowarefoundation/autoware.auto/AutowareAuto/-/blob/master/lgsvl-sensors.json) located at the root of the Autoware.Auto repository
+Following the [LGSVL instructions](https://www.lgsvlsimulator.com/docs/maps-tab/#where-to-find-maps), click the `Add new` button and enter a name (e.g. `Autonomous Stuff parking lot`) and the link to the asset bundle from [this site](https://content.lgsvlsimulator.com/maps/autonomoustuff/) containing the map data:
+
+`https://assets.lgsvlsimulator.com/ec057870762b5a967a451c93444b67d0b64e9656/environment_AutonomouStuff`
+
+Once submitted, this will download the map automatically.
+
+@image html images/lgsvl-map.png "Choosing a map"
+
+#### Configuring a vehicle
+
+Following [LGSVL instructions](https://www.lgsvlsimulator.com/docs/vehicles-tab/#how-to-add-a-vehicle),
+to configure the Lexus model, click the vehicles tab, then `Add new` and enter
+`Lexus2016RXHybrid` as name and
+
+`https://assets.lgsvlsimulator.com/ea5e32fe566065c6d1bbf1f0728d6654c94e375d/vehicle_AWFLexus2016RXHybrid`
+
+as `Vehicle URL`.
+
+@image html images/lgsvl-vehicle.png "Adding a vehicle"
+
+Once submitted, click on the wrench icon for the Lexus vehicle and
+
+- Change the bridge type to `Ros2NativeBridge`
+- In the `Sensors` box, copy and paste the content of  [`lgsvl-sensors.json`](https://gitlab.com/autowarefoundation/autoware.auto/AutowareAuto/-/blob/master/lgsvl-sensors.json) located at the root of the Autoware.Auto repository to tell LGSVL about sensor positions and where to communicate information to the Autoware.Auto stack.
+
+@image html images/lgsvl-bridge-sensors.png "Configuring bridge and sensors"
+
+The `Ros2NativeBridge` is a special bridge type which does not require a websocket-based bridge.
+When a simulation is started, the topics should be published in ROS 2 automatically.
 
 The above steps are a modified version of the
 [LGSVL documentation](https://www.lgsvlsimulator.com/docs/autoware-auto-instructions/#run-simulator-alongside-autowareauto)
 
-### Choosing/creating a simulation
+#### Choosing/creating a simulation
 
 Choose `Simulations` on the left to see the simulations screen. The LGSVL simulator lets you store and reuse multiple simulation configurations. To use an existing simulation, select the desired simulation and press the play button in the bottom right corner of the screen. The simulator should now start in the LGSVL window.
 
-<!-- TODO add  screenshots -->
-
 To create a new simulation, follow the below steps:
 
-- Switch to the Simulations tab and click the `Add new` button
-- Enter a name and switch to the `Map & Vehicles` tab
-- Select a map from the drop down menu. If none is available, follow [this guide](https://www.lgsvlsimulator.com/docs/maps-tab/#where-to-find-maps) to get a map. The URL to the desired AssetBundle is `https://assets.lgsvlsimulator.com/ec057870762b5a967a451c93444b67d0b64e9656/environment_AutonomouStuff`
+- Switch to the Simulations tab and click the `Add new` button.
+- Enter a name and switch to the `Map & Vehicles` tab.
 - Select the `Lexus2016RXHybrid` from the drop-down menu.
-- Click submit
+- Enter `127.0.0.1:9090` in the `Ros2NativeBridge connction` box.
+- No changes to the `Traffic` or `Weather` tab are needed but one can play around here.
+- Click submit.
 
-Once the simulation has been created, you can select and run it by clicking the play button.
+@image html images/lgsvl-simulation-general.png "Configuring the simulation"
+@image html images/lgsvl-simulation-map-and-vehicle.png "Configuring the simulation map and vehicle"
 
-TODO Josh do we still need the next paragraph?
-### Using the ROS2 Native Bridge
+#### Starting and controlling the simulation
 
-The "ROS2 Native Bridge" is a special bridge type which does not require a websocket-based bridge.
-When a simulation is started, the topics should be published in ROS 2 automatically.
+Once the simulation has been created, you can select and run it by clicking the play button. The Lexus should appear in a 3D rendering in the `LGSVL Simulator` window (not in the browser).
+
+The next step is to control the Lexus and to drive around using the arrow keys on the keyboard. Press `F1` to see a list of short cuts and press the cookie button in bottom left corner for mor UI controls.
+
+@note It is possible to control the simulation with a gamepad or joystick as well.
+
+Congratulations if everything is working up to this point. The setup of LGSVL is completed.
+
+@image html images/lgsvl-controls.png "Controlling the Lexus"
+
+
+@todo Josh, please  check the next paragraph. Do we need the discussion about the bridge at all?
 
 ### Bridging with Autoware.Auto
 
@@ -126,7 +159,7 @@ Launch scripts are also provided for convenience. For example for a joystick con
 ```
 $ ade enter
 ade$ source /opt/AutowareAuto/setup.bash
-ade$ ros2 launch lgsvl_interface lgsvl_joystick.launch.py
+ade$ ros2 launch joystick_vehicle_interface_nodes lgsvl_joystick.launch.py
 ```
 
 For an example of using `VehicleControlCommand` with LGSVL, run the following demo in a new terminal window:
@@ -139,7 +172,8 @@ ade$ ros2 launch lgsvl_interface lgsvl_vehicle_control_command.launch.py
 
 ## Troubleshooting
 
-<!-- TODO COuldn't test this with joystick myself -->
+@todo COuldn't test this without joystick
+
 ### The brake/throttle/steering does not work
 
 The joystick control mapping is not deterministic. It is occasionally necessary to modify the axis
