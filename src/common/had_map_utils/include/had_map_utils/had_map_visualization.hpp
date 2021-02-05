@@ -46,7 +46,7 @@ namespace had_map_utils
 {
 /**
  * \brief Set set rgba information to a Color Object
- * \param cl input color object
+ * \param[out] cl color object to be set
  * \param r red value
  * \param g green value
  * \param b blue value
@@ -215,7 +215,7 @@ visualization_msgs::msg::MarkerArray HAD_MAP_UTILS_PUBLIC boundingBoxAsMarkerArr
 /**
  * \brief converts area enclosed by lanelet::Lanelet into list of triangles.
  * \param ll input lanelet
- * \return result of traingulation
+ * \return result of triangulation
  */
 std::vector<geometry_msgs::msg::Polygon> HAD_MAP_UTILS_PUBLIC lanelet2Triangle(
   const lanelet::ConstLanelet & ll);
@@ -223,7 +223,7 @@ std::vector<geometry_msgs::msg::Polygon> HAD_MAP_UTILS_PUBLIC lanelet2Triangle(
 /**
  * \brief converts area enclosed by geometry_msg::msg::Polygon into list of triangles.
  * \param polygon input polygon
- * \return result of traingulation
+ * \return result of triangulation
  */
 std::vector<geometry_msgs::msg::Polygon> HAD_MAP_UTILS_PUBLIC polygon2Triangle(
   const geometry_msgs::msg::Polygon & polygon);
