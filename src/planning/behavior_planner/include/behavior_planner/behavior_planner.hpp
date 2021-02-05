@@ -69,6 +69,12 @@ enum PlannerType
   UNKNOWN
 };
 
+enum class ParkingDirection
+{
+  HEAD_IN,
+  TOE_IN
+};
+
 struct RouteWithType
 {
   Route route;
