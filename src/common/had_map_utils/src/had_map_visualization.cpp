@@ -234,8 +234,9 @@ visualization_msgs::msg::MarkerArray areasBoundaryAsMarkerArray(
     lanelet::CompoundPolygon3d cpg = area.outerBoundPolygon();
     lanelet::BasicPolygon3d bpg = cpg.basicPolygon();
 
-    visualization_msgs::msg::Marker line_strip = basicPolygon2Marker(t, pg_count, bpg, "map", ns, c,
-        lss);
+    visualization_msgs::msg::Marker line_strip = basicPolygon2Marker(
+      t, pg_count, bpg, "map", ns, c,
+      lss);
     marker_array.markers.push_back(line_strip);
     pg_count++;
   }
@@ -251,8 +252,9 @@ visualization_msgs::msg::MarkerArray polygonsBoundaryAsMarkerArray(
   visualization_msgs::msg::MarkerArray marker_array;
   for (auto poly : polygons) {
     lanelet::BasicPolygon3d bpg = poly.basicPolygon();
-    visualization_msgs::msg::Marker line_strip = basicPolygon2Marker(t, pg_count, bpg, "map", ns, c,
-        lss);
+    visualization_msgs::msg::Marker line_strip = basicPolygon2Marker(
+      t, pg_count, bpg, "map", ns, c,
+      lss);
     marker_array.markers.push_back(line_strip);
     pg_count++;
   }
@@ -453,7 +455,8 @@ geometry_msgs::msg::Polygon area2Polygon(
   polygon.points.clear();
   polygon.points.reserve(area.outerBoundPolygon().size());
 
-  std::transform(area.outerBoundPolygon().begin(),
+  std::transform(
+    area.outerBoundPolygon().begin(),
     area.outerBoundPolygon().end(),
     std::back_inserter(polygon.points),
     [](lanelet::ConstPoint3d pt) {return toGeomMsgPt32(pt.basicPoint());});
@@ -469,7 +472,8 @@ geometry_msgs::msg::Polygon lanelet2Polygon(
   polygon.points.clear();
   polygon.points.reserve(ll_poly.size());
 
-  std::transform(ll_poly.begin(),
+  std::transform(
+    ll_poly.begin(),
     ll_poly.end(),
     std::back_inserter(polygon.points),
     [](lanelet::ConstPoint3d pt) {return toGeomMsgPt32(pt.basicPoint());});

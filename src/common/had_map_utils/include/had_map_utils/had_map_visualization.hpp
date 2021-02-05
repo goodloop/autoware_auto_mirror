@@ -262,7 +262,7 @@ visualization_msgs::msg::MarkerArray HAD_MAP_UTILS_PUBLIC laneletsAsTriangleMark
  * \brief converts bounded area by lanelet::Area into triangle markers
  * \param t Time set to returned marker message
  * \param ns Namespace set to returned marker message
- * \param area input lanelet::Area
+ * \param areas input lanelet::Area objects
  * \param c Color of the marker array
  * \return Converted triangle markers enclosed by the area
  */
