@@ -79,8 +79,7 @@ void HAD_MAP_UTILS_PUBLIC setMarkerHeader(
 /**
  * \brief creates marker with type LINE_STRIP from a lanelet::LineString3d object
  * \param t timestamp set to the marker
- * \param line_id id set to the marker
- * \param pg input polygon
+ * \param ls input linestring
  * \param frame_id frame id set to the marker
  * \param ns namespace set to the marker
  * \param c color of the marker
@@ -96,7 +95,6 @@ visualization_msgs::msg::Marker HAD_MAP_UTILS_PUBLIC lineString2Marker(
 /**
  * \brief creates marker with type LINE_STRIP from a lanelet::ConstLineString3d object
  * \param t timestamp set to the marker
- * \param line_id id set to the marker
  * \param ls input linestring
  * \param frame_id frame id set to the marker
  * \param ns namespace set to the marker
@@ -128,9 +126,9 @@ lineStringsAsMarkerArray(
 /**
  * \brief converts outer bound of lanelet::Lanelet into markers with type LINE_STRIP
  * \param t time set to returned marker message
- * \param ns namespace set to the marker
  * \param lanelets input lanelet objects
  * \param c color of the marker
+ * \param viz_centerline option to add centerline to the marker array
  * \return created visualization_msgs::msg::MarkerArray
  */
 visualization_msgs::msg::MarkerArray HAD_MAP_UTILS_PUBLIC laneletsBoundaryAsMarkerArray(
