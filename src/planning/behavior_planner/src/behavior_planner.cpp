@@ -117,25 +117,6 @@ TrajectoryPoint get_closest_point_on_lane(
   return closest_point_on_lane;
 }
 
-ParkingDirection get_parking_direction(
-  const TrajectoryPoint & parking_point,
-  const TrajectoryPoint & closest_lane_point)
-{
-  // Calculate angle from parking point to closest lane point
-  const auto direction_vector = minus_2d(closest_lane_point, parking_point);
-  const float32_t diff_angle = std::atan2(direction_vector.y, direction_vector.x);
-
-  // Get heading angle of parking point
-  const auto heading_angle = motion::motion_common::to_angle(parking_point.heading);
-
-  // If absolute difference between angles is gt pi/2, the parking orientation is head-in
-  if (std::fabs(diff_angle - heading_angle) > autoware::common::types::PI_2) {
-    return ParkingDirection::HEAD_IN;
-  } else {
-    return ParkingDirection::TOE_IN;
-  }
-}
-
 
 BehaviorPlanner::BehaviorPlanner(const PlannerConfig & config)
 :  m_current_subroute(0),
@@ -277,6 +258,24 @@ RouteWithType BehaviorPlanner::get_current_subroute()
   return m_subroutes.at(m_current_subroute);
 }
 
+ParkingDirection BehaviorPlanner::get_parking_direction(
+  const TrajectoryPoint & parking_point,
+  const TrajectoryPoint & closest_lane_point)
+{
+  // Calculate angle from parking point to closest lane point
+  const auto direction_vector = minus_2d(closest_lane_point, parking_point);
+  const float32_t diff_angle = std::atan2(direction_vector.y, direction_vector.x);
+
+  // Get heading angle of parking point
+  const auto heading_angle = motion::motion_common::to_angle(parking_point.heading);
+
+  // If absolute difference between angles is gt pi/2, the parking orientation is head-in
+  if (std::fabs(diff_angle - heading_angle) > autoware::common::types::PI_2) {
+    return ParkingDirection::HEAD_IN;
+  } else {
+    return ParkingDirection::TOE_IN;
+  }
+}
 
 TrajectoryPoint BehaviorPlanner::get_sub_goal()
 {
