@@ -38,6 +38,7 @@ public:
   QuickSorter(QuickSorter const &) = delete;
   QuickSorter & operator=(QuickSorter const &) = delete;
   QuickSorter(QuickSorter &&) = default;
+  /// \brief Move equals operator
   QuickSorter & operator=(QuickSorter &&) = default;
 
   /// \brief Default constructor, do not reserve capacity for stack
