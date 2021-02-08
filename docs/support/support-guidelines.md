@@ -37,13 +37,13 @@ The Autoware category is also where high-level announcements are made about Auto
 
 # Confirmed Bugs or Feature Requests: Gitlab Issues{#support-guidelines-gitlab-issues}
 
-If you have discovered a bug that has been confirmed by others or you would like to request that a new feature be added to Autoware.Auto, consider [creating a new issue on Gitlab](https://gitlab.com/autowarefoundation/autoware.auto/AutowareAuto/-/issues/new?issue%5Bassignee_id%5D=&issue%5Bmilestone_id%5D=) and choose the relevant template.
+If you have discovered a bug that has been confirmed by others or you would like to request that a new feature be added to Autoware.Auto, consider [creating a new issue on Gitlab](https://gitlab.com/autowarefoundation/autoware.auto/AutowareAuto/-/issues/new?issue%5Bassignee_id%5D=&issue%5Bmilestone_id%5D=) and choosing the relevant template.
 If you have the background, feel free to also create a Merge Request to resolve the issue!
 Just remember to read over our @ref contributors-guide to know what to expect from a review of your Merge Request.
 
 # Real-time Communication: Autoware Developer's Slack{#support-guidelines-slack}
 
-Please remember that our [Slack channel](https://autoware.herokuapp.com/) is not for any of the cases mentioned above and is mostly a gathering place for developers.
+Please remember that our [Slack server](https://autoware.herokuapp.com/) is not for any of the cases mentioned above and is mostly a gathering place for developers.
 If you are seeking support, want to start a discussion, or want to request a feature, Slack is the wrong avenue.
 However, if your question on [ROS Answers](@ref support-guidelines-ros-answers) has gone unanswered for a reasonable amount of time, messaging the `committers-autoware-auto` channel is appropriate.
 

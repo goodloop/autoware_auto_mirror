@@ -35,7 +35,7 @@ To run this demo, the following inputs are needed:
 - A point-cloud map of a carpark, for localization.
 - An HDMap (vector map) of a carpark, for navigation.
 
-If @ref lgsvl is set up as explained, these two components should be available out of the box in simulation.
+If @ref lgsvl is set up as explained, these two components should be available out of the box in simulation under `/opt/AutowareAuto/share/autoware_auto_avp_demo/data`.
 
 @todo Do we have the list of requirements on the map? It's seems quite vague here and I'm sure the demo would just fail if some subtle detail in the map is off
 
@@ -51,17 +51,22 @@ If @ref lgsvl is set up as explained, these two components should be available o
 
 ## Initializing the localization
 
+@todo describe how to initialize localization, what to do as a user
+
+
+## Driving to the drop-off zone
+@todo Describe location in words, add an image from the unity rendering
+
+@image html images/avp-parking-spots.png "Location of drop-off area and target parking spot" width=25%
+
 ## Controlling the vehicle through a web interface
 
 Open `http://127.0.0.1:8000/` on the host system in a web browser to send goal poses to the vehicle. This requires that
 
-- the vehicle is manually driven to the location on the map indicated in the image below
-- the stack was initialized and can localize in the map
+- the vehicle be manually driven to the location on the map indicated in the image below,
+- the stack be initialized and localized in the map
 
-@image html images/avp-web-interface.png "Autonomous valet parking web interface"
-
-TODO describe how to initialize localization, what to do as a user
-
+@image html images/avp-web-interface.png "Autonomous valet parking web interface" width=40%
 
 # Hardware requirements
 
