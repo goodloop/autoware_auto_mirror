@@ -376,7 +376,7 @@ void BehaviorPlannerNode::map_response(rclcpp::Client<HADMapService>::SharedFutu
   m_lanelet_map_ptr = std::make_shared<lanelet::LaneletMap>();
   autoware::common::had_map_utils::fromBinaryMsg(future.get()->map, m_lanelet_map_ptr);
 
-  RCLCPP_INFO(get_logger(), "Receieved map");
+  RCLCPP_INFO(get_logger(), "Received map");
 
   // TODO(mitsudome-r) move to handle_accepted() when synchronous service is available
   m_planner->set_route(*m_route, m_lanelet_map_ptr);
