@@ -203,7 +203,7 @@ To run the `lgsvl_interface` manually, enter the following in a new terminal win
 ```
 $ ade enter
 ade$ source /opt/AutowareAuto/setup.bash
-ade$ ros2 run lgsvl_interface lgsvl_interface_exe __params:=/opt/AutowareAuto/share/lgsvl_interface/param/lgsvl.param.yaml
+ade$ ros2 run lgsvl_interface lgsvl_interface_exe --ros-args --params-file /opt/AutowareAuto/share/lgsvl_interface/param/lgsvl.param.yaml
 ```
 
 Launch scripts are also provided for convenience. For example for a joystick control demo, run the following in a new terminal window:
