@@ -27,6 +27,7 @@
 #include <geometry_msgs/msg/transform_stamped.hpp>
 #include <motion_common/motion_common.hpp>
 #include <motion_common/config.hpp>
+#include <visualization_msgs/msg/marker_array.hpp>
 #include <common/types.hpp>
 
 #include <rclcpp_action/rclcpp_action.hpp>
@@ -51,6 +52,7 @@ using recordreplay_planner_actions::action::ReplayTrajectory;
 using State = autoware_auto_msgs::msg::VehicleKinematicState;
 using Transform = geometry_msgs::msg::TransformStamped;
 using motion::motion_common::Real;
+using visualization_msgs::msg::MarkerArray;
 
 class RECORDREPLAY_PLANNER_NODES_PUBLIC RecordReplayPlannerNode : public rclcpp::Node
 {
@@ -71,17 +73,17 @@ protected:
 
   rclcpp::Subscription<State>::SharedPtr m_ego_sub{};
   rclcpp::Publisher<Trajectory>::SharedPtr m_trajectory_pub{};
+  rclcpp::Publisher<MarkerArray>::SharedPtr m_trajectory_viz_pub{};
   PlannerPtr m_planner{nullptr};
 
 private:
-  RECORDREPLAY_PLANNER_NODES_LOCAL void on_ego(const State::SharedPtr & msg);
+  RECORDREPLAY_PLANNER_NODES_LOCAL MarkerArray to_markers(
+    const Trajectory & traj, const std::string & ns);
 
+  RECORDREPLAY_PLANNER_NODES_LOCAL void on_ego(const State::SharedPtr & msg);
   RECORDREPLAY_PLANNER_NODES_LOCAL void modify_trajectory_response(
     rclcpp::Client<ModifyTrajectory>::SharedFuture future);
 
-  // TODO(s.me) there does not seem to be a RecordTrajectory::SharedPtr? Also
-  // the return types need to be changed to the rclcpp_action types once the package
-  // is available.
   RECORDREPLAY_PLANNER_NODES_LOCAL rclcpp_action::GoalResponse record_handle_goal(
     const rclcpp_action::GoalUUID & uuid,
     const std::shared_ptr<const RecordTrajectory::Goal> goal);
