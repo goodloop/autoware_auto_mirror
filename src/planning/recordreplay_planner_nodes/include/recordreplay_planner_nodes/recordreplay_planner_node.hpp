@@ -58,6 +58,7 @@ using motion::motion_common::Real;
 using visualization_msgs::msg::Marker;
 using visualization_msgs::msg::MarkerArray;
 
+/// \brief ROS Node for recording and replaying trajectories
 class RECORDREPLAY_PLANNER_NODES_PUBLIC RecordReplayPlannerNode : public rclcpp::Node
 {
 public:
@@ -81,16 +82,27 @@ protected:
   PlannerPtr m_planner{nullptr};
 
 private:
+  /// \brief Converts a TrajectoryPoint to a Marker for visualization
+  /// \param[in] traj_point The TrajectoryPoint
+  /// \param[in] frame_id The name of the frame of reference in which the marker should be placed
+  /// \param[in] index A sequential index. When combined with namespace, makes a unique id
+  /// \param[in] ns The namespace for the marker
+  /// \returns A visualization_msgs::msg::Marker
   RECORDREPLAY_PLANNER_NODES_LOCAL Marker to_marker(
     const TrajectoryPoint & traj_point,
     const std::string & frame_id,
     int32_t index,
     const std::string & ns);
 
+  /// \brief Converts a Trajectory to a MarkerArray for visualization
+  /// \param[in] traj The Trajectory
+  /// \param[in] ns The namespace for the markers
+  /// \returns A visaulization_msgs::msg::MarkerArray
   RECORDREPLAY_PLANNER_NODES_LOCAL MarkerArray to_markers(
     const Trajectory & traj, const std::string & ns);
 
-  RECORDREPLAY_PLANNER_NODES_LOCAL void clear_markers();
+  /// \brief Clears the list of recorded markers
+  RECORDREPLAY_PLANNER_NODES_LOCAL void clear_recorded_markers();
 
   RECORDREPLAY_PLANNER_NODES_LOCAL void on_ego(const State::SharedPtr & msg);
   RECORDREPLAY_PLANNER_NODES_LOCAL void modify_trajectory_response(

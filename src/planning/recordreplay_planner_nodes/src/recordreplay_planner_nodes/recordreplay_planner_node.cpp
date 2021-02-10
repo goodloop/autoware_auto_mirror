@@ -156,7 +156,7 @@ MarkerArray RecordReplayPlannerNode::to_markers(const Trajectory & traj, const s
   return markers;
 }
 
-void RecordReplayPlannerNode::clear_markers()
+void RecordReplayPlannerNode::clear_recorded_markers()
 {
   if (m_recorded_markers.markers.size() > 0) {
     for (auto & marker : m_recorded_markers.markers) {
@@ -280,7 +280,7 @@ void RecordReplayPlannerNode::record_handle_accepted(
   m_planner->start_recording();
 
   // If a path was recorded previously, clear the markers
-  clear_markers();
+  clear_recorded_markers();
 }
 
 rclcpp_action::GoalResponse RecordReplayPlannerNode::replay_handle_goal(
@@ -325,7 +325,7 @@ void RecordReplayPlannerNode::replay_handle_accepted(
   }
 
   // If a path was recorded previously, clear the markers
-  clear_markers();
+  clear_recorded_markers();
 
   // Publish loaded states as replaying feedback information
   auto feedback_msg = std::make_shared<ReplayTrajectory::Feedback>();
