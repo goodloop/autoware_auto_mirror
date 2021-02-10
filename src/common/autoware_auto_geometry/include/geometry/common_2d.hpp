@@ -95,7 +95,7 @@ inline auto & zr_(PointT & pt)
 }
 }  // namespace point_adapter
 
-/// \tparam T point type. Must have point adapters defined or have float members x and y
+/// \tparam T1, T2, T3 point type. Must have point adapters defined or have float members x and y
 /// \brief compute whether line segment rp is counter clockwise relative to line segment qp
 /// \param[in] pt shared point for both line segments
 /// \param[in] r point to check if it forms a ccw angle
@@ -109,7 +109,7 @@ inline auto ccw(const T1 & pt, const T2 & q, const T3 & r)
   return (((x_(q) - x_(pt)) * (y_(r) - y_(pt))) - ((y_(q) - y_(pt)) * (x_(r) - x_(pt)))) <= 0.0F;
 }
 
-/// \tparam T point type. Must have point adapters defined or have float members x and y
+/// \tparam T1, T2 point type. Must have point adapters defined or have float members x and y
 /// \brief compute p x q = p1 * q2 - p2 * q1
 /// \param[in] pt first point
 /// \param[in] q second point
@@ -122,7 +122,7 @@ inline auto cross_2d(const T1 & pt, const T2 & q)
   return (x_(pt) * y_(q)) - (y_(pt) * x_(q));
 }
 
-/// \tparam T point type. Must have point adapters defined or have float members x and y
+/// \tparam T1, T2 point type. Must have point adapters defined or have float members x and y
 /// \brief compute p * q = p1 * q1 + p2 * q2
 /// \param[in] pt first point
 /// \param[in] q second point

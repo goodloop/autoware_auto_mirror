@@ -28,7 +28,7 @@ namespace common
 namespace geometry
 {
 
-/// \tparam T point type. Must have point adapters defined or have float members x, y and z
+/// \tparam T1, T2 point type. Must have point adapters defined or have float members x, y and z
 /// \brief compute p * q = p1 * q1 + p2 * q2 + p3 * 13
 /// \param[in] pt first point
 /// \param[in] q second point
