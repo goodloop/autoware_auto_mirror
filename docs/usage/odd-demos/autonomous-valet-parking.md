@@ -59,13 +59,14 @@ If @ref lgsvl is set up as explained, these two components should be available o
 ## Driving to the drop-off zone
 @todo Describe location in words, add an image from the unity rendering
 
+@anchor avp-parking-spots
 @image html images/avp-parking-spots.png "Location of drop-off area and target parking spot" width=25%
 
 ## Controlling the vehicle through a web interface
 
 Open `http://127.0.0.1:8000/` on the host system in a web browser to send goal poses to the vehicle. This requires that
 
-- the vehicle be manually driven to the location on the map indicated in the image below,
+- the vehicle be manually driven to the location on the map indicated in the image [above](@ref avp-parking-spots),
 - the stack be initialized and localized in the map
 
 @image html images/avp-web-interface.png "Autonomous valet parking web interface" width=40%

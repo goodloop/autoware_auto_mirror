@@ -134,62 +134,63 @@ Congratulations if everything is working up to this point. The setup of LGSVL is
 
 @image html images/lgsvl-controls.png "Controlling the Lexus"
 
+@todo Uncomment joystick session when tested again
 
-### Controlling LGSVL with a joystick
+<!-- ### Controlling LGSVL with a joystick -->
 
-It is possible to control the simulation with a gamepad or joystick instead of a keyboard. Assuming just one joystick is plugged into the system, just map it into the Docker container when starting ADE by appending the proper `--device` flag:
+<!-- It is possible to control the simulation with a gamepad or joystick instead of a keyboard. Assuming just one joystick is plugged into the system, just map it into the Docker container when starting ADE by appending the proper `--device` flag: -->
 
-```
-$ ade start <ade arguments> -- --device /dev/input/js0
-```
+<!-- ``` -->
+<!-- $ ade start <ade arguments> -- --device /dev/input/js0 -->
+<!-- ``` -->
 
-@note The instructions in this section were tested with a Logitech Gamepad F310
+<!-- @note The instructions in this section were tested with a Logitech Gamepad F310 -->
 
-#### Troubleshooting
+<!-- #### Troubleshooting -->
 
-### The brake/throttle/steering does not work
+<!-- ### The brake/throttle/steering does not work -->
 
-The joystick control mapping is not deterministic. It is occasionally necessary to modify the axis
-mapping.
+<!-- The joystick control mapping is not deterministic. It is occasionally necessary to modify the axis -->
+<!-- mapping. -->
 
-First, with the joystick controller running, verify that you can see the raw messages by running
-the following:
+<!-- First, with the joystick controller running, verify that you can see the raw messages by running -->
+<!-- the following: -->
 
-```
-$ ade enter
-ade$ source /opt/AutowareAuto/setup.bash
-ade$ ros2 topic echo /joy
-```
+<!-- ``` -->
+<!-- $ ade enter -->
+<!-- ade$ source /opt/AutowareAuto/setup.bash -->
+<!-- ade$ ros2 topic echo /joy -->
+<!-- ``` -->
 
-Next, actuate the appropriate axis on the vehicle controllers to determine which buttons and joy
-sticks correspond to which indices in the `Joy` message.
+<!-- Next, actuate the appropriate axis on the vehicle controllers to determine which buttons and joy -->
+<!-- sticks correspond to which indices in the `Joy` message. -->
 
-Update the `src/tools/joystick_vehicle_interface/param/logitech_f310.defaults.param.yaml` appropriately, or
-make a copy.
+<!-- Update the `src/tools/joystick_vehicle_interface/param/logitech_f310.defaults.param.yaml` appropriately, or -->
+<!-- make a copy. -->
 
-### There are no data on the /joy topic
+<!-- ### There are no data on the /joy topic -->
 
-Ensure that `/dev/input/js0` is available from within ADE.
+<!-- Ensure that `/dev/input/js0` is available from within ADE. -->
 
-@todo Specific instructions. What should a user do exactly?
+<!-- @todo Specific instructions. What should a user do exactly? -->
 
-If it is not available, restart `ade`, ensuring that the device is appropriately mounted. Alternatively, restart `ade` and run it with the `--privileged` flag, e.g.:
+<!-- If it is not available, restart `ade`, ensuring that the device is appropriately mounted. Alternatively, restart `ade` and run it with the `--privileged` flag, e.g.: -->
 
-```
-$ ade start <ade arguments> -- --privileged
-```
+<!-- ``` -->
+<!-- $ ade start <ade arguments> -- --privileged -->
+<!-- ``` -->
 
-### The vehicle still does not move
+<!-- ### The vehicle still does not move -->
 
-First, ensure the whole stack is running properly, and is appropriately configured. See the section
-above titled "No data are being sent through to ROS."
+<!-- First, ensure the whole stack is running properly, and is appropriately configured. See the section -->
+<!-- above titled "No data are being sent through to ROS." -->
 
-Next, ensure there are data on the `/joy` topic. If this is not the case, refer to the appropriate
-question.
+<!-- Next, ensure there are data on the `/joy` topic. If this is not the case, refer to the appropriate -->
+<!-- question. -->
 
 # Bridging with Autoware.Auto
 
-@todo Josh, please  check section. Do we need the discussion about the bridge at all?
+@todo update check section
 
 LGSVL uses conventions which are not directly aligned with ROS 2 conventions. The full list of behaviors the `lgsvl_interface` implements is:
 -# Converts control inputs with CCW positive rotations to the CCW negative inputs the LGSVL
