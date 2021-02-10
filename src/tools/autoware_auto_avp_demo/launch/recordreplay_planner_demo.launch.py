@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Launch Modules for Demo of Record/Replay Planner"""
+"""Launch Modules for Demo of Record/Replay Planner."""
 
 from ament_index_python import get_package_share_directory
 from launch.launch_description_sources import PythonLaunchDescriptionSource
@@ -27,9 +27,7 @@ import os
 
 
 def generate_launch_description():
-    """
-    Launch all nodes required to record and replay a path with obstacle detection
-    """
+    """Launch all nodes required to record and replay a path with obstacle detection."""
     avp_demo_pkg_prefix = get_package_share_directory('autoware_auto_avp_demo')
     euclidean_cluster_param_file = os.path.join(
         avp_demo_pkg_prefix, 'param/euclidean_cluster.param.yaml')
