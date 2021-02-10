@@ -9,6 +9,8 @@ The Autonomous Valet Parking (AVP) demonstration uses Autoware.Auto to provide a
 
 # Description of the demonstration
 
+@todo Do a gallery page with images?
+
 The AVP demonstration uses Autoware.Auto to provide the following functions:
 
 1. Automatically drive a car from a pre-defined drop-off zone (e.g. the entrance to a carpark) to a
