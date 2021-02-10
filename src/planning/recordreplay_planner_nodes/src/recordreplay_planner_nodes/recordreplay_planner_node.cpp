@@ -36,6 +36,7 @@ RecordReplayPlannerNode::RecordReplayPlannerNode(const rclcpp::NodeOptions & nod
 {
   const auto ego_topic = "vehicle_state";
   const auto trajectory_topic = "planned_trajectory";
+  const auto trajectory_viz_topic = "planned_trajectory_viz";
   const auto heading_weight = declare_parameter("heading_weight").get<float64_t>();
   const auto min_record_distance = declare_parameter("min_record_distance").get<float64_t>();
 
@@ -81,7 +82,7 @@ RecordReplayPlannerNode::RecordReplayPlannerNode(const rclcpp::NodeOptions & nod
   m_trajectory_pub =
     create_publisher<Trajectory>(trajectory_topic, QoS{10}, PubAllocT{});
   m_trajectory_viz_pub =
-    create_publisher<MarkerArray>(trajectory_topic + "_viz", QoS{10});
+    create_publisher<MarkerArray>(trajectory_viz_topic, QoS{10});
 
   // Set up services
   if (declare_parameter("enable_object_collision_estimator").get<bool>()) {
@@ -148,7 +149,7 @@ MarkerArray RecordReplayPlannerNode::to_markers(const Trajectory & traj, const s
   visualization_msgs::msg::MarkerArray markers;
   int32_t index = 0;
 
-  for (const auto traj_point : traj.points) {
+  for (const auto & traj_point : traj.points) {
     markers.markers.push_back(to_marker(traj_point, traj.header.frame_id, index, ns));
     index++;
   }
