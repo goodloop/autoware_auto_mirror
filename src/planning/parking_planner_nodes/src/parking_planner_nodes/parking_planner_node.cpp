@@ -303,8 +303,9 @@ AutowareTrajectory ParkingPlannerNode::plan_trajectory(
   // ---- Merge the drivable areas into one lanelet::Polygon3d --------------------------
   // TODO(s.me) For experiments, we take dummy data here.
   const Polygon3d drivable_area =
-      autoware::common::had_map_utils::coalesce_drivable_areas(route,
-                                                               lanelet_map_ptr);
+    autoware::common::had_map_utils::coalesce_drivable_areas(
+    route,
+    lanelet_map_ptr);
 
   // ---- Obtain "list of bounding obstacles" of drivable surface -----------------------
   const auto obstacles = parking_planner::convert_drivable_area_to_obstacles(drivable_area);
