@@ -16,7 +16,7 @@ configure some of them.
 The key functionality that will make CLion able to index is the use of [Compilation Database](https://www.jetbrains.com/help/clion/compilation-database.html).
 
 colcon tool lets users generate the `compile_commands.json` file required for loading them into CLion
-with following arguement:
+with following argument:
 
 ```bash
 colcon build --cmake-args -DCMAKE_EXPORT_COMPILE_COMMANDS=1
