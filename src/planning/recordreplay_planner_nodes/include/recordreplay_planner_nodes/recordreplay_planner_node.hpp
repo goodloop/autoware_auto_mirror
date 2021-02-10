@@ -22,11 +22,13 @@
 #include <recordreplay_planner_actions/action/replay_trajectory.hpp>
 
 #include <autoware_auto_msgs/msg/trajectory.hpp>
+#include <autoware_auto_msgs/msg/trajectory_point.hpp>
 #include <autoware_auto_msgs/msg/vehicle_kinematic_state.hpp>
 #include <autoware_auto_msgs/srv/modify_trajectory.hpp>
 #include <geometry_msgs/msg/transform_stamped.hpp>
 #include <motion_common/motion_common.hpp>
 #include <motion_common/config.hpp>
+#include <visualization_msgs/msg/marker.hpp>
 #include <visualization_msgs/msg/marker_array.hpp>
 #include <common/types.hpp>
 
@@ -46,12 +48,14 @@ namespace recordreplay_planner_nodes
 {
 using PlannerPtr = std::unique_ptr<motion::planning::recordreplay_planner::RecordReplayPlanner>;
 using autoware_auto_msgs::msg::Trajectory;
+using autoware_auto_msgs::msg::TrajectoryPoint;
 using autoware_auto_msgs::srv::ModifyTrajectory;
 using recordreplay_planner_actions::action::RecordTrajectory;
 using recordreplay_planner_actions::action::ReplayTrajectory;
 using State = autoware_auto_msgs::msg::VehicleKinematicState;
 using Transform = geometry_msgs::msg::TransformStamped;
 using motion::motion_common::Real;
+using visualization_msgs::msg::Marker;
 using visualization_msgs::msg::MarkerArray;
 
 class RECORDREPLAY_PLANNER_NODES_PUBLIC RecordReplayPlannerNode : public rclcpp::Node
@@ -77,8 +81,16 @@ protected:
   PlannerPtr m_planner{nullptr};
 
 private:
+  RECORDREPLAY_PLANNER_NODES_LOCAL Marker to_marker(
+    const TrajectoryPoint & traj_point,
+    const std::string & frame_id,
+    int32_t index,
+    const std::string & ns);
+
   RECORDREPLAY_PLANNER_NODES_LOCAL MarkerArray to_markers(
     const Trajectory & traj, const std::string & ns);
+
+  RECORDREPLAY_PLANNER_NODES_LOCAL void clear_markers();
 
   RECORDREPLAY_PLANNER_NODES_LOCAL void on_ego(const State::SharedPtr & msg);
   RECORDREPLAY_PLANNER_NODES_LOCAL void modify_trajectory_response(
@@ -101,6 +113,7 @@ private:
     const std::shared_ptr<GoalHandleReplayTrajectory> goal_handle);
 
   std::string m_odom_frame_id{};
+  MarkerArray m_recorded_markers{};
   std::shared_ptr<tf2_ros::Buffer> tf_buffer_;
   std::shared_ptr<tf2_ros::TransformListener> tf_listener_;
 

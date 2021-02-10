@@ -102,41 +102,70 @@ RecordReplayPlannerNode::RecordReplayPlannerNode(const rclcpp::NodeOptions & nod
   m_planner->set_min_record_distance(min_record_distance);
 }
 
+Marker RecordReplayPlannerNode::to_marker(
+  const TrajectoryPoint & traj_point,
+  const std::string & frame_id,
+  int32_t index,
+  const std::string & ns)
+{
+  Marker marker;
+
+  tf2::Quaternion quat;
+  quat.setEuler(0.0, 0.0, motion::motion_common::to_angle(traj_point.heading));
+
+  marker.header.frame_id = frame_id;
+  marker.header.stamp = rclcpp::Time(0);
+  marker.ns = ns;
+  marker.id = index;
+  marker.type = Marker::ARROW;
+  marker.action = Marker::ADD;
+  marker.pose.position.x = traj_point.x;
+  marker.pose.position.y = traj_point.y;
+  marker.pose.orientation = toMsg(quat);
+  marker.scale.x = 0.5;
+  marker.scale.y = 0.25;
+  marker.scale.z = 0.25;
+
+  if (m_planner->is_recording()) {
+    marker.color.r = 0.75f;
+    marker.color.g = 0.0f;
+    marker.color.b = 0.75f;
+    marker.color.a = 1.0f;
+  } else if (m_planner->is_replaying()) {
+    marker.color.r = 0.0f;
+    marker.color.g = 0.0f;
+    marker.color.b = 0.75f;
+    marker.color.a = 1.0f;
+  }
+
+  marker.frame_locked = false;
+
+  return marker;
+}
+
 MarkerArray RecordReplayPlannerNode::to_markers(const Trajectory & traj, const std::string & ns)
 {
   visualization_msgs::msg::MarkerArray markers;
   int32_t index = 0;
 
   for (const auto traj_point : traj.points) {
-    visualization_msgs::msg::Marker marker;
-
-    tf2::Quaternion quat;
-    quat.setEuler(0.0, 0.0, motion::motion_common::to_angle(traj_point.heading));
-
-    marker.header = traj.header;
-    marker.header.frame_id = traj.header.frame_id;
-    marker.header.stamp = rclcpp::Time(0);
-    marker.ns = ns;
-    marker.id = index;
-    marker.type = visualization_msgs::msg::Marker::ARROW;
-    marker.action = visualization_msgs::msg::Marker::ADD;
-    marker.pose.position.x = traj_point.x;
-    marker.pose.position.y = traj_point.y;
-    marker.pose.orientation = toMsg(quat);
-    marker.scale.x = 0.5;
-    marker.scale.y = 0.25;
-    marker.scale.z = 0.25;
-    marker.color.r = 0.75f;
-    marker.color.g = 0.0f;
-    marker.color.b = 0.75f;
-    marker.color.a = 1.0f;
-    marker.frame_locked = false;
-
-    markers.markers.push_back(marker);
+    markers.markers.push_back(to_marker(traj_point, traj.header.frame_id, index, ns));
     index++;
   }
 
   return markers;
+}
+
+void RecordReplayPlannerNode::clear_markers()
+{
+  if (m_recorded_markers.markers.size() > 0) {
+    for (auto & marker : m_recorded_markers.markers) {
+      marker.action = Marker::DELETE;
+    }
+    m_trajectory_viz_pub->publish(m_recorded_markers);
+  }
+
+  m_recorded_markers.markers.clear();
 }
 
 void RecordReplayPlannerNode::on_ego(const State::SharedPtr & msg)
@@ -147,7 +176,18 @@ void RecordReplayPlannerNode::on_ego(const State::SharedPtr & msg)
 
   if (m_planner->is_recording()) {
     RCLCPP_INFO_ONCE(this->get_logger(), "Recording ego position");
-    m_planner->record_state(*msg);
+    const auto added = m_planner->record_state(*msg);
+
+    if (added) {
+      // Publish visualization markers
+      m_recorded_markers.markers.push_back(
+        to_marker(
+          msg->state,
+          msg->header.frame_id,
+          static_cast<int>(m_planner->get_record_length()),
+          "record"));
+      m_trajectory_viz_pub->publish(m_recorded_markers);
+    }
 
     // Publish recording feedback information
     auto feedback_msg = std::make_shared<RecordTrajectory::Feedback>();
@@ -238,6 +278,9 @@ void RecordReplayPlannerNode::record_handle_accepted(
   // Store the goal handle otherwise the action gets canceled immediately
   m_recordgoalhandle = goal_handle;
   m_planner->start_recording();
+
+  // If a path was recorded previously, clear the markers
+  clear_markers();
 }
 
 rclcpp_action::GoalResponse RecordReplayPlannerNode::replay_handle_goal(
@@ -280,6 +323,9 @@ void RecordReplayPlannerNode::replay_handle_accepted(
     m_planner->readTrajectoryBufferFromFile(
       goal_handle->get_goal()->replay_path);
   }
+
+  // If a path was recorded previously, clear the markers
+  clear_markers();
 
   // Publish loaded states as replaying feedback information
   auto feedback_msg = std::make_shared<ReplayTrajectory::Feedback>();
