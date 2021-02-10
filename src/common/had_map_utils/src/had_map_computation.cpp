@@ -16,6 +16,8 @@
 
 #include <geometry_msgs/msg/polygon.hpp>
 
+#include <vector>
+
 #include "had_map_utils/had_map_computation.hpp"
 #include "had_map_utils/had_map_visualization.hpp"
 
