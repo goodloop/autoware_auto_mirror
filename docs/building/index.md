@@ -10,7 +10,7 @@ If you haven't done so already, get the source code with
 
 ```{bash}
 $ cd AutowareAuto
-$ vcs import < autoware.auto.$ROS_DISTRO.repos
+$ vcs import < autoware.auto.$ROS_DISTRO.repos --recursive
 ```
 
 Optionally, you can choose a DDS implementation other than the default Cyclone DDS: @subpage choosing-a-dds-vendor
