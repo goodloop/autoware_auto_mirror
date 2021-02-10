@@ -65,6 +65,20 @@ To add a compiler flag to all packages, e.g. for enabling the undefined behavior
 colcon build --cmake-args -DCMAKE_CXX_FLAGS="-fsanitize=undefined"
 ```
 
+#### Compilation Optimization And Debugging
+
+While building the Autoware Auto, here are some common options on compilation build types:
+- Release (Optimized and fast)
+- Debug (With debug flags but slow because not all compilation optimizations are done)
+- RelWithDebInfo (Fast and allows debugging to a fairly enough degree)
+
+```bash
+colcon build --cmake-args -DCMAKE_BUILD_TYPE=Release
+colcon build --cmake-args -DCMAKE_BUILD_TYPE=Debug
+colcon build --cmake-args -DCMAKE_BUILD_TYPE=RelWithDebInfo
+```
+
+
 ### Cleaning the build output
 `colcon` isn't very good at being stateless, so when you build, make changes, and build again, you can sometimes end up with a different result than when you build from scratch. To make sure you're getting a fresh build of a package, just do
 
