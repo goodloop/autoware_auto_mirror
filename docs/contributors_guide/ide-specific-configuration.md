@@ -5,7 +5,7 @@ IDE Specific Configuration {#ide-specific-configuration}
 
 # Supported IDEs
 
-You can use any IDE or text editor to use or develop Autoware Auto. Here you can find how to 
+You can use any IDE or text editor to develop Autoware Auto. Here you can find how to 
 configure some of them.
 
 - @ref configuration-clion "CLion"
@@ -13,24 +13,24 @@ configure some of them.
 
 ## CLion {#configuration-clion}
 
-The key functionality that will make CLion able to index is the use of [Compilation Database](https://www.jetbrains.com/help/clion/compilation-database.html).
+The key functionality that will make CLion able to index is the use of a [Compilation Database](https://www.jetbrains.com/help/clion/compilation-database.html).
 
-colcon tool lets users generate the `compile_commands.json` file required for loading them into CLion
+The `colcon` tool lets users generate the `compile_commands.json` file required for loading them into CLion
 with following argument:
 
 ```bash
 colcon build --cmake-args -DCMAKE_EXPORT_COMPILE_COMMANDS=1
 ```
 
-You can find more information on it from [colcon documentation](https://colcon.readthedocs.io/en/released/user/how-to.html#cmake-packages-generating-compile-commands-json).
+You can find more information on this file in the [colcon documentation](https://colcon.readthedocs.io/en/released/user/how-to.html#cmake-packages-generating-compile-commands-json).
 
 ### Building
 
-You can use the Terminal within the Clion to do the building.
+You can use the Terminal within Clion to do the building.
 
 Make sure you went through the @ref building "Building" instructions.
-Because in order to be able to debug your code with Clion, you should compile with either `Debug` or
-`RelWithDebInfo` flags. You can use `RelWithDebInfo` most of the times without problems.
+In order to be able to debug your code with Clion, you should compile with either `Debug` or
+`RelWithDebInfo` flags. You can use `RelWithDebInfo` most of the time without problems.
 
 ```bash
 colcon build --cmake-args -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_EXPORT_COMPILE_COMMANDS=1
@@ -38,7 +38,7 @@ colcon build --cmake-args -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_EXPORT_COMPI
 colcon build --cmake-args -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_EXPORT_COMPILE_COMMANDS=1 --packages-select <package_name>
 ```
 
-And you can make some `.bash_aliases` aliases to simplify the building process.
+You can also make some `bash` aliases in the `.bash_aliases` file to simplify the building process.
 ```bash
 alias colcon_build_reldeb="colcon build --cmake-args -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_EXPORT_COMPILE_COMMANDS=1"
 alias colcon_build_reldeb_upto="colcon_build_reldeb --packages-up-to "
@@ -47,16 +47,16 @@ alias colcon_build_reldeb_sel="colcon_build_reldeb --packages-select "
 
 ### Opening up the project in CLion
 
-Once you have created a compiled the Autoware with the commands above, you can load it into CLion.
+Once you have created and compiled Autoware.Auto with the commands above, you can load it into CLion.
 
-Navigate to File | Open on the main menu, choose the compile_commands.json 
+Navigate to File | Open on the main menu, choose the `compile_commands.json`
 (it will be located in `AutowareAuto/build/` folder) file and click Open as Project.
 
-By default, the project root is set to the directory containing the compilation database file, 
-in our case this is the `AutowareAuto/build/ folder`. 
+By default, the project root is set to the directory containing the compilation database file which,
+in our case, is the `AutowareAuto/build/` folder. 
 
 To change the project root, select Tools | Compilation Database | Change Project Root from the main menu, 
-and select `AutowareAuto` directory from there.
+and select the `AutowareAuto` directory from there.
 
 Now CLion's code insight, refactoring, analysis, and navigation are fully available for your project.
 
@@ -72,8 +72,8 @@ And it should look like this:
 
 For now you can debug anything that you can run with `ros2 run package_name executable_name <param1> <param2>...`
 
-And you cannot directly debug the things that you run through the `ros2 launch` although it should be
-fairly simple to [have Clion Attach to Process](https://www.jetbrains.com/help/clion/attaching-to-local-process.html).
+You cannot directly debug the nodes that you run through the `ros2 launch` command although it should be
+fairly simple to [have Clion Attach to a Process](https://www.jetbrains.com/help/clion/attaching-to-local-process.html).
 
 #### Example for running the "point_cloud_filter_transform_nodes" from the perception/filters in ROS2 Foxy:**
 
