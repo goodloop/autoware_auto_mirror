@@ -3,13 +3,8 @@ IDE Specific Configuration {#ide-specific-configuration}
 
 [TOC]
 
-# Supported IDEs
-
 You can use any IDE or text editor to develop Autoware Auto. Here you can find how to 
 configure some of them.
-
-- @ref configuration-clion "CLion"
-- @ref configuration-vscode "VS Code"
 
 ## CLion {#configuration-clion}
 
@@ -26,10 +21,10 @@ You can find more information on this file in the [colcon documentation](https:/
 
 ### Building
 
-You can use the Terminal within Clion to do the building.
+You can use the Terminal within CLion to do the building.
 
 Make sure you went through the @ref building "Building" instructions.
-In order to be able to debug your code with Clion, you should compile with either `Debug` or
+In order to be able to debug your code with CLion, you should compile with either `Debug` or
 `RelWithDebInfo` flags. You can use `RelWithDebInfo` most of the time without problems.
 
 ```bash
@@ -79,13 +74,18 @@ fairly simple to [have Clion Attach to a Process](https://www.jetbrains.com/help
 
 Normally you can run this node with following commands:
 ```bash
-# In my pc, the AutowareAuto is located in /home/mfc/projects/
+# In my pc, the AutowareAuto is located in ~/adehome/
 # Please update this path with your configuration
 
-source /home/mfc/projects/AutowareAuto/install/setup.bash
-ros2 run point_cloud_filter_transform_nodes point_cloud_filter_transform_node_exe --ros-args -r __ns:=/lidar_front --params-file /home/mfc/projects/AutowareAuto/src/perception/filters/point_cloud_filter_transform_nodes/param/vlp16_sim_lexus_filter_transform.param.yaml -r __node:=filter_transform_vlp16_front -r points_in:=/lidar_front/points_raw
+source ~/adehome/AutowareAuto/install/setup.bash
+ros2 run point_cloud_filter_transform_nodes point_cloud_filter_transform_node_exe --ros-args -r __ns:=/lidar_front --params-file ~/adehome/AutowareAuto/src/perception/filters/point_cloud_filter_transform_nodes/param/vlp16_sim_lexus_filter_transform.param.yaml -r __node:=filter_transform_vlp16_front -r points_in:=/lidar_front/points_raw
 ```
-To be able to run and/or debug this file with Clion, do the following:
+
+There are some [Path Variables](https://www.jetbrains.com/help/clion/absolute-path-variables.html) 
+in CLion that make it easy to shorten some paths in certain places.
+Here we will use `$ContentRoot$` to point to the project root which is `~/adehome/AutowareAuto`.
+
+To be able to run and/or debug this file with CLion, do the following:
 
 1. Call Run | Edit Configurations from the menu or Click `Add Configuration...` from top right near build buttons.
    @image html images/ide-configuration-clion-run-configuration-empty.png "Empty Run/Debug Configurations"
@@ -101,13 +101,13 @@ To be able to run and/or debug this file with Clion, do the following:
    
 5. In the `Custom Build Application` screen select the `Custom Build Target` for `Target:` that you have generated.
 
-6. Executable: `/home/mfc/projects/AutowareAuto/install/point_cloud_filter_transform_nodes/lib/point_cloud_filter_transform_nodes/point_cloud_filter_transform_node_exe`
+6. Executable: `$ContentRoot$/install/point_cloud_filter_transform_nodes/lib/point_cloud_filter_transform_nodes/point_cloud_filter_transform_node_exe`
 
-7. Program Arguments: `--ros-args -r __ns:=/lidar_front --params-file /home/mfc/projects/AutowareAuto/src/perception/filters/point_cloud_filter_transform_nodes/param/vlp16_sim_lexus_filter_transform.param.yaml -r __node:=filter_transform_vlp16_front -r points_in:=/lidar_front/points_raw`
+7. Program Arguments: `--ros-args -r __ns:=/lidar_front --params-file $ContentRoot$/src/perception/filters/point_cloud_filter_transform_nodes/param/vlp16_sim_lexus_filter_transform.param.yaml -r __node:=filter_transform_vlp16_front -r points_in:=/lidar_front/points_raw`
 
-8. (optional) Working Directory: `/home/mfc/projects/AutowareAuto/install/`
+8. (optional) Working Directory: `$ContentRoot$/install/`
    
-9. Environment Variables: `source /home/mfc/projects/AutowareAuto/install/setup.bash`
+9. Environment Variables: `source /home/mfc/adehome/AutowareAuto/install/setup.bash` (Absolute path is required here)
 
 10. In the `Before Launch` list, press the minus button to remove the `Build` from the list.
 
