@@ -29,32 +29,43 @@ namespace autoware
 namespace lanelet2_map_provider
 {
 
-Lanelet2MapProvider::Lanelet2MapProvider(const std::string & map_filename)
-: m_map_filename(map_filename)
+Lanelet2MapProvider::Lanelet2MapProvider(
+  const std::string & map_filename,
+  const geometry_msgs::msg::TransformStamped & stf)
 {
-}
-
-void Lanelet2MapProvider::calculate_geographic_coords()
-{
-  // need to convert earth to map transform back to lat lon for lanelet2 projector
   GeographicLib::Geocentric earth(
     GeographicLib::Constants::WGS84_a(),
     GeographicLib::Constants::WGS84_f());
 
+  float64_t origin_lat = 0.0;
+  float64_t origin_lon = 0.0;
+  float64_t origin_ele = 0.0;
   earth.Reverse(
-    m_earth_to_map.transform.translation.x,
-    m_earth_to_map.transform.translation.y,
-    m_earth_to_map.transform.translation.z,
-    m_origin_lat, m_origin_lon, m_origin_ele);
+    stf.transform.translation.x,
+    stf.transform.translation.y,
+    stf.transform.translation.z,
+    origin_lat, origin_lon, origin_ele);
+  this->load_map(map_filename, origin_lat, origin_lon, origin_ele);
 }
-void Lanelet2MapProvider::load_map()
+
+Lanelet2MapProvider::Lanelet2MapProvider(
+  const std::string & map_filename,
+  const float64_t origin_lat, const float64_t origin_lon,
+  const float64_t origin_ele)
+{
+  this->load_map(map_filename, origin_lat, origin_lon, origin_ele);
+}
+
+void Lanelet2MapProvider::load_map(
+  const std::string & map_filename, const float64_t origin_lat,
+  const float64_t origin_lon, const float64_t origin_ele)
 {
   lanelet::ErrorMessages errors;
-  lanelet::GPSPoint originGps{m_origin_lat, m_origin_lon, m_origin_ele};
+  lanelet::GPSPoint originGps{origin_lat, origin_lon, origin_ele};
   lanelet::Origin origin{originGps};
 
   lanelet::projection::UtmProjector projector(origin);
-  m_map = lanelet::load(m_map_filename, projector, &errors);
+  m_map = lanelet::load(map_filename, projector, &errors);
   autoware::common::had_map_utils::overwriteLaneletsCenterline(m_map, true);
 }
 

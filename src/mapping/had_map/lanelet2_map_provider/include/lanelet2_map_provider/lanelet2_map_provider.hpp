@@ -48,37 +48,33 @@ namespace lanelet2_map_provider
 class LANELET2_MAP_PROVIDER_PUBLIC Lanelet2MapProvider
 {
 public:
-  Lanelet2MapProvider(const std::string & map_filename);
-  /// \brief set the transform between earth and map frames for projection of map data
-  /// \param stf the earth to map transform
-  void set_earth_to_map_transform(const geometry_msgs::msg::TransformStamped & stf)
-  {
-    m_earth_to_map = stf;
-  }
-  /// \brief load the lanelet map and project into the coordinates of the origin
-  void load_map();
-  /// \brief calculate the latitude, longitude and elevation of the map orgin
-  /// from the origin transform
-  void calculate_geographic_coords();
-  /// \brief directly set hte geographic coordinates of the map orgin
-  /// \param lat map origin latitude
-  /// \param lon map orgin longitude
-  /// \param ele map orgin elevation
-  void set_geographic_coords(const float64_t lat, const float64_t lon, const float64_t ele)
-  {
-    m_origin_lat = lat;
-    m_origin_lon = lon;
-    m_origin_ele = ele;
-  }
+  /// \brief Constructor from a transform between earth and map frames
+  /// \param map_filename The lanelet map filename
+  /// \param stf The earth to map transform for projection of map data
+  Lanelet2MapProvider(
+    const std::string & map_filename,
+    const geometry_msgs::msg::TransformStamped & stf);
+  /// \brief Constructor from latitude, longitude, altitude
+  /// \param map_filename The lanelet map filename
+  /// \param origin_lat Latitude of the map origin
+  /// \param origin_lon Longitude of the map origin
+  /// \param origin_ele Elevation of the map origin
+  Lanelet2MapProvider(
+    const std::string & map_filename, const float64_t origin_lat,
+    const float64_t origin_lon, const float64_t origin_ele);
+  /// The map itself. After the constructor logic has been done,
+  /// this is guaranteed to be initialized.
   std::shared_ptr<lanelet::LaneletMap> m_map;
 
 private:
-  std::string m_map_filename;
-  // map orgin as a transform from earth center
-  geometry_msgs::msg::TransformStamped m_earth_to_map;
-  float64_t m_origin_lat;  // map orgin in latitude, longitude and elevation
-  float64_t m_origin_lon;
-  float64_t m_origin_ele;
+  /// \brief Internal function used by the constructor
+  /// \param map_filename The lanelet map filename
+  /// \param origin_lat Latitude of the map origin
+  /// \param origin_lon Longitude of the map origin
+  /// \param origin_ele Elevation of the map origin
+  void load_map(
+    const std::string & map_filename, const float64_t origin_lat,
+    const float64_t origin_lon, const float64_t origin_ele);
 };
 
 }  // namespace lanelet2_map_provider
