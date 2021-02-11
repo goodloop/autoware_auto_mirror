@@ -42,7 +42,7 @@ alias colcon_build_reldeb_sel="colcon_build_reldeb --packages-select "
 
 ### Opening up the project in CLion
 
-Once you have created and compiled Autoware.Auto with the commands above, you can load it into CLion.
+Once you have compiled Autoware.Auto with the commands above, you can load it into CLion.
 
 Navigate to File | Open on the main menu, choose the `compile_commands.json`
 (it will be located in `AutowareAuto/build/` folder) file and click Open as Project.
