@@ -1,7 +1,7 @@
 Lanelet2 Map for Autoware.Auto {#lanelet2-map-for-autoware-auto}
 ===
 ## Overview
-Autoware.Auto uses the Lanelet2 format to define geometric and semantic information of lanes in the environment. For detailed information about the format, please refer to the documentation in this repository.
+Autoware.Auto uses the Lanelet2 format to define geometric and semantic information of lanes in the environment. For detailed information about the format, please refer to the official [Lanelet2 documentation](https://github.com/fzi-forschungszentrum-informatik/Lanelet2).
 https://github.com/fzi-forschungszentrum-informatik/Lanelet2
 
 In general, Autoware expects Lanelet2 maps to be created according to the upstream definition, with some minor changes. The following sections explain how objects and tags should be defined for Autoware.Auto. Note that the current explanation is targeted for the Autonomous Valet Parking ODD, and it could change as we consider different ODDs.
