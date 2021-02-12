@@ -10,8 +10,8 @@ In general, Autoware expects Lanelet2 maps to be created according to the upstre
 
 # Primitives
 For the AVP task, Autoware supports the following [Lanelet2 primitives](https://github.com/fzi-forschungszentrum-informatik/Lanelet2/blob/master/lanelet2_core/doc/LaneletPrimitives.md):
-* Lanelet used to define driving lanes
-* Area used to define parking spots and parking access area
+* Lanelet to to define driving lanes
+* Area to define parking spots and parking access area
 Note that [regulatory elements](https://github.com/fzi-forschungszentrum-informatik/Lanelet2/blob/master/lanelet2_core/doc/RegulatoryElementTagging.md)(e.g. traffic lights, traffic signs, right of way, etc) are not used by Autoware.Auto as they are outside the AVP ODD.
 
 ## Defining Lanes
