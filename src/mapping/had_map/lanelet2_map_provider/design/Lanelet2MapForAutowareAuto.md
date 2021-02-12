@@ -23,7 +23,7 @@ Lanes should be defined by Lanelet primitives according to the Lanelet2 format. 
 
 ### Information that are **not** used by Autoware:
 * lane change: In Lanelet2 format, the possibility of lane changes is determined by the type of the lanelet boundary. Autoware, however, does not support lane change maneuver and therefore it will be ignored.
-* bi-directional lanes: In the original Lanelet2 format, lanes can be defined as bi-directional lanes with the tag `one_way=no`. Instead, Autoware expects bidirectional lanes to be defined by two overlapping lanes with opposite directions. (See the AutonomouStuff parking lot map as an example.)
+* bi-directional lanes: In the original Lanelet2 format, lanes can be defined as bi-directional lanes with the tag `one_way=no`. Instead, Autoware expects bidirectional lanes to be defined by two overlapping lanes with opposite directions. See the [AutonomousStuff parking-lot map](https://gitlab.com/autowarefoundation/autoware.auto/AutowareAuto/-/blob/master/src/tools/autoware_auto_avp_demo/data/autonomoustuff_parking_lot.osm) as an example.
 
 ## Defining Parking Spots
 Autoware expects parking spots to be defined as Area objects with the following tags:
