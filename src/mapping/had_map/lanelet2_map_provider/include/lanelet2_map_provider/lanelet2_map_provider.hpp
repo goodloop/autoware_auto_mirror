@@ -20,16 +20,10 @@
 #define LANELET2_MAP_PROVIDER__LANELET2_MAP_PROVIDER_HPP_
 
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
-#include <tf2/LinearMath/Quaternion.h>
 #include <common/types.hpp>
 #include <lanelet2_core/LaneletMap.h>
-#include <lanelet2_core/primitives/Point.h>
-#include <lanelet2_core/utility/Units.h>
-#include <lanelet2_io/Io.h>
-#include <lanelet2_projection/UTM.h>
 #include <lanelet2_map_provider/visibility_control.hpp>
 
-#include <iostream>
 #include <string>
 #include <memory>
 
@@ -43,6 +37,15 @@ namespace autoware
 namespace lanelet2_map_provider
 {
 
+/// WGS84 Latitude, Longitude, Altitude datum
+/// TODO(nikolai.morin): Move this into some kind of mapping/common package
+struct LatLonAlt
+{
+  float64_t lat;  ///< latitude in degrees
+  float64_t lon;  ///< longitude in degrees
+  float64_t alt;  ///< altitude in meters
+};
+
 /// \class Lanelet2MapProvider
 /// \brief Provides functoins to load and access a lanelet2 OSM map.
 class LANELET2_MAP_PROVIDER_PUBLIC Lanelet2MapProvider
@@ -51,17 +54,23 @@ public:
   /// \brief Constructor from a transform between earth and map frames
   /// \param map_filename The lanelet map filename
   /// \param stf The earth to map transform for projection of map data
+  /// \param offset_lat Latitude offset in degrees to be added to the map frame origin
+  /// \param offset_lon Longitude offset in degrees to be added to the map origin
+  // TODO(nikolai.morin): Remove offsets as part of #849
   Lanelet2MapProvider(
     const std::string & map_filename,
-    const geometry_msgs::msg::TransformStamped & stf);
+    const geometry_msgs::msg::TransformStamped & stf, const float64_t offset_lat = 0.0,
+    const float64_t offset_lon = 0.0);
   /// \brief Constructor from latitude, longitude, altitude
   /// \param map_filename The lanelet map filename
-  /// \param origin_lat Latitude of the map origin
-  /// \param origin_lon Longitude of the map origin
-  /// \param origin_ele Elevation of the map origin
+  /// \param map_frame_origin The map frame origin
+  /// \param offset_lat Latitude offset in degrees to be added to the map frame origin
+  /// \param offset_lon Longitude offset in degrees to be added to the map frame origin
+  // TODO(nikolai.morin): Remove offsets as part of #849
   Lanelet2MapProvider(
-    const std::string & map_filename, const float64_t origin_lat,
-    const float64_t origin_lon, const float64_t origin_ele);
+    const std::string & map_filename, const LatLonAlt map_frame_origin,
+    const float64_t offset_lat = 0.0,
+    const float64_t offset_lon = 0.0);
   /// The map itself. After the constructor logic has been done,
   /// this is guaranteed to be initialized.
   std::shared_ptr<lanelet::LaneletMap> m_map;
@@ -69,12 +78,9 @@ public:
 private:
   /// \brief Internal function used by the constructor
   /// \param map_filename The lanelet map filename
-  /// \param origin_lat Latitude of the map origin
-  /// \param origin_lon Longitude of the map origin
-  /// \param origin_ele Elevation of the map origin
+  /// \param map_frame_origin The map frame origin
   void load_map(
-    const std::string & map_filename, const float64_t origin_lat,
-    const float64_t origin_lon, const float64_t origin_ele);
+    const std::string & map_filename, const LatLonAlt map_frame_origin);
 };
 
 }  // namespace lanelet2_map_provider
