@@ -1,4 +1,4 @@
-# Copyright 2020, The Autoware Foundation
+# Copyright 2021, The Autoware Foundation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -233,7 +233,7 @@ def generate_launch_description():
         node_namespace='planning',
         parameters=[
             LaunchConfiguration('recordreplay_planner_param_file'),
-            {"enable_object_collision_estimator", LaunchConfiguration('with_obstacle_detection')}
+            {"enable_object_collision_estimator": LaunchConfiguration('with_obstacle_detection')}
         ],
         remappings=[
             ('vehicle_state', '/vehicle/vehicle_kinematic_state'),
