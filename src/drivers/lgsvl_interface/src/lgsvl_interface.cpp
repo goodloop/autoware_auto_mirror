@@ -16,6 +16,7 @@
 #include <common/types.hpp>
 #include <helper_functions/float_comparisons.hpp>
 #include <tf2/LinearMath/Quaternion.h>
+#include <motion_common/motion_common.hpp>
 
 #include <algorithm>
 #include <cmath>
@@ -323,32 +324,47 @@ void LgsvlInterface::on_odometry(const nav_msgs::msg::Odometry & msg)
   const auto py = msg.pose.pose.position.y - m_odom_zero.y;
   const auto pz = msg.pose.pose.position.z - m_odom_zero.z;
   {
-    autoware_auto_msgs::msg::VehicleKinematicState vse{};
+    // Create Vehicle Kinematic State with child frame of nav_base instead of base_link
+    geometry_msgs::msg::TransformStamped tf{};
+    tf.header = msg.header;
+    tf.child_frame_id = msg.child_frame_id;
+    tf.transform.translation.x = px;
+    tf.transform.translation.y = py;
+    tf.transform.translation.z = pz;
+    tf.transform.rotation = q;
+
+    autoware_auto_msgs::msg::VehicleKinematicState vse{}, vse_t{};
     vse.header = msg.header;
-    vse.state.x = static_cast<decltype(vse.state.x)>(px);
-    vse.state.y = static_cast<decltype(vse.state.y)>(py);
-    {
-      const auto inv_mag = 1.0 / std::sqrt((q.z * q.z) + (q.w * q.w));
-      vse.state.heading.real = static_cast<decltype(vse.state.heading.real)>(q.w * inv_mag);
-      vse.state.heading.imag = static_cast<decltype(vse.state.heading.imag)>(q.z * inv_mag);
-    }
+    vse.state.x = static_cast<decltype(vse.state.x)>(1.5618);
+    vse.state.y = static_cast<decltype(vse.state.y)>(0.0);
+
+    motion::motion_common::doTransform(vse, vse_t, tf);
+
+    // Reset header to get good timestamp
+    vse_t.header = msg.header;
 
     // Get values from vehicle odometry
-    vse.state.longitudinal_velocity_mps = get_odometry().velocity_mps;
-    vse.state.front_wheel_angle_rad = get_odometry().front_wheel_angle_rad;
-    vse.state.rear_wheel_angle_rad = get_odometry().rear_wheel_angle_rad;
+    vse_t.state.longitudinal_velocity_mps = get_odometry().velocity_mps;
+    vse_t.state.front_wheel_angle_rad = get_odometry().front_wheel_angle_rad;
+    vse_t.state.rear_wheel_angle_rad = get_odometry().rear_wheel_angle_rad;
     if (state_report().gear == autoware_auto_msgs::msg::VehicleStateReport::GEAR_REVERSE) {
-      vse.state.longitudinal_velocity_mps *= -1.0f;
+      vse_t.state.longitudinal_velocity_mps *= -1.0f;
     }
 
-    vse.state.lateral_velocity_mps =
+    vse_t.state.lateral_velocity_mps =
       static_cast<decltype(vse.state.lateral_velocity_mps)>(msg.twist.twist.linear.y);
     // TODO(jitrc): populate with correct value when acceleration is available from simulator
-    vse.state.acceleration_mps2 = 0.0F;
-    vse.state.heading_rate_rps =
-      static_cast<decltype(vse.state.heading_rate_rps)>(msg.twist.twist.angular.z);
+    vse_t.state.acceleration_mps2 = 0.0F;
+    vse_t.state.heading_rate_rps =
+      static_cast<decltype(vse_t.state.heading_rate_rps)>(msg.twist.twist.angular.z);
 
-    m_kinematic_state_pub->publish(vse);
+    m_kinematic_state_pub->publish(vse_t);
+
+    if (m_tf_pub) {
+      tf2_msgs::msg::TFMessage tf_msg{};
+      tf_msg.transforms.emplace_back(std::move(tf));
+      m_tf_pub->publish(tf_msg);
+    }
   }
 
   if (m_pose_pub) {
@@ -377,20 +393,6 @@ void LgsvlInterface::on_odometry(const nav_msgs::msg::Odometry & msg)
     }
 
     m_pose_pub->publish(pose);
-  }
-
-  if (m_tf_pub) {
-    geometry_msgs::msg::TransformStamped tf{};
-    tf.header = msg.header;
-    tf.child_frame_id = msg.child_frame_id;
-    tf.transform.translation.x = px;
-    tf.transform.translation.y = py;
-    tf.transform.translation.z = pz;
-    tf.transform.rotation = q;
-
-    tf2_msgs::msg::TFMessage tf_msg{};
-    tf_msg.transforms.emplace_back(std::move(tf));
-    m_tf_pub->publish(tf_msg);
   }
 }
 
