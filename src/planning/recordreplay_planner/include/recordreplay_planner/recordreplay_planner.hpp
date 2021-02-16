@@ -87,7 +87,7 @@ public:
   void readTrajectoryBufferFromFile(const std::string & replay_path);
 
   /**
-   * \brief Judges whether current_state has reached to the last point in record buffer
+   * \brief Judges whether current_state has reached the last point in record buffer
    * \param current_state current state of the vehicle
    * \param distance_thresh distance threshold in meters
    * \param angle_thresh angle threshold in radian
