@@ -163,7 +163,7 @@ static bool bbox_is_on_map(
   const lanelet::Polygon2d bbox_poly = polygon_for_bbox(map_from_base_link, bbox);
   // See https://github.com/fzi-forschungszentrum-informatik/Lanelet2/blob/master/lanelet2_core/doc/GeometryPrimer.md
   const lanelet::ConstHybridPolygon2d bbox_poly_hybrid = utils::toHybrid(bbox_poly);
-  const float64_t total_area = lanelet::geometry::area(bbox_poly);
+  const float64_t total_area = lanelet::geometry::area(bbox_poly_hybrid);
 
   // Now find possibly-intersecting lanelets
   const lanelet::BoundingBox2d bbox_bbox = lanelet::geometry::boundingBox2d(bbox_poly);

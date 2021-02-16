@@ -14,12 +14,12 @@
 
 #include "off_map_obstacles_filter_nodes/off_map_obstacles_filter_node.hpp"
 
-#include <chrono>
 #include <memory>
 #include <string>
 
 #include "lanelet2_map_provider/lanelet2_map_provider.hpp"
 #include "common/types.hpp"
+#include "tf2_ros/buffer_interface.h"
 
 using namespace std::literals::chrono_literals;
 
@@ -62,8 +62,8 @@ void OffMapObstaclesFilterNode::process_bounding_boxes(const ObstacleMsg::Shared
   geometry_msgs::msg::TransformStamped map_from_base_link;
   try {
     map_from_base_link = m_tf2_buffer.lookupTransform(
-      "map", "base_link", msg->header.stamp, rclcpp::Duration(
-        100ms));
+      "map", "base_link", tf2_ros::fromMsg(msg->header.stamp),
+        tf2::durationFromSec(0.1));
     m_filter->remove_off_map_bboxes(map_from_base_link, *msg);
     auto marker_array = m_filter->bboxes_in_map_frame_viz(map_from_base_link, *msg);
     m_marker_pub_ptr->publish(marker_array);
