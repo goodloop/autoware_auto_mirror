@@ -42,13 +42,19 @@ class OFF_MAP_OBSTACLES_FILTER_PUBLIC OffMapObstaclesFilter
 public:
   OffMapObstaclesFilter(std::shared_ptr<lanelet::LaneletMap> map, float64_t overlap_threshold);
 
+  /// \brief A function for debugging the transformation of boxes in the base_link frame to lanelet
+  /// polygons in the map frame. Can also be used to see which boxes were filtered.
+  /// \param map_from_base_link The transform that transforms things from base_link to map.
+  /// \param msg The bounding boxes to visualize.
+  /// \return A marker array of linestrings, one for each bbox.
   visualization_msgs::msg::MarkerArray bboxes_in_map_frame_viz(
     const geometry_msgs::msg::TransformStamped & map_from_base_link,
     const autoware_auto_msgs::msg::BoundingBoxArray & msg) const;
+
   /// \param map_from_base_link The transform that transforms things from base_link to map.
-  /// \param bbox The bounding box with coordinates in the base_link frame.
+  /// \param msg The bounding boxes array to filter – will be modified.
   /// \return True if the bbox overlaps any map element.
-  /// This function assumes that bboxes are 2.5d, i.e. only have yaw but no roll or pitch
+  /// This function assumes that bboxes are 2.5d, i.e. only have yaw but no roll or pitch.
   void remove_off_map_bboxes(
     const geometry_msgs::msg::TransformStamped & map_from_base_link,
     autoware_auto_msgs::msg::BoundingBoxArray & msg) const;

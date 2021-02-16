@@ -14,6 +14,8 @@
   <depend>autoware_auto_msgs</depend>
   <depend>lanelet2_core</depend>
   <depend>lanelet2_map_provider</depend>
+  <depend>geometry_msgs</depend>
+  <depend>tf2_ros</depend>
   <depend>off_map_obstacles_filter</depend>
   <depend>rclcpp</depend>
   <depend>rclcpp_components</depend>

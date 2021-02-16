@@ -59,8 +59,6 @@ void OffMapObstaclesFilterNode::process_bounding_boxes(const ObstacleMsg::Shared
             "bounding boxes are in unexpected frame '" + msg->header.frame_id +
             "'");
   }
-  const auto num_boxes_before = msg->boxes.size();
-  const auto start_time = std::chrono::steady_clock::now();
   geometry_msgs::msg::TransformStamped map_from_base_link;
   try {
     map_from_base_link = m_tf2_buffer.lookupTransform(
@@ -73,48 +71,6 @@ void OffMapObstaclesFilterNode::process_bounding_boxes(const ObstacleMsg::Shared
     RCLCPP_INFO(get_logger(), "Did not filter boxes because no transform was available.");
   }
   m_pub_ptr->publish(*msg);
-  auto end_time = std::chrono::steady_clock::now();
-
-  // Copied verbatim from euclidean_cluster_node
-  // int id_counter = 0;
-  // MarkerArray marker_array;
-  // for (const auto & box : msg->boxes) {
-  //   visualization_msgs::msg::Marker m{};
-  //   m.header.stamp = rclcpp::Time(0);
-  //   m.header.frame_id = msg->header.frame_id;
-  //   m.ns = "bbox";
-  //   m.id = id_counter;
-  //   m.type = visualization_msgs::msg::Marker::CUBE;
-  //   m.action = visualization_msgs::msg::Marker::ADD;
-  //   m.pose.position.x = static_cast<float64_t>(box.centroid.x);
-  //   m.pose.position.y = static_cast<float64_t>(box.centroid.y);
-  //   m.pose.position.z = static_cast<float64_t>(box.centroid.z);
-  //   m.pose.orientation.x = static_cast<float64_t>(box.orientation.x);
-  //   m.pose.orientation.y = static_cast<float64_t>(box.orientation.y);
-  //   m.pose.orientation.z = static_cast<float64_t>(box.orientation.z);
-  //   m.pose.orientation.w = static_cast<float64_t>(box.orientation.w);
-  //   // X and Y scale are swapped between these two message types
-  //   m.scale.x = static_cast<float64_t>(box.size.y);
-  //   m.scale.y = static_cast<float64_t>(box.size.x);
-  //   m.scale.z = static_cast<float64_t>(box.size.z);
-  //   m.color.r = 1.0;
-  //   m.color.g = 0.5;
-  //   m.color.b = 0.0;
-  //   m.color.a = 0.75;
-  //   m.lifetime.sec = 0;
-  //   m.lifetime.nanosec = 500000000;
-  //   marker_array.markers.push_back(m);
-  //   id_counter++;
-  // }
-
-  const auto num_boxes_after = msg->boxes.size();
-  const auto milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(
-    end_time - start_time).count();
-  if (true) {
-    RCLCPP_INFO(
-      get_logger(), "Removed %d boxes, %d ms", (num_boxes_before - num_boxes_after),
-      milliseconds);
-  }
 }
 
 }  // namespace off_map_obstacles_filter_nodes
