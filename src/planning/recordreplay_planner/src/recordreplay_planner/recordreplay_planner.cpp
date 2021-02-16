@@ -381,17 +381,15 @@ bool8_t RecordReplayPlanner::reached_goal(
   const auto & goal_state = m_trajectory.points.back();
   const auto & ego_state = current_state.state;
   const auto distance2d_sq =
-    static_cast<float64_t>((ego_state.x - goal_state.x) * (ego_state.x - goal_state.x) +
-    (ego_state.y - goal_state.y) * (ego_state.y - goal_state.y));
+    static_cast<float64_t>(std::hypot(ego_state.x - goal_state.x, ego_state.y - goal_state.y));
   const auto angle_diff_rad =
     static_cast<float64_t>(std::abs(to_angle(ego_state.heading - goal_state.heading)));
   if (distance2d_sq < distance_thresh * distance_thresh &&
     angle_diff_rad < angle_thresh)
   {
     return true;
-  } else {
-    return false;
   }
+  return false;
 }
 
 }  // namespace recordreplay_planner
