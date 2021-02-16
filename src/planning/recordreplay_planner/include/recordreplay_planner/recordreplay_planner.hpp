@@ -89,8 +89,8 @@ public:
   /**
    * \brief Judges whether current_state has reached the last point in record buffer
    * \param current_state current state of the vehicle
-   * \param distance_thresh distance threshold in meters
-   * \param angle_thresh angle threshold in radian
+   * \param distance_thresh threshold of euclidean distance between the current statethe and the last point in meters
+   * \param angle_thresh threshold of difference in the headings of the current_state and the last point in radians
    * \return true if both distance and angle conditions are satisfied
    */
   bool8_t reached_goal(
