@@ -14,8 +14,15 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 
-set(use_OMP TRUE)
-if(use_OMP)
+# Default to parallelisation on. To turn off, set RAY_GROUND_CLASSIFIER_USE_OMP
+# to false using -DRAY_GROUND_CLASSIFIER_USE_OMP=FALSE on command line. Both
+# ray_ground_classifier and ray_ground_classifier_nodes need to be compiled with
+# this flag set the same way.
+if(NOT DEFINED RAY_GROUND_CLASSIFIER_USE_OMP)
+  set(RAY_GROUND_CLASSIFIER_USE_OMP TRUE)
+endif()
+
+if(RAY_GROUND_CLASSIFIER_USE_OMP)
   find_package(OpenMP REQUIRED)
   set(OpenMP_LIBS gomp)
   set(OpenMP_FLAGS ${OpenMP_CXX_FLAGS})

@@ -10,8 +10,15 @@ if(NOT CMAKE_CXX_STANDARD)
   set(CMAKE_CXX_STANDARD 14)
 endif()
 
-set(use_OMP TRUE)
-if(use_OMP)
+# Default to parallelisation on. To turn off, set RAY_GROUND_CLASSIFIER_USE_OMP
+# to false using -DRAY_GROUND_CLASSIFIER_USE_OMP=FALSE on command line. Both
+# ray_ground_classifier and ray_ground_classifier_nodes need to be compiled with
+# this flag set the same way.
+if(NOT DEFINED RAY_GROUND_CLASSIFIER_USE_OMP)
+  set(RAY_GROUND_CLASSIFIER_USE_OMP TRUE)
+endif()
+
+if(RAY_GROUND_CLASSIFIER_USE_OMP)
   find_package(OpenMP REQUIRED)
   set(OpenMP_FLAGS ${OpenMP_CXX_FLAGS})
   set(OpenMP_LIBS gomp)
@@ -74,7 +81,7 @@ if(BUILD_TESTING)
     ${PROJECT_NAME}
     ${OpenMP_LIBS}
   )
-  if(use_OMP)
+  if(RAY_GROUND_CLASSIFIER_USE_OMP)
     target_compile_options(test_ray_aggregator_gtest PRIVATE
     ${OpenMP_FLAGS})
   endif()
