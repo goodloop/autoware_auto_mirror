@@ -14,10 +14,12 @@
 
 #include "off_map_obstacles_filter_nodes/off_map_obstacles_filter_node.hpp"
 
+#include <functional>
 #include <memory>
 #include <string>
 
-#include "lanelet2_map_provider/lanelet2_map_provider.hpp"
+#include "had_map_utils/had_map_conversion.hpp"
+
 #include "common/types.hpp"
 #include "tf2_ros/buffer_interface.h"
 
@@ -30,6 +32,7 @@ namespace off_map_obstacles_filter_nodes
 
 using bool8_t = autoware::common::types::bool8_t;
 using float64_t = autoware::common::types::float64_t;
+using HADMapService = autoware_auto_msgs::srv::HADMapService;
 using ObstacleMsg = autoware_auto_msgs::msg::BoundingBoxArray;
 using MarkerArray = visualization_msgs::msg::MarkerArray;
 
@@ -39,17 +42,28 @@ OffMapObstaclesFilterNode::OffMapObstaclesFilterNode(const rclcpp::NodeOptions &
       "bounding_boxes_in", rclcpp::QoS{10},
       [this](const ObstacleMsg::SharedPtr msg) {process_bounding_boxes(msg);})),
   m_pub_ptr(create_publisher<ObstacleMsg>("bounding_boxes_out", rclcpp::QoS{10})),
+  m_map_client_ptr(
+    create_client<HADMapService>(
+      "HAD_Map_Service",
+      rmw_qos_profile_services_default)),
   m_tf2_buffer(this->get_clock()),
-  m_tf2_listener(m_tf2_buffer)
+  m_tf2_listener(m_tf2_buffer),
+  m_overlap_threshold(declare_parameter("overlap_threshold").get<float64_t>())
 {
-  const std::string map_filename = declare_parameter("lanelet_map_filename").get<std::string>();
-  const float64_t origin_lat = declare_parameter("latitude").get<float64_t>();
-  const float64_t origin_lon = declare_parameter("longitude").get<float64_t>();
-  const float64_t origin_alt = declare_parameter("elevation").get<float64_t>();
-  const autoware::lanelet2_map_provider::Lanelet2MapProvider map_provider(map_filename, {origin_lat,
-      origin_lon, origin_alt});
-  const float64_t overlap_threshold = declare_parameter("overlap_threshold").get<float64_t>();
-  m_filter = std::make_unique<OffMapObstaclesFilter>(map_provider.m_map, overlap_threshold);
+  while (!m_map_client_ptr->wait_for_service(1s)) {
+    if (!rclcpp::ok()) {
+      RCLCPP_ERROR(get_logger(), "Interrupted while waiting for service.");
+      rclcpp::shutdown();
+      return;
+    }
+    RCLCPP_INFO(get_logger(), "Waiting for map provider");
+  }
+  auto request = std::make_shared<HADMapService::Request>();
+  request->requested_primitives.push_back(HADMapService::Request::FULL_MAP);
+  m_map_client_ptr->async_send_request(
+    request,
+    std::bind(&OffMapObstaclesFilterNode::map_response, this, std::placeholders::_1));
+
   // Bounding box arrays can be visualized directly – this visualization is for checking that the
   // conversion + transformation of bboxes to polygons in the map frame is correct. It shouldn't
   // be needed by most people.
@@ -58,8 +72,20 @@ OffMapObstaclesFilterNode::OffMapObstaclesFilterNode(const rclcpp::NodeOptions &
   }
 }
 
+void OffMapObstaclesFilterNode::map_response(
+  const rclcpp::Client<HADMapService>::SharedFuture future)
+{
+  auto lanelet_map_ptr = std::make_shared<lanelet::LaneletMap>();
+  autoware::common::had_map_utils::fromBinaryMsg(future.get()->map, lanelet_map_ptr);
+  m_filter = std::make_unique<OffMapObstaclesFilter>(lanelet_map_ptr, m_overlap_threshold);
+}
+
 void OffMapObstaclesFilterNode::process_bounding_boxes(const ObstacleMsg::SharedPtr msg) const
 {
+  if (!m_filter) {
+    RCLCPP_INFO(get_logger(), "Did not filter boxes because no map was available.");
+    m_pub_ptr->publish(*msg);
+  }
   if (msg->header.frame_id != "base_link") {
     // Using a different frame would not work since the code relies on the z axis to be aligned
     // with the map frame's z axis to do its projection onto the map.

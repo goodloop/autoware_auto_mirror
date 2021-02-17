@@ -22,20 +22,24 @@
 #include <memory>
 #include <string>
 
-#include "off_map_obstacles_filter_nodes/visibility_control.hpp"
 #include "autoware_auto_msgs/msg/bounding_box_array.hpp"
+#include "autoware_auto_msgs/srv/had_map_service.hpp"
+#include "off_map_obstacles_filter_nodes/visibility_control.hpp"
 #include "off_map_obstacles_filter/off_map_obstacles_filter.hpp"
-#include "rclcpp/rclcpp.hpp"
+#include "common/types.hpp"
+
 #include "lanelet2_core/LaneletMap.h"
-#include "visualization_msgs/msg/marker_array.hpp"
+#include "rclcpp/rclcpp.hpp"
 #include "tf2_ros/buffer.h"
 #include "tf2_ros/transform_listener.h"
-
+#include "visualization_msgs/msg/marker_array.hpp"
 
 namespace autoware
 {
 namespace off_map_obstacles_filter_nodes
 {
+
+using float64_t = autoware::common::types::float64_t;
 
 using OffMapObstaclesFilter = autoware::off_map_obstacles_filter::OffMapObstaclesFilter;
 /// \class OffMapObstaclesFilterNode
@@ -47,6 +51,10 @@ public:
   /// \param options Node options.
   explicit OffMapObstaclesFilterNode(const rclcpp::NodeOptions & options);
 
+  /// \brief Callback for the client call
+  /// \param msg The BoundingBoxArray message containing obstacles
+  void map_response(const rclcpp::Client<autoware_auto_msgs::srv::HADMapService>::SharedFuture msg);
+
   /// \brief The main callback of this node
   /// \param msg The BoundingBoxArray message containing obstacles
   void process_bounding_boxes(const autoware_auto_msgs::msg::BoundingBoxArray::SharedPtr msg) const;
@@ -56,9 +64,11 @@ private:
   const rclcpp::Subscription<autoware_auto_msgs::msg::BoundingBoxArray>::SharedPtr
     m_sub_ptr;
   const rclcpp::Publisher<autoware_auto_msgs::msg::BoundingBoxArray>::SharedPtr m_pub_ptr;
+  const rclcpp::Client<autoware_auto_msgs::srv::HADMapService>::SharedPtr m_map_client_ptr;
   rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr m_marker_pub_ptr;
   tf2_ros::Buffer m_tf2_buffer;
   tf2_ros::TransformListener m_tf2_listener;
+  float64_t m_overlap_threshold{1.0};  // Placeholder value
 };
 }  // namespace off_map_obstacles_filter_nodes
 }  // namespace autoware

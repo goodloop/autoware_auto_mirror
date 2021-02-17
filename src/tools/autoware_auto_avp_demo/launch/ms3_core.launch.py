@@ -243,6 +243,7 @@ def generate_launch_description():
         remappings=[
             ('bounding_boxes_in', 'lidar_bounding_boxes'),
             ('bounding_boxes_out', 'lidar_bounding_boxes_filtered'),
+            ('HAD_Map_Service', '/had_maps/HAD_Map_Service'),
         ]
     )
 
