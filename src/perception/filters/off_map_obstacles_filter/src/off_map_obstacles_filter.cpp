@@ -61,7 +61,7 @@ static lanelet::Polygon2d polygon_for_bbox(
   const float32_t yaw =
     std::atan2(
     bbox.orientation.z,
-    bbox.orientation.w) * 2.0f + static_cast<float32_t>(M_PI / 2);
+    bbox.orientation.w) * 2.0f + autoware::common::types::PI_2;
 
   const Eigen::Rotation2D<float32_t> orientation {yaw};
 

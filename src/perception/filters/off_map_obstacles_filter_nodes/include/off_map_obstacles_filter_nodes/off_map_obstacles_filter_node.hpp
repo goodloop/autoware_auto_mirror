@@ -36,6 +36,7 @@
 
 namespace autoware
 {
+// Namespace for the node that filters off-map obstacles
 namespace off_map_obstacles_filter_nodes
 {
 
@@ -60,14 +61,22 @@ public:
   void process_bounding_boxes(const autoware_auto_msgs::msg::BoundingBoxArray::SharedPtr msg) const;
 
 private:
+  /// The actual filter implementation – this will be nullptr before the map has arrived.
   std::unique_ptr<OffMapObstaclesFilter> m_filter;
+  /// Input
   const rclcpp::Subscription<autoware_auto_msgs::msg::BoundingBoxArray>::SharedPtr
     m_sub_ptr;
+  /// Output
   const rclcpp::Publisher<autoware_auto_msgs::msg::BoundingBoxArray>::SharedPtr m_pub_ptr;
+  /// Client for getting the map. Only used once.
   const rclcpp::Client<autoware_auto_msgs::srv::HADMapService>::SharedPtr m_map_client_ptr;
+  /// Debugging publisher
   rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr m_marker_pub_ptr;
+  /// TF buffer
   tf2_ros::Buffer m_tf2_buffer;
+  /// TF listener
   tf2_ros::TransformListener m_tf2_listener;
+  /// Stores the overlap before the filter has been constructed
   float64_t m_overlap_threshold{1.0};  // Placeholder value
 };
 }  // namespace off_map_obstacles_filter_nodes

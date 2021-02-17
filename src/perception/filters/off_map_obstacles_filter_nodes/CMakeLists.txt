@@ -60,6 +60,4 @@ if(BUILD_TESTING)
 endif()
 
 # ament package generation and installing
-ament_auto_package(INSTALL_TO_SHARE
-  launch
-)
+ament_auto_package()
