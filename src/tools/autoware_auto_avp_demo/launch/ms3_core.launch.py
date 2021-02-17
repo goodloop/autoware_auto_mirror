@@ -241,8 +241,8 @@ def generate_launch_description():
         parameters=[LaunchConfiguration('off_map_obstacles_filter_param_file')],
         output='screen',
         remappings=[
-            ('bounding_boxes_in', '/perception/lidar_bounding_boxes'),
-            ('bounding_boxes_out', '/perception/lidar_bounding_boxes_filtered'),
+            ('bounding_boxes_in', 'lidar_bounding_boxes'),
+            ('bounding_boxes_out', 'lidar_bounding_boxes_filtered'),
         ]
     )
 

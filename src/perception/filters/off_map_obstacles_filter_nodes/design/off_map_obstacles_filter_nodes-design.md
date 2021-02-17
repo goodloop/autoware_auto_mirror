@@ -1,4 +1,4 @@
-off_map_obstacles_filter_nodes {#off_map_obstacles_filter_nodes-package-design}
+off_map_obstacles_filter_nodes {#off-map-obstacles-filter-nodes-package-design}
 ===========
 
 This is the design document for the `off_map_obstacles_filter_nodes` package.
