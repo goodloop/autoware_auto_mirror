@@ -43,7 +43,7 @@ namespace utils = lanelet::utils;
 OffMapObstaclesFilter::OffMapObstaclesFilter(
   std::shared_ptr<lanelet::LaneletMap> map,
   float64_t overlap_threshold)
-: m_map(map), m_overlap_threshold(overlap_threshold) {}
+: m_map{map}, m_overlap_threshold{overlap_threshold} {}
 
 /// \param bbox The bounding box with coordinates in the base_link frame.
 /// \param map_from_base_link The transform that transforms things from base_link to map.
@@ -179,6 +179,7 @@ static bool bbox_is_on_map(
   // For each of them, check if an intersection exists
   for (const auto candidate : ll_candidates) {
     float64_t overlap_area = 0.0;
+    // These attributes were copied from the lanelet2_global_planner
     if (!candidate.hasAttribute("subtype") || !candidate.hasAttribute("cad_id") ||
       candidate.attribute("subtype") != "road") {continue;}
     // Annoying – this seems to be the only way to do the intersection

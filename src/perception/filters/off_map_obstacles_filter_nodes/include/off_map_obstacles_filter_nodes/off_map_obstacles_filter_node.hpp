@@ -43,8 +43,8 @@ using OffMapObstaclesFilter = autoware::off_map_obstacles_filter::OffMapObstacle
 class OFF_MAP_OBSTACLES_FILTER_NODES_PUBLIC OffMapObstaclesFilterNode : public rclcpp::Node
 {
 public:
-  /// \brief default constructor
-  /// \throw runtime error if failed to start threads or configure driver
+  /// \brief Constructor.
+  /// \param options Node options.
   explicit OffMapObstaclesFilterNode(const rclcpp::NodeOptions & options);
 
   /// \brief The main callback of this node

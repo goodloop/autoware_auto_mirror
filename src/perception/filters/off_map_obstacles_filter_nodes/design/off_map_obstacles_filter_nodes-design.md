@@ -3,54 +3,29 @@ off_map_obstacles_filter_nodes {#off_map_obstacles_filter_nodes-package-design}
 
 This is the design document for the `off_map_obstacles_filter_nodes` package.
 
-
 # Purpose / Use cases
-<!-- Required -->
-<!-- Things to consider:
-    - Why did we implement this feature? -->
+This is a temporary workaround for limitations in the parking planner and obstacle detection.
+Namely, some obstacles that were off the map (often spurious detections) were interrupting the parking maneuver.
 
+The true solution would be to produce detections only for actual dynamic objects, and for the parking planner to be more robust (e.g. resume parking after waiting for an obstacle to disappear).
 
 # Design
-<!-- Required -->
-<!-- Things to consider:
-    - How does it work? -->
+This is a standard ROS-level wrapper for the pure `off_map_obstacles_filter` package.
+
+It fetches a lanelet map, and filters all incoming `BoundingBoxArray` messages. To calculate their overlap with the map, it also transforms them from their native frame into the map frame by asking `tf2_ros` for a transform with the same timestamp.
 
 
 ## Assumptions / Known limits
-<!-- Required -->
+It is assumed that the transform is available within 100ms.
 
 ## Inputs / Outputs / API
-<!-- Required -->
-<!-- Things to consider:
-    - How do you use the package / API? -->
-
-
-## Inner-workings / Algorithms
-<!-- If applicable -->
-
+The input topic is `bounding_boxes_in`, the output topic is `bounding_boxes_out`. All settings are done through parameters.
 
 ## Error detection and handling
-<!-- Required -->
-
-
-# Security considerations
-<!-- Required -->
-<!-- Things to consider:
-- Spoofing (How do you check for and handle fake input?)
-- Tampering (How do you check for and handle tampered input?)
-- Repudiation (How are you affected by the actions of external actors?).
-- Information Disclosure (Can data leak?).
-- Denial of Service (How do you handle spamming?).
-- Elevation of Privilege (Do you need to change permission levels during execution?) -->
-
-
-# References / External links
-<!-- Optional -->
-
+If a transform is not available, the obstacles are not filtered because that means the system will fall back to braking for potentially spurious obstacles.
 
 # Future extensions / Unimplemented parts
-<!-- Optional -->
-
+The map loading could be a bit nicer, also in the `lanelet2_map_provider` itself. But in the future, we should remove this node entirely anyway.
 
 # Related issues
-<!-- Required -->
+Issue #840.

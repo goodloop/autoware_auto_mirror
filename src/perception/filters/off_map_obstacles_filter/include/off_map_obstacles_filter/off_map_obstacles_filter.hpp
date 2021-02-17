@@ -37,9 +37,14 @@ namespace off_map_obstacles_filter
 
 using float64_t = autoware::common::types::float64_t;
 
+/// \brief Class to filter out bounding boxes that are not on the map.
 class OFF_MAP_OBSTACLES_FILTER_PUBLIC OffMapObstaclesFilter
 {
 public:
+  /// \brief Constructor.
+  /// \param map The lanelet map, correctly transformed into the map frame.
+  /// \param overlap_threshold What fraction of a bbox needs to overlap the map to be considered
+  /// "on the map".
   OffMapObstaclesFilter(std::shared_ptr<lanelet::LaneletMap> map, float64_t overlap_threshold);
 
   /// \brief A function for debugging the transformation of boxes in the base_link frame to lanelet
@@ -60,8 +65,12 @@ public:
     autoware_auto_msgs::msg::BoundingBoxArray & msg) const;
 
 private:
+  /// The full lanelet map.
   const std::shared_ptr<lanelet::LaneletMap> m_map;
-  const float64_t m_overlap_threshold = 1.0;
+  /// What fraction of a bbox needs to overlap the map to be considered "on the map".
+  /// Note that the default value will always be overwritten by the constructor, it's just here to
+  /// be safe.
+  const float64_t m_overlap_threshold {1.0};
 };
 
 }  // namespace off_map_obstacles_filter

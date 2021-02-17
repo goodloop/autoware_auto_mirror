@@ -55,17 +55,23 @@ OffMapObstaclesFilterNode::OffMapObstaclesFilterNode(const rclcpp::NodeOptions &
 void OffMapObstaclesFilterNode::process_bounding_boxes(const ObstacleMsg::SharedPtr msg) const
 {
   if (msg->header.frame_id != "base_link") {
+    // Using a different frame would not work since the code relies on the z axis to be aligned
+    // with the map frame's z axis to do its projection onto the map.
+    // That could be generalized in principle – but if the message is arriving in a different
+    // frame, probably someone else than euclidean_cluster_node is sending it, and we can't be
+    // sure anymore the 2.5D assumption is valid either. And that assumption is more fundamental
+    // because the lanelet::Polygon2d needs its vertices to be in counterclockwise order, and
+    // it's kind of difficult to ensure that for arbitrary rotated boxes.
     throw std::runtime_error(
-            "bounding boxes are in unexpected frame '" + msg->header.frame_id +
+            "Bounding boxes are in unexpected frame '" + msg->header.frame_id +
             "'");
   }
-  geometry_msgs::msg::TransformStamped map_from_base_link;
   try {
-    map_from_base_link = m_tf2_buffer.lookupTransform(
+    geometry_msgs::msg::TransformStamped map_from_base_link = m_tf2_buffer.lookupTransform(
       "map", "base_link", tf2_ros::fromMsg(msg->header.stamp),
       tf2::durationFromSec(0.1));
     m_filter->remove_off_map_bboxes(map_from_base_link, *msg);
-    auto marker_array = m_filter->bboxes_in_map_frame_viz(map_from_base_link, *msg);
+    const auto marker_array = m_filter->bboxes_in_map_frame_viz(map_from_base_link, *msg);
     m_marker_pub_ptr->publish(marker_array);
   } catch (...) {
     RCLCPP_INFO(get_logger(), "Did not filter boxes because no transform was available.");

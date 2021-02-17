@@ -5,52 +5,38 @@ This is the design document for the `off_map_obstacles_filter` package.
 
 
 # Purpose / Use cases
-<!-- Required -->
-<!-- Things to consider:
-    - Why did we implement this feature? -->
+Provide the core functionality of the `off_map_obstacles_filter_nodes` package – see its design doc for background.
 
 
 # Design
-<!-- Required -->
-<!-- Things to consider:
-    - How does it work? -->
+The core functionality is provided in the form of a member function that deletes bounding boxes that do not have substantial overlap with the map.
 
 
 ## Assumptions / Known limits
-<!-- Required -->
+A fundamental assumption is that the `base_link` and `map` frames' z axes are collinear. Another assumption is that the bounding boxes are only rotated by yaw, not roll or pitch.
+
 
 ## Inputs / Outputs / API
-<!-- Required -->
-<!-- Things to consider:
-    - How do you use the package / API? -->
+See the API documentation.
 
 
 ## Inner-workings / Algorithms
-<!-- If applicable -->
+The algorithm takes the bounding boxes, transforms them to the map frame, and converts them to `lanelet::Polygon2d`s.
+Each polygon then fetches potentially-overlapping primitives from the map using a bounding box intersection test.
+Each of those candidates for overlap is tested with an exact algorithm. `lanelet2` integrates well with `boost::geometry`, so that is used to calculate the overlap percentage.
 
 
 ## Error detection and handling
-<!-- Required -->
-
-
-# Security considerations
-<!-- Required -->
-<!-- Things to consider:
-- Spoofing (How do you check for and handle fake input?)
-- Tampering (How do you check for and handle tampered input?)
-- Repudiation (How are you affected by the actions of external actors?).
-- Information Disclosure (Can data leak?).
-- Denial of Service (How do you handle spamming?).
-- Elevation of Privilege (Do you need to change permission levels during execution?) -->
+Error detection isn't really done.
 
 
 # References / External links
-<!-- Optional -->
+See the [Lanelet2 geometry primer](https://github.com/fzi-forschungszentrum-informatik/Lanelet2/blob/master/lanelet2_core/doc/GeometryPrimer.md).
 
 
 # Future extensions / Unimplemented parts
-<!-- Optional -->
+In the future, we should remove this package entirely.
 
 
 # Related issues
-<!-- Required -->
+Issue #840.
