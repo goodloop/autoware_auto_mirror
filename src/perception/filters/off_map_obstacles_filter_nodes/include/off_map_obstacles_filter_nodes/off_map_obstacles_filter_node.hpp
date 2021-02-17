@@ -56,7 +56,7 @@ private:
   const rclcpp::Subscription<autoware_auto_msgs::msg::BoundingBoxArray>::SharedPtr
     m_sub_ptr;
   const rclcpp::Publisher<autoware_auto_msgs::msg::BoundingBoxArray>::SharedPtr m_pub_ptr;
-  const rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr m_marker_pub_ptr;
+  rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr m_marker_pub_ptr;
   tf2_ros::Buffer m_tf2_buffer;
   tf2_ros::TransformListener m_tf2_listener;
 };

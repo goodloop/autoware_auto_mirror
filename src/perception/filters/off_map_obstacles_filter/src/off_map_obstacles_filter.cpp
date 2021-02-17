@@ -109,14 +109,14 @@ visualization_msgs::msg::MarkerArray OffMapObstaclesFilter::bboxes_in_map_frame_
   visualization_msgs::msg::MarkerArray array;
   int id = 0;
   for (const auto & bbox : msg.boxes) {
-    auto polygon = polygon_for_bbox(map_from_base_link_isometry.cast<float32_t>(), bbox);
+    const auto polygon = polygon_for_bbox(map_from_base_link_isometry.cast<float32_t>(), bbox);
     visualization_msgs::msg::Marker marker;
     marker.header = msg.header;
     marker.header.frame_id = "map";
     marker.ns = "off_map_obstacles_filter";
     marker.id = id++;
-    marker.type = 4;
-    marker.action = 0;
+    marker.type = visualization_msgs::msg::Marker::LINE_STRIP;
+    marker.action = visualization_msgs::msg::Marker::ADD;
     marker.pose.position.x = 0.0;
     marker.pose.position.y = 0.0;
     marker.pose.position.z = 0.0;
@@ -154,6 +154,12 @@ visualization_msgs::msg::MarkerArray OffMapObstaclesFilter::bboxes_in_map_frame_
   return array;
 }
 
+/// \brief Checks if a bbox is on the map.
+/// \param map The lanelet map, correctly transformed into the map frame.
+/// \param map_from_base_link An Isometry2d that can be used to transform Eigen Vectors.
+/// \param overlap_threshold What fraction of a bbox needs to overlap the map to be considered
+/// "on the map".
+/// \param bbox An obstacle bounding box.
 static bool bbox_is_on_map(
   const lanelet::LaneletMap & map,
   const Eigen::Isometry2f & map_from_base_link,

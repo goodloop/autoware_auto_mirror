@@ -28,6 +28,7 @@ namespace autoware
 namespace off_map_obstacles_filter_nodes
 {
 
+using bool8_t = autoware::common::types::bool8_t;
 using float64_t = autoware::common::types::float64_t;
 using ObstacleMsg = autoware_auto_msgs::msg::BoundingBoxArray;
 using MarkerArray = visualization_msgs::msg::MarkerArray;
@@ -38,7 +39,6 @@ OffMapObstaclesFilterNode::OffMapObstaclesFilterNode(const rclcpp::NodeOptions &
       "bounding_boxes_in", rclcpp::QoS{10},
       [this](const ObstacleMsg::SharedPtr msg) {process_bounding_boxes(msg);})),
   m_pub_ptr(create_publisher<ObstacleMsg>("bounding_boxes_out", rclcpp::QoS{10})),
-  m_marker_pub_ptr(create_publisher<MarkerArray>("bounding_boxes_viz", rclcpp::QoS{10})),
   m_tf2_buffer(this->get_clock()),
   m_tf2_listener(m_tf2_buffer)
 {
@@ -50,6 +50,12 @@ OffMapObstaclesFilterNode::OffMapObstaclesFilterNode(const rclcpp::NodeOptions &
       origin_lon, origin_alt});
   const float64_t overlap_threshold = declare_parameter("overlap_threshold").get<float64_t>();
   m_filter = std::make_unique<OffMapObstaclesFilter>(map_provider.m_map, overlap_threshold);
+  // Bounding box arrays can be visualized directly – this visualization is for checking that the
+  // conversion + transformation of bboxes to polygons in the map frame is correct. It shouldn't
+  // be needed by most people.
+  if (declare_parameter("publish_polygon_viz", rclcpp::ParameterValue(false)).get<bool8_t>()) {
+    m_marker_pub_ptr = create_publisher<MarkerArray>("bounding_boxes_viz", rclcpp::QoS{10});
+  }
 }
 
 void OffMapObstaclesFilterNode::process_bounding_boxes(const ObstacleMsg::SharedPtr msg) const
@@ -71,8 +77,10 @@ void OffMapObstaclesFilterNode::process_bounding_boxes(const ObstacleMsg::Shared
       "map", "base_link", tf2_ros::fromMsg(msg->header.stamp),
       tf2::durationFromSec(0.1));
     m_filter->remove_off_map_bboxes(map_from_base_link, *msg);
-    const auto marker_array = m_filter->bboxes_in_map_frame_viz(map_from_base_link, *msg);
-    m_marker_pub_ptr->publish(marker_array);
+    if (m_marker_pub_ptr) {
+      const auto marker_array = m_filter->bboxes_in_map_frame_viz(map_from_base_link, *msg);
+      m_marker_pub_ptr->publish(marker_array);
+    }
   } catch (...) {
     RCLCPP_INFO(get_logger(), "Did not filter boxes because no transform was available.");
   }

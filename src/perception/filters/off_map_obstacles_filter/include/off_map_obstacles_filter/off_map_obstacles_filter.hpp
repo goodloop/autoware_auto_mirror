@@ -47,8 +47,8 @@ public:
   /// "on the map".
   OffMapObstaclesFilter(std::shared_ptr<lanelet::LaneletMap> map, float64_t overlap_threshold);
 
-  /// \brief A function for debugging the transformation of boxes in the base_link frame to lanelet
-  /// polygons in the map frame. Can also be used to see which boxes were filtered.
+  /// \brief A function for debugging the transformation and conversion of boxes in the base_link
+  /// frame to lanelet polygons in the map frame.
   /// \param map_from_base_link The transform that transforms things from base_link to map.
   /// \param msg The bounding boxes to visualize.
   /// \return A marker array of linestrings, one for each bbox.
