@@ -15,12 +15,14 @@
 // Co-developed by Tier IV, Inc. and Apex.AI, Inc.
 #include <common/types.hpp>
 #include <helper_functions/float_comparisons.hpp>
-#include <tf2/LinearMath/Quaternion.h>
 #include <motion_common/motion_common.hpp>
+#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
+#include <time_utils/time_utils.hpp>
 
 #include <algorithm>
 #include <cmath>
 #include <limits>
+#include <memory>
 #include <string>
 #include <unordered_map>
 #include <utility>
@@ -122,6 +124,7 @@ LgsvlInterface::LgsvlInterface(
     sim_cmd_topic, rclcpp::QoS{10});
   m_state_pub = node.create_publisher<lgsvl_msgs::msg::VehicleStateData>(
     sim_state_cmd_topic, rclcpp::QoS{10});
+
   // Make subscribers
   if (!sim_nav_odom_topic.empty() && ("null" != sim_nav_odom_topic)) {
     m_nav_odom_sub = node.create_subscription<nav_msgs::msg::Odometry>(
@@ -185,6 +188,10 @@ LgsvlInterface::LgsvlInterface(
       odometry().set__rear_wheel_angle_rad(msg->rear_wheel_angle);
       odometry().set__front_wheel_angle_rad(msg->front_wheel_angle);
     });
+
+  // Setup Tf Buffer with listener
+  m_tf_buffer = std::make_shared<tf2_ros::Buffer>(node.get_clock());
+  m_tf_listener = std::make_shared<tf2_ros::TransformListener>(*m_tf_buffer, false);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -333,32 +340,57 @@ void LgsvlInterface::on_odometry(const nav_msgs::msg::Odometry & msg)
     tf.transform.translation.z = pz;
     tf.transform.rotation = q;
 
-    autoware_auto_msgs::msg::VehicleKinematicState vse{}, vse_t{};
-    vse.header = msg.header;
-    vse.state.x = static_cast<decltype(vse.state.x)>(1.5618);
-    vse.state.y = static_cast<decltype(vse.state.y)>(0.0);
+    // Get current transform to nav_base and convert to VKS
+    if (m_tf_buffer->canTransform("nav_base", msg.child_frame_id, tf2::TimePointZero)) {
+      RCLCPP_INFO_ONCE(
+        m_logger, "Transform to nav_base is available. Sending Vehicle Kinematic State");
 
-    motion::motion_common::doTransform(vse, vse_t, tf);
+      geometry_msgs::msg::TransformStamped nav_base_tf;
 
-    // Reset header to get good timestamp
-    vse_t.header = msg.header;
+      try {
+        nav_base_tf = m_tf_buffer->lookupTransform(
+          "nav_base", msg.child_frame_id,
+          time_utils::from_message(msg.header.stamp));
+      } catch (const tf2::ExtrapolationException &) {
+        // Currently falls back to retrive newest transform available for availability,
+        nav_base_tf = m_tf_buffer->lookupTransform(
+          "nav_base", msg.child_frame_id, tf2::TimePointZero);
+      }
 
-    // Get values from vehicle odometry
-    vse_t.state.longitudinal_velocity_mps = get_odometry().velocity_mps;
-    vse_t.state.front_wheel_angle_rad = get_odometry().front_wheel_angle_rad;
-    vse_t.state.rear_wheel_angle_rad = get_odometry().rear_wheel_angle_rad;
-    if (state_report().gear == autoware_auto_msgs::msg::VehicleStateReport::GEAR_REVERSE) {
-      vse_t.state.longitudinal_velocity_mps *= -1.0f;
+      autoware_auto_msgs::msg::VehicleKinematicState vse{}, vse_t{};
+      vse.header = msg.header;
+      vse.state.x = static_cast<decltype(vse.state.x)>(nav_base_tf.transform.translation.x);
+      vse.state.y = static_cast<decltype(vse.state.y)>(nav_base_tf.transform.translation.y);
+
+      tf2::Quaternion quat{};
+      tf2::fromMsg(nav_base_tf.transform.rotation, quat);
+      vse.state.heading = motion::motion_common::from_quat(quat);
+
+      motion::motion_common::doTransform(vse, vse_t, tf);
+
+      // Reset header to get good timestamp
+      vse_t.header = msg.header;
+
+      // Get values from vehicle odometry
+      vse_t.state.longitudinal_velocity_mps = get_odometry().velocity_mps;
+      vse_t.state.front_wheel_angle_rad = get_odometry().front_wheel_angle_rad;
+      vse_t.state.rear_wheel_angle_rad = get_odometry().rear_wheel_angle_rad;
+      if (state_report().gear == autoware_auto_msgs::msg::VehicleStateReport::GEAR_REVERSE) {
+        vse_t.state.longitudinal_velocity_mps *= -1.0f;
+      }
+
+      vse_t.state.lateral_velocity_mps =
+        static_cast<decltype(vse.state.lateral_velocity_mps)>(msg.twist.twist.linear.y);
+      // TODO(jitrc): populate with correct value when acceleration is available from simulator
+      vse_t.state.acceleration_mps2 = 0.0F;
+      vse_t.state.heading_rate_rps =
+        static_cast<decltype(vse_t.state.heading_rate_rps)>(msg.twist.twist.angular.z);
+
+      m_kinematic_state_pub->publish(vse_t);
+    } else {
+      RCLCPP_WARN_ONCE(
+        m_logger, "Transform to nav_base unavailable. Not producing Vehicle Kinematic State.");
     }
-
-    vse_t.state.lateral_velocity_mps =
-      static_cast<decltype(vse.state.lateral_velocity_mps)>(msg.twist.twist.linear.y);
-    // TODO(jitrc): populate with correct value when acceleration is available from simulator
-    vse_t.state.acceleration_mps2 = 0.0F;
-    vse_t.state.heading_rate_rps =
-      static_cast<decltype(vse_t.state.heading_rate_rps)>(msg.twist.twist.angular.z);
-
-    m_kinematic_state_pub->publish(vse_t);
 
     if (m_tf_pub) {
       tf2_msgs::msg::TFMessage tf_msg{};

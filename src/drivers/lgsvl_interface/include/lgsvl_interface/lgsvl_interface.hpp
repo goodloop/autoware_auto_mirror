@@ -38,8 +38,11 @@
 #include <geometry/lookup_table.hpp>
 #include <rclcpp/rclcpp.hpp>
 #include <vehicle_interface/platform_interface.hpp>
+#include <tf2_ros/transform_listener.h>
+#include <tf2_ros/buffer.h>
 
 #include <chrono>
+#include <memory>
 #include <string>
 #include <unordered_map>
 #include <utility>
@@ -139,6 +142,10 @@ private:
   Table1D m_throttle_table;
   Table1D m_brake_table;
   Table1D m_steer_table;
+
+  // transforms
+  std::shared_ptr<tf2_ros::Buffer> m_tf_buffer;
+  std::shared_ptr<tf2_ros::TransformListener> m_tf_listener;
 
   bool m_odom_set{false};  // TODO(c.ho) this should be optional<Vector3>
   geometry_msgs::msg::Vector3 m_odom_zero{};

@@ -16,6 +16,7 @@
 
   <depend>autoware_auto_msgs</depend>
   <depend>geometry_msgs</depend>
+  <depend>tf2</depend>
   <depend>time_utils</depend>
 
   <build_depend>motion_testing</build_depend>
