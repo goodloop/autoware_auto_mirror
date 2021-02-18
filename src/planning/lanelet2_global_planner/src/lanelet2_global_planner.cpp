@@ -272,19 +272,23 @@ const
 
   // calculate refined point
   TrajectoryPoint refined_point;
-  refined_point = autoware::common::geometry::closest_segment_point_2d(
-    center_p1, center_p2,
-    input_point);
+
+  // Get centerpoint of centerline
+  refined_point.x = (center_p1.x + center_p2.x) / 2.0;
+  refined_point.y = (center_p1.y + center_p2.y) / 2.0;
+
   const auto direction_vector = autoware::common::geometry::minus_2d(center_p2, center_p1);
   const auto angle_center_line = std::atan2(direction_vector.y, direction_vector.x);
   const auto heading_center_line = ::motion::motion_common::from_angle(angle_center_line);
   const auto angle_diff =
     std::abs(::motion::motion_common::to_angle(input_point.heading - heading_center_line));
+
   if (angle_diff < M_PI / 2) {
     refined_point.heading = heading_center_line;
   } else {
     refined_point.heading = ::motion::motion_common::from_angle(angle_center_line + M_PI);
   }
+
   return refined_point;
 }
 
