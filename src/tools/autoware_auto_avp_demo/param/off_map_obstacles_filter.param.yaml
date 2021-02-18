@@ -1,7 +1,3 @@
 /**:
   ros__parameters:
-    lanelet_map_filename: "/opt/AutowareAuto/share/autoware_auto_avp_demo/data/autonomoustuff_parking_lot.osm"
-    latitude: 37.380806283829621
-    longitude: -121.90840136653833
-    elevation: 17.090606865128571
     overlap_threshold: 0.2
