@@ -171,7 +171,7 @@ static bool bbox_is_on_map(
   const lanelet::ConstHybridPolygon2d bbox_poly_hybrid = utils::toHybrid(bbox_poly);
   const float64_t total_area = lanelet::geometry::area(bbox_poly_hybrid);
 
-  // Now find possibly-intersecting lanelets
+  // Now find possibly-intersecting lanelets and areas
   const lanelet::BoundingBox2d bbox_bbox = lanelet::geometry::boundingBox2d(bbox_poly);
   const std::vector<lanelet::ConstLanelet> ll_candidates = map.laneletLayer.search(bbox_bbox);
   const std::vector<lanelet::ConstArea> area_candidates = map.areaLayer.search(bbox_bbox);
@@ -183,11 +183,8 @@ static bool bbox_is_on_map(
   mpolygon_t output;
 
   // For each of them, check if an intersection exists
+  float64_t overlap_area = 0.0;
   for (const auto candidate : ll_candidates) {
-    float64_t overlap_area = 0.0;
-    // These attributes were copied from the lanelet2_global_planner
-    if (!candidate.hasAttribute("subtype") || !candidate.hasAttribute("cad_id") ||
-      candidate.attribute("subtype") != "road") {continue;}
     // Annoying – this seems to be the only way to do the intersection
     lanelet::Polygon2d ll_poly;
     for (const auto p : candidate.polygon2d()) {
@@ -201,7 +198,6 @@ static bool bbox_is_on_map(
     }
   }
   for (const auto candidate : area_candidates) {
-    float64_t overlap_area = 0.0;
     if (!candidate.hasAttribute("subtype") || !candidate.hasAttribute("cad_id")) {continue;}
     if (candidate.attribute("subtype") != "parking_access" &&
       candidate.attribute("subtype") != "parking_spot") {continue;}
