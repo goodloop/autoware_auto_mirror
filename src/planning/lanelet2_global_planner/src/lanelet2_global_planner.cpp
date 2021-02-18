@@ -1,4 +1,4 @@
-// Copyright 2019 the Autoware Foundation
+// Copyright 2021 the Autoware Foundation
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -35,15 +35,10 @@ using autoware::common::types::bool8_t;
 
 namespace autoware
 {
-namespace motion
-{
 namespace planning
 {
 namespace lanelet2_global_planner
 {
-Lanelet2GlobalPlanner::Lanelet2GlobalPlanner()
-{
-}
 
 void Lanelet2GlobalPlanner::load_osm_map(
   const std::string & file,
@@ -539,5 +534,4 @@ std::vector<lanelet::Id> Lanelet2GlobalPlanner::lanelet_str2num(const std::strin
 }
 }  // namespace lanelet2_global_planner
 }  // namespace planning
-}  // namespace motion
 }  // namespace autoware

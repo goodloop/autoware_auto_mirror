@@ -1,4 +1,4 @@
-// Copyright 2019 the Autoware Foundation
+// Copyright 2021 the Autoware Foundation
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -44,8 +44,6 @@ using autoware::common::types::bool8_t;
 
 namespace autoware
 {
-namespace motion
-{
 namespace planning
 {
 namespace lanelet2_global_planner
@@ -56,7 +54,7 @@ using autoware_auto_msgs::msg::TrajectoryPoint;
 class LANELET2_GLOBAL_PLANNER_PUBLIC Lanelet2GlobalPlanner
 {
 public:
-  explicit Lanelet2GlobalPlanner();
+  Lanelet2GlobalPlanner() = default;
 
   void load_osm_map(const std::string & file, float64_t lat, float64_t lon, float64_t alt);
   void parse_lanelet_element();
@@ -92,7 +90,6 @@ private:
 };
 }  // namespace lanelet2_global_planner
 }  // namespace planning
-}  // namespace motion
 }  // namespace autoware
 
 #endif  // LANELET2_GLOBAL_PLANNER__LANELET2_GLOBAL_PLANNER_HPP_
