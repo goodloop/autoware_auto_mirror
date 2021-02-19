@@ -19,7 +19,11 @@
 
 #include <common/types.hpp>
 #include <motion_common/motion_common.hpp>
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wconversion"
 #include <tf2/convert.h>
+#pragma GCC diagnostic pop
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wpedantic"

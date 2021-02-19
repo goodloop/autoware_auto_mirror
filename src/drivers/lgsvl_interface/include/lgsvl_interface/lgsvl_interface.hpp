@@ -38,7 +38,12 @@
 #include <geometry/lookup_table.hpp>
 #include <rclcpp/rclcpp.hpp>
 #include <vehicle_interface/platform_interface.hpp>
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wconversion"
 #include <tf2_ros/transform_listener.h>
+#pragma GCC diagnostic pop
+
 #include <tf2_ros/buffer.h>
 
 #include <chrono>
