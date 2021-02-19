@@ -45,8 +45,10 @@ namespace autoware
 {
 namespace tf2_utils
 {
-/// \brief Converts a tf2::Quaternion to a simple hading representation
-/// \param[in] quat The tf2::Quaternion to convert
+/// \brief Converts any object that can be converted into a tf2::Quaternion
+/// to a simple hading representation
+/// \tparam QuatT A type which can be converted to a tf2::Quaternion
+/// \param[in] quat The quaternion-like object
 /// \returns Converted heading with real and imaginary parts
 template<typename QuatT>
 Heading from_quat(QuatT quat)
