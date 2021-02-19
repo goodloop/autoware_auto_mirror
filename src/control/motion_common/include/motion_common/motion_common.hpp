@@ -106,8 +106,8 @@ Heading from_angle(RealT angle) noexcept
 {
   static_assert(std::is_floating_point<RealT>::value, "angle must be floating point");
   Heading ret{};
-  ret.real = std::cos(angle * RealT{0.5});
-  ret.imag = std::sin(angle * RealT{0.5});
+  ret.real = std::cosf(angle * RealT{0.5});
+  ret.imag = std::sinf(angle * RealT{0.5});
   return ret;
 }
 
