@@ -111,6 +111,32 @@ Heading from_angle(RealT angle) noexcept
   return ret;
 }
 
+/// \brief Converts a quaternion-like object to a simple heading representation
+/// \tparam QuatT A quaternion-like object with at least z and w members
+/// \param[in] quat A quaternion-like object to be converted to a heading object
+/// \returns A converted heading object
+template<typename QuatT>
+Heading from_quat(QuatT quat) noexcept
+{
+  Heading ret{};
+  ret.real = static_cast<decltype(ret.real)>(quat.z);
+  ret.imag = static_cast<decltype(ret.imag)>(quat.w);
+  return ret;
+}
+
+/// \brief Converts a simple heading representation into a quaternion-like object
+/// \tparam QuatT A quaternion-like object with at least z and w members
+/// \param[in] heading A heading object to be converted to a quaternion-like object
+/// \returns A converted quaternion-like object
+template<typename QuatT>
+QuatT to_quat(Heading heading) noexcept
+{
+  QuatT quat{};
+  quat.z = static_cast<decltype(quat.z)>(heading.real);
+  quat.w = static_cast<decltype(quat.w)>(heading.imag);
+  return quat;
+}
+
 /// Standard clamp implementation
 template<typename T>
 T clamp(T val, T min, T max)

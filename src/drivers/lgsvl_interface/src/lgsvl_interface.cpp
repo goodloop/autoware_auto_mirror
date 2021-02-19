@@ -13,8 +13,8 @@
 // limitations under the License.
 //
 // Co-developed by Tier IV, Inc. and Apex.AI, Inc.
-#include <autoware_auto_tf2/tf2_utils.hpp>
 #include <common/types.hpp>
+#include <geometry_msgs/msg/quaternion.hpp>
 #include <helper_functions/float_comparisons.hpp>
 #include <motion_common/motion_common.hpp>
 #include <time_utils/time_utils.hpp>
@@ -362,9 +362,8 @@ void LgsvlInterface::on_odometry(const nav_msgs::msg::Odometry & msg)
       vse.state.x = static_cast<decltype(vse.state.x)>(nav_base_tf.transform.translation.x);
       vse.state.y = static_cast<decltype(vse.state.y)>(nav_base_tf.transform.translation.y);
 
-      tf2::Quaternion quat{};
-      vse.state.heading = autoware::tf2_utils::from_quat(quat);
-
+      geometry_msgs::msg::Quaternion quat{};
+      vse.state.heading = motion::motion_common::from_quat(quat);
       motion::motion_common::doTransform(vse, vse_t, tf);
 
       // Reset header to get good timestamp
