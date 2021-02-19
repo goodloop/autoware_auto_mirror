@@ -159,13 +159,6 @@ Real to_angle(Heading heading) noexcept
   return std::atan2(y, x);
 }
 
-tf2::Quaternion to_quat(Heading heading)
-{
-  tf2::Quaternion quat{};
-  quat.setEuler(to_angle(heading), 0.0, 0.0);
-  return quat;
-}
-
 ////////////////////////////////////////////////////////////////////////////////
 Heading nlerp(Heading a, Heading b, Real t)
 {

@@ -20,8 +20,6 @@
 #include <autoware_auto_msgs/msg/vehicle_control_command.hpp>
 #include <autoware_auto_msgs/msg/vehicle_kinematic_state.hpp>
 #include <geometry_msgs/msg/transform_stamped.hpp>
-#include <tf2/LinearMath/Quaternion.h>
-#include <tf2/utils.h>
 #include <time_utils/time_utils.hpp>
 
 #include <algorithm>
@@ -108,26 +106,10 @@ Heading from_angle(RealT angle) noexcept
 {
   static_assert(std::is_floating_point<RealT>::value, "angle must be floating point");
   Heading ret{};
-  ret.real = static_cast<decltype(ret.real)>(std::cos(angle * RealT{0.5}));
-  ret.imag = static_cast<decltype(ret.imag)>(std::sin(angle * RealT{0.5}));
+  ret.real = std::cos(angle * RealT{0.5});
+  ret.imag = std::sin(angle * RealT{0.5});
   return ret;
 }
-
-/// \brief Converts a tf2::Quaternion to a simple hading representation
-/// \param[in] quat The tf2::Quaternion to convert
-/// \returns Converted heading with real and imaginary parts
-template<typename QuatT>
-Heading from_quat(QuatT quat)
-{
-  Heading ret{};
-  ret = from_angle(tf2::getYaw(quat));
-  return ret;
-}
-
-/// \brief Converts a simple heading representation into a tf2::Quaternion
-/// \param[in] heading The heading with real and imaginary parts to be converted
-/// \returns Converted tf2::Quaternion
-MOTION_COMMON_PUBLIC tf2::Quaternion to_quat(Heading heading);
 
 /// Standard clamp implementation
 template<typename T>
