@@ -331,7 +331,7 @@ void LgsvlInterface::on_odometry(const nav_msgs::msg::Odometry & msg)
   const auto py = msg.pose.pose.position.y - m_odom_zero.y;
   const auto pz = msg.pose.pose.position.z - m_odom_zero.z;
   {
-    // Create Vehicle Kinematic State with child frame of nav_base instead of base_link
+    // Create a TF which represents the odometry observation
     geometry_msgs::msg::TransformStamped tf{};
     tf.header = msg.header;
     tf.child_frame_id = msg.child_frame_id;
@@ -340,7 +340,7 @@ void LgsvlInterface::on_odometry(const nav_msgs::msg::Odometry & msg)
     tf.transform.translation.z = pz;
     tf.transform.rotation = q;
 
-    // Get current transform to nav_base and convert to VKS
+    // Make sure that a transform between nav_base and the original child frame is available
     if (m_tf_buffer->canTransform(msg.child_frame_id, "nav_base", tf2::TimePointZero)) {
       RCLCPP_INFO_ONCE(
         m_logger, "Transform to nav_base is available. Sending Vehicle Kinematic State");
@@ -357,13 +357,24 @@ void LgsvlInterface::on_odometry(const nav_msgs::msg::Odometry & msg)
           msg.child_frame_id, "nav_base", tf2::TimePointZero);
       }
 
+      // vse is a VehicleKinematicState that represents the position of nav_base
+      // in the original child frame of the odometry message
+      // vse_t is a VehicleKinematicState that represents the position of nav_base
+      // in the original frame of the odometry message
       autoware_auto_msgs::msg::VehicleKinematicState vse{}, vse_t{};
+
+      // Create Vehicle Kinematic State from the transform between nav_base and
+      // the original child frame of the odometry message
       vse.header = msg.header;
       vse.state.x = static_cast<decltype(vse.state.x)>(nav_base_tf.transform.translation.x);
       vse.state.y = static_cast<decltype(vse.state.y)>(nav_base_tf.transform.translation.y);
+      vse.state.heading = motion::motion_common::from_quat(nav_base_tf.transform.rotation);
 
-      geometry_msgs::msg::Quaternion quat{};
-      vse.state.heading = motion::motion_common::from_quat(quat);
+      // Apply a transform representing the odometry observation of the original
+      // child frame in the odometry parent frame to the VehicleKinematicState
+      // representing the position of nav_base in the odometry child frame
+      // The resulting VehicleKinematicState represents the position of nav_base
+      // in the odometry message's parent frame
       motion::motion_common::doTransform(vse, vse_t, tf);
 
       // Reset header to get good timestamp
