@@ -61,9 +61,43 @@ public:
   bool8_t plan_route(
     TrajectoryPoint & start, TrajectoryPoint & end,
     std::vector<lanelet::Id> & route) const;
+
+  /**
+   * \brief Refine an arbitrary pose within a parking spot to one of two possible outcomes.
+   *
+   * For any `TrajectoryPoint` within a parking spot with `parking_id`, return a `TrajectoryPoint`
+   * that is in the center of the parking spot with heading pointing along the center line (the long
+   * side) of the parking spot in the direction of positive dot product with the input heading; i.e.
+   * if `input_point.heading` points to the exit of the parking spot, so does the output heading.
+
+   * - The parking spot is assumed to be a perfect rectangle whose boundary polygon has 5 points of which the first and last coincide.
+   * - The heading is undefined for a square parking spot
+   *
+   * In the illustration, the dots represent the center line, the caret is the heading, the `x` are
+   * the corners, and `o` is the center of the parking spot.
+   *
+   * @code
+   *   x    ^     x
+   *        .
+   *        .
+   *        .
+   *        .
+   *        o
+   *        .
+   *        .
+   *        .
+   *        .
+   *   x    .     x
+   * @endcode
+   *
+   * \param parking_id Only the outer boundary polygon of the parking spot with this ID is considered.
+   * \param input_point Only the heading of the input point is considered.
+   * \return If successful, return a trajectory point at the center of the spot pointing along the center line. In case the id doesn't exist in the map, or  boundary polygon doesn't have 5 points, return the unmodified `input_point`.
+   */
   TrajectoryPoint refine_pose_by_parking_spot(
     const lanelet::Id & parking_id,
     const TrajectoryPoint & input_point) const;
+
   bool8_t point_in_parking_spot(
     const lanelet::Point3d & point, const lanelet::Id & parking_id) const;
   std::string get_primitive_type(const lanelet::Id & prim_id);
