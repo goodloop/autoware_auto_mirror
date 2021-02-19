@@ -20,7 +20,11 @@
 #include <common/types.hpp>
 #include <motion_common/motion_common.hpp>
 #include <tf2/convert.h>
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpedantic"
 #include <tf2/utils.h>
+#pragma GCC diagnostic pop
 
 #include <autoware_auto_msgs/msg/vehicle_kinematic_state.hpp>
 #include <geometry_msgs/msg/transform_stamped.hpp>
