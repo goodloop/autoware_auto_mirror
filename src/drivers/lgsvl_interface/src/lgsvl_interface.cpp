@@ -191,7 +191,7 @@ LgsvlInterface::LgsvlInterface(
 
   // Setup Tf Buffer with listener
   m_tf_buffer = std::make_shared<tf2_ros::Buffer>(node.get_clock());
-  m_tf_listener = std::make_shared<tf2_ros::TransformListener>(*m_tf_buffer, false);
+  m_tf_listener = std::make_shared<tf2_ros::TransformListener>(*m_tf_buffer);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -341,7 +341,7 @@ void LgsvlInterface::on_odometry(const nav_msgs::msg::Odometry & msg)
     tf.transform.rotation = q;
 
     // Get current transform to nav_base and convert to VKS
-    if (m_tf_buffer->canTransform("nav_base", msg.child_frame_id, tf2::TimePointZero)) {
+    if (m_tf_buffer->canTransform(msg.child_frame_id, "nav_base", tf2::TimePointZero)) {
       RCLCPP_INFO_ONCE(
         m_logger, "Transform to nav_base is available. Sending Vehicle Kinematic State");
 
@@ -349,12 +349,12 @@ void LgsvlInterface::on_odometry(const nav_msgs::msg::Odometry & msg)
 
       try {
         nav_base_tf = m_tf_buffer->lookupTransform(
-          "nav_base", msg.child_frame_id,
+          msg.child_frame_id, "nav_base",
           time_utils::from_message(msg.header.stamp));
       } catch (const tf2::ExtrapolationException &) {
         // Currently falls back to retrive newest transform available for availability,
         nav_base_tf = m_tf_buffer->lookupTransform(
-          "nav_base", msg.child_frame_id, tf2::TimePointZero);
+          msg.child_frame_id, "nav_base", tf2::TimePointZero);
       }
 
       autoware_auto_msgs::msg::VehicleKinematicState vse{}, vse_t{};
