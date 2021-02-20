@@ -18,8 +18,10 @@
 #include <gtest/gtest.h>
 #include <lgsvl_interface/visibility_control.hpp>
 #include <lgsvl_interface/lgsvl_interface.hpp>
-#include <tf2_ros/static_transform_broadcaster_node.hpp>
+#include <tf2_ros/static_transform_broadcaster.h>
 #include <memory>
+#include <chrono>
+
 
 using Table1D = ::autoware::common::helper_functions::LookupTable1D<double>;
 using VSC = autoware_auto_msgs::msg::VehicleStateCommand;
@@ -40,15 +42,6 @@ protected:
   {
     rclcpp::init(0, nullptr);
 
-    rclcpp::NodeOptions stb_options;
-    stb_options.parameter_overrides(
-    {
-      {"/frame_id", "base_link"},
-      {"/child_frame_id", "nav_base"}
-    });
-
-    stb_node_ = std::make_unique<tf2_ros::StaticTransformBroadcasterNode>(stb_options);
-
     node_ = std::make_shared<rclcpp::Node>("lgsvl_interface_test_node", "/gtest");
     lgsvl_interface_ = std::make_unique<lgsvl_interface::LgsvlInterface>(
       *node_,
@@ -62,6 +55,19 @@ protected:
       Table1D({0.0, 3.0}, {0.0, 100.0}),
       Table1D({-3.0, 0.0}, {100.0, 0.0}),
       Table1D({-0.331, 0.331}, {-100.0, 100.0}));
+
+    broadcaster_ = std::make_unique<tf2_ros::StaticTransformBroadcaster>(node_);
+
+    using namespace std::chrono_literals; // NOLINT
+    timer_ = node_->create_wall_timer(
+      100ms,
+      [this]() {
+        geometry_msgs::msg::TransformStamped nav_base_tf{};
+        nav_base_tf.header.stamp = node_->now();
+        nav_base_tf.header.frame_id = "base_link";
+        nav_base_tf.child_frame_id = "nav_base";
+        broadcaster_->sendTransform(nav_base_tf);
+      });
   }
 
   void TearDown() override
@@ -71,8 +77,9 @@ protected:
 
 public:
   rclcpp::Node::SharedPtr node_;
-  std::unique_ptr<tf2_ros::StaticTransformBroadcasterNode> stb_node_;
+  std::unique_ptr<tf2_ros::StaticTransformBroadcaster> broadcaster_;
   std::unique_ptr<lgsvl_interface::LgsvlInterface> lgsvl_interface_;
+  rclcpp::TimerBase::SharedPtr timer_{};
 };
 
 template<typename T>
