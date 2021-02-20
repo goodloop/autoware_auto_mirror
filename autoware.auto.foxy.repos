@@ -11,3 +11,7 @@ repositories:
     type: git
     url: https://github.com/RobotWebTools/rosbridge_suite.git
     version: ros2
+  src/external/new_eagle_raptor:
+    type: git
+    url: https://github.com/NewEagleRaptor/raptor-dbw-ros2.git
+    version: raptor-dbw-ros2-foxy
