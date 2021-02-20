@@ -204,6 +204,7 @@ LgsvlInterface::LgsvlInterface(
       if (m_tf_buffer->canTransform(sim_odom_child_frame, "nav_base", tf2::TimePointZero)) {
         // Cancel timer because we were able to find the transform
         m_nav_base_tf_timer->cancel();
+        m_nav_base_tf_set = true;
 
         geometry_msgs::msg::TransformStamped nav_base_tf{};
         nav_base_tf = m_tf_buffer->lookupTransform(
@@ -360,6 +361,12 @@ void LgsvlInterface::on_odometry(const nav_msgs::msg::Odometry & msg)
     m_odom_zero.z = msg.pose.pose.position.z;
     m_odom_set = true;
   }
+
+  // Do not publish odometry & vehicle kinematic state unless required tf is found
+  if (!m_nav_base_tf_set) {
+    return;
+  }
+
   decltype(msg.pose.pose.orientation) q{msg.pose.pose.orientation};
   const auto px = msg.pose.pose.position.x - m_odom_zero.x;
   const auto py = msg.pose.pose.position.y - m_odom_zero.y;

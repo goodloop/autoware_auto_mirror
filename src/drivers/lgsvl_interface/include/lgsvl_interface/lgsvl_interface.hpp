@@ -150,6 +150,7 @@ private:
   std::shared_ptr<tf2_ros::Buffer> m_tf_buffer;
   std::shared_ptr<tf2_ros::TransformListener> m_tf_listener;
 
+  bool m_nav_base_tf_set{false};
   autoware_auto_msgs::msg::VehicleKinematicState m_nav_base_in_child_frame{};
 
   bool m_odom_set{false};  // TODO(c.ho) this should be optional<Vector3>
