@@ -195,29 +195,37 @@ LgsvlInterface::LgsvlInterface(
   m_tf_buffer = std::make_shared<tf2_ros::Buffer>(node.get_clock());
   m_tf_listener = std::make_shared<tf2_ros::TransformListener>(*m_tf_buffer);
 
-  // Attempt to get transform to nav_base
-  while (!m_tf_buffer->canTransform(
-      sim_odom_child_frame, "nav_base", tf2::TimePointZero, 500ms) && rclcpp::ok())
-  {
-    RCLCPP_ERROR(
-      m_logger, "Transform from nav_base to %s is unavailable. Waiting...", sim_odom_child_frame);
-  }
+  // Initialize m_nav_base_in_child_frame with no offset until TF arrives
+  m_nav_base_in_child_frame.header.frame_id = sim_odom_child_frame;
 
-  if (rclcpp::ok()) {
-    geometry_msgs::msg::TransformStamped nav_base_tf{};
-    nav_base_tf = m_tf_buffer->lookupTransform(
-      sim_odom_child_frame, "nav_base", tf2::TimePointZero);
+  m_nav_base_tf_timer = node.create_wall_timer(
+    1s,
+    [this, sim_odom_child_frame]() {
+      if (m_tf_buffer->canTransform(sim_odom_child_frame, "nav_base", tf2::TimePointZero)) {
+        // Cancel timer because we were able to find the transform
+        m_nav_base_tf_timer->cancel();
 
-    // Create Vehicle Kinematic State from the transform between nav_base and
-    // the odometry child frame from the simulator
-    nav_base_in_child_frame.header.frame_id = sim_odom_child_frame;
-    nav_base_in_child_frame.state.x =
-      static_cast<decltype(nav_base_in_child_frame.state.x)>(nav_base_tf.transform.translation.x);
-    nav_base_in_child_frame.state.y =
-      static_cast<decltype(nav_base_in_child_frame.state.y)>(nav_base_tf.transform.translation.y);
-    nav_base_in_child_frame.state.heading =
-      motion::motion_common::from_quat(nav_base_tf.transform.rotation);
-  }
+        geometry_msgs::msg::TransformStamped nav_base_tf{};
+        nav_base_tf = m_tf_buffer->lookupTransform(
+          sim_odom_child_frame, "nav_base", tf2::TimePointZero);
+
+        // Create Vehicle Kinematic State from the transform between nav_base and
+        // the odometry child frame from the simulator
+        m_nav_base_in_child_frame.state.x =
+        static_cast<decltype(m_nav_base_in_child_frame.state.x)>(
+          nav_base_tf.transform.translation.x);
+        m_nav_base_in_child_frame.state.y =
+        static_cast<decltype(m_nav_base_in_child_frame.state.y)>(
+          nav_base_tf.transform.translation.y);
+        m_nav_base_in_child_frame.state.heading =
+        motion::motion_common::from_quat(nav_base_tf.transform.rotation);
+      } else {
+        RCLCPP_ERROR(
+          m_logger,
+          "Transform from nav_base to %s is unavailable. Waiting...",
+          sim_odom_child_frame.c_str());
+      }
+    });
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -373,7 +381,7 @@ void LgsvlInterface::on_odometry(const nav_msgs::msg::Odometry & msg)
     // representing the position of nav_base in the odometry child frame
     // The resulting VehicleKinematicState (vse_t) represents the position of nav_base
     // in the odometry message's parent frame
-    motion::motion_common::doTransform(nav_base_in_child_frame, vse_t, tf);
+    motion::motion_common::doTransform(m_nav_base_in_child_frame, vse_t, tf);
 
     // Set header timestamp to timestamp of odometry message
     vse_t.header.stamp = msg.header.stamp;

@@ -140,6 +140,7 @@ private:
   rclcpp::Subscription<nav_msgs::msg::Odometry>::SharedPtr m_nav_odom_sub{};
   rclcpp::Subscription<lgsvl_msgs::msg::CanBusData>::SharedPtr m_state_sub{};
   rclcpp::Subscription<lgsvl_msgs::msg::VehicleOdometry>::SharedPtr m_veh_odom_sub{};
+  rclcpp::TimerBase::SharedPtr m_nav_base_tf_timer{};
 
   Table1D m_throttle_table;
   Table1D m_brake_table;
@@ -149,7 +150,7 @@ private:
   std::shared_ptr<tf2_ros::Buffer> m_tf_buffer;
   std::shared_ptr<tf2_ros::TransformListener> m_tf_listener;
 
-  autoware_auto_msgs::msg::VehicleKinematicState nav_base_in_child_frame{};
+  autoware_auto_msgs::msg::VehicleKinematicState m_nav_base_in_child_frame{};
 
   bool m_odom_set{false};  // TODO(c.ho) this should be optional<Vector3>
   geometry_msgs::msg::Vector3 m_odom_zero{};
