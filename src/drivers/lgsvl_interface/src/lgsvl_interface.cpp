@@ -362,11 +362,6 @@ void LgsvlInterface::on_odometry(const nav_msgs::msg::Odometry & msg)
     m_odom_set = true;
   }
 
-  // Do not publish odometry & vehicle kinematic state unless required tf is found
-  if (!m_nav_base_tf_set) {
-    return;
-  }
-
   decltype(msg.pose.pose.orientation) q{msg.pose.pose.orientation};
   const auto px = msg.pose.pose.position.x - m_odom_zero.x;
   const auto py = msg.pose.pose.position.y - m_odom_zero.y;
@@ -381,34 +376,37 @@ void LgsvlInterface::on_odometry(const nav_msgs::msg::Odometry & msg)
     tf.transform.translation.z = pz;
     tf.transform.rotation = q;
 
-    autoware_auto_msgs::msg::VehicleKinematicState vse_t{};
+    // Only create vehicle kinematic state when required tf is available
+    if (m_nav_base_tf_set) {
+      autoware_auto_msgs::msg::VehicleKinematicState vse_t{};
 
-    // Apply a transform representing the odometry observation of the original
-    // child frame in the odometry parent frame to the VehicleKinematicState
-    // representing the position of nav_base in the odometry child frame
-    // The resulting VehicleKinematicState (vse_t) represents the position of nav_base
-    // in the odometry message's parent frame
-    motion::motion_common::doTransform(m_nav_base_in_child_frame, vse_t, tf);
+      // Apply a transform representing the odometry observation of the original
+      // child frame in the odometry parent frame to the VehicleKinematicState
+      // representing the position of nav_base in the odometry child frame
+      // The resulting VehicleKinematicState (vse_t) represents the position of nav_base
+      // in the odometry message's parent frame
+      motion::motion_common::doTransform(m_nav_base_in_child_frame, vse_t, tf);
 
-    // Set header timestamp to timestamp of odometry message
-    vse_t.header.stamp = msg.header.stamp;
+      // Set header timestamp to timestamp of odometry message
+      vse_t.header.stamp = msg.header.stamp;
 
-    // Get values from vehicle odometry
-    vse_t.state.longitudinal_velocity_mps = get_odometry().velocity_mps;
-    vse_t.state.front_wheel_angle_rad = get_odometry().front_wheel_angle_rad;
-    vse_t.state.rear_wheel_angle_rad = get_odometry().rear_wheel_angle_rad;
-    if (state_report().gear == autoware_auto_msgs::msg::VehicleStateReport::GEAR_REVERSE) {
-      vse_t.state.longitudinal_velocity_mps *= -1.0f;
+      // Get values from vehicle odometry
+      vse_t.state.longitudinal_velocity_mps = get_odometry().velocity_mps;
+      vse_t.state.front_wheel_angle_rad = get_odometry().front_wheel_angle_rad;
+      vse_t.state.rear_wheel_angle_rad = get_odometry().rear_wheel_angle_rad;
+      if (state_report().gear == autoware_auto_msgs::msg::VehicleStateReport::GEAR_REVERSE) {
+        vse_t.state.longitudinal_velocity_mps *= -1.0f;
+      }
+
+      vse_t.state.lateral_velocity_mps =
+        static_cast<decltype(vse_t.state.lateral_velocity_mps)>(msg.twist.twist.linear.y);
+      // TODO(jitrc): populate with correct value when acceleration is available from simulator
+      vse_t.state.acceleration_mps2 = 0.0F;
+      vse_t.state.heading_rate_rps =
+        static_cast<decltype(vse_t.state.heading_rate_rps)>(msg.twist.twist.angular.z);
+
+      m_kinematic_state_pub->publish(vse_t);
     }
-
-    vse_t.state.lateral_velocity_mps =
-      static_cast<decltype(vse_t.state.lateral_velocity_mps)>(msg.twist.twist.linear.y);
-    // TODO(jitrc): populate with correct value when acceleration is available from simulator
-    vse_t.state.acceleration_mps2 = 0.0F;
-    vse_t.state.heading_rate_rps =
-      static_cast<decltype(vse_t.state.heading_rate_rps)>(msg.twist.twist.angular.z);
-
-    m_kinematic_state_pub->publish(vse_t);
 
     if (m_tf_pub) {
       tf2_msgs::msg::TFMessage tf_msg{};
