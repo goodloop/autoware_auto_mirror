@@ -26,7 +26,6 @@
   <depend>lgsvl_msgs</depend>
   <depend>rclcpp</depend>
   <depend>rclcpp_components</depend>
-  <depend>time_utils</depend>
 
   <exec_depend>ament_index_python</exec_depend>
   <exec_depend>launch_ros</exec_depend>

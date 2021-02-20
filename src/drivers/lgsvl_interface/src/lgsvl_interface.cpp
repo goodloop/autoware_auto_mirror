@@ -17,9 +17,9 @@
 #include <geometry_msgs/msg/quaternion.hpp>
 #include <helper_functions/float_comparisons.hpp>
 #include <motion_common/motion_common.hpp>
-#include <time_utils/time_utils.hpp>
 
 #include <algorithm>
+#include <chrono>
 #include <cmath>
 #include <limits>
 #include <memory>
@@ -32,6 +32,7 @@
 using autoware::common::types::bool8_t;
 using autoware::common::types::float64_t;
 namespace comp = autoware::common::helper_functions::comparisons;
+using namespace std::chrono_literals;
 
 namespace lgsvl_interface
 {
@@ -67,6 +68,7 @@ LgsvlInterface::LgsvlInterface(
   const std::string & sim_nav_odom_topic,
   const std::string & sim_veh_odom_topic,
   const std::string & kinematic_state_topic,
+  const std::string & sim_odom_child_frame,
   Table1D && throttle_table,
   Table1D && brake_table,
   Table1D && steer_table,
@@ -192,6 +194,27 @@ LgsvlInterface::LgsvlInterface(
   // Setup Tf Buffer with listener
   m_tf_buffer = std::make_shared<tf2_ros::Buffer>(node.get_clock());
   m_tf_listener = std::make_shared<tf2_ros::TransformListener>(*m_tf_buffer);
+
+  // Attempt to get transform to nav_base
+  while (!m_tf_buffer->canTransform(
+      sim_odom_child_frame, "nav_base", tf2::TimePointZero, 500ms))
+  {
+    RCLCPP_ERROR(
+      m_logger, "Transform from nav_base to sim_odom_child_frame is unavailable. Waiting...");
+  }
+
+  geometry_msgs::msg::TransformStamped nav_base_tf{};
+  nav_base_tf = m_tf_buffer->lookupTransform(
+    sim_odom_child_frame, "nav_base", tf2::TimePointZero);
+
+  // Create Vehicle Kinematic State from the transform between nav_base and
+  // the odometry child frame from the simulator
+  nav_base_in_child_frame.state.x =
+    static_cast<decltype(nav_base_in_child_frame.state.x)>(nav_base_tf.transform.translation.x);
+  nav_base_in_child_frame.state.y =
+    static_cast<decltype(nav_base_in_child_frame.state.y)>(nav_base_tf.transform.translation.y);
+  nav_base_in_child_frame.state.heading =
+    motion::motion_common::from_quat(nav_base_tf.transform.rotation);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -340,66 +363,38 @@ void LgsvlInterface::on_odometry(const nav_msgs::msg::Odometry & msg)
     tf.transform.translation.z = pz;
     tf.transform.rotation = q;
 
-    // Make sure that a transform between nav_base and the original child frame is available
-    if (m_tf_buffer->canTransform(msg.child_frame_id, "nav_base", tf2::TimePointZero)) {
-      RCLCPP_INFO_ONCE(
-        m_logger, "Transform to nav_base is available. Sending Vehicle Kinematic State");
+    autoware_auto_msgs::msg::VehicleKinematicState vse_t{};
 
-      geometry_msgs::msg::TransformStamped nav_base_tf;
+    // Set the frame_id of the VehicleKinematicState representing the position of nav_base
+    // in the odometry child frame so doTransform creates the correct output frame
+    nav_base_in_child_frame.header.frame_id = msg.header.frame_id;
 
-      try {
-        nav_base_tf = m_tf_buffer->lookupTransform(
-          msg.child_frame_id, "nav_base",
-          time_utils::from_message(msg.header.stamp));
-      } catch (const tf2::ExtrapolationException &) {
-        // Currently falls back to retrive newest transform available for availability,
-        nav_base_tf = m_tf_buffer->lookupTransform(
-          msg.child_frame_id, "nav_base", tf2::TimePointZero);
-      }
+    // Apply a transform representing the odometry observation of the original
+    // child frame in the odometry parent frame to the VehicleKinematicState
+    // representing the position of nav_base in the odometry child frame
+    // The resulting VehicleKinematicState (vse_t) represents the position of nav_base
+    // in the odometry message's parent frame
+    motion::motion_common::doTransform(nav_base_in_child_frame, vse_t, tf);
 
-      // vse is a VehicleKinematicState that represents the position of nav_base
-      // in the original child frame of the odometry message
-      // vse_t is a VehicleKinematicState that represents the position of nav_base
-      // in the original frame of the odometry message
-      autoware_auto_msgs::msg::VehicleKinematicState vse{}, vse_t{};
+    // Reset header to get good timestamp
+    vse_t.header.stamp = msg.header.stamp;
 
-      // Create Vehicle Kinematic State from the transform between nav_base and
-      // the original child frame of the odometry message
-      vse.header = msg.header;
-      vse.state.x = static_cast<decltype(vse.state.x)>(nav_base_tf.transform.translation.x);
-      vse.state.y = static_cast<decltype(vse.state.y)>(nav_base_tf.transform.translation.y);
-      vse.state.heading = motion::motion_common::from_quat(nav_base_tf.transform.rotation);
-
-      // Apply a transform representing the odometry observation of the original
-      // child frame in the odometry parent frame to the VehicleKinematicState
-      // representing the position of nav_base in the odometry child frame
-      // The resulting VehicleKinematicState represents the position of nav_base
-      // in the odometry message's parent frame
-      motion::motion_common::doTransform(vse, vse_t, tf);
-
-      // Reset header to get good timestamp
-      vse_t.header = msg.header;
-
-      // Get values from vehicle odometry
-      vse_t.state.longitudinal_velocity_mps = get_odometry().velocity_mps;
-      vse_t.state.front_wheel_angle_rad = get_odometry().front_wheel_angle_rad;
-      vse_t.state.rear_wheel_angle_rad = get_odometry().rear_wheel_angle_rad;
-      if (state_report().gear == autoware_auto_msgs::msg::VehicleStateReport::GEAR_REVERSE) {
-        vse_t.state.longitudinal_velocity_mps *= -1.0f;
-      }
-
-      vse_t.state.lateral_velocity_mps =
-        static_cast<decltype(vse.state.lateral_velocity_mps)>(msg.twist.twist.linear.y);
-      // TODO(jitrc): populate with correct value when acceleration is available from simulator
-      vse_t.state.acceleration_mps2 = 0.0F;
-      vse_t.state.heading_rate_rps =
-        static_cast<decltype(vse_t.state.heading_rate_rps)>(msg.twist.twist.angular.z);
-
-      m_kinematic_state_pub->publish(vse_t);
-    } else {
-      RCLCPP_WARN_ONCE(
-        m_logger, "Transform to nav_base unavailable. Not producing Vehicle Kinematic State.");
+    // Get values from vehicle odometry
+    vse_t.state.longitudinal_velocity_mps = get_odometry().velocity_mps;
+    vse_t.state.front_wheel_angle_rad = get_odometry().front_wheel_angle_rad;
+    vse_t.state.rear_wheel_angle_rad = get_odometry().rear_wheel_angle_rad;
+    if (state_report().gear == autoware_auto_msgs::msg::VehicleStateReport::GEAR_REVERSE) {
+      vse_t.state.longitudinal_velocity_mps *= -1.0f;
     }
+
+    vse_t.state.lateral_velocity_mps =
+      static_cast<decltype(vse_t.state.lateral_velocity_mps)>(msg.twist.twist.linear.y);
+    // TODO(jitrc): populate with correct value when acceleration is available from simulator
+    vse_t.state.acceleration_mps2 = 0.0F;
+    vse_t.state.heading_rate_rps =
+      static_cast<decltype(vse_t.state.heading_rate_rps)>(msg.twist.twist.angular.z);
+
+    m_kinematic_state_pub->publish(vse_t);
 
     if (m_tf_pub) {
       tf2_msgs::msg::TFMessage tf_msg{};

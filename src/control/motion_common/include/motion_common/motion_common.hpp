@@ -119,8 +119,8 @@ template<typename QuatT>
 Heading from_quat(QuatT quat) noexcept
 {
   Heading ret{};
-  ret.real = static_cast<decltype(ret.real)>(quat.z);
-  ret.imag = static_cast<decltype(ret.imag)>(quat.w);
+  ret.real = static_cast<decltype(ret.real)>(quat.w);
+  ret.imag = static_cast<decltype(ret.imag)>(quat.z);
   return ret;
 }
 
@@ -132,8 +132,8 @@ template<typename QuatT>
 QuatT to_quat(Heading heading) noexcept
 {
   QuatT quat{};
-  quat.z = static_cast<decltype(quat.z)>(heading.real);
-  quat.w = static_cast<decltype(quat.w)>(heading.imag);
+  quat.w = static_cast<decltype(quat.z)>(heading.real);
+  quat.z = static_cast<decltype(quat.w)>(heading.imag);
   return quat;
 }
 

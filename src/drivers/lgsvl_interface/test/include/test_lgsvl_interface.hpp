@@ -18,6 +18,7 @@
 #include <gtest/gtest.h>
 #include <lgsvl_interface/visibility_control.hpp>
 #include <lgsvl_interface/lgsvl_interface.hpp>
+#include <tf2_ros/static_transform_broadcaster_node.hpp>
 #include <memory>
 
 using Table1D = ::autoware::common::helper_functions::LookupTable1D<double>;
@@ -30,6 +31,7 @@ const auto sim_state_rpt_topic = "test_lgsvl/state_report";
 const auto sim_nav_odom_topic = "test_lgsvl/gnss_odom";
 const auto sim_veh_odom_topic = "test_lgsvl/vehicle_odom";
 const auto kinematic_state_topic = "test_vehicle_kinematic_state";
+const auto sim_odom_child_frame = "base_link";
 
 class LgsvlInterface_test : public ::testing::Test
 {
@@ -37,6 +39,16 @@ protected:
   void SetUp() override
   {
     rclcpp::init(0, nullptr);
+
+    rclcpp::NodeOptions stb_options;
+    stb_options.parameter_overrides(
+    {
+      {"/frame_id", "base_link"},
+      {"/child_frame_id", "nav_base"}
+    });
+
+    stb_node_ = std::make_unique<tf2_ros::StaticTransformBroadcasterNode>(stb_options);
+
     node_ = std::make_shared<rclcpp::Node>("lgsvl_interface_test_node", "/gtest");
     lgsvl_interface_ = std::make_unique<lgsvl_interface::LgsvlInterface>(
       *node_,
@@ -46,6 +58,7 @@ protected:
       sim_nav_odom_topic,
       sim_veh_odom_topic,
       kinematic_state_topic,
+      sim_odom_child_frame,
       Table1D({0.0, 3.0}, {0.0, 100.0}),
       Table1D({-3.0, 0.0}, {100.0, 0.0}),
       Table1D({-0.331, 0.331}, {-100.0, 100.0}));
@@ -58,6 +71,7 @@ protected:
 
 public:
   rclcpp::Node::SharedPtr node_;
+  std::unique_ptr<tf2_ros::StaticTransformBroadcasterNode> stb_node_;
   std::unique_ptr<lgsvl_interface::LgsvlInterface> lgsvl_interface_;
 };
 

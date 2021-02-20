@@ -96,6 +96,7 @@ public:
     const std::string & sim_nav_odom_topic,
     const std::string & sim_veh_odom_topic,
     const std::string & kinematic_state_topic,
+    const std::string & sim_odom_child_frame,
     Table1D && throttle_table,
     Table1D && brake_table,
     Table1D && steer_table,
@@ -147,6 +148,8 @@ private:
   // transforms
   std::shared_ptr<tf2_ros::Buffer> m_tf_buffer;
   std::shared_ptr<tf2_ros::TransformListener> m_tf_listener;
+
+  autoware_auto_msgs::msg::VehicleKinematicState nav_base_in_child_frame{};
 
   bool m_odom_set{false};  // TODO(c.ho) this should be optional<Vector3>
   geometry_msgs::msg::Vector3 m_odom_zero{};
