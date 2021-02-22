@@ -119,7 +119,7 @@ To be able to run and/or debug this file with CLion, do the following:
 
 -# In the `Custom Build Application` screen select the `Custom Build Target` for `Target:` that you have generated.
 
--# Executable: `$ContentRoot$/install/point_cloud_filter_transform_nodes/lib/point_cloud_filter_transform_nodes/point_cloud_filter_transform_node_exe`
+-# Executable: `/home/mfc/projects/AutowareAuto/install/point_cloud_filter_transform_nodes/lib/point_cloud_filter_transform_nodes/point_cloud_filter_transform_node_exe` (Absolute path is required here)
 
 -# Program Arguments: `--ros-args -r __ns:=/lidar_front --params-file $ContentRoot$/src/perception/filters/point_cloud_filter_transform_nodes/param/vlp16_sim_lexus_filter_transform.param.yaml -r __node:=filter_transform_vlp16_front -r points_in:=/lidar_front/points_raw`
 
