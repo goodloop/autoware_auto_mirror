@@ -1,7 +1,7 @@
 IDE Specific Configuration {#ide-specific-configuration}
 ===========
 
-[TOC]
+@tableofcontents
 
 You can use any IDE or text editor to develop Autoware Auto. Here you can find how to 
 configure some of them.
