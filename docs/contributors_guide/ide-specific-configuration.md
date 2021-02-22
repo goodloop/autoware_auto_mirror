@@ -8,7 +8,8 @@ for some can be found.
 
 # CLion {#configuration-clion}
 
-Here, Autoware.Auto was installed @ref installation-no-ade "without ADE".
+Here, Autoware.Auto was installed @ref installation-no-ade "without ADE" in the "~/projects/AutowareAuto" path.
+
 The key functionality that will make CLion able to index is the use of a [Compilation Database](https://www.jetbrains.com/help/clion/compilation-database.html).
 
 ## Building
@@ -69,16 +70,16 @@ fairly simple to [have Clion Attach to a Process](https://www.jetbrains.com/help
 
 Normally this node can be run with following commands:
 ```{bash}
-# In my pc, the AutowareAuto is located in ~/adehome/
+# In my pc, the AutowareAuto is located in ~/projects/
 # Please update this path with your configuration
 
-source ~/adehome/AutowareAuto/install/setup.bash
-ros2 run point_cloud_filter_transform_nodes point_cloud_filter_transform_node_exe --ros-args -r __ns:=/lidar_front --params-file ~/adehome/AutowareAuto/src/perception/filters/point_cloud_filter_transform_nodes/param/vlp16_sim_lexus_filter_transform.param.yaml -r __node:=filter_transform_vlp16_front -r points_in:=/lidar_front/points_raw
+source ~/projects/AutowareAuto/install/setup.bash
+ros2 run point_cloud_filter_transform_nodes point_cloud_filter_transform_node_exe --ros-args -r __ns:=/lidar_front --params-file ~/projects/AutowareAuto/src/perception/filters/point_cloud_filter_transform_nodes/param/vlp16_sim_lexus_filter_transform.param.yaml -r __node:=filter_transform_vlp16_front -r points_in:=/lidar_front/points_raw
 ```
 
 There are some [Path Variables](https://www.jetbrains.com/help/clion/absolute-path-variables.html) 
 in CLion that make it easy to shorten some paths in certain places.
-Here `$ContentRoot$` will be used to point to the project root which is `~/adehome/AutowareAuto`.
+Here `$ContentRoot$` will be used to point to the project root which is `~/projects/AutowareAuto`.
 
 To be able to run and/or debug this file with CLion, do the following:
 
@@ -102,7 +103,7 @@ To be able to run and/or debug this file with CLion, do the following:
 
 8. (optional) Working Directory: `$ContentRoot$/install/`
    
-9. Environment Variables: `source /home/mfc/adehome/AutowareAuto/install/setup.bash` (Absolute path is required here)
+9. Environment Variables: `source /home/mfc/projects/AutowareAuto/install/setup.bash` (Absolute path is required here)
 
 10. In the `Before Launch` list, press the minus button to remove the `Build` from the list.
 
