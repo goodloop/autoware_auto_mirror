@@ -3,8 +3,8 @@ IDE Specific Configuration {#ide-specific-configuration}
 
 @tableofcontents
 
-You can use any IDE or text editor to develop Autoware Auto. Here you can find how to 
-configure some of them.
+Any IDE or text editor can be used to develop Autoware Auto. Here, the configuration directives 
+for some can be found.
 
 ## CLion {#configuration-clion}
 
@@ -17,15 +17,15 @@ with following argument:
 colcon build --cmake-args -DCMAKE_EXPORT_COMPILE_COMMANDS=1
 ```
 
-You can find more information on this file in the [colcon documentation](https://colcon.readthedocs.io/en/released/user/how-to.html#cmake-packages-generating-compile-commands-json).
+More information on this file can be found in the [colcon documentation](https://colcon.readthedocs.io/en/released/user/how-to.html#cmake-packages-generating-compile-commands-json).
 
 ### Building
 
-You can use the Terminal within CLion to do the building.
+Terminal within CLion can be used to build the Autoware.Auto.
 
-Make sure you went through the @ref building "Building" instructions.
-In order to be able to debug your code with CLion, you should compile with either `Debug` or
-`RelWithDebInfo` flags. You can use `RelWithDebInfo` most of the time without problems.
+@ref building "Building" has the fundamental instructions for this section.
+In order to be able to debug the code with CLion, the code should be compiled with either `Debug` or
+`RelWithDebInfo` flags. `RelWithDebInfo` flag can be used most of the time without problems.
 
 ```bash
 colcon build --cmake-args -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_EXPORT_COMPILE_COMMANDS=1
@@ -33,7 +33,7 @@ colcon build --cmake-args -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_EXPORT_COMPI
 colcon build --cmake-args -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_EXPORT_COMPILE_COMMANDS=1 --packages-select <package_name>
 ```
 
-You can also make some `bash` aliases in the `.bash_aliases` file to simplify the building process.
+Also some `bash` aliases can be set in the `~/.bash_aliases` file to simplify the building process.
 ```bash
 alias colcon_build_reldeb="colcon build --cmake-args -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_EXPORT_COMPILE_COMMANDS=1"
 alias colcon_build_reldeb_upto="colcon_build_reldeb --packages-up-to "
@@ -42,7 +42,7 @@ alias colcon_build_reldeb_sel="colcon_build_reldeb --packages-select "
 
 ### Opening up the project in CLion
 
-Once you have compiled Autoware.Auto with the commands above, you can load it into CLion.
+Once Autoware.Auto is compiled with the commands above, it can be loaded into CLion.
 
 Navigate to File | Open on the main menu, choose the `compile_commands.json`
 (it will be located in `AutowareAuto/build/` folder) file and click Open as Project.
@@ -53,7 +53,7 @@ in our case, is the `AutowareAuto/build/` folder.
 To change the project root, select Tools | Compilation Database | Change Project Root from the main menu, 
 and select the `AutowareAuto` directory from there.
 
-Now CLion's code insight, refactoring, analysis, and navigation are fully available for your project.
+Now CLion's code insight, refactoring, analysis, and navigation are fully available for the project.
 
 To finish things up,
 - Project Pane -> right click `install` folder and select `Mark Directory as -> Excluded`
@@ -65,14 +65,14 @@ And it should look like this:
 
 ### Running and debugging the nodes
 
-For now you can debug anything that you can run with `ros2 run package_name executable_name <param1> <param2>...`
+Now anything that can be run with `ros2 run package_name executable_name <param1> <param2>...` can be debugged.
 
-You cannot directly debug the nodes that you run through the `ros2 launch` command although it should be
+The nodes that are run with `ros2 launch` command cannot be debugged with following method although it should be
 fairly simple to [have Clion Attach to a Process](https://www.jetbrains.com/help/clion/attaching-to-local-process.html).
 
 #### Example for running the "point_cloud_filter_transform_nodes" from the perception/filters in ROS2 Foxy:**
 
-Normally you can run this node with following commands:
+Normally this node can be run with following commands:
 ```bash
 # In my pc, the AutowareAuto is located in ~/adehome/
 # Please update this path with your configuration
@@ -83,7 +83,7 @@ ros2 run point_cloud_filter_transform_nodes point_cloud_filter_transform_node_ex
 
 There are some [Path Variables](https://www.jetbrains.com/help/clion/absolute-path-variables.html) 
 in CLion that make it easy to shorten some paths in certain places.
-Here we will use `$ContentRoot$` to point to the project root which is `~/adehome/AutowareAuto`.
+Here `$ContentRoot$` will be used to point to the project root which is `~/adehome/AutowareAuto`.
 
 To be able to run and/or debug this file with CLion, do the following:
 
@@ -115,11 +115,11 @@ In the end it should look like this:
 
 @image html images/ide-configuration-clion-run-configuration-done.png "Run/Debug Configurations Done"
 
-After you click OK, you now should be able to click the Triangle or the Bug button and run or debug your application :)
+After clicking OK, it should now be possible to click the Triangle or the Bug button to run or debug the application :)
 
 #### Configuring for other nodes
 
-You can just change the `Executable` and `Program Arguments` then it should work with other nodes too.
+The `Executable` and `Program Arguments` can be modified to make it work with any other node.
 
 ## VS Code {#configuration-vscode}
 
