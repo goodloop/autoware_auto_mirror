@@ -14,7 +14,6 @@ The key functionality that will make CLion able to index is the use of a [Compil
 ## Building
 
 Terminal within CLion can be used to build the Autoware.Auto.
-Terminal within CLion can be used to build the Autoware.Auto.
 
 @ref building "Building" has the fundamental instructions for this section.
 
