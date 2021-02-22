@@ -115,7 +115,3 @@ After clicking OK, it should now be possible to click the Triangle or the Bug bu
 ### Configuring for other nodes
 
 The `Executable` and `Program Arguments` can be modified to make it work with any other node.
-
-# VS Code {#configuration-vscode}
-
-Lorem ipsum.
