@@ -12,6 +12,11 @@ Here, Autoware.Auto was installed @ref installation-no-ade "without ADE" in the 
 
 The key functionality that will make CLion able to index is the use of a [Compilation Database](https://www.jetbrains.com/help/clion/compilation-database.html).
 
+## Launching CLion
+
+You can use the default desktop launcher of the CLion to launch it. Unlike ROS1 CLion configuration, 
+it doesn't need to be run from a terminal where ROS was sourced.
+
 ## Building
 
 Terminal within CLion can be used to build the Autoware.Auto.
