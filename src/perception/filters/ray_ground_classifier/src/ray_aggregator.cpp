@@ -58,7 +58,7 @@ RayAggregator::Config::Config(
     m_num_rays = static_cast<std::size_t>(std::ceil(
         (max_ray_angle_rad - min_ray_angle_rad) / ray_width_rad));
   }
-  if (ray_width_rad < FEPS) {
+  if (ray_width_rad < std::numeric_limits<decltype(ray_width_rad)>::epsilon()) {
     throw std::runtime_error("Ray width negative or infinitesimally small");
   }
   if (min_ray_points > static_cast<std::size_t>(POINT_BLOCK_CAPACITY)) {

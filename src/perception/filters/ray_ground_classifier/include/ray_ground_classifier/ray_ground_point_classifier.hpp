@@ -157,7 +157,7 @@ private:
 /// \return True if lhs < rhs: if lhs.r < rhs.r, if nearly same radius then lhs.z < rhs.z
 inline bool8_t operator<(const PointXYZIFR & lhs, const PointXYZIFR & rhs) noexcept
 {
-  const auto same_radius = abs_eq(lhs.m_r_xy, rhs.m_r_xy, FEPS);
+  const auto same_radius = abs_eq(lhs.m_r_xy, rhs.m_r_xy, std::numeric_limits<decltype(lhs.m_r_xy)>::epsilon());
   return same_radius ? (lhs.m_point->z < rhs.m_point->z) : (lhs.m_r_xy < rhs.m_r_xy);
 }
 
