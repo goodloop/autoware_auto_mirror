@@ -46,6 +46,7 @@ Once Autoware.Auto is compiled with the commands above, it can be loaded into CL
 By default, the project root is set to the directory containing the compilation database file which,
 in our case, is the `AutowareAuto/build/` folder. 
 
+### Change the project root {#configuration-change-project-root}
 To change the project root, select Tools | Compilation Database | Change Project Root from the main menu, 
 and select the `AutowareAuto` directory from there.
 
@@ -57,7 +58,7 @@ To finish things up,
 
 And it should look like this:
 
-@image html images/ide-configuration-clion-first-run.png "CLion First Run" width=90%
+@image html images/ide-configuration-clion-01-first-run.png "CLion First Run" width=90%
 
 ## Running and debugging the nodes
 
@@ -79,37 +80,51 @@ ros2 run point_cloud_filter_transform_nodes point_cloud_filter_transform_node_ex
 
 There are some [Path Variables](https://www.jetbrains.com/help/clion/absolute-path-variables.html) 
 in CLion that make it easy to shorten some paths in certain places.
+
+
 Here `$ContentRoot$` will be used to point to the project root which is `~/projects/AutowareAuto`.
+
+In order for `$ContentRoot$` to work, make sure the 
+@ref configuration-change-project-root "project root is changed" to `AutowareAuto` folder.
+
+And either:
+- A file in the Project pane that belongs to the project must be selected.
+- A file that belongs to the project must be opened and active.
+
+When actively working on a project, these conditions will mostly be satisfied without an extra effort.
 
 To be able to run and/or debug this file with CLion, do the following:
 
-1. Call Run | Edit Configurations from the menu or Click `Add Configuration...` from top right near build buttons.
-   @image html images/ide-configuration-clion-run-configuration-empty.png "Empty Run/Debug Configurations" width=90%
+-# Call Run | Edit Configurations from the menu or Click `Add Configuration...` from top right near build buttons.
 
-2. Click on the plus button on top-left and pick `Custom Build Application`
-   @image html images/ide-configuration-clion-run-configuration-custom-build-application.png "Custom Build Application" width=90%
+-# Click on the plus button on top-left and pick `Custom Build Application`
+   @image html images/ide-configuration-clion-02-run-configuration-empty.png "Empty Custom Build Configuration" width=50%
 
-3. Click `Configure Custom Build Targets`
-   @image html images/ide-configuration-clion-custom-build-targets.png "Custom Build Targets" width=90%
+-# In the `Before Launch` list, press the minus button to remove the `Build` from the list.
+   @image html images/ide-configuration-clion-03-run-configuration-custom-build-application.png "Custom Build Application" width=50%
+
+
+-# Click `Configure Custom Build Targets`
+
+-# Click the plus button from top-left to add a custom build target.
+   @image html images/ide-configuration-clion-04-custom-build-targets.png "Custom Build Targets" width=50%
    
-4. Click the plus button from top-left to add a custom build target. 
    Leave the rest as they are, as this is a dummy target. And click OK.
-   
-5. In the `Custom Build Application` screen select the `Custom Build Target` for `Target:` that you have generated.
+   @image html images/ide-configuration-clion-05-custom-build-targets-done.png "Custom Build Targets Done" width=50%
 
-6. Executable: `$ContentRoot$/install/point_cloud_filter_transform_nodes/lib/point_cloud_filter_transform_nodes/point_cloud_filter_transform_node_exe`
+-# In the `Custom Build Application` screen select the `Custom Build Target` for `Target:` that you have generated.
 
-7. Program Arguments: `--ros-args -r __ns:=/lidar_front --params-file $ContentRoot$/src/perception/filters/point_cloud_filter_transform_nodes/param/vlp16_sim_lexus_filter_transform.param.yaml -r __node:=filter_transform_vlp16_front -r points_in:=/lidar_front/points_raw`
+-# Executable: `$ContentRoot$/install/point_cloud_filter_transform_nodes/lib/point_cloud_filter_transform_nodes/point_cloud_filter_transform_node_exe`
 
-8. (optional) Working Directory: `$ContentRoot$/install/`
-   
-9. Environment Variables: `source /home/mfc/projects/AutowareAuto/install/setup.bash` (Absolute path is required here)
+-# Program Arguments: `--ros-args -r __ns:=/lidar_front --params-file $ContentRoot$/src/perception/filters/point_cloud_filter_transform_nodes/param/vlp16_sim_lexus_filter_transform.param.yaml -r __node:=filter_transform_vlp16_front -r points_in:=/lidar_front/points_raw`
 
-10. In the `Before Launch` list, press the minus button to remove the `Build` from the list.
+-# (optional) Working Directory: `$ContentRoot$/install/`
+
+-# Environment Variables: `source /home/mfc/projects/AutowareAuto/install/setup.bash` (Absolute path is required here)
 
 In the end it should look like this:
 
-@image html images/ide-configuration-clion-run-configuration-done.png "Run/Debug Configurations Done" width=90%
+@image html images/ide-configuration-clion-06-run-configuration-done.png "Run/Debug Configurations Done" width=90%
 
 After clicking OK, it should now be possible to click the Triangle or the Bug button to run or debug the application :)
 
