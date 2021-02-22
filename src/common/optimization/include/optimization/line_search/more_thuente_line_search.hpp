@@ -277,7 +277,8 @@ DomainValueT MoreThuenteLineSearch::compute_next_step_(
       f_l = phi(interval.a_l);
       f_u = phi(interval.a_u);
     }
-    if (comp::approx_eq(interval.a_u, interval.a_l, m_step_min, autoware::common::types::FEPS)) {
+    constexpr auto EPS = std::numeric_limits<StepT>::epsilon();
+    if (comp::approx_eq(interval.a_u, interval.a_l, m_step_min, EPS)) {
       // The interval has converged to a point so we can stop here.
       a_t = interval.a_u;
       break;

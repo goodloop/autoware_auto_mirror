@@ -80,7 +80,8 @@ LgsvlInterface::LgsvlInterface(
   m_logger{node.get_logger()}
 {
   const auto check = [](const auto value, const auto ref) -> bool8_t {
-      return comp::abs_gt(value, ref, autoware::common::types::DEPS);
+      constexpr auto EPS = std::numeric_limits<decltype(value)>::epsilon();
+      return comp::abs_gt(value, ref, EPS);
     };
   // check throttle table
   if (check(m_throttle_table.domain().front(), 0.0)) {
@@ -420,12 +421,13 @@ void LgsvlInterface::on_odometry(const nav_msgs::msg::Odometry & msg)
     pose.pose.pose.position = msg.pose.pose.position;
     pose.pose.pose.orientation = q;
 
-    if (std::fabs(msg.pose.covariance[COV_X]) > autoware::common::types::DEPS ||
-      std::fabs(msg.pose.covariance[COV_Y]) > autoware::common::types::DEPS ||
-      std::fabs(msg.pose.covariance[COV_Z]) > autoware::common::types::DEPS ||
-      std::fabs(msg.pose.covariance[COV_RX]) > autoware::common::types::DEPS ||
-      std::fabs(msg.pose.covariance[COV_RY]) > autoware::common::types::DEPS ||
-      std::fabs(msg.pose.covariance[COV_RZ]) > autoware::common::types::DEPS)
+    constexpr auto EPS = std::numeric_limits<float64_t>::epsilon();
+    if (std::fabs(msg.pose.covariance[COV_X]) > EPS ||
+      std::fabs(msg.pose.covariance[COV_Y]) > EPS ||
+      std::fabs(msg.pose.covariance[COV_Z]) > EPS ||
+      std::fabs(msg.pose.covariance[COV_RX]) > EPS ||
+      std::fabs(msg.pose.covariance[COV_RY]) > EPS ||
+      std::fabs(msg.pose.covariance[COV_RZ]) > EPS)
     {
       pose.pose.covariance = {
         COV_X_VAR, 0.0, 0.0, 0.0, 0.0, 0.0,

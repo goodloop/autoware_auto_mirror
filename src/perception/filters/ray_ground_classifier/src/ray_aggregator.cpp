@@ -33,7 +33,6 @@ namespace filters
 namespace ray_ground_classifier
 {
 
-using autoware::common::types::FEPS;
 using autoware::common::types::PI;
 using autoware::common::types::POINT_BLOCK_CAPACITY;
 using autoware::common::types::bool8_t;

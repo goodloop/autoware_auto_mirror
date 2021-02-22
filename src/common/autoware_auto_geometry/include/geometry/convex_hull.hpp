@@ -137,7 +137,8 @@ typename std::list<PointT>::const_iterator convex_hull_impl(std::list<PointT> & 
     {
       using point_adapter::x_;
       using point_adapter::y_;
-      return (fabsf(x_(a) - x_(b)) > autoware::common::types::FEPS) ?
+      constexpr auto FEPS = std::numeric_limits<float32_t>::epsilon();
+      return (fabsf(x_(a) - x_(b)) > FEPS) ?
              (x_(a) < x_(b)) : (y_(a) < y_(b));
     };
   list.sort(lexical_comparator);

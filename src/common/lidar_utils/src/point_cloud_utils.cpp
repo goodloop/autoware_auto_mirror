@@ -27,6 +27,8 @@
 
 #include "lidar_utils/point_cloud_utils.hpp"
 
+static constexpr auto EPSf = std::numeric_limits<autoware::common::types::float32_t>::epsilon();
+
 namespace autoware
 {
 namespace common
@@ -332,10 +334,14 @@ DistanceFilter::DistanceFilter(float32_t min_radius, float32_t max_radius)
   }
 }
 
+// odr-used by comp::abs_gte
+constexpr float32_t DistanceFilter::FEPS;
+
+
 StaticTransformer::StaticTransformer(const geometry_msgs::msg::Transform & tf)
 {
   Eigen::Quaternionf rotation(tf.rotation.w, tf.rotation.x, tf.rotation.y, tf.rotation.z);
-  if (!comp::abs_eq(rotation.norm(), 1.0f, autoware::common::types::FEPS)) {
+  if (!comp::abs_eq(rotation.norm(), 1.0f, EPSf)) {
     throw std::domain_error("StaticTransformer: quaternion is not normalized");
   }
   m_tf.setIdentity();
@@ -357,7 +363,7 @@ AngleFilter::AngleFilter(float32_t start_angle, float32_t end_angle)
   const auto end_vec = make_unit_vector2d<VectorT>(end_angle);
 
   // Handle the case where two angles are in opposite direction (small_angle_dir = 0)
-  if (std::fabs(dot_2d(start_vec, end_vec) - (-1.0F)) < autoware::common::types::FEPS) {
+  if (std::fabs(dot_2d(start_vec, end_vec) - (-1.0F)) < FEPS) {
     m_range_normal = get_normal(start_vec);
   } else {
     // range normal is the unit vector in the middle of the accepted range.(normalize(start + end))
@@ -369,7 +375,7 @@ AngleFilter::AngleFilter(float32_t start_angle, float32_t end_angle)
     // If the small angle is not in CCW direction, then we need the wide angle, so the normal is
     // inverted.
     const auto small_angle_dir = cross_2d(start_vec, end_vec);
-    if ((small_angle_dir + autoware::common::types::FEPS) < 0.0F) {
+    if ((small_angle_dir + FEPS) < 0.0F) {
       m_range_normal = times_2d(m_range_normal, -1.0F);
     }
   }
@@ -381,7 +387,7 @@ AngleFilter::AngleFilter(float32_t start_angle, float32_t end_angle)
   // projection length is an indicator of a point's angular distance to the angle range.
   // The min and max of the angle range define a lower bound on this metric.
   const auto thresh = dot_2d(start_vec, m_range_normal);
-  m_threshold_negative = (thresh + autoware::common::types::FEPS) < 0.0F;
+  m_threshold_negative = (thresh + FEPS) < 0.0F;
   // square is pre-computed as the check will happen in the square space to avoid sqrt() calls.
   m_threshold2 = thresh * thresh;
 }

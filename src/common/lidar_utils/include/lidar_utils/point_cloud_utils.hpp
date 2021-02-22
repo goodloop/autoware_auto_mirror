@@ -297,6 +297,7 @@ public:
   /// \param min_radius The radius the point's radius should be greater than
   /// \param max_radius The radius the point's radius should be lesser than
   DistanceFilter(float32_t min_radius, float32_t max_radius);
+  static constexpr auto FEPS = std::numeric_limits<float32_t>::epsilon();
 
   /// \brief Check if the point is within the allowed range of the filter. Check is done in
   /// square form to avoid `sqrt`
@@ -308,8 +309,8 @@ public:
   {
     using common::geometry::dot_3d;
     auto pt_radius = dot_3d(pt, pt);
-    return comp::abs_gte(pt_radius, m_min_r2, autoware::common::types::FEPS) &&
-           comp::abs_lte(pt_radius, m_max_r2, autoware::common::types::FEPS);
+    return comp::abs_gte(pt_radius, m_min_r2, FEPS) &&
+           comp::abs_lte(pt_radius, m_max_r2, FEPS);
   }
 
 private:
@@ -362,6 +363,7 @@ public:
 
   using VectorT = autoware::common::types::PointXYZIF;
   static constexpr float32_t PI = 3.14159265359F;
+  static constexpr auto FEPS = std::numeric_limits<float32_t>::epsilon() * 1e2F;
 
   /// \brief Check if a point's azimuth lies in the range [start, end] in
   /// counter-clock-wise-direction. The point is treated as a 2D vector whose projection on the
@@ -379,7 +381,7 @@ public:
     const auto pt_len2 = dot_2d(pt, pt);
     const auto proj_on_normal = dot_2d(pt, m_range_normal);
     const auto proj_on_normal2 = proj_on_normal * proj_on_normal;
-    const auto is_proj_negative = (proj_on_normal + autoware::common::types::FEPS) < 0.0F;
+    const auto is_proj_negative = (proj_on_normal + FEPS) < 0.0F;
 
     // Since the input vector's projection is scaled by the length of itself, the
     // threshold is also scaled by the length of the input vector to make the comparison possible.
@@ -388,13 +390,13 @@ public:
     // the following sign checks are made to ensure the correctness of the comparisons in
     // squared form.
     if ((!m_threshold_negative) && (!is_proj_negative)) {
-      ret = (proj_on_normal2) >= (pt_len2 * (m_threshold2 - autoware::common::types::FEPS));
+      ret = (proj_on_normal2) >= (pt_len2 * (m_threshold2 - FEPS));
     } else if (m_threshold_negative && (!is_proj_negative)) {
       ret = true;
     } else if ((!m_threshold_negative) && is_proj_negative) {
       ret = false;
     } else {
-      ret = (proj_on_normal2) <= (pt_len2 * (m_threshold2 + autoware::common::types::FEPS));
+      ret = (proj_on_normal2) <= (pt_len2 * (m_threshold2 + FEPS));
     }
     return ret;
   }

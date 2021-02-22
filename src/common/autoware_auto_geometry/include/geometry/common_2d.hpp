@@ -212,8 +212,9 @@ inline T intersection_2d(const T & pt, const T & u, const T & q, const T & v)
 {
   const float32_t num = cross_2d(minus_2d(pt, q), u);
   float32_t den = cross_2d(v, u);
-  if (fabsf(den) < autoware::common::types::FEPS) {
-    if (fabsf(num) < autoware::common::types::FEPS) {
+  constexpr auto FEPS = std::numeric_limits<float32_t>::epsilon();
+  if (fabsf(den) < FEPS) {
+    if (fabsf(num) < FEPS) {
       // collinear case, anything is ok
       den = 1.0F;
     } else {
@@ -293,7 +294,7 @@ inline T closest_segment_point_2d(const T & p, const T & q, const T & r)
   const T qp = minus_2d(q, p);
   const float32_t len2 = dot_2d(qp, qp);
   T ret = p;
-  if (len2 > autoware::common::types::FEPS) {
+  if (len2 > std::numeric_limits<float32_t>::epsilon()) {
     const Interval_f unit_interval(0.0f, 1.0f);
     const float32_t val = dot_2d(minus_2d(r, p), qp) / len2;
     const float32_t t = Interval_f::clamp_to(unit_interval, val);
@@ -317,7 +318,7 @@ inline T closest_line_point_2d(const T & p, const T & q, const T & r)
   const T qp = minus_2d(q, p);
   const float32_t len2 = dot_2d(qp, qp);
   T ret = p;
-  if (len2 > autoware::common::types::FEPS) {
+  if (len2 > std::numeric_limits<float32_t>::epsilon()) {
     const float32_t t = dot_2d(minus_2d(r, p), qp) / len2;
     ret = plus_2d(p, times_2d(qp, t));
   } else {

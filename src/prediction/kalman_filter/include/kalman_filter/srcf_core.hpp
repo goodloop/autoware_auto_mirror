@@ -25,7 +25,6 @@
 #include <cmath>
 
 using autoware::common::types::float32_t;
-using autoware::common::types::FEPS;
 
 namespace autoware
 {

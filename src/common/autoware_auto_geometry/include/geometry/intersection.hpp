@@ -139,9 +139,8 @@ bool intersect(const Iter begin1, const Iter end1, const Iter begin2, const Iter
     auto minmax_2 = get_projected_min_max(begin2, end2);
 
     // Check for any intersections
-    if (minmax_1.first > minmax_2.second + autoware::common::types::FEPS ||
-      minmax_2.first > minmax_1.second + autoware::common::types::FEPS)
-    {
+    const auto eps = std::numeric_limits<decltype(minmax_1.first)>::epsilon();
+    if (minmax_1.first > minmax_2.second + eps || minmax_2.first > minmax_1.second + eps) {
       // Found separating hyperplane, stop
       return false;
     }

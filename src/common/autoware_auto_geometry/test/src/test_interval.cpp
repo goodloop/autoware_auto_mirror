@@ -36,27 +36,26 @@ const auto Inf = std::numeric_limits<double>::infinity();
 const auto Min = std::numeric_limits<double>::lowest();
 const auto Max = std::numeric_limits<double>::max();
 const auto NaN = std::numeric_limits<double>::quiet_NaN();
+const auto epsilon = 1e-5;
 }  // namespace
 
 //------------------------------------------------------------------------------
 
 TEST(Geometry_Interval, abs_eq) {
   const auto i1 = Interval_d(-1.0, 1.0);
-  const auto i2 = Interval_d(
-    -1.0 + 0.5 * autoware::common::types::FEPS,
-    1.0 + 0.5 * autoware::common::types::FEPS);
-  const auto shift = (2.0 * autoware::common::types::FEPS);
+  const auto i2 = Interval_d(-1.0 + 0.5 * epsilon, 1.0 + 0.5 * epsilon);
+  const auto shift = (2.0 * epsilon);
   const auto i3 = Interval_d(-1.0 + shift, 1.0 + shift);
   const auto i_empty = Interval_d();
 
-  EXPECT_TRUE(Interval_d::abs_eq(i1, i1, autoware::common::types::FEPS));
-  EXPECT_TRUE(Interval_d::abs_eq(i1, i2, autoware::common::types::FEPS));
-  EXPECT_TRUE(Interval_d::abs_eq(i2, i1, autoware::common::types::FEPS));
-  EXPECT_FALSE(Interval_d::abs_eq(i1, i3, autoware::common::types::FEPS));
-  EXPECT_FALSE(Interval_d::abs_eq(i3, i1, autoware::common::types::FEPS));
-  EXPECT_FALSE(Interval_d::abs_eq(i1, i_empty, autoware::common::types::FEPS));
-  EXPECT_FALSE(Interval_d::abs_eq(i_empty, i1, autoware::common::types::FEPS));
-  EXPECT_TRUE(Interval_d::abs_eq(i_empty, i_empty, autoware::common::types::FEPS));
+  EXPECT_TRUE(Interval_d::abs_eq(i1, i1, epsilon));
+  EXPECT_TRUE(Interval_d::abs_eq(i1, i2, epsilon));
+  EXPECT_TRUE(Interval_d::abs_eq(i2, i1, epsilon));
+  EXPECT_FALSE(Interval_d::abs_eq(i1, i3, epsilon));
+  EXPECT_FALSE(Interval_d::abs_eq(i3, i1, epsilon));
+  EXPECT_FALSE(Interval_d::abs_eq(i1, i_empty, epsilon));
+  EXPECT_FALSE(Interval_d::abs_eq(i_empty, i1, epsilon));
+  EXPECT_TRUE(Interval_d::abs_eq(i_empty, i_empty, epsilon));
 }
 
 //------------------------------------------------------------------------------
@@ -217,7 +216,7 @@ TEST(Geometry_Interval, intersection_measure) {
     const auto i = Interval_d::intersect(i1, i2);
     EXPECT_EQ(Interval_d::min(i), -0.5);
     EXPECT_EQ(Interval_d::max(i), 1.0);
-    EXPECT_NEAR(Interval_d::measure(i), 1.5, autoware::common::types::FEPS);
+    EXPECT_NEAR(Interval_d::measure(i), 1.5, epsilon);
   }
 
   {
@@ -245,7 +244,7 @@ TEST(Geometry_Interval, construction_measure) {
     const auto i = Interval_d(-1.0, 1.0);
     EXPECT_EQ(Interval_d::min(i), -1.0);
     EXPECT_EQ(Interval_d::max(i), 1.0);
-    EXPECT_NEAR(Interval_d::measure(i), 2.0, autoware::common::types::FEPS);
+    EXPECT_NEAR(Interval_d::measure(i), 2.0, epsilon);
   }
 
   {
