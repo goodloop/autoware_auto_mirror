@@ -67,7 +67,7 @@ colcon build --cmake-args -DCMAKE_CXX_FLAGS="-fsanitize=undefined"
 
 #### Compilation Optimization And Debugging Parameters
 
-While building Autoware Auto, here are some common options for compilation build types:
+While building Autoware.Auto, here are some common options for compilation build types:
 - Release (Optimized and fast)
 - Debug (With debug flags but slow because not all compilation optimizations are applied)
 - RelWithDebInfo (Fast and allows debugging to a fair-enough degree)
@@ -77,6 +77,8 @@ colcon build --cmake-args -DCMAKE_BUILD_TYPE=Release
 colcon build --cmake-args -DCMAKE_BUILD_TYPE=Debug
 colcon build --cmake-args -DCMAKE_BUILD_TYPE=RelWithDebInfo
 ```
+These flags are then passed into [autoware_set_compile_options](https://gitlab.com/autowarefoundation/autoware.auto/AutowareAuto/-/blob/master/src/tools/autoware_auto_cmake/cmake/autoware_auto_cmake.cmake#L51)
+function for the nodes that use it in their respective `CMakeLists.txt` files.
 
 
 ### Cleaning the build output
