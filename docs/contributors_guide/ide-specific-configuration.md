@@ -18,7 +18,7 @@ Terminal within CLion can be used to build the Autoware.Auto.
 
 @ref building "Building Section" has the fundamental information that will be useful in here.
 
-@ref building-compilation-optimization-flags "Building with compilation database" should be followed to generate the Compilation Database.
+@ref building-compilation-database "Building with compilation database" should be followed to generate the Compilation Database.
 
 In order to be able to debug the code with CLion, the code should be compiled with either `Debug` or
 `RelWithDebInfo` flags. `RelWithDebInfo` flag can be used most of the time without problems.
