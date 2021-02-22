@@ -57,7 +57,7 @@ To finish things up,
 
 And it should look like this:
 
-@image html images/ide-configuration-clion-first-run.png "CLion First Run"
+@image html images/ide-configuration-clion-first-run.png "CLion First Run" width=90%
 
 ## Running and debugging the nodes
 
@@ -84,13 +84,13 @@ Here `$ContentRoot$` will be used to point to the project root which is `~/adeho
 To be able to run and/or debug this file with CLion, do the following:
 
 1. Call Run | Edit Configurations from the menu or Click `Add Configuration...` from top right near build buttons.
-   @image html images/ide-configuration-clion-run-configuration-empty.png "Empty Run/Debug Configurations"
+   @image html images/ide-configuration-clion-run-configuration-empty.png "Empty Run/Debug Configurations" width=90%
 
 2. Click on the plus button on top-left and pick `Custom Build Application`
-   @image html images/ide-configuration-clion-run-configuration-custom-build-application.png "Custom Build Application"
+   @image html images/ide-configuration-clion-run-configuration-custom-build-application.png "Custom Build Application" width=90%
 
 3. Click `Configure Custom Build Targets`
-   @image html images/ide-configuration-clion-custom-build-targets.png "Custom Build Targets"
+   @image html images/ide-configuration-clion-custom-build-targets.png "Custom Build Targets" width=90%
    
 4. Click the plus button from top-left to add a custom build target. 
    Leave the rest as they are, as this is a dummy target. And click OK.
@@ -109,7 +109,7 @@ To be able to run and/or debug this file with CLion, do the following:
 
 In the end it should look like this:
 
-@image html images/ide-configuration-clion-run-configuration-done.png "Run/Debug Configurations Done"
+@image html images/ide-configuration-clion-run-configuration-done.png "Run/Debug Configurations Done" width=90%
 
 After clicking OK, it should now be possible to click the Triangle or the Bug button to run or debug the application :)
 
