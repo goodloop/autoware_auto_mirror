@@ -3,7 +3,7 @@ IDE Specific Configuration {#ide-specific-configuration}
 
 @tableofcontents
 
-Any IDE or text editor can be used to develop Autoware Auto. Here, the configuration directives 
+Any IDE or text editor can be used to develop Autoware.Auto. Here, the configuration directives 
 for some can be found.
 
 ## CLion {#configuration-clion}
