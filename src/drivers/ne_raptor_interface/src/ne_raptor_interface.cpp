@@ -26,99 +26,6 @@ namespace autoware
 namespace ne_raptor_interface
 {
 
-DbwStateMachine::DbwStateMachine(uint16_t dbw_disabled_debounce)
-: m_first_control_cmd_sent{false},
-  m_first_state_cmd_sent{false},
-  m_disabled_feedback_count{0},
-  DISABLED_FEEDBACK_THRESH{dbw_disabled_debounce},
-  m_state{DbwState::DISABLED}
-{
-}
-
-bool8_t DbwStateMachine::enabled() const
-{
-  return m_state == DbwState::ENABLED ||
-         m_state == DbwState::ENABLE_SENT ||
-         (m_state == DbwState::ENABLE_REQUESTED &&
-         m_first_control_cmd_sent &&
-         m_first_state_cmd_sent);
-}
-
-DbwState DbwStateMachine::get_state() const {return m_state;}
-
-void DbwStateMachine::dbw_feedback(bool8_t enabled)
-{
-  if (enabled) {                             // DBW system says enabled
-    if (m_state == DbwState::ENABLE_SENT) {  // and state is ENABLE_SENT
-      m_state = DbwState::ENABLED;
-      m_disabled_feedback_count = 0;
-    }
-  } else {                                   // DBW system says disabled
-    if (m_state == DbwState::ENABLE_SENT) {  // and state is ENABLE_SENT
-      m_disabled_feedback_count++;           // Increase debounce count
-
-      if (m_disabled_feedback_count > DISABLED_FEEDBACK_THRESH) {  // check debounce
-        disable_and_reset();
-      }
-    } else if (m_state == DbwState::ENABLED) {  // and state is ENABLED
-      disable_and_reset();
-    }
-  }
-}
-
-void DbwStateMachine::control_cmd_sent()
-{
-  if (m_state == DbwState::ENABLE_REQUESTED &&
-    m_first_control_cmd_sent &&
-    m_first_state_cmd_sent)
-  {
-    // We just sent a control command with
-    // enable == true so we can transition
-    // to ENABLE_SENT
-    m_state = DbwState::ENABLE_SENT;
-  }
-
-  if (m_state == DbwState::ENABLE_REQUESTED) {
-    m_first_control_cmd_sent = true;
-  }
-}
-
-void DbwStateMachine::state_cmd_sent()
-{
-  if (m_state == DbwState::ENABLE_REQUESTED &&
-    m_first_control_cmd_sent &&
-    m_first_state_cmd_sent)
-  {
-    // We just sent a state command with
-    // enable == true so we can transition
-    // to ENABLE_SENT
-    m_state = DbwState::ENABLE_SENT;
-  }
-
-  if (m_state == DbwState::ENABLE_REQUESTED) {
-    m_first_state_cmd_sent = true;
-  }
-}
-
-void DbwStateMachine::user_request(bool8_t enable)
-{
-  if (enable) {                           // Enable is being requested
-    if (m_state == DbwState::DISABLED) {  // Only change states if currently in DISABLED
-      m_state = DbwState::ENABLE_REQUESTED;
-    }
-  } else {                               // Disable is being requested
-    disable_and_reset();                 // Disable in any state if user requests it
-  }
-}
-
-void DbwStateMachine::disable_and_reset()
-{
-  m_state = DbwState::DISABLED;
-  m_first_control_cmd_sent = false;
-  m_first_state_cmd_sent = false;
-  m_disabled_feedback_count = 0;
-}
-
 NERaptorInterface::NERaptorInterface(
   rclcpp::Node & node,
   uint16_t ecu_build_num,
@@ -139,7 +46,10 @@ NERaptorInterface::NERaptorInterface(
   m_deceleration_limit{deceleration_limit},
   m_acceleration_positive_jerk_limit{acceleration_positive_jerk_limit},
   m_deceleration_negative_jerk_limit{deceleration_negative_jerk_limit},
-  m_dbw_state_machine(new DbwStateMachine{3})
+  m_dbw_state_machine(new DbwStateMachine{3}),
+  m_rolling_counter_vsc{0},
+  m_rolling_counter_hlcc{0},
+  m_rolling_counter_vcc{0}
 {
   // Publishers (to Raptor DBW)
   m_accel_cmd_pub = node.create_publisher<AcceleratorPedalCmd>("accelerator_pedal_cmd", 10);
@@ -195,13 +105,10 @@ bool8_t NERaptorInterface::update(std::chrono::nanoseconds timeout)
 
 bool8_t NERaptorInterface::send_state_command(const VehicleStateCommand & msg)
 {
-  static uint8_t s_rolling_counter_vsc = 0;
   bool8_t is_dbw_enabled = m_dbw_state_machine->enabled() ? true : false;
   GearCmd gc;
   GlobalEnableCmd gec;
   MiscCmd mc;
-  // msg.fuel unused
-  // msg.hand_brake unused
 
   // Set enable variables
   gc.enable = is_dbw_enabled;
@@ -212,14 +119,14 @@ bool8_t NERaptorInterface::send_state_command(const VehicleStateCommand & msg)
   mc.block_turn_signal_stalk = is_dbw_enabled;
 
   // Set rolling counters
-  if (s_rolling_counter_vsc < 0xFF) {
-    s_rolling_counter_vsc++;
+  if (m_rolling_counter_vsc < 0xFF) {
+    m_rolling_counter_vsc++;
   } else {
-    s_rolling_counter_vsc = 0;
+    m_rolling_counter_vsc = 0;
   }
-  gc.rolling_counter = s_rolling_counter_vsc;
-  gec.rolling_counter = s_rolling_counter_vsc;
-  mc.rolling_counter = s_rolling_counter_vsc;
+  gc.rolling_counter = m_rolling_counter_vsc;
+  gec.rolling_counter = m_rolling_counter_vsc;
+  mc.rolling_counter = m_rolling_counter_vsc;
 
   // Set gear values
   switch (msg.gear) {
@@ -320,14 +227,13 @@ bool8_t NERaptorInterface::send_state_command(const VehicleStateCommand & msg)
   m_misc_cmd_pub->publish(mc);
 
   m_dbw_state_machine->state_cmd_sent();
-  return is_dbw_enabled;
+  return true;
 }
 
 /* Apparently HighLevelControlCommand will be obsolete soon.
  */
 bool8_t NERaptorInterface::send_control_command(const HighLevelControlCommand & msg)
 {
-  static uint8_t s_rolling_counter_hlcc = 0;
   bool8_t is_dbw_enabled = m_dbw_state_machine->enabled() ? true : false;
   float32_t velocity_checked = 0.0F;
   AcceleratorPedalCmd apc;
@@ -342,14 +248,14 @@ bool8_t NERaptorInterface::send_control_command(const HighLevelControlCommand & 
   sc.ignore = false;
 
   // Set rolling counters
-  if (s_rolling_counter_hlcc < 0xFF) {
-    s_rolling_counter_hlcc++;
+  if (m_rolling_counter_hlcc < 0xFF) {
+    m_rolling_counter_hlcc++;
   } else {
-    s_rolling_counter_hlcc = 0;
+    m_rolling_counter_hlcc = 0;
   }
-  apc.rolling_counter = s_rolling_counter_hlcc;
-  bc.rolling_counter = s_rolling_counter_hlcc;
-  sc.rolling_counter = s_rolling_counter_hlcc;
+  apc.rolling_counter = m_rolling_counter_hlcc;
+  bc.rolling_counter = m_rolling_counter_hlcc;
+  sc.rolling_counter = m_rolling_counter_hlcc;
 
   // Set limits
   apc.accel_limit = m_acceleration_limit;
@@ -377,7 +283,7 @@ bool8_t NERaptorInterface::send_control_command(const HighLevelControlCommand & 
   m_steer_cmd_pub->publish(sc);
 
   m_dbw_state_machine->control_cmd_sent();
-  return is_dbw_enabled;
+  return true;
 }
 
 /* Apparently RawControlCommand will be obsolete soon.
@@ -388,60 +294,10 @@ bool8_t NERaptorInterface::send_control_command(const RawControlCommand & msg)
   (void)msg;
   RCLCPP_ERROR(m_logger, "NE Raptor does not support sending raw pedal controls directly.");
   return false;
-
-  /* In case message units become defined
-
-  static uint8_t s_rolling_counter_rcc = 0;
-  bool8_t is_dbw_enabled = m_dbw_state_machine->enabled() ? true : false;
-  float32_t velocity_checked = 0.0F;
-  AcceleratorPedalCmd apc;
-  BrakeCmd bc;
-  SteeringCmd sc;
-
-  // Set enable variables
-  apc.enable = is_dbw_enabled;
-  bc.enable = is_dbw_enabled;
-  sc.enable = is_dbw_enabled;
-  apc.ignore = false;
-  sc.ignore = false;
-
-  // Set rolling counters
-  if(s_rolling_counter_rcc < 0xFF)
-  {
-    s_rolling_counter_rcc++;
-  }
-  else
-  {
-    s_rolling_counter_rcc = 0;
-  }
-  apc.rolling_counter = s_rolling_counter_rcc;
-  bc.rolling_counter = s_rolling_counter_rcc;
-  sc.rolling_counter = s_rolling_counter_rcc;
-
-  // Set limits
-  apc.accel_limit = m_acceleration_limit;
-  bc.decel_limit = m_deceleration_limit;
-  apc.accel_positive_jerk_limit = m_acceleration_positive_jerk_limit;
-  bc.decel_negative_jerk_limit = m_deceleration_negative_jerk_limit;
-
-  // Send commands
-  apc.pedal_cmd = (float32_t)msg.throttle;
-  bpc.pedal_cmd = (float32_t)msg.brake;
-  sc.angle_cmd = (float32_t)msg.front_steer * STEERING_PCT_TO_DEGREE_RATIO / m_steer_to_tire_ratio;
-
-  // Publish commands to NE Raptor DBW
-  m_accel_cmd_pub->publish(apc);
-  m_brake_cmd_pub->publish(bc);
-  m_steer_cmd_pub->publish(sc);
-
-  m_dbw_state_machine->control_cmd_sent();
-  return is_dbw_enabled;
-  */
 }
 
 bool8_t NERaptorInterface::send_control_command(const VehicleControlCommand & msg)
 {
-  static uint8_t s_rolling_counter_vcc = 0;
   bool8_t is_dbw_enabled = m_dbw_state_machine->enabled() ? true : false;
   float32_t velocity_checked = 0.0F;
   AcceleratorPedalCmd apc;
@@ -456,14 +312,14 @@ bool8_t NERaptorInterface::send_control_command(const VehicleControlCommand & ms
   sc.ignore = false;
 
   // Set rolling counters
-  if (s_rolling_counter_vcc < 0xFF) {
-    s_rolling_counter_vcc++;
+  if (m_rolling_counter_vcc < 0xFF) {
+    m_rolling_counter_vcc++;
   } else {
-    s_rolling_counter_vcc = 0;
+    m_rolling_counter_vcc = 0;
   }
-  apc.rolling_counter = s_rolling_counter_vcc;
-  bc.rolling_counter = s_rolling_counter_vcc;
-  sc.rolling_counter = s_rolling_counter_vcc;
+  apc.rolling_counter = m_rolling_counter_vcc;
+  bc.rolling_counter = m_rolling_counter_vcc;
+  sc.rolling_counter = m_rolling_counter_vcc;
 
   // Set limits
   apc.accel_limit = m_acceleration_limit;
@@ -490,7 +346,7 @@ bool8_t NERaptorInterface::send_control_command(const VehicleControlCommand & ms
 
   // Send commands
   apc.speed_cmd = velocity_checked;
-  sc.angle_cmd = msg.front_wheel_angle_rad / DEGREES_TO_RADIANS;
+  sc.angle_cmd = msg.front_wheel_angle_rad / (DEGREES_TO_RADIANS * m_steer_to_tire_ratio);
 
   // Publish commands to NE Raptor DBW
   m_accel_cmd_pub->publish(apc);
@@ -498,7 +354,7 @@ bool8_t NERaptorInterface::send_control_command(const VehicleControlCommand & ms
   m_steer_cmd_pub->publish(sc);
 
   m_dbw_state_machine->control_cmd_sent();
-  return is_dbw_enabled;
+  return true;
 }
 
 bool8_t NERaptorInterface::handle_mode_change_request(ModeChangeRequest::SharedPtr request)
@@ -593,7 +449,7 @@ void NERaptorInterface::on_misc_report(const MiscReport::SharedPtr & msg)
   m_vehicle_state_report.fuel = static_cast<uint8_t>(msg->fuel_level);
 
   std::lock_guard<std::mutex> guard_vks(m_vehicle_kin_state_mutex);
-  /// \brief TODO(NE_Raptor)::Math taken from ssc_interface.cpp. Verify it.
+  /// \brief TODO(NE_Raptor) : Math taken from ssc_interface.cpp. Verify it.
   /* Input velocity is (assumed to be) measured at the rear axle, but we're
    * producing a velocity at the center of gravity.
    * Lateral velocity increases linearly from 0 at the rear axle to the maximum
@@ -609,7 +465,7 @@ void NERaptorInterface::on_misc_report(const MiscReport::SharedPtr & msg)
   m_vehicle_kin_state.state.lateral_velocity_mps = (m_rear_axle_to_cog / wheelbase) * speed_mps *
     std::tan(delta);
 
-  m_vehicle_kin_state.header.frame_id = "odom";  // TODO(NE_Raptor) : Check this
+  m_vehicle_kin_state.header.frame_id = "odom";
 
   // need >1 message in to calculate dT
   if (!m_seen_misc_rpt) {
@@ -633,10 +489,10 @@ void NERaptorInterface::on_misc_report(const MiscReport::SharedPtr & msg)
     m_seen_wheel_spd_rpt)
   {
     m_vehicle_kin_state.state.acceleration_mps2 = (speed_mps - prev_speed_mps) / dT;  // m/s^2
-    m_vehicle_kin_state.state.x = 0.0F;
-    m_vehicle_kin_state.state.y = 0.0F;
-    m_vehicle_kin_state.state.heading.real = std::cos(0.0F);  // TODO(NE_Raptor) : yaw?
-    m_vehicle_kin_state.state.heading.imag = std::sin(0.0F);  // TODO(NE_Raptor) : yaw?
+    m_vehicle_kin_state.state.x = 0.0F;  // TODO(NE_Raptor) : Relative to center of gravity
+    m_vehicle_kin_state.state.y = 0.0F;  // TODO(NE_Raptor) : Relative to center of gravity
+    m_vehicle_kin_state.state.heading =
+      motion::motion_common::from_angle(0.0F);  // TODO(NE_Raptor) : yaw
 
     beta = std::atan2(m_rear_axle_to_cog * std::tan(delta), wheelbase);
     m_vehicle_kin_state.state.heading_rate_rps = std::cos(beta) * std::tan(delta) / wheelbase;

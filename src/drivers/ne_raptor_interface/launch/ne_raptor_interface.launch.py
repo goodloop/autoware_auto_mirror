@@ -12,31 +12,57 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""
-Example launch file for a new package.
+"""Launch file for interface node between New Eagle Raptor DBW and Autoware.Auto."""
 
-Note: Does not work in ROS2 dashing!
-"""
-
-import launch
-from launch_ros.actions import ComposableNodeContainer
-from launch_ros.descriptions import ComposableNode
+from launch import LaunchDescription
+from launch_ros.actions import Node
+from launch.substitutions import LaunchConfiguration
+from ament_index_python import get_package_share_directory
 
 
 def generate_launch_description():
     """Generate launch description with a single component."""
-    container = ComposableNodeContainer(
-            name='ne_raptor_interface_container',
-            namespace='',
-            package='rclcpp_components',
-            executable='component_container',
-            composable_node_descriptions=[
-                ComposableNode(
-                    package='ne_raptor_interface',
-                    plugin='autoware::ne_raptor_interface::NERaptorInterfaceNode',
-                    name='ne_raptor_interface_node'),
-            ],
-            output='screen',
+    # ---------------- Params ----------------
+    raptor_interface_params_file = LaunchConfiguration(
+        "raptor_interface_params",
+        default=[get_package_share_directory('ne_raptor_interface'),
+                 '/param/defaults.param.yaml']
+    )
+    raptor_dbw_params_file = LaunchConfiguration(
+        'raptor_dbw_params',
+        default=[get_package_share_directory('raptor_dbw_can'),
+                 '/launch/launch_params.yaml']
+    )
+    raptor_dbw_dbc_file = LaunchConfiguration(
+        'raptor_dbw_dbc',
+        default=[get_package_share_directory('raptor_dbw_can'),
+                 '/launch/New_Eagle_DBW_3.3.388.dbc']
     )
 
-    return launch.LaunchDescription([container])
+    # ---------------- Nodes ----------------
+    return LaunchDescription(
+        [
+            Node(
+                package='ne_raptor_interface',
+                executable='ne_raptor_interface_node',
+                output='screen',
+                namespace='vehicle',
+                parameters=[raptor_interface_params_file],
+            ),
+            Node(
+                package='raptor_dbw_can',
+                executable='raptor_dbw_can_node',
+                output='screen',
+                namespace='raptor_dbw_interface',
+                parameters=[raptor_dbw_dbc_file],
+            ),
+            Node(
+                package='kvaser_interface',
+                executable='kvaser_can_bridge',
+                output='screen',
+                namespace='',
+                parameters=[raptor_dbw_params_file]),
+        ])
+
+
+generate_launch_description()

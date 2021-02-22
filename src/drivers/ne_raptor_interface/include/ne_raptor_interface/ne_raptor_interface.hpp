@@ -22,6 +22,7 @@
 #include <ne_raptor_interface/visibility_control.hpp>
 
 #include <common/types.hpp>
+#include <vehicle_interface/dbw_state_machine.hpp>
 #include <vehicle_interface/platform_interface.hpp>
 
 #include <raptor_dbw_msgs/msg/accelerator_pedal_cmd.hpp>
@@ -64,9 +65,9 @@
 #include <autoware_auto_msgs/srv/autonomy_mode_change.hpp>
 
 #include <std_msgs/msg/bool.hpp>
+#include <motion_common/motion_common.hpp>
 #include <rclcpp/rclcpp.hpp>
 
-#include <cstdint>
 #include <chrono>
 #include <iostream>
 #include <memory>
@@ -117,6 +118,9 @@ using autoware_auto_msgs::msg::VehicleKinematicState;
 using autoware_auto_msgs::srv::AutonomyModeChange;
 using ModeChangeRequest = autoware_auto_msgs::srv::AutonomyModeChange_Request;
 
+using autoware::drivers::vehicle_interface::DbwStateMachine;
+using autoware::drivers::vehicle_interface::DbwState;
+
 namespace autoware
 {
 namespace ne_raptor_interface
@@ -124,53 +128,6 @@ namespace ne_raptor_interface
 static constexpr float32_t KPH_TO_MPS_RATIO = 1000.0F / (60.0F * 60.0F);
 static constexpr float32_t DEGREES_TO_RADIANS = PI / 360.0F;
 static constexpr float32_t STEERING_PCT_TO_DEGREE_RATIO = 500.0F;  // steering range +/- 500 degrees
-
-enum class DbwState
-{
-  DISABLED = 0,
-  ENABLE_REQUESTED = 1,
-  ENABLE_SENT = 2,
-  ENABLED = 3
-};
-
-/// \brief Class for maintaining the DBW state
-class NE_RAPTOR_INTERFACE_PUBLIC DbwStateMachine
-{
-public:
-  /// \brief Default constructor
-  /// \param[in] dbw_disabled_debounce If state = ENABLE_SENT and DBW reports DISABLED, debounce this many msgs  // NOLINT
-  explicit DbwStateMachine(uint16_t dbw_disabled_debounce);
-
-  /// \brief Returns true if state is ENABLED, ENABLE_SENT, or ENABLE_REQUESTED with conditions
-  bool8_t enabled() const;
-
-  /// \brief Returns current internal state
-  /// \return A DbwState object representing the current state
-  DbwState get_state() const;
-
-  /// \brief Notifies the state machine that feedback was received from the DBW system
-  /// \param[in] enabled If true, DBW system reports enabled. If false, DBW system reports disabled
-  void dbw_feedback(bool8_t enabled);
-
-  /// \brief Notifies the state machine that a control command was sent to the DBW system
-  void control_cmd_sent();
-
-  /// \brief Notifies the state machine that a state command was sent to the DBW system
-  void state_cmd_sent();
-
-  /// \brief The user has requested the DBW system to enable (true) or disable (false)
-  /// \param[in] enable If true, request enable. If false, request disable
-  void user_request(bool8_t enable);
-
-private:
-  bool8_t m_first_control_cmd_sent;
-  bool8_t m_first_state_cmd_sent;
-  uint16_t m_disabled_feedback_count;
-  const uint16_t DISABLED_FEEDBACK_THRESH;
-  DbwState m_state;
-
-  void disable_and_reset();
-};
 
 /// \brief Class for interfacing with NE Raptor DBW
 class NE_RAPTOR_INTERFACE_PUBLIC NERaptorInterface
@@ -266,6 +223,9 @@ private:
   float32_t m_acceleration_positive_jerk_limit;
   float32_t m_deceleration_negative_jerk_limit;
   std::unique_ptr<DbwStateMachine> m_dbw_state_machine;
+  uint8_t m_rolling_counter_vsc;
+  uint8_t m_rolling_counter_hlcc;
+  uint8_t m_rolling_counter_vcc;
 
   /* Vehicle Odometry, Vehicle State, &
    * Vehicle Kinematic State are stored
@@ -274,13 +234,12 @@ private:
   VehicleOdometry m_vehicle_odometry;
   VehicleStateReport m_vehicle_state_report;
   VehicleKinematicState m_vehicle_kin_state;
-  bool m_seen_dbw_rpt{false};
-  bool m_seen_brake_rpt{false};
-  bool m_seen_gear_rpt{false};
-  bool m_seen_misc_rpt{false};
-  // bool m_seen_other_acts_rpt{false}; // Not needed
-  bool m_seen_steering_rpt{false};
-  bool m_seen_wheel_spd_rpt{false};
+  bool8_t m_seen_dbw_rpt{false};
+  bool8_t m_seen_brake_rpt{false};
+  bool8_t m_seen_gear_rpt{false};
+  bool8_t m_seen_misc_rpt{false};
+  bool8_t m_seen_steering_rpt{false};
+  bool8_t m_seen_wheel_spd_rpt{false};
   float32_t m_travel_direction{0.0F};
 
   // In case multiple signals arrive at the same time
@@ -295,7 +254,7 @@ private:
   void on_other_act_report(const OtherActuatorsReport::SharedPtr & msg);
   void on_steering_report(const SteeringReport::SharedPtr & msg);
   void on_wheel_spd_report(const WheelSpeedReport::SharedPtr & msg);
-};
+};  // class NERaptorInterface
 }  // namespace ne_raptor_interface
 }  // namespace autoware
 #endif  // NE_RAPTOR_INTERFACE__NE_RAPTOR_INTERFACE_HPP_
