@@ -21,6 +21,7 @@
 #define RAY_GROUND_CLASSIFIER__RAY_GROUND_POINT_CLASSIFIER_HPP_
 
 #include <cmath>
+#include <limits>
 #include <vector>
 
 #include "common/types.hpp"

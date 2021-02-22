@@ -23,6 +23,7 @@
 #include <Eigen/Core>
 
 #include <cmath>
+#include <limits>
 
 using autoware::common::types::float32_t;
 

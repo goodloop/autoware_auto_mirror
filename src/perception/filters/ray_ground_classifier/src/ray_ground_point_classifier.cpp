@@ -17,6 +17,7 @@
 //lint -e537 NOLINT  // cpplint vs pclint
 #include <algorithm>
 #include <cmath>
+#include <limits>
 #include <stdexcept>
 
 #include "common/types.hpp"

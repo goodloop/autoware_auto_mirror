@@ -19,6 +19,7 @@
 
 #include <geometry_msgs/msg/point32.hpp>
 
+#include <limits>
 #include <list>
 #include <vector>
 
