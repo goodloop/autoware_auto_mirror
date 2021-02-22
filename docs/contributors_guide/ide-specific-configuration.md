@@ -16,7 +16,7 @@ The key functionality that will make CLion able to index is the use of a [Compil
 
 Terminal within CLion can be used to build the Autoware.Auto.
 
-@ref building "Building" has the fundamental instructions for this section.
+@ref building "Building Section" has the fundamental information that will be useful in here.
 
 @ref building-compilation-optimization-flags "Building with compilation database" should be followed to generate the Compilation Database.
 
