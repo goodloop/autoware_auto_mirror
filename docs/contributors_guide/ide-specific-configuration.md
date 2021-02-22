@@ -6,45 +6,41 @@ IDE Specific Configuration {#ide-specific-configuration}
 Any IDE or text editor can be used to develop Autoware.Auto. Here, the configuration directives 
 for some can be found.
 
-## CLion {#configuration-clion}
+# CLion {#configuration-clion}
 
+Here, Autoware.Auto was installed @ref installation-no-ade "without ADE".
 The key functionality that will make CLion able to index is the use of a [Compilation Database](https://www.jetbrains.com/help/clion/compilation-database.html).
 
-The `colcon` tool lets users generate the `compile_commands.json` file required for loading them into CLion
-with following argument:
+## Building
 
-```bash
-colcon build --cmake-args -DCMAKE_EXPORT_COMPILE_COMMANDS=1
-```
-
-More information on this file can be found in the [colcon documentation](https://colcon.readthedocs.io/en/released/user/how-to.html#cmake-packages-generating-compile-commands-json).
-
-### Building
-
+Terminal within CLion can be used to build the Autoware.Auto.
 Terminal within CLion can be used to build the Autoware.Auto.
 
 @ref building "Building" has the fundamental instructions for this section.
+
+@ref building-compilation-optimization-flags "Building with compilation database" should be followed to generate the Compilation Database.
+
 In order to be able to debug the code with CLion, the code should be compiled with either `Debug` or
 `RelWithDebInfo` flags. `RelWithDebInfo` flag can be used most of the time without problems.
 
-```bash
+```{bash}
 colcon build --cmake-args -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_EXPORT_COMPILE_COMMANDS=1
 colcon build --cmake-args -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_EXPORT_COMPILE_COMMANDS=1 --packages-up-to <package_name>
 colcon build --cmake-args -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_EXPORT_COMPILE_COMMANDS=1 --packages-select <package_name>
 ```
 
 Also some `bash` aliases can be set in the `~/.bash_aliases` file to simplify the building process.
-```bash
+```{bash}
 alias colcon_build_reldeb="colcon build --cmake-args -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_EXPORT_COMPILE_COMMANDS=1"
 alias colcon_build_reldeb_upto="colcon_build_reldeb --packages-up-to "
 alias colcon_build_reldeb_sel="colcon_build_reldeb --packages-select "
 ```
 
-### Opening up the project in CLion
+## Opening up the project in CLion
 
 Once Autoware.Auto is compiled with the commands above, it can be loaded into CLion.
 
-Navigate to File | Open on the main menu, choose the `compile_commands.json`
+`Navigate to File | Open` in the main menu, then choose `compile_commands.json`
 (it will be located in `AutowareAuto/build/` folder) file and click Open as Project.
 
 By default, the project root is set to the directory containing the compilation database file which,
@@ -63,17 +59,17 @@ And it should look like this:
 
 @image html images/ide-configuration-clion-first-run.png "CLion First Run"
 
-### Running and debugging the nodes
+## Running and debugging the nodes
 
 Now anything that can be run with `ros2 run package_name executable_name <param1> <param2>...` can be debugged.
 
 The nodes that are run with `ros2 launch` command cannot be debugged with following method although it should be
 fairly simple to [have Clion Attach to a Process](https://www.jetbrains.com/help/clion/attaching-to-local-process.html).
 
-#### Example for running the "point_cloud_filter_transform_nodes" from the perception/filters in ROS2 Foxy:**
+### Example for running the "point_cloud_filter_transform_nodes" from the perception/filters in ROS2 Foxy:**
 
 Normally this node can be run with following commands:
-```bash
+```{bash}
 # In my pc, the AutowareAuto is located in ~/adehome/
 # Please update this path with your configuration
 
@@ -117,10 +113,10 @@ In the end it should look like this:
 
 After clicking OK, it should now be possible to click the Triangle or the Bug button to run or debug the application :)
 
-#### Configuring for other nodes
+### Configuring for other nodes
 
 The `Executable` and `Program Arguments` can be modified to make it work with any other node.
 
-## VS Code {#configuration-vscode}
+# VS Code {#configuration-vscode}
 
 Lorem ipsum.
