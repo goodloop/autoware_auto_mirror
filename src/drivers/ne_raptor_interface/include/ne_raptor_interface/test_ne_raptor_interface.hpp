@@ -28,6 +28,16 @@ using autoware::ne_raptor_interface::NERaptorInterface;
 using autoware::drivers::vehicle_interface::DbwStateMachine;
 using autoware::drivers::vehicle_interface::DbwState;
 
+/* Node init values */
+const uint16_t c_ecu_build_num = 0xABCD;
+const float32_t c_front_axle_to_cog = 1.0F;
+const float32_t c_rear_axle_to_cog = 1.0F;
+const float32_t c_steer_to_tire_ratio = 2.0F;
+const float32_t c_accel_limit = 3.0F;
+const float32_t c_decel_limit = 3.0F;
+const float32_t c_pos_jerk_limit = 9.0F;
+const float32_t c_neg_jerk_limit = 9.0F;
+
 class NERaptorInterface_test : public ::testing::Test
 {
 protected:
@@ -35,8 +45,17 @@ protected:
   {
     rclcpp::init(0, nullptr);
     node_ = std::make_shared<rclcpp::Node>("ne_raptor_interface_test_node", "/gtest");
-    ne_raptor_interface_ = std::make_unique<autoware::ne_raptor_interface::NERaptorInterface>(
-      *node_, 0xABCD, 1.0F, 1.0F, 2.0F, 3.0F, 3.0F, 9.0F, 9.0F);
+    ne_raptor_interface_ = std::make_unique<NERaptorInterface>(
+      *node_,
+      c_ecu_build_num,
+      c_front_axle_to_cog,
+      c_rear_axle_to_cog,
+      c_steer_to_tire_ratio,
+      c_accel_limit,
+      c_decel_limit,
+      c_pos_jerk_limit,
+      c_neg_jerk_limit
+    );
   }
 
   void TearDown() override
@@ -46,7 +65,7 @@ protected:
 
 public:
   rclcpp::Node::SharedPtr node_;
-  std::unique_ptr<autoware::ne_raptor_interface::NERaptorInterface> ne_raptor_interface_;
+  std::unique_ptr<NERaptorInterface> ne_raptor_interface_;
 };
 
 template<typename T>
