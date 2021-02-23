@@ -56,6 +56,11 @@ ament_auto_add_library(${PROJECT_NAME}_node SHARED
   ${NE_RAPTOR_INTERFACE_NODE_SRC}
   ${NE_RAPTOR_INTERFACE_NODE_HEADERS}
 )
+
+# TODO(NE_Raptor) : RCLCPP_ERROR_THROTTLE() has built-in old-style casts.
+# TODO(NE_Raptor) : Temporary workaround until this is fixed.
+target_compile_options(${PROJECT_NAME} PRIVATE -Wno-old-style-cast)
+
 autoware_set_compile_options(${PROJECT_NAME}_node)
 rclcpp_components_register_node(${PROJECT_NAME}_node
   PLUGIN "autoware::ne_raptor_interface::NERaptorInterfaceNode"
@@ -67,6 +72,11 @@ if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
   ament_lint_auto_find_test_dependencies()
 
+  add_ros_test(
+    test/ne_raptor_interface_launch.test.py
+    TIMEOUT "30"
+  )
+
   # Unit tests
   set(TEST_SOURCES test/test_ne_raptor_interface.cpp)
   set(TEST_NE_RAPTOR_INTERFACE_EXE test_ne_raptor_interface)
@@ -76,6 +86,8 @@ if(BUILD_TESTING)
 endif()
 
 # ament package generation and installing
-ament_auto_package(INSTALL_TO_SHARE
+ament_auto_package(
+  INSTALL_TO_SHARE
   launch
+  param
 )
