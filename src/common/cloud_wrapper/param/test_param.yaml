@@ -1,0 +1,5 @@
+cloud_wrapper:
+  ros__parameters:
+    name_topic_cloud_input: "/lidar_front/points_raw"
+    name_topic_cloud_output: "/cloud_wrapper/cloud_test"
+    name_topic_cloud_output_synth: "/cloud_wrapper/cloud_test_synth"
