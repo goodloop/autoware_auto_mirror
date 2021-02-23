@@ -13,6 +13,17 @@
 // limitations under the License.
 
 #include "ne_raptor_interface/test_ne_raptor_interface.hpp"
+#include <memory>
+
+/* Node init values */
+const uint16_t c_ecu_build_num = 0xABCD;
+const float32_t c_front_axle_to_cog = 1.0F;
+const float32_t c_rear_axle_to_cog = 1.0F;
+const float32_t c_steer_to_tire_ratio = 2.0F;
+const float32_t c_accel_limit = 3.0F;
+const float32_t c_decel_limit = 3.0F;
+const float32_t c_pos_jerk_limit = 9.0F;
+const float32_t c_neg_jerk_limit = 9.0F;
 
 /* Test the DBW Commands:
  * Autoware -> NE Raptor
@@ -34,13 +45,32 @@ TEST(test_ne_raptor_interface, test_cmd_raw_control)
 {
   /* Not supported */
   RawControlCommand rcc;
-  // rcc.stamp = rclcpp::Time::now();
+  rclcpp::Clock myClock{RCL_SYSTEM_TIME};
+  rclcpp::init(0, nullptr);
+
+  rclcpp::Node::SharedPtr test_node{
+    std::make_shared<rclcpp::Node>("ne_raptor_interface_test_node", "/gtest")
+  };
+  NERaptorInterface test_interface{
+    *test_node,
+    c_ecu_build_num,
+    c_front_axle_to_cog,
+    c_rear_axle_to_cog,
+    c_steer_to_tire_ratio,
+    c_accel_limit,
+    c_decel_limit,
+    c_pos_jerk_limit,
+    c_neg_jerk_limit,
+  };
+
+  rcc.stamp = myClock.now();
   rcc.throttle = 0;
   rcc.brake = 0;
   rcc.front_steer = 0;
   rcc.rear_steer = 0;
 
-  // EXPECT_ANY_THROW(NERaptorInterface::send_control_command(rcc));
+  // RCLCPP_ERROR does not throw exeptions, just prints warnings for logging
+  EXPECT_FALSE(test_interface.send_control_command(rcc));
 }
 
 TEST(test_ne_raptor_interface, test_cmd_vehicle_control)

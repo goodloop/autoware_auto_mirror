@@ -49,7 +49,8 @@ NERaptorInterface::NERaptorInterface(
   m_dbw_state_machine(new DbwStateMachine{3}),
   m_rolling_counter_vsc{0},
   m_rolling_counter_hlcc{0},
-  m_rolling_counter_vcc{0}
+  m_rolling_counter_vcc{0},
+  m_clock{RCL_SYSTEM_TIME}
 {
   // Publishers (to Raptor DBW)
   m_accel_cmd_pub = node.create_publisher<AcceleratorPedalCmd>("accelerator_pedal_cmd", 10);
@@ -150,7 +151,9 @@ bool8_t NERaptorInterface::send_state_command(const VehicleStateCommand & msg)
       break;
     default:  // error
       gc.cmd.gear = Gear::NONE;
-      RCLCPP_ERROR(m_logger, "Received command for invalid gear state.");
+      RCLCPP_ERROR_THROTTLE(
+        m_logger, m_clock, CLOCK_1_SEC,
+        "Received command for invalid gear state.");
       break;
   }
 
@@ -183,7 +186,9 @@ bool8_t NERaptorInterface::send_state_command(const VehicleStateCommand & msg)
       break;
     default:
       mc.cmd.value = TurnSignal::SNA;
-      RCLCPP_ERROR(m_logger, "Received command for invalid turn signal state.");
+      RCLCPP_ERROR_THROTTLE(
+        m_logger, m_clock, CLOCK_1_SEC,
+        "Received command for invalid turn signal state.");
       break;
   }
 
@@ -198,7 +203,9 @@ bool8_t NERaptorInterface::send_state_command(const VehicleStateCommand & msg)
       break;
     default:
       mc.high_beam_cmd.status = HighBeam::RESERVED;
-      RCLCPP_ERROR(m_logger, "Received command for invalid headlight state.");
+      RCLCPP_ERROR_THROTTLE(
+        m_logger, m_clock, CLOCK_1_SEC,
+        "Received command for invalid headlight state.");
       break;
   }
 
@@ -218,7 +225,9 @@ bool8_t NERaptorInterface::send_state_command(const VehicleStateCommand & msg)
       break;
     default:
       mc.front_wiper_cmd.status = WiperFront::SNA;
-      RCLCPP_ERROR(m_logger, "Received command for invalid wiper state.");
+      RCLCPP_ERROR_THROTTLE(
+        m_logger, m_clock, CLOCK_1_SEC,
+        "Received command for invalid wiper state.");
       break;
   }
 
@@ -292,7 +301,9 @@ bool8_t NERaptorInterface::send_control_command(const HighLevelControlCommand & 
 bool8_t NERaptorInterface::send_control_command(const RawControlCommand & msg)
 {
   (void)msg;
-  RCLCPP_ERROR(m_logger, "NE Raptor does not support sending raw pedal controls directly.");
+  RCLCPP_ERROR_THROTTLE(
+    m_logger, m_clock, CLOCK_1_SEC,
+    "NE Raptor does not support sending raw pedal controls directly.");
   return false;
 }
 
@@ -366,7 +377,9 @@ bool8_t NERaptorInterface::handle_mode_change_request(ModeChangeRequest::SharedP
     m_dbw_state_machine->user_request(true);
     return true;
   } else {
-    RCLCPP_ERROR(m_logger, "Got invalid autonomy mode request value.");
+    RCLCPP_ERROR_THROTTLE(
+      m_logger, m_clock, CLOCK_1_SEC,
+      "Got invalid autonomy mode request value.");
     return false;
   }
 }

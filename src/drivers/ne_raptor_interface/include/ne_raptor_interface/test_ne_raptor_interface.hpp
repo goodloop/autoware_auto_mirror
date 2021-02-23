@@ -18,6 +18,7 @@
 #include <gtest/gtest.h>
 
 #include <ne_raptor_interface/ne_raptor_interface.hpp>
+#include <rclcpp/clock.hpp>
 
 #include <cmath>
 #include <cstdint>

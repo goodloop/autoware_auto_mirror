@@ -67,6 +67,7 @@
 #include <std_msgs/msg/bool.hpp>
 #include <motion_common/motion_common.hpp>
 #include <rclcpp/rclcpp.hpp>
+#include <rclcpp/clock.hpp>
 
 #include <chrono>
 #include <iostream>
@@ -128,7 +129,7 @@ namespace ne_raptor_interface
 static constexpr float32_t KPH_TO_MPS_RATIO = 1000.0F / (60.0F * 60.0F);
 static constexpr float32_t DEGREES_TO_RADIANS = PI / 360.0F;
 static constexpr float32_t STEERING_PCT_TO_DEGREE_RATIO = 500.0F;  // steering range +/- 500 degrees
-
+static constexpr int64_t CLOCK_1_SEC = 1000;  // duration in milliseconds
 /// \brief Class for interfacing with NE Raptor DBW
 class NE_RAPTOR_INTERFACE_PUBLIC NERaptorInterface
   : public ::autoware::drivers::vehicle_interface::PlatformInterface
@@ -226,6 +227,7 @@ private:
   uint8_t m_rolling_counter_vsc;
   uint8_t m_rolling_counter_hlcc;
   uint8_t m_rolling_counter_vcc;
+  rclcpp::Clock m_clock;
 
   /* Vehicle Odometry, Vehicle State, &
    * Vehicle Kinematic State are stored
