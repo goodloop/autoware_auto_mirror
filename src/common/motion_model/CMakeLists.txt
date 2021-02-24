@@ -25,10 +25,12 @@ include_directories(
 ament_auto_add_library(${PROJECT_NAME} SHARED
   include/motion_model/motion_model.hpp
   include/motion_model/constant_velocity.hpp
+  include/motion_model/constant_velocity_new.hpp
   include/motion_model/constant_acceleration.hpp
   include/motion_model/catr_core.hpp
   include/motion_model/catr_model.hpp
   src/constant_velocity.cpp
+  src/constant_velocity_new.cpp
   src/constant_acceleration.cpp
   src/catr_core.cpp
   src/catr_model.cpp
@@ -51,6 +53,10 @@ if(BUILD_TESTING)
   target_include_directories(${MOTION_MODEL_GTEST} PRIVATE "test/include" "include")
   target_link_libraries(${MOTION_MODEL_GTEST} ${PROJECT_NAME})
   ament_target_dependencies(${MOTION_MODEL_GTEST})
+  ament_add_google_benchmark(simple_benchmark test/bench_constant_velocity.cpp)
+  target_include_directories(simple_benchmark PRIVATE "include")
+  target_link_libraries(simple_benchmark ${PROJECT_NAME})
+  ament_target_dependencies(simple_benchmark)
 endif()
 
 # Ament Exporting
