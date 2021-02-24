@@ -5,7 +5,9 @@ Installation with ADE for arm64 Systems {#installation-ade-arm64}
 
 # Goals {#installation-and-development-goals-arm64}
 
-This article demonstrates how to launch AutowareAuto using ADE for `arm64` systems and those wishing to develop using `arm64`. This document will cover both native and non-native systems using ADE.
+This article demonstrates how to launch AutowareAuto using ADE for `arm64` systems and those
+wishing to develop using `arm64`. 
+This document will cover both native and non-native systems using ADE.
 
 # Native arm64 System {#native-arm64-installation}
 
@@ -14,7 +16,9 @@ based system.
 
 ## Prerequisites
 
-Ensure that ADE has been installed and the `.adehome` file has been created. To complete this, follow the instructions in @ref installation-and-development-install-ade then subsequently @ref installation-and-development-setup-ade-home-and-project-checkout.
+Ensure that ADE has been installed and the `.adehome` file has been created. To complete this,
+follow the instructions in @ref installation-and-development-install-ade then subsequently @ref
+installation-and-development-setup-ade-home-and-project-checkout.
 
 ## Launch ADE arm64 Docker
 
@@ -92,7 +96,8 @@ aarch64
 Additional checks include running the `buildx` option with Docker.
 This should output a larger variety of build types available to Docker.
 
-@note There will be an initial warning that the architecture of the image Docker is trying to bring up is different to the architecture of the system.
+@note There will be an initial warning that the architecture of the image Docker is trying to bring
+up is different to the architecture of the system.
 ```
 WARNING: The requested image's platform (linux/arm64) does not match the detected host platform (linux/amd64) and no specific platform was requested
 ```
@@ -103,3 +108,7 @@ Now that the set-up is complete, the `arm64` ADE image can be launched with no i
 ```
 $ ade --rc .aderc-arm64 start --update --enter
 ```
+
+@warning Launching ADE in the non-native environment leads to incredibly reduced performance as
+compared to a native configuration due to the binary translation that is happening within Docker;
+approximately 5x that of a native system.
