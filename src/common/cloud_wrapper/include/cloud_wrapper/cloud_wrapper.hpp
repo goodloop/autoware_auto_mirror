@@ -24,6 +24,7 @@
 #include <sensor_msgs/msg/point_cloud2.hpp>
 #include <vector>
 #include <exception>
+#include <memory>
 #include "common/types.hpp"
 #include "types_point_cloud2.hpp"
 
@@ -38,6 +39,8 @@ template<typename TypePoint>
 class CLOUD_WRAPPER_PUBLIC CloudWrapper
 {
 public:
+  using Ptr = std::shared_ptr<CloudWrapper>;
+  using ConstPtr = const std::shared_ptr<CloudWrapper>;
   using iterator = typename std::vector<TypePoint>::iterator;
   using const_iterator = typename std::vector<TypePoint>::const_iterator;
 
