@@ -59,7 +59,7 @@ struct __attribute__((packed)) CLOUD_WRAPPER_PUBLIC PointXYZ
   float32_t z{0.0f};
 };
 
-static const std::vector<PointField> fields_PointXYZ{
+CLOUD_WRAPPER_PUBLIC extern const std::vector<PointField> fields_PointXYZ{
   make_point_field("x", PointField::FLOAT32, 0, 1),
   make_point_field("y", PointField::FLOAT32, 4, 1),
   make_point_field("z", PointField::FLOAT32, 8, 1)
@@ -77,7 +77,7 @@ struct __attribute__((packed)) CLOUD_WRAPPER_PUBLIC PointXYZId
   uint16_t id{0};
 };
 
-static const std::vector<PointField> fields_PointXYZId{
+CLOUD_WRAPPER_PUBLIC extern const std::vector<PointField> fields_PointXYZId{
   make_point_field("x", PointField::FLOAT32, 0, 1),
   make_point_field("y", PointField::FLOAT32, 4, 1),
   make_point_field("z", PointField::FLOAT32, 8, 1),
@@ -96,7 +96,7 @@ struct __attribute__((packed)) CLOUD_WRAPPER_PUBLIC PointXYZI
   float32_t intensity{0.0f};
 };
 
-static const std::vector<PointField> fields_PointXYZI{
+CLOUD_WRAPPER_PUBLIC extern const std::vector<PointField> fields_PointXYZI{
   make_point_field("x", PointField::FLOAT32, 0, 1),
   make_point_field("y", PointField::FLOAT32, 4, 1),
   make_point_field("z", PointField::FLOAT32, 8, 1),
@@ -116,7 +116,7 @@ struct __attribute__((packed)) CLOUD_WRAPPER_PUBLIC PointXYZIId
   uint16_t id{0};
 };
 
-static const std::vector<PointField> fields_PointXYZIId{
+CLOUD_WRAPPER_PUBLIC extern const std::vector<PointField> fields_PointXYZIId{
   make_point_field("x", PointField::FLOAT32, 0, 1),
   make_point_field("y", PointField::FLOAT32, 4, 1),
   make_point_field("z", PointField::FLOAT32, 8, 1),
@@ -141,7 +141,7 @@ struct __attribute__((packed)) CLOUD_WRAPPER_PUBLIC PointLgsvl
   float64_t timestamp{0.0};
 };
 
-static const std::vector<PointField> fields_PointLgsvl{
+CLOUD_WRAPPER_PUBLIC extern const std::vector<PointField> fields_PointLgsvl{
   make_point_field("x", PointField::FLOAT32, 0, 1),
   make_point_field("y", PointField::FLOAT32, 4, 1),
   make_point_field("z", PointField::FLOAT32, 8, 1),
