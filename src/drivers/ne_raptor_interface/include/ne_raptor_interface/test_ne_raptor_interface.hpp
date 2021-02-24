@@ -66,6 +66,7 @@ protected:
 public:
   rclcpp::Node::SharedPtr node_;
   std::unique_ptr<NERaptorInterface> ne_raptor_interface_;
+  rclcpp::Clock test_clock{RCL_SYSTEM_TIME};
 };
 
 template<typename T>

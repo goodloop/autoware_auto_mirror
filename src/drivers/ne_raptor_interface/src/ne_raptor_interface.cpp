@@ -106,18 +106,12 @@ bool8_t NERaptorInterface::update(std::chrono::nanoseconds timeout)
 
 bool8_t NERaptorInterface::send_state_command(const VehicleStateCommand & msg)
 {
-  bool8_t is_dbw_enabled = m_dbw_state_machine->enabled() ? true : false;
-  GearCmd gc;
-  GlobalEnableCmd gec;
-  MiscCmd mc;
-
-  // Set enable variables
-  gc.enable = is_dbw_enabled;
-  gec.global_enable = is_dbw_enabled;
-  gec.enable_joystick_limits = is_dbw_enabled;
-  mc.block_standard_cruise_buttons = is_dbw_enabled;
-  mc.block_adaptive_cruise_buttons = is_dbw_enabled;
-  mc.block_turn_signal_stalk = is_dbw_enabled;
+  bool8_t ret{true};
+  ModeChangeRequest::SharedPtr t_mode;
+  // keep previous for Enable commands, if valid Enable command not received
+  static GearCmd gc;
+  static GlobalEnableCmd gec;
+  static MiscCmd mc;
 
   // Set rolling counters
   if (m_rolling_counter_vsc < 0xFF) {
@@ -154,6 +148,7 @@ bool8_t NERaptorInterface::send_state_command(const VehicleStateCommand & msg)
       RCLCPP_ERROR_THROTTLE(
         m_logger, m_clock, CLOCK_1_SEC,
         "Received command for invalid gear state.");
+      ret = false;
       break;
   }
 
@@ -189,6 +184,7 @@ bool8_t NERaptorInterface::send_state_command(const VehicleStateCommand & msg)
       RCLCPP_ERROR_THROTTLE(
         m_logger, m_clock, CLOCK_1_SEC,
         "Received command for invalid turn signal state.");
+      ret = false;
       break;
   }
 
@@ -206,6 +202,7 @@ bool8_t NERaptorInterface::send_state_command(const VehicleStateCommand & msg)
       RCLCPP_ERROR_THROTTLE(
         m_logger, m_clock, CLOCK_1_SEC,
         "Received command for invalid headlight state.");
+      ret = false;
       break;
   }
 
@@ -228,6 +225,53 @@ bool8_t NERaptorInterface::send_state_command(const VehicleStateCommand & msg)
       RCLCPP_ERROR_THROTTLE(
         m_logger, m_clock, CLOCK_1_SEC,
         "Received command for invalid wiper state.");
+      ret = false;
+      break;
+  }
+
+  // Request DBW mode change
+  /* TODO(NE_Raptor) : calling function handle_mode_change_request
+   * crashes the unit tester for some reason, but pulling it apart
+   * & using the pieces here works fine.
+   */
+  switch (msg.mode) {
+    case VehicleStateCommand::MODE_NO_COMMAND:
+      // No change requested: keep previous
+      break;
+    case VehicleStateCommand::MODE_AUTONOMOUS:
+      /* TODO(NE_Raptor) : This isn't working
+      t_mode->mode = ModeChangeRequest::MODE_AUTONOMOUS;
+      handle_mode_change_request(t_mode); */
+      m_dbw_state_machine->user_request(true);
+      m_dbw_state_machine->control_cmd_sent();
+      gc.enable = true;
+      gec.global_enable = true;
+      gec.enable_joystick_limits = true;
+      mc.block_standard_cruise_buttons = true;
+      mc.block_adaptive_cruise_buttons = true;
+      mc.block_turn_signal_stalk = true;
+      break;
+    case VehicleStateCommand::MODE_MANUAL:
+      /* TODO(NE_Raptor) : This isn't working
+      t_mode->mode = ModeChangeRequest::MODE_MANUAL;
+      handle_mode_change_request(t_mode); */
+      m_dbw_state_machine->user_request(false);
+      m_dbw_state_machine->control_cmd_sent();
+      gc.enable = false;
+      gec.global_enable = false;
+      gec.enable_joystick_limits = false;
+      mc.block_standard_cruise_buttons = false;
+      mc.block_adaptive_cruise_buttons = false;
+      mc.block_turn_signal_stalk = false;
+      break;
+    default:
+      /* TODO(NE_Raptor) : This isn't working
+      t_mode->mode = msg.mode;
+      ret = handle_mode_change_request(t_mode); */
+      RCLCPP_ERROR_THROTTLE(
+        m_logger, m_clock, CLOCK_1_SEC,
+        "Got invalid autonomy mode request value.");
+      ret = false;
       break;
   }
 
@@ -235,8 +279,7 @@ bool8_t NERaptorInterface::send_state_command(const VehicleStateCommand & msg)
   m_enable_cmd_pub->publish(gec);
   m_misc_cmd_pub->publish(mc);
 
-  m_dbw_state_machine->state_cmd_sent();
-  return true;
+  return ret;
 }
 
 /* Apparently HighLevelControlCommand will be obsolete soon.
@@ -244,7 +287,7 @@ bool8_t NERaptorInterface::send_state_command(const VehicleStateCommand & msg)
 bool8_t NERaptorInterface::send_control_command(const HighLevelControlCommand & msg)
 {
   bool8_t is_dbw_enabled = m_dbw_state_machine->enabled() ? true : false;
-  float32_t velocity_checked = 0.0F;
+  float32_t velocity_checked{0.0F};
   AcceleratorPedalCmd apc;
   BrakeCmd bc;
   SteeringCmd sc;
@@ -310,7 +353,7 @@ bool8_t NERaptorInterface::send_control_command(const RawControlCommand & msg)
 bool8_t NERaptorInterface::send_control_command(const VehicleControlCommand & msg)
 {
   bool8_t is_dbw_enabled = m_dbw_state_machine->enabled() ? true : false;
-  float32_t velocity_checked = 0.0F;
+  float32_t velocity_checked{0.0F};
   AcceleratorPedalCmd apc;
   BrakeCmd bc;
   SteeringCmd sc;
@@ -372,9 +415,11 @@ bool8_t NERaptorInterface::handle_mode_change_request(ModeChangeRequest::SharedP
 {
   if (request->mode == ModeChangeRequest::MODE_MANUAL) {
     m_dbw_state_machine->user_request(false);
+    m_dbw_state_machine->control_cmd_sent();
     return true;
   } else if (request->mode == ModeChangeRequest::MODE_AUTONOMOUS) {
     m_dbw_state_machine->user_request(true);
+    m_dbw_state_machine->control_cmd_sent();
     return true;
   } else {
     RCLCPP_ERROR_THROTTLE(
@@ -403,18 +448,20 @@ void NERaptorInterface::on_brake_report(const BrakeReport::SharedPtr & msg)
     case ParkingBrake::OFF:
     case ParkingBrake::TRANS:
       m_vehicle_state_report.hand_brake = false;
+      m_seen_brake_rpt = true;
       break;
     case ParkingBrake::ON:
       m_vehicle_state_report.hand_brake = true;
+      m_seen_brake_rpt = true;
       break;
     case ParkingBrake::FAULT:
     default:
       m_vehicle_state_report.hand_brake = false;
-      RCLCPP_WARN(m_logger, "Received invalid parking brake value from NE Raptor DBW.");
+      RCLCPP_WARN_THROTTLE(
+        m_logger, m_clock, CLOCK_1_SEC,
+        "Received invalid parking brake value from NE Raptor DBW.");
       break;
   }
-
-  m_seen_brake_rpt = true;
 }
 
 void NERaptorInterface::on_gear_report(const GearReport::SharedPtr & msg)
@@ -423,37 +470,42 @@ void NERaptorInterface::on_gear_report(const GearReport::SharedPtr & msg)
   switch (msg->state.gear) {
     case Gear::PARK:
       m_vehicle_state_report.gear = VehicleStateReport::GEAR_PARK;
+      m_seen_gear_rpt = true;
       break;
     case Gear::REVERSE:
       m_vehicle_state_report.gear = VehicleStateReport::GEAR_REVERSE;
+      m_seen_gear_rpt = true;
       break;
     case Gear::NEUTRAL:
       m_vehicle_state_report.gear = VehicleStateReport::GEAR_NEUTRAL;
+      m_seen_gear_rpt = true;
       break;
     case Gear::DRIVE:
       m_vehicle_state_report.gear = VehicleStateReport::GEAR_DRIVE;
+      m_seen_gear_rpt = true;
       break;
     case Gear::LOW:
       m_vehicle_state_report.gear = VehicleStateReport::GEAR_LOW;
+      m_seen_gear_rpt = true;
       break;
     case Gear::NONE:
     default:
       m_vehicle_state_report.gear = 0;
-      RCLCPP_WARN(m_logger, "Received invalid gear value from NE Raptor DBW.");
+      RCLCPP_WARN_THROTTLE(
+        m_logger, m_clock, CLOCK_1_SEC,
+        "Received invalid gear value from NE Raptor DBW.");
       break;
   }
-
-  m_seen_gear_rpt = true;
 }
 
 void NERaptorInterface::on_misc_report(const MiscReport::SharedPtr & msg)
 {
   const float32_t speed_mps = msg->vehicle_speed * KPH_TO_MPS_RATIO * m_travel_direction;
   const float32_t wheelbase = m_rear_axle_to_cog + m_front_axle_to_cog;
-  float32_t delta;
-  float32_t beta;
-  float32_t prev_speed_mps = 0.0F;
-  float32_t dT;
+  float32_t delta{0.0F};
+  float32_t beta{0.0F};
+  float32_t prev_speed_mps{0.0F};
+  float32_t dT{0.0F};
 
   std::lock_guard<std::mutex> guard_vo(m_vehicle_odometry_mutex);
   m_vehicle_odometry.velocity_mps = speed_mps;
@@ -493,7 +545,9 @@ void NERaptorInterface::on_misc_report(const MiscReport::SharedPtr & msg)
     1000000000.0F;
 
   if (dT < 0.0F) {
-    RCLCPP_WARN(m_logger, "Received inconsistent timestamps.");
+    RCLCPP_WARN_THROTTLE(
+      m_logger, m_clock, CLOCK_1_SEC,
+      "Received inconsistent timestamps.");
   }
 
   m_vehicle_kin_state.header.stamp = msg->header.stamp;
@@ -534,7 +588,9 @@ void NERaptorInterface::on_other_act_report(const OtherActuatorsReport::SharedPt
     case TurnSignal::SNA:
     default:
       m_vehicle_state_report.blinker = 0;
-      RCLCPP_WARN(m_logger, "Received invalid turn signal value from NE Raptor DBW.");
+      RCLCPP_WARN_THROTTLE(
+        m_logger, m_clock, CLOCK_1_SEC,
+        "Received invalid turn signal value from NE Raptor DBW.");
       break;
   }
 
@@ -549,7 +605,9 @@ void NERaptorInterface::on_other_act_report(const OtherActuatorsReport::SharedPt
     // case HighBeamState::SNA:
     default:
       m_vehicle_state_report.headlight = 0;
-      RCLCPP_WARN(m_logger, "Received invalid headlight value from NE Raptor DBW.");
+      RCLCPP_WARN_THROTTLE(
+        m_logger, m_clock, CLOCK_1_SEC,
+        "Received invalid headlight value from NE Raptor DBW.");
       break;
   }
 
@@ -576,7 +634,9 @@ void NERaptorInterface::on_other_act_report(const OtherActuatorsReport::SharedPt
     case WiperFront::SNA:
     default:
       m_vehicle_state_report.wiper = 0;
-      RCLCPP_WARN(m_logger, "Received invalid wiper value from NE Raptor DBW.");
+      RCLCPP_WARN_THROTTLE(
+        m_logger, m_clock, CLOCK_1_SEC,
+        "Received invalid wiper value from NE Raptor DBW.");
       break;
   }
 
@@ -590,7 +650,9 @@ void NERaptorInterface::on_other_act_report(const OtherActuatorsReport::SharedPt
     case HornState::SNA:
     default:
       m_vehicle_state_report.horn = false;
-      RCLCPP_WARN(m_logger, "Received invalid horn value from NE Raptor DBW.");
+      RCLCPP_WARN_THROTTLE(
+        m_logger, m_clock, CLOCK_1_SEC,
+        "Received invalid horn value from NE Raptor DBW.");
       break;
   }
 
@@ -647,7 +709,9 @@ void NERaptorInterface::on_wheel_spd_report(const WheelSpeedReport::SharedPtr & 
   } else {
     // Wheels are moving different directions. This is probably bad.
     m_travel_direction = 0.0F;
-    RCLCPP_WARN(m_logger, "Received inconsistent wheel speeds.");
+    RCLCPP_WARN_THROTTLE(
+      m_logger, m_clock, CLOCK_1_SEC,
+      "Received inconsistent wheel speeds.");
   }
 
   m_seen_wheel_spd_rpt = true;
