@@ -109,9 +109,9 @@ bool8_t NERaptorInterface::send_state_command(const VehicleStateCommand & msg)
   bool8_t ret{true};
   ModeChangeRequest::SharedPtr t_mode;
   // keep previous for Enable commands, if valid Enable command not received
-  static GearCmd gc;
-  static GlobalEnableCmd gec;
-  static MiscCmd mc;
+  static GearCmd gc{};
+  static GlobalEnableCmd gec{};
+  static MiscCmd mc{};
 
   // Set rolling counters
   if (m_rolling_counter_vsc < 0xFF) {
@@ -288,9 +288,9 @@ bool8_t NERaptorInterface::send_control_command(const HighLevelControlCommand & 
 {
   bool8_t is_dbw_enabled = m_dbw_state_machine->enabled() ? true : false;
   float32_t velocity_checked{0.0F};
-  AcceleratorPedalCmd apc;
-  BrakeCmd bc;
-  SteeringCmd sc;
+  AcceleratorPedalCmd apc{};
+  BrakeCmd bc{};
+  SteeringCmd sc{};
 
   // Set enable variables
   apc.enable = is_dbw_enabled;
@@ -354,9 +354,10 @@ bool8_t NERaptorInterface::send_control_command(const VehicleControlCommand & ms
 {
   bool8_t is_dbw_enabled = m_dbw_state_machine->enabled() ? true : false;
   float32_t velocity_checked{0.0F};
-  AcceleratorPedalCmd apc;
-  BrakeCmd bc;
-  SteeringCmd sc;
+  float32_t angle_checked{0.0F};
+  AcceleratorPedalCmd apc{};
+  BrakeCmd bc{};
+  SteeringCmd sc{};
 
   // Set enable variables
   apc.enable = is_dbw_enabled;
@@ -398,9 +399,18 @@ bool8_t NERaptorInterface::send_control_command(const VehicleControlCommand & ms
     velocity_checked = std::fabs(msg.velocity_mps);
   }
 
+  // Limit steering angle to valid range
+  angle_checked = msg.front_wheel_angle_rad / (DEGREES_TO_RADIANS * m_steer_to_tire_ratio);
+  if (angle_checked > STEERING_MAX_ANGLE) {
+    angle_checked = STEERING_MAX_ANGLE;
+  }
+  if (angle_checked < (-1.0F * STEERING_MAX_ANGLE)) {
+    angle_checked = -1.0F * STEERING_MAX_ANGLE;
+  }
+
   // Send commands
   apc.speed_cmd = velocity_checked;
-  sc.angle_cmd = msg.front_wheel_angle_rad / (DEGREES_TO_RADIANS * m_steer_to_tire_ratio);
+  sc.angle_cmd = angle_checked;
 
   // Publish commands to NE Raptor DBW
   m_accel_cmd_pub->publish(apc);
@@ -413,20 +423,20 @@ bool8_t NERaptorInterface::send_control_command(const VehicleControlCommand & ms
 
 bool8_t NERaptorInterface::handle_mode_change_request(ModeChangeRequest::SharedPtr request)
 {
+  bool8_t ret{true};
   if (request->mode == ModeChangeRequest::MODE_MANUAL) {
     m_dbw_state_machine->user_request(false);
     m_dbw_state_machine->control_cmd_sent();
-    return true;
   } else if (request->mode == ModeChangeRequest::MODE_AUTONOMOUS) {
     m_dbw_state_machine->user_request(true);
     m_dbw_state_machine->control_cmd_sent();
-    return true;
   } else {
     RCLCPP_ERROR_THROTTLE(
       m_logger, m_clock, CLOCK_1_SEC,
       "Got invalid autonomy mode request value.");
-    return false;
+    ret = false;
   }
+  return ret;
 }
 
 void NERaptorInterface::on_dbw_state_report(const std_msgs::msg::Bool::SharedPtr & msg)
@@ -448,11 +458,9 @@ void NERaptorInterface::on_brake_report(const BrakeReport::SharedPtr & msg)
     case ParkingBrake::OFF:
     case ParkingBrake::TRANS:
       m_vehicle_state_report.hand_brake = false;
-      m_seen_brake_rpt = true;
       break;
     case ParkingBrake::ON:
       m_vehicle_state_report.hand_brake = true;
-      m_seen_brake_rpt = true;
       break;
     case ParkingBrake::FAULT:
     default:
@@ -462,6 +470,7 @@ void NERaptorInterface::on_brake_report(const BrakeReport::SharedPtr & msg)
         "Received invalid parking brake value from NE Raptor DBW.");
       break;
   }
+  m_seen_brake_rpt = true;
 }
 
 void NERaptorInterface::on_gear_report(const GearReport::SharedPtr & msg)
@@ -470,23 +479,18 @@ void NERaptorInterface::on_gear_report(const GearReport::SharedPtr & msg)
   switch (msg->state.gear) {
     case Gear::PARK:
       m_vehicle_state_report.gear = VehicleStateReport::GEAR_PARK;
-      m_seen_gear_rpt = true;
       break;
     case Gear::REVERSE:
       m_vehicle_state_report.gear = VehicleStateReport::GEAR_REVERSE;
-      m_seen_gear_rpt = true;
       break;
     case Gear::NEUTRAL:
       m_vehicle_state_report.gear = VehicleStateReport::GEAR_NEUTRAL;
-      m_seen_gear_rpt = true;
       break;
     case Gear::DRIVE:
       m_vehicle_state_report.gear = VehicleStateReport::GEAR_DRIVE;
-      m_seen_gear_rpt = true;
       break;
     case Gear::LOW:
       m_vehicle_state_report.gear = VehicleStateReport::GEAR_LOW;
-      m_seen_gear_rpt = true;
       break;
     case Gear::NONE:
     default:
@@ -496,6 +500,7 @@ void NERaptorInterface::on_gear_report(const GearReport::SharedPtr & msg)
         "Received invalid gear value from NE Raptor DBW.");
       break;
   }
+  m_seen_gear_rpt = true;
 }
 
 void NERaptorInterface::on_misc_report(const MiscReport::SharedPtr & msg)

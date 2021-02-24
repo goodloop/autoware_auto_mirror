@@ -65,6 +65,7 @@ Current version of New Eagle's Raptor DBW Node is intended for R&D only!
 - Catches invalid autonomy mode change requests.
 - Catches invalid changes in speed
   - Cannot go forward while in reverse gear/go backwards while in a forward gear. Defaults to commanding speed = 0 in such cases.
+- Constrains wheel angle commands to a valid range
 - Catches invalid gear, wiper, headlight, & turn signal state requests.
   - Only high-beam headlight control is supported.
   - Hazard lights are supported.
