@@ -81,6 +81,12 @@ stages:
       '
     - 'source /opt/ros/$ROS_DISTRO/setup.bash'
     - 'vcs import < autoware.auto.$ROS_DISTRO.repos'
+    # Temporary work-around for ament_acado
+    - 'rm -rf src/external/ament_acado'
+    - 'curl -L -o ros-foxy-ament-acado_1.0.0-0focal_$ARCH.deb https://gitlab.com/autowarefoundation/autoware.auto/ament_acado/-/jobs/artifacts/main/raw/ros-foxy-ament-acado_1.0.0-0focal_$ARCH.deb?job=build_debian_$ARCH'
+    - 'dpkg -i ros-foxy-ament-acado*.deb'
+    - 'rm ros-foxy-ament-acado*.deb'
+    # End temporary work-around for ament_acado
     - 'rosdep init && rosdep update'
     - 'rosdep install -y --from . --ignore-src --rosdistro $ROS_DISTRO'
     - 'source /opt/ros/$ROS_DISTRO/setup.bash'
@@ -101,6 +107,12 @@ stages:
     - 'git lfs install'
     - 'git lfs pull --include="*" --exclude=""'
     - 'vcs import < autoware.auto.$ROS_DISTRO.repos'
+    # Temporary work-around for ament_acado
+    - 'rm -rf src/external/ament_acado'
+    - 'curl -L -o ros-foxy-ament-acado_1.0.0-0focal_${ARCH}.deb https://gitlab.com/autowarefoundation/autoware.auto/ament_acado/-/jobs/artifacts/main/raw/ros-foxy-ament-acado_1.0.0-0focal_${ARCH}.deb?job=build_debian_${ARCH}'
+    - 'dpkg -i ros-foxy-ament-acado*.deb'
+    - 'rm ros-foxy-ament-acado*.deb'
+    # End temporary work-around for ament_acado
     # build and test
     - 'colcon build
            --merge-install
@@ -234,6 +246,7 @@ ade_arm64_foxy:
 build_barebones_amd64_foxy:
   image: ubuntu:focal
   variables:
+    ARCH: amd64
     RMW_IMPLEMENTATION: rmw_fastrtps_cpp
     ROS_DISTRO: foxy
   <<: *build_barebones_base
@@ -245,6 +258,7 @@ build_barebones_arm64_foxy:
   tags:
     - arm64
   variables:
+    ARCH: arm64
     RMW_IMPLEMENTATION: rmw_fastrtps_cpp
     ROS_DISTRO: foxy
   <<: *build_barebones_base
@@ -309,6 +323,12 @@ coverage:
     - 'git lfs install'
     - 'git lfs pull --include="*" --exclude=""'
     - 'vcs import < autoware.auto.$ROS_DISTRO.repos'
+    # Temporary work-around for ament_acado
+    - 'rm -rf src/external/ament_acado'
+    - 'curl -L -o ros-foxy-ament-acado_1.0.0-0focal_amd64.deb https://gitlab.com/autowarefoundation/autoware.auto/ament_acado/-/jobs/artifacts/main/raw/ros-foxy-ament-acado_1.0.0-0focal_amd64.deb?job=build_debian_amd64'
+    - 'dpkg -i ros-foxy-ament-acado*.deb'
+    - 'rm ros-foxy-ament-acado*.deb'
+    # End temporary work-around for ament_acado
     - './tools/coverage/coverage.sh -u'
   after_script:
     - colcon test-result --verbose
