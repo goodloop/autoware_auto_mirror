@@ -13,7 +13,7 @@
   <depend>rclcpp</depend>
   <depend>rclcpp_components</depend>
 
-  <!-- <exec_depend>avp_web_interface</exec_depend> -->
+  <exec_depend>avp_web_interface</exec_depend>
   <!-- <exec_depend>behavior_planner_nodes</exec_depend> -->
   <!-- <exec_depend>euclidean_cluster_nodes</exec_depend> -->
   <!-- <exec_depend>lane_planner_nodes</exec_depend> -->
@@ -33,7 +33,8 @@
   <!-- <exec_depend>recordreplay_planner_nodes</exec_depend> -->
   <!-- <exec_depend>robot_localization</exec_depend> -->
   <exec_depend>robot_state_publisher</exec_depend>
-  <!-- <exec_depend>rviz2</exec_depend> -->
+  <exec_depend>rosbridge_suite</exec_depend>
+  <exec_depend>rviz2</exec_depend>
   <!-- <exec_depend>ssc_interface</exec_depend> -->
   <!-- <exec_depend>trajectory_spoofer</exec_depend> -->
   <!-- <exec_depend>velodyne_nodes</exec_depend> -->

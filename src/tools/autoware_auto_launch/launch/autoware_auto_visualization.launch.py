@@ -15,8 +15,8 @@
 from ament_index_python import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
-from launch.actions import IncludeLaunchDescription
-from launch.launch_description_sources import PythonLaunchDescriptionSource
+from launch.actions import ExecuteProcess
+from launch.conditions import IfCondition
 from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
 
@@ -25,6 +25,55 @@ import os
 
 def generate_launch_description():
     """
-    Launch visualization nodes 
+    Launch visualization nodes
+     * rviz2
+     * avp_web_interface
+     * rosbridge_server
     """
+    autoware_auto_launch_pkg_prefix = get_package_share_directory(
+        'autoware_auto_launch')
+    avp_web_interface_pkg_prefix = get_package_share_directory(
+        'avp_web_interface')
+    web_files_root = os.path.join(avp_web_interface_pkg_prefix, 'web')
 
+    # Arguments
+    with_rviz_param = DeclareLaunchArgument(
+        'with_rviz',
+        default_value='True',
+        description='Launch RVIZ2 in addition to other nodes'
+    )
+    rviz_cfg_path_param = DeclareLaunchArgument(
+        'rviz_cfg_path_param',
+        default_value='',
+        description='Launch RVIZ2 with the specified config file'
+    )
+
+    # Nodes
+    # TODO(j.eccleston): parameterise remappings
+    rviz2 = Node(
+        package='rviz2',
+        node_executable='rviz2',
+        node_name='rviz2',
+        arguments=['-d', str(rviz_cfg_path_param)],
+        condition=IfCondition(LaunchConfiguration('with_rviz')),
+        remappings=[("initialpose", "/localization/initialpose"),
+                    ("goal_pose", "/planning/goal_pose")],
+    )
+    web_bridge = Node(
+        package='rosbridge_server',
+        node_name='rosbridge_server_node',
+        node_namespace='gui',
+        node_executable='rosbridge_websocket'
+    )
+    web_server = ExecuteProcess(
+      cmd=["python3", "-m", "http.server", "8000"],
+      cwd=web_files_root
+    )
+
+    return LaunchDescription([
+        with_rviz_param,
+        rviz_cfg_path_param,
+        rviz2,
+        web_server,
+        web_bridge,
+    ])
