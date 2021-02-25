@@ -45,14 +45,14 @@ alias colcon_build_reldeb_sel="colcon_build_reldeb --packages-select "
 
 Once Autoware.Auto is compiled with the commands above, it can be loaded into CLion.
 
-`Navigate to File | Open` in the main menu, then choose `compile_commands.json`
+Navigate to `File | Open` in the main menu, then choose `compile_commands.json`
 (it will be located in `AutowareAuto/build/` folder) file and click Open as Project.
 
 By default, the project root is set to the directory containing the compilation database file which,
 in our case, is the `AutowareAuto/build/` folder. 
 
 ### Change the project root {#ide-specific-configuration-change-project-root}
-To change the project root, select Tools | Compilation Database | Change Project Root from the main menu, 
+To change the project root, select `Tools | Compilation Database | Change Project Root` from the main menu, 
 and select the `AutowareAuto` directory from there.
 
 Now CLion's code insight, refactoring, analysis, and navigation are fully available for the project.

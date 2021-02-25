@@ -83,7 +83,7 @@ function for the nodes that use it in their respective `CMakeLists.txt` files.
 #### Compilation Database Generation {#building-compilation-database}
 
 In order to let IDEs analyze the build dependencies and symbol relationships, [a compilation database](https://colcon.readthedocs.io/en/released/user/how-to.html#cmake-packages-generating-compile-commands-json)
-can be generated with the following flag.
+can be generated with the following flag:
 
 ```{bash}
 colcon build --cmake-args -DCMAKE_EXPORT_COMPILE_COMMANDS=1
