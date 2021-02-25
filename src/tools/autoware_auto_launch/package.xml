@@ -27,8 +27,8 @@
   <!-- <exec_depend>object_collision_estimator_nodes</exec_depend> -->
   <!-- <exec_depend>off_map_obstacles_filter_nodes</exec_depend> -->
   <!-- <exec_depend>parking_planner_nodes</exec_depend> -->
-  <!-- <exec_depend>point_cloud_filter_transform_nodes</exec_depend> -->
-  <!-- <exec_depend>point_cloud_fusion_nodes</exec_depend> -->
+  <exec_depend>point_cloud_filter_transform_nodes</exec_depend>
+  <exec_depend>point_cloud_fusion_nodes</exec_depend>
   <!-- <exec_depend>ray_ground_classifier_nodes</exec_depend> -->
   <!-- <exec_depend>recordreplay_planner_nodes</exec_depend> -->
   <!-- <exec_depend>robot_localization</exec_depend> -->
@@ -39,7 +39,7 @@
   <exec_depend>tf2_ros</exec_depend>
   <!-- <exec_depend>trajectory_spoofer</exec_depend> -->
   <exec_depend>velodyne_nodes</exec_depend>
-  <!-- <exec_depend>voxel_grid_nodes</exec_depend> -->
+  <exec_depend>voxel_grid_nodes</exec_depend>
 
   <test_depend>ament_cmake_gtest</test_depend>
   <test_depend>ament_lint_auto</test_depend>
