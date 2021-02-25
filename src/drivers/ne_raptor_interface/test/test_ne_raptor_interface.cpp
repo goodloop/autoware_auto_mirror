@@ -15,6 +15,14 @@
 #include "ne_raptor_interface/test_ne_raptor_interface.hpp"
 #include <memory>
 
+static bool8_t is_close(
+  const float32_t a,
+  const float32_t b,
+  const float32_t tol = static_cast<float32_t>(1e-5))
+{
+  return std::abs(a - b) < tol;
+}
+
 /* Test the DBW Commands:
  * Autoware -> NE Raptor
  *
@@ -50,8 +58,7 @@ TEST_F(NERaptorInterface_test, test_cmd_mode_change)
 TEST_F(NERaptorInterface_test, test_cmd_vehicle_state)
 {
   VehicleStateCommand vsc;
-  // uint8_t t_blinker, t_headlight, t_wiper, t_gear, t_mode;
-  // bool8_t t_hand_brake, t_horn;
+
   rclcpp::executors::SingleThreadedExecutor executor;
   executor.add_node(node_);
 
@@ -185,4 +192,81 @@ TEST_F(NERaptorInterface_test, test_rpt_vehicle_kinematic_state)
    * on_steering_report(),
    * on_wheel_spd_report()
    */
+}
+
+/* Test the kinematic bike model
+ */
+TEST_F(NERaptorInterface_test, test_kinematic_bike_model)
+{
+  VehicleKinematicState vks{};
+
+  /* Test driving straight */
+  float32_t wheelbase = c_front_axle_to_cog + c_rear_axle_to_cog;
+  float32_t num_steps{50.0F};
+  float32_t kYaw =
+    60.0F * autoware::ne_raptor_interface::DEGREES_TO_RADIANS;
+  float32_t wheel_angle{0.0F};
+  float32_t velocity{2.0F};
+  float32_t dT{0.1F};  // delta-time = 0.1 second
+  float32_t x_nominal{0.0F};
+  float32_t y_nominal{0.0F};
+  float32_t dist{0.0F};
+  float32_t radius{0.0F};
+  float32_t beta_rad{0.0F};
+  float32_t i{0.0F};
+
+  vks.state.longitudinal_velocity_mps = velocity;
+  vks.state.lateral_velocity_mps = 0.0F;
+  vks.state.front_wheel_angle_rad = wheel_angle;
+  vks.state.x = 0.0F;
+  vks.state.y = 0.0F;
+  vks.state.heading = motion::motion_common::from_angle(kYaw);
+
+  for (i = 0.0F; i < num_steps; ++i) {
+    x_nominal = std::cos(kYaw) * i * dT * velocity;
+    y_nominal = std::sin(kYaw) * i * dT * velocity;
+
+    EXPECT_TRUE(is_close(x_nominal, vks.state.x)) <<
+      "should be " << x_nominal << ", is " << vks.state.x;
+    EXPECT_TRUE(is_close(y_nominal, vks.state.y)) <<
+      "should be " << y_nominal << ", is " << vks.state.y;
+
+    ne_raptor_interface_->kinematic_bicycle_model(dT, &vks);
+  }
+
+  /* Test driving in a circle */
+  num_steps = 1000.0F;
+  wheel_angle = 0.4F;  // 0.4 radians
+  velocity = PI;
+
+  vks.state.front_wheel_angle_rad = wheel_angle;
+  vks.state.longitudinal_velocity_mps = velocity;
+  vks.state.lateral_velocity_mps = velocity * std::tan(wheel_angle) *
+    c_rear_axle_to_cog / wheelbase;
+  beta_rad = std::atan2(
+    vks.state.lateral_velocity_mps,
+    vks.state.longitudinal_velocity_mps);
+  radius = c_rear_axle_to_cog / std::sin(beta_rad);
+  dT = 2.0F * radius / num_steps;
+
+  // Make the circle go around (0, 0) – we're headed right at the start, and
+  // turning left (positive angle).
+  // So the starting position needs to be below the origin.
+  vks.state.x = 0;
+  vks.state.y = -radius;
+
+  // Make sure the velocity vector is horizontal at the beginning.
+  kYaw = -beta_rad;
+  vks.state.heading = motion::motion_common::from_angle(kYaw);
+
+  for (i = 0.0F; i < num_steps; i++) {
+    ne_raptor_interface_->kinematic_bicycle_model(dT, &vks);
+    // Check that we're driving in a circle:
+    // distance from 0 should == radius
+    dist = std::sqrt(vks.state.x * vks.state.x + vks.state.y * vks.state.y);
+    EXPECT_TRUE(
+      is_close(
+        radius, dist, static_cast<float32_t>(1e-2))) <<
+      "should be " << radius << ", is " << dist;
+  }
 }

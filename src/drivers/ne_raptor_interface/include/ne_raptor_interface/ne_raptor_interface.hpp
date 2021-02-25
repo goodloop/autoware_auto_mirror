@@ -195,6 +195,14 @@ public:
   /// \return false only if enabling the DBW system actually failed, true otherwise
   bool8_t handle_mode_change_request(ModeChangeRequest::SharedPtr request) override;
 
+  /// \brief Update vehicle's position & heading relative from time = 0
+  ///        based on time difference, current speed, & current tire angle.
+  /// \param[in] dt delta-T - how much time since this was last called
+  /// \param[in] vks the current vehicle kinematic state (contains current motion data)
+  /// \return nothing (updates kinematic state by passing a pointer)
+  void kinematic_bicycle_model(
+    float32_t dt, VehicleKinematicState * vks);
+
 private:
   // Publishers (to Raptor DBW)
   rclcpp::Publisher<AcceleratorPedalCmd>::SharedPtr m_accel_cmd_pub;

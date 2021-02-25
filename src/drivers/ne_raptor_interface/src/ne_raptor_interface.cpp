@@ -292,6 +292,9 @@ bool8_t NERaptorInterface::send_control_command(const HighLevelControlCommand & 
   BrakeCmd bc{};
   SteeringCmd sc{};
 
+  // Using curvature for control
+  sc.control_type.value = ActuatorControlMode::CLOSED_LOOP_VEHICLE;
+
   // Set enable variables
   apc.enable = is_dbw_enabled;
   bc.enable = is_dbw_enabled;
@@ -358,6 +361,9 @@ bool8_t NERaptorInterface::send_control_command(const VehicleControlCommand & ms
   AcceleratorPedalCmd apc{};
   BrakeCmd bc{};
   SteeringCmd sc{};
+
+  // Using steering wheel angle for control
+  sc.control_type.value = ActuatorControlMode::CLOSED_LOOP_ACTUATOR;
 
   // Set enable variables
   apc.enable = is_dbw_enabled;
@@ -541,6 +547,11 @@ void NERaptorInterface::on_misc_report(const MiscReport::SharedPtr & msg)
   if (!m_seen_misc_rpt) {
     m_seen_misc_rpt = true;
     m_vehicle_kin_state.header.stamp = msg->header.stamp;
+    // Position = (0,0) at time = 0
+    m_vehicle_kin_state.state.x = 0.0F;
+    m_vehicle_kin_state.state.y = 0.0F;
+    m_vehicle_kin_state.state.heading =
+      motion::motion_common::from_angle(0.0F);
     return;
   }
 
@@ -561,13 +572,12 @@ void NERaptorInterface::on_misc_report(const MiscReport::SharedPtr & msg)
     m_seen_wheel_spd_rpt)
   {
     m_vehicle_kin_state.state.acceleration_mps2 = (speed_mps - prev_speed_mps) / dT;  // m/s^2
-    m_vehicle_kin_state.state.x = 0.0F;  // TODO(NE_Raptor) : Relative to center of gravity
-    m_vehicle_kin_state.state.y = 0.0F;  // TODO(NE_Raptor) : Relative to center of gravity
-    m_vehicle_kin_state.state.heading =
-      motion::motion_common::from_angle(0.0F);  // TODO(NE_Raptor) : yaw
 
     beta = std::atan2(m_rear_axle_to_cog * std::tan(delta), wheelbase);
     m_vehicle_kin_state.state.heading_rate_rps = std::cos(beta) * std::tan(delta) / wheelbase;
+
+    // Update position (x, y), yaw
+    kinematic_bicycle_model(dT, &m_vehicle_kin_state);
 
     m_vehicle_kin_state_pub->publish(m_vehicle_kin_state);
   }
@@ -720,6 +730,77 @@ void NERaptorInterface::on_wheel_spd_report(const WheelSpeedReport::SharedPtr & 
   }
 
   m_seen_wheel_spd_rpt = true;
+}
+
+// Update x, y, heading, and heading_rate
+void NERaptorInterface::kinematic_bicycle_model(
+  float32_t dt, VehicleKinematicState * vks)
+{
+  const float32_t wheelbase = m_rear_axle_to_cog + m_front_axle_to_cog;
+
+  // convert to yaw – copied from trajectory_spoofer.cpp
+  // The below formula could probably be simplified if it would be derived directly for heading
+  const float32_t sin_y = 2.0F * vks->state.heading.real * vks->state.heading.imag;
+  const float32_t cos_y = 1.0F - 2.0F * vks->state.heading.imag * vks->state.heading.imag;
+  float32_t yaw = std::atan2(sin_y, cos_y);
+  if (yaw < 0) {
+    yaw += TAU;
+  }
+
+  // δ: tire angle (relative to car's main axis)
+  // φ: heading/yaw
+  // β: direction of movement at point of reference (relative to car's main axis)
+  // m_rear_axle_to_cog: distance of point of reference to rear axle
+  // m_front_axle_to_cog: distance of point of reference to front axle
+  // wheelbase: m_rear_axle_to_cog + m_front_axle_to_cog
+  // x, y, v are at the point of reference
+  // x' = v cos(φ + β)
+  // y' = v sin(φ + β)
+  // φ' = (cos(β)tan(δ)) / wheelbase
+  // v' = a
+  // β = arctan((m_rear_axle_to_cog*tan(δ))/wheelbase)
+
+  float32_t v0_lat = vks->state.lateral_velocity_mps;
+  float32_t v0_lon = vks->state.longitudinal_velocity_mps;
+  float32_t v0 = std::sqrt(v0_lat * v0_lat + v0_lon * v0_lon);
+  float32_t delta = vks->state.front_wheel_angle_rad;
+  float32_t a = vks->state.acceleration_mps2;
+  float32_t beta = std::atan2(m_rear_axle_to_cog * std::tan(delta), wheelbase);
+
+  // This is the direction in which the POI is moving at the beginning of the
+  // integration step. "Course" may not be super accurate, but it's to
+  // emphasize that the POI doesn't travel in the heading direction.
+  const float32_t course = yaw + beta;
+
+  // How much the yaw changes per meter traveled (at the reference point)
+  const float32_t yaw_change =
+    std::cos(beta) * std::tan(delta) / wheelbase;
+
+  // How much the yaw rate
+  const float32_t yaw_rate = yaw_change * v0;
+
+  // Threshold chosen so as to not result in division by 0
+  if (std::abs(yaw_rate) < 1e-18f) {
+    vks->state.x += std::cos(course) * (v0 * dt + 0.5f * a * dt * dt);
+    vks->state.y += std::sin(course) * (v0 * dt + 0.5f * a * dt * dt);
+  } else {
+    vks->state.x +=
+      (v0 + a * dt) / yaw_rate * std::sin(course + yaw_rate * dt) -
+      v0 / yaw_rate * std::sin(course) +
+      a / (yaw_rate * yaw_rate) * std::cos(course + yaw_rate * dt) -
+      a / (yaw_rate * yaw_rate) * std::cos(course);
+    vks->state.y +=
+      -(v0 + a * dt) / yaw_rate * std::cos(course + yaw_rate * dt) +
+      v0 / yaw_rate * std::cos(course) +
+      a / (yaw_rate * yaw_rate) * std::sin(course + yaw_rate * dt) -
+      a / (yaw_rate * yaw_rate) * std::sin(course);
+  }
+  yaw += std::cos(beta) * std::tan(delta) / wheelbase * (v0 * dt + 0.5f * a * dt * dt);
+  vks->state.heading.real = std::cos(yaw / 2.0f);
+  vks->state.heading.imag = std::sin(yaw / 2.0f);
+
+  // Rotations per second or rad per second?
+  vks->state.heading_rate_rps = yaw_rate;
 }
 
 }  // namespace ne_raptor_interface

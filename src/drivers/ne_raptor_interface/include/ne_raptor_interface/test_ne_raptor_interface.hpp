@@ -30,8 +30,8 @@ using autoware::drivers::vehicle_interface::DbwState;
 
 /* Node init values */
 const uint16_t c_ecu_build_num = 0xABCD;
-const float32_t c_front_axle_to_cog = 1.0F;
-const float32_t c_rear_axle_to_cog = 1.0F;
+const float32_t c_front_axle_to_cog = 1.5F;
+const float32_t c_rear_axle_to_cog = 0.5F;
 const float32_t c_steer_to_tire_ratio = 2.0F;
 const float32_t c_accel_limit = 3.0F;
 const float32_t c_decel_limit = 3.0F;
@@ -67,7 +67,7 @@ public:
   rclcpp::Node::SharedPtr node_;
   std::unique_ptr<NERaptorInterface> ne_raptor_interface_;
   rclcpp::Clock test_clock{RCL_SYSTEM_TIME};
-};
+};  // class NERaptorInterface_test
 
 template<typename T>
 void wait_for_subscriber(
