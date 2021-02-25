@@ -1,4 +1,8 @@
 repositories:
+  src/external/ament_acado:
+    type: git
+    url: https://gitlab.com/autowarefoundation/autoware.auto/ament_acado.git
+    version: main
   src/external/autoware_auto_msgs:
     type: git
     url: https://gitlab.com/autowarefoundation/autoware.auto/autoware_auto_msgs.git
