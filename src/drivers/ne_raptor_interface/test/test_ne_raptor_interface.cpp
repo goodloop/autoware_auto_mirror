@@ -60,7 +60,8 @@ TEST_F(NERaptorInterface_test, test_cmd_vehicle_state)
   VehicleStateCommand vsc;
 
   rclcpp::executors::SingleThreadedExecutor executor;
-  executor.add_node(node_);
+  executor.add_node(i_node_);
+  executor.add_node(l_node_);
 
   /** Test valid inputs **/
   // Test valid: no commands
@@ -72,6 +73,7 @@ TEST_F(NERaptorInterface_test, test_cmd_vehicle_state)
   vsc.hand_brake = false;
   vsc.horn = false;
   EXPECT_TRUE(ne_raptor_interface_->send_state_command(vsc));
+  EXPECT_EQ(test_listener_->l_gear_cmd.cmd.gear, Gear::NONE);
 
   // Test valid: all off
   vsc.blinker = VehicleStateCommand::BLINKER_OFF;
@@ -144,7 +146,7 @@ TEST_F(NERaptorInterface_test, test_cmd_raw_control)
   /* Not supported */
   RawControlCommand rcc;
   rclcpp::executors::SingleThreadedExecutor executor;
-  executor.add_node(node_);
+  executor.add_node(i_node_);
 
   rcc.stamp = test_clock.now();
   rcc.throttle = 0;

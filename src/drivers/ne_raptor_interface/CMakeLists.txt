@@ -78,7 +78,10 @@ if(BUILD_TESTING)
   )
 
   # Unit tests
-  set(TEST_SOURCES test/test_ne_raptor_interface.cpp)
+  set(TEST_SOURCES
+    test/test_ne_raptor_interface.cpp
+    test/test_ne_raptor_interface_listener.cpp
+  )
   set(TEST_NE_RAPTOR_INTERFACE_EXE test_ne_raptor_interface)
   ament_add_gtest(${TEST_NE_RAPTOR_INTERFACE_EXE} ${TEST_SOURCES})
   autoware_set_compile_options(${TEST_NE_RAPTOR_INTERFACE_EXE})

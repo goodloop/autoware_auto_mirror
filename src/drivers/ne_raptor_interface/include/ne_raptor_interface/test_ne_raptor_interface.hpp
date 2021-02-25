@@ -18,6 +18,7 @@
 #include <gtest/gtest.h>
 
 #include <ne_raptor_interface/ne_raptor_interface.hpp>
+#include <ne_raptor_interface/test_ne_raptor_interface_listener.hpp>
 
 #include <cmath>
 #include <cstdint>
@@ -25,6 +26,7 @@
 #include <memory>
 
 using autoware::ne_raptor_interface::NERaptorInterface;
+using autoware::ne_raptor_interface::NERaptorInterfaceListener;
 using autoware::drivers::vehicle_interface::DbwStateMachine;
 using autoware::drivers::vehicle_interface::DbwState;
 
@@ -44,9 +46,10 @@ protected:
   void SetUp() override
   {
     rclcpp::init(0, nullptr);
-    node_ = std::make_shared<rclcpp::Node>("ne_raptor_interface_test_node", "/gtest");
+    i_node_ = std::make_shared<rclcpp::Node>("ne_raptor_interface_test_node", "/gtest");
+    l_node_ = std::make_shared<rclcpp::Node>("ne_raptor_interface_listener_node", "/gtest");
     ne_raptor_interface_ = std::make_unique<NERaptorInterface>(
-      *node_,
+      *i_node_,
       c_ecu_build_num,
       c_front_axle_to_cog,
       c_rear_axle_to_cog,
@@ -56,6 +59,9 @@ protected:
       c_pos_jerk_limit,
       c_neg_jerk_limit
     );
+    test_listener_ = std::make_unique<NERaptorInterfaceListener>(
+      *l_node_
+    );
   }
 
   void TearDown() override
@@ -64,8 +70,9 @@ protected:
   }
 
 public:
-  rclcpp::Node::SharedPtr node_;
+  rclcpp::Node::SharedPtr i_node_, l_node_;
   std::unique_ptr<NERaptorInterface> ne_raptor_interface_;
+  std::unique_ptr<NERaptorInterfaceListener> test_listener_;
   rclcpp::Clock test_clock{RCL_SYSTEM_TIME};
 };  // class NERaptorInterface_test
 
@@ -101,4 +108,5 @@ void wait_for_publisher(
     }
   }
 }
+
 #endif  // NE_RAPTOR_INTERFACE__TEST_NE_RAPTOR_INTERFACE_HPP_
