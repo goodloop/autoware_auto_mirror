@@ -27,6 +27,7 @@
 #include <memory>
 #include "common/types.hpp"
 #include "types_point_cloud2.hpp"
+#include <iostream>
 
 namespace autoware
 {
@@ -36,31 +37,32 @@ namespace cloud_wrapper
 {
 
 template<typename TypePoint>
-class CLOUD_WRAPPER_PUBLIC CloudWrapper
+class CLOUD_WRAPPER_PUBLIC CloudPtrWrapper
 {
 public:
-  using SharedPtr = std::shared_ptr<CloudWrapper>;
-  using ConstSharedPtr = const std::shared_ptr<CloudWrapper>;
+  using SharedPtr = std::shared_ptr<CloudPtrWrapper>;
+  using ConstSharedPtr = const std::shared_ptr<CloudPtrWrapper>;
   using iterator = typename std::vector<TypePoint>::iterator;
   using const_iterator = typename std::vector<TypePoint>::const_iterator;
 
   /// \brief Wrap around an existing message where the existing message is fully defined
   /// \param msg_in Message to wrap around
-  explicit CloudWrapper(sensor_msgs::msg::PointCloud2 & msg_in)
-  : msg_ref_(msg_in),
+  explicit CloudPtrWrapper(
+    sensor_msgs::msg::PointCloud2::SharedPtr msg_in)
+  : msg_ptr_(std::move(msg_in)),
     size_(0)
   {
-    if (msg_ref_.point_step == 0) {
+    if (msg_ptr_->point_step == 0) {
       throw std::runtime_error(
               "This constructor requires message to be fully defined. Use the constructor that takes message_ptr and fields instead.");
     }
-    if (sizeof(TypePoint) != msg_ref_.point_step) {
+    if (sizeof(TypePoint) != msg_ptr_->point_step) {
       throw std::length_error("Given point struct has different point size than message has.");
     }
-    if (msg_ref_.data.size() % msg_ref_.point_step != 0) {
+    if (msg_ptr_->data.size() % msg_ptr_->point_step != 0) {
       throw std::length_error("Data size should be multiple of point step.");
     }
-    size_ = msg_ref_.data.size() / msg_ref_.point_step;
+    size_ = msg_ptr_->data.size() / msg_ptr_->point_step;
     regenerate_iterator_begin();
     regenerate_iterator_end();
     if (static_cast<long long>(size_) != std::distance(begin_, end_)) {
@@ -69,22 +71,20 @@ public:
 
   }
 
-  /// \brief Wrap around an existing Cloud message and initialize it
-  /// \param msg_in Message to wrap around
+  /// \brief Generate a new PointCloud2 message
   /// \param point_fields Point Fields that match with the \tparam TypePoint
   /// \param size Initial points count of the message.
-  explicit CloudWrapper(
-    sensor_msgs::msg::PointCloud2 & msg_in,
+  explicit CloudPtrWrapper(
     const std::vector<sensor_msgs::msg::PointField> & point_fields,
     size_t size = 0UL)
-  : msg_ref_(msg_in),
+  : msg_ptr_(new sensor_msgs::msg::PointCloud2),
     size_(size)
   {
-    msg_ref_.point_step = sizeof(TypePoint);
-    msg_ref_.height = 1;
-    msg_ref_.is_dense = false;
-    msg_ref_.is_bigendian = false;
-    msg_ref_.fields = point_fields;
+    msg_ptr_->point_step = sizeof(TypePoint);
+    msg_ptr_->height = 1;
+    msg_ptr_->is_dense = false;
+    msg_ptr_->is_bigendian = false;
+    msg_ptr_->fields = point_fields;
     resize(size);
 
     regenerate_iterator_begin();
@@ -142,25 +142,25 @@ public:
 
   void resize(size_t size_new)
   {
-    msg_ref_.data.resize(size_bytes_from_size_points(size_new), 0);
+    msg_ptr_->data.resize(size_bytes_from_size_points(size_new), 0);
     size_ = size_new;
-    msg_ref_.width = static_cast<uint32_t>(size_);
-    msg_ref_.row_step = static_cast<uint32_t>(size_ * msg_ref_.point_step);
+    msg_ptr_->width = static_cast<uint32_t>(size_);
+    msg_ptr_->row_step = static_cast<uint32_t>(size_ * msg_ptr_->point_step);
     regenerate_iterator_end();
   }
 
   void reserve(size_t size_new)
   {
-    msg_ref_.data.reserve(size_bytes_from_size_points(size_new));
+    msg_ptr_->data.reserve(size_bytes_from_size_points(size_new));
   }
 
   void push_back(const TypePoint & point)
   {
     auto iter_bytes = reinterpret_cast<const unsigned char *>(&point);
-    auto iter_bytes_end = iter_bytes + msg_ref_.point_step;
+    auto iter_bytes_end = iter_bytes + msg_ptr_->point_step;
 
     reserve(size_ + 1);
-    msg_ref_.data.insert(msg_ref_.data.end(), iter_bytes, iter_bytes_end);
+    msg_ptr_->data.insert(msg_ptr_->data.end(), iter_bytes, iter_bytes_end);
 
     resize(size_ + 1);
   }
@@ -171,13 +171,13 @@ public:
     resize(size_after_removal);
   }
 
-  sensor_msgs::msg::PointCloud2 & get_msg_ref()
+  sensor_msgs::msg::PointCloud2::SharedPtr get_msg_ptr()
   {
-    return msg_ref_;
+    return msg_ptr_;
   }
 
 private:
-  sensor_msgs::msg::PointCloud2 & msg_ref_;
+  sensor_msgs::msg::PointCloud2::SharedPtr msg_ptr_;
 
   size_t size_;
   iterator begin_;
@@ -186,21 +186,21 @@ private:
   void regenerate_iterator_begin()
   {
     iterator iter_temp(
-      reinterpret_cast<TypePoint *>(&msg_ref_.data[0U]));
+      reinterpret_cast<TypePoint *>(&msg_ptr_->data[0U]));
     begin_ = iter_temp;
   }
 
   void regenerate_iterator_end()
   {
     iterator iter_temp(
-      reinterpret_cast<TypePoint *>(&msg_ref_.data[msg_ref_.data.size()]));
+      reinterpret_cast<TypePoint *>(&msg_ptr_->data[msg_ptr_->data.size()]));
 
     end_ = iter_temp;
   }
 
   size_t size_bytes_from_size_points(size_t count_points)
   {
-    return count_points * msg_ref_.point_step;
+    return count_points * msg_ptr_->point_step;
   }
 
 };

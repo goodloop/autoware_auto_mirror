@@ -33,6 +33,7 @@ set(CLOUD_WRAPPER_LIB_SRC
 
 set(CLOUD_WRAPPER_LIB_HEADERS
   include/cloud_wrapper/cloud_wrapper.hpp
+  include/cloud_wrapper/cloud_ptr_wrapper.hpp
   include/cloud_wrapper/visibility_control.hpp
 )
 

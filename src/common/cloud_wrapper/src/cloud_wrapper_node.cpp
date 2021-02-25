@@ -57,11 +57,11 @@ CloudWrapperNode::CloudWrapperNode(const rclcpp::NodeOptions & options)
 void CloudWrapperNode::callback_timer()
 {
   RCLCPP_INFO(this->get_logger(), "callback_timer is called.");
-  CloudWrapper<PointXYZI> cloud_wrapper(autoware::common::types_point_cloud2::fields_PointXYZI);
+
+  CloudPtrWrapper<PointXYZI> cloud_wrapper(autoware::common::types_point_cloud2::fields_PointXYZI);
 
   cloud_wrapper.get_msg_ptr()->header.frame_id = "lidar_front";
-  cloud_wrapper.get_msg_ptr()->header.stamp = this->get_clock()->now();
-
+  cloud_wrapper.get_msg_ptr()->header.stamp = this->now();
 
   float angle_center_from_time =
     static_cast<float>(std::fmod(this->get_clock()->now().seconds(), 360.0));
@@ -104,7 +104,7 @@ void CloudWrapperNode::callback_cloud_input(const PointCloud2::SharedPtr msg)
 
   std::cout << "sizeof PointLgsvl = " << sizeof(PointLgsvl) << std::endl;
 
-  CloudWrapper<PointLgsvl> cloud_wrapper1(msg);
+  CloudPtrWrapper<PointLgsvl> cloud_wrapper1(msg);
 
 //  std::vector<PointLgsvl> points_new = cloud_wrapper1.get_vector_copy();
 //  for (size_t i = 0; i < cloud_wrapper1.size(); ++i) {

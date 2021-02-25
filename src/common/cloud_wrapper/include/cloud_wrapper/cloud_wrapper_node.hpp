@@ -19,7 +19,7 @@
 #ifndef CLOUD_WRAPPER__CLOUD_WRAPPER_NODE_HPP_
 #define CLOUD_WRAPPER__CLOUD_WRAPPER_NODE_HPP_
 
-#include <cloud_wrapper/cloud_wrapper.hpp>
+#include <cloud_wrapper/cloud_ptr_wrapper.hpp>
 #include <rclcpp/rclcpp.hpp>
 #include <sensor_msgs/msg/point_cloud2.hpp>
 
