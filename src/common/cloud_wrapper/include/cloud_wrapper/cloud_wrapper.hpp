@@ -160,10 +160,31 @@ public:
     auto iter_bytes_end = iter_bytes + msg_ref_.point_step;
 
     reserve(size_ + 1);
-    msg_ref_.data.insert(msg_ref_.data.end(), iter_bytes, iter_bytes_end);
+    std::copy(iter_bytes, iter_bytes_end, std::back_inserter(msg_ref_.data));
 
     resize(size_ + 1);
   }
+
+  /// This can be called multiple times sequentally but update_size()
+  /// should be called before doing anything else
+  void push_back_without_reserve_resize(const TypePoint & point)
+  {
+    auto iter_bytes = reinterpret_cast<const unsigned char *>(&point);
+    auto iter_bytes_end = iter_bytes + msg_ref_.point_step;
+
+    std::copy(iter_bytes, iter_bytes_end, std::back_inserter(msg_ref_.data));
+  }
+
+  /// This should be called after push_back_without_reserve_resize is used
+  /// to update message values with correct size
+  void update_size()
+  {
+    size_ = msg_ref_.data.size() / msg_ref_.point_step;
+    msg_ref_.width = static_cast<uint32_t>(size_);
+    msg_ref_.row_step = static_cast<uint32_t>(size_ * msg_ref_.point_step);
+    regenerate_iterator_end();
+  }
+
 
   void erase_till_end(const iterator iter_end_new)
   {
