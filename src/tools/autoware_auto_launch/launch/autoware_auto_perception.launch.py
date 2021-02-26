@@ -11,3 +11,95 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
+from ament_index_python import get_package_share_directory
+from launch import LaunchDescription
+from launch.actions import DeclareLaunchArgument
+from launch.conditions import IfCondition
+from launch.substitutions import LaunchConfiguration
+from launch_ros.actions import Node
+
+import os
+
+
+def generate_launch_description():
+    """
+    Launch perception
+     * euclidean_cluster
+     * off_map_obstacles_filter
+     * ray_ground_classifier
+    """
+    autoware_auto_launch_pkg_prefix = get_package_share_directory(
+        'autoware_auto_launch')
+    euclidean_cluster_param_file = os.path.join(
+        autoware_auto_launch_pkg_prefix, 'param/euclidean_cluster.param.yaml')
+    off_map_obstacles_filter_param_file = os.path.join(
+        autoware_auto_launch_pkg_prefix, 'param/off_map_obstacles_filter.param.yaml')
+    ray_ground_classifier_param_file = os.path.join(
+        autoware_auto_launch_pkg_prefix, 'param/ray_ground_classifier.param.yaml')
+
+    # Arguments
+    with_obstacles_param = DeclareLaunchArgument(
+        'with_obstacles',
+        default_value='True',
+        description='Enable obstacle detection'
+    )
+    euclidean_cluster_param = DeclareLaunchArgument(
+        'euclidean_cluster_param_file',
+        default_value=euclidean_cluster_param_file,
+        description='Path to config file for Euclidean Clustering'
+    )
+    off_map_obstacles_filter_param = DeclareLaunchArgument(
+        'off_map_obstacles_filter_param_file',
+        default_value=off_map_obstacles_filter_param_file,
+        description='Path to parameter file for off-map obstacle filter'
+    )
+    ray_ground_classifier_param = DeclareLaunchArgument(
+        'ray_ground_classifier_param_file',
+        default_value=ray_ground_classifier_param_file,
+        description='Path to config file for Ray Ground Classifier'
+    )
+
+    # Nodes
+    euclidean_clustering = Node(
+        package='euclidean_cluster_nodes',
+        node_executable='euclidean_cluster_node_exe',
+        node_namespace='perception',
+        condition=IfCondition(LaunchConfiguration('with_obstacles')),
+        parameters=[LaunchConfiguration('euclidean_cluster_param_file')],
+        remappings=[
+            ("points_in", "points_nonground")
+        ]
+    )
+    off_map_obstacles_filter = Node(
+        package='off_map_obstacles_filter_nodes',
+        node_name='off_map_obstacles_filter_node',
+        node_namespace='perception',
+        node_executable='off_map_obstacles_filter_nodes_exe',
+        condition=IfCondition(LaunchConfiguration('with_obstacles')),
+        parameters=[LaunchConfiguration('off_map_obstacles_filter_param_file')],
+        output='screen',
+        remappings=[
+            ('bounding_boxes_in', 'lidar_bounding_boxes'),
+            ('bounding_boxes_out', 'lidar_bounding_boxes_filtered'),
+            ('HAD_Map_Service', '/had_maps/HAD_Map_Service'),
+        ]
+    )
+    ray_ground_classifier = Node(
+        package='ray_ground_classifier_nodes',
+        node_executable='ray_ground_classifier_cloud_node_exe',
+        node_namespace='perception',
+        condition=IfCondition(LaunchConfiguration('with_obstacles')),
+        parameters=[LaunchConfiguration('ray_ground_classifier_param_file')],
+        remappings=[("points_in", "/lidars/points_fused")]
+    )
+
+    return LaunchDescription([
+        euclidean_cluster_param,
+        ray_ground_classifier_param,
+        with_obstacles_param,
+        off_map_obstacles_filter_param,
+        euclidean_clustering,
+        ray_ground_classifier,
+        off_map_obstacles_filter,
+    ])
