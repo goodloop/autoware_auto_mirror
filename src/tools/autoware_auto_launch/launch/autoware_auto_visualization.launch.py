@@ -48,7 +48,6 @@ def generate_launch_description():
     )
 
     # Nodes
-    # TODO(j.eccleston): parameterise remappings
     rviz2 = Node(
         package='rviz2',
         node_executable='rviz2',

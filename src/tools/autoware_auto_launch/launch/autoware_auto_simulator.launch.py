@@ -44,7 +44,6 @@ def generate_launch_description():
     )
 
     # Nodes
-    # TODO(j.eccleston): make parameters configurable via launch commands
     lgsvl_interface = Node(
         package='lgsvl_interface',
         node_executable='lgsvl_interface_exe',

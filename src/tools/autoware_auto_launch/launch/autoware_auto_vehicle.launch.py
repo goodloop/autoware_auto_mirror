@@ -67,7 +67,6 @@ def generate_launch_description():
     )
 
     # Nodes
-    # TODO(j.eccleston): Add remapping as parameters
     vlp16_front = Node(
         package='velodyne_nodes',
         node_executable='velodyne_cloud_node_exe',
