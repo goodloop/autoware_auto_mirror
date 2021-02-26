@@ -102,7 +102,7 @@ RUN apt-get update && \
 COPY env.sh /etc/profile.d/ade_env.sh
 COPY gitconfig /etc/gitconfig
 COPY entrypoint /ade_entrypoint
-COPY colcon-defaults.yaml /usr/local/etc/colcon-default.yaml
+COPY colcon-defaults.yaml /usr/local/etc/colcon-defaults.yaml
 RUN echo "export COLCON_DEFAULTS_FILE=/usr/local/etc/colcon-defaults.yaml" >> \
     /etc/skel/.bashrc
 ENTRYPOINT ["/ade_entrypoint"]
