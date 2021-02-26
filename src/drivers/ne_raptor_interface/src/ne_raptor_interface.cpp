@@ -167,6 +167,8 @@ bool8_t NERaptorInterface::send_state_command(const VehicleStateCommand & msg)
 
   switch (msg.blinker) {
     case VehicleStateCommand::BLINKER_NO_COMMAND:
+      // Keep previous
+      break;
     case VehicleStateCommand::BLINKER_OFF:
       mc.cmd.value = TurnSignal::NONE;
       break;
@@ -190,6 +192,8 @@ bool8_t NERaptorInterface::send_state_command(const VehicleStateCommand & msg)
 
   switch (msg.headlight) {
     case VehicleStateCommand::HEADLIGHT_NO_COMMAND:
+      // Keep previous
+      break;
     case VehicleStateCommand::HEADLIGHT_OFF:
     case VehicleStateCommand::HEADLIGHT_ON:
       mc.high_beam_cmd.status = HighBeam::OFF;
@@ -198,7 +202,7 @@ bool8_t NERaptorInterface::send_state_command(const VehicleStateCommand & msg)
       mc.high_beam_cmd.status = HighBeam::ON;
       break;
     default:
-      mc.high_beam_cmd.status = HighBeam::RESERVED;
+      // Keep previous
       RCLCPP_ERROR_THROTTLE(
         m_logger, m_clock, CLOCK_1_SEC,
         "Received command for invalid headlight state.");
@@ -208,6 +212,8 @@ bool8_t NERaptorInterface::send_state_command(const VehicleStateCommand & msg)
 
   switch (msg.wiper) {
     case VehicleStateCommand::WIPER_NO_COMMAND:
+      // Keep previous
+      break;
     case VehicleStateCommand::WIPER_OFF:
       mc.front_wiper_cmd.status = WiperFront::OFF;
       break;
@@ -294,6 +300,7 @@ bool8_t NERaptorInterface::send_control_command(const HighLevelControlCommand & 
 
   // Using curvature for control
   sc.control_type.value = ActuatorControlMode::CLOSED_LOOP_VEHICLE;
+  bc.control_type.value = ActuatorControlMode::CLOSED_LOOP_VEHICLE;
 
   // Set enable variables
   apc.enable = is_dbw_enabled;
@@ -364,6 +371,7 @@ bool8_t NERaptorInterface::send_control_command(const VehicleControlCommand & ms
 
   // Using steering wheel angle for control
   sc.control_type.value = ActuatorControlMode::CLOSED_LOOP_ACTUATOR;
+  bc.control_type.value = ActuatorControlMode::CLOSED_LOOP_ACTUATOR;
 
   // Set enable variables
   apc.enable = is_dbw_enabled;

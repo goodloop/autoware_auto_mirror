@@ -20,6 +20,7 @@
 #include <ne_raptor_interface/ne_raptor_interface.hpp>
 #include <ne_raptor_interface/test_ne_raptor_interface_listener.hpp>
 
+#include <chrono>
 #include <cmath>
 #include <cstdint>
 #include <fstream>
@@ -39,6 +40,12 @@ const float32_t c_accel_limit = 3.0F;
 const float32_t c_decel_limit = 3.0F;
 const float32_t c_pos_jerk_limit = 9.0F;
 const float32_t c_neg_jerk_limit = 9.0F;
+#define kNumTests_VSC (15)
+
+/* Other useful constants */
+using namespace std::literals::chrono_literals; //NOLINT
+const std::chrono::nanoseconds C_TIMEOUT_NANO = 1000000000ns;
+const uint8_t C_TIMEOUT_ITERATIONS = 10;
 
 class NERaptorInterface_test : public ::testing::Test
 {
@@ -74,6 +81,30 @@ public:
   std::unique_ptr<NERaptorInterface> ne_raptor_interface_;
   std::unique_ptr<NERaptorInterfaceListener> test_listener_;
   rclcpp::Clock test_clock{RCL_SYSTEM_TIME};
+
+  // Struct types for test sets
+  struct test_vsc
+  {
+    VehicleStateCommand in_vsc;  // Input: vehicle state command
+    GearCmd exp_gc;              // Expected output: gear command
+    GlobalEnableCmd exp_enable;  // Expected output: global enable command
+    MiscCmd exp_mc;              // Expected output: misc command
+    bool8_t exp_success;         // Expected output: send_state_command
+  };
+  struct test_hlcc
+  {
+    HighLevelControlCommand in_hlcc;  // Input: high level control command
+    AcceleratorPedalCmd exp_apc;      // Expected output: accelerator pedal command
+    BrakeCmd exp_bc;                  // Expected output: brake command
+    SteeringCmd exp_sc;               // Expected output: steering command
+  };
+  struct test_vcc
+  {
+    VehicleControlCommand in_vcc;  // Input: vehicle control command
+    AcceleratorPedalCmd exp_apc;   // Expected output: accelerator pedal command
+    BrakeCmd exp_bc;               // Expected output: brake command
+    SteeringCmd exp_sc;            // Expected output: steering command
+  };
 };  // class NERaptorInterface_test
 
 template<typename T>

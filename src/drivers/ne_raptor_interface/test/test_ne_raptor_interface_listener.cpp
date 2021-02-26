@@ -30,7 +30,16 @@ NERaptorInterfaceListener::NERaptorInterfaceListener(
   l_steer_cmd{},
   l_vehicle_state{},
   l_vehicle_odo{},
-  l_vehicle_kin_state{}
+  l_vehicle_kin_state{},
+  l_got_accel_cmd{false},
+  l_got_brake_cmd{false},
+  l_got_gear_cmd{false},
+  l_got_enable_cmd{false},
+  l_got_misc_cmd{false},
+  l_got_steer_cmd{false},
+  l_got_vehicle_state{false},
+  l_got_vehicle_odo{false},
+  l_got_vehicle_kin_state{false}
 {
   // Subscribers (from Raptor DBW)
   l_accel_cmd_sub =
@@ -90,46 +99,55 @@ bool8_t NERaptorInterfaceListener::update(std::chrono::nanoseconds timeout)
 void NERaptorInterfaceListener::on_accel_cmd(const AcceleratorPedalCmd::SharedPtr & msg)
 {
   l_accel_cmd = *msg;
+  l_got_accel_cmd = true;
 }
 
 void NERaptorInterfaceListener::on_brake_cmd(const BrakeCmd::SharedPtr & msg)
 {
   l_brake_cmd = *msg;
+  l_got_brake_cmd = true;
 }
 
 void NERaptorInterfaceListener::on_gear_cmd(const GearCmd::SharedPtr & msg)
 {
   l_gear_cmd = *msg;
+  l_got_gear_cmd = true;
 }
 
 void NERaptorInterfaceListener::on_enable_cmd(const GlobalEnableCmd::SharedPtr & msg)
 {
   l_enable_cmd = *msg;
+  l_got_enable_cmd = true;
 }
 
 void NERaptorInterfaceListener::on_misc_cmd(const MiscCmd::SharedPtr & msg)
 {
   l_misc_cmd = *msg;
+  l_got_misc_cmd = true;
 }
 
 void NERaptorInterfaceListener::on_steer_cmd(const SteeringCmd::SharedPtr & msg)
 {
   l_steer_cmd = *msg;
+  l_got_steer_cmd = true;
 }
 
 void NERaptorInterfaceListener::on_vehicle_state(const VehicleStateReport::SharedPtr & msg)
 {
   l_vehicle_state = *msg;
+  l_got_vehicle_state = true;
 }
 
 void NERaptorInterfaceListener::on_vehicle_odo(const VehicleOdometry::SharedPtr & msg)
 {
   l_vehicle_odo = *msg;
+  l_got_vehicle_odo = true;
 }
 
 void NERaptorInterfaceListener::on_vehicle_kin_state(const VehicleKinematicState::SharedPtr & msg)
 {
   l_vehicle_kin_state = *msg;
+  l_got_vehicle_kin_state = true;
 }
 
 }  // namespace ne_raptor_interface

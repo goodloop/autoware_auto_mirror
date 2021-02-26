@@ -58,6 +58,11 @@ public:
   VehicleOdometry l_vehicle_odo;
   VehicleKinematicState l_vehicle_kin_state;
 
+  // Check whether values were received
+  bool8_t l_got_accel_cmd, l_got_brake_cmd, l_got_gear_cmd,
+    l_got_enable_cmd, l_got_misc_cmd, l_got_steer_cmd,
+    l_got_vehicle_state, l_got_vehicle_odo, l_got_vehicle_kin_state;
+
 private:
   // Subscribers (from Raptor DBW)
   rclcpp::SubscriptionBase::SharedPtr
