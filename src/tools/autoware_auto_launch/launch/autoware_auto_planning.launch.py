@@ -24,7 +24,8 @@ import os
 
 def generate_launch_description():
     """
-    Launch planning stack
+    Launch planning nodes.
+
      * behavior_planner
      * lanelet2_global_planner
      * lane_planner

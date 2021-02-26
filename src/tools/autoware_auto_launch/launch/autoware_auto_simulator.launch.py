@@ -23,7 +23,8 @@ import os
 
 def generate_launch_description():
     """
-    Launch simulator (LGSVL)
+    Launch simulator (LGSVL) nodes.
+
      * lgsvl_interface
      * robot_state_publisher
     """

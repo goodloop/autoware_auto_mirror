@@ -24,7 +24,8 @@ import os
 
 def generate_launch_description():
     """
-    Launch perception
+    Launch perception nodes.
+
      * euclidean_cluster
      * off_map_obstacles_filter
      * ray_ground_classifier

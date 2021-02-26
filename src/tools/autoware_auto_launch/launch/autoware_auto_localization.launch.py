@@ -23,7 +23,8 @@ import os
 
 def generate_launch_description():
     """
-    Launch localization
+    Launch localization nodes.
+
      * ndt_localizer
     """
     autoware_auto_launch_pkg_prefix = get_package_share_directory(

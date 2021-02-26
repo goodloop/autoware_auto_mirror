@@ -30,14 +30,11 @@
   <exec_depend>point_cloud_filter_transform_nodes</exec_depend>
   <exec_depend>point_cloud_fusion_nodes</exec_depend>
   <exec_depend>ray_ground_classifier_nodes</exec_depend>
-  <!-- <exec_depend>recordreplay_planner_nodes</exec_depend> -->
-  <!-- <exec_depend>robot_localization</exec_depend> -->
   <exec_depend>robot_state_publisher</exec_depend>
   <exec_depend>rosbridge_suite</exec_depend>
   <exec_depend>rviz2</exec_depend>
   <exec_depend>ssc_interface</exec_depend>
   <exec_depend>tf2_ros</exec_depend>
-  <!-- <exec_depend>trajectory_spoofer</exec_depend> -->
   <exec_depend>velodyne_nodes</exec_depend>
   <exec_depend>voxel_grid_nodes</exec_depend>
 

@@ -23,7 +23,8 @@ import os
 
 def generate_launch_description():
     """
-    Launch mapping nodes
+    Launch mapping nodes.
+
      * lanelet2_map_provider/visualizer
      * map_provider
     """

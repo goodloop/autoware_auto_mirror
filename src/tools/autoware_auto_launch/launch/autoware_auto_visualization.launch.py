@@ -25,13 +25,12 @@ import os
 
 def generate_launch_description():
     """
-    Launch visualization nodes
+    Launch visualization nodes.
+
      * rviz2
      * avp_web_interface
      * rosbridge_server
     """
-    autoware_auto_launch_pkg_prefix = get_package_share_directory(
-        'autoware_auto_launch')
     avp_web_interface_pkg_prefix = get_package_share_directory(
         'avp_web_interface')
     web_files_root = os.path.join(avp_web_interface_pkg_prefix, 'web')

@@ -24,7 +24,8 @@ import os
 
 def generate_launch_description():
     """
-    Launch vehicle nodes
+    Launch vehicle nodes.
+
      * velodyne_nodes
      * ssc_interface
      * robot_state_publisher

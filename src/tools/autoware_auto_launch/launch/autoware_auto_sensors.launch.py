@@ -23,7 +23,8 @@ import os
 
 def generate_launch_description():
     """
-    Launch sensors
+    Launch sensos nodes.
+
      * point_cloud_filter_transform
      * point_cloud_fusion_node
      * voxel_grid_node
