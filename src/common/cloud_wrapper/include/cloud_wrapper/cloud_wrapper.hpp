@@ -43,6 +43,7 @@ public:
   using ConstSharedPtr = const std::shared_ptr<CloudWrapper>;
   using iterator = typename std::vector<TypePoint>::iterator;
   using const_iterator = typename std::vector<TypePoint>::const_iterator;
+  using value_type = TypePoint;
 
   /// \brief Wrap around an existing message where the existing message is fully defined
   /// \param msg_in Message to wrap around
