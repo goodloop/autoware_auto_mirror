@@ -56,7 +56,7 @@ CloudWrapperNode::CloudWrapperNode(const rclcpp::NodeOptions & options)
 
 void CloudWrapperNode::callback_timer()
 {
-  RCLCPP_INFO(this->get_logger(), "callback_timer is called.");
+//  RCLCPP_INFO(this->get_logger(), "callback_timer is called.");
 
   CloudPtrWrapper<PointXYZI> cloud_wrapper(autoware::common::types_point_cloud2::fields_PointXYZI);
 
@@ -98,9 +98,9 @@ void CloudWrapperNode::callback_timer()
 
 void CloudWrapperNode::callback_cloud_input(const PointCloud2::SharedPtr msg)
 {
-  RCLCPP_INFO(
-    this->get_logger(),
-    "callback_cloud_input called.");
+//  RCLCPP_INFO(
+//    this->get_logger(),
+//    "callback_cloud_input called.");
 
   std::cout << "sizeof PointLgsvl = " << sizeof(PointLgsvl) << std::endl;
 
