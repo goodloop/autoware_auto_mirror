@@ -135,11 +135,89 @@ Here, a point cloud with a point is being created and published.
   publisher->publish(*cloud.get_msg_ptr());
 ```
 
-### Using STL Algorithm Library
+### Using with "STL Algorithm Library
 Here only the demonstrations with shared pointer wrapper will be shown.
 They can also be applied to reference wrapper.
 
+#### std::foreach
+```cpp
+// apply a function to all points in a cloud
+std::for_each(
+  cloud.begin(),
+  cloud.end(),
+    [](Point & p) {
+    p.z += 10.0f;
+  });
+```
 
+#### std::sort
+```cpp
+// sort points based on their z values small to big
+std::sort(
+  cloud.begin(),
+  cloud.end(),
+    [](const Point & p_lhs, const Point & p_rhs) {
+    p_lhs.z < p_rhs.z;
+  });
+```
+
+#### std::remove_if
+```cpp
+// remove points that satisfy a certain condition
+// std::remove_if removes the elements meeting the criteria in the unary predicate
+// and returns the new end() which should be used to update the message size
+auto end_new = std::remove_if(
+  cloud.begin(),
+  cloud.end(),
+  [](const PointXYZI & p) {
+    bool intensity_is_too_low = p.intensity < 15.0f;
+    bool z_is_too_big = p.z > 10.0f;
+    return intensity_is_too_low || z_is_too_big;
+  });
+cloud.erase_till_end(end_new);
+```
+
+#### std::copy_if
+```cpp
+// copy points that satisfy a certain condition to another point cloud
+// std::copy_if copies the elements meeting the criteria in the unary predicate
+// and returns the new end() of the target point cloud
+// which should be used to update the message size
+
+// first make sure cloud2 is the same size as cloud1
+cloud2.resize(cloud1.size());
+
+// copy from cloud1 to cloud2
+auto end_new_cloud2 = std::copy_if(
+  cloud1.begin(),
+  cloud1.end(),
+  cloud2.begin(),
+  [](const PointXYZI & p) {
+    bool intensity_is_too_low = p.intensity < 15.0f;
+    bool z_is_too_big = p.z > 10.0f;
+    return intensity_is_too_low || z_is_too_big;
+  });
+
+// remove the excess elements from cloud2 with erase_till_end method
+cloud2.erase_till_end(end_new_cloud2);
+```
+
+#### std::transform
+```cpp
+// transform cloud1 to cloud2 by applying a function on each point
+
+// first make sure cloud2 is the same size as cloud1
+cloud2.resize(cloud1.size());
+
+// translate cloud 10m up in z axis
+std::transform(
+  cloud1.begin(),
+  cloud1.end(),
+  cloud2.begin(),
+  [](const PointXYZI & p) {
+    return PointXYZI(p.x, p.y, p.z + 10.0f, p.intensity);
+  });
+```
 
 ## Assumptions / Known limits
 <!-- Required -->
