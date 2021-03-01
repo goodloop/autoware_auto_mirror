@@ -259,7 +259,166 @@ TEST_F(NERaptorInterface_test, test_cmd_vehicle_state)
 
 TEST_F(NERaptorInterface_test, test_cmd_high_level_control)
 {
-  HighLevelControlCommand hlcc;
+  test_hlcc myTests[kNumTests_HLCC];
+  std_msgs::msg::Bool enable_dbw{};
+  uint8_t timeout{0}, numDbwLoops{0}, i{0}, j{0};
+
+  rclcpp::executors::SingleThreadedExecutor executor;
+  executor.add_node(i_node_);
+  executor.add_node(l_node_);
+  executor.spin_some(C_TIMEOUT_NANO);
+
+  // Set all gear == DRIVE && mode == AUTONOMOUS
+  for (i = 0; i < kNumTests_HLCC; i++) {
+    myTests[i].in_vsc.blinker = VehicleStateCommand::BLINKER_OFF;
+    myTests[i].in_vsc.headlight = VehicleStateCommand::HEADLIGHT_OFF;
+    myTests[i].in_vsc.wiper = VehicleStateCommand::WIPER_OFF;
+    myTests[i].in_vsc.gear = VehicleStateCommand::GEAR_DRIVE;
+    myTests[i].in_vsc.mode = VehicleStateCommand::MODE_AUTONOMOUS;
+    myTests[i].in_vsc.hand_brake = false;
+    myTests[i].in_vsc.horn = false;
+  }
+
+  /* Test valid inputs */
+  // No speed, no angle
+  // First time sent, DBW state machine not enabled
+  myTests[0].in_hlcc.stamp = test_clock.now();
+  myTests[0].in_hlcc.velocity_mps = 0.0F;
+  myTests[0].in_hlcc.curvature = 0.0F;
+  myTests[0].exp_apc.speed_cmd = 0.0F;
+  myTests[0].exp_apc.enable = false;
+  myTests[0].exp_bc.enable = false;
+  myTests[0].exp_sc.enable = false;
+  myTests[0].exp_sc.vehicle_curvature_cmd = 0.0F;
+
+  // 2nd time sent, DBW should be enabled
+  myTests[1].in_hlcc.stamp = test_clock.now();
+  myTests[1].in_hlcc.velocity_mps = 0.0F;
+  myTests[1].in_hlcc.curvature = 0.0F;
+  myTests[1].exp_apc.speed_cmd = 0.0F;
+  myTests[1].exp_apc.enable = true;
+  myTests[1].exp_bc.enable = true;
+  myTests[1].exp_sc.enable = true;
+  myTests[1].exp_sc.vehicle_curvature_cmd = 0.0F;
+
+  /* Run all tests in a loop */
+  for (i = 0; i < kNumTests_HLCC; i++) {
+    // Set gear input to enable/disable autonomous mode
+    EXPECT_TRUE(
+      ne_raptor_interface_->send_state_command(myTests[i].in_vsc)) <<
+      "Test #" << std::to_string(i);
+
+    timeout = 0;
+    while (!test_listener_->l_got_gear_cmd &&
+      (timeout < C_TIMEOUT_ITERATIONS) )
+    {
+      executor.spin_some(C_TIMEOUT_NANO);
+      timeout++;
+    }
+    if (!test_listener_->l_got_gear_cmd) {
+      EXPECT_TRUE(test_listener_->l_got_gear_cmd) <<
+        "dropped package gear_cmd: Test #" << std::to_string(i);
+    } else {
+      test_listener_->l_got_gear_cmd = false;
+    }
+
+    // Send DBW state machine feedback to enable/disable autonomous mode
+    // Send once to enable, multiple times to disable
+    enable_dbw.data = myTests[i].in_vsc.mode == VehicleStateCommand::MODE_AUTONOMOUS;
+    numDbwLoops = enable_dbw.data ? 1 : 4;
+    for (j = 0; j < numDbwLoops; j++) {
+      test_talker_->send_report(enable_dbw);
+
+      timeout = 0;
+      while (!test_listener_->l_got_gear_cmd &&
+        (timeout < C_TIMEOUT_ITERATIONS) )
+      {
+        executor.spin_some(C_TIMEOUT_NANO);
+        timeout++;
+      }
+    }
+
+    // Set vehicle control input
+    EXPECT_TRUE(
+      ne_raptor_interface_->send_control_command(myTests[i].in_hlcc)) <<
+      "Test #" << std::to_string(i);
+
+    // Test publishing
+    timeout = 0;
+    while ((!test_listener_->l_got_accel_cmd ||
+      !test_listener_->l_got_brake_cmd ||
+      !test_listener_->l_got_steer_cmd) &&
+      (timeout < C_TIMEOUT_ITERATIONS) )
+    {
+      executor.spin_some(C_TIMEOUT_NANO);
+      timeout++;
+    }
+
+    if (test_listener_->l_got_accel_cmd) {
+      EXPECT_NEAR(
+        test_listener_->l_accel_cmd.speed_cmd,
+        myTests[i].exp_apc.speed_cmd,
+        static_cast<float32_t>(1e-5)) << "Test #" << std::to_string(i);
+      EXPECT_EQ(
+        test_listener_->l_accel_cmd.enable,
+        myTests[i].exp_apc.enable) << "Test #" << std::to_string(i);
+      EXPECT_EQ(
+        test_listener_->l_accel_cmd.control_type.value,
+        ActuatorControlMode::CLOSED_LOOP_VEHICLE);
+      EXPECT_FLOAT_EQ(
+        test_listener_->l_accel_cmd.accel_limit,
+        c_accel_limit);
+      EXPECT_FLOAT_EQ(
+        test_listener_->l_accel_cmd.accel_positive_jerk_limit,
+        c_pos_jerk_limit);
+      test_listener_->l_got_accel_cmd = false;
+    } else {
+      EXPECT_TRUE(test_listener_->l_got_accel_cmd) <<
+        "dropped package accel_cmd: Test #" << std::to_string(i);
+    }
+
+    if (test_listener_->l_got_brake_cmd) {
+      EXPECT_EQ(
+        test_listener_->l_brake_cmd.enable,
+        myTests[i].exp_bc.enable) << "Test #" << std::to_string(i);
+      EXPECT_EQ(
+        test_listener_->l_brake_cmd.control_type.value,
+        ActuatorControlMode::CLOSED_LOOP_VEHICLE);
+      EXPECT_FLOAT_EQ(
+        test_listener_->l_brake_cmd.decel_limit,
+        c_decel_limit);
+      EXPECT_FLOAT_EQ(
+        test_listener_->l_brake_cmd.decel_negative_jerk_limit,
+        c_neg_jerk_limit);
+      test_listener_->l_got_brake_cmd = false;
+    } else {
+      EXPECT_TRUE(test_listener_->l_got_brake_cmd) <<
+        "dropped package brake_cmd: Test #" << std::to_string(i);
+    }
+
+    if (test_listener_->l_got_steer_cmd) {
+      EXPECT_EQ(
+        test_listener_->l_steer_cmd.enable,
+        myTests[i].exp_sc.enable) << "Test #" << std::to_string(i);
+      EXPECT_EQ(
+        test_listener_->l_steer_cmd.control_type.value,
+        ActuatorControlMode::CLOSED_LOOP_VEHICLE);
+      // High-Level Control Command uses curvature for control
+      EXPECT_FLOAT_EQ(
+        test_listener_->l_steer_cmd.vehicle_curvature_cmd,
+        myTests[i].exp_sc.vehicle_curvature_cmd);
+      test_listener_->l_got_steer_cmd = false;
+    } else {
+      EXPECT_TRUE(test_listener_->l_got_steer_cmd) <<
+        "dropped package steer_cmd: Test #" << std::to_string(i);
+    }
+    EXPECT_EQ(
+      test_listener_->l_accel_cmd.rolling_counter,
+      test_listener_->l_brake_cmd.rolling_counter);
+    EXPECT_EQ(
+      test_listener_->l_accel_cmd.rolling_counter,
+      test_listener_->l_steer_cmd.rolling_counter);
+  }
 }
 
 TEST_F(NERaptorInterface_test, test_cmd_raw_control)
@@ -280,7 +439,174 @@ TEST_F(NERaptorInterface_test, test_cmd_raw_control)
 
 TEST_F(NERaptorInterface_test, test_cmd_vehicle_control)
 {
-  VehicleControlCommand vcc;
+  test_vcc myTests[kNumTests_VCC];
+  std_msgs::msg::Bool enable_dbw{};
+  uint8_t timeout{0}, numDbwLoops{0}, i{0}, j{0};
+
+  rclcpp::executors::SingleThreadedExecutor executor;
+  executor.add_node(i_node_);
+  executor.add_node(l_node_);
+  executor.spin_some(C_TIMEOUT_NANO);
+
+  // Set all gear == DRIVE && mode == AUTONOMOUS
+  for (i = 0; i < kNumTests_VCC; i++) {
+    myTests[i].in_vsc.blinker = VehicleStateCommand::BLINKER_OFF;
+    myTests[i].in_vsc.headlight = VehicleStateCommand::HEADLIGHT_OFF;
+    myTests[i].in_vsc.wiper = VehicleStateCommand::WIPER_OFF;
+    myTests[i].in_vsc.gear = VehicleStateCommand::GEAR_DRIVE;
+    myTests[i].in_vsc.mode = VehicleStateCommand::MODE_AUTONOMOUS;
+    myTests[i].in_vsc.hand_brake = false;
+    myTests[i].in_vsc.horn = false;
+  }
+
+  /* Test valid inputs */
+  // No speed, no angle, no limits set
+  // First time sent, DBW state machine not enabled
+  myTests[0].in_vcc.stamp = test_clock.now();
+  myTests[0].in_vcc.long_accel_mps2 = 0.0F;  // keep default limits
+  myTests[0].in_vcc.velocity_mps = 0.0F;
+  myTests[0].in_vcc.front_wheel_angle_rad = 0.0F;
+  myTests[0].exp_apc.speed_cmd = 0.0F;
+  myTests[0].exp_apc.enable = false;
+  myTests[0].exp_apc.accel_limit = c_accel_limit;
+  myTests[0].exp_bc.enable = false;
+  myTests[0].exp_bc.decel_limit = c_decel_limit;
+  myTests[0].exp_sc.enable = false;
+  myTests[0].exp_sc.angle_cmd = 0.0F;
+
+  // 2nd time sent, DBW should be enabled
+  myTests[1].in_vcc.stamp = test_clock.now();
+  myTests[1].in_vcc.long_accel_mps2 = 0.0F;  // keep default limits
+  myTests[1].in_vcc.velocity_mps = 0.0F;
+  myTests[1].in_vcc.front_wheel_angle_rad = 0.0F;
+  myTests[1].exp_apc.speed_cmd = 0.0F;
+  myTests[1].exp_apc.enable = true;
+  myTests[1].exp_apc.accel_limit = c_accel_limit;
+  myTests[1].exp_bc.enable = true;
+  myTests[1].exp_bc.decel_limit = c_decel_limit;
+  myTests[1].exp_sc.enable = true;
+  myTests[1].exp_sc.angle_cmd = 0.0F;
+
+  /* Run all tests in a loop */
+  for (i = 0; i < kNumTests_VCC; i++) {
+    // Set gear input to enable/disable autonomous mode
+    EXPECT_TRUE(
+      ne_raptor_interface_->send_state_command(myTests[i].in_vsc)) <<
+      "Test #" << std::to_string(i);
+
+    timeout = 0;
+    while (!test_listener_->l_got_gear_cmd &&
+      (timeout < C_TIMEOUT_ITERATIONS) )
+    {
+      executor.spin_some(C_TIMEOUT_NANO);
+      timeout++;
+    }
+
+    if (!test_listener_->l_got_gear_cmd) {
+      EXPECT_TRUE(test_listener_->l_got_gear_cmd) <<
+        "dropped package gear_cmd: Test #" << std::to_string(i) << std::to_string(j);
+    } else {
+      test_listener_->l_got_gear_cmd = false;
+    }
+
+    // Send DBW state machine feedback to enable/disable autonomous mode
+    // Send once to enable, multiple times to disable
+    enable_dbw.data = myTests[i].in_vsc.mode == VehicleStateCommand::MODE_AUTONOMOUS;
+    numDbwLoops = enable_dbw.data ? 1 : 4;
+    for (j = 0; j < numDbwLoops; j++) {
+      test_talker_->send_report(enable_dbw);
+
+      timeout = 0;
+      while (!test_listener_->l_got_gear_cmd &&
+        (timeout < C_TIMEOUT_ITERATIONS) )
+      {
+        executor.spin_some(C_TIMEOUT_NANO);
+        timeout++;
+      }
+    }
+
+    // Set vehicle control input
+    EXPECT_TRUE(
+      ne_raptor_interface_->send_control_command(myTests[i].in_vcc)) <<
+      "Test #" << std::to_string(i);
+
+    // Test publishing
+    timeout = 0;
+    while ((!test_listener_->l_got_accel_cmd ||
+      !test_listener_->l_got_brake_cmd ||
+      !test_listener_->l_got_steer_cmd) &&
+      (timeout < C_TIMEOUT_ITERATIONS) )
+    {
+      executor.spin_some(C_TIMEOUT_NANO);
+      timeout++;
+    }
+
+    if (test_listener_->l_got_accel_cmd) {
+      EXPECT_NEAR(
+        test_listener_->l_accel_cmd.speed_cmd,
+        myTests[i].exp_apc.speed_cmd,
+        static_cast<float32_t>(1e-5)) << "Test #" << std::to_string(i);
+      EXPECT_EQ(
+        test_listener_->l_accel_cmd.enable,
+        myTests[i].exp_apc.enable) << "Test #" << std::to_string(i);
+      EXPECT_EQ(
+        test_listener_->l_accel_cmd.control_type.value,
+        ActuatorControlMode::CLOSED_LOOP_ACTUATOR);
+      EXPECT_FLOAT_EQ(
+        test_listener_->l_accel_cmd.accel_limit,
+        myTests[i].exp_apc.accel_limit);
+      EXPECT_FLOAT_EQ(
+        test_listener_->l_accel_cmd.accel_positive_jerk_limit,
+        c_pos_jerk_limit);
+      test_listener_->l_got_accel_cmd = false;
+    } else {
+      EXPECT_TRUE(test_listener_->l_got_accel_cmd) <<
+        "dropped package accel_cmd: Test #" << std::to_string(i);
+    }
+
+    if (test_listener_->l_got_brake_cmd) {
+      EXPECT_EQ(
+        test_listener_->l_brake_cmd.enable,
+        myTests[i].exp_bc.enable) << "Test #" << std::to_string(i);
+      EXPECT_EQ(
+        test_listener_->l_brake_cmd.control_type.value,
+        ActuatorControlMode::CLOSED_LOOP_ACTUATOR);
+      EXPECT_FLOAT_EQ(
+        test_listener_->l_brake_cmd.decel_limit,
+        myTests[i].exp_bc.decel_limit);
+      EXPECT_FLOAT_EQ(
+        test_listener_->l_brake_cmd.decel_negative_jerk_limit,
+        c_neg_jerk_limit);
+      test_listener_->l_got_brake_cmd = false;
+    } else {
+      EXPECT_TRUE(test_listener_->l_got_brake_cmd) <<
+        "dropped package brake_cmd: Test #" << std::to_string(i);
+    }
+
+    if (test_listener_->l_got_steer_cmd) {
+      EXPECT_EQ(
+        test_listener_->l_steer_cmd.enable,
+        myTests[i].exp_sc.enable) << "Test #" << std::to_string(i);
+      EXPECT_EQ(
+        test_listener_->l_steer_cmd.control_type.value,
+        ActuatorControlMode::CLOSED_LOOP_ACTUATOR);
+      // Vehicle Control Command uses tire angle for control;
+      // interface converts to steering wheel angle
+      EXPECT_FLOAT_EQ(
+        test_listener_->l_steer_cmd.angle_cmd,
+        myTests[i].exp_sc.angle_cmd);
+      test_listener_->l_got_steer_cmd = false;
+    } else {
+      EXPECT_TRUE(test_listener_->l_got_steer_cmd) <<
+        "dropped package steer_cmd: Test #" << std::to_string(i);
+    }
+    EXPECT_EQ(
+      test_listener_->l_accel_cmd.rolling_counter,
+      test_listener_->l_brake_cmd.rolling_counter);
+    EXPECT_EQ(
+      test_listener_->l_accel_cmd.rolling_counter,
+      test_listener_->l_steer_cmd.rolling_counter);
+  }
 }
 
 /* Test the DBW Reports:

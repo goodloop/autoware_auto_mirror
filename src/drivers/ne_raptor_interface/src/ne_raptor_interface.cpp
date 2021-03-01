@@ -249,7 +249,7 @@ bool8_t NERaptorInterface::send_state_command(const VehicleStateCommand & msg)
       t_mode->mode = ModeChangeRequest::MODE_AUTONOMOUS;
       handle_mode_change_request(t_mode); */
       m_dbw_state_machine->user_request(true);
-      m_dbw_state_machine->control_cmd_sent();
+      m_dbw_state_machine->state_cmd_sent();
       gc.enable = true;
       gec.global_enable = true;
       gec.enable_joystick_limits = true;
@@ -262,7 +262,7 @@ bool8_t NERaptorInterface::send_state_command(const VehicleStateCommand & msg)
       t_mode->mode = ModeChangeRequest::MODE_MANUAL;
       handle_mode_change_request(t_mode); */
       m_dbw_state_machine->user_request(false);
-      m_dbw_state_machine->control_cmd_sent();
+      m_dbw_state_machine->state_cmd_sent();
       gc.enable = false;
       gec.global_enable = false;
       gec.enable_joystick_limits = false;
@@ -299,6 +299,7 @@ bool8_t NERaptorInterface::send_control_command(const HighLevelControlCommand & 
   SteeringCmd sc{};
 
   // Using curvature for control
+  apc.control_type.value = ActuatorControlMode::CLOSED_LOOP_VEHICLE;
   sc.control_type.value = ActuatorControlMode::CLOSED_LOOP_VEHICLE;
   bc.control_type.value = ActuatorControlMode::CLOSED_LOOP_VEHICLE;
 
@@ -370,6 +371,7 @@ bool8_t NERaptorInterface::send_control_command(const VehicleControlCommand & ms
   SteeringCmd sc{};
 
   // Using steering wheel angle for control
+  apc.control_type.value = ActuatorControlMode::CLOSED_LOOP_ACTUATOR;
   sc.control_type.value = ActuatorControlMode::CLOSED_LOOP_ACTUATOR;
   bc.control_type.value = ActuatorControlMode::CLOSED_LOOP_ACTUATOR;
 
@@ -440,10 +442,10 @@ bool8_t NERaptorInterface::handle_mode_change_request(ModeChangeRequest::SharedP
   bool8_t ret{true};
   if (request->mode == ModeChangeRequest::MODE_MANUAL) {
     m_dbw_state_machine->user_request(false);
-    m_dbw_state_machine->control_cmd_sent();
+    m_dbw_state_machine->state_cmd_sent();
   } else if (request->mode == ModeChangeRequest::MODE_AUTONOMOUS) {
     m_dbw_state_machine->user_request(true);
-    m_dbw_state_machine->control_cmd_sent();
+    m_dbw_state_machine->state_cmd_sent();
   } else {
     RCLCPP_ERROR_THROTTLE(
       m_logger, m_clock, CLOCK_1_SEC,

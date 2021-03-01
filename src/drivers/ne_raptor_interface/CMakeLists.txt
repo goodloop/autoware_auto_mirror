@@ -81,6 +81,7 @@ if(BUILD_TESTING)
   set(TEST_SOURCES
     test/test_ne_raptor_interface.cpp
     test/test_ne_raptor_interface_listener.cpp
+    test/test_ne_raptor_interface_talker.cpp
   )
   set(TEST_NE_RAPTOR_INTERFACE_EXE test_ne_raptor_interface)
   ament_add_gtest(${TEST_NE_RAPTOR_INTERFACE_EXE} ${TEST_SOURCES})

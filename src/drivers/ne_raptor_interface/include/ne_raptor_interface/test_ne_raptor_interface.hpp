@@ -19,6 +19,7 @@
 
 #include <ne_raptor_interface/ne_raptor_interface.hpp>
 #include <ne_raptor_interface/test_ne_raptor_interface_listener.hpp>
+#include <ne_raptor_interface/test_ne_raptor_interface_talker.hpp>
 
 #include <chrono>
 #include <cmath>
@@ -28,6 +29,7 @@
 
 using autoware::ne_raptor_interface::NERaptorInterface;
 using autoware::ne_raptor_interface::NERaptorInterfaceListener;
+using autoware::ne_raptor_interface::NERaptorInterfaceTalker;
 using autoware::drivers::vehicle_interface::DbwStateMachine;
 using autoware::drivers::vehicle_interface::DbwState;
 
@@ -40,9 +42,11 @@ const float32_t c_accel_limit = 3.0F;
 const float32_t c_decel_limit = 3.0F;
 const float32_t c_pos_jerk_limit = 9.0F;
 const float32_t c_neg_jerk_limit = 9.0F;
-#define kNumTests_VSC (15)
 
 /* Other useful constants */
+#define kNumTests_VSC  (15)
+#define kNumTests_HLCC (2)
+#define kNumTests_VCC  (2)
 using namespace std::literals::chrono_literals; //NOLINT
 const std::chrono::nanoseconds C_TIMEOUT_NANO = 1000000000ns;
 const uint8_t C_TIMEOUT_ITERATIONS = 10;
@@ -55,6 +59,7 @@ protected:
     rclcpp::init(0, nullptr);
     i_node_ = std::make_shared<rclcpp::Node>("ne_raptor_interface_test_node", "/gtest");
     l_node_ = std::make_shared<rclcpp::Node>("ne_raptor_interface_listener_node", "/gtest");
+    t_node_ = std::make_shared<rclcpp::Node>("ne_raptor_interface_talker_node", "/gtest");
     ne_raptor_interface_ = std::make_unique<NERaptorInterface>(
       *i_node_,
       c_ecu_build_num,
@@ -69,6 +74,9 @@ protected:
     test_listener_ = std::make_unique<NERaptorInterfaceListener>(
       *l_node_
     );
+    test_talker_ = std::make_unique<NERaptorInterfaceTalker>(
+      *t_node_
+    );
   }
 
   void TearDown() override
@@ -77,9 +85,10 @@ protected:
   }
 
 public:
-  rclcpp::Node::SharedPtr i_node_, l_node_;
+  rclcpp::Node::SharedPtr i_node_, l_node_, t_node_;
   std::unique_ptr<NERaptorInterface> ne_raptor_interface_;
   std::unique_ptr<NERaptorInterfaceListener> test_listener_;
+  std::unique_ptr<NERaptorInterfaceTalker> test_talker_;
   rclcpp::Clock test_clock{RCL_SYSTEM_TIME};
 
   // Struct types for test sets
@@ -94,6 +103,7 @@ public:
   struct test_hlcc
   {
     HighLevelControlCommand in_hlcc;  // Input: high level control command
+    VehicleStateCommand in_vsc;       // Input: vehicle state command (set current gear)
     AcceleratorPedalCmd exp_apc;      // Expected output: accelerator pedal command
     BrakeCmd exp_bc;                  // Expected output: brake command
     SteeringCmd exp_sc;               // Expected output: steering command
@@ -101,6 +111,7 @@ public:
   struct test_vcc
   {
     VehicleControlCommand in_vcc;  // Input: vehicle control command
+    VehicleStateCommand in_vsc;    // Input: vehicle state command (set current gear)
     AcceleratorPedalCmd exp_apc;   // Expected output: accelerator pedal command
     BrakeCmd exp_bc;               // Expected output: brake command
     SteeringCmd exp_sc;            // Expected output: steering command
