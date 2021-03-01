@@ -277,6 +277,11 @@ TEST_F(NERaptorInterface_test, test_cmd_high_level_control)
     myTests[i].in_vsc.mode = VehicleStateCommand::MODE_AUTONOMOUS;
     myTests[i].in_vsc.hand_brake = false;
     myTests[i].in_vsc.horn = false;
+    myTests[i].in_gr.state.gear = Gear::DRIVE;
+    myTests[i].exp_apc.enable = true;
+    myTests[i].exp_bc.enable = true;
+    myTests[i].exp_sc.enable = true;
+    myTests[i].exp_success = true;
   }
 
   /* Test valid inputs */
@@ -296,10 +301,65 @@ TEST_F(NERaptorInterface_test, test_cmd_high_level_control)
   myTests[1].in_hlcc.velocity_mps = 0.0F;
   myTests[1].in_hlcc.curvature = 0.0F;
   myTests[1].exp_apc.speed_cmd = 0.0F;
-  myTests[1].exp_apc.enable = true;
-  myTests[1].exp_bc.enable = true;
-  myTests[1].exp_sc.enable = true;
   myTests[1].exp_sc.vehicle_curvature_cmd = 0.0F;
+
+  /* Test valid input:
+   * positive (forward) speed sent w/ Gear in Drive */
+  myTests[2].in_vsc.gear = VehicleStateCommand::GEAR_DRIVE;
+  myTests[2].in_gr.state.gear = Gear::DRIVE;
+  myTests[2].in_hlcc.stamp = test_clock.now();
+  myTests[2].in_hlcc.velocity_mps = 10.0F;
+  myTests[2].in_hlcc.curvature = 0.0F;
+  myTests[2].exp_apc.speed_cmd = 10.0F;
+  myTests[2].exp_sc.vehicle_curvature_cmd = 0.0F;
+
+  /* Test valid input:
+   * negative (backward) speed sent w/ Gear in Reverse */
+  myTests[3].in_vsc.gear = VehicleStateCommand::GEAR_REVERSE;
+  myTests[3].in_gr.state.gear = Gear::REVERSE;
+  myTests[3].in_hlcc.stamp = test_clock.now();
+  myTests[3].in_hlcc.velocity_mps = -10.0F;
+  myTests[3].in_hlcc.curvature = 0.0F;
+  myTests[3].exp_apc.speed_cmd = 10.0F;
+  myTests[3].exp_sc.vehicle_curvature_cmd = 0.0F;
+
+  /* Test invalid input:
+   * positive (forward) speed sent w/ Gear in Reverse */
+  myTests[4].in_vsc.gear = VehicleStateCommand::GEAR_REVERSE;
+  myTests[4].in_gr.state.gear = Gear::REVERSE;
+  myTests[4].in_hlcc.stamp = test_clock.now();
+  myTests[4].in_hlcc.velocity_mps = 10.0F;
+  myTests[4].in_hlcc.curvature = 0.0F;
+  myTests[4].exp_apc.speed_cmd = 0.0F;
+  myTests[4].exp_sc.vehicle_curvature_cmd = 0.0F;
+  myTests[4].exp_success = false;
+
+  /* Test invalid input:
+   * negative (backward) speed sent w/ Gear in Drive*/
+  myTests[5].in_vsc.gear = VehicleStateCommand::GEAR_DRIVE;
+  myTests[5].in_gr.state.gear = Gear::DRIVE;
+  myTests[5].in_hlcc.stamp = test_clock.now();
+  myTests[5].in_hlcc.velocity_mps = -10.0F;
+  myTests[5].in_hlcc.curvature = 0.0F;
+  myTests[5].exp_apc.speed_cmd = 0.0F;
+  myTests[5].exp_sc.vehicle_curvature_cmd = 0.0F;
+  myTests[5].exp_success = false;
+
+  /* Test valid input:
+   * send positive curvature */
+  myTests[6].in_hlcc.stamp = test_clock.now();
+  myTests[6].in_hlcc.velocity_mps = 0.0F;
+  myTests[6].in_hlcc.curvature = 30.0F;
+  myTests[6].exp_apc.speed_cmd = 0.0F;
+  myTests[6].exp_sc.vehicle_curvature_cmd = 30.0F;
+
+  /* Test valid input:
+   * send negative curvature */
+  myTests[7].in_hlcc.stamp = test_clock.now();
+  myTests[7].in_hlcc.velocity_mps = 0.0F;
+  myTests[7].in_hlcc.curvature = -30.0F;
+  myTests[7].exp_apc.speed_cmd = 0.0F;
+  myTests[7].exp_sc.vehicle_curvature_cmd = -30.0F;
 
   /* Run all tests in a loop */
   for (i = 0; i < kNumTests_HLCC; i++) {
@@ -307,6 +367,7 @@ TEST_F(NERaptorInterface_test, test_cmd_high_level_control)
     EXPECT_TRUE(
       ne_raptor_interface_->send_state_command(myTests[i].in_vsc)) <<
       "Test #" << std::to_string(i);
+    test_talker_->send_report(myTests[i].in_gr);
 
     timeout = 0;
     while (!test_listener_->l_got_gear_cmd &&
@@ -339,10 +400,15 @@ TEST_F(NERaptorInterface_test, test_cmd_high_level_control)
     }
 
     // Set vehicle control input
-    EXPECT_TRUE(
-      ne_raptor_interface_->send_control_command(myTests[i].in_hlcc)) <<
-      "Test #" << std::to_string(i);
-
+    if (myTests[i].exp_success) {
+      EXPECT_TRUE(
+        ne_raptor_interface_->send_control_command(myTests[i].in_hlcc)) <<
+        "Test #" << std::to_string(i);
+    } else {
+      EXPECT_FALSE(
+        ne_raptor_interface_->send_control_command(myTests[i].in_hlcc)) <<
+        "Test #" << std::to_string(i);
+    }
     // Test publishing
     timeout = 0;
     while ((!test_listener_->l_got_accel_cmd ||
@@ -457,6 +523,11 @@ TEST_F(NERaptorInterface_test, test_cmd_vehicle_control)
     myTests[i].in_vsc.mode = VehicleStateCommand::MODE_AUTONOMOUS;
     myTests[i].in_vsc.hand_brake = false;
     myTests[i].in_vsc.horn = false;
+    myTests[i].in_gr.state.gear = Gear::DRIVE;
+    myTests[i].exp_apc.enable = true;
+    myTests[i].exp_bc.enable = true;
+    myTests[i].exp_sc.enable = true;
+    myTests[i].exp_success = true;
   }
 
   /* Test valid inputs */
@@ -466,12 +537,12 @@ TEST_F(NERaptorInterface_test, test_cmd_vehicle_control)
   myTests[0].in_vcc.long_accel_mps2 = 0.0F;  // keep default limits
   myTests[0].in_vcc.velocity_mps = 0.0F;
   myTests[0].in_vcc.front_wheel_angle_rad = 0.0F;
-  myTests[0].exp_apc.speed_cmd = 0.0F;
   myTests[0].exp_apc.enable = false;
-  myTests[0].exp_apc.accel_limit = c_accel_limit;
   myTests[0].exp_bc.enable = false;
-  myTests[0].exp_bc.decel_limit = c_decel_limit;
   myTests[0].exp_sc.enable = false;
+  myTests[0].exp_apc.speed_cmd = 0.0F;
+  myTests[0].exp_apc.accel_limit = c_accel_limit;
+  myTests[0].exp_bc.decel_limit = c_decel_limit;
   myTests[0].exp_sc.angle_cmd = 0.0F;
 
   // 2nd time sent, DBW should be enabled
@@ -480,12 +551,135 @@ TEST_F(NERaptorInterface_test, test_cmd_vehicle_control)
   myTests[1].in_vcc.velocity_mps = 0.0F;
   myTests[1].in_vcc.front_wheel_angle_rad = 0.0F;
   myTests[1].exp_apc.speed_cmd = 0.0F;
-  myTests[1].exp_apc.enable = true;
   myTests[1].exp_apc.accel_limit = c_accel_limit;
-  myTests[1].exp_bc.enable = true;
   myTests[1].exp_bc.decel_limit = c_decel_limit;
-  myTests[1].exp_sc.enable = true;
   myTests[1].exp_sc.angle_cmd = 0.0F;
+
+  /* Test valid input:
+   * positive (forward) speed sent w/ Gear in Drive */
+  myTests[2].in_vsc.gear = VehicleStateCommand::GEAR_DRIVE;
+  myTests[2].in_gr.state.gear = Gear::DRIVE;
+  myTests[2].in_vcc.stamp = test_clock.now();
+  myTests[2].in_vcc.long_accel_mps2 = 0.0F;  // keep default limits
+  myTests[2].in_vcc.velocity_mps = 10.0F;
+  myTests[2].in_vcc.front_wheel_angle_rad = 0.0F;
+  myTests[2].exp_apc.speed_cmd = 10.0F;
+  myTests[2].exp_apc.accel_limit = c_accel_limit;
+  myTests[2].exp_bc.decel_limit = c_decel_limit;
+  myTests[2].exp_sc.angle_cmd = 0.0F;
+
+  /* Test valid input:
+   * negative (backward) speed sent w/ Gear in Reverse */
+  myTests[3].in_vsc.gear = VehicleStateCommand::GEAR_REVERSE;
+  myTests[3].in_gr.state.gear = Gear::REVERSE;
+  myTests[3].in_vcc.stamp = test_clock.now();
+  myTests[3].in_vcc.long_accel_mps2 = 0.0F;  // keep default limits
+  myTests[3].in_vcc.velocity_mps = -10.0F;
+  myTests[3].in_vcc.front_wheel_angle_rad = 0.0F;
+  myTests[3].exp_apc.speed_cmd = 10.0F;
+  myTests[3].exp_apc.accel_limit = c_accel_limit;
+  myTests[3].exp_bc.decel_limit = c_decel_limit;
+  myTests[3].exp_sc.angle_cmd = 0.0F;
+
+  /* Test invalid input:
+   * positive (forward) speed sent w/ Gear in Reverse */
+  myTests[4].in_vsc.gear = VehicleStateCommand::GEAR_REVERSE;
+  myTests[4].in_gr.state.gear = Gear::REVERSE;
+  myTests[4].in_vcc.stamp = test_clock.now();
+  myTests[4].in_vcc.long_accel_mps2 = 0.0F;  // keep default limits
+  myTests[4].in_vcc.velocity_mps = 10.0F;
+  myTests[4].in_vcc.front_wheel_angle_rad = 0.0F;
+  myTests[4].exp_apc.speed_cmd = 0.0F;
+  myTests[4].exp_apc.accel_limit = c_accel_limit;
+  myTests[4].exp_bc.decel_limit = c_decel_limit;
+  myTests[4].exp_sc.angle_cmd = 0.0F;
+  myTests[4].exp_success = false;
+
+  /* Test invalid input:
+   * negative (backward) speed sent w/ Gear in Drive*/
+  myTests[5].in_vsc.gear = VehicleStateCommand::GEAR_DRIVE;
+  myTests[5].in_gr.state.gear = Gear::DRIVE;
+  myTests[5].in_vcc.stamp = test_clock.now();
+  myTests[5].in_vcc.long_accel_mps2 = 0.0F;  // keep default limits
+  myTests[5].in_vcc.velocity_mps = -10.0F;
+  myTests[5].in_vcc.front_wheel_angle_rad = 0.0F;
+  myTests[5].exp_apc.speed_cmd = 0.0F;
+  myTests[5].exp_apc.accel_limit = c_accel_limit;
+  myTests[5].exp_bc.decel_limit = c_decel_limit;
+  myTests[5].exp_sc.angle_cmd = 0.0F;
+  myTests[5].exp_success = false;
+
+  /* Test valid input:
+   * positive steering angle < max */
+  myTests[6].in_vcc.stamp = test_clock.now();
+  myTests[6].in_vcc.long_accel_mps2 = 0.0F;  // keep default limits
+  myTests[6].in_vcc.velocity_mps = 0.0F;
+  myTests[6].in_vcc.front_wheel_angle_rad =
+    4.0F * autoware::ne_raptor_interface::DEGREES_TO_RADIANS;
+  myTests[6].exp_apc.speed_cmd = 0.0F;
+  myTests[6].exp_apc.accel_limit = c_accel_limit;
+  myTests[6].exp_bc.decel_limit = c_decel_limit;
+  myTests[6].exp_sc.angle_cmd = 2.0F;
+
+  /* Test valid input:
+   * abs(negative steering angle) < max */
+  myTests[7].in_vcc.stamp = test_clock.now();
+  myTests[7].in_vcc.long_accel_mps2 = 0.0F;  // keep default limits
+  myTests[7].in_vcc.velocity_mps = 0.0F;
+  myTests[7].in_vcc.front_wheel_angle_rad =
+    -4.0F * autoware::ne_raptor_interface::DEGREES_TO_RADIANS;
+  myTests[7].exp_apc.speed_cmd = 0.0F;
+  myTests[7].exp_apc.accel_limit = c_accel_limit;
+  myTests[7].exp_bc.decel_limit = c_decel_limit;
+  myTests[7].exp_sc.angle_cmd = -2.0F;
+
+  /* Test invalid input:
+   * positive steering angle > max */
+  myTests[8].in_vcc.stamp = test_clock.now();
+  myTests[8].in_vcc.long_accel_mps2 = 0.0F;  // keep default limits
+  myTests[8].in_vcc.velocity_mps = 0.0F;
+  myTests[8].in_vcc.front_wheel_angle_rad =
+    1001.0F * autoware::ne_raptor_interface::DEGREES_TO_RADIANS;
+  myTests[8].exp_apc.speed_cmd = 0.0F;
+  myTests[8].exp_apc.accel_limit = c_accel_limit;
+  myTests[8].exp_bc.decel_limit = c_decel_limit;
+  myTests[8].exp_sc.angle_cmd = 500.0F;
+  myTests[8].exp_success = false;
+
+  /* Test invalid input:
+   * abs(negative steering angle) > max */
+  myTests[9].in_vcc.stamp = test_clock.now();
+  myTests[9].in_vcc.long_accel_mps2 = 0.0F;  // keep default limits
+  myTests[9].in_vcc.velocity_mps = 0.0F;
+  myTests[9].in_vcc.front_wheel_angle_rad =
+    -1001.0F * autoware::ne_raptor_interface::DEGREES_TO_RADIANS;
+  myTests[9].exp_apc.speed_cmd = 0.0F;
+  myTests[9].exp_apc.accel_limit = c_accel_limit;
+  myTests[9].exp_bc.decel_limit = c_decel_limit;
+  myTests[9].exp_sc.angle_cmd = -500.0F;
+  myTests[9].exp_success = false;
+
+  /* Test valid input:
+   * change positive acceleration limit */
+  myTests[10].in_vcc.stamp = test_clock.now();
+  myTests[10].in_vcc.long_accel_mps2 = 20.0F;
+  myTests[10].in_vcc.velocity_mps = 0.0F;
+  myTests[10].in_vcc.front_wheel_angle_rad = 0.0F;
+  myTests[10].exp_apc.speed_cmd = 0.0F;
+  myTests[10].exp_apc.accel_limit = 20.0F;
+  myTests[10].exp_bc.decel_limit = c_decel_limit;
+  myTests[10].exp_sc.angle_cmd = 0.0F;
+
+  /* Test valid input:
+   * change negative acceleration limit */
+  myTests[11].in_vcc.stamp = test_clock.now();
+  myTests[11].in_vcc.long_accel_mps2 = -20.0F;
+  myTests[11].in_vcc.velocity_mps = 0.0F;
+  myTests[11].in_vcc.front_wheel_angle_rad = 0.0F;
+  myTests[11].exp_apc.speed_cmd = 0.0F;
+  myTests[11].exp_apc.accel_limit = c_accel_limit;
+  myTests[11].exp_bc.decel_limit = 20.0F;
+  myTests[11].exp_sc.angle_cmd = 0.0F;
 
   /* Run all tests in a loop */
   for (i = 0; i < kNumTests_VCC; i++) {
@@ -493,6 +687,7 @@ TEST_F(NERaptorInterface_test, test_cmd_vehicle_control)
     EXPECT_TRUE(
       ne_raptor_interface_->send_state_command(myTests[i].in_vsc)) <<
       "Test #" << std::to_string(i);
+    test_talker_->send_report(myTests[i].in_gr);
 
     timeout = 0;
     while (!test_listener_->l_got_gear_cmd &&
@@ -526,10 +721,15 @@ TEST_F(NERaptorInterface_test, test_cmd_vehicle_control)
     }
 
     // Set vehicle control input
-    EXPECT_TRUE(
-      ne_raptor_interface_->send_control_command(myTests[i].in_vcc)) <<
-      "Test #" << std::to_string(i);
-
+    if (myTests[i].exp_success) {
+      EXPECT_TRUE(
+        ne_raptor_interface_->send_control_command(myTests[i].in_vcc)) <<
+        "Test #" << std::to_string(i);
+    } else {
+      EXPECT_FALSE(
+        ne_raptor_interface_->send_control_command(myTests[i].in_vcc)) <<
+        "Test #" << std::to_string(i);
+    }
     // Test publishing
     timeout = 0;
     while ((!test_listener_->l_got_accel_cmd ||

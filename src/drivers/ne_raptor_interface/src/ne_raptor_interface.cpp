@@ -293,6 +293,7 @@ bool8_t NERaptorInterface::send_state_command(const VehicleStateCommand & msg)
 bool8_t NERaptorInterface::send_control_command(const HighLevelControlCommand & msg)
 {
   bool8_t is_dbw_enabled = m_dbw_state_machine->enabled() ? true : false;
+  bool8_t ret{true};
   float32_t velocity_checked{0.0F};
   AcceleratorPedalCmd apc{};
   BrakeCmd bc{};
@@ -327,12 +328,16 @@ bool8_t NERaptorInterface::send_control_command(const HighLevelControlCommand & 
   bc.decel_negative_jerk_limit = m_deceleration_negative_jerk_limit;
 
   // Check for invalid changes in direction
-  if ( ( (state_report().gear == VehicleStateReport::GEAR_DRIVE) &&
+  if ( ( (m_vehicle_state_report.gear == VehicleStateReport::GEAR_DRIVE) &&
     (msg.velocity_mps < 0.0F) ) ||
-    ( (state_report().gear == VehicleStateReport::GEAR_REVERSE) &&
+    ( (m_vehicle_state_report.gear == VehicleStateReport::GEAR_REVERSE) &&
     (msg.velocity_mps > 0.0F) ) )
   {
     velocity_checked = 0.0F;
+    RCLCPP_ERROR_THROTTLE(
+      m_logger, m_clock, CLOCK_1_SEC,
+      "Got invalid speed request value: speed direction does not match current gear.");
+    ret = false;
   } else {
     velocity_checked = std::fabs(msg.velocity_mps);
   }
@@ -346,7 +351,7 @@ bool8_t NERaptorInterface::send_control_command(const HighLevelControlCommand & 
   m_steer_cmd_pub->publish(sc);
 
   m_dbw_state_machine->control_cmd_sent();
-  return true;
+  return ret;
 }
 
 /* Apparently RawControlCommand will be obsolete soon.
@@ -364,6 +369,7 @@ bool8_t NERaptorInterface::send_control_command(const RawControlCommand & msg)
 bool8_t NERaptorInterface::send_control_command(const VehicleControlCommand & msg)
 {
   bool8_t is_dbw_enabled = m_dbw_state_machine->enabled() ? true : false;
+  bool8_t ret{true};
   float32_t velocity_checked{0.0F};
   float32_t angle_checked{0.0F};
   AcceleratorPedalCmd apc{};
@@ -405,12 +411,16 @@ bool8_t NERaptorInterface::send_control_command(const VehicleControlCommand & ms
   } else {}  // no change
 
   // Check for invalid changes in direction
-  if ( ( (state_report().gear == VehicleStateReport::GEAR_DRIVE) &&
+  if ( ( (m_vehicle_state_report.gear == VehicleStateReport::GEAR_DRIVE) &&
     (msg.velocity_mps < 0.0F) ) ||
-    ( (state_report().gear == VehicleStateReport::GEAR_REVERSE) &&
+    ( (m_vehicle_state_report.gear == VehicleStateReport::GEAR_REVERSE) &&
     (msg.velocity_mps > 0.0F) ) )
   {
     velocity_checked = 0.0F;
+    RCLCPP_ERROR_THROTTLE(
+      m_logger, m_clock, CLOCK_1_SEC,
+      "Got invalid speed request value: speed direction does not match current gear.");
+    ret = false;
   } else {
     velocity_checked = std::fabs(msg.velocity_mps);
   }
@@ -419,9 +429,17 @@ bool8_t NERaptorInterface::send_control_command(const VehicleControlCommand & ms
   angle_checked = msg.front_wheel_angle_rad / (DEGREES_TO_RADIANS * m_steer_to_tire_ratio);
   if (angle_checked > STEERING_MAX_ANGLE) {
     angle_checked = STEERING_MAX_ANGLE;
+    RCLCPP_ERROR_THROTTLE(
+      m_logger, m_clock, CLOCK_1_SEC,
+      "Got invalid steering angle value: request exceeds max angle.");
+    ret = false;
   }
   if (angle_checked < (-1.0F * STEERING_MAX_ANGLE)) {
     angle_checked = -1.0F * STEERING_MAX_ANGLE;
+    RCLCPP_ERROR_THROTTLE(
+      m_logger, m_clock, CLOCK_1_SEC,
+      "Got invalid steering angle value: request exceeds max angle.");
+    ret = false;
   }
 
   // Send commands
@@ -434,7 +452,7 @@ bool8_t NERaptorInterface::send_control_command(const VehicleControlCommand & ms
   m_steer_cmd_pub->publish(sc);
 
   m_dbw_state_machine->control_cmd_sent();
-  return true;
+  return ret;
 }
 
 bool8_t NERaptorInterface::handle_mode_change_request(ModeChangeRequest::SharedPtr request)

@@ -59,14 +59,14 @@ public:
   bool8_t send_report(const std_msgs::msg::Bool & msg);
 
 private:
-  // Publishers (to Raptor DBW)
+  // Publishers (from Raptor DBW)
   rclcpp::Publisher<BrakeReport>::SharedPtr t_brake_rpt_pub;
   rclcpp::Publisher<GearReport>::SharedPtr t_gear_rpt_pub;
   rclcpp::Publisher<MiscReport>::SharedPtr t_misc_rpt_pub;
   rclcpp::Publisher<OtherActuatorsReport>::SharedPtr t_other_acts_rpt_pub;
   rclcpp::Publisher<SteeringReport>::SharedPtr t_steering_rpt_pub;
   rclcpp::Publisher<WheelSpeedReport>::SharedPtr t_wheel_spd_rpt_pub;
-  // Publishers (to Autoware.Auto)
+  // Publishers (from Autoware.Auto)
   rclcpp::Publisher<std_msgs::msg::Bool>::SharedPtr t_dbw_state_pub;
 };  // class NERaptorInterfaceTalker
 

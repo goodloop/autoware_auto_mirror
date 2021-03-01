@@ -45,8 +45,8 @@ const float32_t c_neg_jerk_limit = 9.0F;
 
 /* Other useful constants */
 #define kNumTests_VSC  (15)
-#define kNumTests_HLCC (2)
-#define kNumTests_VCC  (2)
+#define kNumTests_HLCC (8)
+#define kNumTests_VCC  (12)
 using namespace std::literals::chrono_literals; //NOLINT
 const std::chrono::nanoseconds C_TIMEOUT_NANO = 1000000000ns;
 const uint8_t C_TIMEOUT_ITERATIONS = 10;
@@ -104,17 +104,21 @@ public:
   {
     HighLevelControlCommand in_hlcc;  // Input: high level control command
     VehicleStateCommand in_vsc;       // Input: vehicle state command (set current gear)
+    GearReport in_gr;                 // Input: gear report (set current gear)
     AcceleratorPedalCmd exp_apc;      // Expected output: accelerator pedal command
     BrakeCmd exp_bc;                  // Expected output: brake command
     SteeringCmd exp_sc;               // Expected output: steering command
+    bool8_t exp_success;              // Expected output: send_control_command
   };
   struct test_vcc
   {
     VehicleControlCommand in_vcc;  // Input: vehicle control command
     VehicleStateCommand in_vsc;    // Input: vehicle state command (set current gear)
+    GearReport in_gr;              // Input: gear report (set current gear)
     AcceleratorPedalCmd exp_apc;   // Expected output: accelerator pedal command
     BrakeCmd exp_bc;               // Expected output: brake command
     SteeringCmd exp_sc;            // Expected output: steering command
+    bool8_t exp_success;           // Expected output: send_control_command
   };
 };  // class NERaptorInterface_test
 

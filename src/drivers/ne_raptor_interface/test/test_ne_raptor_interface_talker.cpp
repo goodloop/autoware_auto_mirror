@@ -23,7 +23,7 @@ NERaptorInterfaceTalker::NERaptorInterfaceTalker(
   rclcpp::Node & node
 )
 {
-  // Publishers (to Raptor DBW)
+  // Publishers (from Raptor DBW)
   t_brake_rpt_pub = node.create_publisher<BrakeReport>("brake_report", 10);
   t_gear_rpt_pub = node.create_publisher<GearReport>("gear_report", 10);
   t_misc_rpt_pub = node.create_publisher<MiscReport>("misc_report", 10);
@@ -31,7 +31,7 @@ NERaptorInterfaceTalker::NERaptorInterfaceTalker(
   t_steering_rpt_pub = node.create_publisher<SteeringReport>("steering_report", 10);
   t_wheel_spd_rpt_pub = node.create_publisher<WheelSpeedReport>("wheel_speed_report", 10);
 
-  // Publishers (to Autoware.Auto)
+  // Publishers (from Autoware.Auto)
   t_dbw_state_pub = node.create_publisher<std_msgs::msg::Bool>("dbw_enabled_feedback", 10);
 }
 
@@ -82,7 +82,6 @@ bool8_t NERaptorInterfaceTalker::send_report(const std_msgs::msg::Bool & msg)
   t_dbw_state_pub->publish(msg);
   return true;
 }
-
 
 }  // namespace ne_raptor_interface
 }  // namespace autoware
