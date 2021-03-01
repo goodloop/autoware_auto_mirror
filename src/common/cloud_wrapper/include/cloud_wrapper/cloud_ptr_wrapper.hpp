@@ -146,7 +146,7 @@ public:
     msg_ptr_->data.resize(size_bytes_from_size_points(size_new), 0);
     size_ = size_new;
     msg_ptr_->width = static_cast<uint32_t>(size_);
-    msg_ptr_->row_step = static_cast<uint32_t>(size_ * msg_ptr_->point_step);
+    msg_ptr_->row_step = static_cast<uint32_t>(size_ * sizeof(TypePoint));
     regenerate_iterator_end();
   }
 
@@ -158,7 +158,7 @@ public:
   void push_back(const TypePoint & point)
   {
     auto iter_bytes = reinterpret_cast<const unsigned char *>(&point);
-    auto iter_bytes_end = iter_bytes + msg_ptr_->point_step;
+    auto iter_bytes_end = iter_bytes + sizeof(TypePoint);
 
     reserve(size_ + 1);
     std::copy(iter_bytes, iter_bytes_end, std::back_inserter(msg_ptr_->data));
@@ -171,7 +171,7 @@ public:
   void push_back_without_reserve_resize(const TypePoint & point)
   {
     auto iter_bytes = reinterpret_cast<const unsigned char *>(&point);
-    auto iter_bytes_end = iter_bytes + msg_ptr_->point_step;
+    auto iter_bytes_end = iter_bytes + sizeof(TypePoint);
 
     std::copy(iter_bytes, iter_bytes_end, std::back_inserter(msg_ptr_->data));
   }
@@ -180,9 +180,9 @@ public:
   /// to update message values with correct size
   void update_size()
   {
-    size_ = msg_ptr_->data.size() / msg_ptr_->point_step;
+    size_ = msg_ptr_->data.size() / sizeof(TypePoint);
     msg_ptr_->width = static_cast<uint32_t>(size_);
-    msg_ptr_->row_step = static_cast<uint32_t>(size_ * msg_ptr_->point_step);
+    msg_ptr_->row_step = static_cast<uint32_t>(size_ * sizeof(TypePoint));
     regenerate_iterator_end();
   }
 
@@ -221,7 +221,7 @@ private:
 
   size_t size_bytes_from_size_points(size_t count_points)
   {
-    return count_points * msg_ptr_->point_step;
+    return count_points * sizeof(TypePoint);
   }
 
 };
