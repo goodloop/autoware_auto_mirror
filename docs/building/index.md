@@ -80,6 +80,9 @@ colcon build --cmake-args -DCMAKE_BUILD_TYPE=RelWithDebInfo
 These flags are then passed into [autoware_set_compile_options](https://gitlab.com/autowarefoundation/autoware.auto/AutowareAuto/-/blob/master/src/tools/autoware_auto_cmake/cmake/autoware_auto_cmake.cmake#L51)
 function for the nodes that use it in their respective `CMakeLists.txt` files.
 
+If there is no `CMAKE_BUILD_TYPE` given, and `autoware_set_compile_options` is used, then the code is 
+built optimized and without debug flags.
+
 #### Compilation Database Generation {#building-compilation-database}
 
 In order to let IDEs analyze the build dependencies and symbol relationships, [a compilation database](https://colcon.readthedocs.io/en/released/user/how-to.html#cmake-packages-generating-compile-commands-json)
