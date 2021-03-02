@@ -104,14 +104,8 @@ def generate_launch_description():
 
     rosbag_file_path_default = os.path.join(
         os.environ['HOME'],
-        'rosbag2_2020_09_23-15_58_07'
+        'rosbag2_2020_09_23-15_58_07/rosbag2_2020_09_23-15_58_07.db3'
     )
-
-    if os.environ["ROS_DISTRO"] > "dashing":
-        rosbag_file_path_default = os.path.join(
-            rosbag_file_path_default,
-            'rosbag2_2020_09_23-15_58_07.db3'
-        )
 
     return launch.LaunchDescription([
 
