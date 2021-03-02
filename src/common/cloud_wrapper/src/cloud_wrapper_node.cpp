@@ -55,8 +55,6 @@ CloudWrapperNode::CloudWrapperNode(const rclcpp::NodeOptions & options)
 
 void CloudWrapperNode::callback_timer()
 {
-//  RCLCPP_INFO(this->get_logger(), "callback_timer is called.");
-
   CloudPtrWrapper<PointXYZI> cloud_wrapper(autoware::common::types_point_cloud2::fields_PointXYZI);
 
   cloud_wrapper.get_msg_ptr()->header.frame_id = "lidar_front";
@@ -97,24 +95,9 @@ void CloudWrapperNode::callback_timer()
 
 void CloudWrapperNode::callback_cloud_input(const PointCloud2::SharedPtr msg)
 {
-//  RCLCPP_INFO(
-//    this->get_logger(),
-//    "callback_cloud_input called.");
-
-  std::cout << "sizeof PointLgsvl = " << sizeof(PointXYZI) << std::endl;
-
   CloudPtrWrapper<PointXYZI> cloud_wrapper1(msg);
 
-//  std::vector<PointLgsvl> points_new = cloud_wrapper1.get_vector_copy();
-//  for (size_t i = 0; i < cloud_wrapper1.size(); ++i) {
-//    const auto & p = cloud_wrapper1.at(i);
-//    std::cout << "index #" << i <<
-//      " = " << p.x <<
-//      ", " << p.y <<
-//      ", " << p.z <<
-//      ", " << static_cast<int>(p.intensity) <<
-//      std::endl;
-//  }
+  // Remove points that satisfy certain conditions
 
   std::cout << "size_before_removal: " << cloud_wrapper1.size() << std::endl;
 
@@ -127,10 +110,10 @@ void CloudWrapperNode::callback_cloud_input(const PointCloud2::SharedPtr msg)
       return intensity_is_too_low || z_is_too_big;
     });
 
-
   cloud_wrapper1.erase_till_end(end_new);
   std::cout << "size_after_removal: " << cloud_wrapper1.size() << std::endl;
 
+  // Translate points 20m up in z axis
 
   std::for_each(
     cloud_wrapper1.begin(),
@@ -138,6 +121,8 @@ void CloudWrapperNode::callback_cloud_input(const PointCloud2::SharedPtr msg)
     [](PointXYZI & p) {
       p.z += 20.0f;
     });
+
+  // Add weird ball shaped points
 
   cloud_wrapper1.reserve(cloud_wrapper1.size() + 360 * 3);
   float radius_circle = 5.0f;
@@ -155,50 +140,14 @@ void CloudWrapperNode::callback_cloud_input(const PointCloud2::SharedPtr msg)
     float z1 = circle_center_height;
     float z2 = circle_center_height + cos_part;
     float z3 = circle_center_height + cos_part;
-    PointXYZI p(cos_part, sin_part, z1, height_to_intensity(z1));
-    PointXYZI p2(sin_part, 0, z2, height_to_intensity(z2));
-    PointXYZI p3(0, sin_part, z3, height_to_intensity(z3));
-    cloud_wrapper1.push_back(p);
-    cloud_wrapper1.push_back(p2);
-    cloud_wrapper1.push_back(p3);
+
+    cloud_wrapper1.push_back(PointXYZI(cos_part, sin_part, z1, height_to_intensity(z1)));
+    cloud_wrapper1.push_back(PointXYZI(sin_part, 0, z2, height_to_intensity(z2)));
+    cloud_wrapper1.push_back(PointXYZI(0, sin_part, z3, height_to_intensity(z3)));
   }
 
 
   pub_ptr_cloud_output_->publish(*cloud_wrapper1.get_msg_ptr());
-
-
-  std::vector<std::string> type_names{
-    "INT8",
-    "UINT8",
-    "INT16",
-    "UINT16",
-    "INT32",
-    "UINT32",
-    "FLOAT32",
-    "FLOAT64"
-  };
-
-//  std::stringstream ss_fields;
-//  std::stringstream ss_types;
-//  std::stringstream ss_offsets;
-//  std::stringstream ss_counts;
-//  ss_fields << "fields: ";
-//  ss_types << "types: ";
-//  ss_offsets << "offsets: ";
-//  ss_counts << "counts: ";
-//  for (const auto & field : msg->fields) {
-//    ss_fields << field.name << ", ";
-//    ss_types << type_names.at(field.datatype - 1u) << ", ";
-//    ss_offsets << std::to_string(field.offset) << ", ";
-//    ss_counts << std::to_string(field.count) << ", ";
-//  }
-//
-//  std::cout << ss_fields.str() << std::endl;
-//  std::cout << ss_types.str() << std::endl;
-//  std::cout << ss_offsets.str() << std::endl;
-//  std::cout << ss_counts.str() << std::endl;
-
-
 }
 
 }  // namespace cloud_wrapper
