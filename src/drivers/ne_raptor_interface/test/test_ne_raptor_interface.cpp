@@ -15,14 +15,6 @@
 #include "ne_raptor_interface/test_ne_raptor_interface.hpp"
 #include <memory>
 
-static bool8_t is_close(
-  const float32_t a,
-  const float32_t b,
-  const float32_t tol = static_cast<float32_t>(1e-5))
-{
-  return std::abs(a - b) < tol;
-}
-
 /* Test the DBW Commands:
  * Autoware -> NE Raptor
  *
@@ -53,8 +45,6 @@ TEST_F(NERaptorInterface_test, test_cmd_mode_change)
 }
 */
 
-/* TODO(NE_Raptor) : test published output
- */
 TEST_F(NERaptorInterface_test, test_cmd_vehicle_state)
 {
   test_vsc myTests[kNumTests_VSC];
@@ -63,6 +53,7 @@ TEST_F(NERaptorInterface_test, test_cmd_vehicle_state)
   rclcpp::executors::SingleThreadedExecutor executor;
   executor.add_node(i_node_);
   executor.add_node(l_node_);
+  executor.add_node(t_node_);
   executor.spin_some(C_TIMEOUT_NANO);
 
   /** Test valid inputs **/
@@ -76,8 +67,8 @@ TEST_F(NERaptorInterface_test, test_cmd_vehicle_state)
   myTests[0].in_vsc.horn = false;
   myTests[0].exp_gc.cmd.gear = Gear::NONE;
   myTests[0].exp_gc.enable = false;
-  myTests[0].exp_enable.global_enable = false;
-  myTests[0].exp_enable.enable_joystick_limits = false;
+  myTests[0].exp_gec.global_enable = false;
+  myTests[0].exp_gec.enable_joystick_limits = false;
   myTests[0].exp_mc.cmd.value = TurnSignal::NONE;
   myTests[0].exp_mc.high_beam_cmd.status = HighBeam::OFF;
   myTests[0].exp_mc.front_wiper_cmd.status = WiperFront::OFF;
@@ -94,8 +85,8 @@ TEST_F(NERaptorInterface_test, test_cmd_vehicle_state)
   myTests[1].in_vsc.horn = false;
   myTests[1].exp_gc.cmd.gear = Gear::PARK;
   myTests[1].exp_gc.enable = false;
-  myTests[1].exp_enable.global_enable = false;
-  myTests[1].exp_enable.enable_joystick_limits = false;
+  myTests[1].exp_gec.global_enable = false;
+  myTests[1].exp_gec.enable_joystick_limits = false;
   myTests[1].exp_mc.cmd.value = TurnSignal::NONE;
   myTests[1].exp_mc.high_beam_cmd.status = HighBeam::OFF;
   myTests[1].exp_mc.front_wiper_cmd.status = WiperFront::OFF;
@@ -114,8 +105,8 @@ TEST_F(NERaptorInterface_test, test_cmd_vehicle_state)
     myTests[i].in_vsc.horn = true;
     myTests[i].exp_gc.cmd.gear = Gear::DRIVE;
     myTests[i].exp_gc.enable = true;
-    myTests[i].exp_enable.global_enable = true;
-    myTests[i].exp_enable.enable_joystick_limits = true;
+    myTests[i].exp_gec.global_enable = true;
+    myTests[i].exp_gec.enable_joystick_limits = true;
     myTests[i].exp_mc.cmd.value = TurnSignal::HAZARDS;
     myTests[i].exp_mc.high_beam_cmd.status = HighBeam::ON;
     myTests[i].exp_mc.front_wiper_cmd.status = WiperFront::CONSTANT_HIGH;
@@ -161,21 +152,21 @@ TEST_F(NERaptorInterface_test, test_cmd_vehicle_state)
   // Test invalid: mode (keep previous: on)
   myTests[12].in_vsc.mode = VehicleStateCommand::MODE_MANUAL + 1;
   myTests[12].exp_gc.enable = true;
-  myTests[12].exp_enable.global_enable = true;
-  myTests[12].exp_enable.enable_joystick_limits = true;
+  myTests[12].exp_gec.global_enable = true;
+  myTests[12].exp_gec.enable_joystick_limits = true;
 
   // Set previous mode to off
   myTests[13].exp_success = true;
   myTests[13].in_vsc.mode = VehicleStateCommand::MODE_MANUAL;
   myTests[13].exp_gc.enable = false;
-  myTests[13].exp_enable.global_enable = false;
-  myTests[13].exp_enable.enable_joystick_limits = false;
+  myTests[13].exp_gec.global_enable = false;
+  myTests[13].exp_gec.enable_joystick_limits = false;
 
   // Test invalid: mode (keep previous: off)
   myTests[14].in_vsc.mode = 0xFF;
   myTests[14].exp_gc.enable = false;
-  myTests[14].exp_enable.global_enable = false;
-  myTests[14].exp_enable.enable_joystick_limits = false;
+  myTests[14].exp_gec.global_enable = false;
+  myTests[14].exp_gec.enable_joystick_limits = false;
 
   /* Run all tests in a loop */
   for (i = 0; i < kNumTests_VSC; i++) {
@@ -217,10 +208,10 @@ TEST_F(NERaptorInterface_test, test_cmd_vehicle_state)
     if (test_listener_->l_got_enable_cmd) {
       EXPECT_EQ(
         test_listener_->l_enable_cmd.global_enable,
-        myTests[i].exp_enable.global_enable) << "Test #" << std::to_string(i);
+        myTests[i].exp_gec.global_enable) << "Test #" << std::to_string(i);
       EXPECT_EQ(
         test_listener_->l_enable_cmd.enable_joystick_limits,
-        myTests[i].exp_enable.enable_joystick_limits) << "Test #" << std::to_string(i);
+        myTests[i].exp_gec.enable_joystick_limits) << "Test #" << std::to_string(i);
       EXPECT_EQ(
         test_listener_->l_enable_cmd.ecu_build_number,
         c_ecu_build_num) << "Test #" << std::to_string(i);
@@ -266,6 +257,7 @@ TEST_F(NERaptorInterface_test, test_cmd_high_level_control)
   rclcpp::executors::SingleThreadedExecutor executor;
   executor.add_node(i_node_);
   executor.add_node(l_node_);
+  executor.add_node(t_node_);
   executor.spin_some(C_TIMEOUT_NANO);
 
   // Set all gear == DRIVE && mode == AUTONOMOUS
@@ -490,9 +482,11 @@ TEST_F(NERaptorInterface_test, test_cmd_high_level_control)
 TEST_F(NERaptorInterface_test, test_cmd_raw_control)
 {
   /* Not supported */
-  RawControlCommand rcc;
+  RawControlCommand rcc{};
   rclcpp::executors::SingleThreadedExecutor executor;
   executor.add_node(i_node_);
+  executor.add_node(l_node_);
+  executor.add_node(t_node_);
 
   rcc.stamp = test_clock.now();
   rcc.throttle = 0;
@@ -512,6 +506,7 @@ TEST_F(NERaptorInterface_test, test_cmd_vehicle_control)
   rclcpp::executors::SingleThreadedExecutor executor;
   executor.add_node(i_node_);
   executor.add_node(l_node_);
+  executor.add_node(t_node_);
   executor.spin_some(C_TIMEOUT_NANO);
 
   // Set all gear == DRIVE && mode == AUTONOMOUS
@@ -615,11 +610,11 @@ TEST_F(NERaptorInterface_test, test_cmd_vehicle_control)
   myTests[6].in_vcc.long_accel_mps2 = 0.0F;  // keep default limits
   myTests[6].in_vcc.velocity_mps = 0.0F;
   myTests[6].in_vcc.front_wheel_angle_rad =
-    4.0F * autoware::ne_raptor_interface::DEGREES_TO_RADIANS;
+    2.0F * autoware::ne_raptor_interface::DEGREES_TO_RADIANS;
   myTests[6].exp_apc.speed_cmd = 0.0F;
   myTests[6].exp_apc.accel_limit = c_accel_limit;
   myTests[6].exp_bc.decel_limit = c_decel_limit;
-  myTests[6].exp_sc.angle_cmd = 2.0F;
+  myTests[6].exp_sc.angle_cmd = 4.0F;
 
   /* Test valid input:
    * abs(negative steering angle) < max */
@@ -627,11 +622,11 @@ TEST_F(NERaptorInterface_test, test_cmd_vehicle_control)
   myTests[7].in_vcc.long_accel_mps2 = 0.0F;  // keep default limits
   myTests[7].in_vcc.velocity_mps = 0.0F;
   myTests[7].in_vcc.front_wheel_angle_rad =
-    -4.0F * autoware::ne_raptor_interface::DEGREES_TO_RADIANS;
+    -2.0F * autoware::ne_raptor_interface::DEGREES_TO_RADIANS;
   myTests[7].exp_apc.speed_cmd = 0.0F;
   myTests[7].exp_apc.accel_limit = c_accel_limit;
   myTests[7].exp_bc.decel_limit = c_decel_limit;
-  myTests[7].exp_sc.angle_cmd = -2.0F;
+  myTests[7].exp_sc.angle_cmd = -4.0F;
 
   /* Test invalid input:
    * positive steering angle > max */
@@ -639,7 +634,7 @@ TEST_F(NERaptorInterface_test, test_cmd_vehicle_control)
   myTests[8].in_vcc.long_accel_mps2 = 0.0F;  // keep default limits
   myTests[8].in_vcc.velocity_mps = 0.0F;
   myTests[8].in_vcc.front_wheel_angle_rad =
-    1001.0F * autoware::ne_raptor_interface::DEGREES_TO_RADIANS;
+    251.0F * autoware::ne_raptor_interface::DEGREES_TO_RADIANS;
   myTests[8].exp_apc.speed_cmd = 0.0F;
   myTests[8].exp_apc.accel_limit = c_accel_limit;
   myTests[8].exp_bc.decel_limit = c_decel_limit;
@@ -652,7 +647,7 @@ TEST_F(NERaptorInterface_test, test_cmd_vehicle_control)
   myTests[9].in_vcc.long_accel_mps2 = 0.0F;  // keep default limits
   myTests[9].in_vcc.velocity_mps = 0.0F;
   myTests[9].in_vcc.front_wheel_angle_rad =
-    -1001.0F * autoware::ne_raptor_interface::DEGREES_TO_RADIANS;
+    -251.0F * autoware::ne_raptor_interface::DEGREES_TO_RADIANS;
   myTests[9].exp_apc.speed_cmd = 0.0F;
   myTests[9].exp_apc.accel_limit = c_accel_limit;
   myTests[9].exp_bc.decel_limit = c_decel_limit;
@@ -817,30 +812,458 @@ TEST_F(NERaptorInterface_test, test_cmd_vehicle_control)
  */
 TEST_F(NERaptorInterface_test, test_rpt_vehicle_state)
 {
-  /* Needs:
-   * on_brake_report(),
-   * on_gear_report(),
-   * on_misc_report(),
-   * on_other_act_report()
+  test_vsr myTests[kNumTests_VSR];
+  uint8_t timeout{0}, i{0};
+
+  rclcpp::executors::SingleThreadedExecutor executor;
+  executor.add_node(i_node_);
+  executor.add_node(l_node_);
+  executor.add_node(t_node_);
+  executor.spin_some(C_TIMEOUT_NANO);
+
+  // Set all global enable == true
+  for (i = 0; i < kNumTests_VSR; i++) {
+    myTests[i].in_vsc.mode = VehicleStateCommand::MODE_AUTONOMOUS;
+    myTests[i].in_dbw.data = true;
+  }
+
+  /* Valid inputs:
+   * DBW state machine enabled & debouncing (off);
+   * other inputs off
    */
+  myTests[0].in_br.parking_brake.status = ParkingBrake::OFF;
+  myTests[0].in_gr.state.gear = Gear::PARK;
+  myTests[0].in_mr.fuel_level = 0.0F;
+  myTests[0].in_mr.drive_by_wire_enabled = true;
+  myTests[0].in_oar.turn_signal_state.value = TurnSignal::NONE;
+  myTests[0].in_oar.high_beam_state.value = HighBeamState::OFF;
+  myTests[0].in_oar.front_wiper_state.status = WiperFront::OFF;
+  myTests[0].in_oar.horn_state.status = HornState::OFF;
+  myTests[0].exp_vsr.fuel = 0;
+  myTests[0].exp_vsr.blinker = VehicleStateReport::BLINKER_OFF;
+  myTests[0].exp_vsr.headlight = VehicleStateReport::HEADLIGHT_OFF;
+  myTests[0].exp_vsr.wiper = VehicleStateReport::WIPER_OFF;
+  myTests[0].exp_vsr.gear = VehicleStateReport::GEAR_PARK;
+  myTests[0].exp_vsr.mode = VehicleStateReport::MODE_AUTONOMOUS;
+  myTests[0].exp_vsr.hand_brake = false;
+  myTests[0].exp_vsr.horn = false;
+
+  /* Valid inputs:
+   * DBW state machine enabled;
+   * other inputs on
+   */
+  myTests[1].in_br.parking_brake.status = ParkingBrake::ON;
+  myTests[1].in_gr.state.gear = Gear::DRIVE;
+  myTests[1].in_mr.fuel_level = 10.0F;
+  myTests[1].in_mr.drive_by_wire_enabled = true;
+  myTests[1].in_oar.turn_signal_state.value = TurnSignal::HAZARDS;
+  myTests[1].in_oar.high_beam_state.value = HighBeamState::ON;
+  myTests[1].in_oar.front_wiper_state.status = WiperFront::WASH_BRIEF;
+  myTests[1].in_oar.horn_state.status = HornState::ON;
+  myTests[1].exp_vsr.fuel = 10;
+  myTests[1].exp_vsr.blinker = VehicleStateReport::BLINKER_HAZARD;
+  myTests[1].exp_vsr.headlight = VehicleStateReport::HEADLIGHT_HIGH;
+  myTests[1].exp_vsr.wiper = VehicleStateReport::WIPER_CLEAN;
+  myTests[1].exp_vsr.gear = VehicleStateReport::GEAR_DRIVE;
+  myTests[1].exp_vsr.mode = VehicleStateReport::MODE_AUTONOMOUS;
+  myTests[1].exp_vsr.hand_brake = true;
+  myTests[1].exp_vsr.horn = true;
+
+  // Run all tests in a loop
+  for (i = 0; i < kNumTests_VSR; i++) {
+    // Send these messages first
+    test_talker_->send_report(myTests[i].in_br);
+    test_talker_->send_report(myTests[i].in_gr);
+    test_talker_->send_report(myTests[i].in_mr);
+    test_talker_->send_report(myTests[i].in_dbw);
+    ne_raptor_interface_->send_state_command(myTests[i].in_vsc);
+
+    timeout = 0;
+    while (timeout < C_TIMEOUT_ITERATIONS) {
+      executor.spin_some(C_TIMEOUT_NANO);
+      timeout++;
+    }
+
+    // Send this message last
+    test_talker_->send_report(myTests[i].in_oar);
+
+    timeout = 0;
+    while (!test_listener_->l_got_vehicle_state &&
+      (timeout < C_TIMEOUT_ITERATIONS) )
+    {
+      executor.spin_some(C_TIMEOUT_NANO);
+      timeout++;
+    }
+
+    // Check values
+    if (test_listener_->l_got_vehicle_state) {
+      EXPECT_EQ(
+        test_listener_->l_vehicle_state.fuel,
+        myTests[i].exp_vsr.fuel) << "Test #" << std::to_string(i);
+      EXPECT_EQ(
+        test_listener_->l_vehicle_state.blinker,
+        myTests[i].exp_vsr.blinker) << "Test #" << std::to_string(i);
+      EXPECT_EQ(
+        test_listener_->l_vehicle_state.headlight,
+        myTests[i].exp_vsr.headlight) << "Test #" << std::to_string(i);
+      EXPECT_EQ(
+        test_listener_->l_vehicle_state.wiper,
+        myTests[i].exp_vsr.wiper) << "Test #" << std::to_string(i);
+      EXPECT_EQ(
+        test_listener_->l_vehicle_state.gear,
+        myTests[i].exp_vsr.gear) << "Test #" << std::to_string(i);
+      EXPECT_EQ(
+        test_listener_->l_vehicle_state.mode,
+        myTests[i].exp_vsr.mode) << "Test #" << std::to_string(i);
+      EXPECT_EQ(
+        test_listener_->l_vehicle_state.hand_brake,
+        myTests[i].exp_vsr.hand_brake) << "Test #" << std::to_string(i);
+      EXPECT_EQ(
+        test_listener_->l_vehicle_state.horn,
+        myTests[i].exp_vsr.horn) << "Test #" << std::to_string(i);
+      test_listener_->l_got_vehicle_state = false;
+    } else {
+      EXPECT_TRUE(test_listener_->l_got_vehicle_state) <<
+        "dropped package vehicle_state_report: Test #" << std::to_string(i);
+    }
+  }
 }
 
 TEST_F(NERaptorInterface_test, test_rpt_vehicle_odometry)
 {
-  /* Needs:
-   * on_misc_report(),
-   * on_steering_report(),
-   * on_wheel_spd_report()
-   */
+  test_vo myTests[kNumTests_VO];
+  uint8_t timeout{0}, i{0}, dT{2};  // delta Time = 2 seconds
+  float32_t travel_dir{0.0F};
+  rclcpp::Time initStamp{test_clock.now()};
+
+  rclcpp::executors::SingleThreadedExecutor executor;
+  executor.add_node(i_node_);
+  executor.add_node(l_node_);
+  executor.add_node(t_node_);
+  executor.spin_some(C_TIMEOUT_NANO);
+
+  // Set initial values
+  for (i = 0; i < kNumTests_VO; i++) {
+    // Timestamps
+    myTests[i].in_mr.header.stamp = initStamp;
+    myTests[i].in_mr.header.stamp.sec += i * dT;
+    myTests[i].in_sr.header.stamp = myTests[i].in_mr.header.stamp;
+    myTests[i].in_wsr.header.stamp = myTests[i].in_mr.header.stamp;
+    myTests[i].exp_vo.stamp = myTests[i].in_mr.header.stamp;
+
+    // Speed
+    myTests[i].in_mr.vehicle_speed = 10.0F *
+      static_cast<float32_t>(i);  // kph
+    // Forward or backward
+    myTests[i].in_gr.enabled = true;
+
+    switch (i) {
+      case 12:
+      case 14:
+        travel_dir = 0.0F;  // not moving
+        myTests[i].in_gr.state.gear = Gear::NEUTRAL;
+        // Wheels not moving
+        myTests[i].in_wsr.front_left = 0.0F;    // rad/sec
+        myTests[i].in_wsr.front_right = 0.0F;   // rad/sec
+        myTests[i].in_wsr.rear_left = 0.0F;     // rad/sec
+        myTests[i].in_wsr.rear_right = 0.0F;    // rad/sec
+        break;
+      case 13:
+        travel_dir = 0.0F;  // not moving
+        myTests[i].in_gr.state.gear = Gear::NEUTRAL;
+        // Wheels going different directions
+        myTests[i].in_wsr.front_left = 10.0F;    // rad/sec
+        myTests[i].in_wsr.front_right = 10.0F;   // rad/sec
+        myTests[i].in_wsr.rear_left = -10.0F;    // rad/sec
+        myTests[i].in_wsr.rear_right = -10.0F;   // rad/sec
+        break;
+      case 15:
+      case 16:
+      case 17:
+        travel_dir = -1.0F;  // moving backward
+        myTests[i].in_gr.state.gear = Gear::REVERSE;
+        myTests[i].in_wsr.front_left = -10.0F;    // rad/sec
+        myTests[i].in_wsr.front_right = -10.0F;   // rad/sec
+        myTests[i].in_wsr.rear_left = -10.0F;     // rad/sec
+        myTests[i].in_wsr.rear_right = -10.0F;    // rad/sec
+        break;
+      default:
+        travel_dir = 1.0F;  // moving forward
+        myTests[i].in_gr.state.gear = Gear::DRIVE;
+        myTests[i].in_wsr.front_left = 10.0F;    // rad/sec
+        myTests[i].in_wsr.front_right = 10.0F;   // rad/sec
+        myTests[i].in_wsr.rear_left = 10.0F;     // rad/sec
+        myTests[i].in_wsr.rear_right = 10.0F;    // rad/sec
+        break;
+    }
+    // Steering - try different angles
+    switch (i) {
+      case 3:
+      case 4:
+      case 5:
+        myTests[i].in_sr.steering_wheel_angle = 30.0F;  // degrees
+        break;
+      case 6:
+      case 7:
+      case 8:
+        myTests[i].in_sr.steering_wheel_angle = -30.0F;  // degrees
+        break;
+      default:
+        myTests[i].in_sr.steering_wheel_angle = 0.0F;  // degrees
+        break;
+    }
+
+    myTests[i].exp_vo.velocity_mps =
+      myTests[i].in_mr.vehicle_speed * travel_dir *
+      autoware::ne_raptor_interface::KPH_TO_MPS_RATIO;
+    myTests[i].exp_vo.front_wheel_angle_rad =
+      (myTests[i].in_sr.steering_wheel_angle *
+      autoware::ne_raptor_interface::DEGREES_TO_RADIANS) /
+      c_steer_to_tire_ratio;
+  }
+
+  // Run all tests in a loop
+  for (i = 0; i < kNumTests_VO; i++) {
+    // Send these messages first
+    test_talker_->send_report(myTests[i].in_gr);
+    test_talker_->send_report(myTests[i].in_wsr);
+
+    timeout = 0;
+    while (timeout < C_TIMEOUT_ITERATIONS) {
+      executor.spin_some(C_TIMEOUT_NANO);
+      timeout++;
+    }
+
+    test_talker_->send_report(myTests[i].in_mr);
+
+    timeout = 0;
+    while (timeout < C_TIMEOUT_ITERATIONS) {
+      executor.spin_some(C_TIMEOUT_NANO);
+      timeout++;
+    }
+
+    // Send this message last
+    test_talker_->send_report(myTests[i].in_sr);
+
+    timeout = 0;
+    while (!test_listener_->l_got_vehicle_odo &&
+      (timeout < C_TIMEOUT_ITERATIONS) )
+    {
+      executor.spin_some(C_TIMEOUT_NANO);
+      timeout++;
+    }
+
+    // Check values
+    if (test_listener_->l_got_vehicle_odo) {
+      EXPECT_FLOAT_EQ(
+        test_listener_->l_vehicle_odo.velocity_mps,
+        myTests[i].exp_vo.velocity_mps) << "Test #" << std::to_string(i);
+      EXPECT_FLOAT_EQ(
+        test_listener_->l_vehicle_odo.front_wheel_angle_rad,
+        myTests[i].exp_vo.front_wheel_angle_rad) << "Test #" << std::to_string(i);
+      EXPECT_FLOAT_EQ(
+        test_listener_->l_vehicle_odo.rear_wheel_angle_rad,
+        0.0F) << "Test #" << std::to_string(i);
+      test_listener_->l_got_vehicle_odo = false;
+    } else {
+      EXPECT_TRUE(test_listener_->l_got_vehicle_odo) <<
+        "dropped package vehicle_odometry: Test #" << std::to_string(i);
+    }
+  }
 }
 
+/* This test is to make sure the message is published properly.
+ * The math behind the movement calculations is tested more
+ * thoroughly in test_kinematic_bike_model.
+ *
+ * Note: VehicleKinematicState.delta is currently unused.
+ * Not enabled in the interface & not testing it here.
+ */
 TEST_F(NERaptorInterface_test, test_rpt_vehicle_kinematic_state)
 {
-  /* Needs:
-   * on_misc_report(),
-   * on_steering_report(),
-   * on_wheel_spd_report()
-   */
+  test_vks myTests[kNumTests_VKS];
+  int32_t timeout{0}, i{0}, dT{2};  // delta Time = 2 seconds
+  float32_t travel_dir{0.0F}, err_margin{0.6F};
+  rclcpp::Time initStamp{test_clock.now()};
+
+  rclcpp::executors::SingleThreadedExecutor executor;
+  executor.add_node(i_node_);
+  executor.add_node(l_node_);
+  executor.add_node(t_node_);
+  executor.spin_some(C_TIMEOUT_NANO);
+
+  // Set initial values
+  for (i = 0; i < kNumTests_VKS; i++) {
+    // Timestamps
+    myTests[i].in_mr.header.stamp = initStamp;
+    myTests[i].in_mr.header.stamp.sec += i * dT;
+    myTests[i].in_sr.header.stamp = myTests[i].in_mr.header.stamp;
+    myTests[i].in_wsr.header.stamp = myTests[i].in_mr.header.stamp;
+    myTests[i].exp_vks.header.stamp = myTests[i].in_mr.header.stamp;
+
+    // Speed
+    myTests[i].in_mr.vehicle_speed = 10.0F *
+      static_cast<float32_t>(i);  // kph
+    // Forward or backward
+    myTests[i].in_gr.enabled = true;
+
+    switch (i) {
+      case 12:
+      case 14:
+        travel_dir = 0.0F;  // not moving
+        myTests[i].in_gr.state.gear = Gear::NEUTRAL;
+        // Wheels not moving
+        myTests[i].in_wsr.front_left = 0.0F;    // rad/sec
+        myTests[i].in_wsr.front_right = 0.0F;   // rad/sec
+        myTests[i].in_wsr.rear_left = 0.0F;     // rad/sec
+        myTests[i].in_wsr.rear_right = 0.0F;    // rad/sec
+        break;
+      case 13:
+        travel_dir = 0.0F;  // not moving
+        myTests[i].in_gr.state.gear = Gear::NEUTRAL;
+        // Wheels going different directions
+        myTests[i].in_wsr.front_left = 10.0F;    // rad/sec
+        myTests[i].in_wsr.front_right = 10.0F;   // rad/sec
+        myTests[i].in_wsr.rear_left = -10.0F;    // rad/sec
+        myTests[i].in_wsr.rear_right = -10.0F;   // rad/sec
+        break;
+      case 15:
+      case 16:
+      case 17:
+        travel_dir = -1.0F;  // moving backward
+        myTests[i].in_gr.state.gear = Gear::REVERSE;
+        myTests[i].in_wsr.front_left = -10.0F;    // rad/sec
+        myTests[i].in_wsr.front_right = -10.0F;   // rad/sec
+        myTests[i].in_wsr.rear_left = -10.0F;     // rad/sec
+        myTests[i].in_wsr.rear_right = -10.0F;    // rad/sec
+        break;
+      default:
+        travel_dir = 1.0F;  // moving forward
+        myTests[i].in_gr.state.gear = Gear::DRIVE;
+        myTests[i].in_wsr.front_left = 10.0F;    // rad/sec
+        myTests[i].in_wsr.front_right = 10.0F;   // rad/sec
+        myTests[i].in_wsr.rear_left = 10.0F;     // rad/sec
+        myTests[i].in_wsr.rear_right = 10.0F;    // rad/sec
+        break;
+    }
+    // Steering - try different angles
+    switch (i) {
+      case 3:
+      case 4:
+      case 5:
+        myTests[i].in_sr.steering_wheel_angle = 30.0F;  // degrees
+        break;
+      case 6:
+      case 7:
+      case 8:
+        myTests[i].in_sr.steering_wheel_angle = -30.0F;  // degrees
+        break;
+      default:
+        myTests[i].in_sr.steering_wheel_angle = 0.0F;  // degrees
+        break;
+    }
+
+    // Run kinematic bike model
+    if (i == 0) {  /* First sending: no dT */
+      myTests[i].exp_vks.state.x = 0.0F;
+      myTests[i].exp_vks.state.y = 0.0F;
+      myTests[i].exp_vks.state.heading =
+        motion::motion_common::from_angle(0.0F);
+      myTests[i].exp_vks.state.acceleration_mps2 = 0.0F;
+    } else {
+      myTests[i].exp_vks = myTests[i - 1].exp_vks;
+    }
+    // Set expected speed & steering angles
+    myTests[i].exp_vks.state.front_wheel_angle_rad = travel_dir *
+      ((myTests[i].in_sr.steering_wheel_angle *
+      autoware::ne_raptor_interface::DEGREES_TO_RADIANS) /
+      c_steer_to_tire_ratio);  // radians
+    myTests[i].exp_vks.state.longitudinal_velocity_mps =
+      travel_dir * myTests[i].in_mr.vehicle_speed *
+      autoware::ne_raptor_interface::KPH_TO_MPS_RATIO;
+    myTests[i].exp_vks.state.lateral_velocity_mps =
+      (c_rear_axle_to_cog / (c_rear_axle_to_cog + c_front_axle_to_cog)) *
+      myTests[i].exp_vks.state.longitudinal_velocity_mps *
+      std::tan(0.0F);
+
+    if (i > 0) {
+      myTests[i].exp_vks.state.acceleration_mps2 =
+        (myTests[i].exp_vks.state.longitudinal_velocity_mps -
+        myTests[i - 1].exp_vks.state.longitudinal_velocity_mps) /
+        static_cast<float32_t>(dT);
+      ne_raptor_interface_->kinematic_bicycle_model(
+        static_cast<float32_t>(dT), &myTests[i].exp_vks);
+    }
+  }
+
+  // Run all tests in a loop
+  for (i = 0; i < kNumTests_VKS; i++) {
+    // Send these messages first
+    test_talker_->send_report(myTests[i].in_gr);
+    test_talker_->send_report(myTests[i].in_wsr);
+
+    timeout = 0;
+    while (timeout < C_TIMEOUT_ITERATIONS) {
+      executor.spin_some(C_TIMEOUT_NANO);
+      timeout++;
+    }
+
+    test_talker_->send_report(myTests[i].in_sr);
+
+    timeout = 0;
+    while (timeout < C_TIMEOUT_ITERATIONS) {
+      executor.spin_some(C_TIMEOUT_NANO);
+      timeout++;
+    }
+
+    // Send this message last
+    test_talker_->send_report(myTests[i].in_mr);
+
+    timeout = 0;
+    while (!test_listener_->l_got_vehicle_kin_state &&
+      (timeout < C_TIMEOUT_ITERATIONS) )
+    {
+      executor.spin_some(C_TIMEOUT_NANO);
+      timeout++;
+    }
+
+    // Check values
+    if (test_listener_->l_got_vehicle_kin_state) {
+      EXPECT_NEAR(
+        test_listener_->l_vehicle_kin_state.state.x,
+        myTests[i].exp_vks.state.x, err_margin) <<
+        "Test #" << std::to_string(i);
+      EXPECT_NEAR(
+        test_listener_->l_vehicle_kin_state.state.y,
+        myTests[i].exp_vks.state.y, err_margin) <<
+        "Test #" << std::to_string(i);
+      EXPECT_FLOAT_EQ(
+        test_listener_->l_vehicle_kin_state.state.longitudinal_velocity_mps,
+        myTests[i].exp_vks.state.longitudinal_velocity_mps) <<
+        "Test #" << std::to_string(i);
+      EXPECT_FLOAT_EQ(
+        test_listener_->l_vehicle_kin_state.state.front_wheel_angle_rad,
+        myTests[i].exp_vks.state.front_wheel_angle_rad) <<
+        "Test #" << std::to_string(i);
+      EXPECT_FLOAT_EQ(
+        test_listener_->l_vehicle_kin_state.state.rear_wheel_angle_rad,
+        0.0F) << "Test #" << std::to_string(i);
+      EXPECT_FLOAT_EQ(
+        test_listener_->l_vehicle_kin_state.state.acceleration_mps2,
+        myTests[i].exp_vks.state.acceleration_mps2) <<
+        "Test #" << std::to_string(i);
+    } else {
+      // Vehicle kinematic state does not send the first time
+      if (i == 0) {
+        EXPECT_FALSE(test_listener_->l_got_vehicle_kin_state) <<
+          "got package vehicle_kinematic_state: Test #" << std::to_string(i);
+      } else {
+        EXPECT_TRUE(test_listener_->l_got_vehicle_kin_state) <<
+          "dropped package vehicle_kinematic_state: Test #" << std::to_string(i);
+      }
+    }
+    test_listener_->l_got_vehicle_kin_state = false;
+  }
 }
 
 /* Test the kinematic bike model
@@ -863,6 +1286,7 @@ TEST_F(NERaptorInterface_test, test_kinematic_bike_model)
   float32_t radius{0.0F};
   float32_t beta_rad{0.0F};
   float32_t i{0.0F};
+  float32_t err_margin{static_cast<float32_t>(1e-5)};
 
   vks.state.longitudinal_velocity_mps = velocity;
   vks.state.lateral_velocity_mps = 0.0F;
@@ -874,11 +1298,12 @@ TEST_F(NERaptorInterface_test, test_kinematic_bike_model)
   for (i = 0.0F; i < num_steps; ++i) {
     x_nominal = std::cos(kYaw) * i * dT * velocity;
     y_nominal = std::sin(kYaw) * i * dT * velocity;
+    err_margin = static_cast<float32_t>(1e-5);
 
-    EXPECT_TRUE(is_close(x_nominal, vks.state.x)) <<
-      "should be " << x_nominal << ", is " << vks.state.x;
-    EXPECT_TRUE(is_close(y_nominal, vks.state.y)) <<
-      "should be " << y_nominal << ", is " << vks.state.y;
+    EXPECT_NEAR(x_nominal, vks.state.x, err_margin) <<
+      "Test X #" << std::to_string(i);
+    EXPECT_NEAR(y_nominal, vks.state.y, err_margin) <<
+      "Test Y #" << std::to_string(i);
 
     ne_raptor_interface_->kinematic_bicycle_model(dT, &vks);
   }
@@ -912,10 +1337,9 @@ TEST_F(NERaptorInterface_test, test_kinematic_bike_model)
     ne_raptor_interface_->kinematic_bicycle_model(dT, &vks);
     // Check that we're driving in a circle:
     // distance from 0 should == radius
+    err_margin = static_cast<float32_t>(1e-2);
     dist = std::sqrt(vks.state.x * vks.state.x + vks.state.y * vks.state.y);
-    EXPECT_TRUE(
-      is_close(
-        radius, dist, static_cast<float32_t>(1e-2))) <<
-      "should be " << radius << ", is " << dist;
+    EXPECT_NEAR(radius, dist, err_margin) <<
+      "Test radius #" << std::to_string(i);
   }
 }

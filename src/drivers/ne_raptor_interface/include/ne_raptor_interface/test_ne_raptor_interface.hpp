@@ -45,8 +45,11 @@ const float32_t c_neg_jerk_limit = 9.0F;
 
 /* Other useful constants */
 #define kNumTests_VSC  (15)
-#define kNumTests_HLCC (8)
+#define kNumTests_HLCC ( 8)
 #define kNumTests_VCC  (12)
+#define kNumTests_VSR  ( 2)
+#define kNumTests_VO   (18)
+#define kNumTests_VKS  (18)
 using namespace std::literals::chrono_literals; //NOLINT
 const std::chrono::nanoseconds C_TIMEOUT_NANO = 1000000000ns;
 const uint8_t C_TIMEOUT_ITERATIONS = 10;
@@ -92,15 +95,15 @@ public:
   rclcpp::Clock test_clock{RCL_SYSTEM_TIME};
 
   // Struct types for test sets
-  struct test_vsc
+  struct test_vsc  /* Test vehicle state command */
   {
     VehicleStateCommand in_vsc;  // Input: vehicle state command
     GearCmd exp_gc;              // Expected output: gear command
-    GlobalEnableCmd exp_enable;  // Expected output: global enable command
+    GlobalEnableCmd exp_gec;     // Expected output: global enable command
     MiscCmd exp_mc;              // Expected output: misc command
     bool8_t exp_success;         // Expected output: send_state_command
   };
-  struct test_hlcc
+  struct test_hlcc  /* Test high level control command */
   {
     HighLevelControlCommand in_hlcc;  // Input: high level control command
     VehicleStateCommand in_vsc;       // Input: vehicle state command (set current gear)
@@ -110,7 +113,7 @@ public:
     SteeringCmd exp_sc;               // Expected output: steering command
     bool8_t exp_success;              // Expected output: send_control_command
   };
-  struct test_vcc
+  struct test_vcc  /* Test vehicle control command */
   {
     VehicleControlCommand in_vcc;  // Input: vehicle control command
     VehicleStateCommand in_vsc;    // Input: vehicle state command (set current gear)
@@ -119,6 +122,32 @@ public:
     BrakeCmd exp_bc;               // Expected output: brake command
     SteeringCmd exp_sc;            // Expected output: steering command
     bool8_t exp_success;           // Expected output: send_control_command
+  };
+  struct test_vsr  /* Test vehicle state report */
+  {
+    BrakeReport in_br;            // Input: brake report
+    GearReport in_gr;             // Input: gear report
+    MiscReport in_mr;             // Input: misc. report
+    OtherActuatorsReport in_oar;  // Input: other actuators report (send this last)
+    VehicleStateCommand in_vsc;   // Input: vehicle state command (enable DBW)
+    std_msgs::msg::Bool in_dbw;   // Input: DBW State Machine report
+    VehicleStateReport exp_vsr;   // Expected output: vehicle state report
+  };
+  struct test_vo  /* Test vehicle odometry */
+  {
+    GearReport in_gr;         // Input: gear report (set current gear)
+    MiscReport in_mr;         // Input: misc. report
+    SteeringReport in_sr;     // Input: steering report (send this last)
+    WheelSpeedReport in_wsr;  // Input: wheel speed report
+    VehicleOdometry exp_vo;   // Expected output: vehicle odometry
+  };
+  struct test_vks  /* Test vehicle kinematic state */
+  {
+    GearReport in_gr;               // Input: gear report (set current gear)
+    MiscReport in_mr;               // Input: misc. report (send this last)
+    SteeringReport in_sr;           // Input: steering report
+    WheelSpeedReport in_wsr;        // Input: wheel speed report
+    VehicleKinematicState exp_vks;  // Expected output: vehicle kinematic state
   };
 };  // class NERaptorInterface_test
 
