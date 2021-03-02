@@ -34,9 +34,11 @@ NERaptorInterfaceListener::NERaptorInterfaceListener(
   l_got_accel_cmd{false},
   l_got_brake_cmd{false},
   l_got_gear_cmd{false},
-  l_got_enable_cmd{false},
+  l_got_global_enable_cmd{false},
   l_got_misc_cmd{false},
   l_got_steer_cmd{false},
+  l_got_dbw_enable_cmd{false},
+  l_got_dbw_disable_cmd{false},
   l_got_vehicle_state{false},
   l_got_vehicle_odo{false},
   l_got_vehicle_kin_state{false}
@@ -44,33 +46,43 @@ NERaptorInterfaceListener::NERaptorInterfaceListener(
   // Subscribers (from Raptor DBW)
   l_accel_cmd_sub =
     node.create_subscription<AcceleratorPedalCmd>(
-    "accelerator_pedal_cmd", rclcpp::QoS{10},
+    "accelerator_pedal_cmd", rclcpp::QoS{1},
     [this](AcceleratorPedalCmd::SharedPtr msg) {on_accel_cmd(msg);});
 
   l_brake_cmd_sub =
     node.create_subscription<BrakeCmd>(
-    "brake_cmd", rclcpp::QoS{10},
+    "brake_cmd", rclcpp::QoS{1},
     [this](BrakeCmd::SharedPtr msg) {on_brake_cmd(msg);});
 
   l_gear_cmd_sub =
     node.create_subscription<GearCmd>(
-    "gear_cmd", rclcpp::QoS{10},
+    "gear_cmd", rclcpp::QoS{1},
     [this](GearCmd::SharedPtr msg) {on_gear_cmd(msg);});
 
-  l_enable_cmd_sub =
+  l_global_enable_cmd_sub =
     node.create_subscription<GlobalEnableCmd>(
-    "global_enable_cmd", rclcpp::QoS{10},
-    [this](GlobalEnableCmd::SharedPtr msg) {on_enable_cmd(msg);});
+    "global_enable_cmd", rclcpp::QoS{1},
+    [this](GlobalEnableCmd::SharedPtr msg) {on_global_enable_cmd(msg);});
 
   l_misc_cmd_sub =
     node.create_subscription<MiscCmd>(
-    "misc_cmd", rclcpp::QoS{10},
+    "misc_cmd", rclcpp::QoS{1},
     [this](MiscCmd::SharedPtr msg) {on_misc_cmd(msg);});
 
   l_steer_cmd_sub =
     node.create_subscription<SteeringCmd>(
-    "steering_cmd", rclcpp::QoS{10},
+    "steering_cmd", rclcpp::QoS{1},
     [this](SteeringCmd::SharedPtr msg) {on_steer_cmd(msg);});
+
+  l_dbw_enable_cmd_sub =
+    node.create_subscription<std_msgs::msg::Empty>(
+    "enable", rclcpp::QoS{1},
+    [this](std_msgs::msg::Empty::SharedPtr msg) {on_dbw_enable_cmd(msg);});
+
+  l_dbw_disable_cmd_sub =
+    node.create_subscription<std_msgs::msg::Empty>(
+    "disable", rclcpp::QoS{1},
+    [this](std_msgs::msg::Empty::SharedPtr msg) {on_dbw_disable_cmd(msg);});
 
   // Subscribers (from Autoware.Auto)
   l_vehicle_state_sub =
@@ -114,10 +126,10 @@ void NERaptorInterfaceListener::on_gear_cmd(const GearCmd::SharedPtr & msg)
   l_got_gear_cmd = true;
 }
 
-void NERaptorInterfaceListener::on_enable_cmd(const GlobalEnableCmd::SharedPtr & msg)
+void NERaptorInterfaceListener::on_global_enable_cmd(const GlobalEnableCmd::SharedPtr & msg)
 {
   l_enable_cmd = *msg;
-  l_got_enable_cmd = true;
+  l_got_global_enable_cmd = true;
 }
 
 void NERaptorInterfaceListener::on_misc_cmd(const MiscCmd::SharedPtr & msg)
@@ -130,6 +142,20 @@ void NERaptorInterfaceListener::on_steer_cmd(const SteeringCmd::SharedPtr & msg)
 {
   l_steer_cmd = *msg;
   l_got_steer_cmd = true;
+}
+
+void NERaptorInterfaceListener::on_dbw_enable_cmd(const std_msgs::msg::Empty::SharedPtr & msg)
+{
+  if (msg != NULL) {
+    l_got_dbw_enable_cmd = true;
+  }
+}
+
+void NERaptorInterfaceListener::on_dbw_disable_cmd(const std_msgs::msg::Empty::SharedPtr & msg)
+{
+  if (msg != NULL) {
+    l_got_dbw_disable_cmd = true;
+  }
 }
 
 void NERaptorInterfaceListener::on_vehicle_state(const VehicleStateReport::SharedPtr & msg)

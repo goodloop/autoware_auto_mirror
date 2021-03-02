@@ -24,15 +24,13 @@ NERaptorInterfaceTalker::NERaptorInterfaceTalker(
 )
 {
   // Publishers (from Raptor DBW)
-  t_brake_rpt_pub = node.create_publisher<BrakeReport>("brake_report", 10);
-  t_gear_rpt_pub = node.create_publisher<GearReport>("gear_report", 10);
-  t_misc_rpt_pub = node.create_publisher<MiscReport>("misc_report", 10);
-  t_other_acts_rpt_pub = node.create_publisher<OtherActuatorsReport>("other_actuators_report", 10);
-  t_steering_rpt_pub = node.create_publisher<SteeringReport>("steering_report", 10);
-  t_wheel_spd_rpt_pub = node.create_publisher<WheelSpeedReport>("wheel_speed_report", 10);
-
-  // Publishers (from Autoware.Auto)
-  t_dbw_state_pub = node.create_publisher<std_msgs::msg::Bool>("dbw_enabled_feedback", 10);
+  t_brake_rpt_pub = node.create_publisher<BrakeReport>("brake_report", 20);
+  t_gear_rpt_pub = node.create_publisher<GearReport>("gear_report", 20);
+  t_misc_rpt_pub = node.create_publisher<MiscReport>("misc_report", 2);
+  t_other_acts_rpt_pub = node.create_publisher<DriverInputReport>("driver_input_report", 2);
+  t_steering_rpt_pub = node.create_publisher<SteeringReport>("steering_report", 20);
+  t_wheel_spd_rpt_pub = node.create_publisher<WheelSpeedReport>("wheel_speed_report", 20);
+  t_dbw_state_rpt_pub = node.create_publisher<std_msgs::msg::Bool>("dbw_enabled", 1);
 }
 
 bool8_t NERaptorInterfaceTalker::update(std::chrono::nanoseconds timeout)
@@ -59,7 +57,7 @@ bool8_t NERaptorInterfaceTalker::send_report(const MiscReport & msg)
   return true;
 }
 
-bool8_t NERaptorInterfaceTalker::send_report(const OtherActuatorsReport & msg)
+bool8_t NERaptorInterfaceTalker::send_report(const DriverInputReport & msg)
 {
   t_other_acts_rpt_pub->publish(msg);
   return true;
@@ -79,7 +77,7 @@ bool8_t NERaptorInterfaceTalker::send_report(const WheelSpeedReport & msg)
 
 bool8_t NERaptorInterfaceTalker::send_report(const std_msgs::msg::Bool & msg)
 {
-  t_dbw_state_pub->publish(msg);
+  t_dbw_state_rpt_pub->publish(msg);
   return true;
 }
 

@@ -53,12 +53,14 @@ NERaptorInterface::NERaptorInterface(
   m_clock{RCL_SYSTEM_TIME}
 {
   // Publishers (to Raptor DBW)
-  m_accel_cmd_pub = node.create_publisher<AcceleratorPedalCmd>("accelerator_pedal_cmd", 10);
-  m_brake_cmd_pub = node.create_publisher<BrakeCmd>("brake_cmd", 10);
-  m_gear_cmd_pub = node.create_publisher<GearCmd>("gear_cmd", 10);
-  m_enable_cmd_pub = node.create_publisher<GlobalEnableCmd>("global_enable_cmd", 10);
-  m_misc_cmd_pub = node.create_publisher<MiscCmd>("misc_cmd", 10);
-  m_steer_cmd_pub = node.create_publisher<SteeringCmd>("steering_cmd", 10);
+  m_accel_cmd_pub = node.create_publisher<AcceleratorPedalCmd>("accelerator_pedal_cmd", 1);
+  m_brake_cmd_pub = node.create_publisher<BrakeCmd>("brake_cmd", 1);
+  m_gear_cmd_pub = node.create_publisher<GearCmd>("gear_cmd", 1);
+  m_global_enable_cmd_pub = node.create_publisher<GlobalEnableCmd>("global_enable_cmd", 1);
+  m_misc_cmd_pub = node.create_publisher<MiscCmd>("misc_cmd", 1);
+  m_steer_cmd_pub = node.create_publisher<SteeringCmd>("steering_cmd", 1);
+  m_dbw_enable_cmd_pub = node.create_publisher<std_msgs::msg::Empty>("enable", 10);
+  m_dbw_disable_cmd_pub = node.create_publisher<std_msgs::msg::Empty>("disable", 10);
 
   // Publishers (to Autoware)
   m_vehicle_state_pub = node.create_publisher<VehicleStateReport>("vehicle_state_report", 10);
@@ -70,31 +72,31 @@ NERaptorInterface::NERaptorInterface(
   // Subscribers (from Raptor DBW)
   m_dbw_state_sub =
     node.create_subscription<std_msgs::msg::Bool>(
-    "dbw_enabled_feedback", rclcpp::QoS{10},
+    "dbw_enabled", rclcpp::QoS{1},
     [this](std_msgs::msg::Bool::SharedPtr msg) {on_dbw_state_report(msg);});
   m_brake_rpt_sub =
     node.create_subscription<BrakeReport>(
-    "brake_report", rclcpp::QoS{10},
+    "brake_report", rclcpp::QoS{20},
     [this](BrakeReport::SharedPtr msg) {on_brake_report(msg);});
   m_gear_rpt_sub =
     node.create_subscription<GearReport>(
-    "gear_report", rclcpp::QoS{10},
+    "gear_report", rclcpp::QoS{20},
     [this](GearReport::SharedPtr msg) {on_gear_report(msg);});
   m_misc_rpt_sub =
     node.create_subscription<MiscReport>(
-    "misc_report", rclcpp::QoS{10},
+    "misc_report", rclcpp::QoS{2},
     [this](MiscReport::SharedPtr msg) {on_misc_report(msg);});
   m_other_acts_rpt_sub =
-    node.create_subscription<OtherActuatorsReport>(
-    "other_actuators_report", rclcpp::QoS{10},
-    [this](OtherActuatorsReport::SharedPtr msg) {on_other_act_report(msg);});
+    node.create_subscription<DriverInputReport>(
+    "driver_input_report", rclcpp::QoS{2},
+    [this](DriverInputReport::SharedPtr msg) {on_driver_input_report(msg);});
   m_steering_rpt_sub =
     node.create_subscription<SteeringReport>(
-    "steering_report", rclcpp::QoS{10},
+    "steering_report", rclcpp::QoS{20},
     [this](SteeringReport::SharedPtr msg) {on_steering_report(msg);});
   m_wheel_spd_rpt_sub =
     node.create_subscription<WheelSpeedReport>(
-    "wheel_speed_report", rclcpp::QoS{10},
+    "wheel_speed_report", rclcpp::QoS{20},
     [this](WheelSpeedReport::SharedPtr msg) {on_wheel_spd_report(msg);});
 }
 
@@ -106,7 +108,9 @@ bool8_t NERaptorInterface::update(std::chrono::nanoseconds timeout)
 
 bool8_t NERaptorInterface::send_state_command(const VehicleStateCommand & msg)
 {
+  bool8_t is_dbw_enabled = m_dbw_state_machine->enabled() ? true : false;
   bool8_t ret{true};
+  std_msgs::msg::Empty send_req{};
   ModeChangeRequest::SharedPtr t_mode;
   // keep previous for Enable commands, if valid Enable command not received
   static GearCmd gc{};
@@ -245,10 +249,13 @@ bool8_t NERaptorInterface::send_state_command(const VehicleStateCommand & msg)
       // No change requested: keep previous
       break;
     case VehicleStateCommand::MODE_AUTONOMOUS:
-      /* TODO(NE_Raptor) : This isn't working
-      t_mode->mode = ModeChangeRequest::MODE_AUTONOMOUS;
-      handle_mode_change_request(t_mode); */
-      m_dbw_state_machine->user_request(true);
+      if (!is_dbw_enabled) {
+        /* TODO(NE_Raptor) : This isn't working
+        t_mode->mode = ModeChangeRequest::MODE_AUTONOMOUS;
+        handle_mode_change_request(t_mode); */
+        m_dbw_state_machine->user_request(true);
+        m_dbw_enable_cmd_pub->publish(send_req);
+      }
       m_dbw_state_machine->state_cmd_sent();
       gc.enable = true;
       gec.global_enable = true;
@@ -258,10 +265,13 @@ bool8_t NERaptorInterface::send_state_command(const VehicleStateCommand & msg)
       mc.block_turn_signal_stalk = true;
       break;
     case VehicleStateCommand::MODE_MANUAL:
-      /* TODO(NE_Raptor) : This isn't working
-      t_mode->mode = ModeChangeRequest::MODE_MANUAL;
-      handle_mode_change_request(t_mode); */
-      m_dbw_state_machine->user_request(false);
+      if (is_dbw_enabled) {
+        /* TODO(NE_Raptor) : This isn't working
+        t_mode->mode = ModeChangeRequest::MODE_MANUAL;
+        handle_mode_change_request(t_mode); */
+        m_dbw_state_machine->user_request(false);
+        m_dbw_disable_cmd_pub->publish(send_req);
+      }
       m_dbw_state_machine->state_cmd_sent();
       gc.enable = false;
       gec.global_enable = false;
@@ -282,7 +292,7 @@ bool8_t NERaptorInterface::send_state_command(const VehicleStateCommand & msg)
   }
 
   m_gear_cmd_pub->publish(gc);
-  m_enable_cmd_pub->publish(gec);
+  m_global_enable_cmd_pub->publish(gec);
   m_misc_cmd_pub->publish(mc);
 
   return ret;
@@ -458,12 +468,15 @@ bool8_t NERaptorInterface::send_control_command(const VehicleControlCommand & ms
 bool8_t NERaptorInterface::handle_mode_change_request(ModeChangeRequest::SharedPtr request)
 {
   bool8_t ret{true};
+  std_msgs::msg::Empty send_req{};
   if (request->mode == ModeChangeRequest::MODE_MANUAL) {
     m_dbw_state_machine->user_request(false);
     m_dbw_state_machine->state_cmd_sent();
+    m_dbw_disable_cmd_pub->publish(send_req);
   } else if (request->mode == ModeChangeRequest::MODE_AUTONOMOUS) {
     m_dbw_state_machine->user_request(true);
     m_dbw_state_machine->state_cmd_sent();
+    m_dbw_enable_cmd_pub->publish(send_req);
   } else {
     RCLCPP_ERROR_THROTTLE(
       m_logger, m_clock, CLOCK_1_SEC,
@@ -612,11 +625,11 @@ void NERaptorInterface::on_misc_report(const MiscReport::SharedPtr & msg)
   }
 }
 
-void NERaptorInterface::on_other_act_report(const OtherActuatorsReport::SharedPtr & msg)
+void NERaptorInterface::on_driver_input_report(const DriverInputReport::SharedPtr & msg)
 {
   std::lock_guard<std::mutex> guard_vsr(m_vehicle_state_report_mutex);
 
-  switch (msg->turn_signal_state.value) {
+  switch (msg->turn_signal.value) {
     case TurnSignal::NONE:
       m_vehicle_state_report.blinker = VehicleStateReport::BLINKER_OFF;
       break;
@@ -638,14 +651,15 @@ void NERaptorInterface::on_other_act_report(const OtherActuatorsReport::SharedPt
       break;
   }
 
-  switch (msg->high_beam_state.value) {
-    case HighBeamState::OFF:
+  switch (msg->high_beam_headlights.status) {
+    case HighBeam::OFF:
       m_vehicle_state_report.headlight = VehicleStateReport::HEADLIGHT_OFF;
       break;
-    case HighBeamState::ON:
+    case HighBeam::ON:
+    case HighBeam::FORCE_ON:
       m_vehicle_state_report.headlight = VehicleStateReport::HEADLIGHT_HIGH;
       break;
-    case HighBeamState::RESERVED:
+    case HighBeam::RESERVED:
     // case HighBeamState::SNA:
     default:
       m_vehicle_state_report.headlight = 0;
@@ -655,7 +669,7 @@ void NERaptorInterface::on_other_act_report(const OtherActuatorsReport::SharedPt
       break;
   }
 
-  switch (msg->front_wiper_state.status) {
+  switch (msg->wiper.status) {
     case WiperFront::OFF:
       m_vehicle_state_report.wiper = VehicleStateReport::WIPER_OFF;
       break;
@@ -681,22 +695,6 @@ void NERaptorInterface::on_other_act_report(const OtherActuatorsReport::SharedPt
       RCLCPP_WARN_THROTTLE(
         m_logger, m_clock, CLOCK_1_SEC,
         "Received invalid wiper value from NE Raptor DBW.");
-      break;
-  }
-
-  switch (msg->horn_state.status) {
-    case HornState::OFF:
-      m_vehicle_state_report.horn = false;
-      break;
-    case HornState::ON:
-      m_vehicle_state_report.horn = true;
-      break;
-    case HornState::SNA:
-    default:
-      m_vehicle_state_report.horn = false;
-      RCLCPP_WARN_THROTTLE(
-        m_logger, m_clock, CLOCK_1_SEC,
-        "Received invalid horn value from NE Raptor DBW.");
       break;
   }
 

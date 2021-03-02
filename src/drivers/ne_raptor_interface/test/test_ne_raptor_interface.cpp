@@ -48,6 +48,7 @@ TEST_F(NERaptorInterface_test, test_cmd_mode_change)
 TEST_F(NERaptorInterface_test, test_cmd_vehicle_state)
 {
   test_vsc myTests[kNumTests_VSC];
+  HighLevelControlCommand hlcc{};
   uint8_t timeout{0}, i{0};
 
   rclcpp::executors::SingleThreadedExecutor executor;
@@ -55,6 +56,12 @@ TEST_F(NERaptorInterface_test, test_cmd_vehicle_state)
   executor.add_node(l_node_);
   executor.add_node(t_node_);
   executor.spin_some(C_TIMEOUT_NANO);
+
+  /* Set control command input valid
+   * It's only needed for DBW state machine stuff
+   */
+  hlcc.velocity_mps = 0.0F;
+  hlcc.curvature = 0.0F;
 
   /** Test valid inputs **/
   // Test valid: no commands
@@ -74,6 +81,9 @@ TEST_F(NERaptorInterface_test, test_cmd_vehicle_state)
   myTests[0].exp_mc.front_wiper_cmd.status = WiperFront::OFF;
   myTests[0].exp_mc.horn_cmd = false;
   myTests[0].exp_success = true;
+  myTests[0].in_dbw.data = false;
+  myTests[0].exp_dbw_enable = false;
+  myTests[0].exp_dbw_disable = false;
 
   // Test valid: all off
   myTests[1].in_vsc.blinker = VehicleStateCommand::BLINKER_OFF;
@@ -92,6 +102,9 @@ TEST_F(NERaptorInterface_test, test_cmd_vehicle_state)
   myTests[1].exp_mc.front_wiper_cmd.status = WiperFront::OFF;
   myTests[1].exp_mc.horn_cmd = false;
   myTests[1].exp_success = true;
+  myTests[1].in_dbw.data = false;
+  myTests[1].exp_dbw_enable = false;
+  myTests[1].exp_dbw_disable = false;
 
   // Test valid: all on
   // Also init valid values for invalid tests
@@ -112,6 +125,9 @@ TEST_F(NERaptorInterface_test, test_cmd_vehicle_state)
     myTests[i].exp_mc.front_wiper_cmd.status = WiperFront::CONSTANT_HIGH;
     myTests[i].exp_mc.horn_cmd = true;
     myTests[i].exp_success = (i == 2) ? true : false;
+    myTests[i].in_dbw.data = true;
+    myTests[i].exp_dbw_enable = (i == 2) ? true : false;
+    myTests[i].exp_dbw_disable = false;
   }
 
   /** Test invalid inputs **/
@@ -161,6 +177,7 @@ TEST_F(NERaptorInterface_test, test_cmd_vehicle_state)
   myTests[13].exp_gc.enable = false;
   myTests[13].exp_gec.global_enable = false;
   myTests[13].exp_gec.enable_joystick_limits = false;
+  myTests[13].exp_dbw_disable = true;
 
   // Test invalid: mode (keep previous: off)
   myTests[14].in_vsc.mode = 0xFF;
@@ -184,13 +201,39 @@ TEST_F(NERaptorInterface_test, test_cmd_vehicle_state)
     // Test publishing
     timeout = 0;
     while ((!test_listener_->l_got_gear_cmd ||
-      !test_listener_->l_got_enable_cmd ||
+      !test_listener_->l_got_global_enable_cmd ||
       !test_listener_->l_got_misc_cmd) &&
       (timeout < C_TIMEOUT_ITERATIONS) )
     {
       executor.spin_some(C_TIMEOUT_NANO);
       timeout++;
     }
+
+    test_talker_->send_report(myTests[i].in_dbw);
+    ne_raptor_interface_->send_control_command(hlcc);
+    timeout = 0;
+    while (timeout < C_TIMEOUT_ITERATIONS) {
+      executor.spin_some(C_TIMEOUT_NANO);
+      timeout++;
+    }
+
+    if (myTests[i].exp_dbw_enable) {
+      EXPECT_TRUE(test_listener_->l_got_dbw_enable_cmd) <<
+        "Test #" << std::to_string(i);
+    } else {
+      EXPECT_FALSE(test_listener_->l_got_dbw_enable_cmd) <<
+        "Test #" << std::to_string(i);
+    }
+    test_listener_->l_got_dbw_enable_cmd = false;
+
+    if (myTests[i].exp_dbw_disable) {
+      EXPECT_TRUE(test_listener_->l_got_dbw_disable_cmd) <<
+        "Test #" << std::to_string(i);
+    } else {
+      EXPECT_FALSE(test_listener_->l_got_dbw_disable_cmd) <<
+        "Test #" << std::to_string(i);
+    }
+    test_listener_->l_got_dbw_disable_cmd = false;
 
     if (test_listener_->l_got_gear_cmd) {
       EXPECT_EQ(
@@ -205,7 +248,7 @@ TEST_F(NERaptorInterface_test, test_cmd_vehicle_state)
         "dropped package gear_cmd: Test #" << std::to_string(i);
     }
 
-    if (test_listener_->l_got_enable_cmd) {
+    if (test_listener_->l_got_global_enable_cmd) {
       EXPECT_EQ(
         test_listener_->l_enable_cmd.global_enable,
         myTests[i].exp_gec.global_enable) << "Test #" << std::to_string(i);
@@ -215,9 +258,9 @@ TEST_F(NERaptorInterface_test, test_cmd_vehicle_state)
       EXPECT_EQ(
         test_listener_->l_enable_cmd.ecu_build_number,
         c_ecu_build_num) << "Test #" << std::to_string(i);
-      test_listener_->l_got_enable_cmd = false;
+      test_listener_->l_got_global_enable_cmd = false;
     } else {
-      EXPECT_TRUE(test_listener_->l_got_enable_cmd) <<
+      EXPECT_TRUE(test_listener_->l_got_global_enable_cmd) <<
         "dropped package global_enable_cmd: Test #" << std::to_string(i);
     }
 
@@ -835,10 +878,9 @@ TEST_F(NERaptorInterface_test, test_rpt_vehicle_state)
   myTests[0].in_gr.state.gear = Gear::PARK;
   myTests[0].in_mr.fuel_level = 0.0F;
   myTests[0].in_mr.drive_by_wire_enabled = true;
-  myTests[0].in_oar.turn_signal_state.value = TurnSignal::NONE;
-  myTests[0].in_oar.high_beam_state.value = HighBeamState::OFF;
-  myTests[0].in_oar.front_wiper_state.status = WiperFront::OFF;
-  myTests[0].in_oar.horn_state.status = HornState::OFF;
+  myTests[0].in_dir.turn_signal.value = TurnSignal::NONE;
+  myTests[0].in_dir.high_beam_headlights.status = HighBeam::OFF;
+  myTests[0].in_dir.wiper.status = WiperFront::OFF;
   myTests[0].exp_vsr.fuel = 0;
   myTests[0].exp_vsr.blinker = VehicleStateReport::BLINKER_OFF;
   myTests[0].exp_vsr.headlight = VehicleStateReport::HEADLIGHT_OFF;
@@ -846,7 +888,6 @@ TEST_F(NERaptorInterface_test, test_rpt_vehicle_state)
   myTests[0].exp_vsr.gear = VehicleStateReport::GEAR_PARK;
   myTests[0].exp_vsr.mode = VehicleStateReport::MODE_AUTONOMOUS;
   myTests[0].exp_vsr.hand_brake = false;
-  myTests[0].exp_vsr.horn = false;
 
   /* Valid inputs:
    * DBW state machine enabled;
@@ -856,10 +897,9 @@ TEST_F(NERaptorInterface_test, test_rpt_vehicle_state)
   myTests[1].in_gr.state.gear = Gear::DRIVE;
   myTests[1].in_mr.fuel_level = 10.0F;
   myTests[1].in_mr.drive_by_wire_enabled = true;
-  myTests[1].in_oar.turn_signal_state.value = TurnSignal::HAZARDS;
-  myTests[1].in_oar.high_beam_state.value = HighBeamState::ON;
-  myTests[1].in_oar.front_wiper_state.status = WiperFront::WASH_BRIEF;
-  myTests[1].in_oar.horn_state.status = HornState::ON;
+  myTests[1].in_dir.turn_signal.value = TurnSignal::HAZARDS;
+  myTests[1].in_dir.high_beam_headlights.status = HighBeam::ON;
+  myTests[1].in_dir.wiper.status = WiperFront::WASH_BRIEF;
   myTests[1].exp_vsr.fuel = 10;
   myTests[1].exp_vsr.blinker = VehicleStateReport::BLINKER_HAZARD;
   myTests[1].exp_vsr.headlight = VehicleStateReport::HEADLIGHT_HIGH;
@@ -867,7 +907,6 @@ TEST_F(NERaptorInterface_test, test_rpt_vehicle_state)
   myTests[1].exp_vsr.gear = VehicleStateReport::GEAR_DRIVE;
   myTests[1].exp_vsr.mode = VehicleStateReport::MODE_AUTONOMOUS;
   myTests[1].exp_vsr.hand_brake = true;
-  myTests[1].exp_vsr.horn = true;
 
   // Run all tests in a loop
   for (i = 0; i < kNumTests_VSR; i++) {
@@ -885,7 +924,7 @@ TEST_F(NERaptorInterface_test, test_rpt_vehicle_state)
     }
 
     // Send this message last
-    test_talker_->send_report(myTests[i].in_oar);
+    test_talker_->send_report(myTests[i].in_dir);
 
     timeout = 0;
     while (!test_listener_->l_got_vehicle_state &&
@@ -918,9 +957,7 @@ TEST_F(NERaptorInterface_test, test_rpt_vehicle_state)
       EXPECT_EQ(
         test_listener_->l_vehicle_state.hand_brake,
         myTests[i].exp_vsr.hand_brake) << "Test #" << std::to_string(i);
-      EXPECT_EQ(
-        test_listener_->l_vehicle_state.horn,
-        myTests[i].exp_vsr.horn) << "Test #" << std::to_string(i);
+
       test_listener_->l_got_vehicle_state = false;
     } else {
       EXPECT_TRUE(test_listener_->l_got_vehicle_state) <<

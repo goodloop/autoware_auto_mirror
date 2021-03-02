@@ -35,7 +35,7 @@
 #include <raptor_dbw_msgs/msg/brake_report.hpp>
 #include <raptor_dbw_msgs/msg/gear_report.hpp>
 #include <raptor_dbw_msgs/msg/misc_report.hpp>
-#include <raptor_dbw_msgs/msg/other_actuators_report.hpp>
+#include <raptor_dbw_msgs/msg/driver_input_report.hpp>
 #include <raptor_dbw_msgs/msg/steering_report.hpp>
 #include <raptor_dbw_msgs/msg/wheel_speed_report.hpp>
 
@@ -89,7 +89,7 @@ using raptor_dbw_msgs::msg::SteeringCmd;
 using raptor_dbw_msgs::msg::BrakeReport;
 using raptor_dbw_msgs::msg::GearReport;
 using raptor_dbw_msgs::msg::MiscReport;
-using raptor_dbw_msgs::msg::OtherActuatorsReport;
+using raptor_dbw_msgs::msg::DriverInputReport;
 using raptor_dbw_msgs::msg::SteeringReport;
 using raptor_dbw_msgs::msg::WheelSpeedReport;
 
@@ -199,7 +199,7 @@ public:
   ///        based on time difference, current speed, & current tire angle.
   /// \param[in] dt delta-T - how much time since this was last called
   /// \param[in] vks the current vehicle kinematic state (contains current motion data)
-  /// \return nothing (updates kinematic state by passing a pointer)
+  /// \brief updates kinematic state by passing a pointer
   void kinematic_bicycle_model(
     float32_t dt, VehicleKinematicState * vks);
 
@@ -208,9 +208,11 @@ private:
   rclcpp::Publisher<AcceleratorPedalCmd>::SharedPtr m_accel_cmd_pub;
   rclcpp::Publisher<BrakeCmd>::SharedPtr m_brake_cmd_pub;
   rclcpp::Publisher<GearCmd>::SharedPtr m_gear_cmd_pub;
-  rclcpp::Publisher<GlobalEnableCmd>::SharedPtr m_enable_cmd_pub;
+  rclcpp::Publisher<GlobalEnableCmd>::SharedPtr m_global_enable_cmd_pub;
   rclcpp::Publisher<MiscCmd>::SharedPtr m_misc_cmd_pub;
   rclcpp::Publisher<SteeringCmd>::SharedPtr m_steer_cmd_pub;
+  rclcpp::Publisher<std_msgs::msg::Empty>::SharedPtr m_dbw_enable_cmd_pub;
+  rclcpp::Publisher<std_msgs::msg::Empty>::SharedPtr m_dbw_disable_cmd_pub;
 
   // Publishers (to Autoware)
   rclcpp::Publisher<VehicleStateReport>::SharedPtr m_vehicle_state_pub;
@@ -261,7 +263,7 @@ private:
   void on_brake_report(const BrakeReport::SharedPtr & msg);
   void on_gear_report(const GearReport::SharedPtr & msg);
   void on_misc_report(const MiscReport::SharedPtr & msg);
-  void on_other_act_report(const OtherActuatorsReport::SharedPtr & msg);
+  void on_driver_input_report(const DriverInputReport::SharedPtr & msg);
   void on_steering_report(const SteeringReport::SharedPtr & msg);
   void on_wheel_spd_report(const WheelSpeedReport::SharedPtr & msg);
 };  // class NERaptorInterface

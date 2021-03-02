@@ -53,7 +53,7 @@ public:
   bool8_t send_report(const BrakeReport & msg);
   bool8_t send_report(const GearReport & msg);
   bool8_t send_report(const MiscReport & msg);
-  bool8_t send_report(const OtherActuatorsReport & msg);
+  bool8_t send_report(const DriverInputReport & msg);
   bool8_t send_report(const SteeringReport & msg);
   bool8_t send_report(const WheelSpeedReport & msg);
   bool8_t send_report(const std_msgs::msg::Bool & msg);
@@ -63,11 +63,10 @@ private:
   rclcpp::Publisher<BrakeReport>::SharedPtr t_brake_rpt_pub;
   rclcpp::Publisher<GearReport>::SharedPtr t_gear_rpt_pub;
   rclcpp::Publisher<MiscReport>::SharedPtr t_misc_rpt_pub;
-  rclcpp::Publisher<OtherActuatorsReport>::SharedPtr t_other_acts_rpt_pub;
+  rclcpp::Publisher<DriverInputReport>::SharedPtr t_other_acts_rpt_pub;
   rclcpp::Publisher<SteeringReport>::SharedPtr t_steering_rpt_pub;
   rclcpp::Publisher<WheelSpeedReport>::SharedPtr t_wheel_spd_rpt_pub;
-  // Publishers (from Autoware.Auto)
-  rclcpp::Publisher<std_msgs::msg::Bool>::SharedPtr t_dbw_state_pub;
+  rclcpp::Publisher<std_msgs::msg::Bool>::SharedPtr t_dbw_state_rpt_pub;
 };  // class NERaptorInterfaceTalker
 
 }  // namespace ne_raptor_interface

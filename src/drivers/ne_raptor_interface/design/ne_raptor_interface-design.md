@@ -24,7 +24,7 @@ Current version of New Eagle's Raptor DBW Node is intended for R&D only!
 - autoware_auto_msgs::msg::VehicleControlCommand
 - autoware_auto_msgs::msg::VehicleStateCommand
 
-#### From Raptor
+#### To Raptor
 - raptor_dbw_msgs::msg::AcceleratorPedalCmd
 - raptor_dbw_msgs::msg::BrakeCmd
 - raptor_dbw_msgs::msg::GearCmd
@@ -39,11 +39,11 @@ Current version of New Eagle's Raptor DBW Node is intended for R&D only!
 - autoware_auto_msgs::msg::VehicleStateReport
 - autoware_auto_msgs::msg::VehicleKinematicState
 
-#### To Raptor
+#### From Raptor
 - raptor_dbw_msgs::msg::BrakeReport
 - raptor_dbw_msgs::msg::GearReport
 - raptor_dbw_msgs::msg::MiscReport
-- raptor_dbw_msgs::msg::OtherActuatorsReport
+- raptor_dbw_msgs::msg::DriverInputReport
 - raptor_dbw_msgs::msg::SteeringReport
 - raptor_dbw_msgs::msg::WheelSpeedReport
 

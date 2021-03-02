@@ -60,7 +60,8 @@ public:
 
   // Check whether values were received
   bool8_t l_got_accel_cmd, l_got_brake_cmd, l_got_gear_cmd,
-    l_got_enable_cmd, l_got_misc_cmd, l_got_steer_cmd,
+    l_got_global_enable_cmd, l_got_misc_cmd, l_got_steer_cmd,
+    l_got_dbw_enable_cmd, l_got_dbw_disable_cmd,
     l_got_vehicle_state, l_got_vehicle_odo, l_got_vehicle_kin_state;
 
 private:
@@ -69,9 +70,11 @@ private:
     l_accel_cmd_sub,
     l_brake_cmd_sub,
     l_gear_cmd_sub,
-    l_enable_cmd_sub,
+    l_global_enable_cmd_sub,
     l_misc_cmd_sub,
-    l_steer_cmd_sub;
+    l_steer_cmd_sub,
+    l_dbw_enable_cmd_sub,
+    l_dbw_disable_cmd_sub;
   // Subscribers (from Autoware.Auto)
   rclcpp::SubscriptionBase::SharedPtr
     l_vehicle_state_sub,
@@ -82,9 +85,11 @@ private:
   void on_accel_cmd(const AcceleratorPedalCmd::SharedPtr & msg);
   void on_brake_cmd(const BrakeCmd::SharedPtr & msg);
   void on_gear_cmd(const GearCmd::SharedPtr & msg);
-  void on_enable_cmd(const GlobalEnableCmd::SharedPtr & msg);
+  void on_global_enable_cmd(const GlobalEnableCmd::SharedPtr & msg);
   void on_misc_cmd(const MiscCmd::SharedPtr & msg);
   void on_steer_cmd(const SteeringCmd::SharedPtr & msg);
+  void on_dbw_enable_cmd(const std_msgs::msg::Empty::SharedPtr & msg);
+  void on_dbw_disable_cmd(const std_msgs::msg::Empty::SharedPtr & msg);
   void on_vehicle_state(const VehicleStateReport::SharedPtr & msg);
   void on_vehicle_odo(const VehicleOdometry::SharedPtr & msg);
   void on_vehicle_kin_state(const VehicleKinematicState::SharedPtr & msg);

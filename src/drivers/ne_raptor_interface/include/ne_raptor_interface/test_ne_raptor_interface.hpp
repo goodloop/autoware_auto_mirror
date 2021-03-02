@@ -98,10 +98,13 @@ public:
   struct test_vsc  /* Test vehicle state command */
   {
     VehicleStateCommand in_vsc;  // Input: vehicle state command
+    std_msgs::msg::Bool in_dbw;  // Input: DBW State Machine report (for dbw state machine)
     GearCmd exp_gc;              // Expected output: gear command
     GlobalEnableCmd exp_gec;     // Expected output: global enable command
     MiscCmd exp_mc;              // Expected output: misc command
     bool8_t exp_success;         // Expected output: send_state_command
+    bool8_t exp_dbw_enable;      // Expected output: dbw enable command sent
+    bool8_t exp_dbw_disable;     // Expected output: dbw disable command sent
   };
   struct test_hlcc  /* Test high level control command */
   {
@@ -128,7 +131,7 @@ public:
     BrakeReport in_br;            // Input: brake report
     GearReport in_gr;             // Input: gear report
     MiscReport in_mr;             // Input: misc. report
-    OtherActuatorsReport in_oar;  // Input: other actuators report (send this last)
+    DriverInputReport in_dir;     // Input: driver input report (send this last)
     VehicleStateCommand in_vsc;   // Input: vehicle state command (enable DBW)
     std_msgs::msg::Bool in_dbw;   // Input: DBW State Machine report
     VehicleStateReport exp_vsr;   // Expected output: vehicle state report
