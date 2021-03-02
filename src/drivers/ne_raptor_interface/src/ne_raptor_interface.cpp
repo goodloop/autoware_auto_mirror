@@ -426,7 +426,7 @@ bool8_t NERaptorInterface::send_control_command(const VehicleControlCommand & ms
   }
 
   // Limit steering angle to valid range
-  angle_checked = msg.front_wheel_angle_rad / (DEGREES_TO_RADIANS * m_steer_to_tire_ratio);
+  angle_checked = (msg.front_wheel_angle_rad * m_steer_to_tire_ratio) / DEGREES_TO_RADIANS;
   if (angle_checked > STEERING_MAX_ANGLE) {
     angle_checked = STEERING_MAX_ANGLE;
     RCLCPP_ERROR_THROTTLE(
@@ -585,7 +585,8 @@ void NERaptorInterface::on_misc_report(const MiscReport::SharedPtr & msg)
 
   // Calculate dT (seconds)
   dT = static_cast<float32_t>(msg->header.stamp.sec - m_vehicle_kin_state.header.stamp.sec);
-  dT += static_cast<float32_t>(msg->header.stamp.sec - m_vehicle_kin_state.header.stamp.sec) /
+  dT +=
+    static_cast<float32_t>(msg->header.stamp.nanosec - m_vehicle_kin_state.header.stamp.nanosec) /
     1000000000.0F;
 
   if (dT < 0.0F) {
@@ -711,8 +712,8 @@ void NERaptorInterface::on_other_act_report(const OtherActuatorsReport::SharedPt
 
 void NERaptorInterface::on_steering_report(const SteeringReport::SharedPtr & msg)
 {
-  const float32_t f_wheel_angle_rad = msg->steering_wheel_angle * m_steer_to_tire_ratio *
-    DEGREES_TO_RADIANS;
+  const float32_t f_wheel_angle_rad = (msg->steering_wheel_angle * DEGREES_TO_RADIANS) /
+    m_steer_to_tire_ratio;
 
   std::lock_guard<std::mutex> guard_vo(m_vehicle_odometry_mutex);
   m_vehicle_odometry.front_wheel_angle_rad = f_wheel_angle_rad;

@@ -140,7 +140,7 @@ public:
   /// \param[in] ecu_build_num ECU build #
   /// \param[in] front_axle_to_cog Distance from front axle to center-of-gravity in meters
   /// \param[in] rear_axle_to_cog Distance from rear axle to center-of-gravity in meters
-  /// \param[in] steer_to_tire_ratio Ratio between steering wheel angle & tire angle
+  /// \param[in] steer_to_tire_ratio Ratio of steering angle / car tire angle
   /// \param[in] acceleration_limit m/s^2, zero = no limit
   /// \param[in] deceleration_limit m/s^2, zero = no limit
   /// \param[in] acceleration_positive_jerk_limit m/s^3
