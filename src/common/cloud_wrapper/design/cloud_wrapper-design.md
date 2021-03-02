@@ -11,7 +11,7 @@ message, add-remove points, apply [std::algorithm](https://en.cppreference.com/w
 functions to them.
 
 
-# Design & Inner-workings / Algorithms
+# Design & Inner-workings / Algorithms & Inputs / Outputs / API
 
 A [PointCloud2 message](https://github.com/ros2/common_interfaces/blob/foxy/sensor_msgs/msg/PointCloud2.msg)
 is made of following fields:
@@ -220,40 +220,92 @@ std::transform(
 ```
 
 ## Assumptions / Known limits
-<!-- Required -->
+Cloud wrapper requires the exact point structure of the message to be known
+in advance.
+This shouldn't be a problem for the Autoware.Auto framework because the drivers
+are a part of the autonomous driving stack. And the exact point fields, offsets
+should be defined.
 
-## Inputs / Outputs / API
-<!-- Required -->
-<!-- Things to consider:
-    - How do you use the package / API? -->
+The supported point structures and fields are located in `types_point_cloud2.hpp`.
+This file consists of pairs of structs and fields.
+For example for PointXYZI, the pair is as following:
+```cpp
+/// PointXYZI
+struct __attribute__((packed)) CLOUD_WRAPPER_PUBLIC PointXYZI
+{
+  PointXYZI() = default;
+  PointXYZI(float32_t x, float32_t y, float32_t z, float32_t intensity)
+  : x(x), y(y), z(z), intensity(intensity) {}
+  float32_t x{0.0f};
+  float32_t y{0.0f};
+  float32_t z{0.0f};
+  float32_t intensity{0.0f};
+};
 
-Use with params:
+CLOUD_WRAPPER_PUBLIC extern const std::vector<PointField> fields_PointXYZI{
+  make_point_field("x", PointField::FLOAT32, 0, 1),
+  make_point_field("y", PointField::FLOAT32, 4, 1),
+  make_point_field("z", PointField::FLOAT32, 8, 1),
+  make_point_field("intensity", PointField::FLOAT32, 12, 1)
+};
 ```
---ros-args --params-file /home/mfc/projects/AutowareAuto/src/common/cloud_wrapper/param/test_param.yaml
+Here the [__attribute__((packed))](https://gcc.gnu.org/onlinedocs/gcc-4.0.2/gcc/Type-Attributes.html)
+makes sure compiler doesn't add unnecessary padding to the struct.
+Because `sizeof(PointXYZI)` should be equal to `point_step` in the message.
+
+In some instances there might be unused bytes and these should be put into the struct.
+For LGSVL Point type, it is covered like so:
+```cpp
+/// PointLgsvl
+struct __attribute__((packed)) CLOUD_WRAPPER_PUBLIC PointLgsvl
+{
+  PointLgsvl() = default;
+  PointLgsvl(float32_t x, float32_t y, float32_t z, uint8_t intensity, float64_t timestamp)
+  : x(x), y(y), z(z), intensity(intensity), timestamp(timestamp) {}
+  float32_t x{0.0f};
+  float32_t y{0.0f};
+  float32_t z{0.0f};
+  uint32_t _padding_4_01{0};
+  uint8_t intensity{0};
+  uint8_t _padding_1_01{0};
+  uint16_t _padding_2_01{0};
+  uint32_t _padding_4_02{0};
+  float64_t timestamp{0.0};
+};
+
+CLOUD_WRAPPER_PUBLIC extern const std::vector<PointField> fields_PointLgsvl{
+  make_point_field("x", PointField::FLOAT32, 0, 1),
+  make_point_field("y", PointField::FLOAT32, 4, 1),
+  make_point_field("z", PointField::FLOAT32, 8, 1),
+  make_point_field("intensity", PointField::UINT8, 16, 1),
+  make_point_field("timestamp", PointField::FLOAT64, 24, 1)
+};
 ```
+Here the `_padding_xx` bytes are placeholders for unused bytes.
+The struct should match the point fields of the expected message.
+
+Currently in Autoware.Auto only `PointCloud2` sources are `LGSVL` and `velodyne_nodes`.
+The `velodyne_nodes` publishes the cloud in `PointXYZI` format. 
+The rest of nodes use the same format for intra-node communication in Autoware.Auto.
+Only LGSVL publishes in a different format and a node is written to convert its
+format into the `PointXYZI` and this node is called `lgsvl_cloud_converter` located in
+drivers folder.
+
 
 ## Error detection and handling
-<!-- Required -->
 
+In the constructor, it has some sanity checking operations if they fail it throws
+necessary `std::runtime_error` or `std::length_error` exceptions.
 
-# Security considerations
-<!-- Required -->
-<!-- Things to consider:
-- Spoofing (How do you check for and handle fake input?)
-- Tampering (How do you check for and handle tampered input?)
-- Repudiation (How are you affected by the actions of external actors?).
-- Information Disclosure (Can data leak?).
-- Denial of Service (How do you handle spamming?).
-- Elevation of Privilege (Do you need to change permission levels during execution?) -->
+Implemented `at` operator checks for the index given to be within boundaries and throws 
+`std::out_of_range` if necessary.
 
-
-# References / External links
-<!-- Optional -->
-
+Just like working with a vector, the user is responsible of handling these exceptions.
 
 # Future extensions / Unimplemented parts
-<!-- Optional -->
+<!-- To Be Listed -->
 
 
 # Related issues
-<!-- Required -->
+
+https://gitlab.com/autowarefoundation/autoware.auto/AutowareAuto/-/issues/102
