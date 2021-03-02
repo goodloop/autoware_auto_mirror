@@ -26,7 +26,7 @@ def generate_launch_description():
         composable_node_descriptions=[
             ComposableNode(
                 package='lgsvl_cloud_converter',
-                plugin='autoware::lgsvl_cloud_converter::LgsvlCloudConverterNode',
+                plugin='autoware::drivers::lgsvl_cloud_converter::LgsvlCloudConverterNode',
                 name='lgsvl_cloud_converter_node_front',
                 parameters=[{"name_topic_cloud_in": "/lgsvl/lidar_front/points_raw"},
                             {"name_topic_cloud_out": "/lidar_front/points_raw"}], ),
@@ -41,7 +41,7 @@ def generate_launch_description():
         composable_node_descriptions=[
             ComposableNode(
                 package='lgsvl_cloud_converter',
-                plugin='autoware::lgsvl_cloud_converter::LgsvlCloudConverterNode',
+                plugin='autoware::drivers::lgsvl_cloud_converter::LgsvlCloudConverterNode',
                 name='lgsvl_cloud_converter_node_rear',
                 parameters=[{"name_topic_cloud_in": "/lgsvl/lidar_rear/points_raw"},
                             {"name_topic_cloud_out": "/lidar_rear/points_raw"}], ),

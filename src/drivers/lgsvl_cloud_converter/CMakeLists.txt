@@ -42,7 +42,7 @@ ament_auto_add_library(${PROJECT_NAME}_node SHARED
 )
 autoware_set_compile_options(${PROJECT_NAME}_node)
 rclcpp_components_register_node(${PROJECT_NAME}_node
-  PLUGIN "autoware::lgsvl_cloud_converter::LgsvlCloudConverterNode"
+  PLUGIN "autoware::drivers::lgsvl_cloud_converter::LgsvlCloudConverterNode"
   EXECUTABLE ${PROJECT_NAME}_node_exe
 )
 
