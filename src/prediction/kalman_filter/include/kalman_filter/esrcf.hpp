@@ -101,6 +101,12 @@ public:
     return m_is_mat1_covariance ? m_square_mat1 : m_square_mat2;
   }
 
+  /// \brief Get state as a passthrough to the motion model.
+  const state_vec_t & get_state() const
+  {
+    return m_model_ptr->get_state();
+  }
+
   /// \brief Do temporal update: update state estimate, compute jacobian, update covariance
   /// \param[in] dt amount of time to propagate state estimate, and compute associated jacobian for
   void temporal_update(const std::chrono::nanoseconds & dt)
