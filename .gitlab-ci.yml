@@ -357,14 +357,16 @@ pages:
   stage: deploy
   image: alpine
   script:
-    - mv docs/_build/html public
-    - mv coverage public
+    - mkdir -p "public/$CI_CI_COMMIT_BRANCH"
+    - mv docs/_build/html "public/$CI_CI_COMMIT_BRANCH/"
+    - mv coverage "public/$CI_CI_COMMIT_BRANCH/"
   artifacts:
     name: "$CI_JOB_NAME"
     paths:
       - public
   only:
     - master
+    - release
   needs:
     - coverage
     - docs
