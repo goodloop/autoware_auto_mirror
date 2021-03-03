@@ -18,6 +18,8 @@
 #define POINT_CLOUD_FILTER_TRANSFORM_NODES__POINT_CLOUD_FILTER_TRANSFORM_NODE_HPP_
 
 #include <rclcpp/rclcpp.hpp>
+#include "tf2_ros/buffer.h"
+#include "tf2_ros/transform_listener.h"
 #include <lidar_utils/point_cloud_utils.hpp>
 #include <sensor_msgs/msg/point_cloud2.hpp>
 #include <point_cloud_filter_transform_nodes/visibility_control.hpp>
@@ -108,6 +110,10 @@ private:
   const size_t m_expected_num_subscribers;
   const std::size_t m_pcl_size;
   PointCloud2 m_filtered_transformed_msg;
+  /// TF buffer
+  tf2_ros::Buffer m_tf2_buffer;
+  /// TF listener
+  tf2_ros::TransformListener m_tf2_listener;
 };
 
 }  // namespace point_cloud_filter_transform_nodes

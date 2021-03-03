@@ -69,16 +69,16 @@ PointCloud2FilterTransformNode::PointCloud2FilterTransformNode(
     static_cast<float32_t>(declare_parameter("max_radius").get<float64_t>())},
   m_input_frame_id{declare_parameter("input_frame_id").get<std::string>()},
   m_output_frame_id{declare_parameter("output_frame_id").get<std::string>()},
-  m_static_transformer{
-    get_transform(
-      m_input_frame_id, m_output_frame_id,
-      declare_parameter("static_transformer.quaternion.x").get<float64_t>(),
-      declare_parameter("static_transformer.quaternion.y").get<float64_t>(),
-      declare_parameter("static_transformer.quaternion.z").get<float64_t>(),
-      declare_parameter("static_transformer.quaternion.w").get<float64_t>(),
-      declare_parameter("static_transformer.translation.x").get<float64_t>(),
-      declare_parameter("static_transformer.translation.y").get<float64_t>(),
-      declare_parameter("static_transformer.translation.z").get<float64_t>()).transform},
+//  m_static_transformer{
+//    get_transform(
+//      m_input_frame_id, m_output_frame_id,
+//      declare_parameter("static_transformer.quaternion.x").get<float64_t>(),
+//      declare_parameter("static_transformer.quaternion.y").get<float64_t>(),
+//      declare_parameter("static_transformer.quaternion.z").get<float64_t>(),
+//      declare_parameter("static_transformer.quaternion.w").get<float64_t>(),
+//      declare_parameter("static_transformer.translation.x").get<float64_t>(),
+//      declare_parameter("static_transformer.translation.y").get<float64_t>(),
+//      declare_parameter("static_transformer.translation.z").get<float64_t>()).transform},
   m_init_timeout{std::chrono::milliseconds{declare_parameter("init_timeout_ms").get<int32_t>()}},
   m_timeout{std::chrono::milliseconds{declare_parameter("timeout_ms").get<int32_t>()}},
   m_sub_ptr{create_subscription<PointCloud2>(
@@ -90,8 +90,43 @@ PointCloud2FilterTransformNode::PointCloud2FilterTransformNode(
     static_cast<size_t>(declare_parameter("expected_num_publishers").get<int32_t>())},
   m_expected_num_subscribers{
     static_cast<size_t>(declare_parameter("expected_num_subscribers").get<int32_t>())},
-  m_pcl_size{static_cast<size_t>(declare_parameter("pcl_size").get<int32_t>())}
+  m_pcl_size{static_cast<size_t>(declare_parameter("pcl_size").get<int32_t>())},
+  m_tf2_buffer(this->get_clock()),
+  m_tf2_listener(m_tf2_buffer)
 {
+  if (has_parameter("static_transformer.quaternion.x") &&
+    has_parameter("static_transformer.quaternion.y") &&
+    has_parameter("static_transformer.quaternion.z") &&
+    has_parameter("static_transformer.quaternion.w") &&
+    has_parameter("static_transformer.translation.x") &&
+    has_parameter("static_transformer.translation.y") &&
+    has_parameter("static_transformer.translation.z"))
+  {
+    m_static_transformer = StaticTransformer(
+      get_transform(
+        m_input_frame_id, m_output_frame_id,
+        declare_parameter("static_transformer.quaternion.x").get<float64_t>(),
+        declare_parameter("static_transformer.quaternion.y").get<float64_t>(),
+        declare_parameter("static_transformer.quaternion.z").get<float64_t>(),
+        declare_parameter("static_transformer.quaternion.w").get<float64_t>(),
+        declare_parameter("static_transformer.translation.x").get<float64_t>(),
+        declare_parameter("static_transformer.translation.y").get<float64_t>(),
+        declare_parameter("static_transformer.translation.z").get<float64_t>()).transform);
+  } else {
+    while (rclcpp::ok()) {
+      try {
+        m_static_transformer = StaticTransformer(
+          m_tf2_buffer.lookupTransform(
+            "base_link", "lidar_front",
+            std::chrono::high_resolution_clock::now()).transform);
+
+      } catch (...) {
+        RCLCPP_INFO(get_logger(), "No transform was available.");
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        continue;
+      }
+    }
+  }
   common::lidar_utils::init_pcl_msg(
     m_filtered_transformed_msg,
     m_output_frame_id.c_str(), m_pcl_size);
