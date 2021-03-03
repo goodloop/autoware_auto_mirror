@@ -50,6 +50,7 @@ TEST_F(NERaptorInterface_test, test_cmd_vehicle_state)
   test_vsc myTests[kNumTests_VSC];
   HighLevelControlCommand hlcc{};
   uint8_t timeout{0}, i{0};
+  uint16_t test_rollover{0};
 
   rclcpp::executors::SingleThreadedExecutor executor;
   executor.add_node(i_node_);
@@ -62,6 +63,29 @@ TEST_F(NERaptorInterface_test, test_cmd_vehicle_state)
    */
   hlcc.velocity_mps = 0.0F;
   hlcc.curvature = 0.0F;
+
+  // Init test values to valid
+  for (i = 0; i < kNumTests_VSC; i++) {
+    myTests[i].in_vsc.blinker = VehicleStateCommand::BLINKER_HAZARD;
+    myTests[i].in_vsc.headlight = VehicleStateCommand::HEADLIGHT_HIGH;
+    myTests[i].in_vsc.wiper = VehicleStateCommand::WIPER_HIGH;
+    myTests[i].in_vsc.gear = VehicleStateCommand::GEAR_DRIVE;
+    myTests[i].in_vsc.mode = VehicleStateCommand::MODE_AUTONOMOUS;
+    myTests[i].in_vsc.hand_brake = true;
+    myTests[i].in_vsc.horn = true;
+    myTests[i].exp_gc.cmd.gear = Gear::DRIVE;
+    myTests[i].exp_gc.enable = true;
+    myTests[i].exp_gec.global_enable = true;
+    myTests[i].exp_gec.enable_joystick_limits = true;
+    myTests[i].exp_mc.cmd.value = TurnSignal::HAZARDS;
+    myTests[i].exp_mc.high_beam_cmd.status = HighBeam::ON;
+    myTests[i].exp_mc.front_wiper_cmd.status = WiperFront::CONSTANT_HIGH;
+    myTests[i].exp_mc.horn_cmd = true;
+    myTests[i].exp_success = (i < kTestValid_VSC) ? true : false;
+    myTests[i].in_dbw.data = true;
+    myTests[i].exp_dbw_enable = false;
+    myTests[i].exp_dbw_disable = false;
+  }
 
   /** Test valid inputs **/
   // Test valid: no commands
@@ -80,10 +104,7 @@ TEST_F(NERaptorInterface_test, test_cmd_vehicle_state)
   myTests[0].exp_mc.high_beam_cmd.status = HighBeam::OFF;
   myTests[0].exp_mc.front_wiper_cmd.status = WiperFront::OFF;
   myTests[0].exp_mc.horn_cmd = false;
-  myTests[0].exp_success = true;
   myTests[0].in_dbw.data = false;
-  myTests[0].exp_dbw_enable = false;
-  myTests[0].exp_dbw_disable = false;
 
   // Test valid: all off
   myTests[1].in_vsc.blinker = VehicleStateCommand::BLINKER_OFF;
@@ -103,99 +124,100 @@ TEST_F(NERaptorInterface_test, test_cmd_vehicle_state)
   myTests[1].exp_mc.horn_cmd = false;
   myTests[1].exp_success = true;
   myTests[1].in_dbw.data = false;
-  myTests[1].exp_dbw_enable = false;
-  myTests[1].exp_dbw_disable = false;
 
-  // Test valid: all on
-  // Also init valid values for invalid tests
-  for (i = 2; i < kNumTests_VSC; i++) {
-    myTests[i].in_vsc.blinker = VehicleStateCommand::BLINKER_HAZARD;
-    myTests[i].in_vsc.headlight = VehicleStateCommand::HEADLIGHT_HIGH;
-    myTests[i].in_vsc.wiper = VehicleStateCommand::WIPER_HIGH;
-    myTests[i].in_vsc.gear = VehicleStateCommand::GEAR_DRIVE;
-    myTests[i].in_vsc.mode = VehicleStateCommand::MODE_AUTONOMOUS;
-    myTests[i].in_vsc.hand_brake = true;
-    myTests[i].in_vsc.horn = true;
-    myTests[i].exp_gc.cmd.gear = Gear::DRIVE;
-    myTests[i].exp_gc.enable = true;
-    myTests[i].exp_gec.global_enable = true;
-    myTests[i].exp_gec.enable_joystick_limits = true;
-    myTests[i].exp_mc.cmd.value = TurnSignal::HAZARDS;
-    myTests[i].exp_mc.high_beam_cmd.status = HighBeam::ON;
-    myTests[i].exp_mc.front_wiper_cmd.status = WiperFront::CONSTANT_HIGH;
-    myTests[i].exp_mc.horn_cmd = true;
-    myTests[i].exp_success = (i == 2) ? true : false;
-    myTests[i].in_dbw.data = true;
-    myTests[i].exp_dbw_enable = (i == 2) ? true : false;
-    myTests[i].exp_dbw_disable = false;
-  }
+  // Test valid: DBW state machine --> on
+  myTests[2].exp_dbw_enable = true;
+
+  /* Test valid:
+   * gear == low, blinker == left, wiper == low */
+  myTests[3].in_vsc.gear = VehicleStateCommand::GEAR_LOW;
+  myTests[3].in_vsc.blinker = VehicleStateCommand::BLINKER_LEFT;
+  myTests[3].in_vsc.wiper = VehicleStateCommand::WIPER_LOW;
+  myTests[3].exp_gc.cmd.gear = Gear::LOW;
+  myTests[3].exp_mc.cmd.value = TurnSignal::LEFT;
+  myTests[3].exp_mc.front_wiper_cmd.status = WiperFront::CONSTANT_LOW;
+
+  /* Test valid:
+   * gear == neutral, blinker == right, wiper == clean */
+  myTests[4].in_vsc.gear = VehicleStateCommand::GEAR_NEUTRAL;
+  myTests[4].in_vsc.blinker = VehicleStateCommand::BLINKER_RIGHT;
+  myTests[4].in_vsc.wiper = VehicleStateCommand::WIPER_CLEAN;
+  myTests[4].exp_gc.cmd.gear = Gear::NEUTRAL;
+  myTests[4].exp_mc.cmd.value = TurnSignal::RIGHT;
+  myTests[4].exp_mc.front_wiper_cmd.status = WiperFront::WASH_BRIEF;
 
   /** Test invalid inputs **/
   // Test invalid: blinker
-  myTests[3].in_vsc.blinker = VehicleStateCommand::BLINKER_HAZARD + 1;
-  myTests[3].exp_mc.cmd.value = TurnSignal::SNA;
+  myTests[kTestValid_VSC + 0].in_vsc.blinker = VehicleStateCommand::BLINKER_HAZARD + 1;
+  myTests[kTestValid_VSC + 0].exp_mc.cmd.value = TurnSignal::SNA;
 
-  myTests[4].in_vsc.blinker = 0xFF;
-  myTests[4].exp_mc.cmd.value = TurnSignal::SNA;
+  myTests[kTestValid_VSC + 1].in_vsc.blinker = 0xFF;
+  myTests[kTestValid_VSC + 1].exp_mc.cmd.value = TurnSignal::SNA;
 
   // Test invalid: headlight (keep previous: on)
-  myTests[5].in_vsc.headlight = VehicleStateCommand::HEADLIGHT_HIGH + 1;
-  myTests[5].exp_mc.high_beam_cmd.status = HighBeam::ON;
+  myTests[kTestValid_VSC + 2].in_vsc.headlight = VehicleStateCommand::HEADLIGHT_HIGH + 1;
+  myTests[kTestValid_VSC + 2].exp_mc.high_beam_cmd.status = HighBeam::ON;
 
   // not high beam, so high beams are OFF
-  myTests[6].exp_success = true;
-  myTests[6].in_vsc.headlight = VehicleStateCommand::HEADLIGHT_ON;
-  myTests[6].exp_mc.high_beam_cmd.status = HighBeam::OFF;
+  myTests[kTestValid_VSC + 3].exp_success = true;
+  myTests[kTestValid_VSC + 3].in_vsc.headlight = VehicleStateCommand::HEADLIGHT_ON;
+  myTests[kTestValid_VSC + 3].exp_mc.high_beam_cmd.status = HighBeam::OFF;
 
   // Test invalid: headlight (keep previous: off)
-  myTests[7].in_vsc.headlight = 0xFF;
-  myTests[7].exp_mc.high_beam_cmd.status = HighBeam::OFF;
+  myTests[kTestValid_VSC + 4].in_vsc.headlight = 0xFF;
+  myTests[kTestValid_VSC + 4].exp_mc.high_beam_cmd.status = HighBeam::OFF;
 
   // Test invalid: wiper
-  myTests[8].in_vsc.wiper = VehicleStateCommand::WIPER_CLEAN + 1;
-  myTests[8].exp_mc.front_wiper_cmd.status = WiperFront::SNA;
+  myTests[kTestValid_VSC + 5].in_vsc.wiper = VehicleStateCommand::WIPER_CLEAN + 1;
+  myTests[kTestValid_VSC + 5].exp_mc.front_wiper_cmd.status = WiperFront::SNA;
 
-  myTests[9].in_vsc.wiper = 0xFF;
-  myTests[9].exp_mc.front_wiper_cmd.status = WiperFront::SNA;
+  myTests[kTestValid_VSC + 6].in_vsc.wiper = 0xFF;
+  myTests[kTestValid_VSC + 6].exp_mc.front_wiper_cmd.status = WiperFront::SNA;
 
   // Test invalid: gear
-  myTests[10].in_vsc.gear = VehicleStateCommand::GEAR_NEUTRAL + 1;
-  myTests[10].exp_gc.cmd.gear = Gear::NONE;
+  myTests[kTestValid_VSC + 7].in_vsc.gear = VehicleStateCommand::GEAR_NEUTRAL + 1;
+  myTests[kTestValid_VSC + 7].exp_gc.cmd.gear = Gear::NONE;
 
-  myTests[11].in_vsc.gear = 0xFF;
-  myTests[11].exp_gc.cmd.gear = Gear::NONE;
+  myTests[kTestValid_VSC + 8].in_vsc.gear = 0xFF;
+  myTests[kTestValid_VSC + 8].exp_gc.cmd.gear = Gear::NONE;
 
   // Test invalid: mode (keep previous: on)
-  myTests[12].in_vsc.mode = VehicleStateCommand::MODE_MANUAL + 1;
-  myTests[12].exp_gc.enable = true;
-  myTests[12].exp_gec.global_enable = true;
-  myTests[12].exp_gec.enable_joystick_limits = true;
+  myTests[kTestValid_VSC + 9].in_vsc.mode = VehicleStateCommand::MODE_MANUAL + 1;
+  myTests[kTestValid_VSC + 9].exp_gc.enable = true;
+  myTests[kTestValid_VSC + 9].exp_gec.global_enable = true;
+  myTests[kTestValid_VSC + 9].exp_gec.enable_joystick_limits = true;
 
   // Set previous mode to off
-  myTests[13].exp_success = true;
-  myTests[13].in_vsc.mode = VehicleStateCommand::MODE_MANUAL;
-  myTests[13].exp_gc.enable = false;
-  myTests[13].exp_gec.global_enable = false;
-  myTests[13].exp_gec.enable_joystick_limits = false;
-  myTests[13].exp_dbw_disable = true;
+  myTests[kTestValid_VSC + 10].exp_success = true;
+  myTests[kTestValid_VSC + 10].in_vsc.mode = VehicleStateCommand::MODE_MANUAL;
+  myTests[kTestValid_VSC + 10].exp_gc.enable = false;
+  myTests[kTestValid_VSC + 10].exp_gec.global_enable = false;
+  myTests[kTestValid_VSC + 10].exp_gec.enable_joystick_limits = false;
+  myTests[kTestValid_VSC + 10].exp_dbw_disable = true;
 
   // Test invalid: mode (keep previous: off)
-  myTests[14].in_vsc.mode = 0xFF;
-  myTests[14].exp_gc.enable = false;
-  myTests[14].exp_gec.global_enable = false;
-  myTests[14].exp_gec.enable_joystick_limits = false;
+  myTests[kTestValid_VSC + 11].in_vsc.mode = 0xFF;
+  myTests[kTestValid_VSC + 11].exp_gc.enable = false;
+  myTests[kTestValid_VSC + 11].exp_gec.global_enable = false;
+  myTests[kTestValid_VSC + 11].exp_gec.enable_joystick_limits = false;
 
   /* Run all tests in a loop */
-  for (i = 0; i < kNumTests_VSC; i++) {
+  for (test_rollover = 1; test_rollover <= 0x100; test_rollover++) {
+    if (test_rollover <= kNumTests_VSC) {
+      i = static_cast<uint8_t>(test_rollover - 1);
+    } else {
+      i = kTestValid_VSC - 1;
+    }
+
     // Test function
     if (myTests[i].exp_success) {
       EXPECT_TRUE(
         ne_raptor_interface_->send_state_command(myTests[i].in_vsc)) <<
-        "Test #" << std::to_string(i);
+        "Test #" << std::to_string(test_rollover);
     } else {
       EXPECT_FALSE(
         ne_raptor_interface_->send_state_command(myTests[i].in_vsc)) <<
-        "Test #" << std::to_string(i);
+        "Test #" << std::to_string(test_rollover);
     }
 
     // Test publishing
@@ -217,77 +239,111 @@ TEST_F(NERaptorInterface_test, test_cmd_vehicle_state)
       timeout++;
     }
 
-    if (myTests[i].exp_dbw_enable) {
-      EXPECT_TRUE(test_listener_->l_got_dbw_enable_cmd) <<
-        "Test #" << std::to_string(i);
-    } else {
-      EXPECT_FALSE(test_listener_->l_got_dbw_enable_cmd) <<
-        "Test #" << std::to_string(i);
+    if (test_rollover <= kTestValid_VSC) {
+      if (myTests[i].exp_dbw_enable) {
+        EXPECT_TRUE(test_listener_->l_got_dbw_enable_cmd) <<
+          "Test #" << std::to_string(test_rollover);
+      } else {
+        EXPECT_FALSE(test_listener_->l_got_dbw_enable_cmd) <<
+          "Test #" << std::to_string(test_rollover);
+      }
     }
     test_listener_->l_got_dbw_enable_cmd = false;
 
-    if (myTests[i].exp_dbw_disable) {
-      EXPECT_TRUE(test_listener_->l_got_dbw_disable_cmd) <<
-        "Test #" << std::to_string(i);
-    } else {
-      EXPECT_FALSE(test_listener_->l_got_dbw_disable_cmd) <<
-        "Test #" << std::to_string(i);
+    if (test_rollover <= kTestValid_VSC) {
+      if (myTests[i].exp_dbw_disable) {
+        EXPECT_TRUE(test_listener_->l_got_dbw_disable_cmd) <<
+          "Test #" << std::to_string(test_rollover);
+      } else {
+        EXPECT_FALSE(test_listener_->l_got_dbw_disable_cmd) <<
+          "Test #" << std::to_string(test_rollover);
+      }
     }
     test_listener_->l_got_dbw_disable_cmd = false;
 
     if (test_listener_->l_got_gear_cmd) {
-      EXPECT_EQ(
-        test_listener_->l_gear_cmd.cmd.gear,
-        myTests[i].exp_gc.cmd.gear) << "Test #" << std::to_string(i);
-      EXPECT_EQ(
-        test_listener_->l_gear_cmd.enable,
-        myTests[i].exp_gc.enable) << "Test #" << std::to_string(i);
+      if (test_rollover <= kTestValid_VSC) {
+        EXPECT_EQ(
+          test_listener_->l_gear_cmd.cmd.gear,
+          myTests[i].exp_gc.cmd.gear) << "Test #" <<
+          std::to_string(test_rollover);
+        EXPECT_EQ(
+          test_listener_->l_gear_cmd.enable,
+          myTests[i].exp_gc.enable) << "Test #" <<
+          std::to_string(test_rollover);
+      }
       test_listener_->l_got_gear_cmd = false;
     } else {
       EXPECT_TRUE(test_listener_->l_got_gear_cmd) <<
-        "dropped package gear_cmd: Test #" << std::to_string(i);
+        "dropped package gear_cmd: Test #" <<
+        std::to_string(test_rollover);
     }
 
     if (test_listener_->l_got_global_enable_cmd) {
-      EXPECT_EQ(
-        test_listener_->l_enable_cmd.global_enable,
-        myTests[i].exp_gec.global_enable) << "Test #" << std::to_string(i);
-      EXPECT_EQ(
-        test_listener_->l_enable_cmd.enable_joystick_limits,
-        myTests[i].exp_gec.enable_joystick_limits) << "Test #" << std::to_string(i);
-      EXPECT_EQ(
-        test_listener_->l_enable_cmd.ecu_build_number,
-        c_ecu_build_num) << "Test #" << std::to_string(i);
+      if (test_rollover <= kTestValid_VSC) {
+        EXPECT_EQ(
+          test_listener_->l_enable_cmd.global_enable,
+          myTests[i].exp_gec.global_enable) << "Test #" <<
+          std::to_string(test_rollover);
+        EXPECT_EQ(
+          test_listener_->l_enable_cmd.enable_joystick_limits,
+          myTests[i].exp_gec.enable_joystick_limits) <<
+          "Test #" << std::to_string(test_rollover);
+        EXPECT_EQ(
+          test_listener_->l_enable_cmd.ecu_build_number,
+          c_ecu_build_num) << "Test #" <<
+          std::to_string(test_rollover);
+      }
       test_listener_->l_got_global_enable_cmd = false;
     } else {
       EXPECT_TRUE(test_listener_->l_got_global_enable_cmd) <<
-        "dropped package global_enable_cmd: Test #" << std::to_string(i);
+        "dropped package global_enable_cmd: Test #" <<
+        std::to_string(test_rollover);
     }
 
     if (test_listener_->l_got_misc_cmd) {
-      EXPECT_EQ(
-        test_listener_->l_misc_cmd.cmd.value,
-        myTests[i].exp_mc.cmd.value) << "Test #" << std::to_string(i);
-      EXPECT_EQ(
-        test_listener_->l_misc_cmd.high_beam_cmd.status,
-        myTests[i].exp_mc.high_beam_cmd.status) << "Test #" << std::to_string(i);
-      EXPECT_EQ(
-        test_listener_->l_misc_cmd.front_wiper_cmd.status,
-        myTests[i].exp_mc.front_wiper_cmd.status) << "Test #" << std::to_string(i);
-      EXPECT_EQ(
-        test_listener_->l_misc_cmd.horn_cmd,
-        myTests[i].exp_mc.horn_cmd) << "Test #" << std::to_string(i);
+      if (test_rollover <= kTestValid_VSC) {
+        EXPECT_EQ(
+          test_listener_->l_misc_cmd.cmd.value,
+          myTests[i].exp_mc.cmd.value) <<
+          "Test #" << std::to_string(test_rollover);
+        EXPECT_EQ(
+          test_listener_->l_misc_cmd.high_beam_cmd.status,
+          myTests[i].exp_mc.high_beam_cmd.status) <<
+          "Test #" << std::to_string(test_rollover);
+        EXPECT_EQ(
+          test_listener_->l_misc_cmd.front_wiper_cmd.status,
+          myTests[i].exp_mc.front_wiper_cmd.status) <<
+          "Test #" << std::to_string(test_rollover);
+        EXPECT_EQ(
+          test_listener_->l_misc_cmd.horn_cmd,
+          myTests[i].exp_mc.horn_cmd) <<
+          "Test #" << std::to_string(test_rollover);
+      }
       test_listener_->l_got_misc_cmd = false;
     } else {
       EXPECT_TRUE(test_listener_->l_got_misc_cmd) <<
-        "dropped package misc_cmd: Test #" << std::to_string(i);
+        "dropped package misc_cmd: Test #" << std::to_string(test_rollover);
     }
     EXPECT_EQ(
       test_listener_->l_gear_cmd.rolling_counter,
-      test_listener_->l_enable_cmd.rolling_counter) << "Test #" << std::to_string(i);
+      test_listener_->l_enable_cmd.rolling_counter) <<
+      "Test #" << std::to_string(test_rollover);
     EXPECT_EQ(
       test_listener_->l_gear_cmd.rolling_counter,
-      test_listener_->l_misc_cmd.rolling_counter) << "Test #" << std::to_string(i);
+      test_listener_->l_misc_cmd.rolling_counter) <<
+      "Test #" << std::to_string(test_rollover);
+
+    if (test_rollover > 0xFF) {
+      EXPECT_EQ(
+        test_listener_->l_gear_cmd.rolling_counter,
+        0) << "Test #" << std::to_string(test_rollover);
+    } else {
+      EXPECT_EQ(
+        test_listener_->l_gear_cmd.rolling_counter,
+        static_cast<uint8_t>(test_rollover)) <<
+        "Test #" << std::to_string(test_rollover);
+    }
   }
 }
 
@@ -296,6 +352,7 @@ TEST_F(NERaptorInterface_test, test_cmd_high_level_control)
   test_hlcc myTests[kNumTests_HLCC];
   std_msgs::msg::Bool enable_dbw{};
   uint8_t timeout{0}, numDbwLoops{0}, i{0}, j{0};
+  uint16_t test_rollover{0};
 
   rclcpp::executors::SingleThreadedExecutor executor;
   executor.add_node(i_node_);
@@ -397,11 +454,17 @@ TEST_F(NERaptorInterface_test, test_cmd_high_level_control)
   myTests[7].exp_sc.vehicle_curvature_cmd = -30.0F;
 
   /* Run all tests in a loop */
-  for (i = 0; i < kNumTests_HLCC; i++) {
+  for (test_rollover = 1; test_rollover <= 0x100; test_rollover++) {
+    if (test_rollover <= kNumTests_HLCC) {
+      i = static_cast<uint8_t>(test_rollover - 1);
+    } else {
+      i = kNumTests_HLCC - 1;
+    }
+
     // Set gear input to enable/disable autonomous mode
     EXPECT_TRUE(
       ne_raptor_interface_->send_state_command(myTests[i].in_vsc)) <<
-      "Test #" << std::to_string(i);
+      "Test #" << std::to_string(test_rollover);
     test_talker_->send_report(myTests[i].in_gr);
 
     timeout = 0;
@@ -413,7 +476,7 @@ TEST_F(NERaptorInterface_test, test_cmd_high_level_control)
     }
     if (!test_listener_->l_got_gear_cmd) {
       EXPECT_TRUE(test_listener_->l_got_gear_cmd) <<
-        "dropped package gear_cmd: Test #" << std::to_string(i);
+        "dropped package gear_cmd: Test #" << std::to_string(test_rollover);
     } else {
       test_listener_->l_got_gear_cmd = false;
     }
@@ -438,11 +501,11 @@ TEST_F(NERaptorInterface_test, test_cmd_high_level_control)
     if (myTests[i].exp_success) {
       EXPECT_TRUE(
         ne_raptor_interface_->send_control_command(myTests[i].in_hlcc)) <<
-        "Test #" << std::to_string(i);
+        "Test #" << std::to_string(test_rollover);
     } else {
       EXPECT_FALSE(
         ne_raptor_interface_->send_control_command(myTests[i].in_hlcc)) <<
-        "Test #" << std::to_string(i);
+        "Test #" << std::to_string(test_rollover);
     }
     // Test publishing
     timeout = 0;
@@ -456,69 +519,89 @@ TEST_F(NERaptorInterface_test, test_cmd_high_level_control)
     }
 
     if (test_listener_->l_got_accel_cmd) {
-      EXPECT_NEAR(
-        test_listener_->l_accel_cmd.speed_cmd,
-        myTests[i].exp_apc.speed_cmd,
-        static_cast<float32_t>(1e-5)) << "Test #" << std::to_string(i);
-      EXPECT_EQ(
-        test_listener_->l_accel_cmd.enable,
-        myTests[i].exp_apc.enable) << "Test #" << std::to_string(i);
-      EXPECT_EQ(
-        test_listener_->l_accel_cmd.control_type.value,
-        ActuatorControlMode::CLOSED_LOOP_VEHICLE);
-      EXPECT_FLOAT_EQ(
-        test_listener_->l_accel_cmd.accel_limit,
-        c_accel_limit);
-      EXPECT_FLOAT_EQ(
-        test_listener_->l_accel_cmd.accel_positive_jerk_limit,
-        c_pos_jerk_limit);
+      if (test_rollover <= kNumTests_HLCC) {
+        EXPECT_NEAR(
+          test_listener_->l_accel_cmd.speed_cmd,
+          myTests[i].exp_apc.speed_cmd,
+          static_cast<float32_t>(1e-5)) << "Test #" << std::to_string(test_rollover);
+        EXPECT_EQ(
+          test_listener_->l_accel_cmd.enable,
+          myTests[i].exp_apc.enable) << "Test #" << std::to_string(test_rollover);
+        EXPECT_EQ(
+          test_listener_->l_accel_cmd.control_type.value,
+          ActuatorControlMode::CLOSED_LOOP_VEHICLE);
+        EXPECT_FLOAT_EQ(
+          test_listener_->l_accel_cmd.accel_limit,
+          c_accel_limit);
+        EXPECT_FLOAT_EQ(
+          test_listener_->l_accel_cmd.accel_positive_jerk_limit,
+          c_pos_jerk_limit);
+      }
       test_listener_->l_got_accel_cmd = false;
     } else {
       EXPECT_TRUE(test_listener_->l_got_accel_cmd) <<
-        "dropped package accel_cmd: Test #" << std::to_string(i);
+        "dropped package accel_cmd: Test #" << std::to_string(test_rollover);
     }
 
     if (test_listener_->l_got_brake_cmd) {
-      EXPECT_EQ(
-        test_listener_->l_brake_cmd.enable,
-        myTests[i].exp_bc.enable) << "Test #" << std::to_string(i);
-      EXPECT_EQ(
-        test_listener_->l_brake_cmd.control_type.value,
-        ActuatorControlMode::CLOSED_LOOP_VEHICLE);
-      EXPECT_FLOAT_EQ(
-        test_listener_->l_brake_cmd.decel_limit,
-        c_decel_limit);
-      EXPECT_FLOAT_EQ(
-        test_listener_->l_brake_cmd.decel_negative_jerk_limit,
-        c_neg_jerk_limit);
+      if (test_rollover <= kNumTests_HLCC) {
+        EXPECT_EQ(
+          test_listener_->l_brake_cmd.enable,
+          myTests[i].exp_bc.enable) << "Test #" << std::to_string(test_rollover);
+        EXPECT_EQ(
+          test_listener_->l_brake_cmd.control_type.value,
+          ActuatorControlMode::CLOSED_LOOP_VEHICLE);
+        EXPECT_FLOAT_EQ(
+          test_listener_->l_brake_cmd.decel_limit,
+          c_decel_limit);
+        EXPECT_FLOAT_EQ(
+          test_listener_->l_brake_cmd.decel_negative_jerk_limit,
+          c_neg_jerk_limit);
+      }
       test_listener_->l_got_brake_cmd = false;
     } else {
       EXPECT_TRUE(test_listener_->l_got_brake_cmd) <<
-        "dropped package brake_cmd: Test #" << std::to_string(i);
+        "dropped package brake_cmd: Test #" << std::to_string(test_rollover);
     }
 
     if (test_listener_->l_got_steer_cmd) {
-      EXPECT_EQ(
-        test_listener_->l_steer_cmd.enable,
-        myTests[i].exp_sc.enable) << "Test #" << std::to_string(i);
-      EXPECT_EQ(
-        test_listener_->l_steer_cmd.control_type.value,
-        ActuatorControlMode::CLOSED_LOOP_VEHICLE);
-      // High-Level Control Command uses curvature for control
-      EXPECT_FLOAT_EQ(
-        test_listener_->l_steer_cmd.vehicle_curvature_cmd,
-        myTests[i].exp_sc.vehicle_curvature_cmd);
+      if (test_rollover <= kNumTests_HLCC) {
+        EXPECT_EQ(
+          test_listener_->l_steer_cmd.enable,
+          myTests[i].exp_sc.enable) << "Test #" << std::to_string(test_rollover);
+        EXPECT_EQ(
+          test_listener_->l_steer_cmd.control_type.value,
+          ActuatorControlMode::CLOSED_LOOP_VEHICLE);
+        // High-Level Control Command uses curvature for control
+        EXPECT_FLOAT_EQ(
+          test_listener_->l_steer_cmd.vehicle_curvature_cmd,
+          myTests[i].exp_sc.vehicle_curvature_cmd) <<
+          "Test #" << std::to_string(test_rollover);
+      }
       test_listener_->l_got_steer_cmd = false;
     } else {
       EXPECT_TRUE(test_listener_->l_got_steer_cmd) <<
-        "dropped package steer_cmd: Test #" << std::to_string(i);
+        "dropped package steer_cmd: Test #" << std::to_string(test_rollover);
     }
     EXPECT_EQ(
       test_listener_->l_accel_cmd.rolling_counter,
-      test_listener_->l_brake_cmd.rolling_counter);
+      test_listener_->l_brake_cmd.rolling_counter) <<
+      "Test #" << std::to_string(test_rollover);
     EXPECT_EQ(
       test_listener_->l_accel_cmd.rolling_counter,
-      test_listener_->l_steer_cmd.rolling_counter);
+      test_listener_->l_steer_cmd.rolling_counter) <<
+      "Test #" << std::to_string(test_rollover);
+
+    if (test_rollover > 0xFF) {
+      EXPECT_EQ(
+        test_listener_->l_accel_cmd.rolling_counter,
+        0) << "Test #" << std::to_string(test_rollover);
+    } else {
+      EXPECT_EQ(
+        test_listener_->l_accel_cmd.rolling_counter,
+        static_cast<uint8_t>(test_rollover)) <<
+        "Test #" << std::to_string(test_rollover);
+    }
   }
 }
 
@@ -545,6 +628,7 @@ TEST_F(NERaptorInterface_test, test_cmd_vehicle_control)
   test_vcc myTests[kNumTests_VCC];
   std_msgs::msg::Bool enable_dbw{};
   uint8_t timeout{0}, numDbwLoops{0}, i{0}, j{0};
+  uint16_t test_rollover{0};
 
   rclcpp::executors::SingleThreadedExecutor executor;
   executor.add_node(i_node_);
@@ -720,11 +804,16 @@ TEST_F(NERaptorInterface_test, test_cmd_vehicle_control)
   myTests[11].exp_sc.angle_cmd = 0.0F;
 
   /* Run all tests in a loop */
-  for (i = 0; i < kNumTests_VCC; i++) {
+  for (test_rollover = 1; test_rollover <= 0x100; test_rollover++) {
+    if (test_rollover <= kNumTests_VCC) {
+      i = static_cast<uint8_t>(test_rollover - 1);
+    } else {
+      i = kNumTests_VCC - 1;
+    }
     // Set gear input to enable/disable autonomous mode
     EXPECT_TRUE(
       ne_raptor_interface_->send_state_command(myTests[i].in_vsc)) <<
-      "Test #" << std::to_string(i);
+      "Test #" << std::to_string(test_rollover);
     test_talker_->send_report(myTests[i].in_gr);
 
     timeout = 0;
@@ -737,7 +826,7 @@ TEST_F(NERaptorInterface_test, test_cmd_vehicle_control)
 
     if (!test_listener_->l_got_gear_cmd) {
       EXPECT_TRUE(test_listener_->l_got_gear_cmd) <<
-        "dropped package gear_cmd: Test #" << std::to_string(i) << std::to_string(j);
+        "dropped package gear_cmd: Test #" << std::to_string(test_rollover) << std::to_string(j);
     } else {
       test_listener_->l_got_gear_cmd = false;
     }
@@ -762,11 +851,11 @@ TEST_F(NERaptorInterface_test, test_cmd_vehicle_control)
     if (myTests[i].exp_success) {
       EXPECT_TRUE(
         ne_raptor_interface_->send_control_command(myTests[i].in_vcc)) <<
-        "Test #" << std::to_string(i);
+        "Test #" << std::to_string(test_rollover);
     } else {
       EXPECT_FALSE(
         ne_raptor_interface_->send_control_command(myTests[i].in_vcc)) <<
-        "Test #" << std::to_string(i);
+        "Test #" << std::to_string(test_rollover);
     }
     // Test publishing
     timeout = 0;
@@ -780,70 +869,99 @@ TEST_F(NERaptorInterface_test, test_cmd_vehicle_control)
     }
 
     if (test_listener_->l_got_accel_cmd) {
-      EXPECT_NEAR(
-        test_listener_->l_accel_cmd.speed_cmd,
-        myTests[i].exp_apc.speed_cmd,
-        static_cast<float32_t>(1e-5)) << "Test #" << std::to_string(i);
-      EXPECT_EQ(
-        test_listener_->l_accel_cmd.enable,
-        myTests[i].exp_apc.enable) << "Test #" << std::to_string(i);
-      EXPECT_EQ(
-        test_listener_->l_accel_cmd.control_type.value,
-        ActuatorControlMode::CLOSED_LOOP_ACTUATOR);
-      EXPECT_FLOAT_EQ(
-        test_listener_->l_accel_cmd.accel_limit,
-        myTests[i].exp_apc.accel_limit);
-      EXPECT_FLOAT_EQ(
-        test_listener_->l_accel_cmd.accel_positive_jerk_limit,
-        c_pos_jerk_limit);
+      if (test_rollover <= kNumTests_VCC) {
+        EXPECT_NEAR(
+          test_listener_->l_accel_cmd.speed_cmd,
+          myTests[i].exp_apc.speed_cmd,
+          static_cast<float32_t>(1e-5)) <<
+          "Test #" << std::to_string(test_rollover);
+        EXPECT_EQ(
+          test_listener_->l_accel_cmd.enable,
+          myTests[i].exp_apc.enable) <<
+          "Test #" << std::to_string(test_rollover);
+        EXPECT_EQ(
+          test_listener_->l_accel_cmd.control_type.value,
+          ActuatorControlMode::CLOSED_LOOP_ACTUATOR) <<
+          "Test #" << std::to_string(test_rollover);
+        EXPECT_FLOAT_EQ(
+          test_listener_->l_accel_cmd.accel_limit,
+          myTests[i].exp_apc.accel_limit) <<
+          "Test #" << std::to_string(test_rollover);
+        EXPECT_FLOAT_EQ(
+          test_listener_->l_accel_cmd.accel_positive_jerk_limit,
+          c_pos_jerk_limit) << "Test #" << std::to_string(test_rollover);
+      }
       test_listener_->l_got_accel_cmd = false;
     } else {
       EXPECT_TRUE(test_listener_->l_got_accel_cmd) <<
-        "dropped package accel_cmd: Test #" << std::to_string(i);
+        "dropped package accel_cmd: Test #" << std::to_string(test_rollover);
     }
 
     if (test_listener_->l_got_brake_cmd) {
-      EXPECT_EQ(
-        test_listener_->l_brake_cmd.enable,
-        myTests[i].exp_bc.enable) << "Test #" << std::to_string(i);
-      EXPECT_EQ(
-        test_listener_->l_brake_cmd.control_type.value,
-        ActuatorControlMode::CLOSED_LOOP_ACTUATOR);
-      EXPECT_FLOAT_EQ(
-        test_listener_->l_brake_cmd.decel_limit,
-        myTests[i].exp_bc.decel_limit);
-      EXPECT_FLOAT_EQ(
-        test_listener_->l_brake_cmd.decel_negative_jerk_limit,
-        c_neg_jerk_limit);
+      if (test_rollover <= kNumTests_VCC) {
+        EXPECT_EQ(
+          test_listener_->l_brake_cmd.enable,
+          myTests[i].exp_bc.enable) <<
+          "Test #" << std::to_string(test_rollover);
+        EXPECT_EQ(
+          test_listener_->l_brake_cmd.control_type.value,
+          ActuatorControlMode::CLOSED_LOOP_ACTUATOR) <<
+          "Test #" << std::to_string(test_rollover);
+        EXPECT_FLOAT_EQ(
+          test_listener_->l_brake_cmd.decel_limit,
+          myTests[i].exp_bc.decel_limit) <<
+          "Test #" << std::to_string(test_rollover);
+        EXPECT_FLOAT_EQ(
+          test_listener_->l_brake_cmd.decel_negative_jerk_limit,
+          c_neg_jerk_limit) << "Test #" << std::to_string(test_rollover);
+      }
       test_listener_->l_got_brake_cmd = false;
     } else {
       EXPECT_TRUE(test_listener_->l_got_brake_cmd) <<
-        "dropped package brake_cmd: Test #" << std::to_string(i);
+        "dropped package brake_cmd: Test #" << std::to_string(test_rollover);
     }
 
     if (test_listener_->l_got_steer_cmd) {
-      EXPECT_EQ(
-        test_listener_->l_steer_cmd.enable,
-        myTests[i].exp_sc.enable) << "Test #" << std::to_string(i);
-      EXPECT_EQ(
-        test_listener_->l_steer_cmd.control_type.value,
-        ActuatorControlMode::CLOSED_LOOP_ACTUATOR);
-      // Vehicle Control Command uses tire angle for control;
-      // interface converts to steering wheel angle
-      EXPECT_FLOAT_EQ(
-        test_listener_->l_steer_cmd.angle_cmd,
-        myTests[i].exp_sc.angle_cmd);
+      if (test_rollover <= kNumTests_VCC) {
+        EXPECT_EQ(
+          test_listener_->l_steer_cmd.enable,
+          myTests[i].exp_sc.enable) <<
+          "Test #" << std::to_string(test_rollover);
+        EXPECT_EQ(
+          test_listener_->l_steer_cmd.control_type.value,
+          ActuatorControlMode::CLOSED_LOOP_ACTUATOR) <<
+          "Test #" << std::to_string(test_rollover);
+        // Vehicle Control Command uses tire angle for control;
+        // interface converts to steering wheel angle
+        EXPECT_FLOAT_EQ(
+          test_listener_->l_steer_cmd.angle_cmd,
+          myTests[i].exp_sc.angle_cmd) <<
+          "Test #" << std::to_string(test_rollover);
+      }
       test_listener_->l_got_steer_cmd = false;
     } else {
       EXPECT_TRUE(test_listener_->l_got_steer_cmd) <<
-        "dropped package steer_cmd: Test #" << std::to_string(i);
+        "dropped package steer_cmd: Test #" << std::to_string(test_rollover);
     }
     EXPECT_EQ(
       test_listener_->l_accel_cmd.rolling_counter,
-      test_listener_->l_brake_cmd.rolling_counter);
+      test_listener_->l_brake_cmd.rolling_counter) <<
+      "Test #" << std::to_string(test_rollover);
     EXPECT_EQ(
       test_listener_->l_accel_cmd.rolling_counter,
-      test_listener_->l_steer_cmd.rolling_counter);
+      test_listener_->l_steer_cmd.rolling_counter) <<
+      "Test #" << std::to_string(test_rollover);
+
+    if (test_rollover > 0xFF) {
+      EXPECT_EQ(
+        test_listener_->l_accel_cmd.rolling_counter,
+        0) << "Test #" << std::to_string(test_rollover);
+    } else {
+      EXPECT_EQ(
+        test_listener_->l_accel_cmd.rolling_counter,
+        static_cast<uint8_t>(test_rollover)) <<
+        "Test #" << std::to_string(test_rollover);
+    }
   }
 }
 
@@ -864,10 +982,24 @@ TEST_F(NERaptorInterface_test, test_rpt_vehicle_state)
   executor.add_node(t_node_);
   executor.spin_some(C_TIMEOUT_NANO);
 
-  // Set all global enable == true
+  // Set all global enable == true & init valid data
   for (i = 0; i < kNumTests_VSR; i++) {
     myTests[i].in_vsc.mode = VehicleStateCommand::MODE_AUTONOMOUS;
     myTests[i].in_dbw.data = true;
+    myTests[i].in_br.parking_brake.status = ParkingBrake::ON;
+    myTests[i].in_gr.state.gear = Gear::DRIVE;
+    myTests[i].in_mr.fuel_level = 10.0F;
+    myTests[i].in_mr.drive_by_wire_enabled = true;
+    myTests[i].in_dir.turn_signal.value = TurnSignal::HAZARDS;
+    myTests[i].in_dir.high_beam_headlights.status = HighBeam::ON;
+    myTests[i].in_dir.wiper.status = WiperFront::WASH_BRIEF;
+    myTests[i].exp_vsr.fuel = 10;
+    myTests[i].exp_vsr.blinker = VehicleStateReport::BLINKER_HAZARD;
+    myTests[i].exp_vsr.headlight = VehicleStateReport::HEADLIGHT_HIGH;
+    myTests[i].exp_vsr.wiper = VehicleStateReport::WIPER_CLEAN;
+    myTests[i].exp_vsr.gear = VehicleStateReport::GEAR_DRIVE;
+    myTests[i].exp_vsr.mode = VehicleStateReport::MODE_AUTONOMOUS;
+    myTests[i].exp_vsr.hand_brake = true;
   }
 
   /* Valid inputs:
@@ -890,23 +1022,37 @@ TEST_F(NERaptorInterface_test, test_rpt_vehicle_state)
   myTests[0].exp_vsr.hand_brake = false;
 
   /* Valid inputs:
-   * DBW state machine enabled;
-   * other inputs on
+   * DBW state machine --> enabled;
+   * other inputs on (various)
    */
-  myTests[1].in_br.parking_brake.status = ParkingBrake::ON;
-  myTests[1].in_gr.state.gear = Gear::DRIVE;
-  myTests[1].in_mr.fuel_level = 10.0F;
-  myTests[1].in_mr.drive_by_wire_enabled = true;
-  myTests[1].in_dir.turn_signal.value = TurnSignal::HAZARDS;
-  myTests[1].in_dir.high_beam_headlights.status = HighBeam::ON;
-  myTests[1].in_dir.wiper.status = WiperFront::WASH_BRIEF;
-  myTests[1].exp_vsr.fuel = 10;
-  myTests[1].exp_vsr.blinker = VehicleStateReport::BLINKER_HAZARD;
-  myTests[1].exp_vsr.headlight = VehicleStateReport::HEADLIGHT_HIGH;
-  myTests[1].exp_vsr.wiper = VehicleStateReport::WIPER_CLEAN;
-  myTests[1].exp_vsr.gear = VehicleStateReport::GEAR_DRIVE;
-  myTests[1].exp_vsr.mode = VehicleStateReport::MODE_AUTONOMOUS;
-  myTests[1].exp_vsr.hand_brake = true;
+  /* myTests[1]  -> default data */
+
+  // gear == low, turn signal == left, wiper == low
+  myTests[2].in_gr.state.gear = Gear::LOW;
+  myTests[2].in_dir.turn_signal.value = TurnSignal::LEFT;
+  myTests[2].in_dir.wiper.status = WiperFront::CONSTANT_LOW;
+  myTests[2].exp_vsr.gear = VehicleStateReport::GEAR_LOW;
+  myTests[2].exp_vsr.blinker = VehicleStateReport::BLINKER_LEFT;
+  myTests[2].exp_vsr.wiper = VehicleStateReport::WIPER_LOW;
+
+  // turn signal == right, wiper == high
+  myTests[3].in_dir.turn_signal.value = TurnSignal::RIGHT;
+  myTests[3].in_dir.wiper.status = WiperFront::CONSTANT_HIGH;
+  myTests[3].exp_vsr.blinker = VehicleStateReport::BLINKER_RIGHT;
+  myTests[3].exp_vsr.wiper = VehicleStateReport::WIPER_HIGH;
+
+  /* Invalid input: faults
+   * for parking brake, gear, turn signal, high beam, wiper */
+  myTests[kTestValid_VSR + 0].in_br.parking_brake.status = ParkingBrake::FAULT;
+  myTests[kTestValid_VSR + 0].in_gr.state.gear = Gear::NONE;
+  myTests[kTestValid_VSR + 0].in_dir.turn_signal.value = TurnSignal::SNA;
+  myTests[kTestValid_VSR + 0].in_dir.high_beam_headlights.status = HighBeam::RESERVED;
+  myTests[kTestValid_VSR + 0].in_dir.wiper.status = WiperFront::SNA;
+  myTests[kTestValid_VSR + 0].exp_vsr.hand_brake = false;
+  myTests[kTestValid_VSR + 0].exp_vsr.gear = 0;
+  myTests[kTestValid_VSR + 0].exp_vsr.blinker = 0;
+  myTests[kTestValid_VSR + 0].exp_vsr.headlight = 0;
+  myTests[kTestValid_VSR + 0].exp_vsr.wiper = 0;
 
   // Run all tests in a loop
   for (i = 0; i < kNumTests_VSR; i++) {
@@ -1133,7 +1279,10 @@ TEST_F(NERaptorInterface_test, test_rpt_vehicle_kinematic_state)
   for (i = 0; i < kNumTests_VKS; i++) {
     // Timestamps
     myTests[i].in_mr.header.stamp = initStamp;
-    myTests[i].in_mr.header.stamp.sec += i * dT;
+    if (i < kTestValid_VKS) {
+      // Invalid tests: send invalid time stamp
+      myTests[i].in_mr.header.stamp.sec += i * dT;
+    }
     myTests[i].in_sr.header.stamp = myTests[i].in_mr.header.stamp;
     myTests[i].in_wsr.header.stamp = myTests[i].in_mr.header.stamp;
     myTests[i].exp_vks.header.stamp = myTests[i].in_mr.header.stamp;
@@ -1201,7 +1350,7 @@ TEST_F(NERaptorInterface_test, test_rpt_vehicle_kinematic_state)
     }
 
     // Run kinematic bike model
-    if (i == 0) {  /* First sending: no dT */
+    if ((i == 0) || (i >= kTestValid_VKS)) {  /* First sending: no dT */
       myTests[i].exp_vks.state.x = 0.0F;
       myTests[i].exp_vks.state.y = 0.0F;
       myTests[i].exp_vks.state.heading =
@@ -1223,7 +1372,7 @@ TEST_F(NERaptorInterface_test, test_rpt_vehicle_kinematic_state)
       myTests[i].exp_vks.state.longitudinal_velocity_mps *
       std::tan(0.0F);
 
-    if (i > 0) {
+    if ((i > 0) && (i < kTestValid_VKS)) {
       myTests[i].exp_vks.state.acceleration_mps2 =
         (myTests[i].exp_vks.state.longitudinal_velocity_mps -
         myTests[i - 1].exp_vks.state.longitudinal_velocity_mps) /
@@ -1291,7 +1440,8 @@ TEST_F(NERaptorInterface_test, test_rpt_vehicle_kinematic_state)
         "Test #" << std::to_string(i);
     } else {
       // Vehicle kinematic state does not send the first time
-      if (i == 0) {
+      // or when timestamps are invalid
+      if ((i == 0) || (i >= kTestValid_VKS)) {
         EXPECT_FALSE(test_listener_->l_got_vehicle_kin_state) <<
           "got package vehicle_kinematic_state: Test #" << std::to_string(i);
       } else {

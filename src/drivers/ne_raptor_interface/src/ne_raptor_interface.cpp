@@ -603,9 +603,10 @@ void NERaptorInterface::on_misc_report(const MiscReport::SharedPtr & msg)
     1000000000.0F;
 
   if (dT < 0.0F) {
-    RCLCPP_WARN_THROTTLE(
+    RCLCPP_ERROR_THROTTLE(
       m_logger, m_clock, CLOCK_1_SEC,
       "Received inconsistent timestamps.");
+    return;
   }
 
   m_vehicle_kin_state.header.stamp = msg->header.stamp;
@@ -660,7 +661,6 @@ void NERaptorInterface::on_driver_input_report(const DriverInputReport::SharedPt
       m_vehicle_state_report.headlight = VehicleStateReport::HEADLIGHT_HIGH;
       break;
     case HighBeam::RESERVED:
-    // case HighBeamState::SNA:
     default:
       m_vehicle_state_report.headlight = 0;
       RCLCPP_WARN_THROTTLE(
@@ -682,13 +682,6 @@ void NERaptorInterface::on_driver_input_report(const DriverInputReport::SharedPt
     case WiperFront::WASH_BRIEF:
       m_vehicle_state_report.wiper = VehicleStateReport::WIPER_CLEAN;
       break;
-    case WiperFront::INTERVAL_1:
-    case WiperFront::INTERVAL_2:
-    case WiperFront::INTERVAL_3:
-    case WiperFront::INTERVAL_4:
-    case WiperFront::INTERVAL_5:
-    case WiperFront::INTERVAL_6:
-    case WiperFront::WASH_CONTINUOUS:
     case WiperFront::SNA:
     default:
       m_vehicle_state_report.wiper = 0;

@@ -44,15 +44,21 @@ const float32_t c_pos_jerk_limit = 9.0F;
 const float32_t c_neg_jerk_limit = 9.0F;
 
 /* Other useful constants */
-#define kNumTests_VSC  (15)
-#define kNumTests_HLCC ( 8)
-#define kNumTests_VCC  (12)
-#define kNumTests_VSR  ( 2)
-#define kNumTests_VO   (18)
-#define kNumTests_VKS  (18)
+#define kTestValid_VSC   ( 5)
+#define kTestInvalid_VSC (12)
+#define kNumTests_VSC    (kTestValid_VSC + kTestInvalid_VSC)
+#define kNumTests_HLCC   ( 8)
+#define kNumTests_VCC    (12)
+#define kTestValid_VSR   ( 4)
+#define kTestInvalid_VSR ( 1)
+#define kNumTests_VSR    (kTestValid_VSR + kTestInvalid_VSR)
+#define kNumTests_VO     (18)
+#define kTestValid_VKS   (18)
+#define kTestInvalid_VKS ( 1)
+#define kNumTests_VKS    (kTestValid_VKS + kTestInvalid_VKS)
 using namespace std::literals::chrono_literals; //NOLINT
 const std::chrono::nanoseconds C_TIMEOUT_NANO = 1000000000ns;
-const uint8_t C_TIMEOUT_ITERATIONS = 10;
+const uint8_t C_TIMEOUT_ITERATIONS = 25;
 
 class NERaptorInterface_test : public ::testing::Test
 {
