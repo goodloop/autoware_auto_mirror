@@ -42,9 +42,9 @@ def generate_launch_description():
     # Nodes
     ndt_localizer = Node(
         package='ndt_nodes',
-        node_executable='p2d_ndt_localizer_exe',
-        node_namespace='localization',
-        node_name='p2d_ndt_localizer_node',
+        executable='p2d_ndt_localizer_exe',
+        namespace='localization',
+        name='p2d_ndt_localizer_node',
         parameters=[LaunchConfiguration('ndt_localizer_param_file')],
         remappings=[
             ("points_in", "/lidars/points_fused_downsampled"),

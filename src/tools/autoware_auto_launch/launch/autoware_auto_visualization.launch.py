@@ -50,8 +50,8 @@ def generate_launch_description():
     # Nodes
     rviz2 = Node(
         package='rviz2',
-        node_executable='rviz2',
-        node_name='rviz2',
+        executable='rviz2',
+        name='rviz2',
         arguments=['-d', str(rviz_cfg_path_param)],
         condition=IfCondition(LaunchConfiguration('with_rviz')),
         remappings=[("initialpose", "/localization/initialpose"),
@@ -59,9 +59,9 @@ def generate_launch_description():
     )
     web_bridge = Node(
         package='rosbridge_server',
-        node_name='rosbridge_server_node',
-        node_namespace='gui',
-        node_executable='rosbridge_websocket'
+        name='rosbridge_server_node',
+        namespace='gui',
+        executable='rosbridge_websocket'
     )
     web_server = ExecuteProcess(
       cmd=["python3", "-m", "http.server", "8000"],

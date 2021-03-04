@@ -81,9 +81,9 @@ def generate_launch_description():
     # Nodes
     behavior_planner = Node(
         package='behavior_planner_nodes',
-        node_name='behavior_planner_node',
-        node_namespace='planning',
-        node_executable='behavior_planner_node_exe',
+        name='behavior_planner_node',
+        namespace='planning',
+        executable='behavior_planner_node_exe',
         parameters=[
             LaunchConfiguration('behavior_planner_param_file'),
             {'enable_object_collision_estimator': LaunchConfiguration('with_obstacles')}
@@ -99,32 +99,32 @@ def generate_launch_description():
     )
     lanelet2_global_planner = Node(
         package='lanelet2_global_planner_nodes',
-        node_name='lanelet2_global_planner_node',
-        node_namespace='planning',
-        node_executable='lanelet2_global_planner_node_exe',
+        name='lanelet2_global_planner_node',
+        namespace='planning',
+        executable='lanelet2_global_planner_node_exe',
         remappings=[('HAD_Map_Client', '/had_maps/HAD_Map_Service'),
                     ('vehicle_kinematic_state', '/vehicle/vehicle_kinematic_state')]
     )
     lane_planner = Node(
         package='lane_planner_nodes',
-        node_name='lane_planner_node',
-        node_namespace='planning',
-        node_executable='lane_planner_node_exe',
+        name='lane_planner_node',
+        namespace='planning',
+        executable='lane_planner_node_exe',
         parameters=[LaunchConfiguration('lane_planner_param_file')],
         remappings=[('HAD_Map_Service', '/had_maps/HAD_Map_Service')]
     )
     mpc_controller = Node(
         package='mpc_controller_nodes',
-        node_executable='mpc_controller_node_exe',
-        node_name='mpc_controller_node',
-        node_namespace='control',
+        executable='mpc_controller_node_exe',
+        name='mpc_controller_node',
+        namespace='control',
         parameters=[LaunchConfiguration('mpc_param_file')]
     )
     object_collision_estimator = Node(
         package='object_collision_estimator_nodes',
-        node_name='object_collision_estimator_node',
-        node_namespace='planning',
-        node_executable='object_collision_estimator_node_exe',
+        name='object_collision_estimator_node',
+        namespace='planning',
+        executable='object_collision_estimator_node_exe',
         condition=IfCondition(LaunchConfiguration('with_obstacles')),
         parameters=[LaunchConfiguration('object_collision_estimator_param_file')],
         remappings=[
@@ -133,9 +133,9 @@ def generate_launch_description():
     )
     parking_planner = Node(
         package='parking_planner_nodes',
-        node_name='parking_planner_node',
-        node_namespace='planning',
-        node_executable='parking_planner_node_exe',
+        name='parking_planner_node',
+        namespace='planning',
+        executable='parking_planner_node_exe',
         parameters=[LaunchConfiguration('parking_planner_param_file')],
         remappings=[('HAD_Map_Service', '/had_maps/HAD_Map_Service')]
     )

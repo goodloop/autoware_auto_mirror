@@ -46,9 +46,9 @@ def generate_launch_description():
     # Nodes
     lgsvl_interface = Node(
         package='lgsvl_interface',
-        node_executable='lgsvl_interface_exe',
-        node_namespace='vehicle',
-        node_name='lgsvl_interface_node',
+        executable='lgsvl_interface_exe',
+        namespace='vehicle',
+        name='lgsvl_interface_node',
         output='screen',
         parameters=[
           LaunchConfiguration('lgsvl_interface_param_file'),
@@ -66,8 +66,8 @@ def generate_launch_description():
 
     urdf_publisher = Node(
         package='robot_state_publisher',
-        node_executable='robot_state_publisher',
-        node_name='robot_state_publisher',
+        executable='robot_state_publisher',
+        name='robot_state_publisher',
         arguments=[str(urdf_path)]
     )
 

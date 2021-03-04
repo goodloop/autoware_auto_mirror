@@ -50,21 +50,21 @@ def generate_launch_description():
     # Nodes
     lanelet2_map_provider = Node(
         package='lanelet2_map_provider',
-        node_executable='lanelet2_map_provider_exe',
-        node_namespace='had_maps',
-        node_name='lanelet2_map_provider_node',
+        executable='lanelet2_map_provider_exe',
+        namespace='had_maps',
+        name='lanelet2_map_provider_node',
         parameters=[LaunchConfiguration('lanelet2_map_provider_param_file')]
     )
     lanelet2_map_visualizer = Node(
         package='lanelet2_map_provider',
-        node_executable='lanelet2_map_visualizer_exe',
-        node_name='lanelet2_map_visualizer_node',
-        node_namespace='had_maps'
+        executable='lanelet2_map_visualizer_exe',
+        name='lanelet2_map_visualizer_node',
+        namespace='had_maps'
     )
     map_publisher = Node(
         package='ndt_nodes',
-        node_executable='ndt_map_publisher_exe',
-        node_namespace='localization',
+        executable='ndt_map_publisher_exe',
+        namespace='localization',
         parameters=[LaunchConfiguration('map_publisher_param_file')]
     )
 

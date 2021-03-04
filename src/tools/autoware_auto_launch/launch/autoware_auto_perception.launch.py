@@ -64,8 +64,8 @@ def generate_launch_description():
     # Nodes
     euclidean_clustering = Node(
         package='euclidean_cluster_nodes',
-        node_executable='euclidean_cluster_node_exe',
-        node_namespace='perception',
+        executable='euclidean_cluster_node_exe',
+        namespace='perception',
         condition=IfCondition(LaunchConfiguration('with_obstacles')),
         parameters=[LaunchConfiguration('euclidean_cluster_param_file')],
         remappings=[
@@ -74,9 +74,9 @@ def generate_launch_description():
     )
     off_map_obstacles_filter = Node(
         package='off_map_obstacles_filter_nodes',
-        node_name='off_map_obstacles_filter_node',
-        node_namespace='perception',
-        node_executable='off_map_obstacles_filter_nodes_exe',
+        name='off_map_obstacles_filter_node',
+        namespace='perception',
+        executable='off_map_obstacles_filter_nodes_exe',
         condition=IfCondition(LaunchConfiguration('with_obstacles')),
         parameters=[LaunchConfiguration('off_map_obstacles_filter_param_file')],
         output='screen',
@@ -88,8 +88,8 @@ def generate_launch_description():
     )
     ray_ground_classifier = Node(
         package='ray_ground_classifier_nodes',
-        node_executable='ray_ground_classifier_cloud_node_exe',
-        node_namespace='perception',
+        executable='ray_ground_classifier_cloud_node_exe',
+        namespace='perception',
         condition=IfCondition(LaunchConfiguration('with_obstacles')),
         parameters=[LaunchConfiguration('ray_ground_classifier_param_file')],
         remappings=[("points_in", "/lidars/points_fused")]

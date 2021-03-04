@@ -58,24 +58,24 @@ def generate_launch_description():
     # Nodes
     filter_transform_vlp16_front = Node(
         package='point_cloud_filter_transform_nodes',
-        node_executable='point_cloud_filter_transform_node_exe',
-        node_name='filter_transform_vlp16_front',
-        node_namespace='lidar_front',
+        executable='point_cloud_filter_transform_node_exe',
+        name='filter_transform_vlp16_front',
+        namespace='lidar_front',
         parameters=[LaunchConfiguration('point_cloud_filter_transform_param_file')],
         remappings=[("points_in", "points_raw")]
     )
     filter_transform_vlp16_rear = Node(
         package='point_cloud_filter_transform_nodes',
-        node_executable='point_cloud_filter_transform_node_exe',
-        node_name='filter_transform_vlp16_rear',
-        node_namespace='lidar_rear',
+        executable='point_cloud_filter_transform_node_exe',
+        name='filter_transform_vlp16_rear',
+        namespace='lidar_rear',
         parameters=[LaunchConfiguration('point_cloud_filter_transform_param_file')],
         remappings=[("points_in", "points_raw")]
     )
     point_cloud_fusion_node = Node(
         package='point_cloud_fusion_nodes',
-        node_executable='pointcloud_fusion_node_exe',
-        node_namespace='lidars',
+        executable='pointcloud_fusion_node_exe',
+        namespace='lidars',
         parameters=[LaunchConfiguration('point_cloud_fusion_node_param_file')],
         remappings=[
             ("output_topic", "points_fused"),
@@ -85,9 +85,9 @@ def generate_launch_description():
     )
     voxel_grid_node = Node(
         package='voxel_grid_nodes',
-        node_executable='voxel_grid_node_exe',
-        node_namespace='lidars',
-        node_name='voxel_grid_cloud_node',
+        executable='voxel_grid_node_exe',
+        namespace='lidars',
+        name='voxel_grid_cloud_node',
         parameters=[LaunchConfiguration('voxel_grid_node_param_file')],
         remappings=[
             ("points_in", "points_fused"),

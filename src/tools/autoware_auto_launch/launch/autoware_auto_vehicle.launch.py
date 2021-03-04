@@ -69,31 +69,31 @@ def generate_launch_description():
     # Nodes
     vlp16_front = Node(
         package='velodyne_nodes',
-        node_executable='velodyne_cloud_node_exe',
-        node_namespace='lidar_front',
+        executable='velodyne_cloud_node_exe',
+        namespace='lidar_front',
         parameters=[LaunchConfiguration('vlp16_front_param_file')],
         condition=IfCondition(LaunchConfiguration('with_lidars')),
         arguments=["--model", "vlp16"]
     )
     vlp16_rear = Node(
         package='velodyne_nodes',
-        node_executable='velodyne_cloud_node_exe',
-        node_namespace='lidar_rear',
+        executable='velodyne_cloud_node_exe',
+        namespace='lidar_rear',
         parameters=[LaunchConfiguration('vlp16_rear_param_file')],
         condition=IfCondition(LaunchConfiguration('with_lidars')),
         arguments=["--model", "vlp16"]
     )
     urdf_publisher = Node(
         package='robot_state_publisher',
-        node_executable='robot_state_publisher',
-        node_name='robot_state_publisher',
+        executable='robot_state_publisher',
+        name='robot_state_publisher',
         arguments=[str(urdf_path)]
     )
     ssc_interface = Node(
         package='ssc_interface',
-        node_executable='ssc_interface_node_exe',
-        node_name='ssc_interface',
-        node_namespace='vehicle',
+        executable='ssc_interface_node_exe',
+        name='ssc_interface',
+        namespace='vehicle',
         parameters=[LaunchConfiguration('ssc_interface_param_file')],
         remappings=[
             ('gear_select', '/ssc/gear_select'),
@@ -112,7 +112,7 @@ def generate_launch_description():
     # TODO(nikolai.morin): Hack, to be resolved in #626
     odom_bl_publisher = Node(
         package='tf2_ros',
-        node_executable='static_transform_publisher',
+        executable='static_transform_publisher',
         arguments=["0", "0", "0", "0", "0", "0", "odom", "base_link"]
     )
 
