@@ -22,28 +22,105 @@
  * NE Raptor commands
  */
 
-/* The unit tester really hates this function for some reason.
- * Shelving the test for later investigation.
- *
 TEST_F(NERaptorInterface_test, test_cmd_mode_change)
 {
-  ModeChangeRequest::SharedPtr t_request;
+  test_hmcr myTests[kNumTests_HMCR];
+  HighLevelControlCommand test_hlcc{};
+  ModeChangeRequest::SharedPtr t_request{new ModeChangeRequest};
+  uint8_t timeout{0}, i{0};
 
-  // Test valid input
-  t_request->mode = ModeChangeRequest::MODE_MANUAL;
-  EXPECT_TRUE(ne_raptor_interface_->handle_mode_change_request(t_request));
+  rclcpp::executors::SingleThreadedExecutor executor;
+  executor.add_node(i_node_);
+  executor.add_node(l_node_);
+  executor.add_node(t_node_);
+  executor.spin_some(C_TIMEOUT_NANO);
 
-  t_request->mode = ModeChangeRequest::MODE_AUTONOMOUS;
-  EXPECT_TRUE(ne_raptor_interface_->handle_mode_change_request(t_request));
+  test_hlcc.velocity_mps = 0.0F;
+  test_hlcc.curvature = 0.0F;
 
-  // Test invalid input
-  t_request->mode = ModeChangeRequest::MODE_AUTONOMOUS + 1;
-  EXPECT_FALSE(ne_raptor_interface_->handle_mode_change_request(t_request));
+  myTests[0].in_req = ModeChangeRequest::MODE_MANUAL;
+  myTests[0].in_dbw.data = false;
+  myTests[0].exp_success = true;
+  myTests[0].exp_enable = false;
+  myTests[0].exp_disable = true;
 
-  t_request->mode = 0xFF;
-  EXPECT_FALSE(ne_raptor_interface_->handle_mode_change_request(t_request));
+  myTests[1].in_req = ModeChangeRequest::MODE_AUTONOMOUS;
+  myTests[1].in_dbw.data = true;
+  myTests[1].exp_success = true;
+  myTests[1].exp_enable = true;
+  myTests[1].exp_disable = false;
+
+  myTests[2].in_req = ModeChangeRequest::MODE_MANUAL;
+  myTests[2].in_dbw.data = false;
+  myTests[2].exp_success = true;
+  myTests[2].exp_enable = false;
+  myTests[2].exp_disable = true;
+
+  myTests[3].in_req = ModeChangeRequest::MODE_AUTONOMOUS + 1;
+  myTests[3].in_dbw.data = false;
+  myTests[3].exp_success = false;
+  myTests[3].exp_enable = false;
+  myTests[3].exp_disable = false;
+
+  myTests[4].in_req = 0xFF;
+  myTests[4].in_dbw.data = false;
+  myTests[4].exp_success = false;
+  myTests[4].exp_enable = false;
+  myTests[4].exp_disable = false;
+
+  // Run tests in a loop
+  for (i = 0; i < kNumTests_HMCR; i++) {
+    EXPECT_TRUE(
+      ne_raptor_interface_->send_control_command(test_hlcc)) <<
+      "Test #" << std::to_string(i);
+
+    timeout = 0;
+    while ((!test_listener_->l_got_accel_cmd ||
+      !test_listener_->l_got_brake_cmd ||
+      !test_listener_->l_got_steer_cmd) &&
+      (timeout < C_TIMEOUT_ITERATIONS) )
+    {
+      executor.spin_some(C_TIMEOUT_NANO);
+      timeout++;
+    }
+    test_listener_->l_got_accel_cmd = false;
+    test_listener_->l_got_brake_cmd = false;
+    test_listener_->l_got_steer_cmd = false;
+
+    t_request->mode = myTests[i].in_req;
+    if (myTests[i].exp_success) {
+      EXPECT_TRUE(
+        ne_raptor_interface_->handle_mode_change_request(t_request)) <<
+        "Test #" << std::to_string(i);
+    } else {
+      EXPECT_FALSE(
+        ne_raptor_interface_->handle_mode_change_request(t_request)) <<
+        "Test #" << std::to_string(i);
+    }
+
+    timeout = 0;
+    while ((!test_listener_->l_got_dbw_enable_cmd ||
+      !test_listener_->l_got_dbw_disable_cmd) &&
+      (timeout < C_TIMEOUT_ITERATIONS) )
+    {
+      executor.spin_some(C_TIMEOUT_NANO);
+      timeout++;
+    }
+
+    EXPECT_EQ(
+      test_listener_->l_got_dbw_enable_cmd,
+      myTests[i].exp_enable) <<
+      "Test #" << std::to_string(i);
+
+    EXPECT_EQ(
+      test_listener_->l_got_dbw_disable_cmd,
+      myTests[i].exp_disable) <<
+      "Test #" << std::to_string(i);
+
+    test_listener_->l_got_dbw_enable_cmd = false;
+    test_listener_->l_got_dbw_disable_cmd = false;
+  }
 }
-*/
 
 TEST_F(NERaptorInterface_test, test_cmd_vehicle_state)
 {

@@ -44,6 +44,7 @@ const float32_t c_pos_jerk_limit = 9.0F;
 const float32_t c_neg_jerk_limit = 9.0F;
 
 /* Other useful constants */
+#define kNumTests_HMCR   ( 5)
 #define kTestValid_VSC   ( 5)
 #define kTestInvalid_VSC (12)
 #define kNumTests_VSC    (kTestValid_VSC + kTestInvalid_VSC)
@@ -101,6 +102,14 @@ public:
   rclcpp::Clock test_clock{RCL_SYSTEM_TIME};
 
   // Struct types for test sets
+  struct test_hmcr  /* Test handle_mode_change_request */
+  {
+    uint8_t in_req;              // Input: mode change request
+    std_msgs::msg::Bool in_dbw;  // Input: DBW State Machine report (for dbw state machine)
+    bool8_t exp_success;         // Expected output: handle_mode_change_request
+    bool8_t exp_enable;          // Expected output: dbw enable command sent
+    bool8_t exp_disable;         // Expected output: dbw disable command sent
+  };
   struct test_vsc  /* Test vehicle state command */
   {
     VehicleStateCommand in_vsc;  // Input: vehicle state command

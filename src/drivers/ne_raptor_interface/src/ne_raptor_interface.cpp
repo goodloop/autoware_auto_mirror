@@ -111,7 +111,7 @@ bool8_t NERaptorInterface::send_state_command(const VehicleStateCommand & msg)
   bool8_t is_dbw_enabled = m_dbw_state_machine->enabled() ? true : false;
   bool8_t ret{true};
   std_msgs::msg::Empty send_req{};
-  ModeChangeRequest::SharedPtr t_mode;
+  ModeChangeRequest::SharedPtr t_mode{new ModeChangeRequest};
   // keep previous for Enable commands, if valid Enable command not received
   static GearCmd gc{};
   static GlobalEnableCmd gec{};
@@ -240,23 +240,15 @@ bool8_t NERaptorInterface::send_state_command(const VehicleStateCommand & msg)
   }
 
   // Request DBW mode change
-  /* TODO(NE_Raptor) : calling function handle_mode_change_request
-   * crashes the unit tester for some reason, but pulling it apart
-   * & using the pieces here works fine.
-   */
   switch (msg.mode) {
     case VehicleStateCommand::MODE_NO_COMMAND:
       // No change requested: keep previous
       break;
     case VehicleStateCommand::MODE_AUTONOMOUS:
       if (!is_dbw_enabled) {
-        /* TODO(NE_Raptor) : This isn't working
         t_mode->mode = ModeChangeRequest::MODE_AUTONOMOUS;
-        handle_mode_change_request(t_mode); */
-        m_dbw_state_machine->user_request(true);
-        m_dbw_enable_cmd_pub->publish(send_req);
+        handle_mode_change_request(t_mode);
       }
-      m_dbw_state_machine->state_cmd_sent();
       gc.enable = true;
       gec.global_enable = true;
       gec.enable_joystick_limits = true;
@@ -266,13 +258,9 @@ bool8_t NERaptorInterface::send_state_command(const VehicleStateCommand & msg)
       break;
     case VehicleStateCommand::MODE_MANUAL:
       if (is_dbw_enabled) {
-        /* TODO(NE_Raptor) : This isn't working
         t_mode->mode = ModeChangeRequest::MODE_MANUAL;
-        handle_mode_change_request(t_mode); */
-        m_dbw_state_machine->user_request(false);
-        m_dbw_disable_cmd_pub->publish(send_req);
+        handle_mode_change_request(t_mode);
       }
-      m_dbw_state_machine->state_cmd_sent();
       gc.enable = false;
       gec.global_enable = false;
       gec.enable_joystick_limits = false;
@@ -281,9 +269,8 @@ bool8_t NERaptorInterface::send_state_command(const VehicleStateCommand & msg)
       mc.block_turn_signal_stalk = false;
       break;
     default:
-      /* TODO(NE_Raptor) : This isn't working
       t_mode->mode = msg.mode;
-      ret = handle_mode_change_request(t_mode); */
+      ret = handle_mode_change_request(t_mode);
       RCLCPP_ERROR_THROTTLE(
         m_logger, m_clock, CLOCK_1_SEC,
         "Got invalid autonomy mode request value.");
@@ -566,8 +553,9 @@ void NERaptorInterface::on_misc_report(const MiscReport::SharedPtr & msg)
   m_vehicle_state_report.fuel = static_cast<uint8_t>(msg->fuel_level);
 
   std::lock_guard<std::mutex> guard_vks(m_vehicle_kin_state_mutex);
-  /// \brief TODO(NE_Raptor) : Math taken from ssc_interface.cpp. Verify it.
-  /* Input velocity is (assumed to be) measured at the rear axle, but we're
+
+  /**
+   * Input velocity is (assumed to be) measured at the rear axle, but we're
    * producing a velocity at the center of gravity.
    * Lateral velocity increases linearly from 0 at the rear axle to the maximum
    * at the front axle, where it is tan(δ)*v_lon.
