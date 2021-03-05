@@ -359,15 +359,16 @@ pages:
   script:
     - mkdir -p "public/$CI_COMMIT_BRANCH"
     - mv docs/_build/html "public/$CI_COMMIT_BRANCH/"
-    - mv coverage "public/$CI_COMMIT_BRANCH/"
+    - mv coverage public/
   artifacts:
     name: "$CI_JOB_NAME"
     paths:
       - public
-  only:
-    - master
-    - release
-    - 893-publish-versioned-documentation
+  rules:
+    if: $CI_COMMIT_TAG
+    if: $CI_COMMIT_BRANCH == "release"
+    if: $CI_COMMIT_BRANCH == "master"
+    if: $CI_COMMIT_BRANCH == "893-publish-versioned-documentation"
   needs:
     - coverage
     - docs
