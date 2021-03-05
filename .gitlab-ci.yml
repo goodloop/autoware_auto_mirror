@@ -367,6 +367,7 @@ pages:
   only:
     - master
     - release
+    - 893-publish-versioned-documentation
   needs:
     - coverage
     - docs
