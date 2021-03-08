@@ -27,7 +27,7 @@ To use the colcon defaults configuration file with an existing ADE home, type th
 $ export COLCON_DEFAULTS_FILE=/usr/local/etc/colcon-defaults.yaml >> .bashrc
 ```
 
-You can now test that the environment variable has been properly set by enter ade and typing the following:
+Test that the environment variable has been properly set by entering ADE and typing the following:
 
 ```${bash}
 $ echo $COLCON_DEFAULTS_FILE
