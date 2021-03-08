@@ -79,7 +79,7 @@ void BoundingBoxArrayDisplay::updateProperty()
 }
 
 void BoundingBoxArrayDisplay::processMessage(
-  autoware_auto_msgs::msg::BoundingBoxArray::ConstSharedPtr msg)
+  BoundingBoxArray::ConstSharedPtr msg)
 {
   msg_cache = msg;
   m_marker_common->clearMarkers();
@@ -101,39 +101,31 @@ visualization_msgs::msg::Marker::SharedPtr BoundingBoxArrayDisplay::get_marker(
   marker->action = Marker::ADD;
   marker->color.a = alpha_property_->getFloat();
 
+  QColor color;
   switch (box.vehicle_label) {
-    case BoundingBox::NO_LABEL:    // white: non labeled
-      marker->color.r = 1.0F;
-      marker->color.g = 1.0F;
-      marker->color.b = 1.0F;
+    case BoundingBox::NO_LABEL:     // white: non labeled
+      color = no_label_color_property_->getColor();
       break;
-    case BoundingBox::CAR:    // yellow: car
-      marker->color.r = 1.0F;
-      marker->color.g = 1.0F;
-      marker->color.b = 0.0F;
+    case BoundingBox::CAR:          // yellow: car
+      color = car_color_property_->getColor();
       break;
-    case BoundingBox::PEDESTRIAN:    // blue: pedestrian
-      marker->color.r = 0.0F;
-      marker->color.g = 0.0F;
-      marker->color.b = 1.0F;
+    case BoundingBox::PEDESTRIAN:   // blue: pedestrian
+      color = pedestrian_color_property_->getColor();
       break;
-    case BoundingBox::CYCLIST:    // orange: cyclist
-      marker->color.r = 1.0F;
-      marker->color.g = 0.647F;
-      marker->color.b = 0.0F;
+    case BoundingBox::CYCLIST:      // orange: cyclist
+      color = cyclist_color_property_->getColor();
       break;
-    case BoundingBox::MOTORCYCLE:    // green: motorcycle
-      marker->color.r = 0.0F;
-      marker->color.g = 1.0F;
-      marker->color.b = 0.0F;
+    case BoundingBox::MOTORCYCLE:   // green: motorcycle
+      color = motocycle_color_property_->getColor();
       break;
-    default:    // black: other labels
-      marker->color.r = 0.0F;
-      marker->color.g = 0.0F;
-      marker->color.b = 0.0F;
+    default:                        // black: other labels
+      color = other_color_property_->getColor();
       break;
   }
 
+  marker->color.r = color.redF();
+  marker->color.g = color.greenF();
+  marker->color.b = color.blueF();
   marker->pose.position.x = static_cast<float64_t>(box.centroid.x);
   marker->pose.position.y = static_cast<float64_t>(box.centroid.y);
   marker->pose.position.z = static_cast<float64_t>(box.centroid.z);
