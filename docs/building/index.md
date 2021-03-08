@@ -16,7 +16,7 @@ $ vcs import < autoware.auto.$ROS_DISTRO.repos
 Optionally, you can choose a DDS implementation other than the default Cyclone DDS: @subpage choosing-a-dds-vendor
 
 # Use colcon defaults inside ADE {#building-colcon-defaults}
-After creating a fresh new ADE home, its `.bashrc` will be populated to set the `COLCON_DEFAULTS_FILE`
+After creating a fresh new ADE home, its `.bashrc` will be populated to set the [`COLCON_DEFAULTS_FILE`](https://colcon.readthedocs.io/en/released/reference/global-arguments.html?highlight=DEFAULTS#environment-variables)
 environment variable.
 
 However, if an ADE home already exists, it is strongly advised to use the provided colcon defaults file to ensure that binaries are consistently built with the same flags.
