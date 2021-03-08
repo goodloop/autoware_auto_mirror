@@ -29,7 +29,32 @@ namespace rviz_plugins
 BoundingBoxArrayDisplay::BoundingBoxArrayDisplay()
 : rviz_common::RosTopicDisplay<autoware_auto_msgs::msg::BoundingBoxArray>(),
   m_marker_common(std::make_unique<MarkerCommon>(this))
-{}
+{
+  no_label_color_property_ = new rviz_common::properties::ColorProperty(
+    "No Label Color", QColor(255.0, 255.0, 255.0), "Color to draw the boundingbox.",
+    this, SLOT(updateProperty()));
+  car_color_property_ = new rviz_common::properties::ColorProperty(
+    "Car Color", QColor(255.0, 255.0, 0), "Color to draw the boundingbox.",
+    this, SLOT(updateProperty()));
+  pedestrian_color_property_ = new rviz_common::properties::ColorProperty(
+    "Pedestrian Color", QColor(0, 0, 255.0), "Color to draw the boundingbox.",
+    this, SLOT(updateProperty()));
+  cyclist_color_property_ = new rviz_common::properties::ColorProperty(
+    "Cyclist Color", QColor(255.0, 165.0, 0), "Color to draw the boundingbox.",
+    this, SLOT(updateProperty()));
+  motocycle_color_property_ = new rviz_common::properties::ColorProperty(
+    "Motocycle Color", QColor(0, 255.0, 0), "Color to draw the boundingbox.",
+    this, SLOT(updateProperty()));
+  other_color_property_ = new rviz_common::properties::ColorProperty(
+    "Other Color", QColor(0, 0, 0), "Color to draw the boundingbox.",
+    this, SLOT(updateProperty()));
+
+  alpha_property_ = new rviz_common::properties::FloatProperty(
+    "Alpha", 0.7, "Amount of transparency to apply to the boundingbox.",
+    this, SLOT(updateProperty()));
+  alpha_property_->setMin(0);
+  alpha_property_->setMax(1);
+}
 
 void BoundingBoxArrayDisplay::onInitialize()
 {
@@ -46,9 +71,17 @@ void BoundingBoxArrayDisplay::load(const rviz_common::Config & config)
   m_marker_common->load(config);
 }
 
+void BoundingBoxArrayDisplay::updateProperty()
+{
+  if (msg_cache != nullptr) {
+    processMessage(msg_cache);
+  }
+}
+
 void BoundingBoxArrayDisplay::processMessage(
   autoware_auto_msgs::msg::BoundingBoxArray::ConstSharedPtr msg)
 {
+  msg_cache = msg;
   m_marker_common->clearMarkers();
   for (auto idx = 0U; idx < msg->boxes.size(); idx++) {
     const auto marker_ptr = get_marker(msg->boxes[idx]);
@@ -66,7 +99,7 @@ visualization_msgs::msg::Marker::SharedPtr BoundingBoxArrayDisplay::get_marker(
 
   marker->type = Marker::CUBE;
   marker->action = Marker::ADD;
-  marker->color.a = 0.7F;
+  marker->color.a = alpha_property_->getFloat();
 
   switch (box.vehicle_label) {
     case BoundingBox::NO_LABEL:    // white: non labeled
