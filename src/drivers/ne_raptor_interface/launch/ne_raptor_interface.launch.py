@@ -36,7 +36,7 @@ def generate_launch_description():
     raptor_dbw_dbc_file = LaunchConfiguration(
         'raptor_dbw_dbc',
         default=[get_package_share_directory('raptor_dbw_can'),
-                 '/launch/New_Eagle_DBW_3.3.388.dbc']
+                 '/launch/New_Eagle_DBW_3.3.542.dbc']
     )
 
     # ---------------- Nodes ----------------

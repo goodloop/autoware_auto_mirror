@@ -449,6 +449,7 @@ TEST_F(NERaptorInterface_test, test_cmd_high_level_control)
     myTests[i].in_gr.state.gear = Gear::DRIVE;
     myTests[i].exp_apc.enable = true;
     myTests[i].exp_bc.enable = true;
+    myTests[i].exp_bc.park_brake_cmd.status = ParkingBrake::OFF;
     myTests[i].exp_sc.enable = true;
     myTests[i].exp_success = true;
   }
@@ -466,10 +467,13 @@ TEST_F(NERaptorInterface_test, test_cmd_high_level_control)
   myTests[0].exp_sc.vehicle_curvature_cmd = 0.0F;
 
   // 2nd time sent, DBW should be enabled
+  // Also test parking brake command
   myTests[1].in_hlcc.stamp = test_clock.now();
   myTests[1].in_hlcc.velocity_mps = 0.0F;
   myTests[1].in_hlcc.curvature = 0.0F;
+  myTests[1].in_vsc.hand_brake = true;
   myTests[1].exp_apc.speed_cmd = 0.0F;
+  myTests[1].exp_bc.park_brake_cmd.status = ParkingBrake::ON;
   myTests[1].exp_sc.vehicle_curvature_cmd = 0.0F;
 
   /* Test valid input:
@@ -624,16 +628,22 @@ TEST_F(NERaptorInterface_test, test_cmd_high_level_control)
       if (test_rollover <= kNumTests_HLCC) {
         EXPECT_EQ(
           test_listener_->l_brake_cmd.enable,
-          myTests[i].exp_bc.enable) << "Test #" << std::to_string(test_rollover);
+          myTests[i].exp_bc.enable) <<
+          "Test #" << std::to_string(test_rollover);
         EXPECT_EQ(
           test_listener_->l_brake_cmd.control_type.value,
-          ActuatorControlMode::CLOSED_LOOP_VEHICLE);
+          ActuatorControlMode::CLOSED_LOOP_VEHICLE) <<
+          "Test #" << std::to_string(test_rollover);
         EXPECT_FLOAT_EQ(
           test_listener_->l_brake_cmd.decel_limit,
-          c_decel_limit);
+          c_decel_limit) << "Test #" << std::to_string(test_rollover);
         EXPECT_FLOAT_EQ(
           test_listener_->l_brake_cmd.decel_negative_jerk_limit,
-          c_neg_jerk_limit);
+          c_neg_jerk_limit) << "Test #" << std::to_string(test_rollover);
+        EXPECT_EQ(
+          test_listener_->l_brake_cmd.park_brake_cmd.status,
+          myTests[i].exp_bc.park_brake_cmd.status) <<
+          "Test #" << std::to_string(test_rollover);
       }
       test_listener_->l_got_brake_cmd = false;
     } else {
@@ -725,6 +735,7 @@ TEST_F(NERaptorInterface_test, test_cmd_vehicle_control)
     myTests[i].in_gr.state.gear = Gear::DRIVE;
     myTests[i].exp_apc.enable = true;
     myTests[i].exp_bc.enable = true;
+    myTests[i].exp_bc.park_brake_cmd.status = ParkingBrake::OFF;
     myTests[i].exp_sc.enable = true;
     myTests[i].exp_success = true;
   }
@@ -745,13 +756,16 @@ TEST_F(NERaptorInterface_test, test_cmd_vehicle_control)
   myTests[0].exp_sc.angle_cmd = 0.0F;
 
   // 2nd time sent, DBW should be enabled
+  // Also test parking brake command
   myTests[1].in_vcc.stamp = test_clock.now();
   myTests[1].in_vcc.long_accel_mps2 = 0.0F;  // keep default limits
   myTests[1].in_vcc.velocity_mps = 0.0F;
   myTests[1].in_vcc.front_wheel_angle_rad = 0.0F;
+  myTests[1].in_vsc.hand_brake = true;
   myTests[1].exp_apc.speed_cmd = 0.0F;
   myTests[1].exp_apc.accel_limit = c_accel_limit;
   myTests[1].exp_bc.decel_limit = c_decel_limit;
+  myTests[1].exp_bc.park_brake_cmd.status = ParkingBrake::ON;
   myTests[1].exp_sc.angle_cmd = 0.0F;
 
   /* Test valid input:
@@ -838,11 +852,12 @@ TEST_F(NERaptorInterface_test, test_cmd_vehicle_control)
   myTests[8].in_vcc.long_accel_mps2 = 0.0F;  // keep default limits
   myTests[8].in_vcc.velocity_mps = 0.0F;
   myTests[8].in_vcc.front_wheel_angle_rad =
-    251.0F * autoware::ne_raptor_interface::DEGREES_TO_RADIANS;
+    ((c_max_steer_angle / c_steer_to_tire_ratio) + 1.0F) *
+    autoware::ne_raptor_interface::DEGREES_TO_RADIANS;
   myTests[8].exp_apc.speed_cmd = 0.0F;
   myTests[8].exp_apc.accel_limit = c_accel_limit;
   myTests[8].exp_bc.decel_limit = c_decel_limit;
-  myTests[8].exp_sc.angle_cmd = 500.0F;
+  myTests[8].exp_sc.angle_cmd = c_max_steer_angle;
   myTests[8].exp_success = false;
 
   /* Test invalid input:
@@ -851,11 +866,12 @@ TEST_F(NERaptorInterface_test, test_cmd_vehicle_control)
   myTests[9].in_vcc.long_accel_mps2 = 0.0F;  // keep default limits
   myTests[9].in_vcc.velocity_mps = 0.0F;
   myTests[9].in_vcc.front_wheel_angle_rad =
-    -251.0F * autoware::ne_raptor_interface::DEGREES_TO_RADIANS;
+    ((c_max_steer_angle / c_steer_to_tire_ratio) + 1.0F) * -1.0F *
+    autoware::ne_raptor_interface::DEGREES_TO_RADIANS;
   myTests[9].exp_apc.speed_cmd = 0.0F;
   myTests[9].exp_apc.accel_limit = c_accel_limit;
   myTests[9].exp_bc.decel_limit = c_decel_limit;
-  myTests[9].exp_sc.angle_cmd = -500.0F;
+  myTests[9].exp_sc.angle_cmd = -1.0F * c_max_steer_angle;
   myTests[9].exp_success = false;
 
   /* Test valid input:
@@ -991,6 +1007,10 @@ TEST_F(NERaptorInterface_test, test_cmd_vehicle_control)
         EXPECT_FLOAT_EQ(
           test_listener_->l_brake_cmd.decel_negative_jerk_limit,
           c_neg_jerk_limit) << "Test #" << std::to_string(test_rollover);
+        EXPECT_EQ(
+          test_listener_->l_brake_cmd.park_brake_cmd.status,
+          myTests[i].exp_bc.park_brake_cmd.status) <<
+          "Test #" << std::to_string(test_rollover);
       }
       test_listener_->l_got_brake_cmd = false;
     } else {
@@ -1067,9 +1087,9 @@ TEST_F(NERaptorInterface_test, test_rpt_vehicle_state)
     myTests[i].in_gr.state.gear = Gear::DRIVE;
     myTests[i].in_mr.fuel_level = 10.0F;
     myTests[i].in_mr.drive_by_wire_enabled = true;
-    myTests[i].in_dir.turn_signal.value = TurnSignal::HAZARDS;
-    myTests[i].in_dir.high_beam_headlights.status = HighBeam::ON;
-    myTests[i].in_dir.wiper.status = WiperFront::WASH_BRIEF;
+    myTests[i].in_oar.turn_signal_state.value = TurnSignal::HAZARDS;
+    myTests[i].in_oar.high_beam_state.value = HighBeamState::ON;
+    myTests[i].in_oar.front_wiper_state.status = WiperFront::WASH_BRIEF;
     myTests[i].exp_vsr.fuel = 10;
     myTests[i].exp_vsr.blinker = VehicleStateReport::BLINKER_HAZARD;
     myTests[i].exp_vsr.headlight = VehicleStateReport::HEADLIGHT_HIGH;
@@ -1087,9 +1107,9 @@ TEST_F(NERaptorInterface_test, test_rpt_vehicle_state)
   myTests[0].in_gr.state.gear = Gear::PARK;
   myTests[0].in_mr.fuel_level = 0.0F;
   myTests[0].in_mr.drive_by_wire_enabled = true;
-  myTests[0].in_dir.turn_signal.value = TurnSignal::NONE;
-  myTests[0].in_dir.high_beam_headlights.status = HighBeam::OFF;
-  myTests[0].in_dir.wiper.status = WiperFront::OFF;
+  myTests[0].in_oar.turn_signal_state.value = TurnSignal::NONE;
+  myTests[0].in_oar.high_beam_state.value = HighBeamState::OFF;
+  myTests[0].in_oar.front_wiper_state.status = WiperFront::OFF;
   myTests[0].exp_vsr.fuel = 0;
   myTests[0].exp_vsr.blinker = VehicleStateReport::BLINKER_OFF;
   myTests[0].exp_vsr.headlight = VehicleStateReport::HEADLIGHT_OFF;
@@ -1106,15 +1126,15 @@ TEST_F(NERaptorInterface_test, test_rpt_vehicle_state)
 
   // gear == low, turn signal == left, wiper == low
   myTests[2].in_gr.state.gear = Gear::LOW;
-  myTests[2].in_dir.turn_signal.value = TurnSignal::LEFT;
-  myTests[2].in_dir.wiper.status = WiperFront::CONSTANT_LOW;
+  myTests[2].in_oar.turn_signal_state.value = TurnSignal::LEFT;
+  myTests[2].in_oar.front_wiper_state.status = WiperFront::CONSTANT_LOW;
   myTests[2].exp_vsr.gear = VehicleStateReport::GEAR_LOW;
   myTests[2].exp_vsr.blinker = VehicleStateReport::BLINKER_LEFT;
   myTests[2].exp_vsr.wiper = VehicleStateReport::WIPER_LOW;
 
   // turn signal == right, wiper == high
-  myTests[3].in_dir.turn_signal.value = TurnSignal::RIGHT;
-  myTests[3].in_dir.wiper.status = WiperFront::CONSTANT_HIGH;
+  myTests[3].in_oar.turn_signal_state.value = TurnSignal::RIGHT;
+  myTests[3].in_oar.front_wiper_state.status = WiperFront::CONSTANT_HIGH;
   myTests[3].exp_vsr.blinker = VehicleStateReport::BLINKER_RIGHT;
   myTests[3].exp_vsr.wiper = VehicleStateReport::WIPER_HIGH;
 
@@ -1122,9 +1142,9 @@ TEST_F(NERaptorInterface_test, test_rpt_vehicle_state)
    * for parking brake, gear, turn signal, high beam, wiper */
   myTests[kTestValid_VSR + 0].in_br.parking_brake.status = ParkingBrake::FAULT;
   myTests[kTestValid_VSR + 0].in_gr.state.gear = Gear::NONE;
-  myTests[kTestValid_VSR + 0].in_dir.turn_signal.value = TurnSignal::SNA;
-  myTests[kTestValid_VSR + 0].in_dir.high_beam_headlights.status = HighBeam::RESERVED;
-  myTests[kTestValid_VSR + 0].in_dir.wiper.status = WiperFront::SNA;
+  myTests[kTestValid_VSR + 0].in_oar.turn_signal_state.value = TurnSignal::SNA;
+  myTests[kTestValid_VSR + 0].in_oar.high_beam_state.value = HighBeamState::RESERVED;
+  myTests[kTestValid_VSR + 0].in_oar.front_wiper_state.status = WiperFront::SNA;
   myTests[kTestValid_VSR + 0].exp_vsr.hand_brake = false;
   myTests[kTestValid_VSR + 0].exp_vsr.gear = 0;
   myTests[kTestValid_VSR + 0].exp_vsr.blinker = 0;
@@ -1147,7 +1167,7 @@ TEST_F(NERaptorInterface_test, test_rpt_vehicle_state)
     }
 
     // Send this message last
-    test_talker_->send_report(myTests[i].in_dir);
+    test_talker_->send_report(myTests[i].in_oar);
 
     timeout = 0;
     while (!test_listener_->l_got_vehicle_state &&

@@ -9,8 +9,9 @@
       front_axle_to_cog: 1.228
       rear_axle_to_cog: 1.5618
       steer_to_tire_ratio: 1.5708
-      acceleration_positive_jerk_limit: 1.5708
-      deceleration_negative_jerk_limit: 1.5708
+      max_steer_angle: 500.0
+      acceleration_positive_jerk_limit: 1.0
+      deceleration_negative_jerk_limit: 1.0
     state_machine:
       gear_shift_velocity_threshold_mps: 0.5
       acceleration_limits:

@@ -43,7 +43,7 @@ Current version of New Eagle's Raptor DBW Node is intended for R&D only!
 - raptor_dbw_msgs::msg::BrakeReport
 - raptor_dbw_msgs::msg::GearReport
 - raptor_dbw_msgs::msg::MiscReport
-- raptor_dbw_msgs::msg::DriverInputReport
+- raptor_dbw_msgs::msg::OtherActuatorsReport
 - raptor_dbw_msgs::msg::SteeringReport
 - raptor_dbw_msgs::msg::WheelSpeedReport
 
@@ -51,7 +51,8 @@ Current version of New Eagle's Raptor DBW Node is intended for R&D only!
 - `ecu_build_num` ECU build #
 - `front_axle_to_cog` Distance from the front axle to the center-of-gravity of the vehicle in meters.
 - `rear_axle_to_cog` Distance from the rear axle to the center-of-gravity of the vehicle in meters.
-- `steer_to_tire_ratio` Ratio between steering wheel angle & tire angle
+- `steer_to_tire_ratio` Ratio of steering angle / car tire angle
+- `max_steer_angle` Maximum steering wheel turn angle
 - `acceleration_limit` m/s^2, zero = no limit
 - `deceleration_limit` m/s^2, zero = no limit
 - `acceleration_positive_jerk_limit` m/s^3

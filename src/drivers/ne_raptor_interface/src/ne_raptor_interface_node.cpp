@@ -37,6 +37,7 @@ NERaptorInterfaceNode::NERaptorInterfaceNode(const rclcpp::NodeOptions & options
       declare_parameter("ne_raptor.front_axle_to_cog").get<float32_t>(),
       declare_parameter("ne_raptor.rear_axle_to_cog").get<float32_t>(),
       declare_parameter("ne_raptor.steer_to_tire_ratio").get<float32_t>(),
+      declare_parameter("ne_raptor.max_steer_angle").get<float32_t>(),
       get_state_machine().get_config().accel_limits().max(),
       get_state_machine().get_config().accel_limits().min(),
       declare_parameter("ne_raptor.acceleration_positive_jerk_limit").get<float32_t>(),

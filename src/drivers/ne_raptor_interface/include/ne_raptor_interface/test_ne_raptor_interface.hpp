@@ -38,6 +38,7 @@ const uint16_t c_ecu_build_num = 0xABCD;
 const float32_t c_front_axle_to_cog = 1.5F;
 const float32_t c_rear_axle_to_cog = 0.5F;
 const float32_t c_steer_to_tire_ratio = 2.0F;
+const float32_t c_max_steer_angle = 500.0F;
 const float32_t c_accel_limit = 3.0F;
 const float32_t c_decel_limit = 3.0F;
 const float32_t c_pos_jerk_limit = 9.0F;
@@ -76,6 +77,7 @@ protected:
       c_front_axle_to_cog,
       c_rear_axle_to_cog,
       c_steer_to_tire_ratio,
+      c_max_steer_angle,
       c_accel_limit,
       c_decel_limit,
       c_pos_jerk_limit,
@@ -124,7 +126,7 @@ public:
   struct test_hlcc  /* Test high level control command */
   {
     HighLevelControlCommand in_hlcc;  // Input: high level control command
-    VehicleStateCommand in_vsc;       // Input: vehicle state command (set current gear)
+    VehicleStateCommand in_vsc;       // Input: vehicle state command (set parking brake, gear)
     GearReport in_gr;                 // Input: gear report (set current gear)
     AcceleratorPedalCmd exp_apc;      // Expected output: accelerator pedal command
     BrakeCmd exp_bc;                  // Expected output: brake command
@@ -134,7 +136,7 @@ public:
   struct test_vcc  /* Test vehicle control command */
   {
     VehicleControlCommand in_vcc;  // Input: vehicle control command
-    VehicleStateCommand in_vsc;    // Input: vehicle state command (set current gear)
+    VehicleStateCommand in_vsc;    // Input: vehicle state command (set parking brake, gear)
     GearReport in_gr;              // Input: gear report (set current gear)
     AcceleratorPedalCmd exp_apc;   // Expected output: accelerator pedal command
     BrakeCmd exp_bc;               // Expected output: brake command
@@ -146,7 +148,7 @@ public:
     BrakeReport in_br;            // Input: brake report
     GearReport in_gr;             // Input: gear report
     MiscReport in_mr;             // Input: misc. report
-    DriverInputReport in_dir;     // Input: driver input report (send this last)
+    OtherActuatorsReport in_oar;  // Input: other actuators report (send this last)
     VehicleStateCommand in_vsc;   // Input: vehicle state command (enable DBW)
     std_msgs::msg::Bool in_dbw;   // Input: DBW State Machine report
     VehicleStateReport exp_vsr;   // Expected output: vehicle state report

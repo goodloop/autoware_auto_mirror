@@ -16,7 +16,7 @@
 
 from ament_index_python import get_package_share_directory
 from launch import LaunchDescription
-from launch.actions import OpaqueFunction
+# from launch.actions import OpaqueFunction
 from launch_ros.actions import Node
 import launch_testing
 
@@ -26,14 +26,14 @@ import unittest
 
 
 @pytest.mark.launch_test
-def generate_test_description(ready_fn):
+def generate_test_description():
 
     # Prepare node
     ne_raptor_interface = Node(
         package='ne_raptor_interface',
-        node_name='ne_raptor_interface_node',
-        node_executable='ne_raptor_interface_node_exe',
-        node_namespace='vehicle',
+        name='ne_raptor_interface_node',
+        executable='ne_raptor_interface_node_exe',
+        namespace='vehicle',
         output='screen',
         parameters=[
             os.path.join(
@@ -46,8 +46,8 @@ def generate_test_description(ready_fn):
     return LaunchDescription([
         ne_raptor_interface,
         # Start tests right away - no need to wait for anything
-        OpaqueFunction(function=lambda context: ready_fn())]
-    ), context
+        launch_testing.actions.ReadyToTest()
+    ]), context
 
 
 @launch_testing.post_shutdown_test()

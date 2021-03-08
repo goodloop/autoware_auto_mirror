@@ -35,7 +35,7 @@
 #include <raptor_dbw_msgs/msg/brake_report.hpp>
 #include <raptor_dbw_msgs/msg/gear_report.hpp>
 #include <raptor_dbw_msgs/msg/misc_report.hpp>
-#include <raptor_dbw_msgs/msg/driver_input_report.hpp>
+#include <raptor_dbw_msgs/msg/other_actuators_report.hpp>
 #include <raptor_dbw_msgs/msg/steering_report.hpp>
 #include <raptor_dbw_msgs/msg/wheel_speed_report.hpp>
 
@@ -89,7 +89,7 @@ using raptor_dbw_msgs::msg::SteeringCmd;
 using raptor_dbw_msgs::msg::BrakeReport;
 using raptor_dbw_msgs::msg::GearReport;
 using raptor_dbw_msgs::msg::MiscReport;
-using raptor_dbw_msgs::msg::DriverInputReport;
+using raptor_dbw_msgs::msg::OtherActuatorsReport;
 using raptor_dbw_msgs::msg::SteeringReport;
 using raptor_dbw_msgs::msg::WheelSpeedReport;
 
@@ -128,7 +128,6 @@ namespace ne_raptor_interface
 {
 static constexpr float32_t KPH_TO_MPS_RATIO = 1000.0F / (60.0F * 60.0F);
 static constexpr float32_t DEGREES_TO_RADIANS = PI / 360.0F;
-static constexpr float32_t STEERING_MAX_ANGLE = 500.0F;  // steering range +/- 500 degrees
 static constexpr int64_t CLOCK_1_SEC = 1000;  // duration in milliseconds
 /// \brief Class for interfacing with NE Raptor DBW
 class NE_RAPTOR_INTERFACE_PUBLIC NERaptorInterface
@@ -141,6 +140,7 @@ public:
   /// \param[in] front_axle_to_cog Distance from front axle to center-of-gravity in meters
   /// \param[in] rear_axle_to_cog Distance from rear axle to center-of-gravity in meters
   /// \param[in] steer_to_tire_ratio Ratio of steering angle / car tire angle
+  /// \param[in] max_steer_angle Maximum steering wheel turn angle
   /// \param[in] acceleration_limit m/s^2, zero = no limit
   /// \param[in] deceleration_limit m/s^2, zero = no limit
   /// \param[in] acceleration_positive_jerk_limit m/s^3
@@ -151,6 +151,7 @@ public:
     float32_t front_axle_to_cog,
     float32_t rear_axle_to_cog,
     float32_t steer_to_tire_ratio,
+    float32_t max_steer_angle,
     float32_t acceleration_limit,
     float32_t deceleration_limit,
     float32_t acceleration_positive_jerk_limit,
@@ -229,6 +230,7 @@ private:
   float32_t m_front_axle_to_cog;
   float32_t m_rear_axle_to_cog;
   float32_t m_steer_to_tire_ratio;
+  float32_t m_max_steer_angle;
   float32_t m_acceleration_limit;
   float32_t m_deceleration_limit;
   float32_t m_acceleration_positive_jerk_limit;
@@ -242,28 +244,34 @@ private:
   /* Vehicle Odometry, Vehicle State, &
    * Vehicle Kinematic State are stored
    * because they need data from multiple reports.
+   *
+   * Similarly, Brake Command needs data
+   * from multiple commands.
    */
-  VehicleOdometry m_vehicle_odometry;
-  VehicleStateReport m_vehicle_state_report;
-  VehicleKinematicState m_vehicle_kin_state;
+  VehicleOdometry m_vehicle_odometry{};
+  VehicleStateReport m_vehicle_state_report{};
+  VehicleKinematicState m_vehicle_kin_state{};
+  BrakeCmd m_brake_cmd{};
   bool8_t m_seen_dbw_rpt{false};
   bool8_t m_seen_brake_rpt{false};
   bool8_t m_seen_gear_rpt{false};
   bool8_t m_seen_misc_rpt{false};
   bool8_t m_seen_steering_rpt{false};
   bool8_t m_seen_wheel_spd_rpt{false};
+  bool8_t m_seen_vehicle_state_cmd{false};
   float32_t m_travel_direction{0.0F};
 
   // In case multiple signals arrive at the same time
   std::mutex m_vehicle_odometry_mutex;
   std::mutex m_vehicle_state_report_mutex;
   std::mutex m_vehicle_kin_state_mutex;
+  std::mutex m_brake_cmd_mutex;
 
   void on_dbw_state_report(const std_msgs::msg::Bool::SharedPtr & msg);
   void on_brake_report(const BrakeReport::SharedPtr & msg);
   void on_gear_report(const GearReport::SharedPtr & msg);
   void on_misc_report(const MiscReport::SharedPtr & msg);
-  void on_driver_input_report(const DriverInputReport::SharedPtr & msg);
+  void on_other_actuators_report(const OtherActuatorsReport::SharedPtr & msg);
   void on_steering_report(const SteeringReport::SharedPtr & msg);
   void on_wheel_spd_report(const WheelSpeedReport::SharedPtr & msg);
 };  // class NERaptorInterface
