@@ -97,10 +97,12 @@ colcon build --cmake-args -DCMAKE_BUILD_TYPE=RelWithDebInfo
 These flags are then passed into [autoware_set_compile_options](https://gitlab.com/autowarefoundation/autoware.auto/AutowareAuto/-/blob/master/src/tools/autoware_auto_cmake/cmake/autoware_auto_cmake.cmake#L51)
 function for the nodes that use it in their respective `CMakeLists.txt` files.
 
-If the [colcon defaults configuration file](#building-colcon-defaults) file is being used, Autoware.Auto
-will be built as `RelWithDebInfo` if `CMAKE_BUILD_TYPE` is not set.
+If the [colcon defaults configuration file](#building-colcon-defaults) file is being used, Autoware.Auto will be built as `RelWithDebInfo` if `CMAKE_BUILD_TYPE` is not set.
 
 Outside ADE, if there is no `CMAKE_BUILD_TYPE` given, and `autoware_set_compile_options` is used, then the code is built optimized and without debug flags.
+
+Regardless of `CMAKE_BUILD_TYPE`, code may be built with additional flags added by the
+`autoware_set_compile_options` macro.
 
 #### Compilation Database Generation {#building-compilation-database}
 
