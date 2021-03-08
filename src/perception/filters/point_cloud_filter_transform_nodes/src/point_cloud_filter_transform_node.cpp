@@ -19,6 +19,7 @@
 #include <rclcpp_components/register_node_macro.hpp>
 #include <memory>
 #include <string>
+#include <iostream>
 
 namespace autoware
 {
@@ -82,24 +83,42 @@ PointCloud2FilterTransformNode::PointCloud2FilterTransformNode(
     static_cast<size_t>(declare_parameter("expected_num_subscribers").get<int32_t>())},
   m_pcl_size{static_cast<size_t>(declare_parameter("pcl_size").get<int32_t>())}
 {
-  if (has_parameter("static_transformer.quaternion.x") &&
-    has_parameter("static_transformer.quaternion.y") &&
-    has_parameter("static_transformer.quaternion.z") &&
-    has_parameter("static_transformer.quaternion.w") &&
-    has_parameter("static_transformer.translation.x") &&
-    has_parameter("static_transformer.translation.y") &&
-    has_parameter("static_transformer.translation.z"))
+  this->declare_parameter("static_transformer.quaternion.x");
+  this->declare_parameter("static_transformer.quaternion.y");
+  this->declare_parameter("static_transformer.quaternion.z");
+  this->declare_parameter("static_transformer.quaternion.w");
+  this->declare_parameter("static_transformer.translation.x");
+  this->declare_parameter("static_transformer.translation.y");
+  this->declare_parameter("static_transformer.translation.z");
+
+  rclcpp::Parameter quat_x_param;
+  rclcpp::Parameter quat_y_param;
+  rclcpp::Parameter quat_z_param;
+  rclcpp::Parameter quat_w_param;
+  rclcpp::Parameter trans_x_param;
+  rclcpp::Parameter trans_y_param;
+  rclcpp::Parameter trans_z_param;
+
+
+  if (this->get_parameter("static_transformer.quaternion.x", quat_x_param) &&
+    this->get_parameter("static_transformer.quaternion.y", quat_y_param) &&
+    this->get_parameter("static_transformer.quaternion.z", quat_z_param) &&
+    this->get_parameter("static_transformer.quaternion.w", quat_w_param) &&
+    this->get_parameter("static_transformer.translation.x", trans_x_param) &&
+    this->get_parameter("static_transformer.translation.y", trans_y_param) &&
+    this->get_parameter("static_transformer.translation.z", trans_z_param))
   {
+    RCLCPP_INFO(get_logger(), "quaternion available");
     m_static_transformer = std::make_unique<StaticTransformer>(
       get_transform(
         m_input_frame_id, m_output_frame_id,
-        declare_parameter("static_transformer.quaternion.x").get<float64_t>(),
-        declare_parameter("static_transformer.quaternion.y").get<float64_t>(),
-        declare_parameter("static_transformer.quaternion.z").get<float64_t>(),
-        declare_parameter("static_transformer.quaternion.w").get<float64_t>(),
-        declare_parameter("static_transformer.translation.x").get<float64_t>(),
-        declare_parameter("static_transformer.translation.y").get<float64_t>(),
-        declare_parameter("static_transformer.translation.z").get<float64_t>()).transform);
+        quat_x_param.as_double(),
+        quat_y_param.as_double(),
+        quat_z_param.as_double(),
+        quat_w_param.as_double(),
+        trans_x_param.as_double(),
+        trans_y_param.as_double(),
+        trans_z_param.as_double()).transform);
   } else {
     /// TF buffer
     tf2_ros::Buffer m_tf2_buffer(this->get_clock());
