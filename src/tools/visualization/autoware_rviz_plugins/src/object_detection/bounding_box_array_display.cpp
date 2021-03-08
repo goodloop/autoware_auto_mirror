@@ -31,22 +31,22 @@ BoundingBoxArrayDisplay::BoundingBoxArrayDisplay()
   m_marker_common(std::make_unique<MarkerCommon>(this))
 {
   no_label_color_property_ = new rviz_common::properties::ColorProperty(
-    "No Label Color", QColor(255.0, 255.0, 255.0), "Color to draw the boundingbox.",
+    "No Label Color", QColor(255.0, 255.0, 255.0), "Color to draw unlabelled boundingboxes.",
     this, SLOT(updateProperty()));
   car_color_property_ = new rviz_common::properties::ColorProperty(
-    "Car Color", QColor(255.0, 255.0, 0), "Color to draw the boundingbox.",
+    "Car Color", QColor(255.0, 255.0, 0), "Color to draw car boundingboxes.",
     this, SLOT(updateProperty()));
   pedestrian_color_property_ = new rviz_common::properties::ColorProperty(
-    "Pedestrian Color", QColor(0, 0, 255.0), "Color to draw the boundingbox.",
+    "Pedestrian Color", QColor(0, 0, 255.0), "Color to draw pedestrian boundingboxes.",
     this, SLOT(updateProperty()));
   cyclist_color_property_ = new rviz_common::properties::ColorProperty(
-    "Cyclist Color", QColor(255.0, 165.0, 0), "Color to draw the boundingbox.",
+    "Cyclist Color", QColor(255.0, 165.0, 0), "Color to draw cyclist boundingboxes.",
     this, SLOT(updateProperty()));
-  motocycle_color_property_ = new rviz_common::properties::ColorProperty(
-    "Motocycle Color", QColor(0, 255.0, 0), "Color to draw the boundingbox.",
+  motorcycle_color_property_ = new rviz_common::properties::ColorProperty(
+    "Motorcycle Color", QColor(0, 255.0, 0), "Color to draw motorcycle boundingboxes.",
     this, SLOT(updateProperty()));
   other_color_property_ = new rviz_common::properties::ColorProperty(
-    "Other Color", QColor(0, 0, 0), "Color to draw the boundingbox.",
+    "Other Color", QColor(0, 0, 0), "Color to draw other boundingboxes.",
     this, SLOT(updateProperty()));
 
   alpha_property_ = new rviz_common::properties::FloatProperty(
@@ -116,7 +116,7 @@ visualization_msgs::msg::Marker::SharedPtr BoundingBoxArrayDisplay::get_marker(
       color = cyclist_color_property_->getColor();
       break;
     case BoundingBox::MOTORCYCLE:   // green: motorcycle
-      color = motocycle_color_property_->getColor();
+      color = motorcycle_color_property_->getColor();
       break;
     default:                        // black: other labels
       color = other_color_property_->getColor();

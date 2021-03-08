@@ -66,7 +66,7 @@ private:
   rviz_common::properties::ColorProperty * car_color_property_;
   rviz_common::properties::ColorProperty * pedestrian_color_property_;
   rviz_common::properties::ColorProperty * cyclist_color_property_;
-  rviz_common::properties::ColorProperty * motocycle_color_property_;
+  rviz_common::properties::ColorProperty * motorcycle_color_property_;
   rviz_common::properties::ColorProperty * other_color_property_;
   rviz_common::properties::FloatProperty * alpha_property_;
 };
