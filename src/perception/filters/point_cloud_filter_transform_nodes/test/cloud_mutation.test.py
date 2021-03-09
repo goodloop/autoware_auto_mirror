@@ -44,6 +44,12 @@ def generate_test_description(ready_fn):
         remappings=[("points_in", "points_raw")]
     )
 
+    lidar_bl_publisher = launch_ros.actions.Node(
+        package='tf2_ros',
+        node_executable='static_transform_publisher',
+        arguments=["0", "0", "0", "0", "0", "0", "lidar_front", "base_link"]
+    )
+
     filtered_points_checker = lidar_integration.make_pcl_checker(
         topic="points_filtered",
         size=30000,
@@ -66,7 +72,7 @@ def generate_test_description(ready_fn):
     )
 
     return lidar_integration.get_point_cloud_mutation_launch_description(
-        test_nodes=[point_cloud_filter_transform_node],
+        test_nodes=[point_cloud_filter_transform_node, lidar_bl_publisher],
         checkers=[filtered_points_checker],
         other_actions=[
             launch.actions.OpaqueFunction(function=lambda context: ready_fn())
