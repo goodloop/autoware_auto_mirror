@@ -19,7 +19,8 @@
 #include <rclcpp_components/register_node_macro.hpp>
 #include <memory>
 #include <string>
-#include <iostream>
+#include <map>
+#include <vector>
 
 namespace autoware
 {
@@ -83,14 +84,19 @@ PointCloud2FilterTransformNode::PointCloud2FilterTransformNode(
     static_cast<size_t>(declare_parameter("expected_num_subscribers").get<int32_t>())},
   m_pcl_size{static_cast<size_t>(declare_parameter("pcl_size").get<int32_t>())}
 {
-  this->declare_parameter("static_transformer.quaternion.x");
-  this->declare_parameter("static_transformer.quaternion.y");
-  this->declare_parameter("static_transformer.quaternion.z");
-  this->declare_parameter("static_transformer.quaternion.w");
-  this->declare_parameter("static_transformer.translation.x");
-  this->declare_parameter("static_transformer.translation.y");
-  this->declare_parameter("static_transformer.translation.z");
+  /// Declare and initialize transform parameters with the same namespace and type
+  std::map<std::string, float64_t> param_map;
+  std::vector<std::string> valid_keys {"quaternion.x", "quaternion.y", "quaternion.z",
+    "quaternion.w",
+    "translation.x",
+    "translation.y",
+    "translation.z"};
+  for (auto & valid_key : valid_keys) {
+    param_map[valid_key];
+  }
+  this->declare_parameters("static_transformer", param_map);
 
+  /// Declare objects to hold transform parameters
   rclcpp::Parameter quat_x_param;
   rclcpp::Parameter quat_y_param;
   rclcpp::Parameter quat_z_param;
@@ -100,6 +106,7 @@ PointCloud2FilterTransformNode::PointCloud2FilterTransformNode(
   rclcpp::Parameter trans_z_param;
 
 
+  /// If transform parameters exist in the param file use them
   if (this->get_parameter("static_transformer.quaternion.x", quat_x_param) &&
     this->get_parameter("static_transformer.quaternion.y", quat_y_param) &&
     this->get_parameter("static_transformer.quaternion.z", quat_z_param) &&
@@ -108,7 +115,6 @@ PointCloud2FilterTransformNode::PointCloud2FilterTransformNode(
     this->get_parameter("static_transformer.translation.y", trans_y_param) &&
     this->get_parameter("static_transformer.translation.z", trans_z_param))
   {
-    RCLCPP_INFO(get_logger(), "quaternion available");
     m_static_transformer = std::make_unique<StaticTransformer>(
       get_transform(
         m_input_frame_id, m_output_frame_id,
@@ -119,19 +125,21 @@ PointCloud2FilterTransformNode::PointCloud2FilterTransformNode(
         trans_x_param.as_double(),
         trans_y_param.as_double(),
         trans_z_param.as_double()).transform);
-  } else {
+  } else {  /// Else lookup transform being published on /tf or /static_tf topics
     /// TF buffer
-    tf2_ros::Buffer m_tf2_buffer(this->get_clock());
+    tf2_ros::Buffer tf2_buffer(this->get_clock());
     /// TF listener
-    tf2_ros::TransformListener m_tf2_listener(m_tf2_buffer);
+    tf2_ros::TransformListener tf2_listener(tf2_buffer);
     while (rclcpp::ok()) {
       try {
+        RCLCPP_INFO(get_logger(), "Looking up the transform.");
         m_static_transformer = std::make_unique<StaticTransformer>(
-          m_tf2_buffer.lookupTransform(
+          tf2_buffer.lookupTransform(
             m_output_frame_id, m_input_frame_id,
             tf2::TimePointZero).transform);
-      } catch (...) {
-        RCLCPP_INFO(get_logger(), "No transform was available.");
+        break;
+      } catch (const std::exception & transform_exception) {
+        RCLCPP_INFO(get_logger(), "No transform was available. Retrying after 100 ms.");
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
         continue;
       }
