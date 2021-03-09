@@ -428,11 +428,21 @@ docs:
   stage: build
   image: $CI_REGISTRY_IMAGE/amd64/ade-foxy:commit-$CI_COMMIT_SHA
   script:
+    - mkdir -p docs/generated/$CI_COMMIT_BRANCH
     - docs/.doxygen/build.py
+    - mv docs/_build/html docs/generated/$CI_COMMIT_BRANCH/
+    - mkdir -p docs/generated/master
+    - git checkout master
+    - docs/.doxygen/build.py
+    - mv docs/_build/html docs/generated/master/
+    - mkdir -p docs/generated/release
+    - git checkout release
+    - docs/.doxygen/build.py
+    - mv docs/_build/html docs/generated/release/
   artifacts:
     name: "$CI_JOB_NAME"
     paths:
-      - docs/_build/html
+      - docs/generated
   needs:
     - ade_amd64_foxy
 
@@ -440,14 +450,14 @@ pages:
   stage: deploy
   image: alpine
   script:
-    - mv docs/_build/html public
-    - mv coverage public
+    - mv docs/generated public
   artifacts:
     name: "$CI_JOB_NAME"
     paths:
       - public
-  only:
-    - master
+  rules:
+    - if: $CI_COMMIT_BRANCH == "release"
+    - if: $CI_COMMIT_BRANCH == "master"
   needs:
     - coverage
     - docs
