@@ -12,6 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+/// \copyright Copyright 2021 The Autoware Foundation
+/// \file test_ne_raptor_interface.hpp
+/// \brief This file defines the NERaptorInterface_test class.
+
 #ifndef NE_RAPTOR_INTERFACE__TEST_NE_RAPTOR_INTERFACE_HPP_
 #define NE_RAPTOR_INTERFACE__TEST_NE_RAPTOR_INTERFACE_HPP_
 
@@ -45,23 +49,25 @@ const float32_t c_pos_jerk_limit = 9.0F;
 const float32_t c_neg_jerk_limit = 9.0F;
 
 /* Other useful constants */
-#define kNumTests_HMCR   ( 5)
-#define kTestValid_VSC   ( 5)
-#define kTestInvalid_VSC (12)
-#define kNumTests_VSC    (kTestValid_VSC + kTestInvalid_VSC)
-#define kNumTests_HLCC   ( 8)
-#define kNumTests_VCC    (12)
-#define kTestValid_VSR   ( 4)
-#define kTestInvalid_VSR ( 1)
-#define kNumTests_VSR    (kTestValid_VSR + kTestInvalid_VSR)
-#define kNumTests_VO     (18)
-#define kTestValid_VKS   (18)
-#define kTestInvalid_VKS ( 1)
-#define kNumTests_VKS    (kTestValid_VKS + kTestInvalid_VKS)
+static constexpr uint8_t kNumTests_HMCR{5};
+static constexpr uint8_t kTestValid_VSC{5};
+static constexpr uint8_t kTestInvalid_VSC{12};
+static constexpr uint8_t kNumTests_VSC{kTestValid_VSC + kTestInvalid_VSC};
+static constexpr uint8_t kNumTests_HLCC{8};
+static constexpr uint8_t kNumTests_VCC{12};
+static constexpr uint8_t kTestValid_VSR{4};
+static constexpr uint8_t kTestInvalid_VSR{1};
+static constexpr uint8_t kNumTests_VSR{kTestValid_VSR + kTestInvalid_VSR};
+static constexpr uint8_t kNumTests_VO{18};
+static constexpr uint8_t kTestValid_VKS{18};
+static constexpr uint8_t kTestInvalid_VKS{1};
+static constexpr uint8_t kNumTests_VKS{kTestValid_VKS + kTestInvalid_VKS};
+
 using namespace std::literals::chrono_literals; //NOLINT
 const std::chrono::nanoseconds C_TIMEOUT_NANO = 1000000000ns;
 const uint8_t C_TIMEOUT_ITERATIONS = 25;
 
+/// \brief Class for testing NERaptorInterface
 class NERaptorInterface_test : public ::testing::Test
 {
 protected:
@@ -104,70 +110,69 @@ public:
   rclcpp::Clock test_clock{RCL_SYSTEM_TIME};
 
   // Struct types for test sets
-  struct test_hmcr  /* Test handle_mode_change_request */
+  struct test_hmcr  /** Test handle_mode_change_request */
   {
-    uint8_t in_req;              // Input: mode change request
-    std_msgs::msg::Bool in_dbw;  // Input: DBW State Machine report (for dbw state machine)
-    bool8_t exp_success;         // Expected output: handle_mode_change_request
-    bool8_t exp_enable;          // Expected output: dbw enable command sent
-    bool8_t exp_disable;         // Expected output: dbw disable command sent
+    uint8_t in_req;       /**< Input: ModeChangeRequest */
+    bool8_t exp_success;  /**< Expected output: handle_mode_change_request */
+    bool8_t exp_enable;   /**< Expected output: dbw enable command sent */
+    bool8_t exp_disable;  /**< Expected output: dbw disable command sent */
   };
-  struct test_vsc  /* Test vehicle state command */
+  struct test_vsc  /** Test VehicleStateCommand */
   {
-    VehicleStateCommand in_vsc;  // Input: vehicle state command
-    std_msgs::msg::Bool in_dbw;  // Input: DBW State Machine report (for dbw state machine)
-    GearCmd exp_gc;              // Expected output: gear command
-    GlobalEnableCmd exp_gec;     // Expected output: global enable command
-    MiscCmd exp_mc;              // Expected output: misc command
-    bool8_t exp_success;         // Expected output: send_state_command
-    bool8_t exp_dbw_enable;      // Expected output: dbw enable command sent
-    bool8_t exp_dbw_disable;     // Expected output: dbw disable command sent
+    VehicleStateCommand in_vsc;  /**< Input: VehicleStateCommand */
+    std_msgs::msg::Bool in_dbw;  /**< Input: DBW State Machine report */
+    GearCmd exp_gc;              /**< Expected output: GearCmd */
+    GlobalEnableCmd exp_gec;     /**< Expected output: GlobalEnableCmd */
+    MiscCmd exp_mc;              /**< Expected output: MiscCmd */
+    bool8_t exp_success;         /**< Expected output: send_state_command */
+    bool8_t exp_dbw_enable;      /**< Expected output: dbw enable command sent */
+    bool8_t exp_dbw_disable;     /**< Expected output: dbw disable command sent */
   };
-  struct test_hlcc  /* Test high level control command */
+  struct test_hlcc  /** Test HighLevelControlCommand */
   {
-    HighLevelControlCommand in_hlcc;  // Input: high level control command
-    VehicleStateCommand in_vsc;       // Input: vehicle state command (set parking brake, gear)
-    GearReport in_gr;                 // Input: gear report (set current gear)
-    AcceleratorPedalCmd exp_apc;      // Expected output: accelerator pedal command
-    BrakeCmd exp_bc;                  // Expected output: brake command
-    SteeringCmd exp_sc;               // Expected output: steering command
-    bool8_t exp_success;              // Expected output: send_control_command
+    HighLevelControlCommand in_hlcc;  /**< Input: HighLevelControlCommand */
+    VehicleStateCommand in_vsc;       /**< Input: VehicleStateCommand */ /* parking brake, gear */
+    GearReport in_gr;                 /**< Input: GearReport */ /* set current gear */
+    AcceleratorPedalCmd exp_apc;      /**< Expected output: AcceleratorPedalCmd */
+    BrakeCmd exp_bc;                  /**< Expected output: BrakeCmd */
+    SteeringCmd exp_sc;               /**< Expected output: SteeringCmd */
+    bool8_t exp_success;              /**< Expected output: send_control_command */
   };
-  struct test_vcc  /* Test vehicle control command */
+  struct test_vcc  /** Test vehicle control command */
   {
-    VehicleControlCommand in_vcc;  // Input: vehicle control command
-    VehicleStateCommand in_vsc;    // Input: vehicle state command (set parking brake, gear)
-    GearReport in_gr;              // Input: gear report (set current gear)
-    AcceleratorPedalCmd exp_apc;   // Expected output: accelerator pedal command
-    BrakeCmd exp_bc;               // Expected output: brake command
-    SteeringCmd exp_sc;            // Expected output: steering command
-    bool8_t exp_success;           // Expected output: send_control_command
+    VehicleControlCommand in_vcc;  /**< Input: vehicle control command */
+    VehicleStateCommand in_vsc;    /**< Input: VehicleStateCommand */ /* parking brake, gear */
+    GearReport in_gr;              /**< Input: GearReport */ /* set current gear */
+    AcceleratorPedalCmd exp_apc;   /**< Expected output: AcceleratorPedalCmd */
+    BrakeCmd exp_bc;               /**< Expected output: BrakeCmd */
+    SteeringCmd exp_sc;            /**< Expected output: SteeringCmd */
+    bool8_t exp_success;           /**< Expected output: send_control_command */
   };
-  struct test_vsr  /* Test vehicle state report */
+  struct test_vsr  /** Test VehicleStateReport */
   {
-    BrakeReport in_br;            // Input: brake report
-    GearReport in_gr;             // Input: gear report
-    MiscReport in_mr;             // Input: misc. report
-    OtherActuatorsReport in_oar;  // Input: other actuators report (send this last)
-    VehicleStateCommand in_vsc;   // Input: vehicle state command (enable DBW)
-    std_msgs::msg::Bool in_dbw;   // Input: DBW State Machine report
-    VehicleStateReport exp_vsr;   // Expected output: vehicle state report
+    BrakeReport in_br;            /**< Input: BrakeReport */
+    GearReport in_gr;             /**< Input: GearReport */
+    MiscReport in_mr;             /**< Input: MiscReport */
+    OtherActuatorsReport in_oar;  /**< Input: OtherActuatorsReport */ /* send this last */
+    VehicleStateCommand in_vsc;   /**< Input: VehicleStateCommand */ /* enable DBW */
+    std_msgs::msg::Bool in_dbw;   /**< Input: DBW State Machine report */
+    VehicleStateReport exp_vsr;   /**< Expected output: VehicleStateReport */
   };
-  struct test_vo  /* Test vehicle odometry */
+  struct test_vo  /** Test VehicleOdometry */
   {
-    GearReport in_gr;         // Input: gear report (set current gear)
-    MiscReport in_mr;         // Input: misc. report
-    SteeringReport in_sr;     // Input: steering report (send this last)
-    WheelSpeedReport in_wsr;  // Input: wheel speed report
-    VehicleOdometry exp_vo;   // Expected output: vehicle odometry
+    GearReport in_gr;         /**< Input: GearReport */ /* set current gear */
+    MiscReport in_mr;         /**< Input: MiscReport */
+    SteeringReport in_sr;     /**< Input: SteeringReport */ /* send this last */
+    WheelSpeedReport in_wsr;  /**< Input: WheelSpeedReport */
+    VehicleOdometry exp_vo;   /**< Expected output: VehicleOdometry */
   };
-  struct test_vks  /* Test vehicle kinematic state */
+  struct test_vks  /** Test VehicleKinematicState */
   {
-    GearReport in_gr;               // Input: gear report (set current gear)
-    MiscReport in_mr;               // Input: misc. report (send this last)
-    SteeringReport in_sr;           // Input: steering report
-    WheelSpeedReport in_wsr;        // Input: wheel speed report
-    VehicleKinematicState exp_vks;  // Expected output: vehicle kinematic state
+    GearReport in_gr;               /**< Input: GearReport */ /* set current gear */
+    MiscReport in_mr;               /**< Input: MiscReport */ /* send this last */
+    SteeringReport in_sr;           /**< Input: SteeringReport */
+    WheelSpeedReport in_wsr;        /**< Input: WheelSpeedReport */
+    VehicleKinematicState exp_vks;  /**< Expected output: VehicleKinematicState */
   };
 };  // class NERaptorInterface_test
 

@@ -14,7 +14,7 @@
 
 /// \copyright Copyright 2021 The Autoware Foundation
 /// \file ne_raptor_interface.hpp
-/// \brief This file defines the ne_raptor_interface class.
+/// \brief This file defines the NERaptorInterface class.
 
 #ifndef NE_RAPTOR_INTERFACE__NE_RAPTOR_INTERFACE_HPP_
 #define NE_RAPTOR_INTERFACE__NE_RAPTOR_INTERFACE_HPP_
@@ -199,8 +199,7 @@ public:
   /// \brief Update vehicle's position & heading relative from time = 0
   ///        based on time difference, current speed, & current tire angle.
   /// \param[in] dt delta-T - how much time since this was last called
-  /// \param[in] vks the current vehicle kinematic state (contains current motion data)
-  /// \brief updates kinematic state by passing a pointer
+  /// \param[in,out] vks the current vehicle kinematic state (contains current motion data)
   void kinematic_bicycle_model(
     float32_t dt, VehicleKinematicState * vks);
 
@@ -267,12 +266,58 @@ private:
   std::mutex m_vehicle_kin_state_mutex;
   std::mutex m_brake_cmd_mutex;
 
+  /** \brief Receives the DBW Enable state report from the vehicle platform.
+   * Gets DBW Enable status for VehicleStateReport & the DBW state machine.
+   *
+   * \param[in] msg The report received from the vehicle
+   */
   void on_dbw_state_report(const std_msgs::msg::Bool::SharedPtr & msg);
+
+  /** \brief Receives the brake state report from the vehicle platform.
+   * Gets parking brake status for VehicleStateReport.
+   *
+   * \param[in] msg The report received from the vehicle
+   */
   void on_brake_report(const BrakeReport::SharedPtr & msg);
+
+  /** \brief Receives the gear state report from the vehicle platform.
+   * Gets PRNDL status for VehicleStateReport.
+   *
+   * \param[in] msg The report received from the vehicle
+   */
   void on_gear_report(const GearReport::SharedPtr & msg);
+
+  /** \brief Receives the miscellaneous state report from the vehicle platform.
+   * Gets vehicle speed for VehicleOdometry and VehicleKinematicState.
+   * Gets fuel level for VehicleStateReport.
+   * Calls kinematic_bicycle_model() to calculate VehicleKinematicState.
+   * Publishes VehicleKinematicState.
+   *
+   * \param[in] msg The report received from the vehicle
+   */
   void on_misc_report(const MiscReport::SharedPtr & msg);
+
+  /** \brief Receives the actuators state report from the vehicle platform.
+   * Gets status of turn signal, high beams, and front wipers for VehicleStateReport.
+   * Publishes VehicleStateReport.
+   *
+   * \param[in] msg The report received from the vehicle
+   */
   void on_other_actuators_report(const OtherActuatorsReport::SharedPtr & msg);
+
+  /** \brief Receives the steering state report from the vehicle platform.
+   * Converts steering angle to tire angle for VehicleOdometry and VehicleStateReport.
+   * Publishes VehicleOdometry.
+   *
+   * \param[in] msg The report received from the vehicle
+   */
   void on_steering_report(const SteeringReport::SharedPtr & msg);
+
+  /** \brief Receives the wheel speed state report from the vehicle platform.
+   * Checks travel direction for VehicleOdometry and VehicleStateReport
+   *
+   * \param[in] msg The report received from the vehicle
+   */
   void on_wheel_spd_report(const WheelSpeedReport::SharedPtr & msg);
 };  // class NERaptorInterface
 }  // namespace ne_raptor_interface

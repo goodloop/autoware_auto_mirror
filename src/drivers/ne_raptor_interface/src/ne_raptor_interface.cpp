@@ -271,8 +271,6 @@ bool8_t NERaptorInterface::send_state_command(const VehicleStateCommand & msg)
       mc.block_turn_signal_stalk = false;
       break;
     default:
-      t_mode->mode = msg.mode;
-      ret = handle_mode_change_request(t_mode);
       RCLCPP_ERROR_THROTTLE(
         m_logger, m_clock, CLOCK_1_SEC,
         "Got invalid autonomy mode request value.");
@@ -770,18 +768,19 @@ void NERaptorInterface::kinematic_bicycle_model(
     yaw += TAU;
   }
 
-  // δ: tire angle (relative to car's main axis)
-  // φ: heading/yaw
-  // β: direction of movement at point of reference (relative to car's main axis)
-  // m_rear_axle_to_cog: distance of point of reference to rear axle
-  // m_front_axle_to_cog: distance of point of reference to front axle
-  // wheelbase: m_rear_axle_to_cog + m_front_axle_to_cog
-  // x, y, v are at the point of reference
-  // x' = v cos(φ + β)
-  // y' = v sin(φ + β)
-  // φ' = (cos(β)tan(δ)) / wheelbase
-  // v' = a
-  // β = arctan((m_rear_axle_to_cog*tan(δ))/wheelbase)
+  /* δ: tire angle (relative to car's main axis)
+   * φ: heading/yaw
+   * β: direction of movement at point of reference (relative to car's main axis)
+   * m_rear_axle_to_cog: distance of point of reference to rear axle
+   * m_front_axle_to_cog: distance of point of reference to front axle
+   * wheelbase: m_rear_axle_to_cog + m_front_axle_to_cog
+   * x, y, v are at the point of reference
+   * x' = v cos(φ + β)
+   * y' = v sin(φ + β)
+   * φ' = (cos(β)tan(δ)) / wheelbase
+   * v' = a
+   * β = arctan((m_rear_axle_to_cog*tan(δ))/wheelbase)
+   */
 
   float32_t v0_lat = vks->state.lateral_velocity_mps;
   float32_t v0_lon = vks->state.longitudinal_velocity_mps;

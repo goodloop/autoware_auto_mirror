@@ -12,6 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+/// \copyright Copyright 2021 The Autoware Foundation
+/// \file test_ne_raptor_interface_talker.hpp
+/// \brief This file defines the NERaptorInterfaceTalker class.
+
 #ifndef NE_RAPTOR_INTERFACE__TEST_NE_RAPTOR_INTERFACE_TALKER_HPP_
 #define NE_RAPTOR_INTERFACE__TEST_NE_RAPTOR_INTERFACE_TALKER_HPP_
 
@@ -29,6 +33,7 @@ namespace autoware
 namespace ne_raptor_interface
 {
 
+/// \brief Class that publishes messages to help test NERaptorInterface
 class NERaptorInterfaceTalker
 {
 public:
@@ -38,24 +43,39 @@ public:
     rclcpp::Node & node
   );
 
-  /// \brief Default destructor
-  ~NERaptorInterfaceTalker() noexcept = default;
-
-  /// \brief Try to receive data from the vehicle platform, and update StateReport and Odometry.
-  ///   Exceptions may be thrown on errors
-  /// \param[in] timeout The maximum amount of time to check/receive data
-  /// \return True if data was received before the timeout, false otherwise
-  bool8_t update(std::chrono::nanoseconds timeout);
-
-  /// \brief Put in data to publish
-  /// \param[in] msg The control command to send to the vehicle
+  /// \brief Put in data to publish (overloaded function)
+  /// \param[in] msg The control command to send to the vehicle (type BrakeReport)
   /// \return false if sending failed in some way, true otherwise
   bool8_t send_report(const BrakeReport & msg);
+
+  /// \brief Put in data to publish (overloaded function)
+  /// \param[in] msg The control command to send to the vehicle (type GearReport)
+  /// \return false if sending failed in some way, true otherwise
   bool8_t send_report(const GearReport & msg);
+
+  /// \brief Put in data to publish (overloaded function)
+  /// \param[in] msg The control command to send to the vehicle (type MiscReport)
+  /// \return false if sending failed in some way, true otherwise
   bool8_t send_report(const MiscReport & msg);
+
+  /// \brief Put in data to publish (overloaded function)
+  /// \param[in] msg The control command to send to the vehicle (type OtherActuatorsReport)
+  /// \return false if sending failed in some way, true otherwise
   bool8_t send_report(const OtherActuatorsReport & msg);
+
+  /// \brief Put in data to publish (overloaded function)
+  /// \param[in] msg The control command to send to the vehicle (type SteeringReport)
+  /// \return false if sending failed in some way, true otherwise
   bool8_t send_report(const SteeringReport & msg);
+
+  /// \brief Put in data to publish (overloaded function)
+  /// \param[in] msg The control command to send to the vehicle (type WheelSpeedReport)
+  /// \return false if sending failed in some way, true otherwise
   bool8_t send_report(const WheelSpeedReport & msg);
+
+  /// \brief Put in data to publish (overloaded function)
+  /// \param[in] msg The control command to send to the vehicle (type Bool - for DBW Enable)
+  /// \return false if sending failed in some way, true otherwise
   bool8_t send_report(const std_msgs::msg::Bool & msg);
 
 private:

@@ -101,12 +101,6 @@ NERaptorInterfaceListener::NERaptorInterfaceListener(
     [this](VehicleKinematicState::SharedPtr msg) {on_vehicle_kin_state(msg);});
 }
 
-bool8_t NERaptorInterfaceListener::update(std::chrono::nanoseconds timeout)
-{
-  (void)timeout;
-  return true;
-}
-
 // Listener functions
 void NERaptorInterfaceListener::on_accel_cmd(const AcceleratorPedalCmd::SharedPtr & msg)
 {

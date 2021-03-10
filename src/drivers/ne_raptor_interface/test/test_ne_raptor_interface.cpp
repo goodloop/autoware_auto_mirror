@@ -39,31 +39,26 @@ TEST_F(NERaptorInterface_test, test_cmd_mode_change)
   test_hlcc.curvature = 0.0F;
 
   myTests[0].in_req = ModeChangeRequest::MODE_MANUAL;
-  myTests[0].in_dbw.data = false;
   myTests[0].exp_success = true;
   myTests[0].exp_enable = false;
   myTests[0].exp_disable = true;
 
   myTests[1].in_req = ModeChangeRequest::MODE_AUTONOMOUS;
-  myTests[1].in_dbw.data = true;
   myTests[1].exp_success = true;
   myTests[1].exp_enable = true;
   myTests[1].exp_disable = false;
 
   myTests[2].in_req = ModeChangeRequest::MODE_MANUAL;
-  myTests[2].in_dbw.data = false;
   myTests[2].exp_success = true;
   myTests[2].exp_enable = false;
   myTests[2].exp_disable = true;
 
   myTests[3].in_req = ModeChangeRequest::MODE_AUTONOMOUS + 1;
-  myTests[3].in_dbw.data = false;
   myTests[3].exp_success = false;
   myTests[3].exp_enable = false;
   myTests[3].exp_disable = false;
 
   myTests[4].in_req = 0xFF;
-  myTests[4].in_dbw.data = false;
   myTests[4].exp_success = false;
   myTests[4].exp_enable = false;
   myTests[4].exp_disable = false;

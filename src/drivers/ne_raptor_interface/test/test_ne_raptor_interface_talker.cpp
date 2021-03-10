@@ -33,12 +33,6 @@ NERaptorInterfaceTalker::NERaptorInterfaceTalker(
   t_dbw_state_rpt_pub = node.create_publisher<std_msgs::msg::Bool>("dbw_enabled", 1);
 }
 
-bool8_t NERaptorInterfaceTalker::update(std::chrono::nanoseconds timeout)
-{
-  (void)timeout;
-  return true;
-}
-
 bool8_t NERaptorInterfaceTalker::send_report(const BrakeReport & msg)
 {
   t_brake_rpt_pub->publish(msg);
