@@ -53,7 +53,9 @@ $ vcs import < autoware.auto.$ROS_DISTRO.repos
 $ rosdep install -y -i --from-paths src
 ```
 
-To checkout the latest release version (1.0.0), use the following command. Alternatively, the latest master will be used which may include features which are still being developed.
+Checkout the latest release version (1.0.0), by checking out the tag or the release branch; see
+below for an example. Alternatively, the latest master will be used which may include features that
+are still being developed.
 ```{bash}
 $ git checkout tags/1.0.0 -b release-1.0.0
 ```
