@@ -58,6 +58,10 @@ RUN pip3 install -U \
         $(cut -d# -f1 </tmp/pip3-packages) \
     && rm -rf /root/.cache /tmp/pip-* /tmp/pip3-packages
 
+RUN git clone https://github.com/lgsvl/PythonAPI.git \
+      && cd PythonAPI && git checkout 13c92096e7b0ba3c4ac9ad3ea5fee95b56efd234 \
+      && pip3 install . \
+      && cd - && rm -rf PythonAPI/
 
 RUN git clone https://github.com/rigtorp/udpreplay && mkdir -p udpreplay/build \
       && cd udpreplay/build && cmake .. && make && make install \

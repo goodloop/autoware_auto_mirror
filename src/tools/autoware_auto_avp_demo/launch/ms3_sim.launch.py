@@ -1,4 +1,4 @@
-# Copyright 2020, The Autoware Foundation
+# Copyright 2020-2021, The Autoware Foundation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -77,6 +77,16 @@ def generate_launch_description():
         default_value=pc_filter_transform_param_file,
         description='Path to config file for Point Cloud Filter/Transform Nodes'
     )
+    ndt_localizer_init_hack_param = {
+        "init_hack.quaternion.x": -0.0026,
+        "init_hack.quaternion.y": -0.0149,
+        "init_hack.quaternion.z": -0.9433,
+        "init_hack.quaternion.w": 0.33176,
+        "init_hack.translation.x": -27.838,
+        "init_hack.translation.y": 108.935,
+        "init_hack.translation.z": -2.0668,
+        "init_hack.enabled": True
+    }
 
     # Nodes
 
@@ -132,7 +142,8 @@ def generate_launch_description():
         executable='p2d_ndt_localizer_exe',
         namespace='localization',
         name='p2d_ndt_localizer_node',
-        parameters=[LaunchConfiguration('ndt_localizer_param_file')],
+        parameters=[LaunchConfiguration('ndt_localizer_param_file'),
+                    ndt_localizer_init_hack_param],
         remappings=[
             ("points_in", "/lidars/points_fused_downsampled"),
             ("observation_republish", "/lidars/points_fused_viz"),

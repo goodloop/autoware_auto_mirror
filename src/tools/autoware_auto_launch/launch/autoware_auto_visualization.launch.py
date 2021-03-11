@@ -30,12 +30,19 @@ def generate_launch_description():
      * rviz2
      * avp_web_interface
      * rosbridge_server
+     * LGSVL_simulation_launch_script
     """
+    avp_demo_visul_pkg_prefix = get_package_share_directory(
+        'autoware_auto_launch')
     avp_web_interface_pkg_prefix = get_package_share_directory(
         'avp_web_interface')
     web_files_root = os.path.join(avp_web_interface_pkg_prefix, 'web')
-    rviz_cfg_path = os.path.join(get_package_share_directory('autoware_auto_launch'),
+    rviz_cfg_path = os.path.join(avp_demo_visul_pkg_prefix,
                                  'config', 'avp.rviz')
+    drop_off_spawn_py_script_file = os.path.join(
+        avp_demo_visul_pkg_prefix, 'launch/avp_simulation.py')
+    drop_off_spawn_param_file = os.path.join(
+        avp_demo_visul_pkg_prefix, 'param/drop_off_spawn.param.yaml')
 
     # Arguments
     with_rviz_param = DeclareLaunchArgument(
@@ -47,6 +54,11 @@ def generate_launch_description():
         'rviz_cfg_path_param',
         default_value=rviz_cfg_path,
         description='Launch RVIZ2 with the specified config file'
+    )
+    with_simulation_param = DeclareLaunchArgument(
+        'with_simulation',
+        default_value='True',
+        description='Launch LGSVL Simulation by Python API'
     )
 
     # Nodes
@@ -69,11 +81,18 @@ def generate_launch_description():
       cmd=["python3", "-m", "http.server", "8000"],
       cwd=web_files_root
     )
+    drop_off_spawn = ExecuteProcess(
+      cmd=["python3", drop_off_spawn_py_script_file,
+           "-f", drop_off_spawn_param_file],
+      condition=IfCondition(LaunchConfiguration('with_simulation')),
+    )
 
     return LaunchDescription([
         with_rviz_param,
         rviz_cfg_path_param,
+        with_simulation_param,
         rviz2,
         web_server,
         web_bridge,
+        drop_off_spawn,
     ])

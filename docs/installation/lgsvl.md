@@ -78,7 +78,7 @@ Creating a simulation configuration takes only a few clicks in the browser. The 
 
 The goal is to create a map configuration for the AutonomouStuff parking lot. If that map is already available on the first launch of the simulation, nothings needs to be done.
 
-Else follow the [LGSVL instructions](https://www.lgsvlsimulator.com/docs/maps-tab/#where-to-find-maps), click the `Add new` button and enter a name (e.g. `AutonomouStuff parking lot`) and the link to the asset bundle from [this site](https://content.lgsvlsimulator.com/maps/autonomoustuff/) containing the map data:
+Else follow the [LGSVL instructions](https://www.lgsvlsimulator.com/docs/maps-tab/#where-to-find-maps), click the `Add new` button and enter **AutonomouStuffParkingLot** as name and the link to the asset bundle from [this site](https://content.lgsvlsimulator.com/maps/autonomoustuff/) containing the map data:
 
 `https://assets.lgsvlsimulator.com/ec057870762b5a967a451c93444b67d0b64e9656/environment_AutonomouStuff`
 
@@ -91,7 +91,7 @@ The goal is to create a vehicle configuration for the AutonomouStuff parking lot
 
 Follow the [LGSVL instructions](https://www.lgsvlsimulator.com/docs/vehicles-tab/#how-to-add-a-vehicle),
 to configure the Lexus model: click the vehicles tab, then `Add new` and enter
-`Lexus2016RXHybrid` as name and
+**Lexus2016RXHybrid(auto)** as name and
 
 `https://assets.lgsvlsimulator.com/ea5e32fe566065c6d1bbf1f0728d6654c94e375d/vehicle_AWFLexus2016RXHybrid`
 
@@ -111,6 +111,33 @@ When a simulation is started, the topics should be published in ROS 2 automatica
 
 The above steps are a modified version of the
 [LGSVL documentation](https://www.lgsvlsimulator.com/docs/autoware-auto-instructions/#run-simulator-alongside-autowareauto)
+
+## Starting a simulation by Python API
+
+### Choosing/creating a simulation
+
+Choose `Simulations` on the left to see the simulations screen. The LGSVL simulator lets you store and reuse multiple simulation configurations. To use an existing simulation, select the desired simulation and press the play button in the bottom right corner of the screen. The simulator should now start in the LGSVL window.
+
+To create a new simulation, follow the below steps:
+
+- Switch to the Simulations tab and click the `Add new` button.
+- Enter a name (e.g. AVP Demo API Only)
+- Check **API Only**
+- Click submit.
+
+@image html images/lgsvl-simulation-general-pythonAPI.png "Configuring the simulation"
+
+### Starting the simulation
+
+Once the simulation has been created, select it by clicking on its white box first, then run it by clicking the play button.
+
+@image html images/lgsvl-simulation-start-pythonAPI.png "Starting the simulation" width=80%
+
+If you see **API ready!** on LGSVL simulator, the setup of LGSVL is completed.
+
+@image html images/lgsvl-controls-pythonAPI.png "LGSVL Simulator setup"
+
+## Staring a simulation by Web Configuration
 
 ### Choosing/creating a simulation
 

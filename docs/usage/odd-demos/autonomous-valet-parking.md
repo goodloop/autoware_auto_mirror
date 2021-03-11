@@ -46,7 +46,77 @@ These instructions were tested successfully on a number of machines, these are t
 
 @warning If the machine is overloaded by running both the simulation and the autonomous-driving stack, expect a performance degradation. See @ref avpdemo-simulation-troubleshooting-resources. It is recommended to run the Simulator and RViz2 one one machine and the autoware stack on a second machine.
 
-## Setup and launching {#avpdemo-simulation-launch}
+## Setup and launching by Python API
+
+Running and controlling the simulation requires three separate terminals.
+
+### Setup
+
+-# @ref installation-and-development-install-ade.
+-# Next open **terminal 1** in ADE and follow the instructions on the @ref lgsvl page to install, configure, and run the simulator:
+
+        $ ade enter
+        ade$ /opt/lgsvl/simulator
+
+-# Open a new **terminal 2**, launch visualization to use the pre-compiled packages from `/opt/AutowareAuto`:
+
+        $ ade enter
+        ade$ source /opt/AutowareAuto/setup.bash
+        ade$ ros2 launch autoware_auto_launch autoware_auto_visualization.launch.py
+
+    Alternatively, if the source code has been modified locally, first build, then launch:
+
+        $ ade enter
+        ade$ cd AutowareAuto
+        ade$ colcon build --packages-select autoware_auto_launch
+        ade$ source install/setup.bash
+        ade$ ros2 launch autoware_auto_launch autoware_auto_visualization.launch.py
+
+    To interrupt the launched processes, hit `Ctrl c`. Turning the simulation off while building can save compute resources to accelerate the build.
+
+At this point, LGSVL simulation should load maps and vehicles correctly. The car is spawned at drop-off zone.
+
+@image html images/LGSVL-initialized-pythonAPI.png "LGSVL Initial view, localized at drop-off zone" width=40%
+
+@warning LGSVL simulation must start before launching visualization, if not, please relaunch visualization.
+
+### Launching
+
+-# Open a new **terminal 3**, either in the same ADE instance or in a new ADE instance on an second machine, run the launch file for Milestone 3 as follows to use the pre-compiled packages from `/opt/AutowareAuto`:
+
+        $ ade enter
+        ade$ source /opt/AutowareAuto/setup.bash
+        ade$ ros2 launch autoware_auto_avp_demo ms3_sim.launch.py
+
+    Alternatively, if the source code has been modified locally, first build, then launch:
+
+        $ ade enter
+        ade$ cd AutowareAuto
+        ade$ colcon build --packages-select autoware_auto_avp_demo
+        ade$ source install/setup.bash
+        ade$ ros2 launch autoware_auto_avp_demo ms3_sim.launch.py
+
+    To interrupt the launched processes, hit `Ctrl c`. Turning the simulation off while building can save compute resources to accelerate the build.
+
+When following the steps above, the RViz window should show what the Autoware.Auto stack sees. The system is initially localized, and the car is tentatively placed at drop-off zone like physical demo.
+
+There should be no error messages; else check @ref avpdemo-simulation-troubleshooting.
+
+By default, RViz is in the `Move Camera` mode, in which the mouse can control the view like this:
+
+* left-click and drag to rotate
+* middle-click to pan
+* right-click to zoom
+
+Change properties of how and if entities are shown in RViz from the panel on the left of the window.
+Hide that panel by clicking on the little triangle pointing to the left. When that panel is hidden,
+the output in RViz should look like this:
+
+@image html images/avp-initialized-pythonAPI.png "RVIz Initial view, localized at drop-off zone" width=50%
+
+check @ref avpdemo-simulation-start to start demo.
+
+## Setup and launching by Web Configuration{#avpdemo-simulation-launch}
 
 Running and controlling the simulation requires two separate terminals.
 
@@ -110,7 +180,7 @@ the output in RViz should look like this where the car is shown as a white outli
 
 @image html images/avp-uninitialized.png "Initial view, not localized" width=50%
 
-## Initializing the localization {#avpdemo-simulation-init-localization}
+### Initializing the localization {#avpdemo-simulation-init-localization}
 
 In the LGSVL simulation, the vehicle is spawned at a particular location of the map that is
 different from the origin. The NDT localizer used in the Autoware.Auto stack currently requires an
@@ -119,7 +189,7 @@ NDT should follow along when the car moves.
 
 Detailed instructions are given at @ref ndt-initialization.
 
-## Driving to the drop-off zone
+### Driving to the drop-off zone
 
 Now that NDT is initialized, [run the simulation](@ref lgsvl-start-simulation) if it is not already running.
 
@@ -138,7 +208,9 @@ ready for the next step.
 
 @note One can alternatively drive to the drop-off zone first, and then initialize NDT there.
 
-## Parking autonomously
+## Starting Demo{#avpdemo-simulation-start}
+
+### Parking autonomously
 
 In principle, the vehicle can park in any of the parking spots indicated in the map. In the physical
 demo, the reference parking spot was the 5th spot on the right counting from the end of the lane of

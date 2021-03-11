@@ -1,0 +1,15 @@
+/**:
+  ip_address:
+    host_name: localhost
+    port_number: 8181
+  maps:
+    name: AutonomouStuffParkingLot
+  vehicles:
+    name: Lexus2016RXHybrid(auto)
+  drop_off_zone:
+    position_x: -108.094
+    position_y: -2.0545
+    position_z: -28.905
+    orientation_x: 1.641
+    orientation_y: 141.217
+    orientation_z: 359.085
