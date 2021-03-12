@@ -70,21 +70,21 @@ the Play button!
 
 ### Launching
 
--# Open a new **terminal 2**, either in the same ADE instance or in a new ADE instance on an second machine, run the launch file for Milestone 3 as follows to use the pre-compiled packages from `/opt/AutowareAuto`:
-   ```{bash}
-   $ ade enter
-   ade$ source /opt/AutowareAuto/setup.bash
-   ade$ ros2 launch autoware_auto_avp_demo ms3_sim.launch.py
-   ```
-   Alternatively, if the source code has been modified locally, first build, then launch:
-   ```{bash}
-   $ ade enter
-   ade$ cd AutowareAuto
-   ade$ colcon build --packages-up-to autoware_auto_avp_demo
-   ade$ source install/setup.bash
-   ade$ ros2 launch autoware_auto_avp_demo ms3_sim.launch.py
-   ```
-   To interrupt the launched processes, hit `Ctrl c`. Turning the simulation off while building can save compute resources to accelerate the build.
+Open a new **terminal 2**, either in the same ADE instance or in a new ADE instance on an second machine, run the launch file for Milestone 3 as follows to use the pre-compiled packages from `/opt/AutowareAuto`:
+```{bash}
+$ ade enter
+ade$ source /opt/AutowareAuto/setup.bash
+ade$ ros2 launch autoware_auto_avp_demo ms3_sim.launch.py
+```
+Alternatively, if the source code has been modified locally, first build, then launch:
+```{bash}
+$ ade enter
+ade$ cd AutowareAuto
+ade$ colcon build --packages-up-to autoware_auto_avp_demo
+ade$ source install/setup.bash
+ade$ ros2 launch autoware_auto_avp_demo ms3_sim.launch.py
+```
+To interrupt the launched processes, hit `Ctrl c`. Turning the simulation off while building can save compute resources to accelerate the build.
 
 When following the steps above, the RViz window should show what the Autoware.Auto stack
 sees. The system is initially not localized, and the car is tentatively placed at the origin of the
