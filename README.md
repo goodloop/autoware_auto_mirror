@@ -6,8 +6,11 @@ The [Autoware.Auto project](https://www.autoware.auto/), based on [ROS 2](https:
 
 ## Installation
 Before installing Autoware.Auto, make sure your machine satisfies the [system dependencies and target environments](https://autowarefoundation.gitlab.io/autoware.auto/AutowareAuto/target-environments.html).
+
 The recommended method for installing Autoware.Auto is through the use of ADE (a Docker based tool) which comes with a [pre-built version](https://autowarefoundation.gitlab.io/autoware.auto/AutowareAuto/installation.html) to ensure that all developers in the project have a common and consistent development environment.
+
 There is also the option to [build Autoware.Auto from source](https://autowarefoundation.gitlab.io/autoware.auto/AutowareAuto/building.html) directly which will require you to compile the source code.
+
 If you wish to run Autoware.Auto on a vehicle in simulation, install the LGSVL simulator using the instructions provided [here](https://autowarefoundation.gitlab.io/autoware.auto/AutowareAuto/lgsvl.html).
 
 ## Getting Started
