@@ -220,7 +220,7 @@ def generate_launch_description():
         package='robot_state_publisher',
         executable='robot_state_publisher',
         name='robot_state_publisher',
-        parameters=[{'robot_description': urdf_path}],
+        parameters=[{'robot_description': urdf_file}],
     )
 
     scan_downsampler = Node(
