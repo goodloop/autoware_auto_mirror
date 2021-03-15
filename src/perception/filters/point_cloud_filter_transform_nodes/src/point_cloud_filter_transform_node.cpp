@@ -83,18 +83,14 @@ PointCloud2FilterTransformNode::PointCloud2FilterTransformNode(
   m_expected_num_subscribers{
     static_cast<size_t>(declare_parameter("expected_num_subscribers").get<int32_t>())},
   m_pcl_size{static_cast<size_t>(declare_parameter("pcl_size").get<int32_t>())}
-{
-  /// Declare and initialize transform parameters with the same namespace and type
-  std::map<std::string, float64_t> param_map;
-  std::vector<std::string> valid_keys {"quaternion.x", "quaternion.y", "quaternion.z",
-    "quaternion.w",
-    "translation.x",
-    "translation.y",
-    "translation.z"};
-  for (auto & valid_key : valid_keys) {
-    param_map[valid_key];
-  }
-  this->declare_parameters("static_transformer", param_map);
+{  /// Declare transform parameters with the namespace
+  this->declare_parameter("static_transformer.quaternion.x");
+  this->declare_parameter("static_transformer.quaternion.y");
+  this->declare_parameter("static_transformer.quaternion.z");
+  this->declare_parameter("static_transformer.quaternion.w");
+  this->declare_parameter("static_transformer.translation.x");
+  this->declare_parameter("static_transformer.translation.y");
+  this->declare_parameter("static_transformer.translation.z");
 
   /// Declare objects to hold transform parameters
   rclcpp::Parameter quat_x_param;
@@ -115,6 +111,7 @@ PointCloud2FilterTransformNode::PointCloud2FilterTransformNode(
     this->get_parameter("static_transformer.translation.y", trans_y_param) &&
     this->get_parameter("static_transformer.translation.z", trans_z_param))
   {
+    RCLCPP_WARN(get_logger(), "Using transform from file.");
     m_static_transformer = std::make_unique<StaticTransformer>(
       get_transform(
         m_input_frame_id, m_output_frame_id,
