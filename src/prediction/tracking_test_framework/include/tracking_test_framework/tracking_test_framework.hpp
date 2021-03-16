@@ -49,7 +49,7 @@ private :
   Point m_start;
   Point m_end;
   uint32_t m_line_length;
-  uint32_t m_line_direction;
+  Point m_line_direction;
 
   Point get_point(const Point start);
 
@@ -64,7 +64,7 @@ public :
 private :
   Point m_center;
   Point m_size;
-  float orientation_degrees;
+  float m_orientation_degrees;
 
 };
 
@@ -75,8 +75,8 @@ public :
   std::vector<PointClusters> intersect_with_lidar(const Line l , const bool closest_point_only);
 
 private :
-  Point center;
-  float radius;
+  Point m_center;
+  float m_radius;
 
 };
 
