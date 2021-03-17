@@ -19,66 +19,80 @@
 #ifndef TRACKING_TEST_FRAMEWORK__TRACKING_TEST_FRAMEWORK_HPP_
 #define TRACKING_TEST_FRAMEWORK__TRACKING_TEST_FRAMEWORK_HPP_
 
+#include <Eigen/Core>
+#include <Eigen/Geometry>
+
 #include <tracking_test_framework/visibility_control.hpp>
 
 #include <cstdint>
+#include <vector>
 
-using Point = geometry_msgs::msg::Point32;
+
+#include <memory>
 
 namespace autoware
 {
-/// \brief TODO(divya.aggarwal): Document namespaces!
 namespace tracking_test_framework
 {
 
-/// \brief TODO(divya.aggarwal): Document your functions
 int32_t TRACKING_TEST_FRAMEWORK_PUBLIC print_hello();
 
-class Shape {
+inline float cross_2d(const Eigen::Vector2f & vec1, const Eigen::Vector2f & vec2)
+{
+  return (vec1.x() * vec2.y()) - (vec1.y() * vec2.x());
+}
 
+class TRACKING_TEST_FRAMEWORK_PUBLIC Shape
+{
 public:
-  virtual std::vector<PointClusters> intersect_with_lidar(Line l , bool closest_point_only)=0;
+  virtual std::vector<Eigen::Vector2f> intersect_with_lidar(
+    std::unique_ptr<Shape> & shape,
+    const bool closest_point_only) = 0;
 };
 
-class Line : Shape{
+class TRACKING_TEST_FRAMEWORK_PUBLIC Line : public Shape
+{
+public:
+  Line(const Eigen::Vector2f & start, const Eigen::Vector2f & end);
 
-public :
-  Line(const Point start, const Point end);
-  std::vector<PointClusters> intersect_with_lidar(const Line l , const bool closest_point_only);
-private :
-  Point m_start;
-  Point m_end;
-  uint32_t m_line_length;
-  Point m_line_direction;
+  std::vector<Eigen::Vector2f> intersect_with_lidar(
+    std::unique_ptr<Shape> & shape,
+    const bool closest_point_only);
+  Eigen::Vector2f get_point(const Eigen::Vector2f & start);
 
-  Point get_point(const Point start);
+private:
+  Eigen::Vector2f m_start;
+  Eigen::Vector2f m_end;
+  float_t m_line_length;
+  Eigen::Vector2f m_line_direction;
 
-};
-
-class Rectangle : Shape{
-
-public :
-  Rectangle(const Point center, const uint32_t size, const float orientation_degrees);
-  std::vector<PointClusters> intersect_with_lidar(const Line l , const bool closest_point_only);
-
-private :
-  Point m_center;
-  Point m_size;
-  float m_orientation_degrees;
 
 };
-
-class Circle : Shape{
-
-public :
-  Circle(const Point center, const float radius);
-  std::vector<PointClusters> intersect_with_lidar(const Line l , const bool closest_point_only);
-
-private :
-  Point m_center;
-  float m_radius;
-
-};
+//class Rectangle : Shape
+//{
+//public:
+//  Rectangle(const Eigen::Vector2f center, const uint32_t size, const float_t orientation_degrees);
+//  std::vector<Eigen::Vector2f> intersect_with_lidar(std::unique_ptr<Shape> shape,const bool
+//  closest_point_only);
+//
+//private:
+//  Eigen::Vector2f m_center;
+//  Eigen::Vector2f m_size;
+//  float_t m_orientation_degrees;
+//};
+//
+//class Circle : Shape
+//{
+//public:
+//  Circle(const Eigen::Vector2f center, const float_t radius);
+//  std::vector<Eigen::Vector2f> intersect_with_lidar(
+//    std::unique_ptr<Shape> shape,
+//    const bool closest_point_only);
+//
+//private:
+//  Eigen::Vector2f m_center;
+//  float_t m_radius;
+//};
 
 }  // namespace tracking_test_framework
 }  // namespace autoware

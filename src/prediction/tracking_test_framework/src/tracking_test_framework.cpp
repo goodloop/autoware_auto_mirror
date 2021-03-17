@@ -15,35 +15,57 @@
 #include "tracking_test_framework/tracking_test_framework.hpp"
 
 #include <iostream>
+#include <vector>
+#include <memory>
 
 namespace autoware
 {
 
-Line::Line(const Point start, const Point end);
-
-// p_1 = \hat{p_1} + t_1 \cdot d_1 \\ p_2 = \hat{p_2} + t_2 \cdot d_2,
-Line::intersect_with_lidar(const Line l , const bool closest_point_only)
+namespace tracking_test_framework
 {
 
-    Point p_delta = minus_2d(this->m_start , l.m_start);
-    Point denominator = cross_2d(this->m_direction, l.direction);
-    Point t1 = cross_2d(l.direction, p_delta) / denominator; // need to see about division for
-    // Point type
-    Point t2 = cross_2d(this->m_direction, p_delta) / denominator; // need to see about division
-    // for Point type
-    if (t1.x < 0 && t1.y<0 || t1.x > this->length or t2 < 0 or t2 > line.length)
-//         return []
-//    return [self.start + t1 * self.direction]
-
+Line::Line(const Eigen::Vector2f & start, const Eigen::Vector2f & end)
+{
+  this->m_start = start;
+  this->m_end = end;
+  this->m_line_length = (end - start).norm();
+  this->m_line_direction = (end - start) / this->m_line_length;
 }
 
-
-int32_t tracking_test_framework::print_hello()
+// p_1 = \hat{p_1} + t_1 \cdot d_1 \\ p_2 = \hat{p_2} + t_2 \cdot d_2,
+std::vector<Eigen::Vector2f> Line::intersect_with_lidar(
+  std::unique_ptr<Shape> & shape, const bool
+  closest_point_only = true)
 {
-  std::cout << "Hello World" << std::endl;
+  (void)closest_point_only;
+  std::unique_ptr<Line>
+  line(static_cast<Line *>(shape.release()));
 
+  Eigen::Vector2f p_delta = this->m_start - line->m_start;
+  float denominator = cross_2d(this->m_line_direction, line->m_line_direction);
+  float_t t1 = cross_2d(line->m_line_direction, p_delta) / denominator;
+  float_t t2 = cross_2d(this->m_line_direction, p_delta) / denominator;
+  // If the scalar factors are not within the line length and non zero
+  if (t1 < 0 || t1 > this->m_line_length || t2 < 0 || t2 > line->m_line_length) {
+    return std::vector<Eigen::Vector2f>();
+  }
+  return std::vector<Eigen::Vector2f>{this->m_start + (t1 * this->m_line_direction)};
+}
 
+// Test function
+int32_t print_hello()
+{
+  Eigen::Vector2f start1(-1, -1);
+  Eigen::Vector2f end1(2, 0.5);
+  Eigen::Vector2f start2(1, 0);
+  Eigen::Vector2f end2(1, 2);
+  std::unique_ptr<Shape> l1 = std::make_unique<Line>(start1, end1);
+  std::unique_ptr<Shape> l2 = std::make_unique<Line>(start2, end2);
+  std::vector<Eigen::Vector2f> intersection = l1->intersect_with_lidar(l2, true);
+  std::cout << "Intersection pts: " << intersection[0] << std::endl;
   return 0;
 }
 
+
+}  // namespace tracking_test_framework
 }  // namespace autoware

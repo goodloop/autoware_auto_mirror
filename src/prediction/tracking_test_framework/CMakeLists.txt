@@ -22,10 +22,14 @@ endif()
 
 # require that dependencies from package.xml be available
 find_package(ament_cmake_auto REQUIRED)
+find_package(Eigen3 REQUIRED)
 ament_auto_find_build_dependencies(REQUIRED
   ${${PROJECT_NAME}_BUILD_DEPENDS}
   ${${PROJECT_NAME}_BUILDTOOL_DEPENDS}
 )
+
+# Disable warnings due to external dependencies (Eigen)
+include_directories(SYSTEM ${EIGEN3_INCLUDE_DIR})
 
 set(TRACKING_TEST_FRAMEWORK_LIB_SRC
   src/tracking_test_framework.cpp
