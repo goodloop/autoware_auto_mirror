@@ -41,13 +41,14 @@ inline float cross_2d(const Eigen::Vector2f & vec1, const Eigen::Vector2f & vec2
 {
   return (vec1.x() * vec2.y()) - (vec1.y() * vec2.x());
 }
-
+class TRACKING_TEST_FRAMEWORK_PUBLIC Line;
 class TRACKING_TEST_FRAMEWORK_PUBLIC Shape
 {
 public:
   virtual std::vector<Eigen::Vector2f> intersect_with_lidar(
-    std::unique_ptr<Shape> & shape,
-    const bool closest_point_only) = 0;
+    const Line & line,
+    const bool closest_point_only) const = 0;
+  virtual ~Shape() = default;
 };
 
 class TRACKING_TEST_FRAMEWORK_PUBLIC Line : public Shape
@@ -56,40 +57,55 @@ public:
   Line(const Eigen::Vector2f & start, const Eigen::Vector2f & end);
 
   std::vector<Eigen::Vector2f> intersect_with_lidar(
-    std::unique_ptr<Shape> & shape,
-    const bool closest_point_only);
-  Eigen::Vector2f get_point(const Eigen::Vector2f & start);
+    const Line & line,
+    const bool closest_point_only) const override;
+  Eigen::Vector2f get_point(const Eigen::Vector2f & start) const;
+  inline const Eigen::Vector2f & get_start_pt() const
+  {
+    return m_start;
+  }
+  inline const Eigen::Vector2f & get_end_pt() const
+  {
+    return m_end;
+  }
 
 private:
   Eigen::Vector2f m_start;
   Eigen::Vector2f m_end;
   float_t m_line_length;
   Eigen::Vector2f m_line_direction;
-
-
 };
-//class Rectangle : Shape
+class TRACKING_TEST_FRAMEWORK_PUBLIC Rectangle : public Shape
+{
+public:
+  Rectangle(
+    const Eigen::Vector2f & center, const Eigen::Vector2f & size,
+    const float_t orientation_degrees);
+  std::vector<Eigen::Vector2f> intersect_with_lidar(
+    const Line & line, const bool
+    closest_point_only) const override;
+
+private:
+  Eigen::Vector2f m_center;
+  Eigen::Vector2f m_size;
+  float_t m_orientation_degrees;
+  std::array<Line, 4> m_borders {Line(Eigen::Vector2f(), Eigen::Vector2f()), Line(
+      Eigen::Vector2f(),
+      Eigen::Vector2f()), Line(
+      Eigen::Vector2f(),
+      Eigen::Vector2f()), Line(Eigen::Vector2f(), Eigen::Vector2f())};
+  std::array<Eigen::Vector2f, 4> m_corners;
+};
+
+// class Circle : Shape
 //{
-//public:
-//  Rectangle(const Eigen::Vector2f center, const uint32_t size, const float_t orientation_degrees);
-//  std::vector<Eigen::Vector2f> intersect_with_lidar(std::unique_ptr<Shape> shape,const bool
-//  closest_point_only);
-//
-//private:
-//  Eigen::Vector2f m_center;
-//  Eigen::Vector2f m_size;
-//  float_t m_orientation_degrees;
-//};
-//
-//class Circle : Shape
-//{
-//public:
+// public:
 //  Circle(const Eigen::Vector2f center, const float_t radius);
 //  std::vector<Eigen::Vector2f> intersect_with_lidar(
 //    std::unique_ptr<Shape> shape,
 //    const bool closest_point_only);
 //
-//private:
+// private:
 //  Eigen::Vector2f m_center;
 //  float_t m_radius;
 //};
