@@ -34,14 +34,12 @@ namespace ne_raptor_interface
 {
 
 /// \brief Class that listens for messages published while testing NERaptorInterface
-class NERaptorInterfaceListener
+class NERaptorInterfaceListener : public rclcpp::Node
 {
 public:
   /// \brief Default constructor.
-  /// \param[in] node Reference to node
-  explicit NERaptorInterfaceListener(
-    rclcpp::Node & node
-  );
+  /// \param[in] options NodeOptions object with required parameters and options
+  explicit NERaptorInterfaceListener(const rclcpp::NodeOptions & options);
 
   // Save received values
   AcceleratorPedalCmd l_accel_cmd;            /**< Last AcceleratorPedalCmd message received */

@@ -34,14 +34,12 @@ namespace ne_raptor_interface
 {
 
 /// \brief Class that publishes messages to help test NERaptorInterface
-class NERaptorInterfaceTalker
+class NERaptorInterfaceTalker : public rclcpp::Node
 {
 public:
   /// \brief Default constructor.
-  /// \param[in] node Reference to node
-  explicit NERaptorInterfaceTalker(
-    rclcpp::Node & node
-  );
+  /// \param[in] options NodeOptions object with required parameters and options
+  explicit NERaptorInterfaceTalker(const rclcpp::NodeOptions & options);
 
   /// \brief Put in data to publish (overloaded function)
   /// \param[in] msg The control command to send to the vehicle (type BrakeReport)

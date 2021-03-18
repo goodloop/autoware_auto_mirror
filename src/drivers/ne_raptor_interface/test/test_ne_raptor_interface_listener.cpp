@@ -19,10 +19,9 @@ namespace autoware
 {
 namespace ne_raptor_interface
 {
-NERaptorInterfaceListener::NERaptorInterfaceListener(
-  rclcpp::Node & node
-)
-: l_accel_cmd{},
+NERaptorInterfaceListener::NERaptorInterfaceListener(const rclcpp::NodeOptions & options)
+: Node("ne_raptor_interface_listener_node", "/gtest", options),
+  l_accel_cmd{},
   l_brake_cmd{},
   l_gear_cmd{},
   l_enable_cmd{},
@@ -45,58 +44,58 @@ NERaptorInterfaceListener::NERaptorInterfaceListener(
 {
   // Subscribers (from Raptor DBW)
   l_accel_cmd_sub =
-    node.create_subscription<AcceleratorPedalCmd>(
+    this->create_subscription<AcceleratorPedalCmd>(
     "accelerator_pedal_cmd", rclcpp::QoS{1},
     [this](AcceleratorPedalCmd::SharedPtr msg) {on_accel_cmd(msg);});
 
   l_brake_cmd_sub =
-    node.create_subscription<BrakeCmd>(
+    this->create_subscription<BrakeCmd>(
     "brake_cmd", rclcpp::QoS{1},
     [this](BrakeCmd::SharedPtr msg) {on_brake_cmd(msg);});
 
   l_gear_cmd_sub =
-    node.create_subscription<GearCmd>(
+    this->create_subscription<GearCmd>(
     "gear_cmd", rclcpp::QoS{1},
     [this](GearCmd::SharedPtr msg) {on_gear_cmd(msg);});
 
   l_global_enable_cmd_sub =
-    node.create_subscription<GlobalEnableCmd>(
+    this->create_subscription<GlobalEnableCmd>(
     "global_enable_cmd", rclcpp::QoS{1},
     [this](GlobalEnableCmd::SharedPtr msg) {on_global_enable_cmd(msg);});
 
   l_misc_cmd_sub =
-    node.create_subscription<MiscCmd>(
+    this->create_subscription<MiscCmd>(
     "misc_cmd", rclcpp::QoS{1},
     [this](MiscCmd::SharedPtr msg) {on_misc_cmd(msg);});
 
   l_steer_cmd_sub =
-    node.create_subscription<SteeringCmd>(
+    this->create_subscription<SteeringCmd>(
     "steering_cmd", rclcpp::QoS{1},
     [this](SteeringCmd::SharedPtr msg) {on_steer_cmd(msg);});
 
   l_dbw_enable_cmd_sub =
-    node.create_subscription<std_msgs::msg::Empty>(
+    this->create_subscription<std_msgs::msg::Empty>(
     "enable", rclcpp::QoS{1},
     [this](std_msgs::msg::Empty::SharedPtr msg) {on_dbw_enable_cmd(msg);});
 
   l_dbw_disable_cmd_sub =
-    node.create_subscription<std_msgs::msg::Empty>(
+    this->create_subscription<std_msgs::msg::Empty>(
     "disable", rclcpp::QoS{1},
     [this](std_msgs::msg::Empty::SharedPtr msg) {on_dbw_disable_cmd(msg);});
 
   // Subscribers (from Autoware.Auto)
   l_vehicle_state_sub =
-    node.create_subscription<VehicleStateReport>(
+    this->create_subscription<VehicleStateReport>(
     "vehicle_state_report", rclcpp::QoS{10},
     [this](VehicleStateReport::SharedPtr msg) {on_vehicle_state(msg);});
 
   l_vehicle_odo_sub =
-    node.create_subscription<VehicleOdometry>(
+    this->create_subscription<VehicleOdometry>(
     "vehicle_odometry", rclcpp::QoS{10},
     [this](VehicleOdometry::SharedPtr msg) {on_vehicle_odo(msg);});
 
   l_vehicle_kin_state_sub =
-    node.create_subscription<VehicleKinematicState>(
+    this->create_subscription<VehicleKinematicState>(
     "vehicle_kinematic_state", rclcpp::QoS{10},
     [this](VehicleKinematicState::SharedPtr msg) {on_vehicle_kin_state(msg);});
 }

@@ -31,8 +31,8 @@ TEST_F(NERaptorInterface_test, test_cmd_mode_change)
 
   rclcpp::executors::SingleThreadedExecutor executor;
   executor.add_node(i_node_);
-  executor.add_node(l_node_);
-  executor.add_node(t_node_);
+  executor.add_node(test_listener_->get_node_base_interface());
+  executor.add_node(test_talker_->get_node_base_interface());
   executor.spin_some(C_TIMEOUT_NANO);
 
   test_hlcc.velocity_mps = 0.0F;
@@ -126,8 +126,8 @@ TEST_F(NERaptorInterface_test, test_cmd_vehicle_state)
 
   rclcpp::executors::SingleThreadedExecutor executor;
   executor.add_node(i_node_);
-  executor.add_node(l_node_);
-  executor.add_node(t_node_);
+  executor.add_node(test_listener_->get_node_base_interface());
+  executor.add_node(test_talker_->get_node_base_interface());
   executor.spin_some(C_TIMEOUT_NANO);
 
   /* Set control command input valid
@@ -428,8 +428,8 @@ TEST_F(NERaptorInterface_test, test_cmd_high_level_control)
 
   rclcpp::executors::SingleThreadedExecutor executor;
   executor.add_node(i_node_);
-  executor.add_node(l_node_);
-  executor.add_node(t_node_);
+  executor.add_node(test_listener_->get_node_base_interface());
+  executor.add_node(test_talker_->get_node_base_interface());
   executor.spin_some(C_TIMEOUT_NANO);
 
   // Set all gear == DRIVE && mode == AUTONOMOUS
@@ -693,8 +693,8 @@ TEST_F(NERaptorInterface_test, test_cmd_raw_control)
   RawControlCommand rcc{};
   rclcpp::executors::SingleThreadedExecutor executor;
   executor.add_node(i_node_);
-  executor.add_node(l_node_);
-  executor.add_node(t_node_);
+  executor.add_node(test_listener_->get_node_base_interface());
+  executor.add_node(test_talker_->get_node_base_interface());
 
   rcc.stamp = test_clock.now();
   rcc.throttle = 0;
@@ -714,8 +714,8 @@ TEST_F(NERaptorInterface_test, test_cmd_vehicle_control)
 
   rclcpp::executors::SingleThreadedExecutor executor;
   executor.add_node(i_node_);
-  executor.add_node(l_node_);
-  executor.add_node(t_node_);
+  executor.add_node(test_listener_->get_node_base_interface());
+  executor.add_node(test_talker_->get_node_base_interface());
   executor.spin_some(C_TIMEOUT_NANO);
 
   // Set all gear == DRIVE && mode == AUTONOMOUS
@@ -1070,8 +1070,8 @@ TEST_F(NERaptorInterface_test, test_rpt_vehicle_state)
 
   rclcpp::executors::SingleThreadedExecutor executor;
   executor.add_node(i_node_);
-  executor.add_node(l_node_);
-  executor.add_node(t_node_);
+  executor.add_node(test_listener_->get_node_base_interface());
+  executor.add_node(test_talker_->get_node_base_interface());
   executor.spin_some(C_TIMEOUT_NANO);
 
   // Set all global enable == true & init valid data
@@ -1213,8 +1213,8 @@ TEST_F(NERaptorInterface_test, test_rpt_vehicle_odometry)
 
   rclcpp::executors::SingleThreadedExecutor executor;
   executor.add_node(i_node_);
-  executor.add_node(l_node_);
-  executor.add_node(t_node_);
+  executor.add_node(test_listener_->get_node_base_interface());
+  executor.add_node(test_talker_->get_node_base_interface());
   executor.spin_some(C_TIMEOUT_NANO);
 
   // Set initial values
@@ -1363,8 +1363,8 @@ TEST_F(NERaptorInterface_test, test_rpt_vehicle_kinematic_state)
 
   rclcpp::executors::SingleThreadedExecutor executor;
   executor.add_node(i_node_);
-  executor.add_node(l_node_);
-  executor.add_node(t_node_);
+  executor.add_node(test_listener_->get_node_base_interface());
+  executor.add_node(test_talker_->get_node_base_interface());
   executor.spin_some(C_TIMEOUT_NANO);
 
   // Set initial values

@@ -74,9 +74,8 @@ protected:
   void SetUp() override
   {
     rclcpp::init(0, nullptr);
+
     i_node_ = std::make_shared<rclcpp::Node>("ne_raptor_interface_test_node", "/gtest");
-    l_node_ = std::make_shared<rclcpp::Node>("ne_raptor_interface_listener_node", "/gtest");
-    t_node_ = std::make_shared<rclcpp::Node>("ne_raptor_interface_talker_node", "/gtest");
     ne_raptor_interface_ = std::make_unique<NERaptorInterface>(
       *i_node_,
       c_ecu_build_num,
@@ -89,12 +88,10 @@ protected:
       c_pos_jerk_limit,
       c_neg_jerk_limit
     );
-    test_listener_ = std::make_unique<NERaptorInterfaceListener>(
-      *l_node_
-    );
-    test_talker_ = std::make_unique<NERaptorInterfaceTalker>(
-      *t_node_
-    );
+
+    rclcpp::NodeOptions options{};
+    test_listener_ = std::make_unique<NERaptorInterfaceListener>(options);
+    test_talker_ = std::make_unique<NERaptorInterfaceTalker>(options);
   }
 
   void TearDown() override
@@ -103,7 +100,7 @@ protected:
   }
 
 public:
-  rclcpp::Node::SharedPtr i_node_, l_node_, t_node_;
+  rclcpp::Node::SharedPtr i_node_;
   std::unique_ptr<NERaptorInterface> ne_raptor_interface_;
   std::unique_ptr<NERaptorInterfaceListener> test_listener_;
   std::unique_ptr<NERaptorInterfaceTalker> test_talker_;
