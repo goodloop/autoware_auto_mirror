@@ -11,11 +11,9 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-//
-// Developed by Apex.AI, Inc.
 
-#ifndef HELPER_FUNCTIONS__DEMANGLE_HPP_
-#define HELPER_FUNCTIONS__DEMANGLE_HPP_
+#ifndef HELPER_FUNCTIONS__TYPE_NAME_HPP_
+#define HELPER_FUNCTIONS__TYPE_NAME_HPP_
 
 #include <common/visibility_control.hpp>
 
@@ -53,4 +51,4 @@ COMMON_PUBLIC std::string get_type_name(const T &)
 }  // namespace helper_functions
 }  // namespace autoware
 
-#endif  // HELPER_FUNCTIONS__DEMANGLE_HPP_
+#endif  // HELPER_FUNCTIONS__TYPE_NAME_HPP_
