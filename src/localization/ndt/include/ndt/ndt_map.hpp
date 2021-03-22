@@ -236,42 +236,12 @@ public:
 
   /// \brief Set the contents of the pointcloud as the new map.
   /// \param msg Pointcloud to be inserted.
-  void set(const sensor_msgs::msg::PointCloud2 & msg)
-  {
-    clear();
-    insert(msg);
-  }
+  void set(const sensor_msgs::msg::PointCloud2 & msg);
 
   /// Insert the dense point cloud to the map. This is intended for converting a dense
   /// point cloud into the ndt representation. Ideal for reading dense pcd files.
   /// \param msg PointCloud2 message to add.
-  void insert(const sensor_msgs::msg::PointCloud2 & msg)
-  {
-    sensor_msgs::PointCloud2ConstIterator<float32_t> x_it(msg, "x");
-    sensor_msgs::PointCloud2ConstIterator<float32_t> y_it(msg, "y");
-    sensor_msgs::PointCloud2ConstIterator<float32_t> z_it(msg, "z");
-
-    while (x_it != x_it.end() &&
-      y_it != y_it.end() &&
-      z_it != z_it.end())
-    {
-      const auto pt = Point({*x_it, *y_it, *z_it});
-      const auto voxel_idx = index(pt);
-      voxel(voxel_idx).add_observation(pt);  // Add or insert new voxel.
-
-      ++x_it;
-      ++y_it;
-      ++z_it;
-    }
-    // try to stabilizie the covariance after inserting all the points
-    for (auto & vx_it : *this) {
-      auto & vx = vx_it.second;
-      (void) vx.try_stabilize();
-    }
-
-    set_frame_id(msg.header.frame_id);
-    set_stamp(::time_utils::from_message(msg.header.stamp));
-  }
+  void insert(const sensor_msgs::msg::PointCloud2 & msg);
 };
 
 /// NDT map using StaticNDTVoxels. This class is to be used when the pointcloud
@@ -292,91 +262,12 @@ public:
   /// message which is expected to be equal to the voxel grid ID in the map's voxel grid. Since
   /// the grid's index will be a long value to avoid overflows, `cell_id` field should be an array
   /// of 2 unsigned integers. That is because there is no direct long support as a PointField.
-  void set(const sensor_msgs::msg::PointCloud2 & msg)
-  {
-    clear();
-    deserialize_from(msg);
-    set_frame_id(msg.header.frame_id);
-    set_stamp(::time_utils::from_message(msg.header.stamp));
-  }
+  void set(const sensor_msgs::msg::PointCloud2 & msg);
 
 private:
   /// Deserialize the given serialized point cloud map.
   /// \param msg PointCloud2 message containing the deserialized data.
-  void deserialize_from(const sensor_msgs::msg::PointCloud2 & msg)
-  {
-    if (validate_pcl_map(msg) == 0U) {
-      // throwing rather than silently failing since ndt matching cannot be done with an
-      // empty/incorrect map
-      throw std::runtime_error(
-              "Point cloud representing the ndt map is either empty"
-              "or does not have the correct format.");
-    }
-
-    sensor_msgs::PointCloud2ConstIterator<Real> x_it(msg, "x");
-    sensor_msgs::PointCloud2ConstIterator<Real> y_it(msg, "y");
-    sensor_msgs::PointCloud2ConstIterator<Real> z_it(msg, "z");
-    sensor_msgs::PointCloud2ConstIterator<Real> icov_xx_it(msg, "icov_xx");
-    sensor_msgs::PointCloud2ConstIterator<Real> icov_xy_it(msg, "icov_xy");
-    sensor_msgs::PointCloud2ConstIterator<Real> icov_xz_it(msg, "icov_xz");
-    sensor_msgs::PointCloud2ConstIterator<Real> icov_yy_it(msg, "icov_yy");
-    sensor_msgs::PointCloud2ConstIterator<Real> icov_yz_it(msg, "icov_yz");
-    sensor_msgs::PointCloud2ConstIterator<Real> icov_zz_it(msg, "icov_zz");
-    sensor_msgs::PointCloud2ConstIterator<uint32_t> cell_id_it(msg, "cell_id");
-
-    while (x_it != x_it.end() &&
-      y_it != y_it.end() &&
-      z_it != z_it.end() &&
-      icov_xx_it != icov_xx_it.end() &&
-      icov_xy_it != icov_xy_it.end() &&
-      icov_xz_it != icov_xz_it.end() &&
-      icov_yy_it != icov_yy_it.end() &&
-      icov_yz_it != icov_yz_it.end() &&
-      icov_zz_it != icov_zz_it.end() &&
-      cell_id_it != cell_id_it.end())
-    {
-      const Point centroid{*x_it, *y_it, *z_it};
-      const auto voxel_idx = index(centroid);
-
-      // Since no native usigned long support is vailable for a point field
-      // the `cell_id_it` points to an array of two 32 bit integers to represent
-      // a long number. So the assignments must be done via memcpy.
-      Grid::key_type received_idx = 0U;
-      std::memcpy(&received_idx, &cell_id_it[0U], sizeof(received_idx));
-
-      // If the pointcloud does not represent a voxel grid of identical configuration,
-      // report the error
-      if (voxel_idx != received_idx) {
-        throw std::domain_error(
-                "NDTVoxelMap: Pointcloud representing the ndt map"
-                "does not have a matching grid configuration with "
-                "the map representation it is being inserted to. The cell IDs do not matchb");
-      }
-
-      Eigen::Matrix3d inv_covariance;
-      inv_covariance << *icov_xx_it, *icov_xy_it, *icov_xz_it,
-        *icov_xy_it, *icov_yy_it, *icov_yz_it,
-        *icov_xz_it, *icov_yz_it, *icov_zz_it;
-      const Voxel vx{centroid, inv_covariance};
-
-      const auto insert_res = emplace(voxel_idx, Voxel{centroid, inv_covariance});
-      if (!insert_res.second) {
-        // if a voxel already exist at this point, replace.
-        insert_res.first->second = vx;
-      }
-
-      ++x_it;
-      ++y_it;
-      ++z_it;
-      ++icov_xx_it;
-      ++icov_xy_it;
-      ++icov_xz_it;
-      ++icov_yy_it;
-      ++icov_yz_it;
-      ++icov_zz_it;
-      ++cell_id_it;
-    }
-  }
+  void deserialize_from(const sensor_msgs::msg::PointCloud2 & msg);
 };
 
 }  // namespace ndt
@@ -426,6 +317,8 @@ inline NDT_PUBLIC auto & zr_(Eigen::Vector3d & pt)
 {
   return pt(2);
 }
+
+
 }  // namespace point_adapter
 }  // namespace geometry
 }  // namespace common
