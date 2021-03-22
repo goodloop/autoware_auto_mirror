@@ -369,9 +369,9 @@ TEST_F(NDTMapTest, map_representation_bad_input) {
   const auto invalid_id = actual_idx + 1U;
   std::memcpy(&invalid_cell_it[0], &invalid_id, sizeof(actual_idx));
 
-  EXPECT_THROW(map_grid.insert(invalid_pc1), std::runtime_error);
-  EXPECT_THROW(map_grid.insert(invalid_pc2), std::runtime_error);
-  EXPECT_THROW(map_grid.insert(invalid_pc3), std::domain_error);
+  EXPECT_THROW(map_grid.set(invalid_pc1), std::runtime_error);
+  EXPECT_THROW(map_grid.set(invalid_pc2), std::runtime_error);
+  EXPECT_THROW(map_grid.set(invalid_pc3), std::domain_error);
 }
 
 TEST_F(NDTMapTest, map_representation_basics) {
@@ -452,7 +452,7 @@ TEST_F(NDTMapTest, map_representation_basics) {
   ASSERT_EQ(generator_grid.size(), num_points);
 
   // All points should be able to be inserted since
-  EXPECT_NO_THROW(map_grid.insert(msg));
+  EXPECT_NO_THROW(map_grid.set(msg));
   EXPECT_EQ(map_grid.size(), generator_grid.size());
 
   // dif to be used for grid lookup.

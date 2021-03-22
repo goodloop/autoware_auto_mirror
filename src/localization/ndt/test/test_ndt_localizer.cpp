@@ -120,7 +120,7 @@ TEST_P(P2DLocalizerParameterTest, sanity_test) {
     m_outlier_ratio};
 
   autoware::localization::ndt::StaticNDTMap map{m_grid_config};
-  map.insert(dynamic_map_to_cloud(m_dynamic_map));
+  map.set(dynamic_map_to_cloud(m_dynamic_map));
 
   const auto & ros_pose_out =
     localizer.register_measurement(translated_cloud, transform_initial, map);
@@ -163,7 +163,7 @@ TEST_F(P2DLocalizerParameterTest, delayed_scan) {
   map_cloud.header.stamp = ::time_utils::to_message(now + dt);
 
   autoware::localization::ndt::StaticNDTMap map{m_grid_config};
-  map.insert(map_cloud);
+  map.set(map_cloud);
 
   P2DTestLocalizer::PoseWithCovarianceStamped dummy_pose;
   EXPECT_THROW(
@@ -203,7 +203,7 @@ TEST_F(P2DLocalizerParameterTest, async_initial_guess) {
   map_cloud.header.stamp = ::time_utils::to_message(map_time);
 
   autoware::localization::ndt::StaticNDTMap map{m_grid_config};
-  map.insert(map_cloud);
+  map.set(map_cloud);
 
   auto set_and_get = [&transform_initial](auto time_point) {
       transform_initial.header.stamp = ::time_utils::to_message(time_point);

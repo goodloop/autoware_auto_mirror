@@ -48,8 +48,8 @@ uint32_t NDT_PUBLIC validate_pcl_map(const sensor_msgs::msg::PointCloud2 & msg);
 
 /////////////////////////////////////////////
 
-template<typename Derived, typename VoxelT>
-class NDTMapBase : public common::helper_functions::crtp<Derived>
+template<typename VoxelT>
+class NDTGrid
 {
 public:
   using Grid = std::unordered_map<uint64_t, VoxelT>;
@@ -60,19 +60,19 @@ public:
 
   /// Constructor
   /// \param voxel_grid_config Voxel grid config to configure the underlying voxel grid.
-  explicit NDTMapBase(const Config & voxel_grid_config)
+  explicit NDTGrid(const Config & voxel_grid_config)
   : m_config(voxel_grid_config), m_map(m_config.get_capacity())
   {
     m_output_vector.reserve(1U);
   }
 
   // Maps should be moved rather than being copied.
-  NDTMapBase(const NDTMapBase &) = delete;
-  NDTMapBase & operator=(const NDTMapBase &) = delete;
+  NDTGrid(const NDTGrid &) = delete;
+  NDTGrid & operator=(const NDTGrid &) = delete;
 
   // Explicitly declaring to default is needed since we explicitly deleted the copy methods.
-  NDTMapBase(NDTMapBase &&) = default;
-  NDTMapBase & operator=(NDTMapBase &&) = default;
+  NDTGrid(NDTGrid &&) = default;
+  NDTGrid & operator=(NDTGrid &&) = default;
 
   /// Lookup the cell at location.
   /// \param x x coordinate
@@ -100,16 +100,6 @@ public:
     }
     return m_output_vector;
   }
-
-  /// Insert a point cloud to the map.
-  /// \param msg PointCloud2 message to add.
-  void insert(const sensor_msgs::msg::PointCloud2 & msg)
-  {
-    m_stamp = ::time_utils::from_message(msg.header.stamp);
-    m_frame_id = msg.header.frame_id;
-    this->impl().insert_(msg);
-  }
-
   /// Get size of the map
   /// \return Number of voxels in the map. This number includes the voxels that do not have
   /// enough numbers to be used yet.
@@ -175,14 +165,6 @@ public:
     return m_stamp;
   }
 
-  /// \brief Set the contents of the pointcloud as the new map.
-  /// \param msg Pointcloud to be inserted.
-  void set(const sensor_msgs::msg::PointCloud2 & msg)
-  {
-    clear();
-    insert(msg);
-  }
-
   /// Get map's frame id.
   /// \return Frame id of the map.
   const std::string & frame_id() const noexcept
@@ -220,6 +202,16 @@ protected:
     return m_map.emplace(key, std::move(vx));
   }
 
+  void set_frame_id(const std::string & frame_id)
+  {
+    m_frame_id = frame_id;
+  }
+
+  void set_stamp(const TimePoint & time_point)
+  {
+    m_stamp = time_point;
+  }
+
 private:
   mutable VoxelViewVector m_output_vector;
   const Config m_config;
@@ -232,7 +224,7 @@ private:
 /// Ndt Map for a dynamic voxel type. This map representation is only to be used
 /// when a dense point cloud is intended to be represented as a map. (i.e. by the map publisher)
 class NDT_PUBLIC DynamicNDTMap
-  : public NDTMapBase<DynamicNDTMap, DynamicNDTVoxel>
+  : public NDTGrid<DynamicNDTVoxel>
 {
 public:
   using Voxel = DynamicNDTVoxel;
@@ -240,12 +232,20 @@ public:
   using Config = autoware::perception::filters::voxel_grid::Config;
   using Point = Eigen::Vector3d;
 
-  using NDTMapBase::NDTMapBase;
+  using NDTGrid::NDTGrid;
+
+  /// \brief Set the contents of the pointcloud as the new map.
+  /// \param msg Pointcloud to be inserted.
+  void set(const sensor_msgs::msg::PointCloud2 & msg)
+  {
+    clear();
+    insert(msg);
+  }
 
   /// Insert the dense point cloud to the map. This is intended for converting a dense
   /// point cloud into the ndt representation. Ideal for reading dense pcd files.
   /// \param msg PointCloud2 message to add.
-  void insert_(const sensor_msgs::msg::PointCloud2 & msg)
+  void insert(const sensor_msgs::msg::PointCloud2 & msg)
   {
     sensor_msgs::PointCloud2ConstIterator<float32_t> x_it(msg, "x");
     sensor_msgs::PointCloud2ConstIterator<float32_t> y_it(msg, "y");
@@ -268,6 +268,9 @@ public:
       auto & vx = vx_it.second;
       (void) vx.try_stabilize();
     }
+
+    set_frame_id(msg.header.frame_id);
+    set_stamp(::time_utils::from_message(msg.header.stamp));
   }
 };
 
@@ -275,13 +278,13 @@ public:
 /// messages to be inserted already have the correct format (see validate_pcl_map(...)) and
 /// represent a transformed map. No centroid/covariance computation is done during run-time.
 class NDT_PUBLIC StaticNDTMap
-  : public NDTMapBase<StaticNDTMap, StaticNDTVoxel>
+  : public NDTGrid<StaticNDTVoxel>
 {
 public:
-  using NDTMapBase::NDTMapBase;
+  using NDTGrid::NDTGrid;
   using Voxel = StaticNDTVoxel;
 
-  /// Insert point cloud message representing the map to the map representation instance.
+  /// Set point cloud message representing the map to the map representation instance.
   /// Map is assumed to have correct format (see `validate_pcl_map(...)`) and was generated
   /// by a dense map representation with identical configuration to this representation.
   /// \param msg PointCloud2 message to add. Each point in this cloud should correspond to a
@@ -289,7 +292,18 @@ public:
   /// message which is expected to be equal to the voxel grid ID in the map's voxel grid. Since
   /// the grid's index will be a long value to avoid overflows, `cell_id` field should be an array
   /// of 2 unsigned integers. That is because there is no direct long support as a PointField.
-  void insert_(const sensor_msgs::msg::PointCloud2 & msg)
+  void set(const sensor_msgs::msg::PointCloud2 & msg)
+  {
+    clear();
+    deserialize_from(msg);
+    set_frame_id(msg.header.frame_id);
+    set_stamp(::time_utils::from_message(msg.header.stamp));
+  }
+
+private:
+  /// Deserialize the given serialized point cloud map.
+  /// \param msg PointCloud2 message containing the deserialized data.
+  void deserialize_from(const sensor_msgs::msg::PointCloud2 & msg)
   {
     if (validate_pcl_map(msg) == 0U) {
       // throwing rather than silently failing since ndt matching cannot be done with an
