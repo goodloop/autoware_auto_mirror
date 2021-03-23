@@ -351,11 +351,11 @@ void compute_lfit_bounding_boxes_with_z(Clusters & clusters, BoundingBoxArray & 
   boxes.boxes.clear();
   for (auto & cls : clusters.clusters) {
     try {
-      boxes.boxes.push_back(autoware_auto_msgs::msg::BoundingBox{});
-      auto & box = boxes.boxes[boxes.boxes.size()];
       const auto iterators = point_struct_iterators(cls);
-      box = common::geometry::bounding_box::lfit_bounding_box_2d(iterators.first, iterators.second);
-      common::geometry::bounding_box::compute_height(iterators.first, iterators.second, box);
+      boxes.boxes.push_back(
+        common::geometry::bounding_box::lfit_bounding_box_2d(iterators.first, iterators.second));
+      common::geometry::bounding_box::compute_height(
+        iterators.first, iterators.second, boxes.boxes.back());
     } catch (const std::exception & e) {
       std::cerr << e.what() << "\n";
     }
