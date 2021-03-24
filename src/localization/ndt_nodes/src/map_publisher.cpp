@@ -33,6 +33,12 @@ namespace localization
 {
 namespace ndt_nodes
 {
+/// Helper function to abstract the unused arguments of the `lidar_utils::reset_pcl_msg` .
+void reset_pc_msg(sensor_msgs::msg::PointCloud2 & msg)
+{
+  auto dummy_idx = 0U;  // TODO(yunus.caliskan): Change in #102
+  common::lidar_utils::reset_pcl_msg(msg, 0U, dummy_idx);
+}
 
 NDTMapPublisherNode::NDTMapPublisherNode(
   const rclcpp::NodeOptions & node_options
@@ -121,8 +127,6 @@ void NDTMapPublisherNode::init(
       });
   }
 
-  m_core = std::make_unique<ndt::NDTMapPublisher>(*m_map_config_ptr, m_map_pc, m_source_pc);
-
   m_pub_earth_map = create_publisher<tf2_msgs::msg::TFMessage>(
     "/tf_static",
     rclcpp::QoS(rclcpp::KeepLast(5U)).transient_local());
@@ -130,13 +134,13 @@ void NDTMapPublisherNode::init(
 
 void NDTMapPublisherNode::run()
 {
-  ndt::geocentric_pose_t pose = m_core->load_map(m_yaml_file_name, m_pcl_file_name);
+  ndt::geocentric_pose_t pose = ndt::load_map(m_yaml_file_name, m_pcl_file_name, m_source_pc);
   publish_earth_to_map_transform(pose);
   m_ndt_map_ptr->insert(m_source_pc);
-  m_ndt_map_ptr->serialize<SerializedMap>(m_map_pc);
+  m_ndt_map_ptr->serialize_as<SerializedMap>(m_map_pc);
 
   if (m_viz_map) {
-    m_core->reset_pc_msg(m_downsampled_pc);
+    reset_pc_msg(m_downsampled_pc);
     downsample_pc();
   }
   publish();
@@ -196,11 +200,11 @@ void NDTMapPublisherNode::publish()
 
 void NDTMapPublisherNode::reset()
 {
-  m_core->reset_pc_msg(m_map_pc);
-  m_core->reset_pc_msg(m_source_pc);
+  reset_pc_msg(m_map_pc);
+  reset_pc_msg(m_source_pc);
 
   if (m_viz_map) {
-    m_core->reset_pc_msg(m_downsampled_pc);
+    reset_pc_msg(m_downsampled_pc);
   }
 
   m_ndt_map_ptr->clear();

@@ -84,7 +84,6 @@ private:
   /// Use a Voxel Grid filter to downsample the loaded map prior to publishing.
   void downsample_pc();
 
-  std::unique_ptr<ndt::NDTMapPublisher> m_core;
   rclcpp::Publisher<tf2_msgs::msg::TFMessage>::SharedPtr m_pub_earth_map;
   rclcpp::Publisher<sensor_msgs::msg::PointCloud2>::SharedPtr m_pub;
   std::unique_ptr<ndt::DynamicNDTMap> m_ndt_map_ptr;
