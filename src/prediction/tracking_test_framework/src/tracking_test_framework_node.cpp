@@ -28,7 +28,7 @@ TrackingTestFrameworkNode::TrackingTestFrameworkNode(const rclcpp::NodeOptions &
 
 int32_t TrackingTestFrameworkNode::print_hello() const
 {
-  return tracking_test_framework::print_hello();
+  return 0;
 }
 
 }  // namespace tracking_test_framework

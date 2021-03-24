@@ -14,10 +14,9 @@
 
 #include "tracking_test_framework/tracking_test_framework.hpp"
 
-#include <iostream>
-#include <vector>
+#include <algorithm>
 #include <memory>
-#include <utility>
+#include <vector>
 
 namespace autoware
 {
@@ -33,21 +32,27 @@ Line::Line(const Eigen::Vector2f & start, const Eigen::Vector2f & end)
   this->m_line_direction = (end - start) / this->m_line_length;
 }
 
-// p_1 = \hat{p_1} + t_1 \cdot d_1 \\ p_2 = \hat{p_2} + t_2 \cdot d_2,
+/// If we represent two lines in the form of:
+/// 𝑝1= 𝑝1^+𝑡1⋅𝑑1   𝑝2=𝑝2^+𝑡2⋅𝑑2,
+/// where  𝑝1  and  𝑝2  are arbitrary points on the given lines,
+/// 𝑝1^  and  𝑝2^  are the starting points of the lines,
+/// 𝑡1  and  𝑡2  are scalar scaling parameters that scale the corresponding direction unit
+/// vectors  𝑑1  and  𝑑2 , thus defining any point on the line.
 std::vector<Eigen::Vector2f> Line::intersect_with_lidar(
   const Line & line, const bool) const
 {
   const Eigen::Vector2f p_delta = this->m_start - line.m_start;
   float_t t1, t2;
   float denominator = cross_2d(this->m_line_direction, line.m_line_direction);
+
+  // To prevent divide by zero error check if denominator is non-zero
   if (denominator != 0.0F) {
     t1 = cross_2d(line.m_line_direction, p_delta) / denominator;
     t2 = cross_2d(this->m_line_direction, p_delta) / denominator;
   } else {
     throw std::runtime_error("Attempt to divide by zero");
   }
-
-  // If the scalar factors are not within the line length and non zero
+  // If the scalar factors are not within the line length and non zero return empty vec
   if (t1 < 0 || t1 > this->m_line_length || t2 < 0 || t2 > line.m_line_length) {
     return std::vector<Eigen::Vector2f>();
   }
@@ -83,6 +88,9 @@ Rectangle::Rectangle(
     Line{m_corners[3], m_corners[0]}};
 }
 
+///  We can pass the rectangle borders to the Line::intersect with lidar function
+/// one by one to see if the lidar is intersecting any of the 4 sides of the rectangle and get
+/// the intersection points if any from there.
 std::vector<Eigen::Vector2f> Rectangle::intersect_with_lidar(
   const Line & line, const
   bool
@@ -98,6 +106,7 @@ std::vector<Eigen::Vector2f> Rectangle::intersect_with_lidar(
   if (intersections.empty()) {
     return std::vector<Eigen::Vector2f>();
   }
+  /// Case to return closest intersection only
   if (closest_point_only) {
     sort(
       intersections.begin(), intersections.end(), [&](const
@@ -110,6 +119,7 @@ std::vector<Eigen::Vector2f> Rectangle::intersect_with_lidar(
       });
     return intersections;
   }
+  /// Else return all intersections
   return intersections;
 }
 
@@ -119,6 +129,14 @@ Circle::Circle(const Eigen::Vector2f & center, const float_t radius)
   m_radius = radius;
 }
 
+/// Given a line in the form of  𝑝=𝑝0+𝑡⋅𝑑 , where  𝑝  is a point on a line, 𝑝0 is the 2D
+/// starting point of the line,
+/// 𝑡  is a scale parameter and  𝑑  is the normalized direction vector and a circle in the form
+/// of  (𝑥−𝑥c)^2+(𝑦−𝑦c)^2 = 𝑟^2 ,
+/// where  𝑥,𝑦  are coordinates of a point on a circle,  𝑥c,𝑦c  are the coordinates of the center
+/// of the circle and 𝑟  is the radius of this circle, we can form a single equation from which
+/// we look for such values of 𝑡 that the resulting point lies both on the point and on the
+/// circle.
 std::vector<Eigen::Vector2f> Circle::intersect_with_lidar(
   const Line & line, const
   bool
@@ -151,40 +169,6 @@ std::vector<Eigen::Vector2f> Circle::intersect_with_lidar(
     }
   }
   return intersections;
-}
-
-// Test function
-int32_t print_hello()
-{
-  // Test for line intersection with line
-  Line l1 {Eigen::Vector2f{-1,-1},Eigen::Vector2f{2,0.5} };
-  Line l2 {Eigen::Vector2f{1,0},Eigen::Vector2f{1,2}};
-  std::vector<Eigen::Vector2f> intersection = l1.intersect_with_lidar(l2, true);
-  std::cout << "Intersection pts of line with line: " << intersection[0] << std::endl;
-
-  // Test for rectangle intersection with line
-  Rectangle rect {Eigen::Vector2f{0, 0}, Eigen::Vector2f{2, 3}, 20.0F};
-  Line l3 {Eigen::Vector2f{-2, 0.5}, Eigen::Vector2f{2, -0.5}};
-  std::vector<Eigen::Vector2f> intersections = rect.intersect_with_lidar(l3, true);
-  std::cout << "Intersection pts of rectangle with line: " << intersections[0] << std::endl;
-
-  // Test for circle intersection with line
-  Line vertical_line {Eigen::Vector2f{0, 0}, Eigen::Vector2f{0, 2}};
-  Line horizontal_line {Eigen::Vector2f{0, 0}, Eigen::Vector2f{2, 0}};
-  Line diagonal_line {Eigen::Vector2f{0, 0}, Eigen::Vector2f{2, 2}};
-
-  Circle circle {Eigen::Vector2f {1, 1}, 1};
-
-  std::vector<Eigen::Vector2f> intersections_hor = circle.intersect_with_lidar(horizontal_line,
-                                                                               true);
-  std::cout << "Intersection pts of circle with hor line: " << intersections_hor[0] << std::endl;
-  std::vector<Eigen::Vector2f> intersections_vert = circle.intersect_with_lidar(vertical_line,
-                                                                                true);
-  std::cout << "Intersection pts of circle with vert line: " << intersections_vert[0] << std::endl;
-  std::vector<Eigen::Vector2f> intersections_diag = circle.intersect_with_lidar(diagonal_line,
-                                                                                true);
-  std::cout << "Intersection pts of circle with diag line: " << intersections_diag[0] << std::endl;
-  return 0;
 }
 
 
