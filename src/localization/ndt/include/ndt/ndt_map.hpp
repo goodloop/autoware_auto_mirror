@@ -242,6 +242,14 @@ public:
   /// point cloud into the ndt representation. Ideal for reading dense pcd files.
   /// \param msg PointCloud2 message to add.
   void insert(const sensor_msgs::msg::PointCloud2 & msg);
+
+  /// Iterate over the map representation and convert it into a PointCloud2 message where each
+  /// voxel in the map corresponds to a single point in the PointCloud2 field.
+  /// \tparam DeserializingMapT The map type that can deserialize the serialized message.
+  /// \param msg_out Reference to the initialized pointcloud message that will store
+  /// the serialized map data.
+  template<typename DeserializingMapT>
+  void serialize_as(sensor_msgs::msg::PointCloud2 & msg_out) const;
 };
 
 /// NDT map using StaticNDTVoxels. This class is to be used when the pointcloud

@@ -128,6 +128,102 @@ void DynamicNDTMap::insert(const sensor_msgs::msg::PointCloud2 & msg)
   set_stamp(::time_utils::from_message(msg.header.stamp));
 }
 
+/// The resulting point cloud has the following fields: x, y, z, cov_xx, cov_xy, cov_xz, cov_yy,
+/// cov_yz, cov_zz, cell_id.
+/// \param msg_out Reference to the pointcloud message that will store
+/// the serialized map data. The message will be initialized before use.
+template<>
+void DynamicNDTMap::serialize_as<StaticNDTMap>(sensor_msgs::msg::PointCloud2 & msg_out) const
+{
+  auto dummy_idx{0U};
+  common::lidar_utils::reset_pcl_msg(msg_out, 0U, dummy_idx);
+  common::lidar_utils::init_pcl_msg(
+    msg_out, frame_id(), size(), 10U,
+    "x", 1U, sensor_msgs::msg::PointField::FLOAT64,
+    "y", 1U, sensor_msgs::msg::PointField::FLOAT64,
+    "z", 1U, sensor_msgs::msg::PointField::FLOAT64,
+    "icov_xx", 1U, sensor_msgs::msg::PointField::FLOAT64,
+    "icov_xy", 1U, sensor_msgs::msg::PointField::FLOAT64,
+    "icov_xz", 1U, sensor_msgs::msg::PointField::FLOAT64,
+    "icov_yy", 1U, sensor_msgs::msg::PointField::FLOAT64,
+    "icov_yz", 1U, sensor_msgs::msg::PointField::FLOAT64,
+    "icov_zz", 1U, sensor_msgs::msg::PointField::FLOAT64,
+    "cell_id", 2U, sensor_msgs::msg::PointField::UINT32);
+  msg_out.header.stamp = time_utils::to_message(stamp());
+
+  sensor_msgs::PointCloud2Iterator<ndt::Real> x_it(msg_out, "x");
+  sensor_msgs::PointCloud2Iterator<ndt::Real> y_it(msg_out, "y");
+  sensor_msgs::PointCloud2Iterator<ndt::Real> z_it(msg_out, "z");
+  sensor_msgs::PointCloud2Iterator<ndt::Real> icov_xx_it(msg_out, "icov_xx");
+  sensor_msgs::PointCloud2Iterator<ndt::Real> icov_xy_it(msg_out, "icov_xy");
+  sensor_msgs::PointCloud2Iterator<ndt::Real> icov_xz_it(msg_out, "icov_xz");
+  sensor_msgs::PointCloud2Iterator<ndt::Real> icov_yy_it(msg_out, "icov_yy");
+  sensor_msgs::PointCloud2Iterator<ndt::Real> icov_yz_it(msg_out, "icov_yz");
+  sensor_msgs::PointCloud2Iterator<ndt::Real> icov_zz_it(msg_out, "icov_zz");
+  sensor_msgs::PointCloud2Iterator<uint32_t> cell_id_it(msg_out, "cell_id");
+
+  auto num_used_cells = 0U;
+  for (const auto & vx_it : *this) {
+    if (!  // No `==` operator defined for PointCloud2Iterators
+      (y_it != y_it.end() &&
+      z_it != z_it.end() &&
+      icov_xx_it != icov_xx_it.end() &&
+      icov_xy_it != icov_xy_it.end() &&
+      icov_xz_it != icov_xz_it.end() &&
+      icov_yy_it != icov_yy_it.end() &&
+      icov_yz_it != icov_yz_it.end() &&
+      icov_zz_it != icov_zz_it.end() &&
+      cell_id_it != cell_id_it.end()))
+    {
+      // This should not occur as the cloud is resized to the map's size.
+      throw std::length_error("NDT map is larger than the map point cloud.");
+    }
+    const auto & vx = vx_it.second;
+    if (!vx.usable()) {
+      // Voxel doesn't have enough points to be used in NDT
+      continue;
+    }
+
+    const auto inv_covariance_opt = vx.inverse_covariance();
+    if (!inv_covariance_opt) {
+      // Voxel covariance is not invertible
+      continue;
+    }
+
+    const auto & centroid = vx.centroid();
+    const auto & inv_covariance = inv_covariance_opt.value();
+    *(x_it) = centroid(0U);
+    *(y_it) = centroid(1U);
+    *(z_it) = centroid(2U);
+    *(icov_xx_it) = inv_covariance(0U, 0U);
+    *(icov_xy_it) = inv_covariance(0U, 1U);
+    *(icov_xz_it) = inv_covariance(0U, 2U);
+    *(icov_yy_it) = inv_covariance(1U, 1U);
+    *(icov_yz_it) = inv_covariance(1U, 2U);
+    *(icov_zz_it) = inv_covariance(2U, 2U);
+
+    // There are cases where the centroid of a voxel does get indexed to another voxel. To prevent
+    // ID mismatches while transferring the map. The index from the voxel grid config is used.
+    const auto correct_idx = index(centroid);
+
+    std::memcpy(&cell_id_it[0U], &(correct_idx), sizeof(correct_idx));
+    ++x_it;
+    ++y_it;
+    ++z_it;
+    ++icov_xx_it;
+    ++icov_xy_it;
+    ++icov_xz_it;
+    ++icov_yy_it;
+    ++icov_yz_it;
+    ++icov_zz_it;
+    ++cell_id_it;
+    ++num_used_cells;
+  }
+  // Resize to throw out unused cells.
+  common::lidar_utils::resize_pcl_msg(msg_out, num_used_cells);
+}
+
+
 void StaticNDTMap::set(const sensor_msgs::msg::PointCloud2 & msg)
 {
   clear();

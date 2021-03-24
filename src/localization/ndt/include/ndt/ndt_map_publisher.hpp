@@ -92,11 +92,6 @@ public:
   /// \return The geocentric position.
   geocentric_pose_t load_map(const std::string & yaml_file_name, const std::string & pcl_file_name);
 
-  /// Iterate over the map representation and convert it into a PointCloud2 message where each voxel
-  /// in the map corresponds to a single point in the PointCloud2 field. See the documentation for
-  /// the specs and the format of the point cloud message.
-  void map_to_pc(const ndt::DynamicNDTMap & ndt_map);
-
   /// Convenience function to clear the contents of a pointcloud message.
   /// Can be removed when #102 is merged in.
   void reset_pc_msg(sensor_msgs::msg::PointCloud2 & msg);

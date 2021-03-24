@@ -1,4 +1,4 @@
-// Copyright 2021 the Autoware Foundation
+// Copyright 2021 Apex.AI, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,8 +11,6 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-//
-// Co-developed by Tier IV, Inc. and Apex.AI, Inc.
 
 #ifndef NDT__CONSTRAINTS_HPP_
 #define NDT__CONSTRAINTS_HPP_
@@ -95,6 +93,11 @@ struct P2DNDTOptimizationMapConstraint
   static constexpr Requires value{};
 };
 
+// Define static members
+template<typename T>
+constexpr Requires LocalizationMapConstraint<T>::value;
+template<typename T>
+constexpr Requires P2DNDTOptimizationMapConstraint<T>::value;
 }  // namespace traits
 }  // namespace ndt
 }  // namespace localization
