@@ -59,7 +59,8 @@ public:
   std::vector<Eigen::Vector2f> intersect_with_lidar(
     const Line & line,
     const bool closest_point_only) const override;
-  Eigen::Vector2f get_point(const Eigen::Vector2f & start) const;
+  Eigen::Vector2f get_point(const float_t scale) const;
+
   inline const Eigen::Vector2f & get_start_pt() const
   {
     return m_start;
@@ -68,7 +69,14 @@ public:
   {
     return m_end;
   }
-
+  inline const Eigen::Vector2f & get_line_dir() const
+  {
+    return m_line_direction;
+  }
+  inline const float_t & get_line_length() const
+  {
+    return m_line_length;
+  }
 private:
   Eigen::Vector2f m_start;
   Eigen::Vector2f m_end;
@@ -97,18 +105,18 @@ private:
   std::array<Eigen::Vector2f, 4> m_corners;
 };
 
-// class Circle : Shape
-//{
-// public:
-//  Circle(const Eigen::Vector2f center, const float_t radius);
-//  std::vector<Eigen::Vector2f> intersect_with_lidar(
-//    std::unique_ptr<Shape> shape,
-//    const bool closest_point_only);
-//
-// private:
-//  Eigen::Vector2f m_center;
-//  float_t m_radius;
-//};
+class TRACKING_TEST_FRAMEWORK_PUBLIC Circle : public Shape
+{
+ public:
+  Circle(const Eigen::Vector2f& center, const float_t radius);
+  std::vector<Eigen::Vector2f> intersect_with_lidar(
+      const Line & line, const bool
+  closest_point_only) const override;
+
+private:
+  Eigen::Vector2f m_center;
+  float_t m_radius;
+};
 
 }  // namespace tracking_test_framework
 }  // namespace autoware

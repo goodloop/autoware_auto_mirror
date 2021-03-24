@@ -37,7 +37,7 @@ Line::Line(const Eigen::Vector2f & start, const Eigen::Vector2f & end)
 std::vector<Eigen::Vector2f> Line::intersect_with_lidar(
   const Line & line, const bool) const
 {
-  Eigen::Vector2f p_delta = this->m_start - line.m_start;
+  const Eigen::Vector2f p_delta = this->m_start - line.m_start;
   float_t t1, t2;
   float denominator = cross_2d(this->m_line_direction, line.m_line_direction);
   if (denominator != 0.0F) {
@@ -54,6 +54,10 @@ std::vector<Eigen::Vector2f> Line::intersect_with_lidar(
   return std::vector<Eigen::Vector2f>{this->m_start + (t1 * this->m_line_direction)};
 }
 
+Eigen::Vector2f Line::get_point(const float_t scale) const
+{
+  return this->m_start + scale * this->m_line_direction;
+}
 
 Rectangle::Rectangle(
   const Eigen::Vector2f & center, const Eigen::Vector2f & size, const float_t
@@ -109,22 +113,77 @@ std::vector<Eigen::Vector2f> Rectangle::intersect_with_lidar(
   return intersections;
 }
 
+Circle::Circle(const Eigen::Vector2f & center, const float_t radius)
+{
+  m_center = center;
+  m_radius = radius;
+}
+
+std::vector<Eigen::Vector2f> Circle::intersect_with_lidar(
+  const Line & line, const
+  bool
+  closest_point_only) const
+{
+  const Eigen::Vector2f delta = m_center - line.get_start_pt();
+  const float_t root_part = powf(m_radius, 2) - powf(cross_2d(delta, line.get_line_dir()), 2);
+  if (root_part < 0) {
+    return std::vector<Eigen::Vector2f>();
+  }
+  const float_t prefix_part = line.get_line_dir().transpose() * delta;
+  std::vector<float_t> distances {};
+  if (static_cast<int>(root_part) == 0) {
+    distances.emplace_back(prefix_part);
+  } else {
+    distances.emplace_back(prefix_part + powf(root_part, 2));
+    distances.emplace_back(prefix_part - powf(root_part, 2));
+  }
+  std::sort(distances.begin(), distances.end());
+  if (distances[0] < 0 || distances[0] > line.get_line_length()) {
+    return std::vector<Eigen::Vector2f>();
+  }
+
+  std::vector<Eigen::Vector2f> intersections{};
+  if (closest_point_only) {
+    intersections.emplace_back(line.get_point(distances[0]));
+  } else {
+    for (const auto & scale  : distances) {
+      intersections.emplace_back(line.get_point(scale));
+    }
+  }
+  return intersections;
+}
+
 // Test function
 int32_t print_hello()
 {
-  Eigen::Vector2f start1(-1, -1);
-  Eigen::Vector2f end1(2, 0.5);
-  Eigen::Vector2f start2(1, 0);
-  Eigen::Vector2f end2(1, 2);
-  Line l1 {start1, end1};
-  Line l2 {start2, end2};
+  // Test for line intersection with line
+  Line l1 {Eigen::Vector2f{-1,-1},Eigen::Vector2f{2,0.5} };
+  Line l2 {Eigen::Vector2f{1,0},Eigen::Vector2f{1,2}};
   std::vector<Eigen::Vector2f> intersection = l1.intersect_with_lidar(l2, true);
   std::cout << "Intersection pts of line with line: " << intersection[0] << std::endl;
+
+  // Test for rectangle intersection with line
   Rectangle rect {Eigen::Vector2f{0, 0}, Eigen::Vector2f{2, 3}, 20.0F};
   Line l3 {Eigen::Vector2f{-2, 0.5}, Eigen::Vector2f{2, -0.5}};
   std::vector<Eigen::Vector2f> intersections = rect.intersect_with_lidar(l3, true);
   std::cout << "Intersection pts of rectangle with line: " << intersections[0] << std::endl;
 
+  // Test for circle intersection with line
+  Line vertical_line {Eigen::Vector2f{0, 0}, Eigen::Vector2f{0, 2}};
+  Line horizontal_line {Eigen::Vector2f{0, 0}, Eigen::Vector2f{2, 0}};
+  Line diagonal_line {Eigen::Vector2f{0, 0}, Eigen::Vector2f{2, 2}};
+
+  Circle circle {Eigen::Vector2f {1, 1}, 1};
+
+  std::vector<Eigen::Vector2f> intersections_hor = circle.intersect_with_lidar(horizontal_line,
+                                                                               true);
+  std::cout << "Intersection pts of circle with hor line: " << intersections_hor[0] << std::endl;
+  std::vector<Eigen::Vector2f> intersections_vert = circle.intersect_with_lidar(vertical_line,
+                                                                                true);
+  std::cout << "Intersection pts of circle with vert line: " << intersections_vert[0] << std::endl;
+  std::vector<Eigen::Vector2f> intersections_diag = circle.intersect_with_lidar(diagonal_line,
+                                                                                true);
+  std::cout << "Intersection pts of circle with diag line: " << intersections_diag[0] << std::endl;
   return 0;
 }
 
