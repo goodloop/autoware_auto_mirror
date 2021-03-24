@@ -122,23 +122,13 @@ void read_from_pcd(const std::string & file_name, sensor_msgs::msg::PointCloud2 
   *msg = std::move(adjusted_cloud);
 }
 
-NDTMapPublisher::NDTMapPublisher(
-  const MapConfig & map_config,
-  sensor_msgs::msg::PointCloud2 & map_pc,
-  sensor_msgs::msg::PointCloud2 & source_pc
-)
-: m_map_config(map_config),
-  m_map_pc(map_pc),
-  m_source_pc(source_pc)
-{
-}
-
-geocentric_pose_t NDTMapPublisher::load_map(
+geocentric_pose_t load_map(
   const std::string & yaml_file_name,
-  const std::string & pcl_file_name)
+  const std::string & pcl_file_name,
+  sensor_msgs::msg::PointCloud2 & pc_out)
 {
-  reset_pc_msg(m_map_pc);  // TODO(yunus.caliskan): Change in #102
-  reset_pc_msg(m_source_pc);  // TODO(yunus.caliskan): Change in #102
+  auto dummy_idx = 0U;  // TODO(yunus.caliskan): Change in #102
+  common::lidar_utils::reset_pcl_msg(pc_out, 0U, dummy_idx);
 
   geodetic_pose_t geodetic_pose{0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
 
@@ -149,7 +139,7 @@ geocentric_pose_t NDTMapPublisher::load_map(
   }
 
   if (!pcl_file_name.empty()) {
-    read_from_pcd(pcl_file_name, &m_source_pc);
+    read_from_pcd(pcl_file_name, &pc_out);
   } else {
     throw std::runtime_error("PCD file name empty\n");
   }
@@ -168,13 +158,6 @@ geocentric_pose_t NDTMapPublisher::load_map(
 
   return {x, y, z, geodetic_pose.roll, geodetic_pose.pitch, geodetic_pose.yaw};
 }
-
-void NDTMapPublisher::reset_pc_msg(sensor_msgs::msg::PointCloud2 & msg)
-{
-  auto dummy_idx = 0U;  // TODO(yunus.caliskan): Change in #102
-  common::lidar_utils::reset_pcl_msg(msg, 0U, dummy_idx);
-}
-
 }  // namespace ndt
 }  // namespace localization
 }  // namespace autoware
