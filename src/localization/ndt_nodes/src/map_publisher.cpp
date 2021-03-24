@@ -83,18 +83,6 @@ void NDTMapPublisherNode::init(
   m_ndt_map_ptr = std::make_unique<ndt::DynamicNDTMap>(*m_map_config_ptr);
 
   common::lidar_utils::init_pcl_msg(m_source_pc, map_frame);
-  common::lidar_utils::init_pcl_msg(
-    m_map_pc, map_frame, m_map_config_ptr->get_capacity(), 10U,
-    "x", 1U, sensor_msgs::msg::PointField::FLOAT64,
-    "y", 1U, sensor_msgs::msg::PointField::FLOAT64,
-    "z", 1U, sensor_msgs::msg::PointField::FLOAT64,
-    "icov_xx", 1U, sensor_msgs::msg::PointField::FLOAT64,
-    "icov_xy", 1U, sensor_msgs::msg::PointField::FLOAT64,
-    "icov_xz", 1U, sensor_msgs::msg::PointField::FLOAT64,
-    "icov_yy", 1U, sensor_msgs::msg::PointField::FLOAT64,
-    "icov_yz", 1U, sensor_msgs::msg::PointField::FLOAT64,
-    "icov_zz", 1U, sensor_msgs::msg::PointField::FLOAT64,
-    "cell_id", 2U, sensor_msgs::msg::PointField::UINT32);
 
   m_pub = create_publisher<sensor_msgs::msg::PointCloud2>(
     map_topic,
@@ -145,7 +133,7 @@ void NDTMapPublisherNode::run()
   ndt::geocentric_pose_t pose = m_core->load_map(m_yaml_file_name, m_pcl_file_name);
   publish_earth_to_map_transform(pose);
   m_ndt_map_ptr->insert(m_source_pc);
-  m_core->map_to_pc(*m_ndt_map_ptr);
+  m_ndt_map_ptr->serialize<SerializedMap>(m_map_pc);
 
   if (m_viz_map) {
     m_core->reset_pc_msg(m_downsampled_pc);

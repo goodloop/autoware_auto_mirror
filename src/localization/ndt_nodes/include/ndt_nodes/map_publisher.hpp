@@ -44,6 +44,7 @@ namespace ndt_nodes
 class NDT_NODES_PUBLIC NDTMapPublisherNode : public rclcpp::Node
 {
 public:
+  using SerializedMap = ndt::StaticNDTMap;
   using MapConfig = perception::filters::voxel_grid::Config;
   using VoxelGrid = perception::filters::voxel_grid_nodes::algorithm::VoxelCloudCentroid;
   /// \brief Parameter constructor
