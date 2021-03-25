@@ -85,7 +85,7 @@ public:
 
   /// \brief gets the point on the line at the input scale
   /// \param[in] scale the scalar qty `t` representing the scaling factor for the line in equation
-  /// \f$p\f$ = \f$\hat{p}\f$ + \f$t\f$ \cdot d\f$
+  /// p = p^ + t.d
   /// \return returns the point on the line
   Eigen::Vector2f get_point(const float_t scale) const;
 
@@ -189,7 +189,7 @@ private:
   float_t m_radius;
 };
 
-}  // namespace tracking_test_framework
-}  // namespace autoware
+}  /// namespace tracking_test_framework
+}  /// namespace autoware
 
-#endif  // TRACKING_TEST_FRAMEWORK__TRACKING_TEST_FRAMEWORK_HPP_
+#endif  /// TRACKING_TEST_FRAMEWORK__TRACKING_TEST_FRAMEWORK_HPP_
