@@ -15,7 +15,6 @@
 #include "tracking_test_framework/tracking_test_framework.hpp"
 
 #include <algorithm>
-#include <memory>
 #include <vector>
 
 namespace autoware
@@ -50,11 +49,11 @@ std::vector<Eigen::Vector2f> Line::intersect_with_lidar(
     t1 = cross_2d(line.m_line_direction, p_delta) / denominator;
     t2 = cross_2d(this->m_line_direction, p_delta) / denominator;
   } else {
-    throw std::runtime_error("Attempt to divide by zero");
+    return std::vector<Eigen::Vector2f>{};
   }
   // If the scalar factors are not within the line length and non zero return empty vec
   if (t1 < 0 || t1 > this->m_line_length || t2 < 0 || t2 > line.m_line_length) {
-    return std::vector<Eigen::Vector2f>();
+    return std::vector<Eigen::Vector2f>{};
   }
   return std::vector<Eigen::Vector2f>{this->m_start + (t1 * this->m_line_direction)};
 }
@@ -104,7 +103,7 @@ std::vector<Eigen::Vector2f> Rectangle::intersect_with_lidar(
     }
   }
   if (intersections.empty()) {
-    return std::vector<Eigen::Vector2f>();
+    return std::vector<Eigen::Vector2f>{};
   }
   /// Case to return closest intersection only
   if (closest_point_only) {
@@ -117,7 +116,7 @@ std::vector<Eigen::Vector2f> Rectangle::intersect_with_lidar(
         line.get_start_pt())
         .norm();
       });
-    return intersections;
+    return std::vector<Eigen::Vector2f>{intersections[0]};
   }
   /// Else return all intersections
   return intersections;
@@ -155,15 +154,20 @@ std::vector<Eigen::Vector2f> Circle::intersect_with_lidar(
     distances.emplace_back(prefix_part + powf(root_part, 2));
     distances.emplace_back(prefix_part - powf(root_part, 2));
   }
+  /// Sort the intersections with closest being the first
   std::sort(distances.begin(), distances.end());
+
+  /// If invalid distance return empty vector
   if (distances[0] < 0 || distances[0] > line.get_line_length()) {
-    return std::vector<Eigen::Vector2f>();
+    return std::vector<Eigen::Vector2f>{};
   }
 
   std::vector<Eigen::Vector2f> intersections{};
+  /// Case to return closest intersection only
   if (closest_point_only) {
     intersections.emplace_back(line.get_point(distances[0]));
   } else {
+    /// Else return all intersections
     for (const auto & scale  : distances) {
       intersections.emplace_back(line.get_point(scale));
     }

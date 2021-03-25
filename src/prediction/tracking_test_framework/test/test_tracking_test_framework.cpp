@@ -12,52 +12,89 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "gtest/gtest.h"
-#include "tracking_test_framework/tracking_test_framework.hpp"
+#include <gtest/gtest.h>
 
+#include <tracking_test_framework/tracking_test_framework.hpp>
 #include <vector>
 
-// Test function
-int32_t test_intersection()
-{
-  // Test for line intersection with line
+// Test for line intersection with line
+TEST(test_tracking_test_framework, test_line_intersection_with_line) {
   autoware::tracking_test_framework::Line l1 {Eigen::Vector2f{-1, -1}, Eigen::Vector2f{2, 0.5}};
   autoware::tracking_test_framework::Line l2 {Eigen::Vector2f{1, 0}, Eigen::Vector2f{1, 2}};
-  std::vector<Eigen::Vector2f> intersection = l1.intersect_with_lidar(l2, true);
-  std::cout << "Intersection pts of line with line: " << intersection[0] << std::endl;
+  std::vector<Eigen::Vector2f> intersection_1 = l1.intersect_with_lidar(l2, true);
+  ASSERT_EQ(intersection_1.size(), 1UL);
+  EXPECT_FLOAT_EQ(intersection_1[0].x(), 1.0F);
+  EXPECT_FLOAT_EQ(intersection_1[0].y(), 0.0F);
 
-  // Test for rectangle intersection with line
-  autoware::tracking_test_framework::Rectangle rect {Eigen::Vector2f{0, 0},
-    Eigen::Vector2f{2, 3}, 20.0F};
-  autoware::tracking_test_framework::Line l3 {Eigen::Vector2f{-2, 0.5}, Eigen::Vector2f{2, -0.5}};
-  std::vector<Eigen::Vector2f> intersections = rect.intersect_with_lidar(l3, true);
-  std::cout << "Intersection pts of rectangle with line: " << intersections[0] << std::endl;
+  // Since line can intersect with line only at one point setting closest point only to false
+  // should still return same result
+  std::vector<Eigen::Vector2f> intersection_2 = l1.intersect_with_lidar(l2, false);
+  ASSERT_EQ(intersection_2.size(), 1UL);
+  EXPECT_FLOAT_EQ(intersection_2[0].x(), 1.0F);
+  EXPECT_FLOAT_EQ(intersection_2[0].y(), 0.0F);
 
-  // Test for circle intersection with line
-  autoware::tracking_test_framework::Line vertical_line {Eigen::Vector2f{0, 0},
-    Eigen::Vector2f{0, 2}};
-  autoware::tracking_test_framework::Line horizontal_line {Eigen::Vector2f{0, 0},
-    Eigen::Vector2f{2, 0}};
-  autoware::tracking_test_framework::Line diagonal_line {Eigen::Vector2f{0, 0},
-    Eigen::Vector2f{2, 2}};
-
-  autoware::tracking_test_framework::Circle circle {Eigen::Vector2f {1, 1}, 1};
-
-  std::vector<Eigen::Vector2f> intersections_hor = circle.intersect_with_lidar(
-    horizontal_line,
-    true);
-  std::cout << "Intersection pts of circle with hor line: " << intersections_hor[0] << std::endl;
-  std::vector<Eigen::Vector2f> intersections_vert = circle.intersect_with_lidar(
-    vertical_line,
-    true);
-  std::cout << "Intersection pts of circle with vert line: " << intersections_vert[0] << std::endl;
-  std::vector<Eigen::Vector2f> intersections_diag = circle.intersect_with_lidar(
-    diagonal_line,
-    true);
-  std::cout << "Intersection pts of circle with diag line: " << intersections_diag[0] << std::endl;
-  return 0;
+  // Intersection of parallel lines should return empty vector
+  autoware::tracking_test_framework::Line l3 {Eigen::Vector2f{-1, -3}, Eigen::Vector2f{1, 1}};
+  autoware::tracking_test_framework::Line l4 {Eigen::Vector2f{-3, -2}, Eigen::Vector2f{-1, 2}};
+  EXPECT_EQ(l3.intersect_with_lidar(l4, true).size(), 0UL);
 }
 
-TEST(test_tracking_test_framework, test_lidar_intersection) {
-  EXPECT_EQ(test_intersection(), 0);
+// Test for line intersection with rectangle
+TEST(test_tracking_test_framework, test_line_intersection_with_rectangle) {
+  autoware::tracking_test_framework::Rectangle rect {Eigen::Vector2f{0, 0},
+    Eigen::Vector2f{2, 3}, 20.0F};
+  autoware::tracking_test_framework::Line l1 {Eigen::Vector2f{-2, 0.5}, Eigen::Vector2f{2, -0.5}};
+  std::vector<Eigen::Vector2f> intersection_1 = rect.intersect_with_lidar(l1, true);
+  ASSERT_EQ(intersection_1.size(), 1UL);
+  EXPECT_FLOAT_EQ(intersection_1[0].x(), -1.1707029F);
+  EXPECT_FLOAT_EQ(intersection_1[0].y(), 0.29267567F);
+
+  // Check if multiple intersections returned when closest_point is set to false
+  std::vector<Eigen::Vector2f> intersection_2 = rect.intersect_with_lidar(l1, false);
+  ASSERT_GT(intersection_2.size(), 1UL);
+  EXPECT_FLOAT_EQ(intersection_2[0].x(), 1.1707029F);
+  EXPECT_FLOAT_EQ(intersection_2[0].y(), -0.29267567F);
+  EXPECT_FLOAT_EQ(intersection_2[1].x(), -1.1707029F);
+  EXPECT_FLOAT_EQ(intersection_2[1].y(), 0.29267567F);
+
+  // Check non intersecting line case it should return empty vector
+  autoware::tracking_test_framework::Line l2 {Eigen::Vector2f{-2, 0}, Eigen::Vector2f{-2, -1.5}};
+  EXPECT_EQ(rect.intersect_with_lidar(l2, true).size(), 0UL);
+}
+
+// Test for line intersection with circle
+TEST(test_tracking_test_framework, test_line_intersection_with_circle) {
+  autoware::tracking_test_framework::Circle circle {Eigen::Vector2f {1, 1}, 1};
+
+  // Intersection with line vertical to circle
+  autoware::tracking_test_framework::Line vertical_line {Eigen::Vector2f{0, 0},
+    Eigen::Vector2f{0, 2}};
+  std::vector<Eigen::Vector2f> intersection_1 = circle.intersect_with_lidar(vertical_line, true);
+  ASSERT_EQ(intersection_1.size(), 1UL);
+  EXPECT_FLOAT_EQ(intersection_1[0].x(), 0.0F);
+  EXPECT_FLOAT_EQ(intersection_1[0].y(), 1.0F);
+
+  // Intersection with line horizontal to circle
+  autoware::tracking_test_framework::Line horizontal_line {Eigen::Vector2f{0, 0},
+    Eigen::Vector2f{2, 0}};
+  std::vector<Eigen::Vector2f> intersection_2 = circle.intersect_with_lidar(horizontal_line, true);
+  ASSERT_EQ(intersection_2.size(), 1UL);
+  EXPECT_FLOAT_EQ(intersection_2[0].x(), 1.0F);
+  EXPECT_FLOAT_EQ(intersection_2[0].y(), 0.0F);
+
+  // Intersection with line diagonal to circle
+  autoware::tracking_test_framework::Line diagonal_line {Eigen::Vector2f{0, 0},
+    Eigen::Vector2f{2, 2}};
+  std::vector<Eigen::Vector2f> intersection_3 = circle.intersect_with_lidar(diagonal_line, true);
+  ASSERT_EQ(intersection_3.size(), 1UL);
+  EXPECT_FLOAT_EQ(intersection_3[0].x(), 0.2928932F);
+  EXPECT_FLOAT_EQ(intersection_3[0].y(), 0.2928932F);
+
+  // Get second intersection point of line diagonal to circle
+  std::vector<Eigen::Vector2f> intersection_4 = circle.intersect_with_lidar(diagonal_line, false);
+  ASSERT_EQ(intersection_4.size(), 2UL);
+  EXPECT_FLOAT_EQ(intersection_4[0].x(), 0.2928932F);
+  EXPECT_FLOAT_EQ(intersection_4[0].y(), 0.2928932F);
+  EXPECT_FLOAT_EQ(intersection_4[1].x(), 1.7071067F);
+  EXPECT_FLOAT_EQ(intersection_4[1].y(), 1.7071067F);
 }
