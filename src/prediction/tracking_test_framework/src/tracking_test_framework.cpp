@@ -12,10 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "tracking_test_framework/tracking_test_framework.hpp"
+#include <tracking_test_framework/tracking_test_framework.hpp>
+#include <helper_functions/float_comparisons.hpp>
 
 #include <algorithm>
 #include <vector>
+
+namespace comparison = autoware::common::helper_functions::comparisons;
+using autoware::common::types::PI;
+using autoware::common::types::bool8_t;
+using autoware::common::types::float32_t;
+
 
 namespace autoware
 {
@@ -23,62 +30,76 @@ namespace autoware
 namespace tracking_test_framework
 {
 
-Line::Line(const Eigen::Vector2f & start, const Eigen::Vector2f & end)
+namespace
 {
-  this->m_start = start;
-  this->m_end = end;
+float32_t to_radians(const float32_t orientation_degrees)
+{
+  /// Converts degrees to radians
+  constexpr auto degrees = 180.0F;
+  return orientation_degrees * (PI / degrees);
+}
+
+float32_t cross_2d(const Eigen::Vector2f & vec1, const Eigen::Vector2f & vec2)
+{
+  /// Computes cross product of two 2D vectors
+  return (vec1.x() * vec2.y()) - (vec1.y() * vec2.x());
+}
+}  // namespace
+
+Line::Line(const Eigen::Vector2f & start, const Eigen::Vector2f & end)
+: m_start(start), m_end(end)
+{
   this->m_line_length = (end - start).norm();
   this->m_line_direction = (end - start) / this->m_line_length;
 }
 
-/// If we represent two lines in the form of:
-/// 𝑝1= 𝑝1^+𝑡1⋅𝑑1   𝑝2=𝑝2^+𝑡2⋅𝑑2,
-/// where  𝑝1  and  𝑝2  are arbitrary points on the given lines,
-/// 𝑝1^  and  𝑝2^  are the starting points of the lines,
-/// 𝑡1  and  𝑡2  are scalar scaling parameters that scale the corresponding direction unit
-/// vectors  𝑑1  and  𝑑2 , thus defining any point on the line.
-std::vector<Eigen::Vector2f> Line::intersect_with_lidar(
-  const Line & line, const bool) const
+EigenStlVector<Eigen::Vector2f> Line::intersect_with_line(
+  const Line & line, const bool8_t) const
 {
+  /// If we represent two lines in the form of:
+  /// \f$(𝑝_1 = \hat{𝑝_1} + 𝑡_1⋅𝑑_1)\f$  \f$(𝑝_2 = \hat{𝑝_2} + 𝑡_2⋅𝑑_2)\f$
+  /// where  \f$(𝑝_1)\f$  and  \f$(𝑝_2)\f$  are arbitrary points on the given lines,
+  /// \f$(\hat{𝑝_1})\f$  and  \f$(\hat{𝑝_2})\f$  are the starting points of the lines,
+  /// \f$(𝑡_1)\f$  and  \f$(𝑡_2)\f$  are scalar scaling parameters that scale the corresponding
+  /// direction unit vectors  \f$(𝑑_1)\f$  and  \f$(𝑑_2)\f$ , thus defining any point on the line.
   const Eigen::Vector2f p_delta = this->m_start - line.m_start;
-  float_t t1, t2;
-  float denominator = cross_2d(this->m_line_direction, line.m_line_direction);
+  float32_t denominator = cross_2d(this->m_line_direction, line.m_line_direction);
 
   // To prevent divide by zero error check if denominator is non-zero
-  if (denominator != 0.0F) {
-    t1 = cross_2d(line.m_line_direction, p_delta) / denominator;
-    t2 = cross_2d(this->m_line_direction, p_delta) / denominator;
-  } else {
-    return std::vector<Eigen::Vector2f>{};
+  if (comparison::abs_eq_zero<float32_t>(denominator, 0.0001F)) {
+    return EigenStlVector<Eigen::Vector2f>{};
   }
-  // If the scalar factors are not within the line length and non zero return empty vec
-  if (t1 < 0 || t1 > this->m_line_length || t2 < 0 || t2 > line.m_line_length) {
-    return std::vector<Eigen::Vector2f>{};
+
+  float32_t t1 = cross_2d(line.m_line_direction, p_delta) / denominator;
+  float32_t t2 = cross_2d(this->m_line_direction, p_delta) / denominator;
+
+  const bool8_t t1_out_of_bounds = (t1<0.0F || t1> this->m_line_length);
+  const bool8_t t2_out_of_bounds = (t2<0.0F || t2> this->m_line_length);
+
+  if (t1_out_of_bounds || t2_out_of_bounds) {
+    return EigenStlVector<Eigen::Vector2f>{};
   }
-  return std::vector<Eigen::Vector2f>{this->m_start + (t1 * this->m_line_direction)};
+  return EigenStlVector<Eigen::Vector2f>{this->m_start + (t1 * this->m_line_direction)};
 }
 
-Eigen::Vector2f Line::get_point(const float_t scale) const
+Eigen::Vector2f Line::get_point(const float32_t scale) const
 {
   return this->m_start + scale * this->m_line_direction;
 }
 
+
 Rectangle::Rectangle(
-  const Eigen::Vector2f & center, const Eigen::Vector2f & size, const float_t
-  orientation_degrees)
+  const Eigen::Vector2f & center, const Eigen::Vector2f & size, const float32_t orientation_degrees)
+: m_center(center), m_size(size)
 {
-  constexpr auto degrees = 180.0F;
-  this->m_center = center;
-  this->m_size = size;
-  this->m_orientation_degrees = orientation_degrees *
-    (static_cast<float_t>(EIGEN_PI) / degrees);
-  const Eigen::Rotation2D<float_t> rotation(m_orientation_degrees);
+  this->m_orientation_radians = to_radians(orientation_degrees);
+  const Eigen::Rotation2D<float32_t> rotation(m_orientation_radians);
   const Eigen::Matrix2f rotation_matrix = rotation.toRotationMatrix();
 
-  m_corners = {m_center + rotation_matrix * ((Eigen::Vector2f{-m_size[0], -m_size[1]} *0.5)),
-    m_center + rotation_matrix * ((Eigen::Vector2f{m_size[0], -m_size[1]} *0.5)),
-    m_center + rotation_matrix * ((Eigen::Vector2f{m_size[0], m_size[1]} *0.5)),
-    m_center + rotation_matrix * ((Eigen::Vector2f{-m_size[0], m_size[1]} *0.5))};
+  m_corners = {m_center + rotation_matrix * ((Eigen::Vector2f{-m_size[0], -m_size[1]} *0.5F)),
+    m_center + rotation_matrix * ((Eigen::Vector2f{m_size[0], -m_size[1]} *0.5F)),
+    m_center + rotation_matrix * ((Eigen::Vector2f{m_size[0], m_size[1]} *0.5F)),
+    m_center + rotation_matrix * ((Eigen::Vector2f{-m_size[0], m_size[1]} *0.5F))};
 
   m_borders = {
     Line{m_corners[0], m_corners[1]},
@@ -87,87 +108,73 @@ Rectangle::Rectangle(
     Line{m_corners[3], m_corners[0]}};
 }
 
-///  We can pass the rectangle borders to the Line::intersect with lidar function
-/// one by one to see if the lidar is intersecting any of the 4 sides of the rectangle and get
-/// the intersection points if any from there.
-std::vector<Eigen::Vector2f> Rectangle::intersect_with_lidar(
-  const Line & line, const
-  bool
-  closest_point_only) const
+EigenStlVector<Eigen::Vector2f> Rectangle::intersect_with_line(
+  const Line & line, const bool8_t closest_point_only) const
 {
-  std::vector<Eigen::Vector2f> intersections{};
+  ///  We can pass the rectangle borders to the Line::intersect_with_line function
+  /// one by one to see if the line is intersecting any of the 4 sides of the rectangle and get
+  /// the intersection points if any from there.
+  EigenStlVector<Eigen::Vector2f> intersections{};
   for (const auto & border : this->m_borders) {
-    const auto & current_intersection_vec = border.intersect_with_lidar(line, true);
+    const auto & current_intersection_vec = border.intersect_with_line(line, true);
     if (!current_intersection_vec.empty()) {
       intersections.emplace_back(current_intersection_vec[0]);
     }
   }
   if (intersections.empty()) {
-    return std::vector<Eigen::Vector2f>{};
+    return EigenStlVector<Eigen::Vector2f>{};
   }
-  /// Case to return closest intersection only
   if (closest_point_only) {
     sort(
-      intersections.begin(), intersections.end(), [&](const
-      Eigen::Vector2f & point_a,
-      const Eigen::Vector2f &
-      point_b) {
-        return (point_a - line.get_start_pt()).norm() < (point_b -
-        line.get_start_pt())
-        .norm();
+      intersections.begin(), intersections.end(), [&](const Eigen::Vector2f & point_a,
+      const Eigen::Vector2f & point_b) {
+        return (point_a - line.starting_point()).norm() < (point_b -
+        line.starting_point()).norm();
       });
-    return std::vector<Eigen::Vector2f>{intersections[0]};
+    return EigenStlVector<Eigen::Vector2f>{intersections[0]};
   }
-  /// Else return all intersections
   return intersections;
 }
 
-Circle::Circle(const Eigen::Vector2f & center, const float_t radius)
-{
-  m_center = center;
-  m_radius = radius;
-}
+Circle::Circle(const Eigen::Vector2f & center, const float32_t radius)
+: m_center(center), m_radius(radius) {}
 
-/// Given a line in the form of  𝑝=𝑝0+𝑡⋅𝑑 , where  𝑝  is a point on a line, 𝑝0 is the 2D
-/// starting point of the line,
-/// 𝑡  is a scale parameter and  𝑑  is the normalized direction vector and a circle in the form
-/// of  (𝑥−𝑥c)^2+(𝑦−𝑦c)^2 = 𝑟^2 ,
-/// where  𝑥,𝑦  are coordinates of a point on a circle,  𝑥c,𝑦c  are the coordinates of the center
-/// of the circle and 𝑟  is the radius of this circle, we can form a single equation from which
-/// we look for such values of 𝑡 that the resulting point lies both on the point and on the
-/// circle.
-std::vector<Eigen::Vector2f> Circle::intersect_with_lidar(
-  const Line & line, const
-  bool
-  closest_point_only) const
+
+EigenStlVector<Eigen::Vector2f> Circle::intersect_with_line(
+  const Line & line, const bool8_t closest_point_only) const
 {
-  const Eigen::Vector2f delta = m_center - line.get_start_pt();
-  const float_t root_part = powf(m_radius, 2) - powf(cross_2d(delta, line.get_line_dir()), 2);
-  if (root_part < 0) {
-    return std::vector<Eigen::Vector2f>();
+  /// Given a line in the form of  \f$(𝑝=𝑝_0+𝑡⋅𝑑)\f$ , where \f$(𝑝)\f$ is a point on a line,
+  /// \f$(𝑝_0)\f$ is the 2D starting point of the line, \f$(𝑡)\f$ is a scale parameter and \f$
+  /// (𝑑)\f$ is the normalized direction vector and a circle in the form of  \f$(𝑥−𝑥_c)^2+(𝑦−𝑦_c)
+  /// ^2 = 𝑟^2\f$ , where \f$(𝑥,𝑦)\f$ are coordinates of a point on a circle,\f$(𝑥_c,𝑦_c)\f$ are
+  /// the coordinates of the center of the circle and \f$(𝑟)\f$ is the radius of this circle, we
+  /// can form a single equation from which we look for such values of \f$(𝑡)\f$ that the
+  /// resulting point lies both on the point and on the circle.
+  const Eigen::Vector2f delta = m_center - line.starting_point();
+  const float32_t root_part = powf32(m_radius, 2) - powf32(cross_2d(delta, line.direction()), 2);
+  if (root_part < 0.0F) {
+    return EigenStlVector<Eigen::Vector2f>();
   }
-  const float_t prefix_part = line.get_line_dir().transpose() * delta;
-  std::vector<float_t> distances {};
-  if (static_cast<int>(root_part) == 0) {
+  const float32_t prefix_part = line.direction().transpose() * delta;
+  std::vector<float32_t> distances {};
+  if (comparison::abs_eq_zero<float32_t>(root_part, 0.0001F)) {
     distances.emplace_back(prefix_part);
   } else {
-    distances.emplace_back(prefix_part + powf(root_part, 2));
-    distances.emplace_back(prefix_part - powf(root_part, 2));
+    distances.emplace_back(prefix_part + sqrtf32(root_part));
+    distances.emplace_back(prefix_part - sqrtf32(root_part));
   }
   /// Sort the intersections with closest being the first
   std::sort(distances.begin(), distances.end());
 
   /// If invalid distance return empty vector
-  if (distances[0] < 0 || distances[0] > line.get_line_length()) {
-    return std::vector<Eigen::Vector2f>{};
+  if (distances[0] < 0.0F || distances[0] > line.length()) {
+    return EigenStlVector<Eigen::Vector2f>{};
   }
 
-  std::vector<Eigen::Vector2f> intersections{};
-  /// Case to return closest intersection only
+  EigenStlVector<Eigen::Vector2f> intersections{};
   if (closest_point_only) {
     intersections.emplace_back(line.get_point(distances[0]));
   } else {
-    /// Else return all intersections
     for (const auto & scale  : distances) {
       intersections.emplace_back(line.get_point(scale));
     }

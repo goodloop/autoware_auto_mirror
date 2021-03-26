@@ -21,11 +21,11 @@
     #define TRACKING_TEST_FRAMEWORK_PUBLIC __declspec(dllexport)
     #define TRACKING_TEST_FRAMEWORK_LOCAL
   #else  // defined(TRACKING_TEST_FRAMEWORK_BUILDING_DLL) || defined
-  // (TRACKING_TEST_FRAMEWORK_EXPORTS)
+// (TRACKING_TEST_FRAMEWORK_EXPORTS)
     #define TRACKING_TEST_FRAMEWORK_PUBLIC __declspec(dllimport)
     #define TRACKING_TEST_FRAMEWORK_LOCAL
   #endif  // defined(TRACKING_TEST_FRAMEWORK_BUILDING_DLL) || defined
-  // (TRACKING_TEST_FRAMEWORK_EXPORTS)
+// (TRACKING_TEST_FRAMEWORK_EXPORTS)
 #elif defined(__linux__)
   #define TRACKING_TEST_FRAMEWORK_PUBLIC __attribute__((visibility("default")))
   #define TRACKING_TEST_FRAMEWORK_LOCAL __attribute__((visibility("hidden")))

@@ -28,9 +28,6 @@ ament_auto_find_build_dependencies(REQUIRED
   ${${PROJECT_NAME}_BUILDTOOL_DEPENDS}
 )
 
-# Disable warnings due to external dependencies (Eigen)
-include_directories(SYSTEM ${EIGEN3_INCLUDE_DIR})
-
 set(TRACKING_TEST_FRAMEWORK_LIB_SRC
   src/tracking_test_framework.cpp
 )
@@ -45,26 +42,9 @@ ament_auto_add_library(${PROJECT_NAME} SHARED
   ${TRACKING_TEST_FRAMEWORK_LIB_SRC}
   ${TRACKING_TEST_FRAMEWORK_LIB_HEADERS}
 )
+target_include_directories(${PROJECT_NAME} SYSTEM PUBLIC ${EIGEN3_INCLUDE_DIR})
 autoware_set_compile_options(${PROJECT_NAME})
 
-set(TRACKING_TEST_FRAMEWORK_NODE_SRC
-  src/tracking_test_framework_node.cpp
-)
-
-set(TRACKING_TEST_FRAMEWORK_NODE_HEADERS
-  include/tracking_test_framework/tracking_test_framework_node.hpp
-)
-
-# generate component node library
-ament_auto_add_library(${PROJECT_NAME}_node SHARED
-  ${TRACKING_TEST_FRAMEWORK_NODE_SRC}
-  ${TRACKING_TEST_FRAMEWORK_NODE_HEADERS}
-)
-autoware_set_compile_options(${PROJECT_NAME}_node)
-rclcpp_components_register_node(${PROJECT_NAME}_node
-  PLUGIN "autoware::tracking_test_framework::TrackingTestFrameworkNode"
-  EXECUTABLE ${PROJECT_NAME}_node_exe
-)
 
 # Testing
 if(BUILD_TESTING)
@@ -80,6 +60,4 @@ if(BUILD_TESTING)
 endif()
 
 # ament package generation and installing
-ament_auto_package(INSTALL_TO_SHARE
-  launch
-)
+ament_auto_package(INSTALL_TO_SHARE)
