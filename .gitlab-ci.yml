@@ -5,7 +5,11 @@ stages:
   - test
   - deploy
 
-.ade_base: &ade_base
+.ade_base:
+  variables:
+    DOCKER_DRIVER: overlay2
+    ROS_DISTRO: foxy
+    UBUNTU_DISTRO: focal
   stage: ade
   image: docker
   services:
@@ -50,8 +54,13 @@ stages:
   after_script:
     - docker container rm -f $(docker container ls --filter "status=exited" -q)
     - docker image rm $(docker image ls -q)
+  needs:
+    - gen_ros_deps_foxy
 
-.build_barebones_base: &build_barebones_base
+.build_barebones_base:
+  variables:
+    RMW_IMPLEMENTATION: rmw_fastrtps_cpp
+    ROS_DISTRO: foxy
   stage: build
   script:
     - 'apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends
@@ -94,8 +103,10 @@ stages:
            --merge-install
            --install-base /opt/AutowareAuto
       '
+  needs:
+    - gen_ros_deps_foxy
 
-.build_base: &build_base
+.build_base:
   stage: build
   image: $CI_REGISTRY_IMAGE/$ARCH/ade-$ROS_DISTRO:commit-$CI_COMMIT_SHA
   script:
@@ -129,7 +140,7 @@ stages:
       - external_deps.txt
       - opt.tar.gz
 
-.gen_deps_base: &gen_deps_base
+.gen_deps_base:
   stage: .pre
   script:
     - apt-get update && apt-get install python3-vcstool
@@ -141,7 +152,7 @@ stages:
     paths:
       - ros-deps
 
-.test_base: &test_base
+.test_base:
   stage: test
   image: $CI_REGISTRY_IMAGE/$ARCH/ade-$ROS_DISTRO:commit-$CI_COMMIT_SHA
   script:
@@ -185,7 +196,7 @@ stages:
     reports:
       junit: test-results.xml
 
-.volume_base: &volume_base
+.volume_base:
   stage: deploy
   image: docker
   services:
@@ -217,29 +228,19 @@ stages:
 
 gen_ros_deps_foxy:
   image: ros:foxy
-  <<: *gen_deps_base
+  extends: .gen_deps_base
 
 ade_amd64_foxy:
   variables:
     ARCH: amd64
-    DOCKER_DRIVER: overlay2
-    ROS_DISTRO: foxy
-    UBUNTU_DISTRO: focal
-  <<: *ade_base
-  needs:
-    - gen_ros_deps_foxy
+  extends: .ade_base
 
 ade_arm64_foxy:
   variables:
     ARCH: arm64
-    DOCKER_DRIVER: overlay2
-    ROS_DISTRO: foxy
-    UBUNTU_DISTRO: focal
   tags:
     - arm64
-  <<: *ade_base
-  needs:
-    - gen_ros_deps_foxy
+  extends: .ade_base
   only:
     - branches@autowarefoundation/autoware.auto/AutowareAuto
     - tags@autowarefoundation/autoware.auto/AutowareAuto
@@ -248,13 +249,9 @@ build_barebones_amd64_foxy:
   image: ubuntu:focal
   variables:
     ARCH: amd64
-    RMW_IMPLEMENTATION: rmw_fastrtps_cpp
-    ROS_DISTRO: foxy
   tags:
     - shared
-  <<: *build_barebones_base
-  needs:
-    - gen_ros_deps_foxy
+  extends: .build_barebones_base
 
 build_barebones_arm64_foxy:
   image: ubuntu:focal
@@ -262,11 +259,7 @@ build_barebones_arm64_foxy:
     - arm64
   variables:
     ARCH: arm64
-    RMW_IMPLEMENTATION: rmw_fastrtps_cpp
-    ROS_DISTRO: foxy
-  <<: *build_barebones_base
-  needs:
-    - gen_ros_deps_foxy
+  extends: .build_barebones_base
   only:
     - branches@autowarefoundation/autoware.auto/AutowareAuto
     - tags@autowarefoundation/autoware.auto/AutowareAuto
@@ -278,7 +271,7 @@ build_amd64_foxy:
     ROS_DISTRO: foxy
   tags:
     - shared
-  <<: *build_base
+  extends: .build_base
   needs:
     - job: ade_amd64_foxy
 
@@ -289,7 +282,7 @@ build_arm64_foxy:
     ROS_DISTRO: foxy
   tags:
     - arm64
-  <<: *build_base
+  extends: .build_base
   only:
     - branches@autowarefoundation/autoware.auto/AutowareAuto
     - tags@autowarefoundation/autoware.auto/AutowareAuto
@@ -303,7 +296,7 @@ test_amd64_foxy:
     ROS_DISTRO: foxy
   tags:
     - shared
-  <<: *test_base
+  extends: .test_base
   needs:
     - build_amd64_foxy
 
@@ -314,7 +307,7 @@ test_arm64_foxy:
     ROS_DISTRO: foxy
   tags:
     - arm64
-  <<: *test_base
+  extends: .test_base
   only:
     - branches@autowarefoundation/autoware.auto/AutowareAuto
     - tags@autowarefoundation/autoware.auto/AutowareAuto
@@ -392,7 +385,7 @@ volume_amd64_foxy:
     RMW_IMPLEMENTATION: rmw_cyclonedds_cpp
     ROS_DISTRO: foxy
     UBUNTU_DISTRO: bionic
-  <<: *volume_base
+  extends: .volume_base
   needs:
     - test_amd64_foxy
 
@@ -409,7 +402,7 @@ volume_arm64_foxy:
     RMW_IMPLEMENTATION: rmw_cyclonedds_cpp
     ROS_DISTRO: foxy
     UBUNTU_DISTRO: bionic
-  <<: *volume_base
+  extends: .volume_base
   only:
     - branches@autowarefoundation/autoware.auto/AutowareAuto
     - tags@autowarefoundation/autoware.auto/AutowareAuto
