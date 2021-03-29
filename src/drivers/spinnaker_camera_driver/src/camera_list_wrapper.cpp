@@ -48,28 +48,23 @@ CameraListWrapper::CameraListWrapper(
   const std::vector<CameraSettings> & camera_settings)
 : m_camera_list{camera_list}
 {
-  for (std::uint32_t camera_index = 0; camera_index < m_camera_list.GetSize(); ++camera_index) {
-    std::uint32_t setting_index;
-    std::string device_serial_number = get_camera_serial_number(m_camera_list[camera_index]);
-    for (setting_index = 0; setting_index < camera_settings.size(); ++setting_index) {
-      if (camera_settings[setting_index].get_serial_number().empty() ||
-        (device_serial_number == camera_settings[setting_index].get_serial_number())) {
-        break;
-      }
-    }
-    if (setting_index == camera_settings.size()) {
-      m_camera_list.RemoveBySerial(device_serial_number);
-    }
-  }
-  if (camera_settings.size() != m_camera_list.GetSize()) {
-    throw std::logic_error("Number of settings does not match the number of available cameras.");
+  if (camera_settings.size() > m_camera_list.GetSize()) {
+    throw std::logic_error("The number of settings is greater than the number of available cameras.");
   }
 
   m_cameras.reserve(m_camera_list.GetSize());
+  std::uint32_t current_index = 0;
   for (std::uint32_t camera_index = 0; camera_index < m_camera_list.GetSize(); ++camera_index) {
-    m_cameras.emplace_back(camera_index,
-      m_camera_list.GetByIndex(camera_index),
-      camera_settings[camera_index]);
+    std::string device_serial_number = get_camera_serial_number(m_camera_list[camera_index]);
+    for (std::uint32_t setting_index = 0; setting_index < camera_settings.size(); ++setting_index) {
+      if (camera_settings[setting_index].get_serial_number().empty() ||
+        (device_serial_number == camera_settings[setting_index].get_serial_number())) {
+          m_cameras.emplace_back(current_index,
+            m_camera_list.GetByIndex(current_index),
+            camera_settings[setting_index]);
+          current_index++;
+       }
+    }
   }
 }
 
