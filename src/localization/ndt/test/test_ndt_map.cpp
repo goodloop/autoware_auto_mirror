@@ -236,7 +236,7 @@ TEST_F(DenseNDTMapTest, map_lookup) {
   DynamicNDTMap ndt_map(grid_config);
 
   // No map is added, so a lookup should return an empty vector.
-  EXPECT_TRUE(ndt_map.cell(0.0, 0.0, 0.0).empty());
+  EXPECT_TRUE(ndt_map.cell(0.0F, 0.0F, 0.0F).empty());
 
   // build a pointcloud map.
   // It contains 5*5*5*7 points where each cell would have a center
@@ -282,7 +282,10 @@ TEST_F(DenseNDTMapTest, map_lookup) {
         // Query the idx of the expected centroid via the config object:
         auto expected_idx = grid_config.index(Eigen::Vector3d(x, y, z));
         // Get the cell index ndt map estimated:
-        auto cell = ndt_map.cell(x, y, z);
+        auto cell = ndt_map.cell(
+          static_cast<float32_t>(x),
+          static_cast<float32_t>(y),
+          static_cast<float32_t>(z));
         auto map_idx = grid_config.index(cell[0].centroid());
         EXPECT_EQ(expected_idx, map_idx);
       }

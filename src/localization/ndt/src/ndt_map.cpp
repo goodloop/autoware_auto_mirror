@@ -94,9 +94,32 @@ uint32_t validate_pcl_map(const sensor_msgs::msg::PointCloud2 & msg)
   return ret;
 }
 
+DynamicNDTMap::DynamicNDTMap(const Config & voxel_grid_config)
+: m_grid{voxel_grid_config} {}
+
+const std::string & DynamicNDTMap::frame_id() const noexcept
+{
+  return m_frame_id;
+}
+
+DynamicNDTMap::TimePoint DynamicNDTMap::stamp() const noexcept
+{
+  return m_stamp;
+}
+
+bool DynamicNDTMap::valid() const noexcept
+{
+  return (m_grid.size() > 0U) && (!m_frame_id.empty());
+}
+
+const DynamicNDTMap::ConfigPoint & DynamicNDTMap::cell_size() const noexcept
+{
+  return m_grid.cell_size();
+}
+
 void DynamicNDTMap::set(const sensor_msgs::msg::PointCloud2 & msg)
 {
-  clear();
+  m_grid.clear();
   insert(msg);
 }
 
@@ -111,21 +134,19 @@ void DynamicNDTMap::insert(const sensor_msgs::msg::PointCloud2 & msg)
     z_it != z_it.end())
   {
     const auto pt = Point({*x_it, *y_it, *z_it});
-    const auto voxel_idx = index(pt);
-    voxel(voxel_idx).add_observation(pt);  // Add or insert new voxel.
+    m_grid.add_observation(pt);  // Add or insert new voxel.
 
     ++x_it;
     ++y_it;
     ++z_it;
   }
   // try to stabilizie the covariance after inserting all the points
-  for (auto & vx_it : *this) {
+  for (auto & vx_it : m_grid) {
     auto & vx = vx_it.second;
     (void) vx.try_stabilize();
   }
-
-  set_frame_id(msg.header.frame_id);
-  set_stamp(::time_utils::from_message(msg.header.stamp));
+  m_stamp = ::time_utils::from_message(msg.header.stamp);
+  m_frame_id = msg.header.frame_id;
 }
 
 /// The resulting point cloud has the following fields: x, y, z, cov_xx, cov_xy, cov_xz, cov_yy,
@@ -138,7 +159,7 @@ void DynamicNDTMap::serialize_as<StaticNDTMap>(sensor_msgs::msg::PointCloud2 & m
   auto dummy_idx{0U};
   common::lidar_utils::reset_pcl_msg(msg_out, 0U, dummy_idx);
   common::lidar_utils::init_pcl_msg(
-    msg_out, frame_id(), size(), 10U,
+    msg_out, m_frame_id, m_grid.size(), 10U,
     "x", 1U, sensor_msgs::msg::PointField::FLOAT64,
     "y", 1U, sensor_msgs::msg::PointField::FLOAT64,
     "z", 1U, sensor_msgs::msg::PointField::FLOAT64,
@@ -149,7 +170,7 @@ void DynamicNDTMap::serialize_as<StaticNDTMap>(sensor_msgs::msg::PointCloud2 & m
     "icov_yz", 1U, sensor_msgs::msg::PointField::FLOAT64,
     "icov_zz", 1U, sensor_msgs::msg::PointField::FLOAT64,
     "cell_id", 2U, sensor_msgs::msg::PointField::UINT32);
-  msg_out.header.stamp = time_utils::to_message(stamp());
+  msg_out.header.stamp = time_utils::to_message(m_stamp);
 
   sensor_msgs::PointCloud2Iterator<ndt::Real> x_it(msg_out, "x");
   sensor_msgs::PointCloud2Iterator<ndt::Real> y_it(msg_out, "y");
@@ -163,7 +184,7 @@ void DynamicNDTMap::serialize_as<StaticNDTMap>(sensor_msgs::msg::PointCloud2 & m
   sensor_msgs::PointCloud2Iterator<uint32_t> cell_id_it(msg_out, "cell_id");
 
   auto num_used_cells = 0U;
-  for (const auto & vx_it : *this) {
+  for (const auto & vx_it : m_grid) {
     if (!  // No `==` operator defined for PointCloud2Iterators
       (y_it != y_it.end() &&
       z_it != z_it.end() &&
@@ -204,7 +225,7 @@ void DynamicNDTMap::serialize_as<StaticNDTMap>(sensor_msgs::msg::PointCloud2 & m
 
     // There are cases where the centroid of a voxel does get indexed to another voxel. To prevent
     // ID mismatches while transferring the map. The index from the voxel grid config is used.
-    const auto correct_idx = index(centroid);
+    const auto correct_idx = m_grid.index(centroid);
 
     std::memcpy(&cell_id_it[0U], &(correct_idx), sizeof(correct_idx));
     ++x_it;
@@ -223,13 +244,66 @@ void DynamicNDTMap::serialize_as<StaticNDTMap>(sensor_msgs::msg::PointCloud2 & m
   common::lidar_utils::resize_pcl_msg(msg_out, num_used_cells);
 }
 
+const DynamicNDTMap::VoxelViewVector & DynamicNDTMap::cell(const Point & pt) const
+{
+  return m_grid.cell(pt);
+}
+
+const DynamicNDTMap::VoxelViewVector & DynamicNDTMap::cell(float32_t x, float32_t y, float32_t z)
+const
+{
+  return cell(Point({x, y, z}));
+}
+
+std::size_t DynamicNDTMap::size() const noexcept
+{
+  return m_grid.size();
+}
+
+typename DynamicNDTMap::VoxelGrid::const_iterator DynamicNDTMap::begin() const noexcept
+{
+  return m_grid.cbegin();
+}
+
+typename DynamicNDTMap::VoxelGrid::const_iterator DynamicNDTMap::end() const noexcept
+{
+  return m_grid.cend();
+}
+
+void DynamicNDTMap::clear() noexcept
+{
+  m_grid.clear();
+}
+
+const std::string & StaticNDTMap::frame_id() const noexcept
+{
+  return m_frame_id;
+}
+
+StaticNDTMap::TimePoint StaticNDTMap::stamp() const noexcept
+{
+  return m_stamp;
+}
+
+bool StaticNDTMap::valid() const noexcept
+{
+  return (m_grid.size() > 0U) && (!m_frame_id.empty());
+}
+
+const StaticNDTMap::ConfigPoint & StaticNDTMap::cell_size() const noexcept
+{
+  return m_grid.cell_size();
+}
+
+StaticNDTMap::StaticNDTMap(const Config & voxel_grid_config)
+: m_grid{voxel_grid_config} {}
 
 void StaticNDTMap::set(const sensor_msgs::msg::PointCloud2 & msg)
 {
-  clear();
+  m_grid.clear();
   deserialize_from(msg);
-  set_frame_id(msg.header.frame_id);
-  set_stamp(::time_utils::from_message(msg.header.stamp));
+  m_stamp = ::time_utils::from_message(msg.header.stamp);
+  m_frame_id = msg.header.frame_id;
 }
 
 void StaticNDTMap::deserialize_from(const sensor_msgs::msg::PointCloud2 & msg)
@@ -265,12 +339,12 @@ void StaticNDTMap::deserialize_from(const sensor_msgs::msg::PointCloud2 & msg)
     cell_id_it != cell_id_it.end())
   {
     const Point centroid{*x_it, *y_it, *z_it};
-    const auto voxel_idx = index(centroid);
+    const auto voxel_idx = m_grid.index(centroid);
 
     // Since no native usigned long support is vailable for a point field
     // the `cell_id_it` points to an array of two 32 bit integers to represent
     // a long number. So the assignments must be done via memcpy.
-    Grid::key_type received_idx = 0U;
+    auto received_idx = 0U;
     std::memcpy(&received_idx, &cell_id_it[0U], sizeof(received_idx));
 
     // If the pointcloud does not represent a voxel grid of identical configuration,
@@ -288,7 +362,7 @@ void StaticNDTMap::deserialize_from(const sensor_msgs::msg::PointCloud2 & msg)
       *icov_xz_it, *icov_yz_it, *icov_zz_it;
     const Voxel vx{centroid, inv_covariance};
 
-    const auto insert_res = emplace(voxel_idx, Voxel{centroid, inv_covariance});
+    const auto insert_res = m_grid.emplace(voxel_idx, Voxel{centroid, inv_covariance});
     if (!insert_res.second) {
       // if a voxel already exist at this point, replace.
       insert_res.first->second = vx;
@@ -305,6 +379,36 @@ void StaticNDTMap::deserialize_from(const sensor_msgs::msg::PointCloud2 & msg)
     ++icov_zz_it;
     ++cell_id_it;
   }
+}
+const StaticNDTMap::VoxelViewVector & StaticNDTMap::cell(const Point & pt) const
+{
+  return m_grid.cell(pt);
+}
+
+const StaticNDTMap::VoxelViewVector & StaticNDTMap::cell(float32_t x, float32_t y, float32_t z)
+const
+{
+  return cell(Point({x, y, z}));
+}
+
+std::size_t StaticNDTMap::size() const noexcept
+{
+  return m_grid.size();
+}
+
+typename StaticNDTMap::VoxelGrid::const_iterator StaticNDTMap::begin() const noexcept
+{
+  return m_grid.cbegin();
+}
+
+typename StaticNDTMap::VoxelGrid::const_iterator StaticNDTMap::end() const noexcept
+{
+  return m_grid.cend();
+}
+
+void StaticNDTMap::clear() noexcept
+{
+  m_grid.clear();
 }
 }  // namespace ndt
 }  // namespace localization

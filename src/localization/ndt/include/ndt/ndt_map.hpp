@@ -20,6 +20,7 @@
 #include <ndt/ndt_common.hpp>
 #include <ndt/ndt_voxel.hpp>
 #include <ndt/ndt_voxel_view.hpp>
+#include <ndt/ndt_grid.hpp>
 #include <sensor_msgs/point_cloud2_iterator.hpp>
 #include <time_utils/time_utils.hpp>
 #include <vector>
@@ -27,7 +28,6 @@
 #include <unordered_map>
 #include <utility>
 #include <string>
-#include "common/types.hpp"
 
 using autoware::common::types::float32_t;
 
@@ -46,193 +46,20 @@ namespace ndt
 /// If the cloud is assessed to be invalid (i.e. due to invalid fields), then 0 is returned.
 uint32_t NDT_PUBLIC validate_pcl_map(const sensor_msgs::msg::PointCloud2 & msg);
 
-/////////////////////////////////////////////
-
-template<typename VoxelT>
-class NDTGrid
-{
-public:
-  using Grid = std::unordered_map<uint64_t, VoxelT>;
-  using Point = Eigen::Vector3d;
-  using Config = autoware::perception::filters::voxel_grid::Config;
-  using TimePoint = std::chrono::system_clock::time_point;
-  using VoxelViewVector = std::vector<VoxelView<VoxelT>>;
-
-  /// Constructor
-  /// \param voxel_grid_config Voxel grid config to configure the underlying voxel grid.
-  explicit NDTGrid(const Config & voxel_grid_config)
-  : m_config(voxel_grid_config), m_map(m_config.get_capacity())
-  {
-    m_output_vector.reserve(1U);
-  }
-
-  // Maps should be moved rather than being copied.
-  NDTGrid(const NDTGrid &) = delete;
-  NDTGrid & operator=(const NDTGrid &) = delete;
-
-  // Explicitly declaring to default is needed since we explicitly deleted the copy methods.
-  NDTGrid(NDTGrid &&) = default;
-  NDTGrid & operator=(NDTGrid &&) = default;
-
-  /// Lookup the cell at location.
-  /// \param x x coordinate
-  /// \param y y coordinate
-  /// \param z z coordinate
-  /// \return A vector containing the cell at given coordinates. A vector is used to support
-  /// near-neighbour cell queries in the future.
-  const VoxelViewVector & cell(float32_t x, float32_t y, float32_t z) const
-  {
-    return cell(Point({x, y, z}));
-  }
-
-  /// Lookup the cell at location.
-  /// \param pt point to lookup
-  /// \return A vector containing the cell at given coordinates. A vector is used to support
-  /// near-neighbour cell queries in the future.
-  const VoxelViewVector & cell(const Point & pt) const
-  {
-    // TODO(yunus.caliskan): revisit after multi-cell lookup support.
-    m_output_vector.clear();
-    const auto vx_it = m_map.find(m_config.index(pt));
-    // Only return a voxel if it's occupied (i.e. has enough points to compute covariance.)
-    if (vx_it != m_map.end() && vx_it->second.usable()) {
-      m_output_vector.emplace_back(vx_it->second);
-    }
-    return m_output_vector;
-  }
-  /// Get size of the map
-  /// \return Number of voxels in the map. This number includes the voxels that do not have
-  /// enough numbers to be used yet.
-  uint64_t size() const noexcept
-  {
-    return m_map.size();
-  }
-
-  /// Get size of the cell.
-  /// \return A point representing the dimensions of the cell.
-  auto cell_size() const noexcept
-  {
-    return m_config.get_voxel_size();
-  }
-
-  /// \brief Returns an const iterator to the first element of the map
-  /// \return Iterator
-  typename Grid::const_iterator begin() const noexcept
-  {
-    return cbegin();
-  }
-  /// \brief Returns an iterator to the first element of the map
-  /// \return Iterator
-  typename Grid::iterator begin() noexcept
-  {
-    return m_map.begin();
-  }
-  /// \brief Returns a const iterator to the first element of the map
-  /// \return Iterator
-  typename Grid::const_iterator cbegin() const noexcept
-  {
-    return m_map.cbegin();
-  }
-  /// \brief Returns a const iterator to one past the last element of the map
-  /// \return Iterator
-  typename Grid::const_iterator end() const noexcept
-  {
-    return cend();
-  }
-  /// \brief Returns an iterator to one past the last element of the map
-  /// \return Iterator
-  typename Grid::iterator end() noexcept
-  {
-    return m_map.end();
-  }
-  /// \brief Returns a const iterator to one past the last element of the map
-  /// \return Iterator
-  typename Grid::const_iterator cend() const noexcept
-  {
-    return m_map.cend();
-  }
-
-  /// Clear all voxels in the map
-  void clear() noexcept
-  {
-    m_map.clear();
-  }
-
-  /// Get map's time stamp.
-  /// \return map's time stamp.
-  TimePoint stamp() const noexcept
-  {
-    return m_stamp;
-  }
-
-  /// Get map's frame id.
-  /// \return Frame id of the map.
-  const std::string & frame_id() const noexcept
-  {
-    return m_frame_id;
-  }
-
-  /// \brief Check if the map is valid.
-  /// \return True if the map and frame ID are not empty and the stamp is initialized.
-  bool valid()
-  {
-    return (!m_map.empty()) && (!m_frame_id.empty());
-  }
-
-protected:
-  /// Get voxel index given a point.
-  /// \param pt point
-  /// \return voxel index
-  auto index(const Point & pt) const
-  {
-    return m_config.index(pt);
-  }
-
-  /// Get a reference to the voxel at the given index. If no voxel exists, a default constructed
-  /// Voxel is inserted.
-  /// \param idx
-  /// \return
-  VoxelT & voxel(uint64_t idx)
-  {
-    return m_map[idx];
-  }
-
-  auto emplace(uint64_t key, const VoxelT && vx)
-  {
-    return m_map.emplace(key, std::move(vx));
-  }
-
-  void set_frame_id(const std::string & frame_id)
-  {
-    m_frame_id = frame_id;
-  }
-
-  void set_stamp(const TimePoint & time_point)
-  {
-    m_stamp = time_point;
-  }
-
-private:
-  mutable VoxelViewVector m_output_vector;
-  const Config m_config;
-  Grid m_map;
-  TimePoint m_stamp{};
-  std::string m_frame_id{};
-};
-
-
 /// Ndt Map for a dynamic voxel type. This map representation is only to be used
 /// when a dense point cloud is intended to be represented as a map. (i.e. by the map publisher)
 class NDT_PUBLIC DynamicNDTMap
-  : public NDTGrid<DynamicNDTVoxel>
 {
 public:
   using Voxel = DynamicNDTVoxel;
-  using Grid = std::unordered_map<uint64_t, Voxel>;
   using Config = autoware::perception::filters::voxel_grid::Config;
   using Point = Eigen::Vector3d;
+  using TimePoint = std::chrono::system_clock::time_point;
+  using VoxelViewVector = std::vector<VoxelView<Voxel>>;
+  using VoxelGrid = NDTGrid<Voxel>::Grid;
+  using ConfigPoint = NDTGrid<Voxel>::ConfigPoint;
 
-  using NDTGrid::NDTGrid;
+  explicit DynamicNDTMap(const Config & voxel_grid_config);
 
   /// \brief Set the contents of the pointcloud as the new map.
   /// \param msg Pointcloud to be inserted.
@@ -250,17 +77,74 @@ public:
   /// the serialized map data.
   template<typename DeserializingMapT>
   void serialize_as(sensor_msgs::msg::PointCloud2 & msg_out) const;
+
+  /// Lookup the cell at location.
+  /// \param pt point to lookup
+  /// \return A vector containing the cell at given coordinates. A vector is used to support
+  /// near-neighbour cell queries in the future.
+  const VoxelViewVector & cell(const Point & pt) const;
+
+  /// Lookup the cell at location.
+  /// \param x x coordinate
+  /// \param y y coordinate
+  /// \param z z coordinate
+  /// \return A vector containing the cell at given coordinates. A vector is used to support
+  /// near-neighbour cell queries in the future.
+  const VoxelViewVector & cell(float32_t x, float32_t y, float32_t z) const;
+
+  /// Get map's frame id.
+  /// \return Frame id of the map.
+  const std::string & frame_id() const noexcept;
+
+  /// Get map's time stamp.
+  /// \return map's time stamp.
+  TimePoint stamp() const noexcept;
+
+  /// \brief Check if the map is valid.
+  /// \return True if the map and frame ID are not empty and the stamp is initialized.
+  bool valid() const noexcept;
+
+  /// Get size of the cell.
+  /// \return A point representing the dimensions of the cell.
+  const ConfigPoint & cell_size() const noexcept;
+
+  /// Get size of the map
+  /// \return Number of voxels in the map. This number includes the voxels that do not have
+  /// enough numbers to be used yet.
+  std::size_t size() const noexcept;
+
+  /// \brief Returns an const iterator to the first element of the map
+  /// \return Iterator
+  typename VoxelGrid::const_iterator begin() const noexcept;
+
+  /// \brief Returns a const iterator to one past the last element of the map
+  /// \return Iterator
+  typename VoxelGrid::const_iterator end() const noexcept;
+
+  /// Clear all voxels in the map
+  void clear() noexcept;
+
+private:
+  NDTGrid<DynamicNDTVoxel> m_grid;
+  TimePoint m_stamp{};
+  std::string m_frame_id{};
 };
 
 /// NDT map using StaticNDTVoxels. This class is to be used when the pointcloud
 /// messages to be inserted already have the correct format (see validate_pcl_map(...)) and
 /// represent a transformed map. No centroid/covariance computation is done during run-time.
 class NDT_PUBLIC StaticNDTMap
-  : public NDTGrid<StaticNDTVoxel>
 {
 public:
-  using NDTGrid::NDTGrid;
   using Voxel = StaticNDTVoxel;
+  using Config = autoware::perception::filters::voxel_grid::Config;
+  using TimePoint = std::chrono::system_clock::time_point;
+  using Point = Eigen::Vector3d;
+  using VoxelViewVector = std::vector<VoxelView<Voxel>>;
+  using VoxelGrid = NDTGrid<Voxel>::Grid;
+  using ConfigPoint = NDTGrid<Voxel>::ConfigPoint;
+
+  explicit StaticNDTMap(const Config & voxel_grid_config);
 
   /// Set point cloud message representing the map to the map representation instance.
   /// Map is assumed to have correct format (see `validate_pcl_map(...)`) and was generated
@@ -272,63 +156,62 @@ public:
   /// of 2 unsigned integers. That is because there is no direct long support as a PointField.
   void set(const sensor_msgs::msg::PointCloud2 & msg);
 
+  /// Lookup the cell at location.
+  /// \param pt point to lookup
+  /// \return A vector containing the cell at given coordinates. A vector is used to support
+  /// near-neighbour cell queries in the future.
+  const VoxelViewVector & cell(const Point & pt) const;
+
+  /// Lookup the cell at location.
+  /// \param x x coordinate
+  /// \param y y coordinate
+  /// \param z z coordinate
+  /// \return A vector containing the cell at given coordinates. A vector is used to support
+  /// near-neighbour cell queries in the future.
+  const VoxelViewVector & cell(float32_t x, float32_t y, float32_t z) const;
+
+  /// Get map's frame id.
+  /// \return Frame id of the map.
+  const std::string & frame_id() const noexcept;
+
+  /// Get map's time stamp.
+  /// \return map's time stamp.
+  TimePoint stamp() const noexcept;
+
+  /// \brief Check if the map is valid.
+  /// \return True if the map and frame ID are not empty and the stamp is initialized.
+  bool valid() const noexcept;
+
+  /// Get size of the cell.
+  /// \return A point representing the dimensions of the cell.
+  const ConfigPoint & cell_size() const noexcept;
+
+  /// Get size of the map
+  /// \return Number of voxels in the map. This number includes the voxels that do not have
+  /// enough numbers to be used yet.
+  std::size_t size() const noexcept;
+
+  /// \brief Returns an const iterator to the first element of the map
+  /// \return Iterator
+  typename VoxelGrid::const_iterator begin() const noexcept;
+
+  /// \brief Returns a const iterator to one past the last element of the map
+  /// \return Iterator
+  typename VoxelGrid::const_iterator end() const noexcept;
+
+  /// Clear all voxels in the map
+  void clear() noexcept;
+
 private:
   /// Deserialize the given serialized point cloud map.
   /// \param msg PointCloud2 message containing the deserialized data.
   void deserialize_from(const sensor_msgs::msg::PointCloud2 & msg);
+  NDTGrid<StaticNDTVoxel> m_grid;
+  TimePoint m_stamp{};
+  std::string m_frame_id{};
 };
 
 }  // namespace ndt
 }  // namespace localization
-
-namespace common
-{
-namespace geometry
-{
-namespace point_adapter
-{
-/// Point adapters for eigen vector
-/// These adapters are necessary for the VoxelGrid to know how to access
-/// the coordinates from an eigen vector.
-template<>
-inline NDT_PUBLIC auto x_(const Eigen::Vector3d & pt)
-{
-  return static_cast<float32_t>(pt(0));
-}
-
-template<>
-inline NDT_PUBLIC auto y_(const Eigen::Vector3d & pt)
-{
-  return static_cast<float32_t>(pt(1));
-}
-
-template<>
-inline NDT_PUBLIC auto z_(const Eigen::Vector3d & pt)
-{
-  return static_cast<float32_t>(pt(2));
-}
-
-template<>
-inline NDT_PUBLIC auto & xr_(Eigen::Vector3d & pt)
-{
-  return pt(0);
-}
-
-template<>
-inline NDT_PUBLIC auto & yr_(Eigen::Vector3d & pt)
-{
-  return pt(1);
-}
-
-template<>
-inline NDT_PUBLIC auto & zr_(Eigen::Vector3d & pt)
-{
-  return pt(2);
-}
-
-
-}  // namespace point_adapter
-}  // namespace geometry
-}  // namespace common
 }  // namespace autoware
 #endif  // NDT__NDT_MAP_HPP_

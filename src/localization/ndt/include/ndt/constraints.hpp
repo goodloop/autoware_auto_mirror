@@ -87,7 +87,7 @@ struct P2DNDTOptimizationMapConstraint
 
   static_assert(
     common::helper_functions::expression_valid_with_return<call_cell_size, MapT,
-    perception::filters::voxel_grid::PointXYZ>::value,
+    const perception::filters::voxel_grid::PointXYZ &>::value,
     "The map should provide a `cell_size()` method");
 
   static constexpr Requires value{};
