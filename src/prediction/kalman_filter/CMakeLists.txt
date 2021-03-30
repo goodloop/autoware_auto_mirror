@@ -14,7 +14,6 @@ include_directories(SYSTEM ${EIGEN3_INCLUDE_DIR})
 # build library
 ament_auto_add_library(
   ${PROJECT_NAME} SHARED
-  src/kalman_filter.cpp
   src/linear_motion_model.cpp
   src/differential_drive_motion_model.cpp
   src/wiener_noise.cpp
@@ -29,7 +28,6 @@ if(BUILD_TESTING)
 
   # gtest
   ament_add_gtest(${KALMAN_FILTER_GTEST}
-                  test/src/test_kalman_filter.cpp
                   test/test_variables.cpp
                   test/test_kalman_filter.cpp
                   test/test_generic_state.cpp
