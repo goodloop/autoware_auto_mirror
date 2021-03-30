@@ -208,7 +208,7 @@ stages:
     DOCKER_DRIVER: overlay2
     RMW_IMPLEMENTATION: rmw_cyclonedds_cpp
     ROS_DISTRO: foxy
-    UBUNTU_DISTRO: bionic
+    UBUNTU_DISTRO: focal
   stage: deploy
   image: docker
   services:
