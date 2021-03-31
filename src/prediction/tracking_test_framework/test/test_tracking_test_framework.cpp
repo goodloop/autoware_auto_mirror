@@ -20,10 +20,10 @@
 
 // Test for line intersection with line
 TEST(test_tracking_test_framework, test_line_intersection_with_line) {
-  autoware::tracking_test_framework::Line l1 {Eigen::Vector2f{-1.0F, -1.0F},
-    Eigen::Vector2f{2.0F, 0.5F}};
-  autoware::tracking_test_framework::Line l2 {Eigen::Vector2f{1.0F, 0.0F}, Eigen::Vector2f{1.0F,
-      2.0F}};
+  autoware::tracking_test_framework::Line l1 {
+    Eigen::Vector2f{-1.0F, -1.0F}, Eigen::Vector2f{2.0F, 0.5F}};
+  autoware::tracking_test_framework::Line l2 {
+    Eigen::Vector2f{1.0F, 0.0F}, Eigen::Vector2f{1.0F, 2.0F}};
   EigenStlVector<Eigen::Vector2f> intersection_1 = l1.intersect_with_line(l2, true);
   ASSERT_EQ(intersection_1.size(), 1UL);
   EXPECT_FLOAT_EQ(intersection_1[0].x(), 1.0F);
@@ -37,26 +37,26 @@ TEST(test_tracking_test_framework, test_line_intersection_with_line) {
   EXPECT_FLOAT_EQ(intersection_2[0].y(), 0.0F);
 
   // Intersection of parallel lines should return empty vector
-  autoware::tracking_test_framework::Line l3 {Eigen::Vector2f{-1.0F, -3.0F}, Eigen::Vector2f{1.0F,
-      1.0F}};
-  autoware::tracking_test_framework::Line l4 {Eigen::Vector2f{-3.0F, -2.0F},
-    Eigen::Vector2f{-1.0F, 2.0F}};
+  autoware::tracking_test_framework::Line l3 {
+    Eigen::Vector2f{-1.0F, -3.0F}, Eigen::Vector2f{1.0F, 1.0F}};
+  autoware::tracking_test_framework::Line l4 {
+    Eigen::Vector2f{-3.0F, -2.0F}, Eigen::Vector2f{-1.0F, 2.0F}};
   EXPECT_TRUE(l3.intersect_with_line(l4, true).empty());
 
   // Non parallel lines which do not intersect should return empty vector
-  autoware::tracking_test_framework::Line l5 {Eigen::Vector2f{-1.0F, -1.0F},
-    Eigen::Vector2f{-1.0F, 1.5F}};
-  autoware::tracking_test_framework::Line l6 {Eigen::Vector2f{1.0F, -0.5F}, Eigen::Vector2f{-0.5F,
-      1.0F}};
+  autoware::tracking_test_framework::Line l5 {
+    Eigen::Vector2f{-1.0F, -1.0F}, Eigen::Vector2f{-1.0F, 1.5F}};
+  autoware::tracking_test_framework::Line l6 {
+    Eigen::Vector2f{1.0F, -0.5F}, Eigen::Vector2f{-0.5F, 1.0F}};
   EXPECT_TRUE(l5.intersect_with_line(l6, true).empty());
 }
 
 // Test for line intersection with rectangle
 TEST(test_tracking_test_framework, test_line_intersection_with_rectangle) {
-  autoware::tracking_test_framework::Rectangle rect {Eigen::Vector2f{0.0F, 0.0F},
-    Eigen::Vector2f{2.0F, 3.0F}, 0.0F};
-  autoware::tracking_test_framework::Line l1 {Eigen::Vector2f{-2.0F, 1.0F}, Eigen::Vector2f{2.0F,
-      1.0F}};
+  autoware::tracking_test_framework::Rectangle rect {
+    Eigen::Vector2f{0.0F, 0.0F}, Eigen::Vector2f{2.0F, 3.0F}, 0.0F};
+  autoware::tracking_test_framework::Line l1 {
+    Eigen::Vector2f{-2.0F, 1.0F}, Eigen::Vector2f{2.0F, 1.0F}};
   EigenStlVector<Eigen::Vector2f> intersection_1 = rect.intersect_with_line(l1, true);
   ASSERT_EQ(intersection_1.size(), 1UL);
   EXPECT_FLOAT_EQ(intersection_1[0].x(), -1.0F);
@@ -71,8 +71,8 @@ TEST(test_tracking_test_framework, test_line_intersection_with_rectangle) {
   EXPECT_FLOAT_EQ(intersection_2[1].y(), 1.0F);
 
   // Check non intersecting line case it should return empty vector
-  autoware::tracking_test_framework::Line l2 {Eigen::Vector2f{-2.0F, 0.0F},
-    Eigen::Vector2f{-2.0F, -1.5F}};
+  autoware::tracking_test_framework::Line l2 {
+    Eigen::Vector2f{-2.0F, 0.0F}, Eigen::Vector2f{-2.0F, -1.5F}};
   EXPECT_TRUE(rect.intersect_with_line(l2, true).empty());
 }
 
@@ -81,16 +81,16 @@ TEST(test_tracking_test_framework, test_line_intersection_with_circle) {
   autoware::tracking_test_framework::Circle circle {Eigen::Vector2f {1.0F, 1.0F}, 1.0F};
 
   // Intersection with line vertical to circle
-  autoware::tracking_test_framework::Line vertical_line {Eigen::Vector2f{0.0F, 0.0F},
-    Eigen::Vector2f{0.0F, 2.0F}};
+  autoware::tracking_test_framework::Line vertical_line {
+    Eigen::Vector2f{0.0F, 0.0F}, Eigen::Vector2f{0.0F, 2.0F}};
   EigenStlVector<Eigen::Vector2f> intersection_1 = circle.intersect_with_line(vertical_line, true);
   ASSERT_EQ(intersection_1.size(), 1UL);
   EXPECT_FLOAT_EQ(intersection_1[0].x(), 0.0F);
   EXPECT_FLOAT_EQ(intersection_1[0].y(), 1.0F);
 
   // Intersection with line horizontal to circle
-  autoware::tracking_test_framework::Line horizontal_line {Eigen::Vector2f{0, 0},
-    Eigen::Vector2f{2, 0}};
+  autoware::tracking_test_framework::Line horizontal_line {
+    Eigen::Vector2f{0, 0}, Eigen::Vector2f{2, 0}};
   EigenStlVector<Eigen::Vector2f> intersection_2 =
     circle.intersect_with_line(horizontal_line, true);
   ASSERT_EQ(intersection_2.size(), 1UL);
@@ -98,8 +98,8 @@ TEST(test_tracking_test_framework, test_line_intersection_with_circle) {
   EXPECT_FLOAT_EQ(intersection_2[0].y(), 0.0F);
 
   // Intersection with line diagonal to circle
-  autoware::tracking_test_framework::Line diagonal_line {Eigen::Vector2f{0, 0},
-    Eigen::Vector2f{2, 2}};
+  autoware::tracking_test_framework::Line diagonal_line {
+    Eigen::Vector2f{0, 0}, Eigen::Vector2f{2, 2}};
   EigenStlVector<Eigen::Vector2f> intersection_3 = circle.intersect_with_line(diagonal_line, true);
   ASSERT_EQ(intersection_3.size(), 1UL);
   EXPECT_FLOAT_EQ(intersection_3[0].x(), 0.2928932F);

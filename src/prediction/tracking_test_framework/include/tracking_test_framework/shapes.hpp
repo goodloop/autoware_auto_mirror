@@ -29,9 +29,8 @@
 #include <Eigen/Geometry>
 
 #include <cstdint>
-#include <vector>
 #include <memory>
-
+#include <vector>
 
 namespace autoware
 {
@@ -46,8 +45,8 @@ class TRACKING_TEST_FRAMEWORK_PUBLIC Line;
 class TRACKING_TEST_FRAMEWORK_PUBLIC Shape
 {
 public:
-  /// \brief virtual method to get intersection points with the LiDAR ray for the 2D objects
-  /// \param[in] line the Line object representing the LiDAR ray
+  /// \brief virtual method to get intersection points between the line and different shapes
+  /// \param[in] line the Line object
   /// \param[in] closest_point_only the boolean to determine if closest intersection to be
   /// returned or all
   /// \return returns the intersection points
@@ -58,7 +57,7 @@ public:
   virtual ~Shape() = default;
 };
 
-/// \brief This is the class which represents the LiDAR ray as a line and defines the function
+/// \brief This is the class which represents the line and defines the function
 /// intersect_with_line which gives the intersection points with another line
 class TRACKING_TEST_FRAMEWORK_PUBLIC Line : public Shape
 {
@@ -70,7 +69,7 @@ public:
   Line(const Eigen::Vector2f & start, const Eigen::Vector2f & end);
 
   /// \brief Method to get intersection points of a line with another line
-  /// \param[in] line the Line object representing the LiDAR ray
+  /// \param[in] line the Line object
   /// \param[in] closest_point_only the boolean to determine if closest intersection to be
   /// returned or all
   /// \return returns the intersection points
@@ -136,7 +135,7 @@ public:
     const autoware::common::types::float32_t orientation_degrees);
 
   /// \brief Method to get intersection points with rectangle and the input line
-  /// \param[in] line the Line object representing the LiDAR ray
+  /// \param[in] line the Line object
   /// \param[in] closest_point_only the boolean to determine if closest intersection to be
   /// returned or all
   /// \return returns the intersection points
@@ -165,7 +164,7 @@ public:
   Circle(const Eigen::Vector2f & center, const autoware::common::types::float32_t radius);
 
   /// \brief Method to get intersection points of circle and the line
-  /// \param[in] line the Line object representing the LiDAR ray
+  /// \param[in] line the Line object
   /// \param[in] closest_point_only the boolean to determine if closest intersection to be
   /// returned or all
   /// \return returns the intersection points

@@ -6,8 +6,8 @@ This is the design document for the `tracking_test_framework` package.
 
 # Purpose / Use cases
 
-We need a data generation and testing framework for testing the object tracking module in Autoware.
-Auto. The framework should enable the user to create test cases with easily definable specifications.
+We need a data generation and testing framework for testing the object tracking module in 
+AutowareAuto. The framework should enable the user to create test cases with easily definable specifications.
 
 ## Assumptions / Known limits
 1. For now we are assuming that tracking happens in 2D. So the objects being tracked are assumed 

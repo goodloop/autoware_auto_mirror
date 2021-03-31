@@ -29,11 +29,11 @@ ament_auto_find_build_dependencies(REQUIRED
 )
 
 set(TRACKING_TEST_FRAMEWORK_LIB_SRC
-  src/tracking_test_framework.cpp
+    src/shapes.cpp
 )
 
 set(TRACKING_TEST_FRAMEWORK_LIB_HEADERS
-  include/tracking_test_framework/tracking_test_framework.hpp
+    include/tracking_test_framework/shapes.hpp
   include/tracking_test_framework/visibility_control.hpp
 )
 

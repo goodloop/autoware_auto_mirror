@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <tracking_test_framework/tracking_test_framework.hpp>
+#include <tracking_test_framework/shapes.hpp>
 #include <helper_functions/float_comparisons.hpp>
 
 #include <algorithm>
@@ -35,8 +35,8 @@ namespace
 float32_t to_radians(const float32_t orientation_degrees)
 {
   /// Converts degrees to radians
-  constexpr auto degrees = 180.0F;
-  return orientation_degrees * (PI / degrees);
+  constexpr auto degrees_in_PI = 180.0F;
+  return orientation_degrees * (PI / degrees_in_PI);
 }
 
 float32_t cross_2d(const Eigen::Vector2f & vec1, const Eigen::Vector2f & vec2)
@@ -90,9 +90,8 @@ Eigen::Vector2f Line::get_point(const float32_t scale) const
 
 Rectangle::Rectangle(
   const Eigen::Vector2f & center, const Eigen::Vector2f & size, const float32_t orientation_degrees)
-: m_center(center), m_size(size)
+: m_center(center), m_size(size), m_orientation_radians(to_radians(orientation_degrees))
 {
-  this->m_orientation_radians = to_radians(orientation_degrees);
   const Eigen::Rotation2D<float32_t> rotation(m_orientation_radians);
   const Eigen::Matrix2f rotation_matrix = rotation.toRotationMatrix();
 
