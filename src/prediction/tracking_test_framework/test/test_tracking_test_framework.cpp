@@ -14,9 +14,14 @@
 
 #include <gtest/gtest.h>
 
-#include <tracking_test_framework/tracking_test_framework.hpp>
+#include <tracking_test_framework/shapes.hpp>
 
 #include <vector>
+namespace
+{
+// Tolerance value to be used for floating point comparisons
+constexpr auto epsilon = 1e-3F;
+}  // namespace
 
 // Test for line intersection with line
 TEST(test_tracking_test_framework, test_line_intersection_with_line) {
@@ -26,15 +31,15 @@ TEST(test_tracking_test_framework, test_line_intersection_with_line) {
     Eigen::Vector2f{1.0F, 0.0F}, Eigen::Vector2f{1.0F, 2.0F}};
   EigenStlVector<Eigen::Vector2f> intersection_1 = l1.intersect_with_line(l2, true);
   ASSERT_EQ(intersection_1.size(), 1UL);
-  EXPECT_FLOAT_EQ(intersection_1[0].x(), 1.0F);
-  EXPECT_FLOAT_EQ(intersection_1[0].y(), 0.0F);
+  EXPECT_NEAR(intersection_1[0].x(), 1.0F, epsilon);
+  EXPECT_NEAR(intersection_1[0].y(), 0.0F, epsilon);
 
   // Since line can intersect with line only at one point setting closest point only to false
   // should still return same result
   EigenStlVector<Eigen::Vector2f> intersection_2 = l1.intersect_with_line(l2, false);
   ASSERT_EQ(intersection_2.size(), 1UL);
-  EXPECT_FLOAT_EQ(intersection_2[0].x(), 1.0F);
-  EXPECT_FLOAT_EQ(intersection_2[0].y(), 0.0F);
+  EXPECT_NEAR(intersection_2[0].x(), 1.0F, epsilon);
+  EXPECT_NEAR(intersection_2[0].y(), 0.0F, epsilon);
 
   // Intersection of parallel lines should return empty vector
   autoware::tracking_test_framework::Line l3 {
@@ -59,16 +64,16 @@ TEST(test_tracking_test_framework, test_line_intersection_with_rectangle) {
     Eigen::Vector2f{-2.0F, 1.0F}, Eigen::Vector2f{2.0F, 1.0F}};
   EigenStlVector<Eigen::Vector2f> intersection_1 = rect.intersect_with_line(l1, true);
   ASSERT_EQ(intersection_1.size(), 1UL);
-  EXPECT_FLOAT_EQ(intersection_1[0].x(), -1.0F);
-  EXPECT_FLOAT_EQ(intersection_1[0].y(), 1.0F);
+  EXPECT_NEAR(intersection_1[0].x(), -1.0F, epsilon);
+  EXPECT_NEAR(intersection_1[0].y(), 1.0F, epsilon);
 
   // Check if multiple intersections returned when closest_point is set to false
   EigenStlVector<Eigen::Vector2f> intersection_2 = rect.intersect_with_line(l1, false);
   ASSERT_GT(intersection_2.size(), 1UL);
-  EXPECT_FLOAT_EQ(intersection_2[0].x(), 1.0F);
-  EXPECT_FLOAT_EQ(intersection_2[0].y(), 1.0F);
-  EXPECT_FLOAT_EQ(intersection_2[1].x(), -1.0F);
-  EXPECT_FLOAT_EQ(intersection_2[1].y(), 1.0F);
+  EXPECT_NEAR(intersection_2[0].x(), 1.0F, epsilon);
+  EXPECT_NEAR(intersection_2[0].y(), 1.0F, epsilon);
+  EXPECT_NEAR(intersection_2[1].x(), -1.0F, epsilon);
+  EXPECT_NEAR(intersection_2[1].y(), 1.0F, epsilon);
 
   // Check non intersecting line case it should return empty vector
   autoware::tracking_test_framework::Line l2 {
@@ -85,8 +90,8 @@ TEST(test_tracking_test_framework, test_line_intersection_with_circle) {
     Eigen::Vector2f{0.0F, 0.0F}, Eigen::Vector2f{0.0F, 2.0F}};
   EigenStlVector<Eigen::Vector2f> intersection_1 = circle.intersect_with_line(vertical_line, true);
   ASSERT_EQ(intersection_1.size(), 1UL);
-  EXPECT_FLOAT_EQ(intersection_1[0].x(), 0.0F);
-  EXPECT_FLOAT_EQ(intersection_1[0].y(), 1.0F);
+  EXPECT_NEAR(intersection_1[0].x(), 0.0F, epsilon);
+  EXPECT_NEAR(intersection_1[0].y(), 1.0F, epsilon);
 
   // Intersection with line horizontal to circle
   autoware::tracking_test_framework::Line horizontal_line {
@@ -94,22 +99,22 @@ TEST(test_tracking_test_framework, test_line_intersection_with_circle) {
   EigenStlVector<Eigen::Vector2f> intersection_2 =
     circle.intersect_with_line(horizontal_line, true);
   ASSERT_EQ(intersection_2.size(), 1UL);
-  EXPECT_FLOAT_EQ(intersection_2[0].x(), 1.0F);
-  EXPECT_FLOAT_EQ(intersection_2[0].y(), 0.0F);
+  EXPECT_NEAR(intersection_2[0].x(), 1.0F, epsilon);
+  EXPECT_NEAR(intersection_2[0].y(), 0.0F, epsilon);
 
   // Intersection with line diagonal to circle
   autoware::tracking_test_framework::Line diagonal_line {
     Eigen::Vector2f{0, 0}, Eigen::Vector2f{2, 2}};
   EigenStlVector<Eigen::Vector2f> intersection_3 = circle.intersect_with_line(diagonal_line, true);
   ASSERT_EQ(intersection_3.size(), 1UL);
-  EXPECT_FLOAT_EQ(intersection_3[0].x(), 0.2928932F);
-  EXPECT_FLOAT_EQ(intersection_3[0].y(), 0.2928932F);
+  EXPECT_NEAR(intersection_3[0].x(), 0.2928932F, epsilon);
+  EXPECT_NEAR(intersection_3[0].y(), 0.2928932F, epsilon);
 
   // Get second intersection point of line diagonal to circle
   EigenStlVector<Eigen::Vector2f> intersection_4 = circle.intersect_with_line(diagonal_line, false);
   ASSERT_EQ(intersection_4.size(), 2UL);
-  EXPECT_FLOAT_EQ(intersection_4[0].x(), 0.2928932F);
-  EXPECT_FLOAT_EQ(intersection_4[0].y(), 0.2928932F);
-  EXPECT_FLOAT_EQ(intersection_4[1].x(), 1.7071067F);
-  EXPECT_FLOAT_EQ(intersection_4[1].y(), 1.7071067F);
+  EXPECT_NEAR(intersection_4[0].x(), 0.2928932F, epsilon);
+  EXPECT_NEAR(intersection_4[0].y(), 0.2928932F, epsilon);
+  EXPECT_NEAR(intersection_4[1].x(), 1.7071067F, epsilon);
+  EXPECT_NEAR(intersection_4[1].y(), 1.7071067F, epsilon);
 }

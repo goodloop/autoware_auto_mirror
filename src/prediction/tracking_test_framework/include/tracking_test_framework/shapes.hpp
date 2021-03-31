@@ -17,8 +17,8 @@
 /// \brief This file defines the tracking_test_framework classes which are responsible for
 /// generating the 2D objects for unit testing tracking algorithms.
 
-#ifndef TRACKING_TEST_FRAMEWORK__TRACKING_TEST_FRAMEWORK_HPP_
-#define TRACKING_TEST_FRAMEWORK__TRACKING_TEST_FRAMEWORK_HPP_
+#ifndef TRACKING_TEST_FRAMEWORK__SHAPES_HPP_
+#define TRACKING_TEST_FRAMEWORK__SHAPES_HPP_
 
 #include <tracking_test_framework/visibility_control.hpp>
 #include <tracking_test_framework/eigen_stl_vector.hpp>
@@ -180,4 +180,4 @@ private:
 
 }  // namespace tracking_test_framework
 }  // namespace autoware
-#endif  // TRACKING_TEST_FRAMEWORK__TRACKING_TEST_FRAMEWORK_HPP_
+#endif  // TRACKING_TEST_FRAMEWORK__SHAPES_HPP_
