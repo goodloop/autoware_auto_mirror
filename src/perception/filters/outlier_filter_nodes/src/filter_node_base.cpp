@@ -12,17 +12,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "outlier_filter_nodes/outlier_filter.hpp"
-
-#include <iostream>
+#include "outlier_filter_nodes/filter_node_base.hpp"
 
 namespace autoware
 {
-
-int32_t outlier_filter::print_hello()
+namespace perception
 {
-  std::cout << "Hello World" << std::endl;
-  return 0;
-}
+namespace filters
+{
+namespace outlier_filter_nodes
+{
 
+FilterNodeBase::FilterNodeBase(const rclcpp::NodeOptions & options)
+:  Node("outlier_filter_node", options),
+  verbose(true)
+{}
+
+}  // namespace outlier_filter
+}  // namespace filters
+}  // namespace perception
 }  // namespace autoware

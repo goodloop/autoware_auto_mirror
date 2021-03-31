@@ -16,10 +16,10 @@
 /// \file
 /// \brief This file defines the outlier_filter_node class.
 
-#ifndef OUTLIER_FILTER_NODES__OUTLIER_FILTER_NODE_HPP_
-#define OUTLIER_FILTER_NODES__OUTLIER_FILTER_NODE_HPP_
+#ifndef OUTLIER_FILTER_NODES__FILTER_NODE_BASE_HPP_
+#define OUTLIER_FILTER_NODES__FILTER_NODE_BASE_HPP_
 
-#include <outlier_filter_nodes/outlier_filter.hpp>
+#include <outlier_filter_nodes/visibility_control.hpp>
 
 #include <rclcpp/rclcpp.hpp>
 
@@ -34,16 +34,12 @@ namespace outlier_filter_nodes
 
 /// \class OutlierFilterNode
 /// \brief ROS 2 Node for hello world.
-class OUTLIER_FILTER_NODES_PUBLIC OutlierFilterNode : public rclcpp::Node
+class OUTLIER_FILTER_NODES_PUBLIC FilterNodeBase : public rclcpp::Node
 {
 public:
   /// \brief default constructor, starts driver
   /// \throw runtime error if failed to start threads or configure driver
-  explicit OutlierFilterNode(const rclcpp::NodeOptions & options);
-
-  /// \brief print hello
-  /// return 0 if successful.
-  int32_t print_hello() const;
+  explicit FilterNodeBase(const rclcpp::NodeOptions & options);
 
 private:
   bool verbose;  ///< whether to use verbose output or not.
@@ -53,4 +49,4 @@ private:
 }  // namespace perception
 }  // namespace autoware
 
-#endif  // OUTLIER_FILTER_NODES__OUTLIER_FILTER_NODE_HPP_
+#endif  // OUTLIER_FILTER_NODES__FILTER_NODE_BASE_HPP_

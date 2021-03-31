@@ -24,11 +24,11 @@ ament_auto_find_build_dependencies(REQUIRED
 )
 
 set(OUTLIER_FILTER_LIB_SRC
-  src/outlier_filter.cpp
+  src/filter_node_base.cpp
 )
 
 set(OUTLIER_FILTER_LIB_HEADERS
-  include/outlier_filter_nodes/outlier_filter.hpp
+  include/outlier_filter_nodes/filter_node_base.hpp
   include/outlier_filter_nodes/visibility_control.hpp
 )
 
@@ -39,24 +39,24 @@ ament_auto_add_library(${PROJECT_NAME} SHARED
 )
 autoware_set_compile_options(${PROJECT_NAME})
 
-set(OUTLIER_FILTER_NODE_SRC
-  src/outlier_filter_node.cpp
-)
+# set(OUTLIER_FILTER_NODE_SRC
+#   src/outlier_filter_node.cpp
+# )
 
-set(OUTLIER_FILTER_NODE_HEADERS
-  include/outlier_filter_nodes/outlier_filter_node.hpp
-)
+# set(OUTLIER_FILTER_NODE_HEADERS
+#   include/outlier_filter_nodes/outlier_filter_node.hpp
+# )
 
-# generate component node library
-ament_auto_add_library(${PROJECT_NAME}_node SHARED
-  ${OUTLIER_FILTER_NODE_SRC}
-  ${OUTLIER_FILTER_NODE_HEADERS}
-)
-autoware_set_compile_options(${PROJECT_NAME}_node)
-rclcpp_components_register_node(${PROJECT_NAME}_node
-  PLUGIN "autoware::perception::filters::outlier_filter_nodes::OutlierFilterNode"
-  EXECUTABLE ${PROJECT_NAME}_node_exe
-)
+# # generate component node library
+# ament_auto_add_library(${PROJECT_NAME}_node SHARED
+#   ${OUTLIER_FILTER_NODE_SRC}
+#   ${OUTLIER_FILTER_NODE_HEADERS}
+# )
+# autoware_set_compile_options(${PROJECT_NAME}_node)
+# rclcpp_components_register_node(${PROJECT_NAME}_node
+#   PLUGIN "autoware::perception::filters::outlier_filter_nodes::FilterNodeBase"
+#   EXECUTABLE ${PROJECT_NAME}_node_exe
+# )
 
 # Testing
 if(BUILD_TESTING)
@@ -64,11 +64,11 @@ if(BUILD_TESTING)
   ament_lint_auto_find_test_dependencies()
 
   # Unit tests
-  set(TEST_SOURCES test/test_outlier_filter.cpp)
-  set(TEST_OUTLIER_FILTER_EXE test_outlier_filter)
-  ament_add_gtest(${TEST_OUTLIER_FILTER_EXE} ${TEST_SOURCES})
-  autoware_set_compile_options(${TEST_OUTLIER_FILTER_EXE})
-  target_link_libraries(${TEST_OUTLIER_FILTER_EXE} ${PROJECT_NAME})
+  # set(TEST_SOURCES test/test_outlier_filter.cpp)
+  # set(TEST_OUTLIER_FILTER_EXE test_outlier_filter)
+  # ament_add_gtest(${TEST_OUTLIER_FILTER_EXE} ${TEST_SOURCES})
+  # autoware_set_compile_options(${TEST_OUTLIER_FILTER_EXE})
+  # target_link_libraries(${TEST_OUTLIER_FILTER_EXE} ${PROJECT_NAME})
 endif()
 
 # ament package generation and installing
