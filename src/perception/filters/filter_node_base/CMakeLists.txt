@@ -14,7 +14,7 @@
 
 cmake_minimum_required(VERSION 3.5)
 
-project(outlier_filter_nodes)
+project(filter_node_base)
 
 # require that dependencies from package.xml be available
 find_package(ament_cmake_auto REQUIRED)
@@ -28,8 +28,8 @@ set(OUTLIER_FILTER_LIB_SRC
 )
 
 set(OUTLIER_FILTER_LIB_HEADERS
-  include/outlier_filter_nodes/filter_node_base.hpp
-  include/outlier_filter_nodes/visibility_control.hpp
+  include/filter_node_base/filter_node_base.hpp
+  include/filter_node_base/visibility_control.hpp
 )
 
 # generate library
@@ -44,7 +44,7 @@ autoware_set_compile_options(${PROJECT_NAME})
 # )
 
 # set(OUTLIER_FILTER_NODE_HEADERS
-#   include/outlier_filter_nodes/outlier_filter_node.hpp
+#   include/filter_node_base/outlier_filter_node.hpp
 # )
 
 # # generate component node library
@@ -54,7 +54,7 @@ autoware_set_compile_options(${PROJECT_NAME})
 # )
 # autoware_set_compile_options(${PROJECT_NAME}_node)
 # rclcpp_components_register_node(${PROJECT_NAME}_node
-#   PLUGIN "autoware::perception::filters::outlier_filter_nodes::FilterNodeBase"
+#   PLUGIN "autoware::perception::filters::filter_node_base::FilterNodeBase"
 #   EXECUTABLE ${PROJECT_NAME}_node_exe
 # )
 

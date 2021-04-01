@@ -16,10 +16,10 @@
 /// \file
 /// \brief This file defines the outlier_filter_node class.
 
-#ifndef OUTLIER_FILTER_NODES__FILTER_NODE_BASE_HPP_
-#define OUTLIER_FILTER_NODES__FILTER_NODE_BASE_HPP_
+#ifndef FILTER_NODE_BASE__FILTER_NODE_BASE_HPP_
+#define FILTER_NODE_BASE__FILTER_NODE_BASE_HPP_
 
-#include <outlier_filter_nodes/visibility_control.hpp>
+#include <filter_node_base/visibility_control.hpp>
 
 #include <rclcpp/rclcpp.hpp>
 
@@ -29,12 +29,12 @@ namespace perception
 {
 namespace filters
 {
-namespace outlier_filter_nodes
+namespace filter_node_base
 {
 
-/// \class OutlierFilterNode
+/// \class FilterNodeBase
 /// \brief ROS 2 Node for hello world.
-class OUTLIER_FILTER_NODES_PUBLIC FilterNodeBase : public rclcpp::Node
+class FILTER_NODE_BASE_PUBLIC FilterNodeBase : public rclcpp::Node
 {
 public:
   /// \brief default constructor, starts driver
@@ -44,9 +44,9 @@ public:
 private:
   bool verbose;  ///< whether to use verbose output or not.
 };
-}  // namespace outlier_filter
+}  // namespace filter_node_base
 }  // namespace filters
 }  // namespace perception
 }  // namespace autoware
 
-#endif  // OUTLIER_FILTER_NODES__FILTER_NODE_BASE_HPP_
+#endif  // FILTER_NODE_BASE__FILTER_NODE_BASE_HPP_

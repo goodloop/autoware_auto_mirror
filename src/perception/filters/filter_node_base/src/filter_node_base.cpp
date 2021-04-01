@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "outlier_filter_nodes/filter_node_base.hpp"
+#include "filter_node_base/filter_node_base.hpp"
 
 namespace autoware
 {
@@ -20,15 +20,15 @@ namespace perception
 {
 namespace filters
 {
-namespace outlier_filter_nodes
+namespace filter_node_base
 {
 
 FilterNodeBase::FilterNodeBase(const rclcpp::NodeOptions & options)
-:  Node("outlier_filter_node", options),
+:  Node("filter_node_base", options),
   verbose(true)
 {}
 
-}  // namespace outlier_filter
+}  // namespace filter_node_base
 }  // namespace filters
 }  // namespace perception
 }  // namespace autoware

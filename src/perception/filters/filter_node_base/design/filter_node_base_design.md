@@ -1,7 +1,7 @@
-outlier_filter {#outlier_filter-package-design}
+filter_node_base {#filter_node_base_package_design}
 ===========
 
-This is the design document for the `outlier_filter` package.
+This is the design document for the `filter_node_base` package.
 
 
 # Purpose / Use cases
