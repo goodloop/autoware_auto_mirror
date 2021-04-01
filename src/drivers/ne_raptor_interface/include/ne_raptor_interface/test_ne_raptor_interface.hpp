@@ -96,6 +96,16 @@ protected:
     test_client_ = c_node_->create_client<AutonomyModeChange>("autonomy_mode");
     test_listener_ = std::make_unique<NERaptorInterfaceListener>(options);
     test_talker_ = std::make_unique<NERaptorInterfaceTalker>(options);
+    test_service_ = i_node_->create_service<AutonomyModeChange>(
+      "autonomy_mode", [this](
+        ModeChangeRequest::SharedPtr request,
+        ModeChangeResponse::SharedPtr response) -> void
+      {
+        (void)response;
+        if (!ne_raptor_interface_->handle_mode_change_request(request)) {
+          throw std::runtime_error{"Changing autonomy mode failed"};
+        }
+      });
   }
 
   void TearDown() override
@@ -109,6 +119,7 @@ public:
   rclcpp::Client<AutonomyModeChange>::SharedPtr test_client_;
   std::unique_ptr<NERaptorInterfaceListener> test_listener_;
   std::unique_ptr<NERaptorInterfaceTalker> test_talker_;
+  rclcpp::Service<AutonomyModeChange>::SharedPtr test_service_;
   rclcpp::Clock test_clock{RCL_SYSTEM_TIME};
 
   // Struct types for test sets

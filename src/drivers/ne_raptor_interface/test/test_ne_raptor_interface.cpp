@@ -207,8 +207,6 @@ TEST_F(NERaptorInterface_test, test_cmd_mode_change_client)
     timeout = 0;
     executor.spin_some(C_TIMEOUT_NANO * SERVICE_TIMEOUT);
     while (!test_client_->wait_for_service(1s)) {
-      executor.spin_some(C_TIMEOUT_NANO);
-
       if (!rclcpp::ok()) {
         EXPECT_TRUE(false) << "Test #" << std::to_string(i) <<
           ": Interrupted while waiting for service.";
