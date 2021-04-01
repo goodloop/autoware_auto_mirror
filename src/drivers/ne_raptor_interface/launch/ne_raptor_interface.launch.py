@@ -21,6 +21,7 @@ from ament_index_python import get_package_share_directory
 from launch.launch_description_sources import FrontendLaunchDescriptionSource
 from launch.actions import IncludeLaunchDescription
 
+
 def generate_launch_description():
     """Generate launch description with a single component."""
     # ---------------- Params ----------------
@@ -29,17 +30,13 @@ def generate_launch_description():
         default=[get_package_share_directory('ne_raptor_interface'),
                  '/param/defaults.param.yaml']
     )
-    raptor_dbw_params_file = LaunchConfiguration(
-        'raptor_dbw_params',
-        default=[get_package_share_directory('raptor_dbw_can'),
-                 '/launch/launch_params.yaml']
-    )
     dbc_file_path = get_package_share_directory('raptor_dbw_can') + \
         '/launch/New_Eagle_DBW_3.3.542.dbc'
 
     socketcan_launch = IncludeLaunchDescription(
         FrontendLaunchDescriptionSource(
-            [get_package_share_directory('ros2_socketcan'), '/launch/socket_can_bridge.launch.xml' ] )
+            [get_package_share_directory('ros2_socketcan'), '/launch/socket_can_bridge.launch.xml']
+        )
     )
 
     # ---------------- Nodes ----------------
@@ -61,8 +58,9 @@ def generate_launch_description():
                     {'dbw_dbc_file': dbc_file_path}
                 ],
                 remappings=[
-                    ('can_rx', 'to_can_bus'), 
-                    ('can_tx', 'from_can_bus')],
+                    ('can_rx', '/to_can_bus'),
+                    ('can_tx', '/from_can_bus')
+                ],
             ),
             socketcan_launch
         ])
