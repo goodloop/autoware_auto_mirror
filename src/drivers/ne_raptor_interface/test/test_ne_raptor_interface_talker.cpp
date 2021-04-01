@@ -29,7 +29,6 @@ NERaptorInterfaceTalker::NERaptorInterfaceTalker(const rclcpp::NodeOptions & opt
   t_other_acts_rpt_pub = this->create_publisher<OtherActuatorsReport>("other_actuators_report", 2);
   t_steering_rpt_pub = this->create_publisher<SteeringReport>("steering_report", 20);
   t_wheel_spd_rpt_pub = this->create_publisher<WheelSpeedReport>("wheel_speed_report", 20);
-  t_dbw_state_rpt_pub = this->create_publisher<std_msgs::msg::Bool>("dbw_enabled", 1);
 }
 
 bool8_t NERaptorInterfaceTalker::send_report(const BrakeReport & msg)
@@ -65,12 +64,6 @@ bool8_t NERaptorInterfaceTalker::send_report(const SteeringReport & msg)
 bool8_t NERaptorInterfaceTalker::send_report(const WheelSpeedReport & msg)
 {
   t_wheel_spd_rpt_pub->publish(msg);
-  return true;
-}
-
-bool8_t NERaptorInterfaceTalker::send_report(const std_msgs::msg::Bool & msg)
-{
-  t_dbw_state_rpt_pub->publish(msg);
   return true;
 }
 

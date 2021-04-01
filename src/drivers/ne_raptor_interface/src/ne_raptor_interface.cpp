@@ -72,10 +72,6 @@ NERaptorInterface::NERaptorInterface(
     10);
 
   // Subscribers (from Raptor DBW)
-  m_dbw_state_sub =
-    node.create_subscription<std_msgs::msg::Bool>(
-    "dbw_enabled", rclcpp::QoS{1},
-    [this](std_msgs::msg::Bool::SharedPtr msg) {on_dbw_state_report(msg);});
   m_brake_rpt_sub =
     node.create_subscription<BrakeReport>(
     "brake_report", rclcpp::QoS{20},
@@ -241,41 +237,21 @@ bool8_t NERaptorInterface::send_state_command(const VehicleStateCommand & msg)
       break;
   }
 
-  // Request DBW mode change
-  switch (msg.mode) {
-    case VehicleStateCommand::MODE_NO_COMMAND:
-      // No change requested: keep previous
-      break;
-    case VehicleStateCommand::MODE_AUTONOMOUS:
-      if (!is_dbw_enabled) {
-        t_mode->mode = ModeChangeRequest::MODE_AUTONOMOUS;
-        handle_mode_change_request(t_mode);
-      }
-      gc.enable = true;
-      gec.global_enable = true;
-      gec.enable_joystick_limits = true;
-      mc.block_standard_cruise_buttons = true;
-      mc.block_adaptive_cruise_buttons = true;
-      mc.block_turn_signal_stalk = true;
-      break;
-    case VehicleStateCommand::MODE_MANUAL:
-      if (is_dbw_enabled) {
-        t_mode->mode = ModeChangeRequest::MODE_MANUAL;
-        handle_mode_change_request(t_mode);
-      }
-      gc.enable = false;
-      gec.global_enable = false;
-      gec.enable_joystick_limits = false;
-      mc.block_standard_cruise_buttons = false;
-      mc.block_adaptive_cruise_buttons = false;
-      mc.block_turn_signal_stalk = false;
-      break;
-    default:
-      RCLCPP_ERROR_THROTTLE(
-        m_logger, m_clock, CLOCK_1_SEC,
-        "Got invalid autonomy mode request value.");
-      ret = false;
-      break;
+  // Set enables based on current DBW mode
+  if (is_dbw_enabled) {
+    gc.enable = true;
+    gec.global_enable = true;
+    gec.enable_joystick_limits = true;
+    mc.block_standard_cruise_buttons = true;
+    mc.block_adaptive_cruise_buttons = true;
+    mc.block_turn_signal_stalk = true;
+  } else {
+    gc.enable = false;
+    gec.global_enable = false;
+    gec.enable_joystick_limits = false;
+    mc.block_standard_cruise_buttons = false;
+    mc.block_adaptive_cruise_buttons = false;
+    mc.block_turn_signal_stalk = false;
   }
 
   std::lock_guard<std::mutex> guard_bc(m_brake_cmd_mutex);
@@ -434,6 +410,7 @@ bool8_t NERaptorInterface::send_control_command(const VehicleControlCommand & ms
   }
 
   // Limit steering angle to valid range
+  /* Steering -> tire angle conversion is linear except for extreme angles */
   angle_checked = (msg.front_wheel_angle_rad * m_steer_to_tire_ratio) / DEGREES_TO_RADIANS;
   if (angle_checked > m_max_steer_angle) {
     angle_checked = m_max_steer_angle;
@@ -469,15 +446,20 @@ bool8_t NERaptorInterface::send_control_command(const VehicleControlCommand & ms
 bool8_t NERaptorInterface::handle_mode_change_request(ModeChangeRequest::SharedPtr request)
 {
   bool8_t ret{true};
+  bool8_t is_dbw_enabled = m_dbw_state_machine->enabled() ? true : false;
   std_msgs::msg::Empty send_req{};
   if (request->mode == ModeChangeRequest::MODE_MANUAL) {
-    m_dbw_state_machine->user_request(false);
-    m_dbw_state_machine->state_cmd_sent();
-    m_dbw_disable_cmd_pub->publish(send_req);
+    if (is_dbw_enabled) {  // Only send on change
+      m_dbw_state_machine->user_request(false);
+      m_dbw_state_machine->state_cmd_sent();
+      m_dbw_disable_cmd_pub->publish(send_req);
+    }
   } else if (request->mode == ModeChangeRequest::MODE_AUTONOMOUS) {
-    m_dbw_state_machine->user_request(true);
-    m_dbw_state_machine->state_cmd_sent();
-    m_dbw_enable_cmd_pub->publish(send_req);
+    if (!is_dbw_enabled) {  // Only send on change
+      m_dbw_state_machine->user_request(true);
+      m_dbw_state_machine->state_cmd_sent();
+      m_dbw_enable_cmd_pub->publish(send_req);
+    }
   } else {
     RCLCPP_ERROR_THROTTLE(
       m_logger, m_clock, CLOCK_1_SEC,
@@ -485,18 +467,6 @@ bool8_t NERaptorInterface::handle_mode_change_request(ModeChangeRequest::SharedP
     ret = false;
   }
   return ret;
-}
-
-void NERaptorInterface::on_dbw_state_report(const std_msgs::msg::Bool::SharedPtr & msg)
-{
-  std::lock_guard<std::mutex> guard_vsr(m_vehicle_state_report_mutex);
-  if (msg->data) {
-    m_vehicle_state_report.mode = VehicleStateReport::MODE_AUTONOMOUS;
-  } else {
-    m_vehicle_state_report.mode = VehicleStateReport::MODE_MANUAL;
-  }
-  m_seen_dbw_rpt = true;
-  m_dbw_state_machine->dbw_feedback(msg->data);
 }
 
 void NERaptorInterface::on_brake_report(const BrakeReport::SharedPtr & msg)
@@ -565,6 +535,13 @@ void NERaptorInterface::on_misc_report(const MiscReport::SharedPtr & msg)
 
   std::lock_guard<std::mutex> guard_vsr(m_vehicle_state_report_mutex);
   m_vehicle_state_report.fuel = static_cast<uint8_t>(msg->fuel_level);
+
+  if (msg->drive_by_wire_enabled) {
+    m_vehicle_state_report.mode = VehicleStateReport::MODE_AUTONOMOUS;
+  } else {
+    m_vehicle_state_report.mode = VehicleStateReport::MODE_MANUAL;
+  }
+  m_dbw_state_machine->dbw_feedback(msg->drive_by_wire_enabled);
 
   std::lock_guard<std::mutex> guard_vks(m_vehicle_kin_state_mutex);
 
@@ -692,8 +669,7 @@ void NERaptorInterface::on_other_actuators_report(const OtherActuatorsReport::Sh
       break;
   }
 
-  if (m_seen_dbw_rpt &&
-    m_seen_brake_rpt &&
+  if (m_seen_brake_rpt &&
     m_seen_gear_rpt &&
     m_seen_misc_rpt)
   {
@@ -704,6 +680,7 @@ void NERaptorInterface::on_other_actuators_report(const OtherActuatorsReport::Sh
 
 void NERaptorInterface::on_steering_report(const SteeringReport::SharedPtr & msg)
 {
+  /* Steering -> tire angle conversion is linear except for extreme angles */
   const float32_t f_wheel_angle_rad = (msg->steering_wheel_angle * DEGREES_TO_RADIANS) /
     m_steer_to_tire_ratio;
 

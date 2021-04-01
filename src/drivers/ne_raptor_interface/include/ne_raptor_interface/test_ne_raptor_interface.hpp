@@ -49,7 +49,9 @@ const float32_t c_pos_jerk_limit = 9.0F;
 const float32_t c_neg_jerk_limit = 9.0F;
 
 /* Other useful constants */
-static constexpr uint8_t kNumTests_HMCR{5};
+static constexpr uint8_t SERVICE_TIMEOUT = 5;
+
+static constexpr uint8_t kNumTests_HMCR{7};
 static constexpr uint8_t kTestValid_VSC{5};
 static constexpr uint8_t kTestInvalid_VSC{12};
 static constexpr uint8_t kNumTests_VSC{kTestValid_VSC + kTestInvalid_VSC};
@@ -76,6 +78,7 @@ protected:
     rclcpp::init(0, nullptr);
 
     i_node_ = std::make_shared<rclcpp::Node>("ne_raptor_interface_test_node", "/gtest");
+    c_node_ = std::make_shared<rclcpp::Node>("ne_raptor_interface_test_client_node", "/gtest");
     ne_raptor_interface_ = std::make_unique<NERaptorInterface>(
       *i_node_,
       c_ecu_build_num,
@@ -90,6 +93,7 @@ protected:
     );
 
     rclcpp::NodeOptions options{};
+    test_client_ = c_node_->create_client<AutonomyModeChange>("autonomy_mode");
     test_listener_ = std::make_unique<NERaptorInterfaceListener>(options);
     test_talker_ = std::make_unique<NERaptorInterfaceTalker>(options);
   }
@@ -100,8 +104,9 @@ protected:
   }
 
 public:
-  rclcpp::Node::SharedPtr i_node_;
+  rclcpp::Node::SharedPtr i_node_, c_node_;
   std::unique_ptr<NERaptorInterface> ne_raptor_interface_;
+  rclcpp::Client<AutonomyModeChange>::SharedPtr test_client_;
   std::unique_ptr<NERaptorInterfaceListener> test_listener_;
   std::unique_ptr<NERaptorInterfaceTalker> test_talker_;
   rclcpp::Clock test_clock{RCL_SYSTEM_TIME};
@@ -109,7 +114,7 @@ public:
   // Struct types for test sets
   struct test_hmcr  /** Test handle_mode_change_request */
   {
-    uint8_t in_req;       /**< Input: ModeChangeRequest */
+    uint8_t in_mcr;       /**< Input: ModeChangeRequest */
     bool8_t exp_success;  /**< Expected output: handle_mode_change_request */
     bool8_t exp_enable;   /**< Expected output: dbw enable command sent */
     bool8_t exp_disable;  /**< Expected output: dbw disable command sent */
@@ -117,11 +122,13 @@ public:
   struct test_vsc  /** Test VehicleStateCommand */
   {
     VehicleStateCommand in_vsc;  /**< Input: VehicleStateCommand */
-    std_msgs::msg::Bool in_dbw;  /**< Input: DBW State Machine report */
+    uint8_t in_mcr;              /**< Input: Mode Change Request */ /* enable DBW */
+    MiscReport in_mr;            /**< Input: MiscReport */ /* DBW state feedback */
     GearCmd exp_gc;              /**< Expected output: GearCmd */
     GlobalEnableCmd exp_gec;     /**< Expected output: GlobalEnableCmd */
     MiscCmd exp_mc;              /**< Expected output: MiscCmd */
     bool8_t exp_success;         /**< Expected output: send_state_command */
+    bool8_t exp_dbw_success;     /**< Expected output: handle_mode_change_request */
     bool8_t exp_dbw_enable;      /**< Expected output: dbw enable command sent */
     bool8_t exp_dbw_disable;     /**< Expected output: dbw disable command sent */
   };
@@ -129,6 +136,7 @@ public:
   {
     HighLevelControlCommand in_hlcc;  /**< Input: HighLevelControlCommand */
     VehicleStateCommand in_vsc;       /**< Input: VehicleStateCommand */ /* parking brake, gear */
+    uint8_t in_mcr;                   /**< Input: Mode Change Request */ /* enable DBW */
     GearReport in_gr;                 /**< Input: GearReport */ /* set current gear */
     AcceleratorPedalCmd exp_apc;      /**< Expected output: AcceleratorPedalCmd */
     BrakeCmd exp_bc;                  /**< Expected output: BrakeCmd */
@@ -139,6 +147,7 @@ public:
   {
     VehicleControlCommand in_vcc;  /**< Input: vehicle control command */
     VehicleStateCommand in_vsc;    /**< Input: VehicleStateCommand */ /* parking brake, gear */
+    uint8_t in_mcr;                /**< Input: Mode Change Request */ /* enable DBW */
     GearReport in_gr;              /**< Input: GearReport */ /* set current gear */
     AcceleratorPedalCmd exp_apc;   /**< Expected output: AcceleratorPedalCmd */
     BrakeCmd exp_bc;               /**< Expected output: BrakeCmd */
@@ -151,8 +160,7 @@ public:
     GearReport in_gr;             /**< Input: GearReport */
     MiscReport in_mr;             /**< Input: MiscReport */
     OtherActuatorsReport in_oar;  /**< Input: OtherActuatorsReport */ /* send this last */
-    VehicleStateCommand in_vsc;   /**< Input: VehicleStateCommand */ /* enable DBW */
-    std_msgs::msg::Bool in_dbw;   /**< Input: DBW State Machine report */
+    uint8_t in_mcr;               /**< Input: Mode Change Request */ /* enable DBW */
     VehicleStateReport exp_vsr;   /**< Expected output: VehicleStateReport */
   };
   struct test_vo  /** Test VehicleOdometry */

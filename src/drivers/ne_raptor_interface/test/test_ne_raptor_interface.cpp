@@ -22,7 +22,8 @@
  * NE Raptor commands
  */
 
-TEST_F(NERaptorInterface_test, test_cmd_mode_change)
+/* Test handle_mode_change_request directly */
+TEST_F(NERaptorInterface_test, test_cmd_mode_change_func)
 {
   test_hmcr myTests[kNumTests_HMCR];
   HighLevelControlCommand test_hlcc{};
@@ -31,6 +32,7 @@ TEST_F(NERaptorInterface_test, test_cmd_mode_change)
 
   rclcpp::executors::SingleThreadedExecutor executor;
   executor.add_node(i_node_);
+  executor.add_node(c_node_);
   executor.add_node(test_listener_->get_node_base_interface());
   executor.add_node(test_talker_->get_node_base_interface());
   executor.spin_some(C_TIMEOUT_NANO);
@@ -38,31 +40,49 @@ TEST_F(NERaptorInterface_test, test_cmd_mode_change)
   test_hlcc.velocity_mps = 0.0F;
   test_hlcc.curvature = 0.0F;
 
-  myTests[0].in_req = ModeChangeRequest::MODE_MANUAL;
+  /* Test 0: Init at mode = manual */
+  myTests[0].in_mcr = ModeChangeRequest::MODE_MANUAL;
   myTests[0].exp_success = true;
   myTests[0].exp_enable = false;
-  myTests[0].exp_disable = true;
+  myTests[0].exp_disable = false;
 
-  myTests[1].in_req = ModeChangeRequest::MODE_AUTONOMOUS;
+  /* Test 1: mode -> autonomous */
+  myTests[1].in_mcr = ModeChangeRequest::MODE_AUTONOMOUS;
   myTests[1].exp_success = true;
   myTests[1].exp_enable = true;
   myTests[1].exp_disable = false;
 
-  myTests[2].in_req = ModeChangeRequest::MODE_MANUAL;
+  /* Test 2: mode -> manual */
+  myTests[2].in_mcr = ModeChangeRequest::MODE_MANUAL;
   myTests[2].exp_success = true;
   myTests[2].exp_enable = false;
   myTests[2].exp_disable = true;
 
-  myTests[3].in_req = ModeChangeRequest::MODE_AUTONOMOUS + 1;
+  /* Test 3: mode = invalid (keep previous - manual) */
+  myTests[3].in_mcr = ModeChangeRequest::MODE_AUTONOMOUS + 1;
   myTests[3].exp_success = false;
   myTests[3].exp_enable = false;
   myTests[3].exp_disable = false;
 
-  myTests[4].in_req = 0xFF;
-  myTests[4].exp_success = false;
-  myTests[4].exp_enable = false;
+  /* Test 4: mode -> autonomous */
+  myTests[4].in_mcr = ModeChangeRequest::MODE_AUTONOMOUS;
+  myTests[4].exp_success = true;
+  myTests[4].exp_enable = true;
   myTests[4].exp_disable = false;
 
+  /* Test 5: mode = invalid (keep previous - autonomous) */
+  myTests[5].in_mcr = 0xFF;
+  myTests[5].exp_success = false;
+  myTests[5].exp_enable = false;
+  myTests[5].exp_disable = false;
+
+  /* Test 6: mode -> manual */
+  myTests[6].in_mcr = ModeChangeRequest::MODE_MANUAL;
+  myTests[6].exp_success = true;
+  myTests[6].exp_enable = false;
+  myTests[6].exp_disable = true;
+
+  /* Test handle_mode_change_request directly */
   // Run tests in a loop
   for (i = 0; i < kNumTests_HMCR; i++) {
     EXPECT_TRUE(
@@ -82,7 +102,7 @@ TEST_F(NERaptorInterface_test, test_cmd_mode_change)
     test_listener_->l_got_brake_cmd = false;
     test_listener_->l_got_steer_cmd = false;
 
-    t_request->mode = myTests[i].in_req;
+    t_request->mode = myTests[i].in_mcr;
     if (myTests[i].exp_success) {
       EXPECT_TRUE(
         ne_raptor_interface_->handle_mode_change_request(t_request)) <<
@@ -117,15 +137,139 @@ TEST_F(NERaptorInterface_test, test_cmd_mode_change)
   }
 }
 
+/* Test Mode Change Request with server client */
+TEST_F(NERaptorInterface_test, test_cmd_mode_change_client)
+{
+  test_hmcr myTests[kNumTests_HMCR];
+  HighLevelControlCommand test_hlcc{};
+  auto f_request = std::make_shared<ModeChangeRequest>();
+  uint8_t timeout{0}, i{0};
+  bool8_t is_connected{true};
+
+  rclcpp::executors::SingleThreadedExecutor executor;
+  executor.add_node(i_node_);
+  executor.add_node(c_node_);
+  executor.add_node(test_listener_->get_node_base_interface());
+  executor.add_node(test_talker_->get_node_base_interface());
+  executor.spin_some(C_TIMEOUT_NANO);
+
+  test_hlcc.velocity_mps = 0.0F;
+  test_hlcc.curvature = 0.0F;
+
+  /* Test 0: Init at mode = manual */
+  myTests[0].in_mcr = ModeChangeRequest::MODE_MANUAL;
+  myTests[0].exp_success = true;
+  myTests[0].exp_enable = false;
+  myTests[0].exp_disable = false;
+
+  /* Test 1: mode -> autonomous */
+  myTests[1].in_mcr = ModeChangeRequest::MODE_AUTONOMOUS;
+  myTests[1].exp_success = true;
+  myTests[1].exp_enable = true;
+  myTests[1].exp_disable = false;
+
+  /* Test 2: mode -> manual */
+  myTests[2].in_mcr = ModeChangeRequest::MODE_MANUAL;
+  myTests[2].exp_success = true;
+  myTests[2].exp_enable = false;
+  myTests[2].exp_disable = true;
+
+  /* Test 3: mode = invalid (keep previous - manual) */
+  myTests[3].in_mcr = ModeChangeRequest::MODE_AUTONOMOUS + 1;
+  myTests[3].exp_success = false;
+  myTests[3].exp_enable = false;
+  myTests[3].exp_disable = false;
+
+  /* Test 4: mode -> autonomous */
+  myTests[4].in_mcr = ModeChangeRequest::MODE_AUTONOMOUS;
+  myTests[4].exp_success = true;
+  myTests[4].exp_enable = true;
+  myTests[4].exp_disable = false;
+
+  /* Test 5: mode = invalid (keep previous - autonomous) */
+  myTests[5].in_mcr = 0xFF;
+  myTests[5].exp_success = false;
+  myTests[5].exp_enable = false;
+  myTests[5].exp_disable = false;
+
+  /* Test 6: mode -> manual */
+  myTests[6].in_mcr = ModeChangeRequest::MODE_MANUAL;
+  myTests[6].exp_success = true;
+  myTests[6].exp_enable = false;
+  myTests[6].exp_disable = true;
+
+  /* Test with server client */
+  // Run tests in a loop
+  for (i = 0; i < kNumTests_HMCR; i++) {
+    f_request->mode = myTests[i].in_mcr;
+
+    // Wait for service
+    timeout = 0;
+    executor.spin_some(C_TIMEOUT_NANO * SERVICE_TIMEOUT);
+    while (!test_client_->wait_for_service(1s)) {
+      executor.spin_some(C_TIMEOUT_NANO);
+
+      if (!rclcpp::ok()) {
+        EXPECT_TRUE(false) << "Test #" << std::to_string(i) <<
+          ": Interrupted while waiting for service.";
+        is_connected = false;
+        break;
+      }
+
+      timeout++;
+
+      if (timeout > SERVICE_TIMEOUT) {
+        EXPECT_TRUE(false) << "Test #" << std::to_string(i) <<
+          ": Timed out waiting for service.";
+        is_connected = false;
+        break;
+      }
+    }
+    if (is_connected) {
+      // Send service request
+      auto result = test_client_->async_send_request(f_request);
+
+      EXPECT_EQ(
+        executor.spin_until_future_complete(result),
+        rclcpp::FutureReturnCode::SUCCESS) <<
+        "Test #" << std::to_string(i) << ": Failed to call service.";
+
+      timeout = 0;
+      while ((!test_listener_->l_got_dbw_enable_cmd ||
+        !test_listener_->l_got_dbw_disable_cmd) &&
+        (timeout < C_TIMEOUT_ITERATIONS) )
+      {
+        executor.spin_some(C_TIMEOUT_NANO);
+        timeout++;
+      }
+
+      EXPECT_EQ(
+        test_listener_->l_got_dbw_enable_cmd,
+        myTests[i].exp_enable) <<
+        "Test #" << std::to_string(i);
+
+      EXPECT_EQ(
+        test_listener_->l_got_dbw_disable_cmd,
+        myTests[i].exp_disable) <<
+        "Test #" << std::to_string(i);
+    }
+
+    test_listener_->l_got_dbw_enable_cmd = false;
+    test_listener_->l_got_dbw_disable_cmd = false;
+  }
+}
+
 TEST_F(NERaptorInterface_test, test_cmd_vehicle_state)
 {
   test_vsc myTests[kNumTests_VSC];
   HighLevelControlCommand hlcc{};
+  ModeChangeRequest::SharedPtr t_request{new ModeChangeRequest};
   uint8_t timeout{0}, i{0};
   uint16_t test_rollover{0};
 
   rclcpp::executors::SingleThreadedExecutor executor;
   executor.add_node(i_node_);
+  executor.add_node(c_node_);
   executor.add_node(test_listener_->get_node_base_interface());
   executor.add_node(test_talker_->get_node_base_interface());
   executor.spin_some(C_TIMEOUT_NANO);
@@ -142,7 +286,7 @@ TEST_F(NERaptorInterface_test, test_cmd_vehicle_state)
     myTests[i].in_vsc.headlight = VehicleStateCommand::HEADLIGHT_HIGH;
     myTests[i].in_vsc.wiper = VehicleStateCommand::WIPER_HIGH;
     myTests[i].in_vsc.gear = VehicleStateCommand::GEAR_DRIVE;
-    myTests[i].in_vsc.mode = VehicleStateCommand::MODE_AUTONOMOUS;
+    myTests[i].in_mcr = ModeChangeRequest::MODE_AUTONOMOUS;
     myTests[i].in_vsc.hand_brake = true;
     myTests[i].in_vsc.horn = true;
     myTests[i].exp_gc.cmd.gear = Gear::DRIVE;
@@ -154,9 +298,10 @@ TEST_F(NERaptorInterface_test, test_cmd_vehicle_state)
     myTests[i].exp_mc.front_wiper_cmd.status = WiperFront::CONSTANT_HIGH;
     myTests[i].exp_mc.horn_cmd = true;
     myTests[i].exp_success = (i < kTestValid_VSC) ? true : false;
-    myTests[i].in_dbw.data = true;
+    myTests[i].in_mr.drive_by_wire_enabled = true;
     myTests[i].exp_dbw_enable = false;
     myTests[i].exp_dbw_disable = false;
+    myTests[i].exp_dbw_success = true;
   }
 
   /** Test valid inputs **/
@@ -165,7 +310,7 @@ TEST_F(NERaptorInterface_test, test_cmd_vehicle_state)
   myTests[0].in_vsc.headlight = VehicleStateCommand::HEADLIGHT_NO_COMMAND;
   myTests[0].in_vsc.wiper = VehicleStateCommand::WIPER_NO_COMMAND;
   myTests[0].in_vsc.gear = VehicleStateCommand::GEAR_NO_COMMAND;
-  myTests[0].in_vsc.mode = VehicleStateCommand::MODE_NO_COMMAND;
+  myTests[0].in_mcr = ModeChangeRequest::MODE_MANUAL;
   myTests[0].in_vsc.hand_brake = false;
   myTests[0].in_vsc.horn = false;
   myTests[0].exp_gc.cmd.gear = Gear::NONE;
@@ -176,14 +321,14 @@ TEST_F(NERaptorInterface_test, test_cmd_vehicle_state)
   myTests[0].exp_mc.high_beam_cmd.status = HighBeam::OFF;
   myTests[0].exp_mc.front_wiper_cmd.status = WiperFront::OFF;
   myTests[0].exp_mc.horn_cmd = false;
-  myTests[0].in_dbw.data = false;
+  myTests[0].in_mr.drive_by_wire_enabled = false;
 
   // Test valid: all off
   myTests[1].in_vsc.blinker = VehicleStateCommand::BLINKER_OFF;
   myTests[1].in_vsc.headlight = VehicleStateCommand::HEADLIGHT_OFF;
   myTests[1].in_vsc.wiper = VehicleStateCommand::WIPER_OFF;
   myTests[1].in_vsc.gear = VehicleStateCommand::GEAR_PARK;
-  myTests[1].in_vsc.mode = VehicleStateCommand::MODE_MANUAL;
+  myTests[1].in_mcr = ModeChangeRequest::MODE_MANUAL;
   myTests[1].in_vsc.hand_brake = false;
   myTests[1].in_vsc.horn = false;
   myTests[1].exp_gc.cmd.gear = Gear::PARK;
@@ -195,10 +340,13 @@ TEST_F(NERaptorInterface_test, test_cmd_vehicle_state)
   myTests[1].exp_mc.front_wiper_cmd.status = WiperFront::OFF;
   myTests[1].exp_mc.horn_cmd = false;
   myTests[1].exp_success = true;
-  myTests[1].in_dbw.data = false;
+  myTests[1].in_mr.drive_by_wire_enabled = false;
 
-  // Test valid: DBW state machine --> on
+  // Test valid: DBW state machine --> on (debounced)
   myTests[2].exp_dbw_enable = true;
+  myTests[2].exp_gc.enable = false;
+  myTests[2].exp_gec.global_enable = false;
+  myTests[2].exp_gec.enable_joystick_limits = false;
 
   /* Test valid:
    * gear == low, blinker == left, wiper == low */
@@ -254,21 +402,26 @@ TEST_F(NERaptorInterface_test, test_cmd_vehicle_state)
   myTests[kTestValid_VSC + 8].exp_gc.cmd.gear = Gear::NONE;
 
   // Test invalid: mode (keep previous: on)
-  myTests[kTestValid_VSC + 9].in_vsc.mode = VehicleStateCommand::MODE_MANUAL + 1;
+  myTests[kTestValid_VSC + 9].exp_success = true;
+  myTests[kTestValid_VSC + 9].exp_dbw_success = false;
+  myTests[kTestValid_VSC + 9].in_mcr = ModeChangeRequest::MODE_AUTONOMOUS + 1;
   myTests[kTestValid_VSC + 9].exp_gc.enable = true;
   myTests[kTestValid_VSC + 9].exp_gec.global_enable = true;
   myTests[kTestValid_VSC + 9].exp_gec.enable_joystick_limits = true;
 
   // Set previous mode to off
   myTests[kTestValid_VSC + 10].exp_success = true;
-  myTests[kTestValid_VSC + 10].in_vsc.mode = VehicleStateCommand::MODE_MANUAL;
+  myTests[kTestValid_VSC + 10].exp_dbw_success = true;
+  myTests[kTestValid_VSC + 10].in_mcr = ModeChangeRequest::MODE_MANUAL;
   myTests[kTestValid_VSC + 10].exp_gc.enable = false;
   myTests[kTestValid_VSC + 10].exp_gec.global_enable = false;
   myTests[kTestValid_VSC + 10].exp_gec.enable_joystick_limits = false;
   myTests[kTestValid_VSC + 10].exp_dbw_disable = true;
 
   // Test invalid: mode (keep previous: off)
-  myTests[kTestValid_VSC + 11].in_vsc.mode = 0xFF;
+  myTests[kTestValid_VSC + 11].exp_success = true;
+  myTests[kTestValid_VSC + 11].exp_dbw_success = false;
+  myTests[kTestValid_VSC + 11].in_mcr = 0xFF;
   myTests[kTestValid_VSC + 11].exp_gc.enable = false;
   myTests[kTestValid_VSC + 11].exp_gec.global_enable = false;
   myTests[kTestValid_VSC + 11].exp_gec.enable_joystick_limits = false;
@@ -279,6 +432,18 @@ TEST_F(NERaptorInterface_test, test_cmd_vehicle_state)
       i = static_cast<uint8_t>(test_rollover - 1);
     } else {
       i = kTestValid_VSC - 1;
+    }
+
+    // Send mode change request to enable/disable autonomous mode
+    t_request->mode = myTests[i].in_mcr;
+    if (myTests[i].exp_dbw_success) {
+      EXPECT_TRUE(
+        ne_raptor_interface_->handle_mode_change_request(t_request)) <<
+        "Test #" << std::to_string(test_rollover);
+    } else {
+      EXPECT_FALSE(
+        ne_raptor_interface_->handle_mode_change_request(t_request)) <<
+        "Test #" << std::to_string(test_rollover);
     }
 
     // Test function
@@ -303,7 +468,7 @@ TEST_F(NERaptorInterface_test, test_cmd_vehicle_state)
       timeout++;
     }
 
-    test_talker_->send_report(myTests[i].in_dbw);
+    test_talker_->send_report(myTests[i].in_mr);
     ne_raptor_interface_->send_control_command(hlcc);
     timeout = 0;
     while (timeout < C_TIMEOUT_ITERATIONS) {
@@ -422,12 +587,14 @@ TEST_F(NERaptorInterface_test, test_cmd_vehicle_state)
 TEST_F(NERaptorInterface_test, test_cmd_high_level_control)
 {
   test_hlcc myTests[kNumTests_HLCC];
-  std_msgs::msg::Bool enable_dbw{};
+  MiscReport in_mr{};
+  ModeChangeRequest::SharedPtr t_request{new ModeChangeRequest};
   uint8_t timeout{0}, numDbwLoops{0}, i{0}, j{0};
   uint16_t test_rollover{0};
 
   rclcpp::executors::SingleThreadedExecutor executor;
   executor.add_node(i_node_);
+  executor.add_node(c_node_);
   executor.add_node(test_listener_->get_node_base_interface());
   executor.add_node(test_talker_->get_node_base_interface());
   executor.spin_some(C_TIMEOUT_NANO);
@@ -438,7 +605,7 @@ TEST_F(NERaptorInterface_test, test_cmd_high_level_control)
     myTests[i].in_vsc.headlight = VehicleStateCommand::HEADLIGHT_OFF;
     myTests[i].in_vsc.wiper = VehicleStateCommand::WIPER_OFF;
     myTests[i].in_vsc.gear = VehicleStateCommand::GEAR_DRIVE;
-    myTests[i].in_vsc.mode = VehicleStateCommand::MODE_AUTONOMOUS;
+    myTests[i].in_mcr = ModeChangeRequest::MODE_AUTONOMOUS;
     myTests[i].in_vsc.hand_brake = false;
     myTests[i].in_vsc.horn = false;
     myTests[i].in_gr.state.gear = Gear::DRIVE;
@@ -537,7 +704,12 @@ TEST_F(NERaptorInterface_test, test_cmd_high_level_control)
       i = kNumTests_HLCC - 1;
     }
 
-    // Set gear input to enable/disable autonomous mode
+    // Send mode change request to enable/disable autonomous mode
+    // Send Vehicle State Command to set gear
+    t_request->mode = myTests[i].in_mcr;
+    EXPECT_TRUE(
+      ne_raptor_interface_->handle_mode_change_request(t_request)) <<
+      "Test #" << std::to_string(test_rollover);
     EXPECT_TRUE(
       ne_raptor_interface_->send_state_command(myTests[i].in_vsc)) <<
       "Test #" << std::to_string(test_rollover);
@@ -559,15 +731,13 @@ TEST_F(NERaptorInterface_test, test_cmd_high_level_control)
 
     // Send DBW state machine feedback to enable/disable autonomous mode
     // Send once to enable, multiple times to disable
-    enable_dbw.data = myTests[i].in_vsc.mode == VehicleStateCommand::MODE_AUTONOMOUS;
-    numDbwLoops = enable_dbw.data ? 1 : 4;
+    in_mr.drive_by_wire_enabled = myTests[i].in_mcr == ModeChangeRequest::MODE_AUTONOMOUS;
+    numDbwLoops = in_mr.drive_by_wire_enabled ? 1 : 4;
     for (j = 0; j < numDbwLoops; j++) {
-      test_talker_->send_report(enable_dbw);
+      test_talker_->send_report(in_mr);
 
       timeout = 0;
-      while (!test_listener_->l_got_gear_cmd &&
-        (timeout < C_TIMEOUT_ITERATIONS) )
-      {
+      while (timeout < C_TIMEOUT_ITERATIONS) {
         executor.spin_some(C_TIMEOUT_NANO);
         timeout++;
       }
@@ -693,6 +863,7 @@ TEST_F(NERaptorInterface_test, test_cmd_raw_control)
   RawControlCommand rcc{};
   rclcpp::executors::SingleThreadedExecutor executor;
   executor.add_node(i_node_);
+  executor.add_node(c_node_);
   executor.add_node(test_listener_->get_node_base_interface());
   executor.add_node(test_talker_->get_node_base_interface());
 
@@ -708,12 +879,14 @@ TEST_F(NERaptorInterface_test, test_cmd_raw_control)
 TEST_F(NERaptorInterface_test, test_cmd_vehicle_control)
 {
   test_vcc myTests[kNumTests_VCC];
-  std_msgs::msg::Bool enable_dbw{};
+  MiscReport in_mr{};
+  ModeChangeRequest::SharedPtr t_request{new ModeChangeRequest};
   uint8_t timeout{0}, numDbwLoops{0}, i{0}, j{0};
   uint16_t test_rollover{0};
 
   rclcpp::executors::SingleThreadedExecutor executor;
   executor.add_node(i_node_);
+  executor.add_node(c_node_);
   executor.add_node(test_listener_->get_node_base_interface());
   executor.add_node(test_talker_->get_node_base_interface());
   executor.spin_some(C_TIMEOUT_NANO);
@@ -724,7 +897,7 @@ TEST_F(NERaptorInterface_test, test_cmd_vehicle_control)
     myTests[i].in_vsc.headlight = VehicleStateCommand::HEADLIGHT_OFF;
     myTests[i].in_vsc.wiper = VehicleStateCommand::WIPER_OFF;
     myTests[i].in_vsc.gear = VehicleStateCommand::GEAR_DRIVE;
-    myTests[i].in_vsc.mode = VehicleStateCommand::MODE_AUTONOMOUS;
+    myTests[i].in_mcr = ModeChangeRequest::MODE_AUTONOMOUS;
     myTests[i].in_vsc.hand_brake = false;
     myTests[i].in_vsc.horn = false;
     myTests[i].in_gr.state.gear = Gear::DRIVE;
@@ -898,7 +1071,12 @@ TEST_F(NERaptorInterface_test, test_cmd_vehicle_control)
     } else {
       i = kNumTests_VCC - 1;
     }
-    // Set gear input to enable/disable autonomous mode
+    // Send mode change request to enable/disable autonomous mode
+    // Send Vehicle State Command to set gear
+    t_request->mode = myTests[i].in_mcr;
+    EXPECT_TRUE(
+      ne_raptor_interface_->handle_mode_change_request(t_request)) <<
+      "Test #" << std::to_string(test_rollover);
     EXPECT_TRUE(
       ne_raptor_interface_->send_state_command(myTests[i].in_vsc)) <<
       "Test #" << std::to_string(test_rollover);
@@ -921,10 +1099,10 @@ TEST_F(NERaptorInterface_test, test_cmd_vehicle_control)
 
     // Send DBW state machine feedback to enable/disable autonomous mode
     // Send once to enable, multiple times to disable
-    enable_dbw.data = myTests[i].in_vsc.mode == VehicleStateCommand::MODE_AUTONOMOUS;
-    numDbwLoops = enable_dbw.data ? 1 : 4;
+    in_mr.drive_by_wire_enabled = myTests[i].in_mcr == ModeChangeRequest::MODE_AUTONOMOUS;
+    numDbwLoops = in_mr.drive_by_wire_enabled ? 1 : 4;
     for (j = 0; j < numDbwLoops; j++) {
-      test_talker_->send_report(enable_dbw);
+      test_talker_->send_report(in_mr);
 
       timeout = 0;
       while (!test_listener_->l_got_gear_cmd &&
@@ -1066,18 +1244,19 @@ TEST_F(NERaptorInterface_test, test_cmd_vehicle_control)
 TEST_F(NERaptorInterface_test, test_rpt_vehicle_state)
 {
   test_vsr myTests[kNumTests_VSR];
+  ModeChangeRequest::SharedPtr t_request{new ModeChangeRequest};
   uint8_t timeout{0}, i{0};
 
   rclcpp::executors::SingleThreadedExecutor executor;
   executor.add_node(i_node_);
+  executor.add_node(c_node_);
   executor.add_node(test_listener_->get_node_base_interface());
   executor.add_node(test_talker_->get_node_base_interface());
   executor.spin_some(C_TIMEOUT_NANO);
 
   // Set all global enable == true & init valid data
   for (i = 0; i < kNumTests_VSR; i++) {
-    myTests[i].in_vsc.mode = VehicleStateCommand::MODE_AUTONOMOUS;
-    myTests[i].in_dbw.data = true;
+    myTests[i].in_mcr = ModeChangeRequest::MODE_AUTONOMOUS;
     myTests[i].in_br.parking_brake.status = ParkingBrake::ON;
     myTests[i].in_gr.state.gear = Gear::DRIVE;
     myTests[i].in_mr.fuel_level = 10.0F;
@@ -1149,11 +1328,14 @@ TEST_F(NERaptorInterface_test, test_rpt_vehicle_state)
   // Run all tests in a loop
   for (i = 0; i < kNumTests_VSR; i++) {
     // Send these messages first
+    t_request->mode = myTests[i].in_mcr;
     test_talker_->send_report(myTests[i].in_br);
     test_talker_->send_report(myTests[i].in_gr);
     test_talker_->send_report(myTests[i].in_mr);
-    test_talker_->send_report(myTests[i].in_dbw);
-    ne_raptor_interface_->send_state_command(myTests[i].in_vsc);
+
+    EXPECT_TRUE(
+      ne_raptor_interface_->handle_mode_change_request(t_request)) <<
+      "Test #" << std::to_string(i);
 
     timeout = 0;
     while (timeout < C_TIMEOUT_ITERATIONS) {
@@ -1213,6 +1395,7 @@ TEST_F(NERaptorInterface_test, test_rpt_vehicle_odometry)
 
   rclcpp::executors::SingleThreadedExecutor executor;
   executor.add_node(i_node_);
+  executor.add_node(c_node_);
   executor.add_node(test_listener_->get_node_base_interface());
   executor.add_node(test_talker_->get_node_base_interface());
   executor.spin_some(C_TIMEOUT_NANO);
@@ -1363,6 +1546,7 @@ TEST_F(NERaptorInterface_test, test_rpt_vehicle_kinematic_state)
 
   rclcpp::executors::SingleThreadedExecutor executor;
   executor.add_node(i_node_);
+  executor.add_node(c_node_);
   executor.add_node(test_listener_->get_node_base_interface());
   executor.add_node(test_talker_->get_node_base_interface());
   executor.spin_some(C_TIMEOUT_NANO);

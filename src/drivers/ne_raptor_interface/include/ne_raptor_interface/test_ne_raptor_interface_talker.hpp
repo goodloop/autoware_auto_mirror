@@ -71,11 +71,6 @@ public:
   /// \return false if sending failed in some way, true otherwise
   bool8_t send_report(const WheelSpeedReport & msg);
 
-  /// \brief Put in data to publish (overloaded function)
-  /// \param[in] msg The control command to send to the vehicle (type Bool - for DBW Enable)
-  /// \return false if sending failed in some way, true otherwise
-  bool8_t send_report(const std_msgs::msg::Bool & msg);
-
 private:
   // Publishers (from Raptor DBW)
   rclcpp::Publisher<BrakeReport>::SharedPtr t_brake_rpt_pub;
@@ -84,7 +79,6 @@ private:
   rclcpp::Publisher<OtherActuatorsReport>::SharedPtr t_other_acts_rpt_pub;
   rclcpp::Publisher<SteeringReport>::SharedPtr t_steering_rpt_pub;
   rclcpp::Publisher<WheelSpeedReport>::SharedPtr t_wheel_spd_rpt_pub;
-  rclcpp::Publisher<std_msgs::msg::Bool>::SharedPtr t_dbw_state_rpt_pub;
 };  // class NERaptorInterfaceTalker
 
 }  // namespace ne_raptor_interface

@@ -118,6 +118,7 @@ using autoware_auto_msgs::msg::VehicleKinematicState;
 
 using autoware_auto_msgs::srv::AutonomyModeChange;
 using ModeChangeRequest = autoware_auto_msgs::srv::AutonomyModeChange_Request;
+using ModeChangeResponse = autoware_auto_msgs::srv::AutonomyModeChange_Response;
 
 using autoware::drivers::vehicle_interface::DbwStateMachine;
 using autoware::drivers::vehicle_interface::DbwState;
@@ -186,6 +187,7 @@ public:
 
   /// \brief Send the control command to the vehicle platform.
   ///   Exceptions may be thrown on errors
+  ///   Steering -> tire angle conversion is linear except for extreme angles
   /// \param[in] msg The control command to send to the vehicle
   /// \return false if sending failed in some way, true otherwise
   bool8_t send_control_command(const VehicleControlCommand & msg) override;
@@ -220,7 +222,7 @@ private:
   rclcpp::Publisher<VehicleKinematicState>::SharedPtr m_vehicle_kin_state_pub;
 
   // Subscribers (from Raptor DBW)
-  rclcpp::SubscriptionBase::SharedPtr m_dbw_state_sub,
+  rclcpp::SubscriptionBase::SharedPtr
     m_brake_rpt_sub, m_gear_rpt_sub, m_misc_rpt_sub,
     m_other_acts_rpt_sub, m_steering_rpt_sub, m_wheel_spd_rpt_sub;
 
@@ -251,7 +253,6 @@ private:
   VehicleStateReport m_vehicle_state_report{};
   VehicleKinematicState m_vehicle_kin_state{};
   BrakeCmd m_brake_cmd{};
-  bool8_t m_seen_dbw_rpt{false};
   bool8_t m_seen_brake_rpt{false};
   bool8_t m_seen_gear_rpt{false};
   bool8_t m_seen_misc_rpt{false};
@@ -265,13 +266,6 @@ private:
   std::mutex m_vehicle_state_report_mutex;
   std::mutex m_vehicle_kin_state_mutex;
   std::mutex m_brake_cmd_mutex;
-
-  /** \brief Receives the DBW Enable state report from the vehicle platform.
-   * Gets DBW Enable status for VehicleStateReport & the DBW state machine.
-   *
-   * \param[in] msg The report received from the vehicle
-   */
-  void on_dbw_state_report(const std_msgs::msg::Bool::SharedPtr & msg);
 
   /** \brief Receives the brake state report from the vehicle platform.
    * Gets parking brake status for VehicleStateReport.
