@@ -85,6 +85,7 @@ TEST_F(NERaptorInterface_test, test_cmd_mode_change_func)
   /* Test handle_mode_change_request directly */
   // Run tests in a loop
   for (i = 0; i < kNumTests_HMCR; i++) {
+    // The DBW state machine needs a control command to be sent
     EXPECT_TRUE(
       ne_raptor_interface_->send_control_command(test_hlcc)) <<
       "Test #" << std::to_string(i);
@@ -102,6 +103,7 @@ TEST_F(NERaptorInterface_test, test_cmd_mode_change_func)
     test_listener_->l_got_brake_cmd = false;
     test_listener_->l_got_steer_cmd = false;
 
+    // Send the mode change request
     t_request->mode = myTests[i].in_mcr;
     if (myTests[i].exp_success) {
       EXPECT_TRUE(
@@ -201,6 +203,25 @@ TEST_F(NERaptorInterface_test, test_cmd_mode_change_client)
   /* Test with server client */
   // Run tests in a loop
   for (i = 0; i < kNumTests_HMCR; i++) {
+    // The DBW state machine needs a control command to be sent
+    EXPECT_TRUE(
+      ne_raptor_interface_->send_control_command(test_hlcc)) <<
+      "Test #" << std::to_string(i);
+
+    timeout = 0;
+    while ((!test_listener_->l_got_accel_cmd ||
+      !test_listener_->l_got_brake_cmd ||
+      !test_listener_->l_got_steer_cmd) &&
+      (timeout < C_TIMEOUT_ITERATIONS) )
+    {
+      executor.spin_some(C_TIMEOUT_NANO);
+      timeout++;
+    }
+    test_listener_->l_got_accel_cmd = false;
+    test_listener_->l_got_brake_cmd = false;
+    test_listener_->l_got_steer_cmd = false;
+
+    // Send the mode change request
     f_request->mode = myTests[i].in_mcr;
 
     // Wait for service
@@ -227,10 +248,15 @@ TEST_F(NERaptorInterface_test, test_cmd_mode_change_client)
       // Send service request
       auto result = test_client_->async_send_request(f_request);
 
-      EXPECT_EQ(
-        executor.spin_until_future_complete(result),
-        rclcpp::FutureReturnCode::SUCCESS) <<
-        "Test #" << std::to_string(i) << ": Failed to call service.";
+      try {
+        EXPECT_EQ(
+          executor.spin_until_future_complete(result),
+          rclcpp::FutureReturnCode::SUCCESS) <<
+          "Test #" << std::to_string(i) << ": Failed to call service.";
+      } catch (std::exception & ex) {
+        EXPECT_FALSE(myTests[i].exp_success) << "Test #" << std::to_string(i) <<
+          ": Expected mode change to succeed, but " << ex.what();
+      }
 
       timeout = 0;
       while ((!test_listener_->l_got_dbw_enable_cmd ||
