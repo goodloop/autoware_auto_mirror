@@ -17,10 +17,36 @@ cmake_minimum_required(VERSION 3.5)
 project(filter_node_base)
 
 # require that dependencies from package.xml be available
+### Compile options
+if(NOT CMAKE_CXX_STANDARD)
+  set(CMAKE_CXX_STANDARD 14)
+  set(CMAKE_CXX_STANDARD_REQUIRED ON)
+  set(CMAKE_CXX_EXTENSIONS OFF)
+endif()
+if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+  add_compile_options(-Wno-unused-parameter -Wall -Wextra -Wpedantic)
+endif()
+
 find_package(ament_cmake_auto REQUIRED)
+find_package(Eigen3 REQUIRED)
+find_package(Boost REQUIRED)
+find_package(PCL REQUIRED)
+find_package(pcl_conversions REQUIRED)
+find_package(OpenMP)
 ament_auto_find_build_dependencies(REQUIRED
   ${${PROJECT_NAME}_BUILD_DEPENDS}
   ${${PROJECT_NAME}_BUILDTOOL_DEPENDS}
+)
+
+###########
+## Build ##
+###########
+
+include_directories(
+  include
+  ${Boost_INCLUDE_DIRS}
+  ${PCL_INCLUDE_DIRS}
+  ${EIGEN3_INCLUDE_DIRS}
 )
 
 set(OUTLIER_FILTER_LIB_SRC
@@ -39,24 +65,17 @@ ament_auto_add_library(${PROJECT_NAME} SHARED
 )
 autoware_set_compile_options(${PROJECT_NAME})
 
-# set(OUTLIER_FILTER_NODE_SRC
-#   src/outlier_filter_node.cpp
-# )
+target_link_libraries(${PROJECT_NAME}
+  ${Boost_LIBRARIES}
+  ${PCL_LIBRARIES}
+)
 
-# set(OUTLIER_FILTER_NODE_HEADERS
-#   include/filter_node_base/outlier_filter_node.hpp
-# )
-
-# # generate component node library
-# ament_auto_add_library(${PROJECT_NAME}_node SHARED
-#   ${OUTLIER_FILTER_NODE_SRC}
-#   ${OUTLIER_FILTER_NODE_HEADERS}
-# )
-# autoware_set_compile_options(${PROJECT_NAME}_node)
-# rclcpp_components_register_node(${PROJECT_NAME}_node
-#   PLUGIN "autoware::perception::filters::filter_node_base::FilterNodeBase"
-#   EXECUTABLE ${PROJECT_NAME}_node_exe
-# )
+if(OPENMP_FOUND)
+  set_target_properties(${PROJECT_NAME} PROPERTIES
+    COMPILE_FLAGS ${OpenMP_CXX_FLAGS}
+    LINK_FLAGS ${OpenMP_CXX_FLAGS}
+  )
+endif()
 
 # Testing
 if(BUILD_TESTING)
