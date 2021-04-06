@@ -24,7 +24,7 @@
 
 // Autoware packages
 #include <common/types.hpp>
-#include <autoware_auto_msgs/msg/route.hpp>
+#include <autoware_auto_msgs/msg/had_map_route.hpp>
 #include <autoware_auto_msgs/msg/trajectory.hpp>
 #include <autoware_auto_msgs/msg/vehicle_state_command.hpp>
 #include <autoware_auto_msgs/msg/vehicle_kinematic_state.hpp>
@@ -52,7 +52,7 @@ constexpr const char Lane[] = "lane";
 }  // namespace PrimitiveType
 
 
-using autoware_auto_msgs::msg::Route;
+using autoware_auto_msgs::msg::HADMapRoute;
 using autoware_auto_msgs::msg::MapPrimitive;
 using autoware_auto_msgs::msg::TrajectoryPoint;
 using State = autoware_auto_msgs::msg::VehicleKinematicState;
@@ -79,7 +79,7 @@ enum class ParkingDirection
 
 struct RouteWithType
 {
-  Route route;
+  HADMapRoute route;
   PlannerType planner_type;
 };
 
@@ -90,7 +90,7 @@ class BEHAVIOR_PLANNER_PUBLIC BehaviorPlanner
 public:
   explicit BehaviorPlanner(const PlannerConfig & config);
 
-  void set_route(const Route & route, const lanelet::LaneletMapPtr & lanelet_map_ptr);
+  void set_route(const HADMapRoute & route, const lanelet::LaneletMapPtr & lanelet_map_ptr);
   void clear_route();
   void set_next_subroute();
 

@@ -133,7 +133,7 @@ void BehaviorPlanner::clear_route()
   m_trajectory_manager.clear_trajectory();
 }
 
-void BehaviorPlanner::set_route(const Route & route, const lanelet::LaneletMapPtr & lanelet_map_ptr)
+void BehaviorPlanner::set_route(const HADMapRoute & route, const lanelet::LaneletMapPtr & lanelet_map_ptr)
 {
   // create subroutes from given global route
   clear_route();
@@ -143,7 +143,7 @@ void BehaviorPlanner::set_route(const Route & route, const lanelet::LaneletMapPt
   subroute.route.start_point = route.start_point;
   auto prev_type = PlannerType::UNKNOWN;
   MapPrimitive prev_primitive;
-  if (!route.primitives.empty()) {
+  if (!route.segments.empty()) {
     const auto & first_primitive = route.primitives.front();
     prev_type = get_planner_type_from_primitive(first_primitive);
     subroute.planner_type = prev_type;

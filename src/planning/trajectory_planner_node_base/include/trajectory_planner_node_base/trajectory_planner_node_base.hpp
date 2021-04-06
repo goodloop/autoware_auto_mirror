@@ -28,7 +28,7 @@
 // Autoware Package
 #include <autoware_auto_msgs/srv/had_map_service.hpp>
 #include <autoware_auto_msgs/action/plan_trajectory.hpp>
-#include <autoware_auto_msgs/msg/route.hpp>
+#include <autoware_auto_msgs/msg/had_map_route.hpp>
 #include <common/types.hpp>
 
 // external libraries

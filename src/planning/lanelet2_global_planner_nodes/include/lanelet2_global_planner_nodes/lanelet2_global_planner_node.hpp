@@ -32,7 +32,7 @@
 #include <common/types.hpp>
 #include <autoware_auto_msgs/srv/had_map_service.hpp>
 #include <autoware_auto_msgs/msg/had_map_bin.hpp>
-#include <autoware_auto_msgs/msg/route.hpp>
+#include <autoware_auto_msgs/msg/had_map_route.hpp>
 #include <autoware_auto_msgs/msg/vehicle_kinematic_state.hpp>
 #include <had_map_utils/had_map_conversion.hpp>
 #include <common/types.hpp>
