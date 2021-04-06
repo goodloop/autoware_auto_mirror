@@ -258,18 +258,18 @@ bool8_t NERaptorInterface::send_state_command(const VehicleStateCommand & msg)
   }
 
   switch (msg.headlight) {
-    case VehicleStateCommand::HEADLIGHT_NO_COMMAND:
+    case HeadlightsCommand::NO_COMMAND:
       // Keep previous
       break;
-    case VehicleStateCommand::HEADLIGHT_OFF:
+    case HeadlightsCommand::DISABLE:
       m_misc_cmd.low_beam_cmd.status = LowBeam::OFF;
       m_misc_cmd.high_beam_cmd.status = HighBeam::OFF;
       break;
-    case VehicleStateCommand::HEADLIGHT_ON:
+    case HeadlightsCommand::ENABLE_LOW:
       m_misc_cmd.low_beam_cmd.status = LowBeam::ON;
       m_misc_cmd.high_beam_cmd.status = HighBeam::OFF;
       break;
-    case VehicleStateCommand::HEADLIGHT_HIGH:
+    case HeadlightsCommand::ENABLE_HIGH:
       m_misc_cmd.low_beam_cmd.status = LowBeam::OFF;
       m_misc_cmd.high_beam_cmd.status = HighBeam::ON;
       break;
