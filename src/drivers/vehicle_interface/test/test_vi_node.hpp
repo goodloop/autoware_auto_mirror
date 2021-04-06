@@ -27,6 +27,8 @@
 #include <utility>
 #include <vector>
 
+#include "autoware_auto_msgs/msg/headlights_command.hpp"
+
 #include "vehicle_interface/vehicle_interface_node.hpp"
 
 using autoware::common::types::bool8_t;
@@ -38,6 +40,7 @@ using autoware::drivers::vehicle_interface::PlatformInterface;
 using autoware::drivers::vehicle_interface::FilterConfig;
 using autoware::drivers::vehicle_interface::TopicNumMatches;
 
+using autoware_auto_msgs::msg::HeadlightsCommand;
 using autoware_auto_msgs::msg::RawControlCommand;
 using autoware_auto_msgs::msg::VehicleControlCommand;
 using autoware_auto_msgs::msg::VehicleStateCommand;
