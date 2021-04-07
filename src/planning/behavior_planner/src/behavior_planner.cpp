@@ -52,20 +52,20 @@ PlannerType get_planner_type_from_primitive(
   }
 }
 
-autoware_auto_msgs::msg::TrajectoryPoint convert_to_trajectory_point(
+autoware_auto_msgs::msg::RoutePoint convert_to_route_point(
   const lanelet::ConstPoint2d & pt)
 {
-  autoware_auto_msgs::msg::TrajectoryPoint trajectory_point;
-  trajectory_point.x = static_cast<float32_t>(pt.x());
-  trajectory_point.y = static_cast<float32_t>(pt.y());
-  return trajectory_point;
+  autoware_auto_msgs::msg::RoutePoint route_point;
+  route_point.position.x = pt.x();
+  route_point.position.y = pt.y();
+  return route_point;
 }
 
-TrajectoryPoint get_closest_point_on_lane(
-  const TrajectoryPoint & point, const int64_t lane_id,
+RoutePoint get_closest_point_on_lane(
+  const RoutePoint & point, const int64_t lane_id,
   const lanelet::LaneletMapPtr & lanelet_map_ptr, const float32_t offset)
 {
-  TrajectoryPoint closest_point_on_lane;
+  RoutePoint closest_point_on_lane;
 
   const auto lanelet = lanelet_map_ptr->laneletLayer.get(lane_id);
 
@@ -82,8 +82,8 @@ TrajectoryPoint get_closest_point_on_lane(
   float32_t min_distance = std::numeric_limits<float32_t>::max();
   float32_t length_along_line = 0.0f, accumulated_length = 0.0f;
   for (size_t i = 1; i < centerline.size(); i++) {
-    const auto prev_pt = convert_to_trajectory_point(centerline[i - 1]);
-    const auto current_pt = convert_to_trajectory_point(centerline[i]);
+    const auto prev_pt = convert_to_route_point(centerline[i - 1]);
+    const auto current_pt = convert_to_route_point(centerline[i]);
 
     const auto distance = point_line_segment_distance_2d(prev_pt, current_pt, point);
     if (distance < min_distance) {
@@ -101,8 +101,8 @@ TrajectoryPoint get_closest_point_on_lane(
 
   accumulated_length = 0.0f;
   for (size_t i = 1; i < centerline.size(); i++) {
-    const auto prev_pt = convert_to_trajectory_point(centerline[i - 1]);
-    const auto current_pt = convert_to_trajectory_point(centerline[i]);
+    const auto prev_pt = convert_to_route_point(centerline[i - 1]);
+    const auto current_pt = convert_to_route_point(centerline[i]);
     const auto distance = norm_2d(minus_2d(prev_pt, current_pt));
     if (accumulated_length + distance >= length_with_offset) {
       const auto direction_vector = minus_2d(current_pt, prev_pt);
@@ -262,8 +262,8 @@ RouteWithType BehaviorPlanner::get_current_subroute()
 }
 
 ParkingDirection BehaviorPlanner::get_parking_direction(
-  const TrajectoryPoint & parking_point,
-  const TrajectoryPoint & closest_lane_point)
+  const RoutePoint & parking_point,
+  const RoutePoint & closest_lane_point)
 {
   // Calculate angle from parking point to closest lane point
   const auto direction_vector = minus_2d(closest_lane_point, parking_point);
@@ -280,7 +280,7 @@ ParkingDirection BehaviorPlanner::get_parking_direction(
   }
 }
 
-TrajectoryPoint BehaviorPlanner::get_sub_goal()
+RoutePoint BehaviorPlanner::get_sub_goal()
 {
   return m_subroutes.at(m_current_subroute).route.goal_point;
 }
