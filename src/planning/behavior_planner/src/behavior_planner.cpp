@@ -151,70 +151,71 @@ void BehaviorPlanner::set_route(const HADMapRoute & route, const lanelet::Lanele
   }
 
   for (const auto & segment : route.segments) {
-    for (const auto & primitive : segment.primitives) {
-      const auto & type = get_planner_type_from_primitive(primitive);
-      segment.primitives.push_back(primitive);
+    const auto & primitive = segment.primitives.front();
+    const auto & type = get_planner_type_from_primitive(primitive);
+    auto new_segment = decltype(segment){};
+    new_segment.primitives.push_back(primitive);
+    subroute.route.segments.push_back(new_segment);
 
-      //  create subroute when Planner Type changes
-      if (type != prev_type) {
-        if (prev_type == PlannerType::PARKING && type == PlannerType::LANE) {
-          // Determine parking direction and set offset direction accordingly
-          float32_t route_offset = m_config.subroute_goal_offset_parking2lane;
-          const auto closest_lane_point = get_closest_point_on_lane(
-            subroute.route.start_point,
-            primitive.id, lanelet_map_ptr, 0.0f);
-          const auto parking_dir = get_parking_direction(
-            subroute.route.start_point, closest_lane_point);
+    //  create subroute when Planner Type changes
+    if (type != prev_type) {
+      if (prev_type == PlannerType::PARKING && type == PlannerType::LANE) {
+        // Determine parking direction and set offset direction accordingly
+        float32_t route_offset = m_config.subroute_goal_offset_parking2lane;
+        const auto closest_lane_point = get_closest_point_on_lane(
+          subroute.route.start_point,
+          primitive.id, lanelet_map_ptr, 0.0f);
+        const auto parking_dir = get_parking_direction(
+          subroute.route.start_point, closest_lane_point);
 
-          if (parking_dir == ParkingDirection::HEAD_IN) {
-            // Add extra distance for vehicle length
-            route_offset = -(route_offset + m_config.cg_to_vehicle_center);
-          }
-
-          // create parking subroute
-          // set goal to closest poin on lane from starting point
-          subroute.route.goal_point = get_closest_point_on_lane(
-            subroute.route.start_point,
-            primitive.id, lanelet_map_ptr, route_offset);
-          m_subroutes.push_back(subroute);
-
-          // reinitialize for next subroute
-          subroute.planner_type = type;
-          subroute.route.primitives.clear();
-          subroute.route.primitives.push_back(primitive);
-          subroute.route.start_point = subroute.route.goal_point;
+        if (parking_dir == ParkingDirection::HEAD_IN) {
+          // Add extra distance for vehicle length
+          route_offset = -(route_offset + m_config.cg_to_vehicle_center);
         }
-        if (prev_type == PlannerType::LANE && type == PlannerType::PARKING) {
-          // Determine parking direction and set offset direction accordingly
-          float32_t route_offset = m_config.subroute_goal_offset_lane2parking;
-          const auto closest_lane_point = get_closest_point_on_lane(
-            route.goal_point, prev_primitive.id,
-            lanelet_map_ptr, 0.0f);
-          const auto parking_dir = get_parking_direction(
-            route.goal_point, closest_lane_point);
 
-          if (parking_dir == ParkingDirection::HEAD_IN) {
-            // Add extra distance for vehicle length
-            route_offset = -(route_offset + m_config.cg_to_vehicle_center);
-          }
+        // create parking subroute
+        // set goal to closest poin on lane from starting point
+        subroute.route.goal_point = get_closest_point_on_lane(
+          subroute.route.start_point,
+          primitive.id, lanelet_map_ptr, route_offset);
+        m_subroutes.push_back(subroute);
 
-          // Currently, we assume that final goal is close to lane.
-          subroute.route.goal_point = get_closest_point_on_lane(
-            route.goal_point, prev_primitive.id,
-            lanelet_map_ptr, route_offset);
-          m_subroutes.push_back(subroute);
-
-          // reinitialize for next subroute
-          subroute.planner_type = type;
-          subroute.route.primitives.clear();
-          subroute.route.primitives.push_back(prev_primitive);
-          subroute.route.primitives.push_back(primitive);
-          subroute.route.start_point = subroute.route.goal_point;
-        }
+        // reinitialize for next subroute
+        subroute.planner_type = type;
+        subroute.route.primitives.clear();
+        subroute.route.primitives.push_back(primitive);
+        subroute.route.start_point = subroute.route.goal_point;
       }
-      prev_type = type;
-      prev_primitive = primitive;
+      if (prev_type == PlannerType::LANE && type == PlannerType::PARKING) {
+        // Determine parking direction and set offset direction accordingly
+        float32_t route_offset = m_config.subroute_goal_offset_lane2parking;
+        const auto closest_lane_point = get_closest_point_on_lane(
+          route.goal_point, prev_primitive.id,
+          lanelet_map_ptr, 0.0f);
+        const auto parking_dir = get_parking_direction(
+          route.goal_point, closest_lane_point);
+
+        if (parking_dir == ParkingDirection::HEAD_IN) {
+          // Add extra distance for vehicle length
+          route_offset = -(route_offset + m_config.cg_to_vehicle_center);
+        }
+
+        // Currently, we assume that final goal is close to lane.
+        subroute.route.goal_point = get_closest_point_on_lane(
+          route.goal_point, prev_primitive.id,
+          lanelet_map_ptr, route_offset);
+        m_subroutes.push_back(subroute);
+
+        // reinitialize for next subroute
+        subroute.planner_type = type;
+        subroute.route.primitives.clear();
+        subroute.route.primitives.push_back(prev_primitive);
+        subroute.route.primitives.push_back(primitive);
+        subroute.route.start_point = subroute.route.goal_point;
+      }
     }
+    prev_type = type;
+    prev_primitive = primitive;
   }
 
   // add final subroute
