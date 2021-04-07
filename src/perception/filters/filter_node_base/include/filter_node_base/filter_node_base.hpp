@@ -135,17 +135,6 @@ protected:
    * Default: false. */
   bool filter_limit_negative_;
 
-  /** \brief The input TF frame the data should be transformed into,
-   * if input.header.frame_id is different. */
-  std::string tf_input_frame_;
-
-  /** \brief The original data input TF frame. */
-  std::string tf_input_orig_frame_;
-
-  /** \brief The output TF frame the data should be transformed into,
-   * if input.header.frame_id is different. */
-  std::string tf_output_frame_;
-
   /** \brief Internal mutex. */
   boost::mutex mutex_;
 

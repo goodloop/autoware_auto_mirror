@@ -1,4 +1,4 @@
-filter_node_base {#filter_node_base_package_design}
+filter_node_base {#filter-node-base-package-design}
 ===========
 
 This is the design document for the `filter_node_base` package.
@@ -18,6 +18,8 @@ This is the design document for the `filter_node_base` package.
 
 ## Assumptions / Known limits
 <!-- Required -->
+
+* No transformation of frames is required to be done by the filter since this will be handled by an external node purely for transforming topics.
 
 ## Inputs / Outputs / API
 <!-- Required -->
