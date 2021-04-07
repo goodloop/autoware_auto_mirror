@@ -14,7 +14,7 @@
 
 /// \copyright Copyright 2021 The Autoware Foundation
 /// \file
-/// \brief This file defines the outlier_filter_node class.
+/// \brief This file defines the FilterNodeBase class.
 
 #ifndef FILTER_NODE_BASE__FILTER_NODE_BASE_HPP_
 #define FILTER_NODE_BASE__FILTER_NODE_BASE_HPP_
@@ -27,17 +27,12 @@
 
 #include <common/types.hpp>
 
-// PCL includes
-#include "pcl/filters/filter.h"
-
-#include "sensor_msgs/msg/point_cloud2.h"
+#include "sensor_msgs/msg/point_cloud2.hpp"
 #include "boost/thread/mutex.hpp"
 // PCL includes
-#include "pcl/pcl_base.h"
-#include "pcl/point_types.h"
 #include "pcl_conversions/pcl_conversions.h"
-#include "pcl_msgs/msg/model_coefficients.h"
-#include "pcl_msgs/msg/point_indices.h"
+#include "pcl_msgs/msg/model_coefficients.hpp"
+#include "pcl_msgs/msg/point_indices.hpp"
 
 #include "message_filters/subscriber.h"
 #include "message_filters/sync_policies/approximate_time.h"

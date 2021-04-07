@@ -18,8 +18,6 @@
 #include <string>
 #include <vector>
 
-#include "pcl/io/io.h"
-
 using autoware::common::types::bool8_t;
 
 namespace autoware
