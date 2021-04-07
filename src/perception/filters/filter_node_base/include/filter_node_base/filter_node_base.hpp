@@ -62,21 +62,6 @@ namespace filter_node_base
 
 namespace sync_policies = message_filters::sync_policies;
 
-/** \brief For parameter service callback */
-template<typename T>
-bool get_param(const std::vector<rclcpp::Parameter> & p, const std::string & name, T & value)
-{
-  auto it = std::find_if(
-    p.cbegin(), p.cend(), [&name](const rclcpp::Parameter & parameter) {
-      return parameter.get_name() == name;
-    });
-  if (it != p.cend()) {
-    value = it->template get_value<T>();
-    return true;
-  }
-  return false;
-}
-
 /// \class FilterNodeBase
 /// \brief ROS 2 Node for hello world.
 class FILTER_NODE_BASE_PUBLIC FilterNodeBase : public rclcpp::Node
@@ -105,7 +90,10 @@ public:
   typedef message_filters::Synchronizer<sync_policies::ApproximateTime<PointCloud2, PointIndices>>
     ApproximateTimeSyncPolicy;
 
-  /// \brief default constructor for the FilterNodeBase class
+  /** \brief default constructor for the FilterNodeBase class
+   * \param filter_name the name of the filter.
+   * \param options node options.
+   */
   explicit FilterNodeBase(const std::string & filter_name = "pointcloud_preprocessor_filter",
     const rclcpp::NodeOptions & options = rclcpp::NodeOptions());
 
@@ -124,16 +112,6 @@ protected:
 
   /** \brief The desired user filter field name. */
   std::string filter_field_name_;
-
-  /** \brief The minimum allowed filter value a point will be considered from. */
-  double filter_limit_min_;
-
-  /** \brief The maximum allowed filter value a point will be considered from. */
-  double filter_limit_max_;
-
-  /** \brief Set to true if we want to return the data outside (\a filter_limit_min_;\a filter_limit_max_).
-   * Default: false. */
-  bool filter_limit_negative_;
 
   /** \brief Internal mutex. */
   boost::mutex mutex_;
@@ -165,7 +143,7 @@ protected:
    * ~indices topics must be synchronised in time, either exact or within a
    * specified jitter. See also @ref latched_indices_ and approximate_sync.
    **/
-  bool8_t use_indices_ = false;
+  bool8_t use_indices_;
   /** \brief Set to true if the indices topic is latched.
    *
    * If use_indices_ is true, the ~input and ~indices topics generally must
@@ -173,14 +151,14 @@ protected:
    * value from ~indices can be used instead of requiring a synchronised
    * message.
    **/
-  bool8_t latched_indices_ = false;
-
-  /** \brief The maximum queue size (default: 3). */
-  size_t max_queue_size_ = 3;
+  bool8_t latched_indices_;
 
   /** \brief True if we use an approximate time synchronizer
    * versus an exact one (false by default). */
-  bool8_t approximate_sync_ = false;
+  bool8_t approximate_sync_;
+
+  /** \brief The maximum queue size. */
+  size_t max_queue_size_;
 
   std::shared_ptr<tf2_ros::Buffer> tf_buffer_;
   std::shared_ptr<tf2_ros::TransformListener> tf_listener_;
@@ -212,13 +190,6 @@ protected:
   }
 
 private:
-  /** \brief Parameter service callback result : needed to be hold */
-  OnSetParametersCallbackHandle::SharedPtr set_param_res_filter_;
-
-  /** \brief Parameter service callback */
-  rcl_interfaces::msg::SetParametersResult filterParamCallback(
-    const std::vector<rclcpp::Parameter> & p);
-
   /** \brief Synchronized input, and indices.*/
   std::shared_ptr<ExactTimeSyncPolicy> sync_input_indices_e_;
   std::shared_ptr<ApproximateTimeSyncPolicy> sync_input_indices_a_;

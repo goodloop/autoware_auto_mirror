@@ -37,8 +37,6 @@ FilterNodeBase::FilterNodeBase(
 {
   {
     max_queue_size_ = static_cast<std::size_t>(declare_parameter("max_queue_size").get<std::size_t>());
-
-    // ---[ Optional parameters
     use_indices_ = static_cast<bool8_t>(declare_parameter("use_indices").get<bool8_t>());
     latched_indices_ = static_cast<bool8_t>(declare_parameter("latched_indices").get<bool8_t>());
     approximate_sync_ = static_cast<bool8_t>(declare_parameter("approximate_sync").get<bool8_t>());
@@ -94,10 +92,6 @@ FilterNodeBase::FilterNodeBase(
   // Set tf_listener, tf_buffer.
   setupTF();
 
-  // Set parameter service callback
-  set_param_res_filter_ = this->add_on_set_parameters_callback(
-    std::bind(&FilterNodeBase::filterParamCallback, this, std::placeholders::_1));
-
   RCLCPP_DEBUG(this->get_logger(), "[Filter Constructor] successfully created.");
 }
 
@@ -117,13 +111,8 @@ void FilterNodeBase::computePublish(
   // Call the virtual method in the child
   filter(input, indices, output);
 
-  PointCloud2::SharedPtr cloud_tf(new PointCloud2(output));  // set the output by default
-
-  // Copy timestamp to keep it
-  cloud_tf->header.stamp = input->header.stamp;
-
   // Publish a boost shared ptr
-  pub_output_->publish(*cloud_tf);
+  pub_output_->publish(output);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -160,15 +149,12 @@ void FilterNodeBase::input_indices_callback(
       cloud->width * cloud->height, cloud->header.frame_id.c_str());
   }
   ///
-  
-  PointCloud2ConstPtr cloud_tf;
-  cloud_tf = cloud;
 
   // Need setInputCloud () here because we have to extract x/y/z
   IndicesPtr vindices;
   if (indices) {vindices.reset(new std::vector<int>(indices->indices));}
 
-  computePublish(cloud_tf, vindices);
+  computePublish(cloud, vindices);
 }
 
 }  // namespace filter_node_base
