@@ -208,8 +208,8 @@ template<typename T>
 T times_2d(const T & p, const float32_t a)
 {
   T r;
-  point_adapter::xr_(r) = point_adapter::x_(p) * a;
-  point_adapter::yr_(r) = point_adapter::y_(p) * a;
+  point_adapter::xr_(r) = static_cast<float32_t>(point_adapter::x_(p)) * a;
+  point_adapter::yr_(r) = static_cast<float32_t>(point_adapter::y_(p)) * a;
   return r;
 }
 
