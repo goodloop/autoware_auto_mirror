@@ -54,7 +54,7 @@ constexpr const char Lane[] = "lane";
 
 using autoware_auto_msgs::msg::HADMapRoute;
 using autoware_auto_msgs::msg::MapPrimitive;
-using autoware_auto_msgs::msg::TrajectoryPoint;
+using autoware_auto_msgs::msg::RoutePoint;
 using State = autoware_auto_msgs::msg::VehicleKinematicState;
 using autoware_auto_msgs::msg::VehicleStateCommand;
 
@@ -97,7 +97,7 @@ public:
   bool8_t is_route_ready();
 
   bool8_t needs_new_trajectory(const State & state);
-  TrajectoryPoint get_sub_goal();
+  RoutePoint get_sub_goal();
   bool8_t has_arrived_goal(const State & state);
   bool8_t has_arrived_subroute_goal(const State & state);
 
@@ -118,12 +118,12 @@ private:
   RouteWithType get_current_subroute();
 
   /// \brief Function to calculate if target parking orientation is HEAD_IN or TOE_IN
-  /// \param[in] parking_point TrajectoryPoint with heading for the target parking location
-  /// \param[in] closest_lane_point Nearest TrajectoryPoint to the parking location on a lanelet
+  /// \param[in] parking_point RoutePoint with heading for the target parking location
+  /// \param[in] closest_lane_point Nearest RoutePoint to the parking location on a lanelet
   /// \return ParkingDirection object representing HEAD_IN or TOE_IN
   ParkingDirection get_parking_direction(
-    const TrajectoryPoint & parking_point,
-    const TrajectoryPoint & closest_lane_point);
+    const RoutePoint & parking_point,
+    const RoutePoint & closest_lane_point);
   std::vector<RouteWithType> m_subroutes;
   std::size_t m_current_subroute;
 

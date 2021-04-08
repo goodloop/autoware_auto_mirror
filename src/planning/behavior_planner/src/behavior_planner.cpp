@@ -85,13 +85,15 @@ RoutePoint get_closest_point_on_lane(
     const auto prev_pt = convert_to_route_point(centerline[i - 1]);
     const auto current_pt = convert_to_route_point(centerline[i]);
 
-    const auto distance = point_line_segment_distance_2d(prev_pt, current_pt, point);
+    const auto distance = point_line_segment_distance_2d(
+      prev_pt.position, current_pt.position, point.position);
     if (distance < min_distance) {
       min_distance = distance;
-      const auto point_on_lane = closest_segment_point_2d(prev_pt, current_pt, point);
-      length_along_line = accumulated_length + norm_2d(minus_2d(prev_pt, point_on_lane));
+      const auto point_on_lane = closest_segment_point_2d(
+        prev_pt.position, current_pt.position, point.position);
+      length_along_line = accumulated_length + norm_2d(minus_2d(prev_pt.position, point_on_lane));
     }
-    accumulated_length += norm_2d(minus_2d(prev_pt, current_pt));
+    accumulated_length += norm_2d(minus_2d(prev_pt.position, current_pt.position));
   }
 
   // we find a point from line length with offset
@@ -103,12 +105,13 @@ RoutePoint get_closest_point_on_lane(
   for (size_t i = 1; i < centerline.size(); i++) {
     const auto prev_pt = convert_to_route_point(centerline[i - 1]);
     const auto current_pt = convert_to_route_point(centerline[i]);
-    const auto distance = norm_2d(minus_2d(prev_pt, current_pt));
+    const auto distance = norm_2d(minus_2d(prev_pt.position, current_pt.position));
     if (accumulated_length + distance >= length_with_offset) {
-      const auto direction_vector = minus_2d(current_pt, prev_pt);
+      const auto direction_vector = minus_2d(current_pt.position, prev_pt.position);
       const auto ratio = (length_with_offset - accumulated_length) / distance;
-      closest_point_on_lane = plus_2d(prev_pt, times_2d(direction_vector, ratio));
-      const float32_t angle = std::atan2(direction_vector.y, direction_vector.x);
+      closest_point_on_lane.position = plus_2d(prev_pt.position, times_2d(direction_vector, ratio));
+      const float32_t angle = std::atan2(
+        static_cast<float32_t>(direction_vector.y), static_cast<float32_t>(direction_vector.x));
       closest_point_on_lane.heading = motion::motion_common::from_angle(angle);
     }
     accumulated_length += distance;
@@ -182,8 +185,8 @@ void BehaviorPlanner::set_route(const HADMapRoute & route, const lanelet::Lanele
 
         // reinitialize for next subroute
         subroute.planner_type = type;
-        subroute.route.primitives.clear();
-        subroute.route.primitives.push_back(primitive);
+        subroute.route.segments.front().primitives.clear();
+        subroute.route.segments.front().primitives.push_back(primitive);
         subroute.route.start_point = subroute.route.goal_point;
       }
       if (prev_type == PlannerType::LANE && type == PlannerType::PARKING) {
@@ -208,9 +211,9 @@ void BehaviorPlanner::set_route(const HADMapRoute & route, const lanelet::Lanele
 
         // reinitialize for next subroute
         subroute.planner_type = type;
-        subroute.route.primitives.clear();
-        subroute.route.primitives.push_back(prev_primitive);
-        subroute.route.primitives.push_back(primitive);
+        subroute.route.segments.front().primitives.clear();
+        subroute.route.segments.front().primitives.push_back(prev_primitive);
+        subroute.route.segments.front().primitives.push_back(primitive);
         subroute.route.start_point = subroute.route.goal_point;
       }
     }
@@ -266,8 +269,9 @@ ParkingDirection BehaviorPlanner::get_parking_direction(
   const RoutePoint & closest_lane_point)
 {
   // Calculate angle from parking point to closest lane point
-  const auto direction_vector = minus_2d(closest_lane_point, parking_point);
-  const float32_t diff_angle = std::atan2(direction_vector.y, direction_vector.x);
+  const auto direction_vector = minus_2d(closest_lane_point.position, parking_point.position);
+  const float32_t diff_angle = std::atan2(
+    static_cast<float32_t>(direction_vector.y), static_cast<float32_t>(direction_vector.x));
 
   // Get heading angle of parking point
   const auto heading_angle = motion::motion_common::to_angle(parking_point.heading);
