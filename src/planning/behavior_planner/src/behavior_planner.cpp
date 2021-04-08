@@ -251,7 +251,11 @@ RouteWithType BehaviorPlanner::get_current_subroute(const State & ego_state)
   auto updated_subroute = m_subroutes.at(m_current_subroute);
   updated_subroute.route.header = ego_state.header;
   if (updated_subroute.planner_type == PlannerType::LANE) {
-    updated_subroute.route.start_point = ego_state.state;
+    RoutePoint start_point;
+    start_point.heading = ego_state.state.heading;
+    start_point.position.x = ego_state.state.x;
+    start_point.position.y = ego_state.state.y;
+    updated_subroute.route.start_point = start_point;
   }
   return updated_subroute;
 }
@@ -312,7 +316,11 @@ bool8_t BehaviorPlanner::has_arrived_goal(const State & state)
   const auto satisfy_velocity_condition = is_vehicle_stopped(state);
 
   const auto & route = m_subroutes.back().route;
-  const auto distance = norm_2d(minus_2d(route.goal_point, state.state));
+  RoutePoint state_route_point;
+  state_route_point.heading = state.state.heading;
+  state_route_point.position.x = state.state.x;
+  state_route_point.position.y = state.state.y;
+  const auto distance = norm_2d(minus_2d(route.goal_point.position, state_route_point.position));
   const auto satsify_distance_condition = distance < m_config.goal_distance_thresh;
 
   return satisfy_velocity_condition && satsify_distance_condition;
@@ -323,7 +331,11 @@ bool8_t BehaviorPlanner::has_arrived_subroute_goal(const State & state)
   const auto satisfy_velocity_condition = is_vehicle_stopped(state);
 
   const auto & route = get_current_subroute().route;
-  const auto distance = norm_2d(minus_2d(route.goal_point, state.state));
+  RoutePoint state_route_point;
+  state_route_point.heading = state.state.heading;
+  state_route_point.position.x = state.state.x;
+  state_route_point.position.y = state.state.y;
+  const auto distance = norm_2d(minus_2d(route.goal_point.position, state_route_point.position));
   const auto satsify_distance_condition = distance < m_config.goal_distance_thresh;
 
   return satisfy_velocity_condition && satsify_distance_condition;
@@ -357,7 +369,11 @@ void BehaviorPlanner::set_trajectory(const Trajectory & trajectory)
 
   const auto & last_point = trajectory.points.back();
   const auto & route = get_current_subroute().route;
-  const auto distance = norm_2d(minus_2d(route.goal_point, last_point));
+  RoutePoint last_route_point;
+  last_route_point.heading = last_point.heading;
+  last_route_point.position.x = last_point.x;
+  last_route_point.position.y = last_point.y;
+  const auto distance = norm_2d(minus_2d(route.goal_point.position, last_route_point.position));
   m_is_trajectory_complete = distance < m_config.goal_distance_thresh;
 }
 
