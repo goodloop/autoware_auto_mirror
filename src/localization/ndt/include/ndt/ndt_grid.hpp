@@ -162,9 +162,13 @@ public:
     return m_config.index(pt);
   }
 
-  auto emplace(uint64_t key, VoxelT && vx)
+  /// \brief Emplace a new voxel into the grid.
+  /// \param args Arguments. An index and a voxel is expected
+  /// \return See the return type of `unordered_map::emplace()`.
+  template<typename ... Args>
+  auto emplace_voxel(Args && ... args)
   {
-    return m_map.emplace(key, std::forward<VoxelT>(vx));
+    return m_map.emplace(std::forward<Args>(args)...);
   }
 
   void add_observation(const Point & pt)

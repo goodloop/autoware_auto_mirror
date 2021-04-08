@@ -362,7 +362,7 @@ void StaticNDTMap::deserialize_from(const sensor_msgs::msg::PointCloud2 & msg)
       *icov_xz_it, *icov_yz_it, *icov_zz_it;
     const Voxel vx{centroid, inv_covariance};
 
-    const auto insert_res = m_grid.emplace(voxel_idx, Voxel{centroid, inv_covariance});
+    const auto insert_res = m_grid.emplace_voxel(voxel_idx, Voxel{centroid, inv_covariance});
     if (!insert_res.second) {
       // if a voxel already exist at this point, replace.
       insert_res.first->second = vx;
