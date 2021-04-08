@@ -214,12 +214,12 @@ void Lanelet2GlobalPlannerNode::send_global_path(
   autoware_auto_msgs::msg::HADMapRoute global_route;
   global_route.header = header;
 
-  RoutePoint start_route_point;
+  autoware_auto_msgs::msg::RoutePoint start_route_point;
   start_route_point.position.x = start_point.x;
   start_route_point.position.y = start_point.y;
   start_route_point.heading = start_point.heading;
 
-  RoutePoint end_route_point;
+  autoware_auto_msgs::msg::RoutePoint end_route_point;
   end_route_point.position.x = end_point.x;
   end_route_point.position.y = end_point.y;
   end_route_point.heading = end_point.heading;
