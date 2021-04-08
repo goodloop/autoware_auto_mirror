@@ -85,7 +85,7 @@ Lanelet2GlobalPlannerNode::Lanelet2GlobalPlannerNode(
 
   // Global path publisher
   global_path_pub_ptr =
-    this->create_publisher<autoware_auto_msgs::msg::Route>(
+    this->create_publisher<autoware_auto_msgs::msg::HADMapRoute>(
     "global_path", rclcpp::QoS(10));
 
   // Create map client
@@ -211,17 +211,30 @@ void Lanelet2GlobalPlannerNode::send_global_path(
   // parking id = first/first to last
   // drivable area = second/second to last
   // main route = other
-  autoware_auto_msgs::msg::Route global_route;
+  autoware_auto_msgs::msg::HADMapRoute global_route;
   global_route.header = header;
-  global_route.start_point = start_point;
-  global_route.goal_point = end_point;
 
+  RoutePoint start_route_point;
+  start_route_point.position.x = start_point.x;
+  start_route_point.position.y = start_point.y;
+  start_route_point.heading = start_point.heading;
+
+  RoutePoint end_route_point;
+  end_route_point.position.x = end_point.x;
+  end_route_point.position.y = end_point.y;
+  end_route_point.heading = end_point.heading;
+
+  global_route.start_point = start_route_point;
+  global_route.goal_point = end_route_point;
+
+  size_t i = 0;
   for (const auto & route_id : route) {
     // add data to the global path
     autoware_auto_msgs::msg::MapPrimitive primitive;
     primitive.id = route_id;
     primitive.primitive_type = lanelet2_global_planner->get_primitive_type(route_id);
-    global_route.primitives.push_back(primitive);
+    global_route.segments[i].primitives.push_back(primitive);
+    ++i;
   }
   // publish the global path
   global_path_pub_ptr->publish(global_route);
