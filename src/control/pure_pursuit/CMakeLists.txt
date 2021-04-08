@@ -29,6 +29,8 @@ ament_auto_add_library(${PROJECT_NAME} SHARED
   src/pure_pursuit.cpp
 )
 autoware_set_compile_options(${PROJECT_NAME})
+# Setting a system include is needed to avoid having an explicit Eigen dependency.
+target_include_directories(${PROJECT_NAME} SYSTEM PUBLIC ${kalman_filter_INCLUDE_DIRS})
 if(BUILD_TESTING)
   # run common linters
   find_package(ament_lint_auto)

@@ -8,9 +8,6 @@ find_package(ament_cmake_auto REQUIRED)
 find_package(Eigen3 REQUIRED)
 ament_auto_find_build_dependencies()
 
-# includes
-include_directories(SYSTEM ${EIGEN3_INCLUDE_DIR})
-
 # build library
 ament_auto_add_library(
   ${PROJECT_NAME} SHARED
@@ -19,6 +16,7 @@ ament_auto_add_library(
   src/wiener_noise.cpp
 )
 autoware_set_compile_options(${PROJECT_NAME})
+target_include_directories(${PROJECT_NAME} SYSTEM PUBLIC ${EIGEN3_INCLUDE_DIR})
 
 if(BUILD_TESTING)
   set(KALMAN_FILTER_GTEST kalman_filter_gtest)
@@ -38,9 +36,9 @@ if(BUILD_TESTING)
   autoware_set_compile_options(${KALMAN_FILTER_GTEST})
   target_include_directories(${KALMAN_FILTER_GTEST} PRIVATE "test/include" "include")
   target_link_libraries(${KALMAN_FILTER_GTEST} ${PROJECT_NAME})
-  ament_target_dependencies(${KALMAN_FILTER_GTEST}
-    "motion_model" "autoware_auto_common")
+  ament_target_dependencies(${KALMAN_FILTER_GTEST} "autoware_auto_common")
 endif()
 
 # Ament Exporting
+ament_export_include_directories(${EIGEN3_INCLUDE_DIR})
 ament_auto_package()
