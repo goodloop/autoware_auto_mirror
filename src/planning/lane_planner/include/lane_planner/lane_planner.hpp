@@ -46,7 +46,7 @@ using motion::motion_common::to_angle;
 using TrajectoryPoint = autoware_auto_msgs::msg::TrajectoryPoint;
 using TrajectoryPoints = std::vector<TrajectoryPoint>;
 using State = autoware_auto_msgs::msg::VehicleKinematicState;
-using autoware_auto_msgs::msg::Route;
+using autoware_auto_msgs::msg::HADMapRoute;
 using autoware_auto_msgs::msg::Trajectory;
 using Heading = decltype(decltype(State::state)::heading);
 
@@ -82,7 +82,7 @@ public:
     const LanePlannerConfig & planner_config);
 
   Trajectory plan_trajectory(
-    const autoware_auto_msgs::msg::Route & route,
+    const autoware_auto_msgs::msg::HADMapRoute & had_map_route,
     const LaneletMapConstPtr & map);
 
 private:
@@ -92,7 +92,7 @@ private:
   TrajectorySmoother m_trajectory_smoother;
 
   // trajectory planning sub functions
-  TrajectoryPoints generate_base_trajectory(const Route & route, const LaneletMapConstPtr & map);
+  TrajectoryPoints generate_base_trajectory(const HADMapRoute & had_map_route, const LaneletMapConstPtr & map);
   void set_angle(TrajectoryPoints * trajectory_points);
   void set_steering_angle(TrajectoryPoints * trajectory_points);
   void set_time_from_start(TrajectoryPoints * trajectory_points);
