@@ -89,7 +89,7 @@ public:
    * \param filter_name the name of the filter.
    * \param options node options.
    */
-  explicit FilterNodeBase(const std::string & filter_name = "pointcloud_preprocessor_filter",
+  explicit FilterNodeBase(const std::string & filter_name = "filter_node_base",
     const rclcpp::NodeOptions & options = rclcpp::NodeOptions());
 
 protected:
@@ -158,7 +158,14 @@ protected:
   std::shared_ptr<tf2_ros::Buffer> tf_buffer_;
   std::shared_ptr<tf2_ros::TransformListener> tf_listener_;
 
-  inline bool isValid(const PointCloud2ConstPtr & cloud, const std::string & topic_name = "input")
+  /** \brief Validate the pointcloud
+   * 
+   * Method ensure thats the size of the pointcloud defined by the width,
+   * height and point_step correspond to the data size.
+   *
+   * \param cloud pointcloud to be validated
+   */
+  inline bool isValid(const PointCloud2ConstPtr & cloud)
   {
     if (cloud->width * cloud->height * cloud->point_step != cloud->data.size()) {
       RCLCPP_WARN(
@@ -192,6 +199,7 @@ private:
   /** \brief PointCloud2 + Indices data callback. */
   void input_indices_callback(const PointCloud2ConstPtr cloud, const PointIndicesConstPtr indices);
 
+  /** \brief Set up the TF buffer and listener objects */
   void setupTF();
 
 public:
