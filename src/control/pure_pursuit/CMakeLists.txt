@@ -20,6 +20,7 @@ project(pure_pursuit)
 
 ## dependencies
 find_package(ament_cmake_auto REQUIRED)
+find_package(Eigen3 REQUIRED)
 ament_auto_find_build_dependencies()
 
 ament_auto_add_library(${PROJECT_NAME} SHARED
@@ -30,7 +31,7 @@ ament_auto_add_library(${PROJECT_NAME} SHARED
 )
 autoware_set_compile_options(${PROJECT_NAME})
 # Setting a system include is needed to avoid having an explicit Eigen dependency.
-target_include_directories(${PROJECT_NAME} SYSTEM PUBLIC ${kalman_filter_INCLUDE_DIRS})
+target_include_directories(${PROJECT_NAME} SYSTEM PUBLIC ${EIGEN3_INCLUDE_DIR})
 if(BUILD_TESTING)
   # run common linters
   find_package(ament_lint_auto)
