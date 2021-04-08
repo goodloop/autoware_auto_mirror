@@ -153,6 +153,7 @@ void BehaviorPlanner::set_route(const HADMapRoute & route, const lanelet::Lanele
     prev_primitive = first_primitive;
   }
 
+  size_t i = 0;
   for (const auto & segment : route.segments) {
     const auto & primitive = segment.primitives.front();
     const auto & type = get_planner_type_from_primitive(primitive);
@@ -185,8 +186,8 @@ void BehaviorPlanner::set_route(const HADMapRoute & route, const lanelet::Lanele
 
         // reinitialize for next subroute
         subroute.planner_type = type;
-        subroute.route.segments.front().primitives.clear();
-        subroute.route.segments.front().primitives.push_back(primitive);
+        subroute.route.segments[i].primitives.clear();
+        subroute.route.segments[i].primitives.push_back(primitive);
         subroute.route.start_point = subroute.route.goal_point;
       }
       if (prev_type == PlannerType::LANE && type == PlannerType::PARKING) {
@@ -211,14 +212,15 @@ void BehaviorPlanner::set_route(const HADMapRoute & route, const lanelet::Lanele
 
         // reinitialize for next subroute
         subroute.planner_type = type;
-        subroute.route.segments.front().primitives.clear();
-        subroute.route.segments.front().primitives.push_back(prev_primitive);
-        subroute.route.segments.front().primitives.push_back(primitive);
+        subroute.route.segments[i].primitives.clear();
+        subroute.route.segments[i].primitives.push_back(prev_primitive);
+        subroute.route.segments[i].primitives.push_back(primitive);
         subroute.route.start_point = subroute.route.goal_point;
       }
     }
     prev_type = type;
     prev_primitive = primitive;
+    ++i;
   }
 
   // add final subroute
