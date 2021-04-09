@@ -55,7 +55,8 @@ lanelet::Polygon3d coalesce_drivable_areas(
       } else {
         // This might happen if a primitive is on the route, but outside of the bounding box that we
         // query the map for. Not sure how to deal with this at this point though.
-        std::cerr << "Error: primitive ID " << map_segment.preferred_primitive_id << " not found, skipping" <<
+        std::cerr << "Error: primitive ID " << map_segment.preferred_primitive_id <<
+          " not found, skipping" <<
           std::endl;
       }
     }

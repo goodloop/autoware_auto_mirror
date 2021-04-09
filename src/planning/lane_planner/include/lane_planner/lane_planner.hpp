@@ -92,7 +92,9 @@ private:
   TrajectorySmoother m_trajectory_smoother;
 
   // trajectory planning sub functions
-  TrajectoryPoints generate_base_trajectory(const HADMapRoute & had_map_route, const LaneletMapConstPtr & map);
+  TrajectoryPoints generate_base_trajectory(
+    const HADMapRoute & had_map_route,
+    const LaneletMapConstPtr & map);
   void set_angle(TrajectoryPoints * trajectory_points);
   void set_steering_angle(TrajectoryPoints * trajectory_points);
   void set_time_from_start(TrajectoryPoints * trajectory_points);

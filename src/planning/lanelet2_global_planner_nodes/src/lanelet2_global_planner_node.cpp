@@ -174,8 +174,8 @@ void Lanelet2GlobalPlannerNode::current_pose_cb(
   start_pose.pose.position.y = msg->state.y;
   start_pose.pose.position.z = 0.0;
   start_pose.pose.orientation =
-      motion::motion_common::to_quat<geometry_msgs::msg::Quaternion>(
-          msg->state.heading);
+    motion::motion_common::to_quat<geometry_msgs::msg::Quaternion>(
+    msg->state.heading);
   start_pose.header = msg->header;
 
   // transform to "map" frame if needed
@@ -254,8 +254,9 @@ bool8_t Lanelet2GlobalPlannerNode::transform_pose_to_map(
   // transform pose into map frame
   geometry_msgs::msg::TransformStamped tf_map;
   try {
-    tf_map = tf_buffer.lookupTransform("map", source_frame,
-        time_utils::from_message(pose_in.header.stamp));
+    tf_map = tf_buffer.lookupTransform(
+      "map", source_frame,
+      time_utils::from_message(pose_in.header.stamp));
   } catch (const tf2::ExtrapolationException &) {
     // currently falls back to retrive newest transform available for availability,
     // Do validation of time stamp in the future
