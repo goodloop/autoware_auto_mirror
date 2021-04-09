@@ -37,41 +37,39 @@ int32_t tbb_demo_node::print_hello()
 
   std::vector<size_t> nums(count_nums);
   time_keeper_sequental.AddTimePoint("Allocate vector");
+
   std::copy(std::execution::par, cnt0, cntN, nums.begin());
   time_keeper_sequental.AddTimePoint("Generate numbers");
 
+  // Sum with par_unseq
   uint64_t x_par_unseq = std::reduce(
     std::execution::par_unseq,
     nums.begin(),
     nums.end(),
     0UL,
-    [](uint32_t a, uint32_t b) -> uint64_t {
-      return a + b;
-    });
+    std::plus<>());
 
   std::cout << "x_par_unseq: " << x_par_unseq << std::endl;
   time_keeper_sequental.AddTimePoint("std::execution::par_unseq");
 
+  // Sum with par
   uint64_t x_par = std::reduce(
     std::execution::par,
     nums.begin(),
     nums.end(),
     0UL,
-    [](uint32_t a, uint32_t b) -> uint64_t {
-      return a + b;
-    });
+    std::plus<>());
 
   std::cout << "x_par: " << x_par << std::endl;
   time_keeper_sequental.AddTimePoint("std::execution::par");
 
+  // Sum with seq
   uint64_t x_seq = std::reduce(
     std::execution::seq,
     nums.begin(),
     nums.end(),
     0UL,
-    [](uint32_t a, uint32_t b) -> uint64_t {
-      return a + b;
-    });
+    std::plus<>());
 
   time_keeper_sequental.AddTimePoint("std::execution::seq");
   std::cout << "x_seq: " << x_seq << std::endl;
