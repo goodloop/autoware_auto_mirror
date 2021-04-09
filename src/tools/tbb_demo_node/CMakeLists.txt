@@ -16,6 +16,12 @@ cmake_minimum_required(VERSION 3.5)
 
 project(tbb_demo_node)
 
+set(CMAKE_CXX_STANDARD 17)
+
+list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
+
+find_package(TBB REQUIRED)
+
 # require that dependencies from package.xml be available
 find_package(ament_cmake_auto REQUIRED)
 ament_auto_find_build_dependencies(REQUIRED
@@ -29,6 +35,7 @@ set(TBB_DEMO_NODE_LIB_SRC
 
 set(TBB_DEMO_NODE_LIB_HEADERS
   include/tbb_demo_node/tbb_demo_node.hpp
+  include/tbb_demo_node/time_keeper_sequental.hpp
   include/tbb_demo_node/visibility_control.hpp
   )
 
@@ -51,8 +58,10 @@ set(TBB_DEMO_NODE_NODE_HEADERS
 ament_auto_add_library(${PROJECT_NAME}_node SHARED
   ${TBB_DEMO_NODE_NODE_SRC}
   ${TBB_DEMO_NODE_NODE_HEADERS}
+  ${TBB_INCLUDE_DIRS}
   )
 autoware_set_compile_options(${PROJECT_NAME}_node)
+target_link_libraries(${PROJECT_NAME}_node ${TBB_LIBRARIES})
 rclcpp_components_register_node(${PROJECT_NAME}_node
   PLUGIN "autoware::tbb_demo_node::TbbDemoNodeNode"
   EXECUTABLE ${PROJECT_NAME}_node_exe
@@ -68,7 +77,7 @@ if (BUILD_TESTING)
   set(TEST_TBB_DEMO_NODE_EXE test_tbb_demo_node)
   ament_add_gtest(${TEST_TBB_DEMO_NODE_EXE} ${TEST_SOURCES})
   autoware_set_compile_options(${TEST_TBB_DEMO_NODE_EXE})
-  target_link_libraries(${TEST_TBB_DEMO_NODE_EXE} ${PROJECT_NAME})
+  target_link_libraries(${TEST_TBB_DEMO_NODE_EXE} ${PROJECT_NAME} ${TBB_LIBRARIES})
 endif ()
 
 # ament package generation and installing
