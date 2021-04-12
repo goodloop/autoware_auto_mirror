@@ -233,14 +233,18 @@ INSTANTIATE_TEST_CASE_P(
     StateChange{VSR{}.set__gear(VSR::GEAR_LOW), VSC{}.set__gear(VSC::GEAR_NEUTRAL)},
     //// Headlight //// 16-21
     // off -> *
-    StateChange{VSR{}.set__headlight(VSR::HEADLIGHT_OFF), VSC{}.set__headlight(HeadlightsCommand::ENABLE_LOW)},
+    StateChange{VSR{}.set__headlight(VSR::HEADLIGHT_OFF),
+      VSC{}.set__headlight(HeadlightsCommand::ENABLE_LOW)},
     StateChange{
   VSR{}.set__headlight(VSR::HEADLIGHT_OFF), VSC{}.set__headlight(HeadlightsCommand::ENABLE_HIGH)},
     // on -> *
-    StateChange{VSR{}.set__headlight(VSR::HEADLIGHT_ON), VSC{}.set__headlight(HeadlightsCommand::DISABLE)},
-    StateChange{VSR{}.set__headlight(VSR::HEADLIGHT_ON), VSC{}.set__headlight(HeadlightsCommand::ENABLE_HIGH)},
+    StateChange{VSR{}.set__headlight(VSR::HEADLIGHT_ON),
+      VSC{}.set__headlight(HeadlightsCommand::DISABLE)},
+    StateChange{VSR{}.set__headlight(VSR::HEADLIGHT_ON),
+      VSC{}.set__headlight(HeadlightsCommand::ENABLE_HIGH)},
     // high -> *
-    StateChange{VSR{}.set__headlight(VSR::HEADLIGHT_HIGH), VSC{}.set__headlight(HeadlightsCommand::ENABLE_LOW)},
+    StateChange{VSR{}.set__headlight(VSR::HEADLIGHT_HIGH),
+      VSC{}.set__headlight(HeadlightsCommand::ENABLE_LOW)},
     StateChange{
   VSR{}.set__headlight(VSR::HEADLIGHT_HIGH), VSC{}.set__headlight(HeadlightsCommand::DISABLE)},
     //// Blinker //// 22-33
