@@ -1613,7 +1613,7 @@ TEST_F(DISABLED_NERaptorInterface_test, test_cmd_high_level_control_no_msg_check
   for (i = 0; i < kNumTests_HLCC; i++) {
     myTests[i].in_vsc.blinker = VehicleStateCommand::BLINKER_OFF;
     myTests[i].in_vsc.headlight = HeadlightsCommand::DISABLE;
-    myTests[i].in_vsc.wiper = WipersCommand::OFF;
+    myTests[i].in_vsc.wiper = WipersCommand::DISABLE;
     myTests[i].in_vsc.gear = VehicleStateCommand::GEAR_DRIVE;
     myTests[i].in_mcr = ModeChangeRequest::MODE_AUTONOMOUS;
     myTests[i].in_vsc.hand_brake = false;
