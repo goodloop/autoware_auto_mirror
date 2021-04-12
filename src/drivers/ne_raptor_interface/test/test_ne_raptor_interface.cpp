@@ -1612,7 +1612,7 @@ TEST_F(DISABLED_NERaptorInterface_test, test_cmd_high_level_control_no_msg_check
   // Set all gear == DRIVE && mode == AUTONOMOUS
   for (i = 0; i < kNumTests_HLCC; i++) {
     myTests[i].in_vsc.blinker = VehicleStateCommand::BLINKER_OFF;
-    myTests[i].in_vsc.headlight = HeadlightsCommand::OFF;
+    myTests[i].in_vsc.headlight = HeadlightsCommand::DISABLE;
     myTests[i].in_vsc.wiper = VehicleStateCommand::WIPER_OFF;
     myTests[i].in_vsc.gear = VehicleStateCommand::GEAR_DRIVE;
     myTests[i].in_mcr = ModeChangeRequest::MODE_AUTONOMOUS;
