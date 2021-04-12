@@ -40,9 +40,9 @@ static_assert(VSC::BLINKER_OFF == VSR::BLINKER_OFF, "BLINKER_OFF!=");
 static_assert(VSC::BLINKER_LEFT == VSR::BLINKER_LEFT, "BLINKER_LEFT !=");
 static_assert(VSC::BLINKER_RIGHT == VSR::BLINKER_RIGHT, "BLINKER_RIGHT !=");
 static_assert(VSC::BLINKER_HAZARD == VSR::BLINKER_HAZARD, "BLINKER_HAZARD !=");
-static_assert(HeadlightsCommand::OFF == VSR::HEADLIGHT_OFF, "HEADLIGHT_OFF !=");
-static_assert(HeadlightsCommand::ON == VSR::HEADLIGHT_ON, "HEADLIGHT_ON !=");
-static_assert(HeadlightsCommand::HIGH == VSR::HEADLIGHT_HIGH, "HEADLIGHT_HIGH !=");
+static_assert(HeadlightsCommand::DISABLE == VSR::HEADLIGHT_OFF, "HEADLIGHT_OFF !=");
+static_assert(HeadlightsCommand::ENABLE_LOW == VSR::HEADLIGHT_ON, "HEADLIGHT_ON !=");
+static_assert(HeadlightsCommand::ENABLE_HIGH == VSR::HEADLIGHT_HIGH, "HEADLIGHT_HIGH !=");
 static_assert(VSC::WIPER_OFF == VSR::WIPER_OFF, "WIPER_OFF !=");
 static_assert(VSC::WIPER_LOW == VSR::WIPER_LOW, "WIPER_LOW !=");
 static_assert(VSC::WIPER_HIGH == VSR::WIPER_HIGH, "WIPER_HIGH !=");
@@ -230,12 +230,12 @@ SafetyStateMachine::MaybeEnum SafetyStateMachine::headlights_on_if_wipers_on(con
     case VSC::WIPER_LOW:
     case VSC::WIPER_HIGH:
       switch (in.headlight) {
-        case HeadlightsCommand::OFF:
+        case HeadlightsCommand::DISABLE:
         case HeadlightsCommand::NO_COMMAND:
-          ret = MaybeEnum{HeadlightsCommand::ON};
+          ret = MaybeEnum{HeadlightsCommand::ENABLE_LOW};
           break;
-        case HeadlightsCommand::ON:
-        case HeadlightsCommand::HIGH:
+        case HeadlightsCommand::ENABLE_LOW:
+        case HeadlightsCommand::ENABLE_HIGH:
         default:  // throw on other cases?
           break;
       }
@@ -403,9 +403,9 @@ SafetyStateMachine::VSC SafetyStateMachine::sanitize(const VSC & msg) const
   // Headlights
   switch (msg.headlight) {
     case HeadlightsCommand::NO_COMMAND:
-    case HeadlightsCommand::OFF:
-    case HeadlightsCommand::ON:
-    case HeadlightsCommand::HIGH:
+    case HeadlightsCommand::DISABLE:
+    case HeadlightsCommand::ENABLE_LOW:
+    case HeadlightsCommand::ENABLE_HIGH:
       break;
     default:
       did_sanitize = true;
