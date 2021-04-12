@@ -249,7 +249,7 @@ bool8_t LgsvlInterface::send_state_command(const autoware_auto_msgs::msg::Vehicl
   }
   msg_corrected.blinker--;
 
-  if (msg.headlight == VSC::HEADLIGHT_NO_COMMAND) {
+  if (msg.headlight == HeadlightsCommand::NO_COMMAND) {
     msg_corrected.headlight = get_state_report().headlight;
   }
   msg_corrected.headlight--;
