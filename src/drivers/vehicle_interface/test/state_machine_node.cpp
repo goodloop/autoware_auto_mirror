@@ -22,8 +22,6 @@
 #include <thread>
 #include <utility>
 
-#include "autoware_auto_msgs/msg/headlights_command.hpp"
-
 #include "test_vi_node.hpp"
 
 // Check that state machine is inline and does something

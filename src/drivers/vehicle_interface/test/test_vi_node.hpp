@@ -28,6 +28,7 @@
 #include <vector>
 
 #include "autoware_auto_msgs/msg/headlights_command.hpp"
+#include "autoware_auto_msgs/msg/wipers_command.hpp"
 
 #include "vehicle_interface/vehicle_interface_node.hpp"
 
@@ -42,6 +43,7 @@ using autoware::drivers::vehicle_interface::TopicNumMatches;
 using autoware::drivers::vehicle_interface::ViFeature;
 
 using autoware_auto_msgs::msg::HeadlightsCommand;
+using autoware_auto_msgs::msg::WipersCommand;
 using autoware_auto_msgs::msg::RawControlCommand;
 using autoware_auto_msgs::msg::VehicleControlCommand;
 using autoware_auto_msgs::msg::VehicleStateCommand;

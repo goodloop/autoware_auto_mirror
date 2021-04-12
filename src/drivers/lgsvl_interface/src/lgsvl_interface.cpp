@@ -44,11 +44,11 @@ using autoware_auto_msgs::msg::HeadlightsCommand;
 using autoware_auto_msgs::msg::HeadlightsReport;
 
 const std::unordered_map<WIPER_TYPE, WIPER_TYPE> LgsvlInterface::autoware_to_lgsvl_wiper {
-  {VSC::WIPER_NO_COMMAND, static_cast<WIPER_TYPE>(VSD::WIPERS_OFF)},
-  {VSC::WIPER_OFF, static_cast<WIPER_TYPE>(VSD::WIPERS_OFF)},
-  {VSC::WIPER_LOW, static_cast<WIPER_TYPE>(VSD::WIPERS_LOW)},
-  {VSC::WIPER_HIGH, static_cast<WIPER_TYPE>(VSD::WIPERS_HIGH)},
-  {VSC::WIPER_CLEAN, static_cast<WIPER_TYPE>(VSD::WIPERS_OFF)},
+  {WipersCommand::NO_COMMAND, static_cast<WIPER_TYPE>(VSD::WIPERS_OFF)},
+  {WipersCommand::DISABLE, static_cast<WIPER_TYPE>(VSD::WIPERS_OFF)},
+  {WipersCommand::ENABLE_LOW, static_cast<WIPER_TYPE>(VSD::WIPERS_LOW)},
+  {WipersCommand::ENABLE_HIGH, static_cast<WIPER_TYPE>(VSD::WIPERS_HIGH)},
+  {WipersCommand::ENABLE_CLEAN, static_cast<WIPER_TYPE>(VSD::WIPERS_OFF)},
 };
 
 const std::unordered_map<GEAR_TYPE, GEAR_TYPE> LgsvlInterface::autoware_to_lgsvl_gear {
