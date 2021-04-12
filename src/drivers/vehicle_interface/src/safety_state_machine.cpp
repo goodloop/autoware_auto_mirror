@@ -40,9 +40,9 @@ static_assert(VSC::BLINKER_OFF == VSR::BLINKER_OFF, "BLINKER_OFF!=");
 static_assert(VSC::BLINKER_LEFT == VSR::BLINKER_LEFT, "BLINKER_LEFT !=");
 static_assert(VSC::BLINKER_RIGHT == VSR::BLINKER_RIGHT, "BLINKER_RIGHT !=");
 static_assert(VSC::BLINKER_HAZARD == VSR::BLINKER_HAZARD, "BLINKER_HAZARD !=");
-static_assert(VSC::HEADLIGHT_OFF == VSR::HEADLIGHT_OFF, "HEADLIGHT_OFF !=");
-static_assert(VSC::HEADLIGHT_ON == VSR::HEADLIGHT_ON, "HEADLIGHT_ON !=");
-static_assert(VSC::HEADLIGHT_HIGH == VSR::HEADLIGHT_HIGH, "HEADLIGHT_HIGH !=");
+static_assert(HeadlightsCommand::OFF == VSR::HEADLIGHT_OFF, "HEADLIGHT_OFF !=");
+static_assert(HeadlightsCommand::ON == VSR::HEADLIGHT_ON, "HEADLIGHT_ON !=");
+static_assert(HeadlightsCommand::HIGH == VSR::HEADLIGHT_HIGH, "HEADLIGHT_HIGH !=");
 static_assert(VSC::WIPER_OFF == VSR::WIPER_OFF, "WIPER_OFF !=");
 static_assert(VSC::WIPER_LOW == VSR::WIPER_LOW, "WIPER_LOW !=");
 static_assert(VSC::WIPER_HIGH == VSR::WIPER_HIGH, "WIPER_HIGH !=");
@@ -230,12 +230,12 @@ SafetyStateMachine::MaybeEnum SafetyStateMachine::headlights_on_if_wipers_on(con
     case VSC::WIPER_LOW:
     case VSC::WIPER_HIGH:
       switch (in.headlight) {
-        case VSC::HEADLIGHT_OFF:
-        case VSC::HEADLIGHT_NO_COMMAND:
-          ret = MaybeEnum{VSC::HEADLIGHT_ON};
+        case HeadlightsCommand::OFF:
+        case HeadlightsCommand::NO_COMMAND:
+          ret = MaybeEnum{HeadlightsCommand::ON};
           break;
-        case VSC::HEADLIGHT_ON:
-        case VSC::HEADLIGHT_HIGH:
+        case HeadlightsCommand::ON:
+        case HeadlightsCommand::HIGH:
         default:  // throw on other cases?
           break;
       }
@@ -342,7 +342,7 @@ void SafetyStateMachine::cache_state_change_request(const VSC & in)
   update_request(VSC::WIPER_NO_COMMAND, in.wiper, m_state.wiper, m_requests.wiper);
   update_request(VSC::BLINKER_NO_COMMAND, in.blinker, m_state.blinker, m_requests.blinker);
   update_request(VSC::GEAR_NO_COMMAND, in.gear, m_state.gear, m_requests.gear);
-  update_request(VSC::HEADLIGHT_NO_COMMAND, in.headlight, m_state.headlight, m_requests.headlight);
+  update_request(HeadlightsCommand::NO_COMMAND, in.headlight, m_state.headlight, m_requests.headlight);
   update_request(VSC::MODE_NO_COMMAND, in.mode, m_state.mode, m_requests.mode);
   // Flags
   const auto update_flag_request = [stamp](auto command, auto state, auto & request) -> void {
@@ -374,7 +374,7 @@ void SafetyStateMachine::check_state_change(const StateReport & in)
   check_state(m_requests.gear, in.gear, VSC::GEAR_NO_COMMAND);
   check_state(m_requests.blinker, in.blinker, VSC::BLINKER_NO_COMMAND);
   check_state(m_requests.wiper, in.wiper, VSC::WIPER_NO_COMMAND);
-  check_state(m_requests.headlight, in.headlight, VSC::HEADLIGHT_NO_COMMAND);
+  check_state(m_requests.headlight, in.headlight, HeadlightsCommand::NO_COMMAND);
   check_state(m_requests.mode, in.mode, VSC::MODE_NO_COMMAND);
   // Check flags
   const auto check_flag = [&timeout, stamp](auto request, auto state) -> void {
@@ -402,14 +402,14 @@ SafetyStateMachine::VSC SafetyStateMachine::sanitize(const VSC & msg) const
   VSC ret{msg};
   // Headlights
   switch (msg.headlight) {
-    case VSC::HEADLIGHT_NO_COMMAND:
-    case VSC::HEADLIGHT_OFF:
-    case VSC::HEADLIGHT_ON:
-    case VSC::HEADLIGHT_HIGH:
+    case HeadlightsCommand::NO_COMMAND:
+    case HeadlightsCommand::OFF:
+    case HeadlightsCommand::ON:
+    case HeadlightsCommand::HIGH:
       break;
     default:
       did_sanitize = true;
-      ret.headlight = VSC::HEADLIGHT_NO_COMMAND;
+      ret.headlight = HeadlightsCommand::NO_COMMAND;
       break;
   }
   // Blinker
