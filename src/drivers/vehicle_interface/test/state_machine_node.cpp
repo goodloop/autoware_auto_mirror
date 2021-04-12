@@ -83,7 +83,7 @@ TEST_F(sanity_checks, state_machine)
     const auto & msg = vi_node->interface().state();
     EXPECT_EQ(msg.gear, VehicleStateCommand::GEAR_REVERSE);
     EXPECT_EQ(msg.blinker, VehicleStateCommand::BLINKER_NO_COMMAND);
-    EXPECT_EQ(msg.wiper, VehicleStateCommand::WIPER_NO_COMMAND);
+    EXPECT_EQ(msg.wiper, WipersCommand::NO_COMMAND);
     EXPECT_EQ(msg.headlight, HeadlightsCommand::NO_COMMAND);
     EXPECT_EQ(msg.mode, VehicleStateCommand::MODE_NO_COMMAND);
     EXPECT_FALSE(msg.hand_brake);
