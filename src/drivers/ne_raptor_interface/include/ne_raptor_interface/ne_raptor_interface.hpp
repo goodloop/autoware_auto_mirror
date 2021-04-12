@@ -53,6 +53,7 @@
 #include <raptor_dbw_msgs/msg/wiper_front.hpp>
 #include <raptor_dbw_msgs/msg/wiper_rear.hpp>
 
+#include <autoware_auto_msgs/msg/headlights_command.hpp>
 #include <autoware_auto_msgs/msg/high_level_control_command.hpp>
 #include <autoware_auto_msgs/msg/raw_control_command.hpp>
 #include <autoware_auto_msgs/msg/vehicle_control_command.hpp>
@@ -107,6 +108,7 @@ using raptor_dbw_msgs::msg::TurnSignal;
 using raptor_dbw_msgs::msg::WiperFront;
 using raptor_dbw_msgs::msg::WiperRear;
 
+using autoware_auto_msgs::msg::HeadlightsCommand;
 using autoware_auto_msgs::msg::HighLevelControlCommand;
 using autoware_auto_msgs::msg::RawControlCommand;
 using autoware_auto_msgs::msg::VehicleControlCommand;
