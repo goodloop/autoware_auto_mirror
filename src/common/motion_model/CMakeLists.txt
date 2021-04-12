@@ -51,6 +51,10 @@ if(BUILD_TESTING)
   target_include_directories(${MOTION_MODEL_GTEST} PRIVATE "test/include" "include")
   target_link_libraries(${MOTION_MODEL_GTEST} ${PROJECT_NAME})
   ament_target_dependencies(${MOTION_MODEL_GTEST})
+  find_package(ament_cmake_google_benchmark REQUIRED)
+  ament_add_google_benchmark(simple_benchmark test/bench_constant_velocity.cpp)
+  target_link_libraries(simple_benchmark ${PROJECT_NAME})
+
 endif()
 
 # Ament Exporting
