@@ -20,6 +20,7 @@
 
 using autoware_auto_msgs::msg::MapPrimitive;
 using autoware_auto_msgs::msg::HADMapRoute;
+using autoware_auto_msgs::msg::HADMapSegment;
 using autoware_auto_msgs::msg::TrajectoryPoint;
 
 using motion::motion_common::VehicleConfig;
@@ -64,6 +65,7 @@ HADMapRoute getARoute(const int64_t lane_id, const float32_t length)
 
   MapPrimitive primitive;
   primitive.id = lane_id;
+  had_map_route.segments.push_back(HADMapSegment{});
   had_map_route.segments.front().primitives.push_back(primitive);
 
   return had_map_route;

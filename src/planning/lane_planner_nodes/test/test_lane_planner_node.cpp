@@ -28,6 +28,7 @@ using motion::motion_common::VehicleConfig;
 using autoware_auto_msgs::srv::HADMapService;
 using autoware_auto_msgs::action::PlanTrajectory;
 using autoware_auto_msgs::msg::HADMapRoute;
+using autoware_auto_msgs::msg::HADMapSegment;
 using autoware_auto_msgs::msg::MapPrimitive;
 
 // returns a map with a lane has given number of points(n_points)
@@ -65,6 +66,7 @@ HADMapRoute get_route(const int64_t lane_id, const float32_t length)
 
   MapPrimitive primitive;
   primitive.id = lane_id;
+  had_map_route.segments.push_back(HADMapSegment{});
   had_map_route.segments.front().primitives.push_back(primitive);
 
   return had_map_route;
