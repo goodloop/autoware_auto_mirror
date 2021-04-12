@@ -20,6 +20,7 @@
 
 #include <lgsvl_interface/visibility_control.hpp>
 
+#include <autoware_auto_msgs/msg/headlights_command.hpp>
 #include <autoware_auto_msgs/msg/raw_control_command.hpp>
 #include <autoware_auto_msgs/msg/vehicle_kinematic_state.hpp>
 #include <autoware_auto_msgs/msg/vehicle_state_command.hpp>
@@ -76,6 +77,7 @@ constexpr bool NO_PUBLISH = false;
 
 // in lgsvl 0 is drive and 1 is reverse https://github.com/lgsvl/simulator/blob/cb937deb8e633573f6c0cc76c9f451398b8b9eff/Assets/Scripts/Sensors/VehicleStateSensor.cs#L70
 using VSC = autoware_auto_msgs::msg::VehicleStateCommand;
+using autoware_auto_msgs::msg::HeadlightsCommand;
 using VSD = lgsvl_msgs::msg::VehicleStateData;
 using WIPER_TYPE = decltype(VSC::wiper);
 using GEAR_TYPE = decltype(VSC::gear);

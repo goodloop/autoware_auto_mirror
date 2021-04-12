@@ -342,7 +342,9 @@ void SafetyStateMachine::cache_state_change_request(const VSC & in)
   update_request(VSC::WIPER_NO_COMMAND, in.wiper, m_state.wiper, m_requests.wiper);
   update_request(VSC::BLINKER_NO_COMMAND, in.blinker, m_state.blinker, m_requests.blinker);
   update_request(VSC::GEAR_NO_COMMAND, in.gear, m_state.gear, m_requests.gear);
-  update_request(HeadlightsCommand::NO_COMMAND, in.headlight, m_state.headlight, m_requests.headlight);
+  update_request(
+    HeadlightsCommand::NO_COMMAND, in.headlight, m_state.headlight,
+    m_requests.headlight);
   update_request(VSC::MODE_NO_COMMAND, in.mode, m_state.mode, m_requests.mode);
   // Flags
   const auto update_flag_request = [stamp](auto command, auto state, auto & request) -> void {

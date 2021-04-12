@@ -86,6 +86,7 @@ static constexpr AxisValue DEFAULT_SCALE = 100.0F;
 static constexpr AxisValue DEFAULT_OFFSET = 0.0F;
 static constexpr AxisValue VELOCITY_INCREMENT = 1.0F;
 
+using autoware_auto_msgs::msg::HeadlightsCommand;
 using autoware_auto_msgs::msg::VehicleStateCommand;
 
 /// A core class which performs all basic functions which are not ROS-related for

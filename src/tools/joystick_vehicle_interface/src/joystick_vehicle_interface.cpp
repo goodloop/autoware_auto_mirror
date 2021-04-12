@@ -130,7 +130,8 @@ bool8_t JoystickVehicleInterface::handle_active_button(Buttons button)
       m_autonomous = !m_autonomous;
       break;
     case Buttons::HEADLIGHTS_TOGGLE:
-      m_state_command.headlight = m_headlights_on ? HeadlightsCommand::DISABLE : HeadlightsCommand::ENABLE_LOW;
+      m_state_command.headlight =
+        m_headlights_on ? HeadlightsCommand::DISABLE : HeadlightsCommand::ENABLE_LOW;
       m_headlights_on = !m_headlights_on;
       break;
     case Buttons::WIPER_TOGGLE:

@@ -93,6 +93,8 @@ struct SubAndMsg
 
 TEST_P(joy_vi_test, basic_mapping)
 {
+  using autoware_auto_msgs::msg::HeadlightsCommand;
+
   const auto param = GetParam();
   const std::string control_command =
     (PubType::HighLevel == param.pub_type) ? "high_level" :
