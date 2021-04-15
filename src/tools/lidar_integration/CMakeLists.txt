@@ -21,9 +21,6 @@ project(lidar_integration)
 find_package(ament_cmake_auto REQUIRED)
 ament_auto_find_build_dependencies()
 
-# Task is deprecated
-add_compile_options(-Wno-deprecated-declarations)
-
 # spoofers
 set(SPOOFER_LIB lidar_integration_spoofer)
 ament_auto_add_library(${SPOOFER_LIB} SHARED
