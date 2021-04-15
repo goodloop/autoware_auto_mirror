@@ -40,7 +40,7 @@ if(BUILD_TESTING)
 endif()
 
 # workaround to disable sign conversion errors from sensor_msgs::PointCloud2Iterator
-target_compile_options(${PROJECT_NAME} PRIVATE -Wno-float-conversion -Wno-sign-conversion)
+target_compile_options(${PROJECT_NAME} PRIVATE -Wno-sign-conversion)
 
 list(APPEND ${PROJECT_NAME}_CONFIG_EXTRAS
   "lidar_utils-extras.cmake"

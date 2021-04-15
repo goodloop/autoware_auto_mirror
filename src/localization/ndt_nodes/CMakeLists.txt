@@ -90,8 +90,6 @@ if(BUILD_TESTING)
     ${YAML_CPP_LIBRARIES})
 endif()
 
-target_compile_options(${P2D_NDT_LOCALIZER_NODE_LIB} PRIVATE -Wno-float-conversion -Wno-double-promotion)
-
 ament_auto_package(INSTALL_TO_SHARE
   data
   launch

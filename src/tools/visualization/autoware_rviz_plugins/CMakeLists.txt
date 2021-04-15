@@ -46,7 +46,7 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE "OBJECT_DETECTION_PLUGINS_BUI
 pluginlib_export_plugin_description_file(rviz_common plugins_description.xml)
 
 # Minimal amount of error suppression needed to build the rviz/qt related stuff
-target_compile_options(${PROJECT_NAME} PRIVATE -Wno-sign-conversion -Wno-float-conversion -Wno-double-promotion)
+target_compile_options(${PROJECT_NAME} PRIVATE -Wno-sign-conversion)
 
 if(BUILD_TESTING)
   # run linters

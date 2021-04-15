@@ -340,13 +340,17 @@ constexpr float32_t DistanceFilter::FEPS;
 
 StaticTransformer::StaticTransformer(const geometry_msgs::msg::Transform & tf)
 {
-  Eigen::Quaternionf rotation(tf.rotation.w, tf.rotation.x, tf.rotation.y, tf.rotation.z);
+  Eigen::Quaternionf rotation(static_cast<float>(tf.rotation.w), static_cast<float>(tf.rotation.x),
+    static_cast<float>(tf.rotation.y), static_cast<float>(tf.rotation.z));
   if (!comp::abs_eq(rotation.norm(), 1.0f, EPSf)) {
     throw std::domain_error("StaticTransformer: quaternion is not normalized");
   }
   m_tf.setIdentity();
   m_tf.rotate(rotation);
-  m_tf.translate(Eigen::Vector3f(tf.translation.x, tf.translation.y, tf.translation.z));
+  m_tf.translate(
+    Eigen::Vector3f(
+      static_cast<float>(tf.translation.x),
+      static_cast<float>(tf.translation.y), static_cast<float>(tf.translation.z)));
 }
 
 AngleFilter::AngleFilter(float32_t start_angle, float32_t end_angle)

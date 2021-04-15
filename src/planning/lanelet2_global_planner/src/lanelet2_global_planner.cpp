@@ -257,25 +257,25 @@ const
   if (lanelet::geometry::distance2d(p0, p1) > lanelet::geometry::distance2d(p1, p2)) {
     const auto c_p1 = (p0 + p3) / 2.0;
     const auto c_p2 = (p1 + p2) / 2.0;
-    center_p1.x = c_p1.x();
-    center_p1.y = c_p1.y();
-    center_p2.x = c_p2.x();
-    center_p2.y = c_p2.y();
+    center_p1.x = static_cast<float>(c_p1.x());
+    center_p1.y = static_cast<float>(c_p1.y());
+    center_p2.x = static_cast<float>(c_p2.x());
+    center_p2.y = static_cast<float>(c_p2.y());
   } else {
     const auto c_p1 = (p0 + p1) / 2.0;
     const auto c_p2 = (p2 + p3) / 2.0;
-    center_p1.x = c_p1.x();
-    center_p1.y = c_p1.y();
-    center_p2.x = c_p2.x();
-    center_p2.y = c_p2.y();
+    center_p1.x = static_cast<float>(c_p1.x());
+    center_p1.y = static_cast<float>(c_p1.y());
+    center_p2.x = static_cast<float>(c_p2.x());
+    center_p2.y = static_cast<float>(c_p2.y());
   }
 
   // calculate refined point
   TrajectoryPoint refined_point;
 
   // Get centerpoint of centerline
-  refined_point.x = (center_p1.x + center_p2.x) / 2.0;
-  refined_point.y = (center_p1.y + center_p2.y) / 2.0;
+  refined_point.x = (center_p1.x + center_p2.x) / 2.0f;
+  refined_point.y = (center_p1.y + center_p2.y) / 2.0f;
 
   const auto direction_vector = autoware::common::geometry::minus_2d(center_p2, center_p1);
   const auto angle_center_line = std::atan2(direction_vector.y, direction_vector.x);
@@ -283,10 +283,11 @@ const
   const auto angle_diff =
     std::abs(::motion::motion_common::to_angle(input_point.heading - heading_center_line));
 
-  if (angle_diff < M_PI / 2) {
+  if (static_cast<double>(angle_diff) < M_PI / 2.0) {
     refined_point.heading = heading_center_line;
   } else {
-    refined_point.heading = ::motion::motion_common::from_angle(angle_center_line + M_PI);
+    refined_point.heading =
+      ::motion::motion_common::from_angle(static_cast<double>(angle_center_line) + M_PI);
   }
 
   return refined_point;
