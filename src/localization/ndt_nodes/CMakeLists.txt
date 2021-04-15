@@ -90,12 +90,7 @@ if(BUILD_TESTING)
     ${YAML_CPP_LIBRARIES})
 endif()
 
-# required for tf2
-target_compile_options(${NDT_MAP_PUBLISHER_NODE_LIB} PRIVATE -Wno-sign-conversion -Wno-conversion -Wno-old-style-cast
-        -Wno-useless-cast -Wno-double-promotion -Wno-nonnull-compare -Wuseless-cast)
-
-target_compile_options(${P2D_NDT_LOCALIZER_NODE_LIB} PRIVATE -Wno-sign-conversion -Wno-conversion -Wno-old-style-cast
-        -Wno-useless-cast -Wno-double-promotion -Wno-nonnull-compare -Wuseless-cast)
+target_compile_options(${P2D_NDT_LOCALIZER_NODE_LIB} PRIVATE -Wno-float-conversion -Wno-double-promotion)
 
 ament_auto_package(INSTALL_TO_SHARE
   data

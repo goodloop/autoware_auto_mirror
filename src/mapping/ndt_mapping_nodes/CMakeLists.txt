@@ -34,16 +34,7 @@ rclcpp_components_register_node(${PROJECT_NAME}
   EXECUTABLE ${MAPPER_NODE_EXE}
 )
 
-# turn off warnings to be able to successfully compile upstream ros packages
-set(ROS_NO_WARN_LIST
-        -Wno-sign-conversion
-        -Wno-conversion
-        -Wno-old-style-cast
-        -Wno-useless-cast
-        -Wno-double-promotion
-        -Wno-nonnull-compare
-        -Wuseless-cast)
-target_compile_options(${PROJECT_NAME} PRIVATE ${ROS_NO_WARN_LIST})
+target_compile_options(${PROJECT_NAME} PRIVATE -Wno-conversion -Wno-useless-cast -Wno-double-promotion -Wno-sign-conversion)
 
 # TODO(yunus.caliskan): Remove once #978 is fixed.
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")

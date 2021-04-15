@@ -58,8 +58,6 @@ if(BUILD_TESTING)
           test/test_map.cpp
   )
   autoware_set_compile_options(${PC_MAPPING_TEST})
-  # turn off warnings to be able to successfully compile upstream ros packages
-  target_compile_options(${PC_MAPPING_TEST} PRIVATE -Wno-sign-conversion -Wno-conversion -Wno-old-style-cast -Wno-useless-cast -Wno-double-promotion -Wno-nonnull-compare -Wuseless-cast)
   target_link_libraries(${PC_MAPPING_TEST} ${PROJECT_NAME})
 endif()
 
