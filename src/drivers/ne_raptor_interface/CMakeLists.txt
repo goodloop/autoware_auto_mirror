@@ -78,6 +78,7 @@ if(BUILD_TESTING)
   )
 
   # Unit tests
+# TODO(jwhitleywork): Temporary work-around for #991
 #  set(TEST_SOURCES
 #    test/test_ne_raptor_interface.cpp
 #    test/test_ne_raptor_interface_listener.cpp
