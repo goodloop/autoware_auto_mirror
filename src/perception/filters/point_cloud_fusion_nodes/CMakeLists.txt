@@ -63,7 +63,6 @@ endif()
 target_compile_options(${PC_FUSION_LIB} PRIVATE -Wno-sign-conversion -Wno-conversion -Wno-old-style-cast
         -Wno-useless-cast -Wno-double-promotion -Wno-nonnull-compare)
 
-target_include_directories(${PC_FUSION_LIB} SYSTEM PUBLIC ${tf2_INCLUDE_DIRS})
 
 # Ament Exporting
 ament_auto_package(

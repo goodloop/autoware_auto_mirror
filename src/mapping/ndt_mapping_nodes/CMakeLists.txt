@@ -35,7 +35,6 @@ rclcpp_components_register_node(${PROJECT_NAME}
 )
 
 # turn off warnings to be able to successfully compile upstream ros packages
-target_include_directories(${PROJECT_NAME} SYSTEM PUBLIC ${tf2_INCLUDE_DIRS})
 set(ROS_NO_WARN_LIST
         -Wno-sign-conversion
         -Wno-conversion
@@ -72,7 +71,6 @@ if(BUILD_TESTING)
 
   add_dependencies(test_${PROJECT_NAME} ${PROJECT_NAME})
   target_link_libraries(test_${PROJECT_NAME} ${PROJECT_NAME} ${PCL_LIBRARIES})
-  target_include_directories(test_${PROJECT_NAME} SYSTEM PUBLIC ${tf2_INCLUDE_DIRS})
 endif()
 
 ament_auto_package(INSTALL_TO_SHARE param launch)
