@@ -34,8 +34,6 @@ rclcpp_components_register_node(${PROJECT_NAME}
   EXECUTABLE ${MAPPER_NODE_EXE}
 )
 
-target_compile_options(${PROJECT_NAME} PRIVATE -Wno-conversion -Wno-useless-cast -Wno-sign-conversion)
-
 # TODO(yunus.caliskan): Remove once #978 is fixed.
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
   set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "-Og")

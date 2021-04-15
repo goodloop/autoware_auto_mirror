@@ -87,7 +87,7 @@ void BoundingBoxArrayDisplay::processMessage(
     const auto marker_ptr = get_marker(msg->boxes[idx]);
     marker_ptr->ns = "bounding_box";
     marker_ptr->header = msg->header;
-    marker_ptr->id = idx;
+    marker_ptr->id = static_cast<int>(idx);
     m_marker_common->addMessage(marker_ptr);
   }
 }

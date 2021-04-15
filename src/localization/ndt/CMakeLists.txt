@@ -44,8 +44,6 @@ target_link_libraries(${PROJECT_NAME}
   ${YAML_CPP_LIBRARIES}
   ${PCL_LIBRARIES})
 
-target_compile_options(${PROJECT_NAME} PRIVATE -Wno-sign-conversion)
-
 # TODO(yunus.caliskan): Remove once #978 is fixed.
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
   set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "-Og")

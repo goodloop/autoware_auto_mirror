@@ -105,10 +105,16 @@ void PointCloudIts::reset(sensor_msgs::msg::PointCloud2 & cloud, uint32_t idx)
   m_its.emplace_back(cloud, "intensity");
 
   // Advance iterators to given index
-  x_it() += idx;
-  y_it() += idx;
-  z_it() += idx;
-  intensity_it() += idx;
+  if (idx > std::numeric_limits<int>::max()) {
+    // prevent future access to random memory value or segmentation fault
+    throw std::runtime_error(
+            "converting " + std::to_string(
+              idx) + " to int would change sign of value");
+  }
+  x_it() += static_cast<int>(idx);
+  y_it() += static_cast<int>(idx);
+  z_it() += static_cast<int>(idx);
+  intensity_it() += static_cast<int>(idx);
 }
 
 std::size_t index_after_last_safe_byte_index(const sensor_msgs::msg::PointCloud2 & msg) noexcept
@@ -238,10 +244,16 @@ bool8_t add_point_to_cloud(
   sensor_msgs::PointCloud2Iterator<float32_t> z_it(cloud, "z");
   sensor_msgs::PointCloud2Iterator<float32_t> intensity_it(cloud, "intensity");
 
-  x_it += point_cloud_idx;
-  y_it += point_cloud_idx;
-  z_it += point_cloud_idx;
-  intensity_it += point_cloud_idx;
+  if (point_cloud_idx > std::numeric_limits<int>::max()) {
+    // prevent future access to random memory value or segmentation fault
+    throw std::runtime_error(
+            "converting " + std::to_string(
+              point_cloud_idx) + " to int would change sign of value");
+  }
+  x_it += static_cast<int>(point_cloud_idx);
+  y_it += static_cast<int>(point_cloud_idx);
+  z_it += static_cast<int>(point_cloud_idx);
+  intensity_it += static_cast<int>(point_cloud_idx);
 
   // Actual size is 20 due to padding by compilers for the memory alignment boundary.
   // This check is to make sure that when we do a insert of 16 bytes, we will not stride
@@ -279,9 +291,15 @@ bool8_t add_point_to_cloud(
   sensor_msgs::PointCloud2Iterator<float32_t> y_it(cloud, "y");
   sensor_msgs::PointCloud2Iterator<float32_t> z_it(cloud, "z");
 
-  x_it += point_cloud_idx;
-  y_it += point_cloud_idx;
-  z_it += point_cloud_idx;
+  if (point_cloud_idx > std::numeric_limits<int>::max()) {
+    // prevent future access to random memory value or segmentation fault
+    throw std::runtime_error(
+            "converting " + std::to_string(
+              point_cloud_idx) + " to int would change sign of value");
+  }
+  x_it += static_cast<int>(point_cloud_idx);
+  y_it += static_cast<int>(point_cloud_idx);
+  z_it += static_cast<int>(point_cloud_idx);
 
   static_assert(
     sizeof(autoware::common::types::PointXYZIF) >= ((3U * sizeof(float32_t)) + sizeof(uint16_t)),

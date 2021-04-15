@@ -59,8 +59,6 @@ if(BUILD_TESTING)
         -Wno-useless-cast -Wno-double-promotion -Wno-nonnull-compare)
 endif()
 
-target_compile_options(${PC_FUSION_LIB} PRIVATE -Wno-conversion -Wno-sign-conversion)
-
 # Ament Exporting
 ament_auto_package(
     INSTALL_TO_SHARE

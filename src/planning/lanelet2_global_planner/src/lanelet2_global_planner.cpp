@@ -337,7 +337,7 @@ const
 {
   // loop through parking space to find the closest distance error
   float64_t min_dist = 1e9;
-  auto i = std::min_element(
+  auto it = std::min_element(
     std::begin(parking_id_list),
     std::end(parking_id_list),
     [ =, &min_dist](lanelet::Id park_id1, lanelet::Id park_id2)
@@ -360,7 +360,7 @@ const
   // get parking id
   // Improvement- Check if the parking point is too far away?
   //              Check if min_dist below the threshold
-  return parking_id_list[std::distance(std::begin(parking_id_list), i)];
+  return parking_id_list[static_cast<size_t>(std::distance(std::begin(parking_id_list), it))];
 }
 
 lanelet::Id Lanelet2GlobalPlanner::find_nearroute_from_parking(const lanelet::Id & park_id)
@@ -505,9 +505,9 @@ std::vector<lanelet::Id> Lanelet2GlobalPlanner::lanelet_chr2num(const std::strin
   // extract number at 3-8, 14-19
   std::string prefix_str = "'";
   size_t pos = 0U;
-  uint32_t counter = 0U;
-  uint32_t start = 0U;
-  uint32_t end = 0U;
+  size_t counter = 0U;
+  size_t start = 0U;
+  size_t end = 0U;
   std::vector<lanelet::Id> lanes;
   while ((pos = str.find(prefix_str, pos)) != std::string::npos) {
     ++counter;
