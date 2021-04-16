@@ -133,7 +133,6 @@ TEST_F(DISABLED_NERaptorInterface_test, DISABLED_test_cmd_mode_change_func)
       test_listener_->l_got_steer_cmd) &&
       (timeout < C_TIMEOUT_ITERATIONS) )
     {
-      std::this_thread::sleep_for(C_TIMEOUT_MILLI);
       executor.spin_some(C_TIMEOUT_NANO);
       timeout++;
     }
@@ -159,7 +158,6 @@ TEST_F(DISABLED_NERaptorInterface_test, DISABLED_test_cmd_mode_change_func)
       test_listener_->l_got_dbw_disable_cmd) &&
       (timeout < C_TIMEOUT_ITERATIONS) )
     {
-      std::this_thread::sleep_for(C_TIMEOUT_MILLI);
       executor.spin_some(C_TIMEOUT_NANO);
       timeout++;
     }
@@ -434,7 +432,6 @@ TEST_F(DISABLED_NERaptorInterface_test, DISABLED_test_cmd_mode_change_client)
       test_listener_->l_got_steer_cmd) &&
       (timeout < C_TIMEOUT_ITERATIONS) )
     {
-      std::this_thread::sleep_for(C_TIMEOUT_MILLI);
       executor.spin_some(C_TIMEOUT_NANO);
       timeout++;
     }
@@ -485,7 +482,6 @@ TEST_F(DISABLED_NERaptorInterface_test, DISABLED_test_cmd_mode_change_client)
         test_listener_->l_got_dbw_disable_cmd) &&
         (timeout < C_TIMEOUT_ITERATIONS) )
       {
-        std::this_thread::sleep_for(C_TIMEOUT_MILLI);
         executor.spin_some(C_TIMEOUT_NANO);
         timeout++;
       }
@@ -901,7 +897,6 @@ TEST_F(DISABLED_NERaptorInterface_test, DISABLED_test_cmd_vehicle_state)
       test_listener_->l_got_misc_cmd) &&
       (timeout < C_TIMEOUT_ITERATIONS) )
     {
-      std::this_thread::sleep_for(C_TIMEOUT_MILLI);
       executor.spin_some(C_TIMEOUT_NANO);
       timeout++;
     }
@@ -911,7 +906,6 @@ TEST_F(DISABLED_NERaptorInterface_test, DISABLED_test_cmd_vehicle_state)
     timeout = 0;
     std::this_thread::sleep_for(C_TIMEOUT_MILLI);
     while (timeout < C_TIMEOUT_ITERATIONS) {
-      std::this_thread::sleep_for(C_TIMEOUT_MILLI);
       executor.spin_some(C_TIMEOUT_NANO);
       timeout++;
     }
@@ -1422,7 +1416,6 @@ TEST_F(DISABLED_NERaptorInterface_test, DISABLED_test_cmd_high_level_control)
     while (!test_listener_->l_got_gear_cmd &&
       (timeout < C_TIMEOUT_ITERATIONS) )
     {
-      std::this_thread::sleep_for(C_TIMEOUT_MILLI);
       executor.spin_some(C_TIMEOUT_NANO);
       timeout++;
     }
@@ -1455,7 +1448,6 @@ TEST_F(DISABLED_NERaptorInterface_test, DISABLED_test_cmd_high_level_control)
       test_listener_->l_got_steer_cmd) &&
       (timeout < C_TIMEOUT_ITERATIONS) )
     {
-      std::this_thread::sleep_for(C_TIMEOUT_MILLI);
       executor.spin_some(C_TIMEOUT_NANO);
       timeout++;
     }
@@ -1983,7 +1975,6 @@ TEST_F(DISABLED_NERaptorInterface_test, DISABLED_test_cmd_vehicle_control)
       test_listener_->l_got_steer_cmd) &&
       (timeout < C_TIMEOUT_ITERATIONS) )
     {
-      std::this_thread::sleep_for(C_TIMEOUT_MILLI);
       executor.spin_some(C_TIMEOUT_NANO);
       timeout++;
     }
@@ -2015,7 +2006,6 @@ TEST_F(DISABLED_NERaptorInterface_test, DISABLED_test_cmd_vehicle_control)
         test_listener_->l_got_steer_cmd) &&
         (timeout < C_TIMEOUT_ITERATIONS) )
       {
-        std::this_thread::sleep_for(C_TIMEOUT_MILLI);
         executor.spin_some(C_TIMEOUT_NANO);
         timeout++;
       }
@@ -2049,7 +2039,6 @@ TEST_F(DISABLED_NERaptorInterface_test, DISABLED_test_cmd_vehicle_control)
       test_listener_->l_got_steer_cmd) &&
       (timeout < C_TIMEOUT_ITERATIONS) )
     {
-      std::this_thread::sleep_for(C_TIMEOUT_MILLI);
       executor.spin_some(C_TIMEOUT_NANO);
       timeout++;
     }
@@ -2811,7 +2800,6 @@ TEST_F(DISABLED_NERaptorInterface_test, DISABLED_test_rpt_vehicle_odometry)
 
     timeout = 0;
     while (timeout < C_TIMEOUT_ITERATIONS) {
-      std::this_thread::sleep_for(C_TIMEOUT_MILLI);
       executor.spin_some(C_TIMEOUT_NANO);
       timeout++;
     }
@@ -2823,7 +2811,6 @@ TEST_F(DISABLED_NERaptorInterface_test, DISABLED_test_rpt_vehicle_odometry)
     while (!test_listener_->l_got_vehicle_odo &&
       (timeout < C_TIMEOUT_ITERATIONS) )
     {
-      std::this_thread::sleep_for(C_TIMEOUT_MILLI);
       executor.spin_some(C_TIMEOUT_NANO);
       timeout++;
     }
@@ -2856,7 +2843,6 @@ TEST_F(DISABLED_NERaptorInterface_test, test_rpt_vehicle_odometry_no_msg_check)
   uint8_t timeout{0}, i{0}, dT{2};  // delta Time = 2 seconds
   float32_t travel_dir{0.0F};
   rclcpp::Time initStamp{test_clock.now()};
-  bool8_t odo_OK{true};
 
   rclcpp::executors::SingleThreadedExecutor executor;
   executor.add_node(i_node_);
@@ -2946,7 +2932,7 @@ TEST_F(DISABLED_NERaptorInterface_test, test_rpt_vehicle_odometry_no_msg_check)
   }
 
   // Run all tests in a loop
-  for (i = 0; ((i < kNumTests_VO) && odo_OK); i++) {
+  for (i = 0; i < kNumTests_VO; i++) {
     // Send these messages first
     EXPECT_TRUE(test_talker_->send_report(myTests[i].in_gr)) <<
       "Test #" << std::to_string(i);
@@ -2955,7 +2941,6 @@ TEST_F(DISABLED_NERaptorInterface_test, test_rpt_vehicle_odometry_no_msg_check)
 
     timeout = 0;
     while (timeout < C_TIMEOUT_ITERATIONS) {
-      std::this_thread::sleep_for(C_TIMEOUT_MILLI);
       executor.spin_some(C_TIMEOUT_NANO);
       timeout++;
     }
@@ -2965,7 +2950,6 @@ TEST_F(DISABLED_NERaptorInterface_test, test_rpt_vehicle_odometry_no_msg_check)
 
     timeout = 0;
     while (timeout < C_TIMEOUT_ITERATIONS) {
-      std::this_thread::sleep_for(C_TIMEOUT_MILLI);
       executor.spin_some(C_TIMEOUT_NANO);
       timeout++;
     }
@@ -2978,7 +2962,6 @@ TEST_F(DISABLED_NERaptorInterface_test, test_rpt_vehicle_odometry_no_msg_check)
     while (!test_listener_->l_got_vehicle_odo &&
       (timeout < C_TIMEOUT_ITERATIONS) )
     {
-      std::this_thread::sleep_for(C_TIMEOUT_MILLI);
       executor.spin_some(C_TIMEOUT_NANO);
       timeout++;
     }
@@ -3124,7 +3107,6 @@ TEST_F(DISABLED_NERaptorInterface_test, DISABLED_test_rpt_vehicle_kinematic_stat
 
     timeout = 0;
     while (timeout < C_TIMEOUT_ITERATIONS) {
-      std::this_thread::sleep_for(C_TIMEOUT_MILLI);
       executor.spin_some(C_TIMEOUT_NANO);
       timeout++;
     }
@@ -3133,7 +3115,6 @@ TEST_F(DISABLED_NERaptorInterface_test, DISABLED_test_rpt_vehicle_kinematic_stat
 
     timeout = 0;
     while (timeout < C_TIMEOUT_ITERATIONS) {
-      std::this_thread::sleep_for(C_TIMEOUT_MILLI);
       executor.spin_some(C_TIMEOUT_NANO);
       timeout++;
     }
@@ -3147,7 +3128,6 @@ TEST_F(DISABLED_NERaptorInterface_test, DISABLED_test_rpt_vehicle_kinematic_stat
     while (!test_listener_->l_got_vehicle_kin_state &&
       (timeout < C_TIMEOUT_ITERATIONS) )
     {
-      std::this_thread::sleep_for(C_TIMEOUT_MILLI);
       executor.spin_some(C_TIMEOUT_NANO);
       timeout++;
     }
