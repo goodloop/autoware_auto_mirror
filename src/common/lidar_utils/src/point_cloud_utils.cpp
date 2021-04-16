@@ -105,7 +105,7 @@ void PointCloudIts::reset(sensor_msgs::msg::PointCloud2 & cloud, uint32_t idx)
   m_its.emplace_back(cloud, "intensity");
 
   // Advance iterators to given index
-  if (idx > std::numeric_limits<int>::max()) {
+  if (static_cast<int>(idx) > std::numeric_limits<int>::max()) {
     // prevent future access to random memory value or segmentation fault
     throw std::runtime_error(
             "converting " + std::to_string(
@@ -244,7 +244,7 @@ bool8_t add_point_to_cloud(
   sensor_msgs::PointCloud2Iterator<float32_t> z_it(cloud, "z");
   sensor_msgs::PointCloud2Iterator<float32_t> intensity_it(cloud, "intensity");
 
-  if (point_cloud_idx > std::numeric_limits<int>::max()) {
+  if (static_cast<int>(point_cloud_idx) > std::numeric_limits<int>::max()) {
     // prevent future access to random memory value or segmentation fault
     throw std::runtime_error(
             "converting " + std::to_string(
@@ -291,7 +291,7 @@ bool8_t add_point_to_cloud(
   sensor_msgs::PointCloud2Iterator<float32_t> y_it(cloud, "y");
   sensor_msgs::PointCloud2Iterator<float32_t> z_it(cloud, "z");
 
-  if (point_cloud_idx > std::numeric_limits<int>::max()) {
+  if (static_cast<int>(point_cloud_idx) > std::numeric_limits<int>::max()) {
     // prevent future access to random memory value or segmentation fault
     throw std::runtime_error(
             "converting " + std::to_string(

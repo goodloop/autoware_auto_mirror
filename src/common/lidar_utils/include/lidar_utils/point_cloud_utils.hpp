@@ -151,7 +151,7 @@ LIDAR_UTILS_PUBLIC void init_pcl_msg(
   msg.header.frame_id = frame_id;
   // set the fields
   sensor_msgs::PointCloud2Modifier modifier(msg);
-  if (num_fields > std::numeric_limits<int>::max()) {
+  if (static_cast<int>(num_fields) > std::numeric_limits<int>::max()) {
     // prevent future access to random memory value or segmentation fault
     throw std::runtime_error(
             "converting " + std::to_string(
