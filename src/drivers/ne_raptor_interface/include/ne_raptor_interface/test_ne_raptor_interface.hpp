@@ -67,9 +67,8 @@ static constexpr uint8_t kTestInvalid_VKS{1};
 static constexpr uint8_t kNumTests_VKS{kTestValid_VKS + kTestInvalid_VKS};
 
 using namespace std::literals::chrono_literals; //NOLINT
-const std::chrono::nanoseconds C_TIMEOUT_NANO = 250000ns;
-const std::chrono::milliseconds C_TIMEOUT_MILLI = 10ms;
-const uint8_t C_TIMEOUT_ITERATIONS = 10;
+const std::chrono::nanoseconds C_TIMEOUT_NANO = 1000000000ns;
+const uint8_t C_TIMEOUT_ITERATIONS = 25;
 
 /// \brief Class for testing NERaptorInterface
 class NERaptorInterface_test : public ::testing::Test
