@@ -21,6 +21,7 @@
 using TrackedObject = autoware::perception::tracking::TrackedObject;
 using DetectedObjectMsg = autoware_auto_msgs::msg::DetectedDynamicObject;
 
+// Test that creating a tracked object without pose is not allowed.
 TEST(test_tracked_object, test_pose_required) {
   DetectedObjectMsg msg;
   EXPECT_THROW((TrackedObject{msg, 1.0F, 1.0F}), std::runtime_error);
@@ -28,6 +29,7 @@ TEST(test_tracked_object, test_pose_required) {
   EXPECT_NO_THROW((TrackedObject{msg, 1.0F, 1.0F}));
 }
 
+// Test that the has_twist field is respected when initializing the tracked object.
 TEST(test_tracked_object, test_optional_twist) {
   DetectedObjectMsg msg;
   msg.kinematics.has_pose = true;
@@ -40,23 +42,59 @@ TEST(test_tracked_object, test_optional_twist) {
   EXPECT_EQ(object.msg().kinematics.twist.twist.linear.x, 3.0);
 }
 
+// Test that pose and twist covariances are handled correctly, i.e. they are read only when
+// has_pose_covariance/has_twist_covariance are set, and otherwise the default is used.
 TEST(test_tracked_object, test_optional_covariance) {
+  const float kDefaultVarianceF = 1.0F;
+  const double kDefaultVarianceD = static_cast<double>(kDefaultVarianceF);
   DetectedObjectMsg msg;
   msg.kinematics.has_pose = true;
-  msg.kinematics.pose.covariance[0] = 3.0;
-  TrackedObject object{msg, 1.0F, 30.0F};
-  EXPECT_EQ(object.msg().kinematics.pose.covariance[0], 1.0);
+  msg.kinematics.pose.covariance[0] = 3.0;  // linear x
+  msg.kinematics.pose.covariance[1] = 2.0;  // linear xy
+  msg.kinematics.pose.covariance[6] = 2.0;  // linear xy
+  msg.kinematics.pose.covariance[7] = 3.0;  // linear y
+  msg.kinematics.pose.covariance[14] = 3.0;  // linear z
+  msg.kinematics.pose.covariance[35] = 3.0;  // angular z
+  TrackedObject object{msg, kDefaultVarianceF, 30.0F};
+  EXPECT_EQ(object.msg().kinematics.pose.covariance[0], kDefaultVarianceD);  // equal to the default
+  EXPECT_EQ(object.msg().kinematics.pose.covariance[1], 0.0);  // off-diagonals are 0 by default
+  EXPECT_EQ(object.msg().kinematics.pose.covariance[6], 0.0);
+  EXPECT_EQ(object.msg().kinematics.pose.covariance[7], kDefaultVarianceD);
+  EXPECT_EQ(object.msg().kinematics.pose.covariance[14], 0.0);  // This is a 2D model, z will be 0
+  EXPECT_EQ(object.msg().kinematics.pose.covariance[35], 0.0);  // This is a CA model, θ will be 0
   msg.kinematics.has_pose_covariance = true;
-  object = TrackedObject {msg, 1.0F, 30.0F};
-  EXPECT_EQ(object.msg().kinematics.pose.covariance[0], 3.0);
-  msg.kinematics.twist.covariance[0] = 4.0;
-  object = TrackedObject {msg, 1.0F, 30.0F};
-  EXPECT_EQ(object.msg().kinematics.twist.covariance[0], 1.0);
+  object = TrackedObject {msg, kDefaultVarianceF, 30.0F};
+  EXPECT_EQ(object.msg().kinematics.pose.covariance[0], 3.0);  // equal to input value
+  EXPECT_EQ(object.msg().kinematics.pose.covariance[1], 2.0);
+  EXPECT_EQ(object.msg().kinematics.pose.covariance[6], 2.0);
+  EXPECT_EQ(object.msg().kinematics.pose.covariance[7], 3.0);
+  EXPECT_EQ(object.msg().kinematics.pose.covariance[14], 0.0);  // z will still be 0
+  EXPECT_EQ(object.msg().kinematics.pose.covariance[14], 0.0);  // θ will still be 0
+  // =========== same thing for twist ===========
+  msg.kinematics.twist.covariance[0] = 5.0;
+  msg.kinematics.twist.covariance[1] = 4.0;
+  msg.kinematics.twist.covariance[6] = 4.0;
+  msg.kinematics.twist.covariance[7] = 5.0;
+  msg.kinematics.twist.covariance[14] = 5.0;
+  msg.kinematics.twist.covariance[35] = 5.0;
+  object = TrackedObject {msg, kDefaultVarianceF, 30.0F};
+  EXPECT_EQ(object.msg().kinematics.twist.covariance[0], kDefaultVarianceD);
+  EXPECT_EQ(object.msg().kinematics.twist.covariance[1], 0.0);
+  EXPECT_EQ(object.msg().kinematics.twist.covariance[6], 0.0);
+  EXPECT_EQ(object.msg().kinematics.twist.covariance[7], kDefaultVarianceD);
+  EXPECT_EQ(object.msg().kinematics.twist.covariance[14], 0.0);
+  EXPECT_EQ(object.msg().kinematics.twist.covariance[35], 0.0);
   msg.kinematics.has_twist_covariance = true;
-  object = TrackedObject {msg, 1.0F, 30.0F};
-  EXPECT_EQ(object.msg().kinematics.twist.covariance[0], 4.0);
+  object = TrackedObject {msg, kDefaultVarianceF, 30.0F};
+  EXPECT_EQ(object.msg().kinematics.twist.covariance[0], 5.0);
+  EXPECT_EQ(object.msg().kinematics.twist.covariance[1], 4.0);
+  EXPECT_EQ(object.msg().kinematics.twist.covariance[6], 4.0);
+  EXPECT_EQ(object.msg().kinematics.twist.covariance[7], 5.0);
+  EXPECT_EQ(object.msg().kinematics.twist.covariance[14], 0.0);
+  EXPECT_EQ(object.msg().kinematics.twist.covariance[35], 0.0);
 }
 
+// Test that calling predict() indeed changes the coordinates
 TEST(test_tracked_object, test_predict) {
   DetectedObjectMsg msg;
   msg.kinematics.has_pose = true;
