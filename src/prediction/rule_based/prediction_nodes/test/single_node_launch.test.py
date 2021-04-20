@@ -26,6 +26,9 @@ import launch_testing
 import pytest
 import unittest
 
+from ros2cli.node.strategy import NodeStrategy
+from ros2topic.api import get_topic_names_and_types
+
 
 @pytest.mark.launch_test
 def generate_test_description():
@@ -52,11 +55,19 @@ def generate_test_description():
     return launch_description, context
 
 # Add active test to work around bug https://github.com/ros2/launch/issues/380 doesn't help
-# class TestPredictionNodes(unittest.TestCase):
+class TestPredictionNodes(unittest.TestCase):
 
-#     def test_prediction_nodes(self, proc_info, proc_output, processes_to_test):
-#         for process_name in processes_to_test:
-#            proc_info.assertWaitForShutdown(process=process_name, timeout=10)
+    def test_topics(self, proc_output):
+        desired_topics_types = dict(parameter_events=['rcl_interfaces/msg/ParameterEvent'])
+        args = dict(node_name_suffix='prediction_nodes_node_exe')
+        with NodeStrategy(args) as node:
+            topic_names_and_types = get_topic_names_and_types(node=node)
+            for d in desired_topics_types.keys():
+                if d in topic_names_and_types.keys():
+                    if d.value() != topic_names_and_types[d]:
+                        raise RuntimeError("mismatch")
+            for (topic_name, topic_types) in topic_names_and_types:
+                print(topic_name, topic_types)
 
 
 @launch_testing.post_shutdown_test()
