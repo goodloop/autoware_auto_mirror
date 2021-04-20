@@ -71,6 +71,12 @@ if(BUILD_TESTING)
   ament_add_gtest(${TEST_PREDICTION_NODES_EXE} ${TEST_SOURCES})
   autoware_set_compile_options(${TEST_PREDICTION_NODES_EXE})
   target_link_libraries(${TEST_PREDICTION_NODES_EXE} ${PROJECT_NAME})
+
+  # Component test
+  add_ros_test(
+    test/single_node_launch.test.py
+    TIMEOUT "20"
+  )
 endif()
 
 # ament package generation and installing
