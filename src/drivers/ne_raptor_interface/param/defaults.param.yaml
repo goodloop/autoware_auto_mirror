@@ -12,6 +12,7 @@
       max_steer_angle: 500.0
       acceleration_positive_jerk_limit: 1.0
       deceleration_negative_jerk_limit: 1.0
+      pub_period: 20 # recommended value 20-100ms
     state_machine:
       gear_shift_velocity_threshold_mps: 0.5
       acceleration_limits:

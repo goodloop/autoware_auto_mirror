@@ -1,6 +1,8 @@
 /**:
   ros__parameters:
     cycle_time_ms: 10
+    # Only one of the three control command topics need be specified
+    # "raw", "basic" or "high_level"
     control_command: "basic"
     ne_raptor:
       ecu_build_num: 0xFFFF
@@ -10,6 +12,7 @@
       max_steer_angle: 500.0
       acceleration_positive_jerk_limit: 1.0
       deceleration_negative_jerk_limit: 1.0
+      pub_period: 20 # recommended value 20-100ms
     state_machine:
       gear_shift_velocity_threshold_mps: 0.5
       acceleration_limits:

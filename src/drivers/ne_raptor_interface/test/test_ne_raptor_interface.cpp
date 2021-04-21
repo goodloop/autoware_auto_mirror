@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include "ne_raptor_interface/test_ne_raptor_interface.hpp"
+#include <algorithm>
 #include <memory>
 
 /* Test the DBW Commands:
@@ -106,6 +107,7 @@ TEST_F(DISABLED_NERaptorInterface_test, DISABLED_test_cmd_mode_change_func)
       "Test #" << std::to_string(i);
 
     timeout = 0;
+    std::this_thread::sleep_for(C_TIMEOUT_MILLI);
     // All of these should be sent.
     while (!(test_listener_->l_got_gear_cmd &&
       test_listener_->l_got_global_enable_cmd &&
@@ -403,6 +405,7 @@ TEST_F(DISABLED_NERaptorInterface_test, DISABLED_test_cmd_mode_change_client)
       "Test #" << std::to_string(i);
 
     timeout = 0;
+    std::this_thread::sleep_for(C_TIMEOUT_MILLI);
     // All of these should be sent.
     while (!(test_listener_->l_got_gear_cmd &&
       test_listener_->l_got_global_enable_cmd &&
@@ -422,6 +425,7 @@ TEST_F(DISABLED_NERaptorInterface_test, DISABLED_test_cmd_mode_change_client)
       "Test #" << std::to_string(i);
 
     timeout = 0;
+    std::this_thread::sleep_for(C_TIMEOUT_MILLI);
     // All of these should be sent.
     while (!(test_listener_->l_got_accel_cmd &&
       test_listener_->l_got_brake_cmd &&
@@ -676,6 +680,7 @@ TEST_F(DISABLED_NERaptorInterface_test, DISABLED_test_cmd_vehicle_state)
   ModeChangeRequest::SharedPtr t_request{new ModeChangeRequest};
   uint8_t timeout{0}, i{0};
   uint16_t test_rollover{0};
+  uint16_t num_rollover_tests = std::max(kNumRollOver, kNumTests_VSC);
   bool8_t rollover_OK{true};
 
   rclcpp::executors::SingleThreadedExecutor executor;
@@ -838,7 +843,7 @@ TEST_F(DISABLED_NERaptorInterface_test, DISABLED_test_cmd_vehicle_state)
   myTests[kTestValid_VSC + 11].exp_gec.enable_joystick_limits = false;
 
   /* Run all tests in a loop */
-  for (test_rollover = 1; ((test_rollover <= 0x100) && rollover_OK); test_rollover++) {
+  for (test_rollover = 1; ((test_rollover <= num_rollover_tests) && rollover_OK); test_rollover++) {
     if (test_rollover <= kNumTests_VSC) {
       i = static_cast<uint8_t>(test_rollover - 1);
     } else {
@@ -870,6 +875,7 @@ TEST_F(DISABLED_NERaptorInterface_test, DISABLED_test_cmd_vehicle_state)
 
     // Test publishing
     timeout = 0;
+    std::this_thread::sleep_for(C_TIMEOUT_MILLI);
     // All of these should be sent.
     while (!(test_listener_->l_got_gear_cmd &&
       test_listener_->l_got_global_enable_cmd &&
@@ -883,6 +889,7 @@ TEST_F(DISABLED_NERaptorInterface_test, DISABLED_test_cmd_vehicle_state)
     test_talker_->send_report(myTests[i].in_mr);
     ne_raptor_interface_->send_control_command(hlcc);
     timeout = 0;
+    std::this_thread::sleep_for(C_TIMEOUT_MILLI);
     while (timeout < C_TIMEOUT_ITERATIONS) {
       executor.spin_some(C_TIMEOUT_NANO);
       timeout++;
@@ -986,16 +993,9 @@ TEST_F(DISABLED_NERaptorInterface_test, DISABLED_test_cmd_vehicle_state)
       test_listener_->l_misc_cmd.rolling_counter) <<
       "Test #" << std::to_string(test_rollover);
 
-    if (test_rollover > 0xFF) {
-      EXPECT_EQ(
-        test_listener_->l_gear_cmd.rolling_counter,
-        0) << "Test #" << std::to_string(test_rollover);
-    } else {
-      EXPECT_EQ(
-        test_listener_->l_gear_cmd.rolling_counter,
-        static_cast<uint8_t>(test_rollover)) <<
-        "Test #" << std::to_string(test_rollover);
-    }
+    EXPECT_EQ(
+      test_listener_->l_gear_cmd.rolling_counter,
+      ((test_rollover * 2) % kNumRollOver)) << "Test #" << std::to_string(test_rollover);
   }
 }
 
@@ -1008,6 +1008,7 @@ TEST_F(DISABLED_NERaptorInterface_test, test_cmd_vehicle_state_no_msg_check)
   ModeChangeRequest::SharedPtr t_request{new ModeChangeRequest};
   uint8_t timeout{0}, i{0};
   uint16_t test_rollover{0};
+  uint16_t num_rollover_tests = std::max(kNumRollOver, kNumTests_VSC);
 
   rclcpp::executors::SingleThreadedExecutor executor;
   executor.add_node(i_node_);
@@ -1169,7 +1170,7 @@ TEST_F(DISABLED_NERaptorInterface_test, test_cmd_vehicle_state_no_msg_check)
   myTests[kTestValid_VSC + 11].exp_gec.enable_joystick_limits = false;
 
   /* Run all tests in a loop */
-  for (test_rollover = 1; test_rollover <= 0x100; test_rollover++) {
+  for (test_rollover = 1; test_rollover <= num_rollover_tests; test_rollover++) {
     if (test_rollover <= kNumTests_VSC) {
       i = static_cast<uint8_t>(test_rollover - 1);
     } else {
@@ -1235,6 +1236,7 @@ TEST_F(DISABLED_NERaptorInterface_test, DISABLED_test_cmd_high_level_control)
   ModeChangeRequest::SharedPtr t_request{new ModeChangeRequest};
   uint8_t timeout{0}, numDbwLoops{0}, i{0}, j{0};
   uint16_t test_rollover{0};
+  uint16_t num_rollover_tests = std::max(kNumRollOver, kNumTests_HLCC);
   bool8_t rollover_OK{true};
 
   rclcpp::executors::SingleThreadedExecutor executor;
@@ -1342,7 +1344,7 @@ TEST_F(DISABLED_NERaptorInterface_test, DISABLED_test_cmd_high_level_control)
   myTests[7].exp_sc.vehicle_curvature_cmd = -30.0F;
 
   /* Run all tests in a loop */
-  for (test_rollover = 1; ((test_rollover <= 0x100) && rollover_OK); test_rollover++) {
+  for (test_rollover = 1; ((test_rollover <= num_rollover_tests) && rollover_OK); test_rollover++) {
     if (test_rollover <= kNumTests_HLCC) {
       i = static_cast<uint8_t>(test_rollover - 1);
     } else {
@@ -1380,6 +1382,8 @@ TEST_F(DISABLED_NERaptorInterface_test, DISABLED_test_cmd_high_level_control)
     test_talker_->send_report(myTests[i].in_gr);
 
     timeout = 0;
+    test_listener_->l_got_gear_cmd = false;
+    std::this_thread::sleep_for(C_TIMEOUT_MILLI);
     while (!test_listener_->l_got_gear_cmd &&
       (timeout < C_TIMEOUT_ITERATIONS) )
     {
@@ -1405,6 +1409,10 @@ TEST_F(DISABLED_NERaptorInterface_test, DISABLED_test_cmd_high_level_control)
     }
     // Test publishing
     timeout = 0;
+    test_listener_->l_got_accel_cmd = false;
+    test_listener_->l_got_brake_cmd = false;
+    test_listener_->l_got_steer_cmd = false;
+    std::this_thread::sleep_for(C_TIMEOUT_MILLI);
     // All of these should be sent.
     while (!(test_listener_->l_got_accel_cmd &&
       test_listener_->l_got_brake_cmd &&
@@ -1498,16 +1506,9 @@ TEST_F(DISABLED_NERaptorInterface_test, DISABLED_test_cmd_high_level_control)
       test_listener_->l_steer_cmd.rolling_counter) <<
       "Test #" << std::to_string(test_rollover);
 
-    if (test_rollover > 0xFF) {
-      EXPECT_EQ(
-        test_listener_->l_accel_cmd.rolling_counter,
-        0) << "Test #" << std::to_string(test_rollover);
-    } else {
-      EXPECT_EQ(
-        test_listener_->l_accel_cmd.rolling_counter,
-        static_cast<uint8_t>(test_rollover)) <<
-        "Test #" << std::to_string(test_rollover);
-    }
+    EXPECT_EQ(
+      test_listener_->l_accel_cmd.rolling_counter,
+      ((test_rollover * 2) % kNumRollOver)) << "Test #" << std::to_string(test_rollover);
   }
 }
 
@@ -1520,6 +1521,7 @@ TEST_F(DISABLED_NERaptorInterface_test, test_cmd_high_level_control_no_msg_check
   ModeChangeRequest::SharedPtr t_request{new ModeChangeRequest};
   uint8_t timeout{0}, numDbwLoops{0}, i{0}, j{0};
   uint16_t test_rollover{0};
+  uint16_t num_rollover_tests = std::max(kNumRollOver, kNumTests_HLCC);
 
   rclcpp::executors::SingleThreadedExecutor executor;
   executor.add_node(i_node_);
@@ -1626,7 +1628,7 @@ TEST_F(DISABLED_NERaptorInterface_test, test_cmd_high_level_control_no_msg_check
   myTests[7].exp_sc.vehicle_curvature_cmd = -30.0F;
 
   /* Run all tests in a loop */
-  for (test_rollover = 1; test_rollover <= 0x100; test_rollover++) {
+  for (test_rollover = 1; test_rollover <= num_rollover_tests; test_rollover++) {
     if (test_rollover <= kNumTests_HLCC) {
       i = static_cast<uint8_t>(test_rollover - 1);
     } else {
@@ -1728,6 +1730,7 @@ TEST_F(DISABLED_NERaptorInterface_test, DISABLED_test_cmd_vehicle_control)
   ModeChangeRequest::SharedPtr t_request{new ModeChangeRequest};
   uint8_t timeout{0}, numDbwLoops{0}, i{0}, j{0};
   uint16_t test_rollover{0};
+  uint16_t num_rollover_tests = std::max(kNumRollOver, kNumTests_VCC);
   bool8_t rollover_OK{true};
 
   rclcpp::executors::SingleThreadedExecutor executor;
@@ -1911,7 +1914,7 @@ TEST_F(DISABLED_NERaptorInterface_test, DISABLED_test_cmd_vehicle_control)
   myTests[11].exp_sc.angle_cmd = 0.0F;
 
   /* Run all tests in a loop */
-  for (test_rollover = 1; ((test_rollover <= 0x100) && rollover_OK); test_rollover++) {
+  for (test_rollover = 1; ((test_rollover <= num_rollover_tests) && rollover_OK); test_rollover++) {
     if (test_rollover <= kNumTests_VCC) {
       i = static_cast<uint8_t>(test_rollover - 1);
     } else {
@@ -1929,7 +1932,15 @@ TEST_F(DISABLED_NERaptorInterface_test, DISABLED_test_cmd_vehicle_control)
     test_talker_->send_report(myTests[i].in_gr);
 
     timeout = 0;
-    while (!test_listener_->l_got_gear_cmd &&
+    test_listener_->l_got_gear_cmd = false;
+    test_listener_->l_got_accel_cmd = false;
+    test_listener_->l_got_brake_cmd = false;
+    test_listener_->l_got_steer_cmd = false;
+    std::this_thread::sleep_for(C_TIMEOUT_MILLI);
+    while (!(test_listener_->l_got_gear_cmd &&
+      test_listener_->l_got_accel_cmd &&
+      test_listener_->l_got_brake_cmd &&
+      test_listener_->l_got_steer_cmd) &&
       (timeout < C_TIMEOUT_ITERATIONS) )
     {
       executor.spin_some(C_TIMEOUT_NANO);
@@ -1939,9 +1950,11 @@ TEST_F(DISABLED_NERaptorInterface_test, DISABLED_test_cmd_vehicle_control)
     if (!test_listener_->l_got_gear_cmd) {
       EXPECT_TRUE(test_listener_->l_got_gear_cmd) <<
         "dropped package gear_cmd: Test #" << std::to_string(test_rollover) << std::to_string(j);
-    } else {
-      test_listener_->l_got_gear_cmd = false;
     }
+    test_listener_->l_got_gear_cmd = false;
+    test_listener_->l_got_accel_cmd = false;
+    test_listener_->l_got_brake_cmd = false;
+    test_listener_->l_got_steer_cmd = false;
 
     // Send DBW state machine feedback to enable/disable autonomous mode
     // Send once to enable, multiple times to disable
@@ -1951,12 +1964,20 @@ TEST_F(DISABLED_NERaptorInterface_test, DISABLED_test_cmd_vehicle_control)
       test_talker_->send_report(in_mr);
 
       timeout = 0;
-      while (!test_listener_->l_got_gear_cmd &&
+      std::this_thread::sleep_for(C_TIMEOUT_MILLI);
+      while (!(test_listener_->l_got_gear_cmd &&
+        test_listener_->l_got_accel_cmd &&
+        test_listener_->l_got_brake_cmd &&
+        test_listener_->l_got_steer_cmd) &&
         (timeout < C_TIMEOUT_ITERATIONS) )
       {
         executor.spin_some(C_TIMEOUT_NANO);
         timeout++;
       }
+      test_listener_->l_got_gear_cmd = false;
+      test_listener_->l_got_accel_cmd = false;
+      test_listener_->l_got_brake_cmd = false;
+      test_listener_->l_got_steer_cmd = false;
     }
 
     // Set vehicle control input
@@ -1971,8 +1992,14 @@ TEST_F(DISABLED_NERaptorInterface_test, DISABLED_test_cmd_vehicle_control)
     }
     // Test publishing
     timeout = 0;
+    test_listener_->l_got_gear_cmd = false;
+    test_listener_->l_got_accel_cmd = false;
+    test_listener_->l_got_brake_cmd = false;
+    test_listener_->l_got_steer_cmd = false;
+    std::this_thread::sleep_for(C_TIMEOUT_MILLI);
     // All of these should be sent.
-    while (!(test_listener_->l_got_accel_cmd &&
+    while (!(test_listener_->l_got_gear_cmd &&
+      test_listener_->l_got_accel_cmd &&
       test_listener_->l_got_brake_cmd &&
       test_listener_->l_got_steer_cmd) &&
       (timeout < C_TIMEOUT_ITERATIONS) )
@@ -2004,7 +2031,6 @@ TEST_F(DISABLED_NERaptorInterface_test, DISABLED_test_cmd_vehicle_control)
           test_listener_->l_accel_cmd.accel_positive_jerk_limit,
           c_pos_jerk_limit) << "Test #" << std::to_string(test_rollover);
       }
-      test_listener_->l_got_accel_cmd = false;
     } else {
       EXPECT_TRUE(test_listener_->l_got_accel_cmd) <<
         "dropped package accel_cmd: Test #" << std::to_string(test_rollover);
@@ -2033,7 +2059,6 @@ TEST_F(DISABLED_NERaptorInterface_test, DISABLED_test_cmd_vehicle_control)
           myTests[i].exp_bc.park_brake_cmd.status) <<
           "Test #" << std::to_string(test_rollover);
       }
-      test_listener_->l_got_brake_cmd = false;
     } else {
       EXPECT_TRUE(test_listener_->l_got_brake_cmd) <<
         "dropped package brake_cmd: Test #" << std::to_string(test_rollover);
@@ -2057,7 +2082,6 @@ TEST_F(DISABLED_NERaptorInterface_test, DISABLED_test_cmd_vehicle_control)
           myTests[i].exp_sc.angle_cmd) <<
           "Test #" << std::to_string(test_rollover);
       }
-      test_listener_->l_got_steer_cmd = false;
     } else {
       EXPECT_TRUE(test_listener_->l_got_steer_cmd) <<
         "dropped package steer_cmd: Test #" << std::to_string(test_rollover);
@@ -2072,16 +2096,14 @@ TEST_F(DISABLED_NERaptorInterface_test, DISABLED_test_cmd_vehicle_control)
       test_listener_->l_steer_cmd.rolling_counter) <<
       "Test #" << std::to_string(test_rollover);
 
-    if (test_rollover > 0xFF) {
-      EXPECT_EQ(
-        test_listener_->l_accel_cmd.rolling_counter,
-        0) << "Test #" << std::to_string(test_rollover);
-    } else {
-      EXPECT_EQ(
-        test_listener_->l_accel_cmd.rolling_counter,
-        static_cast<uint8_t>(test_rollover)) <<
-        "Test #" << std::to_string(test_rollover);
-    }
+    EXPECT_EQ(
+      test_listener_->l_accel_cmd.rolling_counter,
+      ((test_rollover * 3) % kNumRollOver)) << "Test #" << std::to_string(test_rollover);
+
+    test_listener_->l_got_gear_cmd = false;
+    test_listener_->l_got_accel_cmd = false;
+    test_listener_->l_got_brake_cmd = false;
+    test_listener_->l_got_steer_cmd = false;
   }
 }
 
@@ -2094,6 +2116,7 @@ TEST_F(DISABLED_NERaptorInterface_test, test_cmd_vehicle_control_no_msg_check)
   ModeChangeRequest::SharedPtr t_request{new ModeChangeRequest};
   uint8_t timeout{0}, numDbwLoops{0}, i{0}, j{0};
   uint16_t test_rollover{0};
+  uint16_t num_rollover_tests = std::max(kNumRollOver, kNumTests_VCC);
 
   rclcpp::executors::SingleThreadedExecutor executor;
   executor.add_node(i_node_);
@@ -2276,7 +2299,7 @@ TEST_F(DISABLED_NERaptorInterface_test, test_cmd_vehicle_control_no_msg_check)
   myTests[11].exp_sc.angle_cmd = 0.0F;
 
   /* Run all tests in a loop */
-  for (test_rollover = 1; test_rollover <= 0x100; test_rollover++) {
+  for (test_rollover = 1; test_rollover <= num_rollover_tests; test_rollover++) {
     if (test_rollover <= kNumTests_VCC) {
       i = static_cast<uint8_t>(test_rollover - 1);
     } else {
@@ -2989,12 +3012,12 @@ TEST_F(DISABLED_NERaptorInterface_test, DISABLED_test_rpt_vehicle_kinematic_stat
       case 3:
       case 4:
       case 5:
-        myTests[i].in_sr.steering_wheel_angle = 30.0F;  // degrees
+        myTests[i].in_sr.steering_wheel_angle = 15.0F;  // degrees
         break;
       case 6:
       case 7:
       case 8:
-        myTests[i].in_sr.steering_wheel_angle = -30.0F;  // degrees
+        myTests[i].in_sr.steering_wheel_angle = -15.0F;  // degrees
         break;
       default:
         myTests[i].in_sr.steering_wheel_angle = 0.0F;  // degrees
@@ -3039,13 +3062,6 @@ TEST_F(DISABLED_NERaptorInterface_test, DISABLED_test_rpt_vehicle_kinematic_stat
     // Send these messages first
     test_talker_->send_report(myTests[i].in_gr);
     test_talker_->send_report(myTests[i].in_wsr);
-
-    timeout = 0;
-    while (timeout < C_TIMEOUT_ITERATIONS) {
-      executor.spin_some(C_TIMEOUT_NANO);
-      timeout++;
-    }
-
     test_talker_->send_report(myTests[i].in_sr);
 
     timeout = 0;
@@ -3058,6 +3074,8 @@ TEST_F(DISABLED_NERaptorInterface_test, DISABLED_test_rpt_vehicle_kinematic_stat
     test_talker_->send_report(myTests[i].in_mr);
 
     timeout = 0;
+    test_listener_->l_got_vehicle_kin_state = false;
+
     while (!test_listener_->l_got_vehicle_kin_state &&
       (timeout < C_TIMEOUT_ITERATIONS) )
     {
