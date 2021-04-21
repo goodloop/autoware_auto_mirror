@@ -3104,13 +3104,6 @@ TEST_F(DISABLED_NERaptorInterface_test, DISABLED_test_rpt_vehicle_kinematic_stat
     // Send these messages first
     test_talker_->send_report(myTests[i].in_gr);
     test_talker_->send_report(myTests[i].in_wsr);
-
-    timeout = 0;
-    while (timeout < C_TIMEOUT_ITERATIONS) {
-      executor.spin_some(C_TIMEOUT_NANO);
-      timeout++;
-    }
-
     test_talker_->send_report(myTests[i].in_sr);
 
     timeout = 0;
