@@ -48,19 +48,19 @@ include_directories(
   ${EIGEN3_INCLUDE_DIRS}
 )
 
-set(OUTLIER_FILTER_LIB_SRC
+set(FILTER_NODE_BASE_LIB_SRC
   src/filter_node_base.cpp
 )
 
-set(OUTLIER_FILTER_LIB_HEADERS
+set(FILTER_NODE_BASE_LIB_HEADERS
   include/filter_node_base/filter_node_base.hpp
   include/filter_node_base/visibility_control.hpp
 )
 
 # generate library
 ament_auto_add_library(${PROJECT_NAME} SHARED
-  ${OUTLIER_FILTER_LIB_SRC}
-  ${OUTLIER_FILTER_LIB_HEADERS}
+  ${FILTER_NODE_BASE_LIB_SRC}
+  ${FILTER_NODE_BASE_LIB_HEADERS}
 )
 autoware_set_compile_options(${PROJECT_NAME})
 
@@ -75,14 +75,14 @@ if(BUILD_TESTING)
   ament_lint_auto_find_test_dependencies()
 
   # Unit tests
-  # set(TEST_SOURCES test/test_outlier_filter.cpp)
-  # set(TEST_OUTLIER_FILTER_EXE test_outlier_filter)
-  # ament_add_gtest(${TEST_OUTLIER_FILTER_EXE} ${TEST_SOURCES})
-  # autoware_set_compile_options(${TEST_OUTLIER_FILTER_EXE})
-  # target_link_libraries(${TEST_OUTLIER_FILTER_EXE} ${PROJECT_NAME})
+  set(TEST_SOURCES test/test_filter_node_base.cpp)
+  set(TEST_FILTER_NODE_BASE_EXE test_filter_node_base)
+  ament_add_gtest(${TEST_FILTER_NODE_BASE_EXE} ${TEST_SOURCES})
+  autoware_set_compile_options(${TEST_FILTER_NODE_BASE_EXE})
+  target_link_libraries(${TEST_FILTER_NODE_BASE_EXE} ${PROJECT_NAME})
+  ament_target_dependencies(${TEST_FILTER_NODE_BASE_EXE} "lidar_utils")
 endif()
 
 # ament package generation and installing
 ament_auto_package(INSTALL_TO_SHARE
-  # launch
 )

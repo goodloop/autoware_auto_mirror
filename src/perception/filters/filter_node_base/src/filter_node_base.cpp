@@ -34,9 +34,9 @@ FilterNodeBase::FilterNodeBase(
 : Node(filter_name, options), filter_field_name_(filter_name)
 {
   {
-    max_queue_size_ = static_cast<std::size_t>(declare_parameter("max_queue_size").get<std::size_t>());
+    max_queue_size_ = static_cast<std::size_t>(declare_parameter(
+        "max_queue_size").get<std::size_t>());
     use_indices_ = static_cast<bool8_t>(declare_parameter("use_indices").get<bool8_t>());
-    latched_indices_ = static_cast<bool8_t>(declare_parameter("latched_indices").get<bool8_t>());
     approximate_sync_ = static_cast<bool8_t>(declare_parameter("approximate_sync").get<bool8_t>());
 
     RCLCPP_INFO_STREAM(
@@ -45,7 +45,6 @@ FilterNodeBase::FilterNodeBase(
         std::endl <<
         " - approximate_sync : " << (approximate_sync_ ? "true" : "false") << std::endl <<
         " - use_indices      : " << (use_indices_ ? "true" : "false") << std::endl <<
-        " - latched_indices  : " << (latched_indices_ ? "true" : "false") << std::endl <<
         " - max_queue_size   : " << max_queue_size_);
   }
 
@@ -69,36 +68,28 @@ FilterNodeBase::FilterNodeBase(
         sync_input_indices_a_->connectInput(sub_input_filter_, sub_indices_filter_);
         sync_input_indices_a_->registerCallback(
           std::bind(
-            &FilterNodeBase::input_indices_callback, this, std::placeholders::_1, std::placeholders::_2));
+            &FilterNodeBase::input_indices_callback, this, std::placeholders::_1,
+            std::placeholders::_2));
       } else {
         sync_input_indices_e_ = std::make_shared<ExactTimeSyncPolicy>(max_queue_size_);
         sync_input_indices_e_->connectInput(sub_input_filter_, sub_indices_filter_);
         sync_input_indices_e_->registerCallback(
           std::bind(
-            &FilterNodeBase::input_indices_callback, this, std::placeholders::_1, std::placeholders::_2));
+            &FilterNodeBase::input_indices_callback, this, std::placeholders::_1,
+            std::placeholders::_2));
       }
     } else {
       // Subscribe in an old fashion to input only (no filters)
       // CAN'T use auto-type here.
       std::function<void(const PointCloud2ConstPtr msg)> cb = std::bind(
-        &FilterNodeBase::input_indices_callback, this, std::placeholders::_1, PointIndicesConstPtr());
+        &FilterNodeBase::input_indices_callback, this, std::placeholders::_1,
+        PointIndicesConstPtr());
       sub_input_ = create_subscription<PointCloud2>(
         "input", rclcpp::SensorDataQoS().keep_last(max_queue_size_), cb);
     }
   }
 
-  // Set tf_listener, tf_buffer.
-  setupTF();
-
   RCLCPP_DEBUG(this->get_logger(), "[Filter Constructor] successfully created.");
-}
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void FilterNodeBase::setupTF()
-{
-  tf_buffer_ = std::make_shared<tf2_ros::Buffer>(this->get_clock());
-  tf_listener_ = std::make_shared<tf2_ros::TransformListener>(
-    *tf_buffer_);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////

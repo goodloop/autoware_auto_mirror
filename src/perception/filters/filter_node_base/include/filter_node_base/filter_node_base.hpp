@@ -19,30 +19,29 @@
 #ifndef FILTER_NODE_BASE__FILTER_NODE_BASE_HPP_
 #define FILTER_NODE_BASE__FILTER_NODE_BASE_HPP_
 
-#include <filter_node_base/visibility_control.hpp>
 
 #include <memory>
 #include <string>
 #include <vector>
 
-#include <common/types.hpp>
-
-#include "sensor_msgs/msg/point_cloud2.hpp"
 #include "boost/thread/mutex.hpp"
-// PCL includes
-#include "pcl_conversions/pcl_conversions.h"
-#include "pcl_msgs/msg/model_coefficients.hpp"
-#include "pcl_msgs/msg/point_indices.hpp"
+#include "filter_node_base/visibility_control.hpp"
+#include "sensor_msgs/msg/point_cloud2.hpp"
+#include "common/types.hpp"
 
+// Include TF
 #include "message_filters/subscriber.h"
 #include "message_filters/sync_policies/approximate_time.h"
 #include "message_filters/sync_policies/exact_time.h"
 #include "message_filters/synchronizer.h"
-
-// Include TF
+// PCL includes
+#include "pcl_conversions/pcl_conversions.h"
+#include "pcl_msgs/msg/model_coefficients.hpp"
+#include "pcl_msgs/msg/point_indices.hpp"
 #include "tf2_ros/buffer.h"
 #include "tf2_ros/create_timer_ros.h"
 #include "tf2_ros/transform_listener.h"
+
 
 using autoware::common::types::bool8_t;
 
@@ -58,7 +57,7 @@ namespace filter_node_base
 namespace sync_policies = message_filters::sync_policies;
 
 /// \class FilterNodeBase
-/// \brief ROS 2 Node for hello world.
+/// \brief The abstract class used for filter applications
 class FILTER_NODE_BASE_PUBLIC FilterNodeBase : public rclcpp::Node
 {
 public:
@@ -85,43 +84,44 @@ public:
   typedef message_filters::Synchronizer<sync_policies::ApproximateTime<PointCloud2, PointIndices>>
     ApproximateTimeSyncPolicy;
 
-  /** \brief default constructor for the FilterNodeBase class
-   * \param filter_name the name of the filter.
-   * \param options node options.
+  /** \brief The default constructor for the FilterNodeBase class
+   * \param filter_name The name of the node to pass on to rclcpp::Node
+   * \param options An rclcpp::NodeOptions object to pass on to rclcpp::Node
    */
-  explicit FilterNodeBase(const std::string & filter_name = "filter_node_base",
+  explicit FilterNodeBase(
+    const std::string & filter_name = "filter_node_base",
     const rclcpp::NodeOptions & options = rclcpp::NodeOptions());
 
 protected:
-  /** \brief The input PointCloud2 subscriber. */
+  /** \brief The input PointCloud2 subscriber */
   rclcpp::Subscription<PointCloud2>::SharedPtr sub_input_;
 
-  /** \brief The output PointCloud2 publisher. */
+  /** \brief The output PointCloud2 publisher */
   rclcpp::Publisher<PointCloud2>::SharedPtr pub_output_;
 
-  /** \brief The message filter subscriber for PointCloud2. */
+  /** \brief The message filter subscriber for PointCloud2 */
   message_filters::Subscriber<PointCloud2> sub_input_filter_;
 
-  /** \brief The message filter subscriber for PointIndices. */
+  /** \brief The message filter subscriber for PointIndices */
   message_filters::Subscriber<PointIndices> sub_indices_filter_;
 
-  /** \brief The desired user filter field name. */
+  /** \brief The desired user filter field name */
   std::string filter_field_name_;
 
-  /** \brief Internal mutex. */
+  /** \brief Internal mutex */
   boost::mutex mutex_;
 
-  /** \brief Virtual abstract filter method. To be implemented by every child.
-   * \param input the input point cloud dataset.
-   * \param indices a pointer to the vector of point indices to use.
-   * \param output the resultant filtered PointCloud2
+  /** \brief Virtual abstract filter method called by the computePublish method at the arrival of each pointcloud message
+   * \param input The input point cloud dataset.
+   * \param indices A pointer to the vector of point indices to use.
+   * \param output The resultant filtered PointCloud2
    */
   virtual void filter(
     const PointCloud2ConstPtr & input, const IndicesPtr & indices, PointCloud2 & output) = 0;
 
   /** \brief Call the child filter () method, optionally transform the result, and publish it.
-   * \param input the input point cloud dataset.
-   * \param indices a pointer to the vector of point indices to use.
+   * \param input The input point cloud dataset.
+   * \param indices A pointer to the vector of point indices to use.
    */
   void computePublish(const PointCloud2ConstPtr & input, const IndicesPtr & indices);
 
@@ -139,15 +139,6 @@ protected:
    * specified jitter. See also @ref latched_indices_ and approximate_sync.
    **/
   bool8_t use_indices_;
-  /** \brief Set to true if the indices topic is latched.
-   *
-   * If use_indices_ is true, the ~input and ~indices topics generally must
-   * be synchronised in time. By setting this flag to true, the most recent
-   * value from ~indices can be used instead of requiring a synchronised
-   * message.
-   **/
-  bool8_t latched_indices_;
-
   /** \brief True if we use an approximate time synchronizer
    * versus an exact one (false by default). */
   bool8_t approximate_sync_;
@@ -155,15 +146,12 @@ protected:
   /** \brief The maximum queue size. */
   size_t max_queue_size_;
 
-  std::shared_ptr<tf2_ros::Buffer> tf_buffer_;
-  std::shared_ptr<tf2_ros::TransformListener> tf_listener_;
-
-  /** \brief Validate the pointcloud
-   * 
+  /** \brief Validate a sensor_msgs::msg::PointCloud2 message
+   *
    * Method ensure thats the size of the pointcloud defined by the width,
    * height and point_step correspond to the data size.
    *
-   * \param cloud pointcloud to be validated
+   * \param cloud Input sensor_msgs::msg::PointCloud2 to be validated
    */
   inline bool isValid(const PointCloud2ConstPtr & cloud)
   {
@@ -179,28 +167,33 @@ protected:
     return true;
   }
 
+  /** \brief Validate a pcl_msgs::msg::PointIndices message
+   *
+   * Not implemented properly - just returns true
+   */
   inline bool isValid(
-    const PointIndicesConstPtr & /*indices*/, const std::string & /*topic_name*/ = "indices")
+    const PointIndicesConstPtr &, const std::string & = "indices")
   {
     return true;
   }
 
+  /** \brief Validate a pcl_msgs::msg::ModelCoefficients message
+   *
+   * Not implemented properly - just returns true
+   */
   inline bool isValid(
-    const ModelCoefficientsConstPtr & /*model*/, const std::string & /*topic_name*/ = "model")
+    const ModelCoefficientsConstPtr &, const std::string & = "model")
   {
     return true;
   }
 
 private:
-  /** \brief Synchronized input, and indices.*/
+  /** \brief Synchronized input, and indices */
   std::shared_ptr<ExactTimeSyncPolicy> sync_input_indices_e_;
   std::shared_ptr<ApproximateTimeSyncPolicy> sync_input_indices_a_;
 
-  /** \brief PointCloud2 + Indices data callback. */
+  /** \brief PointCloud2 + Indices data callback */
   void input_indices_callback(const PointCloud2ConstPtr cloud, const PointIndicesConstPtr indices);
-
-  /** \brief Set up the TF buffer and listener objects */
-  void setupTF();
 
 public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
