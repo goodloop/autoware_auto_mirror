@@ -227,14 +227,15 @@ void Lanelet2GlobalPlannerNode::send_global_path(
   global_route.start_point = start_route_point;
   global_route.goal_point = end_route_point;
 
-  size_t i = 0;
   for (const auto & route_id : route) {
     // add data to the global path
     autoware_auto_msgs::msg::MapPrimitive primitive;
     primitive.id = route_id;
     primitive.primitive_type = lanelet2_global_planner->get_primitive_type(route_id);
-    global_route.segments[i].primitives.push_back(primitive);
-    ++i;
+
+    autoware_auto_msgs::msg::HADMapSegment new_segment;
+    new_segment.primitives.push_back(primitive);
+    global_route.segments.push_back(new_segment);
   }
   // publish the global path
   global_path_pub_ptr->publish(global_route);
