@@ -18,6 +18,7 @@
 
 #include "filter_node_base/filter_node_base.hpp"
 #include "gtest/gtest.h"
+#include "sensor_msgs/point_cloud2_iterator.hpp"
 #include "lidar_utils/point_cloud_utils.hpp"
 
 
@@ -48,7 +49,9 @@ protected:
   virtual void filter(
     const PointCloud2ConstPtr & input, const IndicesPtr & indices, PointCloud2 & output)
   {
-    // Set parameter to true
+    // Copy the pointcloud so input = output
+    output = *input;
+    // Set parameter as true
     test_parameter_ = true;
   }
 
@@ -62,6 +65,50 @@ public:
 
   bool8_t testSetParameter() {return test_parameter_;}
 };
+
+
+void check_pcl_eq(sensor_msgs::msg::PointCloud2 & msg1, sensor_msgs::msg::PointCloud2 & msg2)
+{
+  EXPECT_EQ(msg1.width, msg2.width);
+  EXPECT_EQ(msg1.header.frame_id, msg2.header.frame_id);
+  EXPECT_EQ(msg1.header.stamp, msg2.header.stamp);
+
+  sensor_msgs::PointCloud2ConstIterator<float32_t> x_it_1(msg1, "x");
+  sensor_msgs::PointCloud2ConstIterator<float32_t> y_it_1(msg1, "y");
+  sensor_msgs::PointCloud2ConstIterator<float32_t> z_it_1(msg1, "z");
+  sensor_msgs::PointCloud2ConstIterator<float32_t> intensity_it_1(msg1, "intensity");
+
+  sensor_msgs::PointCloud2ConstIterator<float32_t> x_it_2(msg2, "x");
+  sensor_msgs::PointCloud2ConstIterator<float32_t> y_it_2(msg2, "y");
+  sensor_msgs::PointCloud2ConstIterator<float32_t> z_it_2(msg2, "z");
+  sensor_msgs::PointCloud2ConstIterator<float32_t> intensity_it_2(msg2, "intensity");
+
+  while (x_it_1 != x_it_1.end() &&
+    y_it_1 != y_it_1.end() &&
+    z_it_1 != z_it_1.end() &&
+    intensity_it_1 != intensity_it_1.end() &&
+    x_it_2 != x_it_2.end() &&
+    y_it_2 != y_it_2.end() &&
+    z_it_2 != z_it_2.end() &&
+    intensity_it_2 != intensity_it_2.end()
+  )
+  {
+    EXPECT_FLOAT_EQ(*x_it_1, *x_it_2);
+    EXPECT_FLOAT_EQ(*y_it_1, *y_it_2);
+    EXPECT_FLOAT_EQ(*z_it_1, *z_it_2);
+    EXPECT_FLOAT_EQ(*intensity_it_1, *intensity_it_2);
+
+    ++x_it_1;
+    ++y_it_1;
+    ++z_it_1;
+    ++intensity_it_1;
+
+    ++x_it_2;
+    ++y_it_2;
+    ++z_it_2;
+    ++intensity_it_2;
+  }
+}
 
 
 TEST_F(TestPCF, test_inheritance) {
@@ -97,16 +144,23 @@ TEST_F(TestPCF, test_inheritance) {
     "input",
     rclcpp::QoS(10));
 
-  auto start_time = std::chrono::system_clock::now();
-  auto max_test_dur = std::chrono::seconds(1);
+  // Create callback for cloud message
+  bool8_t received_cloud = false;
+  auto handle_cloud_output =
+    [&cloud, &received_cloud](const sensor_msgs::msg::PointCloud2::SharedPtr msg)
+    -> void {
+      check_pcl_eq(*msg, cloud);
+      received_cloud = true;
+    };
 
-  while (rclcpp::ok()) {
+  auto sub_ptr = node->create_subscription<sensor_msgs::msg::PointCloud2>(
+    "output",
+    rclcpp::SensorDataQoS().keep_last(10), handle_cloud_output);
+
+  while (rclcpp::ok() && !received_cloud) {
     rclcpp::spin_some(node);
     rclcpp::sleep_for(std::chrono::milliseconds(50));
     cloud_pub->publish(cloud);
-    if (std::chrono::system_clock::now() - start_time > max_test_dur) {
-      break;
-    }
   }
   EXPECT_EQ(node->testSetParameter(), true);
 }

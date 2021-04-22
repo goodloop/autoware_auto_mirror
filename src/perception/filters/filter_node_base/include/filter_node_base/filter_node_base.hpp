@@ -136,7 +136,7 @@ protected:
    * indices specifying the subset of the point cloud that will be used for
    * the operation. In the case where use_indices_ is true, the ~input and
    * ~indices topics must be synchronised in time, either exact or within a
-   * specified jitter. See also @ref latched_indices_ and approximate_sync.
+   * specified jitter.
    **/
   bool8_t use_indices_;
   /** \brief True if we use an approximate time synchronizer
