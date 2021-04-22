@@ -3,13 +3,16 @@
 <package format="3">
   <name>prediction_nodes</name>
   <version>1.0.0</version>
-  <description>DESCRIPTION</description>
+  <description>Rule-based prediction</description>
   <maintainer email="opensource@apex.ai">Apex.AI</maintainer>
   <license>Apache 2.0</license>
 
   <buildtool_depend>ament_cmake_auto</buildtool_depend>
   <buildtool_depend>autoware_auto_cmake</buildtool_depend>
 
+  <depend>autoware_auto_msgs</depend>
+  <depend>had_map_utils</depend>
+  <depend>lanelet2_map_provider</depend>
   <depend>rclcpp</depend>
   <depend>rclcpp_components</depend>
 
@@ -17,8 +20,6 @@
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>
   <test_depend>ros_testing</test_depend>
-
-  <build_depend>autoware_auto_msgs</build_depend>
 
   <export>
     <build_type>ament_cmake</build_type>

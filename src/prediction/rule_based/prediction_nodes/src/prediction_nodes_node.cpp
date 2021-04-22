@@ -16,13 +16,19 @@
 
 #include "prediction_nodes/prediction_nodes_node.hpp"
 
+#include <had_map_utils/had_map_conversion.hpp>
+
+#include <functional>
+#include <memory>
+
 namespace autoware
 {
 namespace prediction_nodes
 {
+using std::placeholders::_1;
 
 PredictionNodesNode::PredictionNodesNode(const rclcpp::NodeOptions & options)
-:  Node("prediction_nodes", options),
+: Node("prediction_nodes", options),
   verbose(true),
 #if MSGS_UPDATED
   m_predicted_dynamic_objects_pub{create_publisher<PredictedMsgT>(
@@ -32,12 +38,66 @@ PredictionNodesNode::PredictionNodesNode(const rclcpp::NodeOptions & options)
   m_tracked_dynamic_objects_sub{create_subscription<TrackedMsgT>(
       "/tracked_objects",
       rclcpp::QoS{10},
-      [this](TrackedMsgT::ConstSharedPtr msg) {on_tracked_objects(msg);})}
+      std::bind(&PredictionNodesNode::on_tracked_objects, this, _1))},
+  m_map_client{create_client<HADMapService>("HAD_Map_Service")}
 {
+  // send all asynchronous requests
+  request_map();
+
+  // wait for results
+  wait_for_map();
 }
 
 void PredictionNodesNode::on_tracked_objects(TrackedMsgT::ConstSharedPtr /*msg*/)
 {}
+
+void PredictionNodesNode::request_map()
+{
+  using namespace std::literals::chrono_literals;
+
+  // TODO(frederik.beaujean) Investigate if this is the best way to wait for depencies. Can we use
+  // lifecycles to determine if everything is up and running? Is there are "wait for matched"
+  // function in ROS2?
+  while (!m_map_client->wait_for_service(1s)) {
+    if (!rclcpp::ok()) {
+      RCLCPP_ERROR(get_logger(), "Interrupted while waiting for map server.");
+      rclcpp::shutdown();
+      return;
+    }
+    RCLCPP_INFO(get_logger(), "Waiting for map service...");
+  }
+
+  // For now request full map, later select subset
+  auto request = std::make_shared<HADMapService::Request>();
+  request->requested_primitives.push_back(HADMapService::Request::FULL_MAP);
+
+  m_map_ptr.reset();
+
+  // TODO(frederik.beaujean): If synchronized service request becomes available,
+  // replace it with synchronized implementation
+  auto result =
+    m_map_client->async_send_request(
+    request,
+    std::bind(&PredictionNodesNode::on_map_response, this, _1));
+}
+
+void PredictionNodesNode::wait_for_map(std::chrono::milliseconds timeout)
+{
+  const auto start = std::chrono::steady_clock::now();
+  while (!m_map_ptr) {
+    rclcpp::sleep_for(std::chrono::milliseconds(100));
+    if (std::chrono::steady_clock::now() - start > timeout) {
+      throw std::runtime_error("Prediction timed out waiting for map");
+    }
+  }
+}
+
+void PredictionNodesNode::on_map_response(rclcpp::Client<HADMapService>::SharedFuture future)
+{
+  autoware::common::had_map_utils::fromBinaryMsg(future.get()->map, m_map_ptr);
+
+  RCLCPP_INFO(get_logger(), "Received map");
+}
 
 }  // namespace prediction_nodes
 }  // namespace autoware
