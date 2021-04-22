@@ -25,7 +25,7 @@ def build():
             doxygen_base = 'doxygen-1.8.17-bundle'
             doxygen_tarball = '{}.tar.gz'.format(doxygen_base)
             doxygen_binary_path = '{}/doxygen-1.8.17'.format(doxygen_base)
-            url = 'https://people.apache.org/~esteve/{}'.format(doxygen_tarball)
+            url = 'https://autoware-auto.s3.us-east-2.amazonaws.com/{}'.format(doxygen_tarball)
             download_cmd = 'wget {}'.format(url)
             file_cmd = 'file {}'.format(doxygen_tarball)
             tar_cmd = 'tar xvf {}'.format(doxygen_tarball)
