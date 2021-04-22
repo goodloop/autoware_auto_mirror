@@ -24,6 +24,7 @@
 #include <prediction_nodes/prediction_nodes.hpp>
 
 #include <autoware_auto_msgs/srv/had_map_service.hpp>
+#include <autoware_auto_msgs/msg/route.hpp>
 
 #define MSGS_UPDATED 0
 
@@ -39,6 +40,9 @@
 #endif
 
 #include <lanelet2_core/LaneletMap.h>
+
+#include <tf2/buffer_core.h>
+#include <tf2_ros/transform_listener.h>
 
 #include <rclcpp/rclcpp.hpp>
 
@@ -63,10 +67,12 @@ private:
   using TrackedMsgT = autoware_auto_msgs::msg::TrackedDynamicObjects;
 #else
   using TrackedMsgT = autoware_auto_msgs::msg::TrackedDynamicObjectArray;
+  using RouteMsgT = autoware_auto_msgs::msg::Route;
 #endif
   using HADMapService = autoware_auto_msgs::srv::HADMapService;
 
   void PREDICTION_NODES_LOCAL on_tracked_objects(TrackedMsgT::ConstSharedPtr msg);
+  void PREDICTION_NODES_LOCAL on_route(RouteMsgT::ConstSharedPtr msg);
 
   void PREDICTION_NODES_LOCAL on_map_response(rclcpp::Client<HADMapService>::SharedFuture future);
 
@@ -75,14 +81,20 @@ private:
   void PREDICTION_NODES_LOCAL wait_for_map(
     std::chrono::milliseconds timeout = std::chrono::seconds{10U});
 
-
   bool verbose;  ///< whether to use verbose output or not.
 #if MSGS_UPDATED
   rclcpp::Publisher<PredictedMsgT>::SharedPtr m_predicted_dynamic_objects_pub{};
 #endif
   rclcpp::Subscription<TrackedMsgT>::SharedPtr m_tracked_dynamic_objects_sub{};
+
   rclcpp::Client<HADMapService>::SharedPtr m_map_client{};
-  lanelet::LaneletMapPtr m_map_ptr{};
+  lanelet::LaneletMapPtr m_map{};
+
+  tf2::BufferCore m_tf_buffer;
+  tf2_ros::TransformListener m_tf_listener;
+
+  rclcpp::Subscription<RouteMsgT>::SharedPtr m_route_sub{};
+  RouteMsgT::ConstSharedPtr m_route;
 };
 }  // namespace prediction_nodes
 }  // namespace autoware
