@@ -35,6 +35,10 @@ PredictionNodesNode::PredictionNodesNode(const rclcpp::NodeOptions & options)
   m_predicted_dynamic_objects_pub{create_publisher<PredictedMsgT>(
       "predicted_objects",
       rclcpp::QoS{10})}
+  m_traffic_signal_sub{create_subscription<TrafficSignalT>(
+      "tracked_signals",
+      rclcpp::QoS{10},
+      std::bind(&PredictionNodesNode::on_traffic_signals, this, _1))},
 #endif
   m_tracked_dynamic_objects_sub{create_subscription<TrackedMsgT>(
       "tracked_objects",
@@ -53,8 +57,25 @@ PredictionNodesNode::PredictionNodesNode(const rclcpp::NodeOptions & options)
   wait_for_map();
 }
 
+void PredictionNodesNode::on_map_response(rclcpp::Client<HADMapService>::SharedFuture future)
+{
+  autoware::common::had_map_utils::fromBinaryMsg(future.get()->map, m_map);
+
+  RCLCPP_INFO(get_logger(), "Received map");
+}
+
+void PREDICTION_NODES_LOCAL PredictionNodesNode::on_route(RouteMsgT::ConstSharedPtr msg)
+{
+  m_route = msg;
+}
+
 void PredictionNodesNode::on_tracked_objects(TrackedMsgT::ConstSharedPtr /*msg*/)
 {}
+
+#if MSGS_UPDATED
+void PredictionNodesNode::on_traffic_signals(TrafficSignalT::ConstSharedPtr /*msg*/)
+{}
+#endif
 
 void PredictionNodesNode::request_map()
 {
@@ -95,18 +116,6 @@ void PredictionNodesNode::wait_for_map(std::chrono::milliseconds timeout)
       throw std::runtime_error("Prediction timed out waiting for map");
     }
   }
-}
-
-void PredictionNodesNode::on_map_response(rclcpp::Client<HADMapService>::SharedFuture future)
-{
-  autoware::common::had_map_utils::fromBinaryMsg(future.get()->map, m_map);
-
-  RCLCPP_INFO(get_logger(), "Received map");
-}
-
-void PREDICTION_NODES_LOCAL PredictionNodesNode::on_route(RouteMsgT::ConstSharedPtr msg)
-{
-  m_route = msg;
 }
 
 }  // namespace prediction_nodes
