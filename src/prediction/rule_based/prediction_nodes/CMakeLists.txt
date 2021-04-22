@@ -73,10 +73,10 @@ if(BUILD_TESTING)
   target_link_libraries(${TEST_PREDICTION_NODES_EXE} ${PROJECT_NAME})
 
   # Component test
-  add_ros_test(
-    test/single_node_launch.test.py
-    TIMEOUT "20"
-  )
+  # add_ros_test(
+  #   test/single_node_launch.test.py
+  #   TIMEOUT "20"
+  # )
 endif()
 
 # ament package generation and installing

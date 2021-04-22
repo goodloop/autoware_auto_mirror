@@ -23,15 +23,21 @@ namespace prediction_nodes
 
 PredictionNodesNode::PredictionNodesNode(const rclcpp::NodeOptions & options)
 :  Node("prediction_nodes", options),
-  verbose(true)
+  verbose(true),
+#if MSGS_UPDATED
+  m_predicted_dynamic_objects_pub{create_publisher<PredictedMsgT>(
+      "/predicted_objects",
+      rclcpp::QoS{10})}
+#endif
+  m_tracked_dynamic_objects_sub{create_subscription<TrackedMsgT>(
+      "/tracked_objects",
+      rclcpp::QoS{10},
+      [this](TrackedMsgT::ConstSharedPtr msg) {on_tracked_objects(msg);})}
 {
-  print_hello();
 }
 
-int32_t PredictionNodesNode::print_hello() const
-{
-  return prediction_nodes::print_hello();
-}
+void PredictionNodesNode::on_tracked_objects(TrackedMsgT::ConstSharedPtr /*msg*/)
+{}
 
 }  // namespace prediction_nodes
 }  // namespace autoware

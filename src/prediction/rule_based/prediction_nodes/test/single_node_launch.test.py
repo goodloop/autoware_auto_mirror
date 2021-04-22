@@ -22,12 +22,20 @@ from launch import LaunchDescription
 from launch_ros.actions import Node
 import launch_testing
 
+import argparse
 # import os
 import pytest
 import unittest
 
 from ros2cli.node.strategy import NodeStrategy
 from ros2topic.api import get_topic_names_and_types
+
+from ros2node.api import get_publisher_info
+from ros2node.api import get_subscriber_info
+
+
+def print_names_and_types(names_and_types):
+    print(*[2 * '  ' + s.name + ': ' + ', '.join(s.types) for s in names_and_types], sep='\n')
 
 
 @pytest.mark.launch_test
@@ -54,20 +62,55 @@ def generate_test_description():
 
     return launch_description, context
 
+
 # Add active test to work around bug https://github.com/ros2/launch/issues/380 doesn't help
 class TestPredictionNodes(unittest.TestCase):
 
-    def test_topics(self, proc_output):
-        desired_topics_types = dict(parameter_events=['rcl_interfaces/msg/ParameterEvent'])
+    def test_publishers_subscribers(self, proc_output):
+        node_name = 'prediction_nodes_node'
+        include_hidden = False
+
+        parser = argparse.ArgumentParser()
+        parser.add_argument('--node_name', default=node_name)
+        parser.add_argument('--node_name_suffix', default='harr')
+        args = parser.parse_args([''])
+        # args = dict(node_name_suffix='harr')
+        with NodeStrategy(args) as node:
+            print(node_name)
+            subscribers = get_subscriber_info(
+                node=node, remote_node_name=node_name, include_hidden=include_hidden)
+            print('  Subscribers:')
+            print_names_and_types(subscribers)
+            publishers = get_publisher_info(
+                node=node, remote_node_name=node_name, include_hidden=include_hidden)
+            print('  Publishers:')
+            print_names_and_types(publishers)
+
+    def topics(self, proc_output):
+        desired_topics_types = {
+            # automatically created
+            '/parameter_events': ['rcl_interfaces/msg/ParameterEvent'],
+            '/rosout': ['rcl_interfaces/msg/Log'],
+
+            # the interesting topics
+            '/prediction_input': ['harr'],
+        }
+        # TODO hack: not sure if this is the right type, I just crawled through
+        # undocumented source code
         args = dict(node_name_suffix='prediction_nodes_node_exe')
         with NodeStrategy(args) as node:
-            topic_names_and_types = get_topic_names_and_types(node=node)
-            for d in desired_topics_types.keys():
-                if d in topic_names_and_types.keys():
-                    if d.value() != topic_names_and_types[d]:
-                        raise RuntimeError("mismatch")
-            for (topic_name, topic_types) in topic_names_and_types:
-                print(topic_name, topic_types)
+            topic_names_and_types = dict(get_topic_names_and_types(node=node,
+                                                                   include_hidden_topics=False))
+            self.assertEqual(topic_names_and_types, desired_topics_types)
+
+            # for topic, msg_types in topic_names_and_types:
+            #     print(f'topic: {topic}, msg type: {msg_types[0]}')
+            #     self.assertIn(topic, desired_topics_types.keys())
+
+            #         if d.value() != topic_names_and_types[d]:
+            #             raise RuntimeError("mismatch")
+            # for (topic_name, topic_types) in topic_names_and_types:
+            #     print(topic_name, topic_types)
 
 
 @launch_testing.post_shutdown_test()

@@ -23,6 +23,19 @@
 
 #include <prediction_nodes/prediction_nodes.hpp>
 
+#define MSGS_UPDATED 0
+
+#if MSGS_UPDATED
+
+#include <autoware_auto_msgs/msg/predicted_dynamic_objects.hpp>
+#include <autoware_auto_msgs/msg/tracked_dynamic_objects.hpp>
+
+#else
+
+#include <autoware_auto_msgs/msg/tracked_dynamic_object_array.hpp>
+
+#endif
+
 #include <rclcpp/rclcpp.hpp>
 
 namespace autoware
@@ -31,7 +44,6 @@ namespace prediction_nodes
 {
 
 /// \class PredictionNodesNode
-/// \brief ROS 2 Node for hello world.
 class PREDICTION_NODES_PUBLIC PredictionNodesNode : public rclcpp::Node
 {
 public:
@@ -39,12 +51,21 @@ public:
   /// \throw runtime error if failed to start threads or configure driver
   explicit PredictionNodesNode(const rclcpp::NodeOptions & options);
 
-  /// \brief print hello
-  /// return 0 if successful.
-  int32_t print_hello() const;
-
 private:
+#if MSGS_UPDATED
+  using PredictedMsgT = autoware_auto_msgs::msg::PredictedDynamicObjects;
+  using TrackedMsgT = autoware_auto_msgs::msg::TrackedDynamicObjects;
+#else
+  using TrackedMsgT = autoware_auto_msgs::msg::TrackedDynamicObjectArray;
+#endif
+
+  void PREDICTION_NODES_LOCAL on_tracked_objects(TrackedMsgT::ConstSharedPtr msg);
+
   bool verbose;  ///< whether to use verbose output or not.
+#if MSGS_UPDATED
+  rclcpp::Publisher<PredictedMsgT>::SharedPtr m_predicted_dynamic_objects_pub{};
+#endif
+  rclcpp::Subscription<TrackedMsgT>::SharedPtr m_tracked_dynamic_objects_sub{};
 };
 }  // namespace prediction_nodes
 }  // namespace autoware
