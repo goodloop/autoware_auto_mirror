@@ -39,7 +39,7 @@ using CA = autoware::common::state_vector::ConstAccelerationXY;
 using MotionModel = autoware::common::motion_model::LinearMotionModel<CA>;
 using NoiseModel = autoware::common::state_estimation::WienerNoise<CA>;
 using EKF = autoware::common::state_estimation::KalmanFilter<MotionModel, NoiseModel>;
-using TrackedObjectMsg = autoware_auto_msgs::msg::TrackedDynamicObject;
+using TrackedObjectMsg = autoware_auto_msgs::msg::TrackedObject;
 using DetectedObjectMsg = autoware_auto_msgs::msg::DetectedDynamicObject;
 
 EKF init_ekf(

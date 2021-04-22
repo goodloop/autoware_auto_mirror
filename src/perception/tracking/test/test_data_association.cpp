@@ -16,8 +16,8 @@
 
 #include <tracking/data_association.hpp>
 
-using TrackedDynamicObjectArray = autoware_auto_msgs::msg::TrackedDynamicObjectArray;
-using TrackedDynamicObject = autoware_auto_msgs::msg::TrackedDynamicObject;
+using TrackedObjects = autoware_auto_msgs::msg::TrackedObjects;
+using TrackedObject = autoware_auto_msgs::msg::TrackedObject;
 
 using DetectedDynamicObjectArray = autoware_auto_msgs::msg::DetectedDynamicObjectArray;
 using DetectedDynamicObject = autoware_auto_msgs::msg::DetectedDynamicObject;
@@ -70,8 +70,8 @@ protected:
 // same x. Associator should associate track with object2
 TEST_F(AssociationTester, basic)
 {
-  TrackedDynamicObjectArray tracks_msg;
-  TrackedDynamicObject track1_obj;
+  TrackedObjects tracks_msg;
+  TrackedObject track1_obj;
 
   track1_obj.shape.push_back(create_square(4.0F));
   track1_obj.kinematics.pose.pose.position.x = 2.0;
@@ -111,11 +111,11 @@ TEST_F(AssociationTester, more_tracks_less_objects)
   const auto num_tracks = 10U;
   auto num_associated_dets = 0U;
 
-  TrackedDynamicObjectArray tracks_msg;
+  TrackedObjects tracks_msg;
   DetectedDynamicObjectArray detections_msg;
 
   for (size_t i = 0U; i < num_tracks; ++i) {
-    TrackedDynamicObject current_track;
+    TrackedObject current_track;
     const auto current_shape = create_square(4.0F);
     current_track.shape.push_back(current_shape);
     current_track.kinematics.pose.pose.position.x = 2.0 * static_cast<double>(i + 1U);
@@ -156,14 +156,14 @@ TEST_F(AssociationTester, area_gating_fails)
   const auto num_tracks = 5U;
   auto num_unassociated_dets = 0U;
 
-  TrackedDynamicObjectArray tracks_msg;
+  TrackedObjects tracks_msg;
   DetectedDynamicObjectArray detections_msg;
 
   // toggle to set some detections to bigger size and some to smaller size
   bool toggle = true;
 
   for (size_t i = 0U; i < num_tracks; ++i) {
-    TrackedDynamicObject current_track;
+    TrackedObject current_track;
     const auto current_shape = create_square(4.0F);
     current_track.shape.push_back(current_shape);
     current_track.kinematics.pose.pose.position.x = 2.0 * static_cast<double>(i + 1U);

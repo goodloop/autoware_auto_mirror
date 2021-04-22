@@ -22,8 +22,8 @@
 #include <chrono>
 
 #include "autoware_auto_msgs/msg/detected_dynamic_object_array.hpp"
-#include "autoware_auto_msgs/msg/tracked_dynamic_object.hpp"
-#include "autoware_auto_msgs/msg/tracked_dynamic_object_array.hpp"
+#include "autoware_auto_msgs/msg/tracked_object.hpp"
+#include "autoware_auto_msgs/msg/tracked_objects.hpp"
 #include "motion_model/linear_motion_model.hpp"
 #include "state_estimation/kalman_filter/kalman_filter.hpp"
 #include "state_estimation/noise_model/wiener_noise.hpp"
@@ -47,7 +47,7 @@ public:
   using MotionModel = autoware::common::motion_model::LinearMotionModel<CA>;
   using NoiseModel = autoware::common::state_estimation::WienerNoise<CA>;
   using EKF = autoware::common::state_estimation::KalmanFilter<MotionModel, NoiseModel>;
-  using TrackedObjectMsg = autoware_auto_msgs::msg::TrackedDynamicObject;
+  using TrackedObjectMsg = autoware_auto_msgs::msg::TrackedObject;
   using DetectedObjectMsg = autoware_auto_msgs::msg::DetectedDynamicObject;
 
   /// Constructor
