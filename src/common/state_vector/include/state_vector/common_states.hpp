@@ -1,4 +1,4 @@
-// Copyright 2021 the Autoware Foundation
+// Copyright 2021 Apex.AI, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,17 +19,17 @@
 /// \file
 /// \brief This file holds a collection of states that are commonly used in this package.
 
-#ifndef KALMAN_FILTER__COMMON_STATES_HPP_
-#define KALMAN_FILTER__COMMON_STATES_HPP_
+#ifndef STATE_VECTOR__COMMON_STATES_HPP_
+#define STATE_VECTOR__COMMON_STATES_HPP_
 
-#include <kalman_filter/common_variables.hpp>
-#include <kalman_filter/generic_state.hpp>
+#include <state_vector/common_variables.hpp>
+#include <state_vector/generic_state.hpp>
 
 namespace autoware
 {
-namespace prediction
+namespace common
 {
-namespace state
+namespace state_vector
 {
 
 ///
@@ -76,8 +76,8 @@ using ConstantVelocityAndTurnRate =
   variable::X, variable::Y, variable::YAW,
   variable::XY_VELOCITY, variable::YAW_CHANGE_RATE>;
 
-}  // namespace state
-}  // namespace prediction
+}  // namespace state_vector
+}  // namespace common
 }  // namespace autoware
 
-#endif  // KALMAN_FILTER__COMMON_STATES_HPP_
+#endif  // STATE_VECTOR__COMMON_STATES_HPP_

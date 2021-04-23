@@ -14,8 +14,8 @@
 
 #include "tracking/tracked_object.hpp"
 
-#include <Eigen/Core>
 #include <algorithm>
+#include <Eigen/Core>
 
 namespace autoware
 {
@@ -27,12 +27,12 @@ namespace tracking
 namespace
 {
 
-using autoware::prediction::variable::X;
-using autoware::prediction::variable::Y;
-using autoware::prediction::variable::X_VELOCITY;
-using autoware::prediction::variable::Y_VELOCITY;
-using autoware::prediction::variable::X_ACCELERATION;
-using autoware::prediction::variable::Y_ACCELERATION;
+using autoware::common::state_vector::variable::X;
+using autoware::common::state_vector::variable::Y;
+using autoware::common::state_vector::variable::X_VELOCITY;
+using autoware::common::state_vector::variable::Y_VELOCITY;
+using autoware::common::state_vector::variable::X_ACCELERATION;
+using autoware::common::state_vector::variable::Y_ACCELERATION;
 
 using CA = autoware::prediction::state::ConstAccelerationXY;
 using MotionModel = autoware::prediction::LinearMotionModel<CA>;

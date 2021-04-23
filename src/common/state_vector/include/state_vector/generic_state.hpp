@@ -19,14 +19,14 @@
 /// \file
 /// \brief This file defines a class for a generic state vector representation.
 
-#ifndef KALMAN_FILTER__GENERIC_STATE_HPP_
-#define KALMAN_FILTER__GENERIC_STATE_HPP_
+#ifndef STATE_VECTOR__GENERIC_STATE_HPP_
+#define STATE_VECTOR__GENERIC_STATE_HPP_
 
 #include <common/type_traits.hpp>
 #include <common/types.hpp>
 #include <helper_functions/type_name.hpp>
-#include <kalman_filter/common_variables.hpp>
-#include <kalman_filter/visibility_control.hpp>
+#include <state_vector/common_variables.hpp>
+#include <state_vector/visibility_control.hpp>
 
 #include <Eigen/Core>
 
@@ -34,7 +34,9 @@
 
 namespace autoware
 {
-namespace prediction
+namespace common
+{
+namespace state_vector
 {
 
 /// Forward-declare is_state trait.
@@ -47,7 +49,7 @@ struct is_state;
 /// @tparam     VariableTs  Variables which this state consists of.
 ///
 template<typename ScalarT, typename ... VariableTs>
-class KALMAN_FILTER_PUBLIC GenericState
+class STATE_VECTOR_PUBLIC GenericState
 {
   static_assert(
     common::type_traits::conjunction<is_variable<VariableTs>...>::value,
@@ -244,7 +246,8 @@ public:
   {
     out << "State:";
     auto print = [&out, &state](auto element) {
-        out << "\n  " << helper_functions::get_type_name(element) << ": " << state.at(element);
+        out << "\n  " <<
+          autoware::helper_functions::get_type_name(element) << ": " << state.at(element);
       };
     common::type_traits::visit(GenericState::variables(), print);
     return out;
@@ -261,7 +264,7 @@ private:
 /// @tparam     StateT  A query potential state type.
 ///
 template<typename StateT>
-struct KALMAN_FILTER_PUBLIC is_state : public std::false_type {};
+struct STATE_VECTOR_PUBLIC is_state : public std::false_type {};
 
 ///
 /// @brief      A specialization of this trait for GenericState type.
@@ -270,7 +273,7 @@ struct KALMAN_FILTER_PUBLIC is_state : public std::false_type {};
 /// @tparam     VariableTs  Variable types.
 ///
 template<typename ScalarT, typename ... VariableTs>
-struct KALMAN_FILTER_PUBLIC is_state<GenericState<ScalarT, VariableTs...>>
+struct STATE_VECTOR_PUBLIC is_state<GenericState<ScalarT, VariableTs...>>
   : public std::true_type {};
 
 /// A typedef for the 32 bit floating point state.
@@ -281,7 +284,8 @@ using FloatState = GenericState<common::types::float32_t, Ts...>;
 template<typename ... Ts>
 using DoubleState = GenericState<common::types::float64_t, Ts...>;
 
-}  // namespace prediction
+}  // namespace state_vector
+}  // namespace common
 }  // namespace autoware
 
-#endif  // KALMAN_FILTER__GENERIC_STATE_HPP_
+#endif  // STATE_VECTOR__GENERIC_STATE_HPP_

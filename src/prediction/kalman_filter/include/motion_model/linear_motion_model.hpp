@@ -22,10 +22,10 @@
 #ifndef MOTION_MODEL__LINEAR_MOTION_MODEL_HPP_
 #define MOTION_MODEL__LINEAR_MOTION_MODEL_HPP_
 
-#include <kalman_filter/common_states.hpp>
-#include <kalman_filter/generic_state.hpp>
 #include <kalman_filter/visibility_control.hpp>
 #include <motion_model/motion_model_interface.hpp>
+#include <state_vector/common_states.hpp>
+#include <state_vector/generic_state.hpp>
 
 namespace autoware
 {
@@ -86,8 +86,8 @@ protected:
 /// @return     The Jacobian matrix.
 ///
 template<>
-KALMAN_FILTER_PUBLIC state::ConstAccelerationXYYaw::Matrix
-LinearMotionModel<state::ConstAccelerationXYYaw>::crtp_jacobian(
+KALMAN_FILTER_PUBLIC common::state_vector::ConstAccelerationXYYaw::Matrix
+LinearMotionModel<common::state_vector::ConstAccelerationXYYaw>::crtp_jacobian(
   const State & state, const std::chrono::nanoseconds & dt) const;
 
 ///
@@ -99,8 +99,8 @@ LinearMotionModel<state::ConstAccelerationXYYaw>::crtp_jacobian(
 /// @return     The Jacobian matrix.
 ///
 template<>
-KALMAN_FILTER_PUBLIC state::ConstAccelerationXY::Matrix
-LinearMotionModel<state::ConstAccelerationXY>::crtp_jacobian(
+KALMAN_FILTER_PUBLIC common::state_vector::ConstAccelerationXY::Matrix
+LinearMotionModel<common::state_vector::ConstAccelerationXY>::crtp_jacobian(
   const State & state, const std::chrono::nanoseconds & dt) const;
 
 }  // namespace prediction

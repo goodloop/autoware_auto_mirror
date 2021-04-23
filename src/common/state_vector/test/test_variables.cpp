@@ -19,21 +19,21 @@
 /// \file
 /// \brief This file defines tests for the variables.
 
-#include <kalman_filter/variable.hpp>
+#include <state_vector/variable.hpp>
 
 #include <gtest/gtest.h>
 
 struct NotAVariable {};
-struct CustomVariable : autoware::prediction::Variable {};
-struct CustomAngle : autoware::prediction::AngleVariable {};
+struct CustomVariable : autoware::common::state_vector::Variable {};
+struct CustomAngle : autoware::common::state_vector::AngleVariable {};
 
 /// @test Variable traits work as expected.
 TEST(VariableTest, CheckVariables) {
-  EXPECT_FALSE(autoware::prediction::is_variable<NotAVariable>::value);
+  EXPECT_FALSE(autoware::common::state_vector::is_variable<NotAVariable>::value);
 
-  EXPECT_TRUE(autoware::prediction::is_variable<CustomVariable>::value);
-  EXPECT_FALSE(autoware::prediction::is_angle<CustomVariable>::value);
+  EXPECT_TRUE(autoware::common::state_vector::is_variable<CustomVariable>::value);
+  EXPECT_FALSE(autoware::common::state_vector::is_angle<CustomVariable>::value);
 
-  EXPECT_TRUE(autoware::prediction::is_variable<CustomAngle>::value);
-  EXPECT_TRUE(autoware::prediction::is_angle<CustomAngle>::value);
+  EXPECT_TRUE(autoware::common::state_vector::is_variable<CustomAngle>::value);
+  EXPECT_TRUE(autoware::common::state_vector::is_angle<CustomAngle>::value);
 }

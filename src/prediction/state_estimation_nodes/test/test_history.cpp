@@ -19,10 +19,9 @@
 #include <gtest/gtest.h>
 
 #include <common/types.hpp>
-
-#include <kalman_filter/common_variables.hpp>
-#include <kalman_filter/generic_state.hpp>
 #include <measurement/linear_measurement.hpp>
+#include <state_vector/common_variables.hpp>
+#include <state_vector/generic_state.hpp>
 
 namespace autoware
 {
@@ -49,7 +48,8 @@ bool passes_mahalanobis_gate(
 namespace
 {
 
-using MeasurementState = autoware::prediction::FloatState<autoware::prediction::variable::X>;
+using MeasurementState =
+  autoware::common::state_vector::FloatState<autoware::common::state_vector::variable::X>;
 using FilterState = MeasurementState;
 
 using Measurement = autoware::prediction::LinearMeasurement<MeasurementState>;

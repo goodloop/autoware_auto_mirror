@@ -18,8 +18,9 @@
 #ifndef MEASUREMENT__MEASUREMENT_INTERFACE_HPP_
 #define MEASUREMENT__MEASUREMENT_INTERFACE_HPP_
 
-#include <kalman_filter/generic_state.hpp>
 #include <helper_functions/crtp.hpp>
+#include <kalman_filter/visibility_control.hpp>
+#include <state_vector/generic_state.hpp>
 
 #include <type_traits>
 
@@ -40,14 +41,18 @@ struct KALMAN_FILTER_PUBLIC MeasurementInterface : public common::helper_functio
   auto & state()
   {
     using ReturnType = std::decay_t<decltype(this->impl().crtp_state())>;
-    static_assert(is_state<ReturnType>::value, "\n\nFunction crtp_state must return a state.\n\n");
+    static_assert(
+      common::state_vector::is_state<ReturnType>::value,
+      "\n\nFunction crtp_state must return a state.\n\n");
     return this->impl().crtp_state();
   }
   /// @brief      Get measurement as a state vector.
   const auto & state() const
   {
     using ReturnType = std::decay_t<decltype(this->impl().crtp_state())>;
-    static_assert(is_state<ReturnType>::value, "\n\nFunction crtp_state must return a state.\n\n");
+    static_assert(
+      common::state_vector::is_state<ReturnType>::value,
+      "\n\nFunction crtp_state must return a state.\n\n");
     return this->impl().crtp_state();
   }
 
@@ -78,11 +83,13 @@ struct KALMAN_FILTER_PUBLIC MeasurementInterface : public common::helper_functio
   template<typename OtherStateT>
   auto create_new_instance_from(const OtherStateT & other_state) const
   {
-    static_assert(is_state<OtherStateT>::value, "\n\nThe other state must be a state.\n\n");
+    static_assert(
+      common::state_vector::is_state<OtherStateT>::value,
+      "\n\nThe other state must be a state.\n\n");
     using ReturnType =
       std::decay_t<decltype(this->impl().crtp_create_new_instance_from(other_state))>;
     static_assert(
-      is_state<ReturnType>::value,
+      common::state_vector::is_state<ReturnType>::value,
       "\n\nFunction crtp_create_new_instance_from must return a state.\n\n");
     return this->impl().crtp_create_new_instance_from(other_state);
   }
@@ -103,7 +110,9 @@ struct KALMAN_FILTER_PUBLIC MeasurementInterface : public common::helper_functio
   template<typename OtherStateT>
   OtherStateT map_into(const OtherStateT & other_state) const
   {
-    static_assert(is_state<OtherStateT>::value, "\n\nThe other state must be a state.\n\n");
+    static_assert(
+      common::state_vector::is_state<OtherStateT>::value,
+      "\n\nThe other state must be a state.\n\n");
     return this->impl().crtp_map_into(other_state);
   }
 
@@ -125,7 +134,9 @@ struct KALMAN_FILTER_PUBLIC MeasurementInterface : public common::helper_functio
   template<typename OtherStateT>
   auto mapping_matrix_from(const OtherStateT & other_state) const
   {
-    static_assert(is_state<OtherStateT>::value, "The other state must be a state.");
+    static_assert(
+      common::state_vector::is_state<OtherStateT>::value,
+      "The other state must be a state.");
     return this->impl().crtp_mapping_matrix_from(other_state);
   }
 };

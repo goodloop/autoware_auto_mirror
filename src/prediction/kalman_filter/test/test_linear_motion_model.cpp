@@ -19,23 +19,23 @@
 /// \file
 /// \brief This file defines tests for the linear motion model.
 
-#include <kalman_filter/common_states.hpp>
 #include <motion_model/linear_motion_model.hpp>
+#include <state_vector/common_states.hpp>
 
 #include <gtest/gtest.h>
 
-using autoware::prediction::state::ConstAccelerationXY;
-using autoware::prediction::state::ConstAccelerationXYYaw;
+using autoware::common::state_vector::ConstAccelerationXY;
+using autoware::common::state_vector::ConstAccelerationXYYaw;
 using autoware::prediction::LinearMotionModel;
-using autoware::prediction::variable::X;
-using autoware::prediction::variable::Y;
-using autoware::prediction::variable::YAW;
-using autoware::prediction::variable::X_VELOCITY;
-using autoware::prediction::variable::Y_VELOCITY;
-using autoware::prediction::variable::YAW_CHANGE_RATE;
-using autoware::prediction::variable::X_ACCELERATION;
-using autoware::prediction::variable::Y_ACCELERATION;
-using autoware::prediction::variable::YAW_CHANGE_ACCELERATION;
+using autoware::common::state_vector::variable::X;
+using autoware::common::state_vector::variable::Y;
+using autoware::common::state_vector::variable::YAW;
+using autoware::common::state_vector::variable::X_VELOCITY;
+using autoware::common::state_vector::variable::Y_VELOCITY;
+using autoware::common::state_vector::variable::YAW_CHANGE_RATE;
+using autoware::common::state_vector::variable::X_ACCELERATION;
+using autoware::common::state_vector::variable::Y_ACCELERATION;
+using autoware::common::state_vector::variable::YAW_CHANGE_ACCELERATION;
 
 
 /// @test Test that prediction on independent x, y, yaw with constant acceleration works.

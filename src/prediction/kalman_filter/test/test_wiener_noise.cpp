@@ -19,12 +19,12 @@
 /// \file
 /// \brief This file defines tests for the Wiener noise model.
 
-#include <kalman_filter/common_states.hpp>
 #include <motion_model/wiener_noise.hpp>
+#include <state_vector/common_states.hpp>
 
 #include <gtest/gtest.h>
 
-using autoware::prediction::state::ConstAccelerationXYYaw;
+using autoware::common::state_vector::ConstAccelerationXYYaw;
 using autoware::prediction::WienerNoise;
 
 namespace

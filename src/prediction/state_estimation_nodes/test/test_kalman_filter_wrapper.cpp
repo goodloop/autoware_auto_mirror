@@ -17,7 +17,7 @@
 
 #include <gtest/gtest.h>
 
-#include <kalman_filter/common_variables.hpp>
+#include <state_vector/common_variables.hpp>
 #include <state_estimation_nodes/kalman_filter_wrapper.hpp>
 #include <state_estimation_nodes/measurement_typedefs.hpp>
 
@@ -37,12 +37,12 @@ using autoware::prediction::StampedMeasurementPoseAndSpeed;
 using autoware::prediction::MeasurementPose;
 using autoware::prediction::MeasurementSpeed;
 using autoware::prediction::MeasurementPoseAndSpeed;
-using autoware::prediction::variable::X;
-using autoware::prediction::variable::Y;
-using autoware::prediction::variable::X_VELOCITY;
-using autoware::prediction::variable::Y_VELOCITY;
-using autoware::prediction::variable::X_ACCELERATION;
-using autoware::prediction::variable::Y_ACCELERATION;
+using autoware::common::state_vector::variable::X;
+using autoware::common::state_vector::variable::Y;
+using autoware::common::state_vector::variable::X_VELOCITY;
+using autoware::common::state_vector::variable::Y_VELOCITY;
+using autoware::common::state_vector::variable::X_ACCELERATION;
+using autoware::common::state_vector::variable::Y_ACCELERATION;
 
 using Eigen::Matrix;
 template<std::int64_t kSize>

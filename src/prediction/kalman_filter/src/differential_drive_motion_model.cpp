@@ -33,13 +33,13 @@ constexpr auto kEpsilon = 0.00001F;
 using std::cos;
 using std::sin;
 
-using autoware::prediction::variable::X;
-using autoware::prediction::variable::Y;
-using autoware::prediction::variable::YAW;
-using autoware::prediction::variable::YAW_CHANGE_RATE;
-using autoware::prediction::variable::YAW_CHANGE_ACCELERATION;
-using autoware::prediction::variable::XY_VELOCITY;
-using autoware::prediction::variable::XY_ACCELERATION;
+using autoware::common::state_vector::variable::X;
+using autoware::common::state_vector::variable::Y;
+using autoware::common::state_vector::variable::YAW;
+using autoware::common::state_vector::variable::YAW_CHANGE_RATE;
+using autoware::common::state_vector::variable::YAW_CHANGE_ACCELERATION;
+using autoware::common::state_vector::variable::XY_VELOCITY;
+using autoware::common::state_vector::variable::XY_ACCELERATION;
 using autoware::common::types::float32_t;
 
 }  // namespace

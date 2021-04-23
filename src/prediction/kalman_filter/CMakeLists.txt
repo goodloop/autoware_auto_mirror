@@ -26,9 +26,7 @@ if(BUILD_TESTING)
 
   # gtest
   ament_add_gtest(${KALMAN_FILTER_GTEST}
-                  test/test_variables.cpp
                   test/test_kalman_filter.cpp
-                  test/test_generic_state.cpp
                   test/test_linear_motion_model.cpp
                   test/test_differential_motion_model.cpp
                   test/test_linear_measurement.cpp

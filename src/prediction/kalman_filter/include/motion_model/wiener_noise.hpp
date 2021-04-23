@@ -22,9 +22,9 @@
 #ifndef MOTION_MODEL__WIENER_NOISE_HPP_
 #define MOTION_MODEL__WIENER_NOISE_HPP_
 
-#include <kalman_filter/common_states.hpp>
 #include <kalman_filter/visibility_control.hpp>
 #include <motion_model/noise_interface.hpp>
+#include <state_vector/common_states.hpp>
 
 #include <algorithm>
 #include <array>
@@ -110,10 +110,10 @@ auto make_wiener_noise(const std::vector<OtherScalarT> & acceleration_variances)
 
 ///
 /// @brief      A specialization of the number_of_acceleration_components trait for
-///             state::ConstAccelerationXY.
+///             common::state_vector::ConstAccelerationXY.
 ///
 template<>
-struct number_of_acceleration_components<state::ConstAccelerationXY>
+struct number_of_acceleration_components<common::state_vector::ConstAccelerationXY>
   : public std::integral_constant<std::size_t, 2UL> {};
 
 ///
@@ -124,17 +124,17 @@ struct number_of_acceleration_components<state::ConstAccelerationXY>
 /// @return     Covariance matrix.
 ///
 template<>
-KALMAN_FILTER_PUBLIC state::ConstAccelerationXY::Matrix
-WienerNoise<state::ConstAccelerationXY>::crtp_covariance(
+KALMAN_FILTER_PUBLIC common::state_vector::ConstAccelerationXY::Matrix
+WienerNoise<common::state_vector::ConstAccelerationXY>::crtp_covariance(
   const std::chrono::nanoseconds & dt) const;
 
 
 ///
 /// @brief      A specialization of the number_of_acceleration_components trait for
-///             state::ConstAccelerationXYYaw.
+///             common::state_vector::ConstAccelerationXYYaw.
 ///
 template<>
-struct number_of_acceleration_components<state::ConstAccelerationXYYaw>
+struct number_of_acceleration_components<common::state_vector::ConstAccelerationXYYaw>
   : public std::integral_constant<std::size_t, 3UL> {};
 
 ///
@@ -145,8 +145,8 @@ struct number_of_acceleration_components<state::ConstAccelerationXYYaw>
 /// @return     Covariance matrix.
 ///
 template<>
-KALMAN_FILTER_PUBLIC state::ConstAccelerationXYYaw::Matrix
-WienerNoise<state::ConstAccelerationXYYaw>::crtp_covariance(
+KALMAN_FILTER_PUBLIC common::state_vector::ConstAccelerationXYYaw::Matrix
+WienerNoise<common::state_vector::ConstAccelerationXYYaw>::crtp_covariance(
   const std::chrono::nanoseconds & dt) const;
 
 }  // namespace prediction

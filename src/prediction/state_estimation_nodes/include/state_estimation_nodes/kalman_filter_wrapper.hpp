@@ -19,7 +19,6 @@
 #define STATE_ESTIMATION_NODES__KALMAN_FILTER_WRAPPER_HPP_
 
 #include <common/types.hpp>
-#include <kalman_filter/common_states.hpp>
 #include <kalman_filter/kalman_filter.hpp>
 #include <nav_msgs/msg/odometry.hpp>
 #include <state_estimation_nodes/filter_typedefs.hpp>
@@ -27,6 +26,7 @@
 #include <state_estimation_nodes/measurement_typedefs.hpp>
 #include <state_estimation_nodes/steady_time_grid.hpp>
 #include <state_estimation_nodes/visibility_control.hpp>
+#include <state_vector/common_states.hpp>
 
 #include <Eigen/Core>
 #include <Eigen/Geometry>

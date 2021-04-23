@@ -23,7 +23,7 @@
 #define MOTION_MODEL__MOTION_MODEL_INTERFACE_HPP_
 
 #include <helper_functions/crtp.hpp>
-#include <kalman_filter/generic_state.hpp>
+#include <state_vector/generic_state.hpp>
 
 #include <chrono>
 
@@ -54,7 +54,9 @@ public:
   template<typename StateT>
   inline auto predict(const StateT & state, const std::chrono::nanoseconds & dt) const
   {
-    static_assert(is_state<StateT>::value, "\n\nStateT must be a GenericState\n\n");
+    static_assert(
+      common::state_vector::is_state<StateT>::value,
+      "\n\nStateT must be a GenericState\n\n");
     return this->impl().crtp_predict(state, dt);
   }
   ///
@@ -70,6 +72,9 @@ public:
   template<typename StateT>
   inline auto jacobian(const StateT & state, const std::chrono::nanoseconds & dt) const
   {
+    static_assert(
+      common::state_vector::is_state<StateT>::value,
+      "\n\nStateT must be a GenericState\n\n");
     return this->impl().crtp_jacobian(state, dt);
   }
 };

@@ -19,16 +19,18 @@
 /// \file
 /// \brief This file defines the common variables used within the filter implementations.
 
-#ifndef KALMAN_FILTER__COMMON_VARIABLES_HPP_
-#define KALMAN_FILTER__COMMON_VARIABLES_HPP_
+#ifndef STATE_VECTOR__COMMON_VARIABLES_HPP_
+#define STATE_VECTOR__COMMON_VARIABLES_HPP_
 
-#include <kalman_filter/variable.hpp>
+#include <state_vector/variable.hpp>
 
 #include <type_traits>
 
 namespace autoware
 {
-namespace prediction
+namespace common
+{
+namespace state_vector
 {
 
 namespace variable
@@ -61,7 +63,8 @@ struct XY_ACCELERATION : Variable {};
 
 }  // namespace variable
 
-}  // namespace prediction
+}  // namespace state_vector
+}  // namespace common
 }  // namespace autoware
 
-#endif  // KALMAN_FILTER__COMMON_VARIABLES_HPP_
+#endif  // STATE_VECTOR__COMMON_VARIABLES_HPP_

@@ -19,20 +19,20 @@
 /// \file
 /// \brief This file defines tests for the generic state.
 
-#include <kalman_filter/generic_state.hpp>
+#include <state_vector/generic_state.hpp>
 
 #include <common/types.hpp>
 #include <gtest/gtest.h>
 
 #include <tuple>
 
-using autoware::prediction::GenericState;
-using autoware::prediction::FloatState;
-using autoware::prediction::AngleVariable;
-using autoware::prediction::is_state;
-using autoware::prediction::variable::X;
-using autoware::prediction::variable::Y;
-using autoware::prediction::variable::YAW;
+using autoware::common::state_vector::GenericState;
+using autoware::common::state_vector::FloatState;
+using autoware::common::state_vector::AngleVariable;
+using autoware::common::state_vector::is_state;
+using autoware::common::state_vector::variable::X;
+using autoware::common::state_vector::variable::Y;
+using autoware::common::state_vector::variable::YAW;
 using autoware::common::types::float32_t;
 using StateXY = GenericState<float32_t, X, Y>;
 
@@ -75,7 +75,8 @@ TEST(KalmanFilterGenericStateTest, Print) {
   str_stream << state << std::endl;
   EXPECT_EQ(
     str_stream.str(),
-    "State:\n  autoware::prediction::variable::X: 42\n  autoware::prediction::variable::Y: 23\n");
+    "State:\n  autoware::common::state_vector::variable::X: 42\n"
+    "  autoware::common::state_vector::variable::Y: 23\n");
 }
 
 /// @test We are able to copy the state into a bigger state.

@@ -31,18 +31,18 @@
 
 #include <tuple>
 
-using autoware::prediction::variable::X;
-using autoware::prediction::variable::Y;
-using autoware::prediction::variable::X_VELOCITY;
-using autoware::prediction::variable::Y_VELOCITY;
-using autoware::prediction::variable::X_ACCELERATION;
-using autoware::prediction::variable::Y_ACCELERATION;
-using autoware::prediction::FloatState;
+using autoware::common::state_vector::variable::X;
+using autoware::common::state_vector::variable::Y;
+using autoware::common::state_vector::variable::X_VELOCITY;
+using autoware::common::state_vector::variable::Y_VELOCITY;
+using autoware::common::state_vector::variable::X_ACCELERATION;
+using autoware::common::state_vector::variable::Y_ACCELERATION;
+using autoware::common::state_vector::FloatState;
 using autoware::prediction::LinearMeasurement;
 using autoware::prediction::KalmanFilter;
 using autoware::prediction::WienerNoise;
 using autoware::prediction::LinearMotionModel;
-using autoware::prediction::state::ConstAccelerationXY;
+using autoware::common::state_vector::ConstAccelerationXY;
 using autoware::common::types::float32_t;
 
 /// @test Test that a filter can be created and reset and is in a valid state throughout this.

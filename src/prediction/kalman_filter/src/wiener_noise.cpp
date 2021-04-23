@@ -39,8 +39,8 @@ namespace prediction
 
 
 template<>
-state::ConstAccelerationXYYaw::Matrix
-WienerNoise<state::ConstAccelerationXYYaw>::crtp_covariance(
+common::state_vector::ConstAccelerationXYYaw::Matrix
+WienerNoise<common::state_vector::ConstAccelerationXYYaw>::crtp_covariance(
   const std::chrono::nanoseconds & dt) const
 {
   if (m_acceleration_variances.size() != 3U) {
@@ -48,7 +48,8 @@ WienerNoise<state::ConstAccelerationXYYaw>::crtp_covariance(
       "Wrong initialization of noise model. Check the number of provided variances.");
   }
   const auto block_matrix = create_single_variable_block(dt);
-  state::ConstAccelerationXYYaw::Matrix m{state::ConstAccelerationXYYaw::Matrix::Zero()};
+  common::state_vector::ConstAccelerationXYYaw::Matrix m{
+    common::state_vector::ConstAccelerationXYYaw::Matrix::Zero()};
   m.block<3, 3>(0, 0) = block_matrix * m_acceleration_variances[0U] * m_acceleration_variances[0U];
   m.block<3, 3>(3, 3) = block_matrix * m_acceleration_variances[1U] * m_acceleration_variances[1U];
   m.block<3, 3>(6, 6) = block_matrix * m_acceleration_variances[2U] * m_acceleration_variances[2U];
@@ -56,8 +57,8 @@ WienerNoise<state::ConstAccelerationXYYaw>::crtp_covariance(
 }
 
 template<>
-state::ConstAccelerationXY::Matrix
-WienerNoise<state::ConstAccelerationXY>::crtp_covariance(
+common::state_vector::ConstAccelerationXY::Matrix
+WienerNoise<common::state_vector::ConstAccelerationXY>::crtp_covariance(
   const std::chrono::nanoseconds & dt) const
 {
   if (m_acceleration_variances.size() != 2U) {
@@ -65,7 +66,8 @@ WienerNoise<state::ConstAccelerationXY>::crtp_covariance(
       "Wrong initialization of noise model. Check the number of provided variances.");
   }
   const auto block_matrix = create_single_variable_block(dt);
-  state::ConstAccelerationXY::Matrix m{state::ConstAccelerationXY::Matrix::Zero()};
+  common::state_vector::ConstAccelerationXY::Matrix m{
+    common::state_vector::ConstAccelerationXY::Matrix::Zero()};
   m.block<3, 3>(0, 0) = block_matrix * m_acceleration_variances[0U] * m_acceleration_variances[0U];
   m.block<3, 3>(3, 3) = block_matrix * m_acceleration_variances[1U] * m_acceleration_variances[1U];
   return m;

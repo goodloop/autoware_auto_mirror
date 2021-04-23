@@ -22,10 +22,10 @@
 #ifndef MOTION_MODEL__DIFFERENTIAL_DRIVE_MOTION_MODEL_HPP_
 #define MOTION_MODEL__DIFFERENTIAL_DRIVE_MOTION_MODEL_HPP_
 
-#include <kalman_filter/common_states.hpp>
-#include <kalman_filter/generic_state.hpp>
 #include <kalman_filter/visibility_control.hpp>
 #include <motion_model/motion_model_interface.hpp>
+#include <state_vector/common_states.hpp>
+#include <state_vector/generic_state.hpp>
 
 namespace autoware
 {
@@ -63,11 +63,13 @@ protected:
 };
 
 /// @brief      An alias of the differential drive motion model for the
-///             state::ConstantVelocityAndTurnRate state.
-using CvtrMotionModel = DifferentialDriveMotionModel<state::ConstantVelocityAndTurnRate>;
+///             common::state_vector::ConstantVelocityAndTurnRate state.
+using CvtrMotionModel =
+  DifferentialDriveMotionModel<common::state_vector::ConstantVelocityAndTurnRate>;
 /// @brief      An alias of the differential drive motion model for the
-///             state::ConstantAccelerationAndTurnRate state.
-using CatrMotionModel = DifferentialDriveMotionModel<state::ConstantAccelerationAndTurnRate>;
+///             common::state_vector::ConstantAccelerationAndTurnRate state.
+using CatrMotionModel =
+  DifferentialDriveMotionModel<common::state_vector::ConstantAccelerationAndTurnRate>;
 
 
 /// @brief      A crtp-called function that predicts the state forward.

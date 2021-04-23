@@ -19,30 +19,32 @@
 /// \file
 /// \brief Contains base tag structs that define variables and traits to check if a type is one.
 
-#ifndef KALMAN_FILTER__VARIABLE_HPP_
-#define KALMAN_FILTER__VARIABLE_HPP_
+#ifndef STATE_VECTOR__VARIABLE_HPP_
+#define STATE_VECTOR__VARIABLE_HPP_
 
-#include <kalman_filter/visibility_control.hpp>
+#include <state_vector/visibility_control.hpp>
 
 #include <type_traits>
 
 
 namespace autoware
 {
-namespace prediction
+namespace common
+{
+namespace state_vector
 {
 
 ///
 /// @brief      A tag struct used to disambiguate variables from other types.
 ///
-struct KALMAN_FILTER_PUBLIC Variable {};
+struct STATE_VECTOR_PUBLIC Variable {};
 
 ///
 /// @brief      A tag struct used to disambiguate variables that store angles from other types.
 ///
 ///             Inheriting from AngleVariable allows to automatically wrap angles upon need.
 ///
-struct KALMAN_FILTER_PUBLIC AngleVariable : Variable {};
+struct STATE_VECTOR_PUBLIC AngleVariable : Variable {};
 
 ///
 /// @brief      A trait to check if a type is a variable by checking if it inherits from Variable.
@@ -50,7 +52,7 @@ struct KALMAN_FILTER_PUBLIC AngleVariable : Variable {};
 /// @tparam     T     Query type.
 ///
 template<typename T>
-struct KALMAN_FILTER_PUBLIC is_variable : std::conditional_t<
+struct STATE_VECTOR_PUBLIC is_variable : std::conditional_t<
     std::is_base_of<Variable, T>::value, std::true_type, std::false_type> {};
 
 ///
@@ -59,11 +61,12 @@ struct KALMAN_FILTER_PUBLIC is_variable : std::conditional_t<
 /// @tparam     T     Variable type.
 ///
 template<typename T>
-struct KALMAN_FILTER_PUBLIC is_angle : std::conditional_t<
+struct STATE_VECTOR_PUBLIC is_angle : std::conditional_t<
     std::is_base_of<AngleVariable, T>::value, std::true_type, std::false_type> {};
 
 
-}  // namespace prediction
+}  // namespace state_vector
+}  // namespace common
 }  // namespace autoware
 
-#endif  // KALMAN_FILTER__VARIABLE_HPP_
+#endif  // STATE_VECTOR__VARIABLE_HPP_

@@ -16,18 +16,18 @@
 /// \brief This file defines tests for the linear measurement.
 
 #include <measurement/linear_measurement.hpp>
-#include <kalman_filter/generic_state.hpp>
+#include <state_vector/generic_state.hpp>
 
 #include <gtest/gtest.h>
 
 #include <tuple>
 
-using autoware::prediction::variable::X;
-using autoware::prediction::variable::Y;
-using autoware::prediction::variable::X_VELOCITY;
-using autoware::prediction::variable::Y_VELOCITY;
+using autoware::common::state_vector::variable::X;
+using autoware::common::state_vector::variable::Y;
+using autoware::common::state_vector::variable::X_VELOCITY;
+using autoware::common::state_vector::variable::Y_VELOCITY;
 using autoware::prediction::LinearMeasurement;
-using autoware::prediction::FloatState;
+using autoware::common::state_vector::FloatState;
 
 /// @test Test that a measurement is correctly created and queried.
 TEST(TestLinearMeasurement, Create) {

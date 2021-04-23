@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
-    <name>kalman_filter</name>
+    <name>state_vector</name>
     <version>1.0.0</version>
-    <description>an implementation of square root covariance filtering (carlson-schmidt) for probabilistic state estimation</description>
+    <description>State vector and its variables as a library.</description>
     <maintainer email="opensource@apex.ai">Apex.AI, Inc.</maintainer>
     <license>Apache 2.0</license>
 
@@ -12,8 +12,6 @@
 
     <build_depend>eigen</build_depend>
     <build_depend>autoware_auto_common</build_depend>
-
-    <depend>state_vector</depend>
 
     <build_export_depend>eigen</build_export_depend>
 

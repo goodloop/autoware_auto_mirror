@@ -40,8 +40,8 @@ namespace prediction
 {
 
 template<>
-state::ConstAccelerationXYYaw::Matrix
-LinearMotionModel<state::ConstAccelerationXYYaw>::crtp_jacobian(
+common::state_vector::ConstAccelerationXYYaw::Matrix
+LinearMotionModel<common::state_vector::ConstAccelerationXYYaw>::crtp_jacobian(
   const State &, const std::chrono::nanoseconds & dt) const
 {
   const Eigen::Matrix3f single_variable_block{create_single_variable_block(dt)};
@@ -53,8 +53,8 @@ LinearMotionModel<state::ConstAccelerationXYYaw>::crtp_jacobian(
 }
 
 template<>
-state::ConstAccelerationXY::Matrix
-LinearMotionModel<state::ConstAccelerationXY>::crtp_jacobian(
+common::state_vector::ConstAccelerationXY::Matrix
+LinearMotionModel<common::state_vector::ConstAccelerationXY>::crtp_jacobian(
   const State &, const std::chrono::nanoseconds & dt) const
 {
   const Eigen::Matrix3f single_variable_block{create_single_variable_block(dt)};

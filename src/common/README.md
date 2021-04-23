@@ -18,3 +18,4 @@ across the Autoware.Auto system.
 - @subpage mpark_variant_vendor-package-design
 - @subpage reference-tracking-controller-design
 - @subpage signal-filters-design
+- @subpage state-and-variables-design

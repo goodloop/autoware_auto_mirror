@@ -59,6 +59,11 @@ autoware::common::types::float64_t get_speed(
     std::sqrt(x_speed * x_speed + y_speed * y_speed));
 }
 
+using autoware::common::state_vector::variable::X;
+using autoware::common::state_vector::variable::Y;
+using autoware::common::state_vector::variable::X_VELOCITY;
+using autoware::common::state_vector::variable::Y_VELOCITY;
+
 }  // namespace
 
 namespace autoware
@@ -83,29 +88,28 @@ nav_msgs::msg::Odometry ConstantAccelerationFilterWrapper::get_state() const
   msg.header.frame_id = m_frame_id;
   // Fill state.
   const auto state = last_event.stored_state();
-  msg.pose.pose.position.x = static_cast<float64_t>(state.at<variable::X>());
-  msg.pose.pose.position.y = static_cast<float64_t>(state.at<variable::Y>());
+  msg.pose.pose.position.x = static_cast<float64_t>(state.at<X>());
+  msg.pose.pose.position.y = static_cast<float64_t>(state.at<Y>());
   // Odometry message has velocity stored in the local frame of the message. In this case, the car
   // always moves along its orientation vector with the speed along it's "forward" direction being
   // the magnitude of the velocity vector estimated by the filter.
   msg.twist.twist.linear.x =
-    get_speed(state.at<variable::X_VELOCITY>(), state.at<variable::Y_VELOCITY>());
+    get_speed(state.at<X_VELOCITY>(), state.at<Y_VELOCITY>());
   msg.twist.twist.linear.y = 0.0;
   msg.twist.twist.linear.z = 0.0;
   msg.twist.twist.angular.set__x(0.0).set__y(0.0).set__z(0.0);
 
   const auto rotation_around_z = std::atan2(
-    static_cast<float64_t>(state.at<variable::Y_VELOCITY>()),
-    static_cast<float64_t>(state.at<variable::X_VELOCITY>()));
+    static_cast<float64_t>(state.at<Y_VELOCITY>()), static_cast<float64_t>(state.at<X_VELOCITY>()));
   tf2::Quaternion rotation;
   rotation.setRPY(0.0, 0.0, rotation_around_z);
   msg.pose.pose.orientation = tf2::toMsg(rotation);
 
   // Fill covariances.
-  const auto x_index = state.index_of<variable::X>();
-  const auto y_index = state.index_of<variable::Y>();
-  const auto x_speed_index = state.index_of<variable::X_VELOCITY>();
-  const auto y_speed_index = state.index_of<variable::X_VELOCITY>();
+  const auto x_index = state.index_of<X>();
+  const auto y_index = state.index_of<Y>();
+  const auto x_speed_index = state.index_of<X_VELOCITY>();
+  const auto y_speed_index = state.index_of<X_VELOCITY>();
   const auto & covariance_factor = last_event.stored_covariance_factor();
   const auto covariance = covariance_factor * covariance_factor.transpose();
   msg.pose.covariance[kIndexX] = static_cast<double>(covariance(x_index, x_index));
