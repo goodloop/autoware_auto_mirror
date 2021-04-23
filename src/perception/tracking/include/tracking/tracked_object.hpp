@@ -21,7 +21,7 @@
 
 #include <chrono>
 
-#include "autoware_auto_msgs/msg/detected_dynamic_object_array.hpp"
+#include "autoware_auto_msgs/msg/detected_objects.hpp"
 #include "autoware_auto_msgs/msg/tracked_object.hpp"
 #include "autoware_auto_msgs/msg/tracked_objects.hpp"
 #include "motion_model/linear_motion_model.hpp"
@@ -48,7 +48,7 @@ public:
   using NoiseModel = autoware::common::state_estimation::WienerNoise<CA>;
   using EKF = autoware::common::state_estimation::KalmanFilter<MotionModel, NoiseModel>;
   using TrackedObjectMsg = autoware_auto_msgs::msg::TrackedObject;
-  using DetectedObjectMsg = autoware_auto_msgs::msg::DetectedDynamicObject;
+  using DetectedObjectMsg = autoware_auto_msgs::msg::DetectedObject;
 
   /// Constructor
   /// \param detection A detection from which to initialize this object. Must have a pose.

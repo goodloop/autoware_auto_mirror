@@ -40,7 +40,7 @@ Associator::Associator(const DataAssociationConfig & association_cfg)
 : m_association_cfg(association_cfg) {}
 
 AssociatorResult Associator::assign(
-  const autoware_auto_msgs::msg::DetectedDynamicObjectArray & detections,
+  const autoware_auto_msgs::msg::DetectedObjects & detections,
   const autoware_auto_msgs::msg::TrackedObjects & tracks)
 {
   reset();
@@ -73,7 +73,7 @@ void Associator::reset()
 }
 
 void Associator::compute_weights(
-  const autoware_auto_msgs::msg::DetectedDynamicObjectArray & detections,
+  const autoware_auto_msgs::msg::DetectedObjects & detections,
   const autoware_auto_msgs::msg::TrackedObjects & tracks)
 {
   for (size_t det_idx = 0U; det_idx < detections.objects.size(); ++det_idx) {
@@ -105,7 +105,7 @@ void Associator::compute_weights(
 }
 
 bool Associator::consider_associating(
-  const autoware_auto_msgs::msg::DetectedDynamicObject & detection,
+  const autoware_auto_msgs::msg::DetectedObject & detection,
   const autoware_auto_msgs::msg::TrackedObject & track) const
 {
   const auto squared_distance_2d = [](const geometry_msgs::msg::Pose & p1, const
