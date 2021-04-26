@@ -13,6 +13,7 @@
   <depend>autoware_auto_common</depend>
   <depend>autoware_auto_geometry</depend>
   <depend>autoware_auto_msgs</depend>
+  <depend>autoware_auto_tf2</depend>
   <depend>geometry_msgs</depend>
   <depend>hungarian_assigner</depend>
   <depend>motion_model</depend>
