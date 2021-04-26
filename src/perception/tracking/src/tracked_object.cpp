@@ -14,8 +14,9 @@
 
 #include "tracking/tracked_object.hpp"
 
-#include <algorithm>
 #include <Eigen/Core>
+
+#include <algorithm>
 
 namespace autoware
 {
@@ -34,7 +35,7 @@ using autoware::common::state_vector::variable::Y_VELOCITY;
 using autoware::common::state_vector::variable::X_ACCELERATION;
 using autoware::common::state_vector::variable::Y_ACCELERATION;
 
-using CA = autoware::prediction::state::ConstAccelerationXY;
+using CA = autoware::common::state_vector::ConstAccelerationXY;
 using MotionModel = autoware::common::motion_model::LinearMotionModel<CA>;
 using NoiseModel = autoware::prediction::WienerNoise<CA>;
 using EKF = autoware::prediction::KalmanFilter<MotionModel, NoiseModel>;

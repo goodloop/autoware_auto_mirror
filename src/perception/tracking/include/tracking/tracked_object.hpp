@@ -24,10 +24,10 @@
 #include "autoware_auto_msgs/msg/detected_dynamic_object_array.hpp"
 #include "autoware_auto_msgs/msg/tracked_dynamic_object.hpp"
 #include "autoware_auto_msgs/msg/tracked_dynamic_object_array.hpp"
-#include "kalman_filter/common_states.hpp"
 #include "kalman_filter/kalman_filter.hpp"
 #include "motion_model/linear_motion_model.hpp"
 #include "motion_model/wiener_noise.hpp"
+#include "state_vector/common_states.hpp"
 #include "tracking/visibility_control.hpp"
 
 
@@ -43,7 +43,7 @@ class TRACKING_PUBLIC TrackedObject
 {
 public:
   // Aliases for convenience
-  using CA = autoware::prediction::state::ConstAccelerationXY;
+  using CA = autoware::common::state_vector::ConstAccelerationXY;
   using MotionModel = autoware::common::motion_model::LinearMotionModel<CA>;
   using NoiseModel = autoware::prediction::WienerNoise<CA>;
   using EKF = autoware::prediction::KalmanFilter<MotionModel, NoiseModel>;
