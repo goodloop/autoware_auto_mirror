@@ -29,7 +29,7 @@ using autoware::common::types::float64_t;
 using autoware::common::types::float32_t;
 
 using autoware::prediction::ConstantAccelerationFilterWrapper;
-using autoware::prediction::LinearMotionModel;
+using autoware::common::motion_model::LinearMotionModel;
 using autoware::prediction::WienerNoise;
 using autoware::prediction::StampedMeasurementPose;
 using autoware::prediction::StampedMeasurementSpeed;

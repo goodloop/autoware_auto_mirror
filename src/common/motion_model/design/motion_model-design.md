@@ -38,7 +38,7 @@ would need to be specialized for a specific state.
 ## Inner-workings / Algorithm
 
 ### Linear Motion Model
-A linear motion model implemented in `autoware::prediction::LinearMotionModel` class is a motion
+A linear motion model implemented in `autoware::common::motion_model::LinearMotionModel` class is a motion
 model that expects that all dimensions (e.g., variables `X`, `Y`, `Z`, see `common_variables.hpp`)
 are independent, thus the transition function of such a model can be represented by matrix
 multiplication. Therefore, prediction happens following the formula \f$s_1 = J s_0\f$.
@@ -60,11 +60,11 @@ opposed to freely in two dimensions. This direction (the yaw) is variable. This 
 motion model, and two specific variants are provided: a CVTR (Constant Velocity and Turn Rate) and a
 CATR (Constant Acceleration and Turn Rate) model.
 
-Derivations for these models can be found in the [motion_model.ipynb](https://gitlab.com/autowarefoundation/autoware.auto/AutowareAuto/-/blob/master/src/prediction/kalman_filter/notebooks/motion_model.ipynb) file.
+Derivations for these models can be found in the [motion_model.ipynb](https://gitlab.com/autowarefoundation/autoware.auto/AutowareAuto/-/blob/master/src/common/motion_model/notebooks/motion_model.ipynb) file.
 
 #### CATR (Constant Acceleration and Turn Rate)
 
-See `autoware::prediction::CatrMotionModel` typedef for details.
+See `autoware::common::motion_model::CatrMotionModel` typedef for details.
 
 This model assumes a state:
 
@@ -103,7 +103,7 @@ J_{\omega = 0} = \left[\begin{matrix}1 & 0 & - \frac{\Delta{t}^{2} a \sin{\theta
 
 #### CVTR (Constant Velocity and Turn Rate)
 
-See `autoware::prediction::CvtrMotionModel` typedef for details.
+See `autoware::common::motion_model::CvtrMotionModel` typedef for details.
 
 This motion model is very similar to the CATR one, just a little simpler. It assumes the state:
 \f{aligned}{
@@ -134,7 +134,8 @@ J_{\omega = 0} &= \left[\begin{matrix}1 & 0 & - \Delta{t} v \sin{\theta} & \Delt
 
 
 
-
 # References
 
 [`#865`](https://gitlab.com/autowarefoundation/autoware.auto/AutowareAuto/-/issues/865) - Redesign kalman filter class hierarchy
+
+@subpage motion-model-notebook-readme

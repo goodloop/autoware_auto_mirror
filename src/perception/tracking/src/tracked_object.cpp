@@ -35,7 +35,7 @@ using autoware::common::state_vector::variable::X_ACCELERATION;
 using autoware::common::state_vector::variable::Y_ACCELERATION;
 
 using CA = autoware::prediction::state::ConstAccelerationXY;
-using MotionModel = autoware::prediction::LinearMotionModel<CA>;
+using MotionModel = autoware::common::motion_model::LinearMotionModel<CA>;
 using NoiseModel = autoware::prediction::WienerNoise<CA>;
 using EKF = autoware::prediction::KalmanFilter<MotionModel, NoiseModel>;
 using TrackedObjectMsg = autoware_auto_msgs::msg::TrackedDynamicObject;

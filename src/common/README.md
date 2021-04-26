@@ -19,3 +19,4 @@ across the Autoware.Auto system.
 - @subpage reference-tracking-controller-design
 - @subpage signal-filters-design
 - @subpage state-and-variables-design
+- @subpage motion-model-design

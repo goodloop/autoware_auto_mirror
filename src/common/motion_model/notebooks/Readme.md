@@ -1,4 +1,4 @@
-# Notebook with motion model derivations
+# Notebook with motion model derivations {#motion-model-notebook-readme}
 
 This is a notebook with the derivation for the motion models in this package.
 

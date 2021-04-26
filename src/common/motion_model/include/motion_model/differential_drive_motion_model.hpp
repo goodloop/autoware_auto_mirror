@@ -1,4 +1,4 @@
-// Copyright 2021 the Autoware Foundation
+// Copyright 2021 Apex.AI, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,28 +14,25 @@
 //
 // Developed by Apex.AI, Inc.
 
-/// \copyright Copyright 2021 the Autoware Foundation
-/// All rights reserved.
-/// \file
-/// \brief This file defines the linear motion model.
-
 #ifndef MOTION_MODEL__DIFFERENTIAL_DRIVE_MOTION_MODEL_HPP_
 #define MOTION_MODEL__DIFFERENTIAL_DRIVE_MOTION_MODEL_HPP_
 
-#include <kalman_filter/visibility_control.hpp>
+#include <motion_model/visibility_control.hpp>
 #include <motion_model/motion_model_interface.hpp>
 #include <state_vector/common_states.hpp>
 #include <state_vector/generic_state.hpp>
 
 namespace autoware
 {
-namespace prediction
+namespace common
+{
+namespace motion_model
 {
 
 /// @brief      A generic differential motion model. This class only exists to be specialized for
 ///             specific motion model implementations.
 template<typename StateT>
-class KALMAN_FILTER_PUBLIC DifferentialDriveMotionModel
+class MOTION_MODEL_PUBLIC DifferentialDriveMotionModel
   : public MotionModelInterface<DifferentialDriveMotionModel<StateT>>
 {
 public:
@@ -74,31 +71,32 @@ using CatrMotionModel =
 
 /// @brief      A crtp-called function that predicts the state forward.
 template<>
-KALMAN_FILTER_PUBLIC CvtrMotionModel::State CvtrMotionModel::crtp_predict(
+MOTION_MODEL_PUBLIC CvtrMotionModel::State CvtrMotionModel::crtp_predict(
   const CvtrMotionModel::State & state,
   const std::chrono::nanoseconds & dt) const;
 
 /// @brief      A crtp-called function that computes a Jacobian.
 template<>
-KALMAN_FILTER_PUBLIC CvtrMotionModel::State::Matrix CvtrMotionModel::crtp_jacobian(
+MOTION_MODEL_PUBLIC CvtrMotionModel::State::Matrix CvtrMotionModel::crtp_jacobian(
   const CvtrMotionModel::State & state,
   const std::chrono::nanoseconds & dt) const;
 
 
 /// @brief      A crtp-called function that predicts the state forward.
 template<>
-KALMAN_FILTER_PUBLIC CatrMotionModel::State CatrMotionModel::crtp_predict(
+MOTION_MODEL_PUBLIC CatrMotionModel::State CatrMotionModel::crtp_predict(
   const CatrMotionModel::State & state,
   const std::chrono::nanoseconds & dt) const;
 
 /// @brief      A crtp-called function that computes a Jacobian.
 template<>
-KALMAN_FILTER_PUBLIC CatrMotionModel::State::Matrix CatrMotionModel::crtp_jacobian(
+MOTION_MODEL_PUBLIC CatrMotionModel::State::Matrix CatrMotionModel::crtp_jacobian(
   const CatrMotionModel::State & state,
   const std::chrono::nanoseconds & dt) const;
 
 
-}  // namespace prediction
+}  // namespace motion_model
+}  // namespace common
 }  // namespace autoware
 
 #endif  // MOTION_MODEL__DIFFERENTIAL_DRIVE_MOTION_MODEL_HPP_

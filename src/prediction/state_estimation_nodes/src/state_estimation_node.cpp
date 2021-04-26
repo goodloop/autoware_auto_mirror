@@ -148,7 +148,7 @@ StateEstimationNode::StateEstimationNode(
 
   using State = ConstantAccelerationFilterWrapper::State;
   m_ekf = std::make_unique<ConstantAccelerationFilterWrapper>(
-    LinearMotionModel<State>{},
+    common::motion_model::LinearMotionModel<State>{},
     make_wiener_noise<State>(acceleration_variances),
     create_state_variances<6>(state_variances),
     time_between_publish_requests,

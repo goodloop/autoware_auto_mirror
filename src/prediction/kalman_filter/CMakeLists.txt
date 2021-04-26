@@ -11,8 +11,6 @@ ament_auto_find_build_dependencies()
 # build library
 ament_auto_add_library(
   ${PROJECT_NAME} SHARED
-  src/linear_motion_model.cpp
-  src/differential_drive_motion_model.cpp
   src/wiener_noise.cpp
 )
 autoware_set_compile_options(${PROJECT_NAME})
@@ -27,8 +25,6 @@ if(BUILD_TESTING)
   # gtest
   ament_add_gtest(${KALMAN_FILTER_GTEST}
                   test/test_kalman_filter.cpp
-                  test/test_linear_motion_model.cpp
-                  test/test_differential_motion_model.cpp
                   test/test_linear_measurement.cpp
                   test/test_wiener_noise.cpp)
   autoware_set_compile_options(${KALMAN_FILTER_GTEST})

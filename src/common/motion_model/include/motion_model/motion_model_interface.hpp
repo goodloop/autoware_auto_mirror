@@ -1,4 +1,4 @@
-// Copyright 2021 the Autoware Foundation
+// Copyright 2021 Apex.AI, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,22 +14,20 @@
 //
 // Developed by Apex.AI, Inc.
 
-/// \copyright Copyright 2021 the Autoware Foundation
-/// All rights reserved.
-/// \file
-/// \brief This file defines an interface for the motion model.
-
 #ifndef MOTION_MODEL__MOTION_MODEL_INTERFACE_HPP_
 #define MOTION_MODEL__MOTION_MODEL_INTERFACE_HPP_
 
 #include <helper_functions/crtp.hpp>
+#include <motion_model/visibility_control.hpp>
 #include <state_vector/generic_state.hpp>
 
 #include <chrono>
 
 namespace autoware
 {
-namespace prediction
+namespace common
+{
+namespace motion_model
 {
 
 ///
@@ -38,7 +36,7 @@ namespace prediction
 /// @tparam     Derived  Motion model implementation class.
 ///
 template<typename Derived>
-class KALMAN_FILTER_PUBLIC MotionModelInterface : public common::helper_functions::crtp<Derived>
+class MOTION_MODEL_PUBLIC MotionModelInterface : public common::helper_functions::crtp<Derived>
 {
 public:
   ///
@@ -79,7 +77,8 @@ public:
   }
 };
 
-}  // namespace prediction
+}  // namespace motion_model
+}  // namespace common
 }  // namespace autoware
 
 #endif  // MOTION_MODEL__MOTION_MODEL_INTERFACE_HPP_

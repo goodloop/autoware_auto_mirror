@@ -21,18 +21,18 @@
 #ifndef STATE_ESTIMATION_NODES__FILTER_TYPEDEFS_HPP_
 #define STATE_ESTIMATION_NODES__FILTER_TYPEDEFS_HPP_
 
-#include <kalman_filter/common_states.hpp>
 #include <kalman_filter/kalman_filter.hpp>
 #include <motion_model/linear_motion_model.hpp>
 #include <motion_model/wiener_noise.hpp>
+#include <state_vector/common_states.hpp>
 
 namespace autoware
 {
 namespace prediction
 {
 using ConstAccelerationKalmanFilterXY = KalmanFilter<
-  LinearMotionModel<state::ConstAccelerationXY>,
-  WienerNoise<state::ConstAccelerationXY>>;
+  common::motion_model::LinearMotionModel<common::state_vector::ConstAccelerationXY>,
+  WienerNoise<common::state_vector::ConstAccelerationXY>>;
 }  // namespace prediction
 }  // namespace autoware
 

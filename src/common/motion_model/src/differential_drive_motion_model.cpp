@@ -1,4 +1,4 @@
-// Copyright 2021 the Autoware Foundation
+// Copyright 2021 Apex.AI, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,11 +13,6 @@
 // limitations under the License.
 //
 // Developed by Apex.AI, Inc.
-
-/// \copyright Copyright 2021 the Autoware Foundation
-/// All rights reserved.
-/// \file
-/// \brief Implements the linear motion model.
 
 #include <motion_model/differential_drive_motion_model.hpp>
 
@@ -46,7 +41,9 @@ using autoware::common::types::float32_t;
 
 namespace autoware
 {
-namespace prediction
+namespace common
+{
+namespace motion_model
 {
 
 template<>
@@ -240,5 +237,6 @@ CatrMotionModel::State::Matrix CatrMotionModel::crtp_jacobian(
   return jacobian;
 }
 
-}  // namespace prediction
+}  // namespace motion_model
+}  // namespace common
 }  // namespace autoware

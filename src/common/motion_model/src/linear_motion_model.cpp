@@ -1,4 +1,4 @@
-// Copyright 2021 the Autoware Foundation
+// Copyright 2021 Apex.AI, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,11 +13,6 @@
 // limitations under the License.
 //
 // Developed by Apex.AI, Inc.
-
-/// \copyright Copyright 2021 the Autoware Foundation
-/// All rights reserved.
-/// \file
-/// \brief Implements the linear motion model.
 
 #include <motion_model/linear_motion_model.hpp>
 
@@ -36,7 +31,9 @@ Eigen::Matrix3f create_single_variable_block(const std::chrono::nanoseconds & dt
 
 namespace autoware
 {
-namespace prediction
+namespace common
+{
+namespace motion_model
 {
 
 template<>
@@ -64,5 +61,6 @@ LinearMotionModel<common::state_vector::ConstAccelerationXY>::crtp_jacobian(
   return m;
 }
 
-}  // namespace prediction
+}  // namespace motion_model
+}  // namespace common
 }  // namespace autoware

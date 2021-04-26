@@ -47,7 +47,7 @@ class KALMAN_FILTER_PUBLIC KalmanFilter
   : public FilterInterface<KalmanFilter<MotionModelT, NoiseModelT>>
 {
   static_assert(
-    std::is_base_of<MotionModelInterface<MotionModelT>, MotionModelT>::value,
+    std::is_base_of<common::motion_model::MotionModelInterface<MotionModelT>, MotionModelT>::value,
     "\n\nMotion model must inherit from MotionModelInterface\n\n");
   static_assert(
     std::is_base_of<NoiseInterface<NoiseModelT>, NoiseModelT>::value,

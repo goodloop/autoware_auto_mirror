@@ -41,7 +41,7 @@ using autoware::common::state_vector::FloatState;
 using autoware::prediction::LinearMeasurement;
 using autoware::prediction::KalmanFilter;
 using autoware::prediction::WienerNoise;
-using autoware::prediction::LinearMotionModel;
+using autoware::common::motion_model::LinearMotionModel;
 using autoware::common::state_vector::ConstAccelerationXY;
 using autoware::common::types::float32_t;
 
