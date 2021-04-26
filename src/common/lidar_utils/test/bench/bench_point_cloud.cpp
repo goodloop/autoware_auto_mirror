@@ -69,7 +69,8 @@ static void BenchLidarUtilsAddPointToCloud(benchmark::State & state)
   for (auto _ : state) {
     idx = 0;
     for (auto i = 0U; i < kCloudSize; ++i) {
-      benchmark::DoNotOptimize(autoware::common::lidar_utils::add_point_to_cloud(msg, point, idx));
+      autoware::common::lidar_utils::add_point_to_cloud(msg, point, idx);
+      benchmark::DoNotOptimize(msg);
     }
   }
 }
@@ -83,8 +84,25 @@ static void BenchMsgWrapperAddPointToCloud(benchmark::State & state)
   const PointXYZIF point{};
   for (auto _ : state) {
     for (auto i = 0U; i < kCloudSize; ++i) {
-      benchmark::DoNotOptimize(modifier[i] = point);
+      modifier[i] = point;
     }
+    benchmark::DoNotOptimize(msg);
+  }
+}
+
+static void BenchMsgWrapperResizeAndAddPointToCloud(benchmark::State & state)
+{
+  using autoware::common::types::PointXYZIF;
+  auto msg = create_point_cloud_through_wrapper(kCloudSize);
+  point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZIF> modifier{msg};
+  const PointXYZIF point{};
+  for (auto _ : state) {
+    modifier.clear();
+    modifier.resize(kCloudSize);
+    for (auto i = 0U; i < kCloudSize; ++i) {
+      modifier[i] = point;
+    }
+    benchmark::DoNotOptimize(msg);
   }
 }
 
@@ -98,9 +116,9 @@ static void BenchMsgWrapperPushBackPointToCloud(benchmark::State & state)
     modifier.clear();
     modifier.reserve(kCloudSize);
     for (auto i = 0U; i < kCloudSize; ++i) {
-      benchmark::DoNotOptimize(point);
       modifier.push_back(point);
     }
+    benchmark::DoNotOptimize(msg);
   }
 }
 
@@ -125,10 +143,14 @@ static void BenchLidarUtilsAccessPoint(benchmark::State & state)
     while (x_it != x_it.end() && y_it != y_it.end() && z_it != z_it.end() &&
       intensity_it != intensity_it.end())
     {
-      benchmark::DoNotOptimize(x = *x_it);
-      benchmark::DoNotOptimize(y = *y_it);
-      benchmark::DoNotOptimize(z = *z_it);
-      benchmark::DoNotOptimize(intensity = *intensity_it);
+      benchmark::DoNotOptimize(x);
+      benchmark::DoNotOptimize(y);
+      benchmark::DoNotOptimize(z);
+      benchmark::DoNotOptimize(intensity);
+      x = *x_it;
+      y = *y_it;
+      z = *z_it;
+      intensity = *intensity_it;
       ++x_it;
       ++y_it;
       ++z_it;
@@ -154,16 +176,22 @@ static void BenchMsgWrapperAccessPoint(benchmark::State & state)
   auto id = 0;
   for (auto _ : state) {
     for (const auto & p : modifier) {
-      benchmark::DoNotOptimize(x = p.x);
-      benchmark::DoNotOptimize(y = p.y);
-      benchmark::DoNotOptimize(z = p.z);
-      benchmark::DoNotOptimize(intensity = p.intensity);
-      benchmark::DoNotOptimize(id = p.id);
+      benchmark::DoNotOptimize(x);
+      benchmark::DoNotOptimize(y);
+      benchmark::DoNotOptimize(z);
+      benchmark::DoNotOptimize(intensity);
+      benchmark::DoNotOptimize(id);
+      x = p.x;
+      y = p.y;
+      z = p.z;
+      intensity = p.intensity;
+      id = p.id;
     }
   }
 }
 
 BENCHMARK(BenchMsgWrapperAddPointToCloud);
+BENCHMARK(BenchMsgWrapperResizeAndAddPointToCloud);
 BENCHMARK(BenchMsgWrapperPushBackPointToCloud);
 BENCHMARK(BenchLidarUtilsAddPointToCloud);
 
