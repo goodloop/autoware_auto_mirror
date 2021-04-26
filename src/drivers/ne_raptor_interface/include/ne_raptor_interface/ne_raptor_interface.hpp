@@ -278,7 +278,12 @@ private:
   std::mutex m_vehicle_odometry_mutex;
   std::mutex m_vehicle_state_report_mutex;
   std::mutex m_vehicle_kin_state_mutex;
+  std::mutex m_accel_cmd_mutex;
   std::mutex m_brake_cmd_mutex;
+  std::mutex m_gear_cmd_mutex;
+  std::mutex m_gl_en_cmd_mutex;
+  std::mutex m_misc_cmd_mutex;
+  std::mutex m_steer_cmd_mutex;
 
   /** \brief Receives the brake state report from the vehicle platform.
    * Gets parking brake status for VehicleStateReport.

@@ -107,6 +107,12 @@ void NERaptorInterface::cmdCallback()
   if (m_rolling_counter > 15) {
     m_rolling_counter = 0;
   }
+  std::lock_guard<std::mutex> guard_ac(m_accel_cmd_mutex);
+  std::lock_guard<std::mutex> guard_bc(m_brake_cmd_mutex);
+  std::lock_guard<std::mutex> guard_gc(m_gear_cmd_mutex);
+  std::lock_guard<std::mutex> guard_ec(m_gl_en_cmd_mutex);
+  std::lock_guard<std::mutex> guard_mc(m_misc_cmd_mutex);
+  std::lock_guard<std::mutex> guard_sc(m_steer_cmd_mutex);
 
   // Set rolling counters
   m_accel_cmd.rolling_counter = m_rolling_counter;
@@ -115,8 +121,6 @@ void NERaptorInterface::cmdCallback()
   m_gl_en_cmd.rolling_counter = m_rolling_counter;
   m_misc_cmd.rolling_counter = m_rolling_counter;
   m_steer_cmd.rolling_counter = m_rolling_counter;
-
-  // TODO(NERaptor): add checksum calculator & calculate checksums
 
   // Publish commands to NE Raptor DBW
   m_accel_cmd_pub->publish(m_accel_cmd);
@@ -139,6 +143,10 @@ bool8_t NERaptorInterface::send_state_command(const VehicleStateCommand & msg)
   bool8_t ret{true};
   std_msgs::msg::Empty send_req{};
   ModeChangeRequest::SharedPtr t_mode{new ModeChangeRequest};
+
+  std::lock_guard<std::mutex> guard_gc(m_gear_cmd_mutex);
+  std::lock_guard<std::mutex> guard_ec(m_gl_en_cmd_mutex);
+  std::lock_guard<std::mutex> guard_mc(m_misc_cmd_mutex);
 
   // Set gear values
   switch (msg.gear) {
@@ -286,12 +294,14 @@ bool8_t NERaptorInterface::send_control_command(const HighLevelControlCommand & 
   bool8_t ret{true};
   float32_t velocity_checked{0.0F};
 
+  std::lock_guard<std::mutex> guard_ac(m_accel_cmd_mutex);
   std::lock_guard<std::mutex> guard_bc(m_brake_cmd_mutex);
+  std::lock_guard<std::mutex> guard_sc(m_steer_cmd_mutex);
 
   // Using curvature for control
-  m_accel_cmd.control_type.value = ActuatorControlMode::CLOSED_LOOP_VEHICLE;
-  m_steer_cmd.control_type.value = ActuatorControlMode::CLOSED_LOOP_VEHICLE;
-  m_brake_cmd.control_type.value = ActuatorControlMode::CLOSED_LOOP_VEHICLE;
+  m_accel_cmd.control_type.value = ActuatorControlMode::CLOSED_LOOP_VEHICLE;  // vehicle speed
+  m_steer_cmd.control_type.value = ActuatorControlMode::CLOSED_LOOP_VEHICLE;  // vehicle curvature
+  m_brake_cmd.control_type.value = ActuatorControlMode::CLOSED_LOOP_VEHICLE;  // vehicle speed
 
   // Set enable variables
   m_accel_cmd.enable = is_dbw_enabled;
@@ -305,6 +315,7 @@ bool8_t NERaptorInterface::send_control_command(const HighLevelControlCommand & 
   m_brake_cmd.decel_limit = m_deceleration_limit;
   m_accel_cmd.accel_positive_jerk_limit = m_acceleration_positive_jerk_limit;
   m_brake_cmd.decel_negative_jerk_limit = m_deceleration_negative_jerk_limit;
+  m_steer_cmd.angle_velocity = m_max_steer_angle;
 
   // Check for invalid changes in direction
   if ( ( (m_vehicle_state_report.gear == VehicleStateReport::GEAR_DRIVE) &&
@@ -347,12 +358,14 @@ bool8_t NERaptorInterface::send_control_command(const VehicleControlCommand & ms
   float32_t velocity_checked{0.0F};
   float32_t angle_checked{0.0F};
 
+  std::lock_guard<std::mutex> guard_ac(m_accel_cmd_mutex);
   std::lock_guard<std::mutex> guard_bc(m_brake_cmd_mutex);
+  std::lock_guard<std::mutex> guard_sc(m_steer_cmd_mutex);
 
   // Using steering wheel angle for control
-  m_accel_cmd.control_type.value = ActuatorControlMode::CLOSED_LOOP_ACTUATOR;
-  m_steer_cmd.control_type.value = ActuatorControlMode::CLOSED_LOOP_ACTUATOR;
-  m_brake_cmd.control_type.value = ActuatorControlMode::CLOSED_LOOP_ACTUATOR;
+  m_accel_cmd.control_type.value = ActuatorControlMode::CLOSED_LOOP_VEHICLE;   // vehicle speed
+  m_steer_cmd.control_type.value = ActuatorControlMode::CLOSED_LOOP_ACTUATOR;  // angular position
+  m_brake_cmd.control_type.value = ActuatorControlMode::CLOSED_LOOP_VEHICLE;   // vehicle speed
 
   // Set enable variables
   m_accel_cmd.enable = is_dbw_enabled;
@@ -366,6 +379,7 @@ bool8_t NERaptorInterface::send_control_command(const VehicleControlCommand & ms
   m_brake_cmd.decel_limit = m_deceleration_limit;
   m_accel_cmd.accel_positive_jerk_limit = m_acceleration_positive_jerk_limit;
   m_brake_cmd.decel_negative_jerk_limit = m_deceleration_negative_jerk_limit;
+  m_steer_cmd.angle_velocity = m_max_steer_angle;
 
   if (msg.long_accel_mps2 > 0.0F) {  // acceleration limit
     m_accel_cmd.accel_limit = std::fabs(msg.long_accel_mps2);
@@ -510,7 +524,7 @@ void NERaptorInterface::on_misc_report(const MiscReport::SharedPtr & msg)
   } else {
     m_vehicle_state_report.mode = VehicleStateReport::MODE_MANUAL;
   }
-  m_dbw_state_machine->dbw_feedback(msg->drive_by_wire_enabled);
+  m_dbw_state_machine->dbw_feedback(msg->by_wire_ready && !msg->general_driver_activity);
 
   std::lock_guard<std::mutex> guard_vks(m_vehicle_kin_state_mutex);
 
@@ -624,6 +638,7 @@ void NERaptorInterface::on_other_actuators_report(const OtherActuatorsReport::Sh
       m_vehicle_state_report.headlight = VehicleStateReport::HEADLIGHT_HIGH;
       break;
     case HighBeamState::RESERVED:
+    case HighBeamState::SNA:
     default:
       m_vehicle_state_report.headlight = 0;
       RCLCPP_WARN_THROTTLE(
