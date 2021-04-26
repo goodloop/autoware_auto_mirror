@@ -21,9 +21,10 @@ from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
 from launch.conditions import IfCondition
 from launch.substitutions import LaunchConfiguration
-from launch_ros.actions import Node
+from launch_ros.actions import Node, SetParameter
 
 import os
+import yaml
 
 
 def generate_launch_description():
@@ -52,6 +53,9 @@ def generate_launch_description():
         avp_demo_pkg_prefix, 'param/behavior_planner.param.yaml')
     off_map_obstacles_filter_param_file = os.path.join(
         avp_demo_pkg_prefix, 'param/off_map_obstacles_filter.param.yaml')
+
+    vehicle_characteristics_param_file = os.path.join(
+        avp_demo_pkg_prefix, 'param/vehicle_characteristics.param.yaml')
 
     point_cloud_fusion_node_pkg_prefix = get_package_share_directory(
         'point_cloud_fusion_nodes')
@@ -227,17 +231,7 @@ def generate_launch_description():
         ]
     )
 
-    return LaunchDescription([
-        euclidean_cluster_param,
-        ray_ground_classifier_param,
-        scan_downsampler_param,
-        with_obstacles_param,
-        lanelet2_map_provider_param,
-        lane_planner_param,
-        parking_planner_param,
-        object_collision_estimator_param,
-        behavior_planner_param,
-        off_map_obstacles_filter_param,
+    nodes = [
         euclidean_clustering,
         ray_ground_classifier,
         scan_downsampler,
@@ -250,4 +244,25 @@ def generate_launch_description():
         object_collision_estimator,
         behavior_planner,
         off_map_obstacles_filter,
-    ])
+    ]
+
+    with open(vehicle_characteristics_param_file) as f:
+        cfg = yaml.load(f, Loader=yaml.SafeLoader)
+        vehicle_characteristics = cfg['ros__parameters']['vehicle']
+        parameters = [launch_ros.actions.SetParameter(name=key, value=value) \
+            for key, value in vehicle_characteristics.items()]
+
+        return LaunchDescription([
+            euclidean_cluster_param,
+            ray_ground_classifier_param,
+            scan_downsampler_param,
+            with_obstacles_param,
+            lanelet2_map_provider_param,
+            lane_planner_param,
+            parking_planner_param,
+            object_collision_estimator_param,
+            behavior_planner_param,
+            off_map_obstacles_filter_param,
+            *parameters,
+            *nodes,
+        ])
