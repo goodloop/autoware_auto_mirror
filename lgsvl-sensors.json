@@ -96,7 +96,7 @@
       "CenterAngle": 0,
       "Compensated": true,
       "PointColor": "#ff000000",
-      "Topic": "/lidar_front/points_raw",
+      "Topic": "/lgsvl/lidar_front/points_raw",
       "Frame": "lidar_front"
     },
     "parent": "base_link",
@@ -122,7 +122,7 @@
       "CenterAngle": 0,
       "Compensated": true,
       "PointColor": "#ff000000",
-      "Topic": "/lidar_rear/points_raw",
+      "Topic": "/lgsvl/lidar_rear/points_raw",
       "Frame": "lidar_rear"
     },
     "parent": "base_link",

@@ -1,0 +1,93 @@
+// Copyright 2021 The Autoware Foundation
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+/// \copyright Copyright 2021 The Autoware Foundation
+/// \file
+/// \brief This file defines the point_type_adapter_node class.
+
+#ifndef POINT_TYPE_ADAPTER__POINT_TYPE_ADAPTER_NODE_HPP_
+#define POINT_TYPE_ADAPTER__POINT_TYPE_ADAPTER_NODE_HPP_
+
+#include <rclcpp/rclcpp.hpp>
+#include <sensor_msgs/msg/point_cloud2.hpp>
+#include <common/types.hpp>
+#include <helper_functions/float_comparisons.hpp>
+#include <limits>
+#include "point_type_adapter/visibility_control.hpp"
+
+namespace autoware
+{
+namespace tools
+{
+namespace point_type_adapter
+{
+
+/// \class PointTypeAdapterNode
+/// \brief ROS 2 Node for converting PointCloud2 clouds with
+/// different fields to Autoware.Auto default format
+class POINT_TYPE_ADAPTER_PUBLIC PointTypeAdapterNode : public rclcpp::Node
+{
+public:
+  /// \brief default constructor, initializes subs and pubs
+  explicit PointTypeAdapterNode(const rclcpp::NodeOptions & options);
+
+  using PointCloud2 = sensor_msgs::msg::PointCloud2;
+  using float32_t = autoware::common::types::float32_t;
+  using float64_t = autoware::common::types::float64_t;
+
+  using PointXYZI = common::types::PointXYZI;
+
+  struct PointSvl
+  {
+    float32_t x{0.0F};
+    float32_t y{0.0F};
+    alignas(float64_t) float32_t z{0.0F};
+    alignas(uint64_t) uint8_t intensity{0};
+    float64_t timestamp{0.0};
+    friend bool operator==(const PointSvl & p1, const PointSvl & p2) noexcept
+    {
+      using autoware::common::helper_functions::comparisons::rel_eq;
+      return rel_eq(
+        p1.x, p2.x,
+        std::numeric_limits<float32_t>::epsilon()) &&
+             rel_eq(
+        p1.y, p2.y,
+        std::numeric_limits<float32_t>::epsilon()) &&
+             rel_eq(
+        p1.z, p2.z,
+        std::numeric_limits<float32_t>::epsilon()) &&
+             p1.intensity == p2.intensity &&
+             rel_eq(
+        p1.timestamp, p2.timestamp,
+        std::numeric_limits<float64_t>::epsilon());
+    }
+  };
+
+  /// \brief Converts CloudSVL to CloudXYZI
+  static PointCloud2::SharedPtr cloud_svl_to_cloud_xyzi(
+    const PointCloud2::ConstSharedPtr cloud_svl);
+
+private:
+  rclcpp::Publisher<PointCloud2>::SharedPtr pub_ptr_cloud_output_;
+  rclcpp::Subscription<PointCloud2>::SharedPtr sub_ptr_cloud_input_;
+
+  /// \brief Callback for input cloud, converts and publishes.
+  /// \throws std::exception if it cannot transform.
+  void callback_cloud_input(const PointCloud2::SharedPtr msg_ptr);
+};
+}  // namespace point_type_adapter
+}  // namespace tools
+}  // namespace autoware
+
+#endif  // POINT_TYPE_ADAPTER__POINT_TYPE_ADAPTER_NODE_HPP_
