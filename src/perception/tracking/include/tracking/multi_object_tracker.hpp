@@ -30,10 +30,10 @@
 #include "nav_msgs/msg/odometry.hpp"
 #include "tracking/data_association.hpp"
 #include "tracking/tracked_object.hpp"
-#include "kalman_filter/common_states.hpp"
-#include "kalman_filter/kalman_filter.hpp"
+#include "state_vector/common_states.hpp"
+#include "state_estimation/kalman_filter/kalman_filter.hpp"
 #include "motion_model/linear_motion_model.hpp"
-#include "motion_model/wiener_noise.hpp"
+#include "state_estimation/noise_model/wiener_noise.hpp"
 #include "tracking/visibility_control.hpp"
 
 
@@ -79,8 +79,6 @@ struct TRACKING_PUBLIC TrackerUpdateResult
 /// \brief Options for object tracking, with sensible defaults.
 struct TRACKING_PUBLIC MultiObjectTrackerOptions
 {
-  /// Tracks older than this will not be associated with observations.
-  std::chrono::milliseconds staleness_threshold = std::chrono::milliseconds(1000);
   /// Data association parameters.
   DataAssociationConfig assoc_config = {2.0f, 2.5f};
   /// The frame in which to do tracking.

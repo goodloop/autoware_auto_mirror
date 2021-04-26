@@ -85,8 +85,7 @@ void doTransform(
   t_out.points.resize(t_in.points.size());
   for (size_t i = 0; i < t_in.points.size(); ++i) {
     const KDL::Vector v_out = kdl_frame * KDL::Vector(
-      t_in.points[i].x, t_in.points[i].y,
-      t_in.points[i].z);
+      t_in.points[i].x, t_in.points[i].y, t_in.points[i].z);
     t_out.points[i].x = static_cast<float>(v_out[0]);
     t_out.points[i].y = static_cast<float>(v_out[1]);
     t_out.points[i].z = static_cast<float>(v_out[2]);

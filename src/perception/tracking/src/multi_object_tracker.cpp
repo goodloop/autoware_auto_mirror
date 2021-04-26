@@ -55,7 +55,7 @@ bool is_gravity_aligned(const geometry_msgs::msg::Quaternion & quat)
   return true;
 }
 
-geometry_msgs::msg::TransformStamped odometry_to_transform(const nav_msgs::msg::Odometry & odometry)
+geometry_msgs::msg::TransformStamped to_transform(const nav_msgs::msg::Odometry & odometry)
 {
   geometry_msgs::msg::TransformStamped tfs;
   tfs.header = odometry.header;
@@ -181,8 +181,8 @@ void MultiObjectTracker::transform(
   Eigen::Isometry3d tf__tracking__detection = Eigen::Isometry3d::Identity();
   tf2::fromMsg(detection_frame_odometry.pose.pose, tf__tracking__detection);
   const Eigen::Matrix3d rot_d = tf__tracking__detection.linear();
-  // Convert the odometry to TransformStamped.
-  const geometry_msgs::msg::TransformStamped tf_msg__tracking__detection = odometry_to_transform(
+  // Convert the odometry to TransformStamped for use with tf2::doTransform.
+  const geometry_msgs::msg::TransformStamped tf_msg__tracking__detection = to_transform(
     detection_frame_odometry);
   // Hoisted outside the loop
   Eigen::Isometry3d tf__detection__object = Eigen::Isometry3d::Identity();
