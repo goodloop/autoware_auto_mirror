@@ -168,8 +168,8 @@ def generate_launch_description():
     with open(vehicle_characteristics_param_file) as f:
         cfg = yaml.load(f, Loader=yaml.SafeLoader)
         vehicle_characteristics = cfg['ros__parameters']['vehicle']
-        parameters = [launch_ros.actions.SetParameter(name=key, value=value) \
-            for key, value in vehicle_characteristics.items()]
+        parameters = [
+            SetParameter(name=key, value=value) for key, value in vehicle_characteristics.items()]
 
         return LaunchDescription([
             lgsvl_interface_param,
