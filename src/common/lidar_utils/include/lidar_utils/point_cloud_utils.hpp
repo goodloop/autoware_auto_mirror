@@ -149,9 +149,11 @@ LIDAR_UTILS_PUBLIC void init_pcl_msg(
   msg.is_bigendian = false;
   msg.is_dense = false;
   msg.header.frame_id = frame_id;
-  // set the fields
   sensor_msgs::PointCloud2Modifier modifier(msg);
-  if (static_cast<int>(num_fields) > std::numeric_limits<int>::max()) {
+  // set the fields
+  // TODO(vrichard) replace explicit check by safe_cast
+  // See https://gitlab.com/autowarefoundation/autoware.auto/AutowareAuto/-/issues/1027
+  if (num_fields > static_cast<uint32_t>(std::numeric_limits<int>::max())) {
     // prevent future access to random memory value or segmentation fault
     throw std::runtime_error(
             "converting " + std::to_string(
