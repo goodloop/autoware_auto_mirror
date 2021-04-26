@@ -3,7 +3,7 @@
 <package format="3">
     <name>kalman_filter</name>
     <version>1.0.0</version>
-    <description>an implementation of square root covariance filtering (carlson-schmidt) for probabilistic state estimation</description>
+    <description>An interface for state filtering and its implementations</description>
     <maintainer email="opensource@apex.ai">Apex.AI, Inc.</maintainer>
     <license>Apache 2.0</license>
 
