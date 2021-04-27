@@ -1,4 +1,4 @@
-// Copyright 2021 Apex.AI, Inc
+// Copyright 2021 Apex.AI, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,14 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/// \file
-/// \brief This files defines a linear measurement.
 
-#ifndef MEASUREMENT__LINEAR_MEASUREMENT_HPP_
-#define MEASUREMENT__LINEAR_MEASUREMENT_HPP_
+#ifndef STATE_ESTIMATION__MEASUREMENT__LINEAR_MEASUREMENT_HPP_
+#define STATE_ESTIMATION__MEASUREMENT__LINEAR_MEASUREMENT_HPP_
 
 #include <common/type_traits.hpp>
-#include <measurement/measurement_interface.hpp>
+#include <state_estimation/measurement/measurement_interface.hpp>
 
 #include <Eigen/Core>
 
@@ -28,7 +26,9 @@
 
 namespace autoware
 {
-namespace prediction
+namespace common
+{
+namespace state_estimation
 {
 
 ///
@@ -41,7 +41,7 @@ namespace prediction
 /// @tparam     StateT  A measured state.
 ///
 template<typename StateT>
-class KALMAN_FILTER_PUBLIC LinearMeasurement
+class STATE_ESTIMATION_PUBLIC LinearMeasurement
   : public MeasurementInterface<LinearMeasurement<StateT>>
 {
   template<typename OtherStateT>
@@ -162,7 +162,8 @@ private:
   typename StateT::Matrix m_covariance{StateT::Matrix::Zero()};
 };
 
-}  // namespace prediction
+}  // namespace state_estimation
+}  // namespace common
 }  // namespace autoware
 
-#endif  // MEASUREMENT__LINEAR_MEASUREMENT_HPP_
+#endif  // STATE_ESTIMATION__MEASUREMENT__LINEAR_MEASUREMENT_HPP_

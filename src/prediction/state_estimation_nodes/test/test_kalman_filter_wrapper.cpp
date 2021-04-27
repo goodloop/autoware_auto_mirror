@@ -17,9 +17,9 @@
 
 #include <gtest/gtest.h>
 
-#include <state_vector/common_variables.hpp>
 #include <state_estimation_nodes/kalman_filter_wrapper.hpp>
 #include <state_estimation_nodes/measurement_typedefs.hpp>
+#include <state_vector/common_variables.hpp>
 
 #include <common/types.hpp>
 
@@ -30,7 +30,7 @@ using autoware::common::types::float32_t;
 
 using autoware::prediction::ConstantAccelerationFilterWrapper;
 using autoware::common::motion_model::LinearMotionModel;
-using autoware::prediction::WienerNoise;
+using autoware::common::state_estimation::WienerNoise;
 using autoware::prediction::StampedMeasurementPose;
 using autoware::prediction::StampedMeasurementSpeed;
 using autoware::prediction::StampedMeasurementPoseAndSpeed;

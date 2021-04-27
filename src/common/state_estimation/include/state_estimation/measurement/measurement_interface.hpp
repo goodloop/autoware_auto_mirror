@@ -1,4 +1,4 @@
-// Copyright 2021 Apex.AI, Inc
+// Copyright 2021 Apex.AI, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,21 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/// \file
-/// \brief This defines measurement interface class.
-
-#ifndef MEASUREMENT__MEASUREMENT_INTERFACE_HPP_
-#define MEASUREMENT__MEASUREMENT_INTERFACE_HPP_
+#ifndef STATE_ESTIMATION__MEASUREMENT__MEASUREMENT_INTERFACE_HPP_
+#define STATE_ESTIMATION__MEASUREMENT__MEASUREMENT_INTERFACE_HPP_
 
 #include <helper_functions/crtp.hpp>
-#include <kalman_filter/visibility_control.hpp>
+#include <state_estimation/visibility_control.hpp>
 #include <state_vector/generic_state.hpp>
 
 #include <type_traits>
 
 namespace autoware
 {
-namespace prediction
+namespace common
+{
+namespace state_estimation
 {
 
 ///
@@ -35,7 +34,7 @@ namespace prediction
 /// @tparam     Derived  Derived class that is expected to inherit from this class.
 ///
 template<typename Derived>
-struct KALMAN_FILTER_PUBLIC MeasurementInterface : public common::helper_functions::crtp<Derived>
+struct STATE_ESTIMATION_PUBLIC MeasurementInterface : public common::helper_functions::crtp<Derived>
 {
   /// @brief      Get measurement as a state vector.
   auto & state()
@@ -142,7 +141,8 @@ struct KALMAN_FILTER_PUBLIC MeasurementInterface : public common::helper_functio
 };
 
 
-}  // namespace prediction
+}  // namespace state_estimation
+}  // namespace common
 }  // namespace autoware
 
-#endif  // MEASUREMENT__MEASUREMENT_INTERFACE_HPP_
+#endif  // STATE_ESTIMATION__MEASUREMENT__MEASUREMENT_INTERFACE_HPP_

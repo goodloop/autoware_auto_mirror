@@ -19,7 +19,7 @@
 #include <gtest/gtest.h>
 
 #include <common/types.hpp>
-#include <measurement/linear_measurement.hpp>
+#include <state_estimation/measurement/linear_measurement.hpp>
 #include <state_vector/common_variables.hpp>
 #include <state_vector/generic_state.hpp>
 
@@ -52,7 +52,7 @@ using MeasurementState =
   autoware::common::state_vector::FloatState<autoware::common::state_vector::variable::X>;
 using FilterState = MeasurementState;
 
-using Measurement = autoware::prediction::LinearMeasurement<MeasurementState>;
+using Measurement = autoware::common::state_estimation::LinearMeasurement<MeasurementState>;
 
 class MockFilter
 {

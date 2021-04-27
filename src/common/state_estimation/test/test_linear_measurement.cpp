@@ -1,4 +1,4 @@
-// Copyright 2021 Apex.AI, Inc
+// Copyright 2021 Apex.AI, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,10 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/// \file
-/// \brief This file defines tests for the linear measurement.
-
-#include <measurement/linear_measurement.hpp>
+#include <state_estimation/measurement/linear_measurement.hpp>
 #include <state_vector/generic_state.hpp>
 
 #include <gtest/gtest.h>
@@ -26,7 +23,7 @@ using autoware::common::state_vector::variable::X;
 using autoware::common::state_vector::variable::Y;
 using autoware::common::state_vector::variable::X_VELOCITY;
 using autoware::common::state_vector::variable::Y_VELOCITY;
-using autoware::prediction::LinearMeasurement;
+using autoware::common::state_estimation::LinearMeasurement;
 using autoware::common::state_vector::FloatState;
 
 /// @test Test that a measurement is correctly created and queried.

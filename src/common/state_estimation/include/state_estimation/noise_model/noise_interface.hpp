@@ -1,4 +1,4 @@
-// Copyright 2021 the Autoware Foundation
+// Copyright 2021 Apex.AI, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,24 +11,19 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-//
-// Developed by Apex.AI, Inc.
 
-/// \copyright Copyright 2021 the Autoware Foundation
-/// All rights reserved.
-/// \file
-/// \brief This file contains a definition for the noise interface.
+#ifndef STATE_ESTIMATION__NOISE_MODEL__NOISE_INTERFACE_HPP_
+#define STATE_ESTIMATION__NOISE_MODEL__NOISE_INTERFACE_HPP_
 
-#ifndef MOTION_MODEL__NOISE_INTERFACE_HPP_
-#define MOTION_MODEL__NOISE_INTERFACE_HPP_
-
-#include <kalman_filter/visibility_control.hpp>
+#include <state_estimation/visibility_control.hpp>
 
 #include <chrono>
 
 namespace autoware
 {
-namespace prediction
+namespace common
+{
+namespace state_estimation
 {
 
 ///
@@ -38,7 +33,7 @@ namespace prediction
 /// @tparam     Derived  A derived class that holds the actual implementation.
 ///
 template<typename Derived>
-class KALMAN_FILTER_PUBLIC NoiseInterface
+class STATE_ESTIMATION_PUBLIC NoiseInterface
 {
 public:
   ///
@@ -54,7 +49,8 @@ public:
   }
 };
 
-}  // namespace prediction
+}  // namespace state_estimation
+}  // namespace common
 }  // namespace autoware
 
-#endif  // MOTION_MODEL__NOISE_INTERFACE_HPP_
+#endif  // STATE_ESTIMATION__NOISE_MODEL__NOISE_INTERFACE_HPP_

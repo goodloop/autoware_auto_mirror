@@ -1,4 +1,4 @@
-// Copyright 2021 the Autoware Foundation
+// Copyright 2021 Apex.AI, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,21 +11,15 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-//
-// Developed by Apex.AI, Inc.
 
-/// \copyright Copyright 2021 the Autoware Foundation
-/// All rights reserved.
-/// \file
-/// \brief This file defines a Kalman filter implementation of the filter interface.
-
-#ifndef KALMAN_FILTER__KALMAN_FILTER_HPP_
-#define KALMAN_FILTER__KALMAN_FILTER_HPP_
+#ifndef STATE_ESTIMATION__KALMAN_FILTER__KALMAN_FILTER_HPP_
+#define STATE_ESTIMATION__KALMAN_FILTER__KALMAN_FILTER_HPP_
 
 #include <helper_functions/float_comparisons.hpp>
-#include <kalman_filter/filter_interface.hpp>
 #include <motion_model/motion_model_interface.hpp>
-#include <motion_model/noise_interface.hpp>
+#include <state_estimation/noise_model/noise_interface.hpp>
+#include <state_estimation/state_estimation_interface.hpp>
+#include <state_estimation/visibility_control.hpp>
 
 #include <Eigen/LU>
 
@@ -34,7 +28,9 @@
 
 namespace autoware
 {
-namespace prediction
+namespace common
+{
+namespace state_estimation
 {
 ///
 /// @brief      A Kalman filter implementation.
@@ -43,8 +39,8 @@ namespace prediction
 /// @tparam     NoiseModelT   Type of the noise model.
 ///
 template<typename MotionModelT, typename NoiseModelT>
-class KALMAN_FILTER_PUBLIC KalmanFilter
-  : public FilterInterface<KalmanFilter<MotionModelT, NoiseModelT>>
+class STATE_ESTIMATION_PUBLIC KalmanFilter
+  : public StateEstimationInterface<KalmanFilter<MotionModelT, NoiseModelT>>
 {
   static_assert(
     std::is_base_of<common::motion_model::MotionModelInterface<MotionModelT>, MotionModelT>::value,
@@ -227,7 +223,8 @@ auto make_kalman_filter(
     motion_model, noise_model, initial_state, variances.asDiagonal()};
 }
 
-}    // namespace prediction
+}  // namespace state_estimation
+}  // namespace common
 }  // namespace autoware
 
-#endif  // KALMAN_FILTER__KALMAN_FILTER_HPP_
+#endif  // STATE_ESTIMATION__KALMAN_FILTER__KALMAN_FILTER_HPP_

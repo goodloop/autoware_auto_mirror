@@ -17,10 +17,10 @@
 
 #include <state_estimation_nodes/state_estimation_node.hpp>
 
-#include <kalman_filter/kalman_filter.hpp>
 #include <motion_model/linear_motion_model.hpp>
-#include <motion_model/wiener_noise.hpp>
 #include <rclcpp_components/register_node_macro.hpp>
+#include <state_estimation/kalman_filter/kalman_filter.hpp>
+#include <state_estimation/noise_model/wiener_noise.hpp>
 #include <state_estimation_nodes/measurement_conversion.hpp>
 
 #include <tf2_eigen/tf2_eigen.h>
@@ -149,7 +149,7 @@ StateEstimationNode::StateEstimationNode(
   using State = ConstantAccelerationFilterWrapper::State;
   m_ekf = std::make_unique<ConstantAccelerationFilterWrapper>(
     common::motion_model::LinearMotionModel<State>{},
-    make_wiener_noise<State>(acceleration_variances),
+    common::state_estimation::make_wiener_noise<State>(acceleration_variances),
     create_state_variances<6>(state_variances),
     time_between_publish_requests,
     m_frame_id,

@@ -1,4 +1,4 @@
-// Copyright 2021 the Autoware Foundation
+// Copyright 2021 Apex.AI, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,21 +11,14 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-//
-// Developed by Apex.AI, Inc.
 
-/// \copyright Copyright 2021 the Autoware Foundation
-/// All rights reserved.
-/// \file
-/// \brief This file defines tests for the Wiener noise model.
-
-#include <motion_model/wiener_noise.hpp>
+#include <state_estimation/noise_model/wiener_noise.hpp>
 #include <state_vector/common_states.hpp>
 
 #include <gtest/gtest.h>
 
 using autoware::common::state_vector::ConstAccelerationXYYaw;
-using autoware::prediction::WienerNoise;
+using autoware::common::state_estimation::WienerNoise;
 
 namespace
 {

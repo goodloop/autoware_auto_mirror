@@ -1,4 +1,4 @@
-Filtering {#filter-design}
+State filtering (state estimation) {#state-estimation-design}
 =============
 
 # Purpose / Use cases
@@ -6,18 +6,19 @@ Filtering {#filter-design}
 To smooth incoming measurements it is common to use a probabilistic filter. There are different
 flavors of these. Just to name a few common options, there are (Extended) Kalman Filter, Unscented
 Kalman Filter or Particle filter. Each of these comes with their advantages and disadvantages. In
-this package we implement a generic filter interface (`autoware::prediction::FilterInterface`) and a
-number of concrete implementations for it.
+this package we implement a generic filter interface
+(`autoware::common::state_estimation::StateEstimationInterface`) and a number of concrete
+implementations for it.
 
 Currently implemented filters are:
 
-- `autoware::prediction::KalmanFilter` that can be used both as a standard Kalman Filter and as
+- `autoware::common::state_estimation::KalmanFilter` that can be used both as a standard Kalman Filter and as
   an Extended Kalman Filter.
 
 
 ## Design
 
-The cornerstone of the design is the `autoware::prediction::FilterInterface`, which defines a number
+The cornerstone of the design is the `autoware::common::state_estimation::StateEstimationInterface`, which defines a number
 of functions that the concrete implementations of this filter can implement. The interface is
 templated, and thus follows the Curiously Recurring Template Pattern (CRTP) pattern, to allow for
 using concrete types and to avoid requiring pointers in order to make filter implementations
@@ -46,16 +47,16 @@ implement functions like `correct` and `predict` directly, but rather internal f
 `crtp_` prefix) that get called by the interface.
 
 It is expected here that `MeasurementT` class implements the
-`autoware::prediction::MeasurementInterface` class, while `StateT` class is a specialization of the
-`autoware::prediction::GenericState` class.
+`autoware::common::state_estimation::MeasurementInterface` class, while `StateT` class is a specialization of the
+`autoware::common::state_estimation::GenericState` class.
 
 ### (Extended) Kalman filter design
 
-The class `autoware::prediction::KalmanFilter` declared in `kalman_filter.hpp` implements the
-`autoware::prediction::FilterInterface`.
+The class `autoware::common::state_estimation::KalmanFilter` declared in `kalman_filter.hpp` implements the
+`autoware::common::state_estimation::StateEstimationInterface`.
 
 In order to create an instance of the Kalman filter class the user must provide instances of
-`autoware::prediction::MotionModelInterface` and `autoware::prediction::NoiseInterface` classes.
+`autoware::common::state_estimation::MotionModelInterface` and `autoware::common::state_estimation::NoiseInterface` classes.
 These are then used in the implementation of the `crtp_predict` and `crtp_correct` functions.
 
 @warning until issue #944 is closed the angles are not wrapped in the state.
@@ -106,7 +107,7 @@ a meaningful compilation error.
 
 ## Future extensions / Unimplemented parts
 
-The `autoware::prediction::FilterInterface` is generic enough to implement different _kinds_ of
+The `autoware::common::state_estimation::StateEstimationInterface` is generic enough to implement different _kinds_ of
 filters. The ones that come to mind are:
 - Unscented Kalman Filter
 - Square Root covariance filter

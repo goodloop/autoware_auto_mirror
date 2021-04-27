@@ -1,7 +1,7 @@
-# Copyright 2017-2018 Apex.AI, Inc.
+# Copyright 2021 Apex.AI, Inc.
 # All rights reserved.
 cmake_minimum_required(VERSION 3.5)
-project(kalman_filter)
+project(state_estimation)
 
 #dependencies
 find_package(ament_cmake_auto REQUIRED)
@@ -17,20 +17,20 @@ autoware_set_compile_options(${PROJECT_NAME})
 target_include_directories(${PROJECT_NAME} SYSTEM PUBLIC ${EIGEN3_INCLUDE_DIR})
 
 if(BUILD_TESTING)
-  set(KALMAN_FILTER_GTEST kalman_filter_gtest)
+  set(STATE_ESTIMATION_GTEST state_estimation_gtest)
 
   find_package(ament_lint_auto REQUIRED)
   ament_lint_auto_find_test_dependencies()
 
   # gtest
-  ament_add_gtest(${KALMAN_FILTER_GTEST}
+  ament_add_gtest(${STATE_ESTIMATION_GTEST}
                   test/test_kalman_filter.cpp
                   test/test_linear_measurement.cpp
                   test/test_wiener_noise.cpp)
-  autoware_set_compile_options(${KALMAN_FILTER_GTEST})
-  target_include_directories(${KALMAN_FILTER_GTEST} PRIVATE "test/include" "include")
-  target_link_libraries(${KALMAN_FILTER_GTEST} ${PROJECT_NAME})
-  ament_target_dependencies(${KALMAN_FILTER_GTEST} "autoware_auto_common")
+  autoware_set_compile_options(${STATE_ESTIMATION_GTEST})
+  target_include_directories(${STATE_ESTIMATION_GTEST} PRIVATE "test/include" "include")
+  target_link_libraries(${STATE_ESTIMATION_GTEST} ${PROJECT_NAME})
+  ament_target_dependencies(${STATE_ESTIMATION_GTEST} "autoware_auto_common")
 endif()
 
 # Ament Exporting

@@ -18,7 +18,7 @@
 #ifndef STATE_ESTIMATION_NODES__MEASUREMENT_TYPEDEFS_HPP_
 #define STATE_ESTIMATION_NODES__MEASUREMENT_TYPEDEFS_HPP_
 
-#include <measurement/linear_measurement.hpp>
+#include <state_estimation/measurement/linear_measurement.hpp>
 #include <state_vector/common_variables.hpp>
 
 namespace autoware
@@ -33,13 +33,16 @@ struct Stamped
   MeasurementT measurement;
 };
 
-using MeasurementPose = LinearMeasurement<common::state_vector::FloatState<
-      common::state_vector::variable::X, common::state_vector::variable::Y>>;
-using MeasurementSpeed = LinearMeasurement<common::state_vector::FloatState<
-      common::state_vector::variable::X_VELOCITY, common::state_vector::variable::Y_VELOCITY>>;
-using MeasurementPoseAndSpeed = LinearMeasurement<common::state_vector::FloatState<
-      common::state_vector::variable::X, common::state_vector::variable::Y,
-      common::state_vector::variable::X_VELOCITY, common::state_vector::variable::Y_VELOCITY>>;
+using MeasurementPose = common::state_estimation::LinearMeasurement<
+  common::state_vector::FloatState<
+    common::state_vector::variable::X, common::state_vector::variable::Y>>;
+using MeasurementSpeed = common::state_estimation::LinearMeasurement<
+  common::state_vector::FloatState<
+    common::state_vector::variable::X_VELOCITY, common::state_vector::variable::Y_VELOCITY>>;
+using MeasurementPoseAndSpeed = common::state_estimation::LinearMeasurement<
+  common::state_vector::FloatState<
+    common::state_vector::variable::X, common::state_vector::variable::Y,
+    common::state_vector::variable::X_VELOCITY, common::state_vector::variable::Y_VELOCITY>>;
 
 using StampedMeasurementPose = Stamped<MeasurementPose>;
 using StampedMeasurementSpeed = Stamped<MeasurementSpeed>;

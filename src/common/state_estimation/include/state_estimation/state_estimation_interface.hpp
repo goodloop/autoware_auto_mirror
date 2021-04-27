@@ -1,4 +1,4 @@
-// Copyright 2021 the Autoware Foundation
+// Copyright 2021 Apex.AI, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,26 +11,23 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-//
-// Developed by Apex.AI, Inc.
 
-/// \copyright Copyright 2021 the Autoware Foundation
-/// All rights reserved.
-/// \file
-/// \brief This file defines a filter interface.
 
-#ifndef KALMAN_FILTER__FILTER_INTERFACE_HPP_
-#define KALMAN_FILTER__FILTER_INTERFACE_HPP_
+#ifndef STATE_ESTIMATION__STATE_ESTIMATION_INTERFACE_HPP_
+#define STATE_ESTIMATION__STATE_ESTIMATION_INTERFACE_HPP_
+
 
 #include <helper_functions/crtp.hpp>
-#include <kalman_filter/visibility_control.hpp>
-#include <measurement/measurement_interface.hpp>
+#include <state_estimation/measurement/measurement_interface.hpp>
+#include <state_estimation/visibility_control.hpp>
 
 #include <chrono>
 
 namespace autoware
 {
-namespace prediction
+namespace common
+{
+namespace state_estimation
 {
 
 ///
@@ -39,7 +36,8 @@ namespace prediction
 /// @tparam     Derived  An implementation of this filter.
 ///
 template<typename Derived>
-class KALMAN_FILTER_PUBLIC FilterInterface : public common::helper_functions::crtp<Derived>
+class STATE_ESTIMATION_PUBLIC StateEstimationInterface
+  : public common::helper_functions::crtp<Derived>
 {
 public:
   ///
@@ -100,7 +98,8 @@ public:
 };
 
 
-}  // namespace prediction
+}  // namespace state_estimation
+}  // namespace common
 }  // namespace autoware
 
-#endif  // KALMAN_FILTER__FILTER_INTERFACE_HPP_
+#endif  // STATE_ESTIMATION__STATE_ESTIMATION_INTERFACE_HPP_

@@ -1,4 +1,4 @@
-// Copyright 2021 the Autoware Foundation
+// Copyright 2021 Apex.AI, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,19 +11,12 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-//
-// Developed by Apex.AI, Inc.
 
-/// \copyright Copyright 2021 the Autoware Foundation
-/// All rights reserved.
-/// \file
-/// \brief This file contains the Wiener noise model classes.
+#ifndef STATE_ESTIMATION__NOISE_MODEL__WIENER_NOISE_HPP_
+#define STATE_ESTIMATION__NOISE_MODEL__WIENER_NOISE_HPP_
 
-#ifndef MOTION_MODEL__WIENER_NOISE_HPP_
-#define MOTION_MODEL__WIENER_NOISE_HPP_
-
-#include <kalman_filter/visibility_control.hpp>
-#include <motion_model/noise_interface.hpp>
+#include <state_estimation/noise_model/noise_interface.hpp>
+#include <state_estimation/visibility_control.hpp>
 #include <state_vector/common_states.hpp>
 
 #include <algorithm>
@@ -32,7 +25,9 @@
 
 namespace autoware
 {
-namespace prediction
+namespace common
+{
+namespace state_estimation
 {
 
 ///
@@ -54,7 +49,7 @@ struct number_of_acceleration_components : public std::integral_constant<std::si
 /// @tparam     StateT  A given state type.
 ///
 template<typename StateT>
-class KALMAN_FILTER_PUBLIC WienerNoise : public NoiseInterface<WienerNoise<StateT>>
+class STATE_ESTIMATION_PUBLIC WienerNoise : public NoiseInterface<WienerNoise<StateT>>
 {
   using AccelerationArray = std::array<
     typename StateT::Scalar, number_of_acceleration_components<StateT>::value>;
@@ -124,7 +119,7 @@ struct number_of_acceleration_components<common::state_vector::ConstAcceleration
 /// @return     Covariance matrix.
 ///
 template<>
-KALMAN_FILTER_PUBLIC common::state_vector::ConstAccelerationXY::Matrix
+STATE_ESTIMATION_PUBLIC common::state_vector::ConstAccelerationXY::Matrix
 WienerNoise<common::state_vector::ConstAccelerationXY>::crtp_covariance(
   const std::chrono::nanoseconds & dt) const;
 
@@ -145,11 +140,12 @@ struct number_of_acceleration_components<common::state_vector::ConstAcceleration
 /// @return     Covariance matrix.
 ///
 template<>
-KALMAN_FILTER_PUBLIC common::state_vector::ConstAccelerationXYYaw::Matrix
+STATE_ESTIMATION_PUBLIC common::state_vector::ConstAccelerationXYYaw::Matrix
 WienerNoise<common::state_vector::ConstAccelerationXYYaw>::crtp_covariance(
   const std::chrono::nanoseconds & dt) const;
 
-}  // namespace prediction
+}  // namespace state_estimation
+}  // namespace common
 }  // namespace autoware
 
-#endif  // MOTION_MODEL__WIENER_NOISE_HPP_
+#endif  // STATE_ESTIMATION__NOISE_MODEL__WIENER_NOISE_HPP_

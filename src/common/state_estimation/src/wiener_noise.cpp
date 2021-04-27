@@ -1,4 +1,4 @@
-// Copyright 2021 the Autoware Foundation
+// Copyright 2021 Apex.AI, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,15 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-//
-// Developed by Apex.AI, Inc.
 
-/// \copyright Copyright 2021 the Autoware Foundation
-/// All rights reserved.
-/// \file
-/// \brief Defines an implementation for the Wiener noise.
-
-#include <motion_model/wiener_noise.hpp>
+#include <state_estimation/noise_model/wiener_noise.hpp>
 
 namespace
 {
@@ -34,7 +27,9 @@ Eigen::Matrix3f create_single_variable_block(const std::chrono::nanoseconds & dt
 
 namespace autoware
 {
-namespace prediction
+namespace common
+{
+namespace state_estimation
 {
 
 
@@ -73,5 +68,6 @@ WienerNoise<common::state_vector::ConstAccelerationXY>::crtp_covariance(
   return m;
 }
 
-}  // namespace prediction
+}  // namespace state_estimation
+}  // namespace common
 }  // namespace autoware
