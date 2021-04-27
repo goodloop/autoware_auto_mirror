@@ -66,7 +66,9 @@ HADMapRoute get_route(const int64_t lane_id, const float32_t length)
 
   MapPrimitive primitive;
   primitive.id = lane_id;
-  had_map_route.segments.push_back(HADMapSegment{});
+  HADMapSegment segment;
+  segment.preferred_primitive_id = primitive.id;
+  had_map_route.segments.push_back(segment);
   had_map_route.segments.front().primitives.push_back(primitive);
 
   return had_map_route;

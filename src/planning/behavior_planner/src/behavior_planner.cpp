@@ -160,6 +160,7 @@ void BehaviorPlanner::set_route(
     const auto & primitive = segment.primitives.front();
     const auto & type = get_planner_type_from_primitive(primitive);
     auto new_segment = decltype(segment) {};
+    new_segment.preferred_primitive_id = primitive.id;
     new_segment.primitives.push_back(primitive);
     subroute.route.segments.push_back(new_segment);
 

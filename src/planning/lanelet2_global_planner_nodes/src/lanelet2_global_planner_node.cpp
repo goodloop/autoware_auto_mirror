@@ -234,6 +234,7 @@ void Lanelet2GlobalPlannerNode::send_global_path(
     primitive.primitive_type = lanelet2_global_planner->get_primitive_type(route_id);
 
     autoware_auto_msgs::msg::HADMapSegment new_segment;
+    new_segment.preferred_primitive_id = primitive.id;
     new_segment.primitives.push_back(primitive);
     global_route.segments.push_back(new_segment);
   }
