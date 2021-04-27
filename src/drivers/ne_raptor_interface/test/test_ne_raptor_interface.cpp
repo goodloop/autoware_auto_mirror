@@ -1103,8 +1103,8 @@ TEST_F(DISABLED_NERaptorInterface_test, test_cmd_vehicle_state_no_msg_check)
   myTests[1].exp_mc.horn_cmd = false;
   myTests[1].exp_success = true;
   myTests[1].in_mr.drive_by_wire_enabled = false;
-  myTests[i].in_mr.by_wire_ready = false;
-  myTests[i].in_mr.general_driver_activity = false;
+  myTests[1].in_mr.by_wire_ready = false;
+  myTests[1].in_mr.general_driver_activity = false;
 
   // Test valid: DBW state machine --> on (debounced)
   myTests[2].exp_dbw_enable = true;
