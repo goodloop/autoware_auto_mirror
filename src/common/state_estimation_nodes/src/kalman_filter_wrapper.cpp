@@ -68,7 +68,9 @@ using autoware::common::state_vector::variable::Y_VELOCITY;
 
 namespace autoware
 {
-namespace prediction
+namespace common
+{
+namespace state_estimation
 {
 
 using common::types::float64_t;
@@ -120,5 +122,6 @@ nav_msgs::msg::Odometry ConstantAccelerationFilterWrapper::get_state() const
   return msg;
 }
 
-}  // namespace prediction
+}  // namespace state_estimation
+}  // namespace common
 }  // namespace autoware

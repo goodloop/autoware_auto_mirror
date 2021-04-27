@@ -32,7 +32,9 @@
 
 namespace autoware
 {
-namespace prediction
+namespace common
+{
+namespace state_estimation
 {
 
 namespace detail
@@ -308,7 +310,8 @@ void History<FilterT, EventT...>::update_impacted_events(
 }
 
 
-}  // namespace prediction
+}  // namespace state_estimation
+}  // namespace common
 }  // namespace autoware
 
 

@@ -34,7 +34,7 @@ target_link_libraries(state_estimation_node Eigen3::Eigen)
 autoware_set_compile_options(state_estimation_node)
 
 rclcpp_components_register_node(state_estimation_node
-  PLUGIN "autoware::prediction::state_estimation_nodes::StateEstimationNode"
+  PLUGIN "autoware::common::state_estimation::StateEstimationNode"
   EXECUTABLE state_estimation_node_exe
 )
 
@@ -51,9 +51,6 @@ if(BUILD_TESTING)
           test/test_kalman_filter_wrapper.cpp
           test/test_state_estimation_node.cpp
   )
-  # do not use strict compiler warnings because of GMOCK errors
-  # autoware_set_compile_options(test_state_estimation_node)
-  # target_compile_options(test_state_estimation_node PRIVATE -Wno-float-conversion -Wno-sign-conversion -Wno-conversion)
   add_dependencies(test_state_estimation_node state_estimation_node)
   target_link_libraries(test_state_estimation_node state_estimation_node)
 

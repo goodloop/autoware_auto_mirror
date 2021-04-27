@@ -8,5 +8,4 @@ positions of detected objects over some period of time.
 
 # Subpages
 
-- @subpage state-estimation-nodes-design
 - @subpage tracking_test_framework-package-design

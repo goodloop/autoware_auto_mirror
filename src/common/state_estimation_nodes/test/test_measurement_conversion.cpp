@@ -19,11 +19,11 @@
 
 #include <state_estimation_nodes/measurement_conversion.hpp>
 
-using autoware::prediction::StampedMeasurementPose;
-using autoware::prediction::StampedMeasurementSpeed;
-using autoware::prediction::StampedMeasurementPoseAndSpeed;
-using autoware::prediction::message_to_measurement;
-using autoware::prediction::downscale_isometry;
+using autoware::common::state_estimation::StampedMeasurementPose;
+using autoware::common::state_estimation::StampedMeasurementSpeed;
+using autoware::common::state_estimation::StampedMeasurementPoseAndSpeed;
+using autoware::common::state_estimation::message_to_measurement;
+using autoware::common::state_estimation::downscale_isometry;
 
 /// \test Create a measurement from odometry.
 TEST(MeasurementConversionTest, odom) {

@@ -23,7 +23,9 @@
 
 namespace autoware
 {
-namespace prediction
+namespace common
+{
+namespace state_estimation
 {
 
 template<typename MeasurementT>
@@ -33,22 +35,23 @@ struct Stamped
   MeasurementT measurement;
 };
 
-using MeasurementPose = common::state_estimation::LinearMeasurement<
-  common::state_vector::FloatState<
-    common::state_vector::variable::X, common::state_vector::variable::Y>>;
-using MeasurementSpeed = common::state_estimation::LinearMeasurement<
-  common::state_vector::FloatState<
-    common::state_vector::variable::X_VELOCITY, common::state_vector::variable::Y_VELOCITY>>;
-using MeasurementPoseAndSpeed = common::state_estimation::LinearMeasurement<
-  common::state_vector::FloatState<
-    common::state_vector::variable::X, common::state_vector::variable::Y,
-    common::state_vector::variable::X_VELOCITY, common::state_vector::variable::Y_VELOCITY>>;
+using MeasurementPose = LinearMeasurement<
+  state_vector::FloatState<
+    state_vector::variable::X, state_vector::variable::Y>>;
+using MeasurementSpeed = LinearMeasurement<
+  state_vector::FloatState<
+    state_vector::variable::X_VELOCITY, state_vector::variable::Y_VELOCITY>>;
+using MeasurementPoseAndSpeed = LinearMeasurement<
+  state_vector::FloatState<
+    state_vector::variable::X, state_vector::variable::Y,
+    state_vector::variable::X_VELOCITY, state_vector::variable::Y_VELOCITY>>;
 
 using StampedMeasurementPose = Stamped<MeasurementPose>;
 using StampedMeasurementSpeed = Stamped<MeasurementSpeed>;
 using StampedMeasurementPoseAndSpeed = Stamped<MeasurementPoseAndSpeed>;
 
-}  // namespace prediction
+}  // namespace state_estimation
+}  // namespace common
 }  // namespace autoware
 
 #endif  // STATE_ESTIMATION_NODES__MEASUREMENT_TYPEDEFS_HPP_

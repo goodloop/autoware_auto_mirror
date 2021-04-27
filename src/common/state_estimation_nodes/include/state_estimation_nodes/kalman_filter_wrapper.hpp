@@ -40,7 +40,9 @@
 
 namespace autoware
 {
-namespace prediction
+namespace common
+{
+namespace state_estimation
 {
 
 ///
@@ -210,7 +212,8 @@ template<>
 nav_msgs::msg::Odometry STATE_ESTIMATION_NODES_PUBLIC
 ConstantAccelerationFilterWrapper::get_state() const;
 
-}  // namespace prediction
+}  // namespace state_estimation
+}  // namespace common
 }  // namespace autoware
 
 #endif  // STATE_ESTIMATION_NODES__KALMAN_FILTER_WRAPPER_HPP_

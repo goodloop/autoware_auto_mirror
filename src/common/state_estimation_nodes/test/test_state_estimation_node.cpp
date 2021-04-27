@@ -23,7 +23,7 @@
 #include <vector>
 
 using nav_msgs::msg::Odometry;
-using autoware::prediction::state_estimation_nodes::StateEstimationNode;
+using autoware::common::state_estimation::StateEstimationNode;
 
 namespace
 {

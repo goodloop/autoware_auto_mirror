@@ -113,9 +113,9 @@ Eigen::Matrix<float32_t, kStateDim, kStateDim> create_state_variances(
 
 namespace autoware
 {
-namespace prediction
+namespace common
 {
-namespace state_estimation_nodes
+namespace state_estimation
 {
 
 StateEstimationNode::StateEstimationNode(
@@ -340,8 +340,8 @@ template void StateEstimationNode::create_subscriptions<StateEstimationNode::Twi
   CallbackFnT<StateEstimationNode::TwistMsgT>);
 
 
-}  // namespace state_estimation_nodes
-}  // namespace prediction
+}  // namespace state_estimation
+}  // namespace common
 }  // namespace autoware
 
-RCLCPP_COMPONENTS_REGISTER_NODE(autoware::prediction::state_estimation_nodes::StateEstimationNode)
+RCLCPP_COMPONENTS_REGISTER_NODE(autoware::common::state_estimation::StateEstimationNode)

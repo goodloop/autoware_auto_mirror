@@ -24,7 +24,9 @@
 
 namespace autoware
 {
-namespace prediction
+namespace common
+{
+namespace state_estimation
 {
 
 ///
@@ -88,7 +90,8 @@ private:
 };
 
 
-}  // namespace prediction
+}  // namespace state_estimation
+}  // namespace common
 }  // namespace autoware
 
 #endif  // STATE_ESTIMATION_NODES__STEADY_TIME_GRID_HPP_

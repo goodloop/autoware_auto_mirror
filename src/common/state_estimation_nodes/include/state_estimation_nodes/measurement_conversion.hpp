@@ -29,7 +29,9 @@
 
 namespace autoware
 {
-namespace prediction
+namespace common
+{
+namespace state_estimation
 {
 
 ///
@@ -135,7 +137,8 @@ STATE_ESTIMATION_NODES_PUBLIC StampedMeasurementPose message_to_measurement(
   const geometry_msgs::msg::PoseWithCovarianceStamped & msg,
   const Eigen::Isometry3f & tf__world__frame_id);
 
-}  // namespace prediction
+}  // namespace state_estimation
+}  // namespace common
 }  // namespace autoware
 
 

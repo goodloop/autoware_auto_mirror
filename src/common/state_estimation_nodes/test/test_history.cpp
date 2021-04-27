@@ -25,7 +25,9 @@
 
 namespace autoware
 {
-namespace prediction
+namespace common
+{
+namespace state_estimation
 {
 namespace detail
 {
@@ -38,7 +40,8 @@ bool passes_mahalanobis_gate(
   return true;
 }
 }  // namespace detail
-}  // namespace prediction
+}  // namespace state_estimation
+}  // namespace common
 }  // namespace autoware
 
 #include <state_estimation_nodes/history.hpp>
@@ -72,9 +75,9 @@ using ::testing::Return;
 }  // namespace
 
 
-using autoware::prediction::History;
-using autoware::prediction::PredictionEvent;
-using autoware::prediction::ResetEvent;
+using autoware::common::state_estimation::History;
+using autoware::common::state_estimation::PredictionEvent;
+using autoware::common::state_estimation::ResetEvent;
 
 /// @test Test that empty history can be created.
 TEST(HistoryTest, create_empty) {

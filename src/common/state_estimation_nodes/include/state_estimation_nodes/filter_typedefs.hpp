@@ -28,12 +28,15 @@
 
 namespace autoware
 {
-namespace prediction
+namespace common
 {
-using ConstAccelerationKalmanFilterXY = common::state_estimation::KalmanFilter<
-  common::motion_model::LinearMotionModel<common::state_vector::ConstAccelerationXY>,
-  common::state_estimation::WienerNoise<common::state_vector::ConstAccelerationXY>>;
-}  // namespace prediction
+namespace state_estimation
+{
+using ConstAccelerationKalmanFilterXY = KalmanFilter<
+  motion_model::LinearMotionModel<state_vector::ConstAccelerationXY>,
+  WienerNoise<common::state_vector::ConstAccelerationXY>>;
+}  // namespace state_estimation
+}  // namespace common
 }  // namespace autoware
 
 

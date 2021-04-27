@@ -45,9 +45,9 @@
 
 namespace autoware
 {
-namespace prediction
+namespace common
 {
-namespace state_estimation_nodes
+namespace state_estimation
 {
 
 ///
@@ -157,8 +157,8 @@ private:
   common::types::float64_t m_min_speed_to_use_speed_orientation{};
 };
 
-}  // namespace state_estimation_nodes
-}  // namespace prediction
+}  // namespace state_estimation
+}  // namespace common
 }  // namespace autoware
 
 #endif  // STATE_ESTIMATION_NODES__STATE_ESTIMATION_NODE_HPP_

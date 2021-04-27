@@ -39,7 +39,9 @@ std::chrono::system_clock::time_point to_time_point(const rclcpp::Time & time)
 
 namespace autoware
 {
-namespace prediction
+namespace common
+{
+namespace state_estimation
 {
 
 template<>
@@ -105,5 +107,6 @@ StampedMeasurementPose message_to_measurement(
 }
 
 
-}  // namespace prediction
+}  // namespace state_estimation
+}  // namespace common
 }  // namespace autoware

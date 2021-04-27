@@ -28,15 +28,15 @@
 using autoware::common::types::float64_t;
 using autoware::common::types::float32_t;
 
-using autoware::prediction::ConstantAccelerationFilterWrapper;
+using autoware::common::state_estimation::ConstantAccelerationFilterWrapper;
 using autoware::common::motion_model::LinearMotionModel;
 using autoware::common::state_estimation::WienerNoise;
-using autoware::prediction::StampedMeasurementPose;
-using autoware::prediction::StampedMeasurementSpeed;
-using autoware::prediction::StampedMeasurementPoseAndSpeed;
-using autoware::prediction::MeasurementPose;
-using autoware::prediction::MeasurementSpeed;
-using autoware::prediction::MeasurementPoseAndSpeed;
+using autoware::common::state_estimation::StampedMeasurementPose;
+using autoware::common::state_estimation::StampedMeasurementSpeed;
+using autoware::common::state_estimation::StampedMeasurementPoseAndSpeed;
+using autoware::common::state_estimation::MeasurementPose;
+using autoware::common::state_estimation::MeasurementSpeed;
+using autoware::common::state_estimation::MeasurementPoseAndSpeed;
 using autoware::common::state_vector::variable::X;
 using autoware::common::state_vector::variable::Y;
 using autoware::common::state_vector::variable::X_VELOCITY;

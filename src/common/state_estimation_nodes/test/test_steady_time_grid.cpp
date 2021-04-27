@@ -19,7 +19,7 @@
 
 #include <state_estimation_nodes/steady_time_grid.hpp>
 
-using autoware::prediction::SteadyTimeGrid;
+using autoware::common::state_estimation::SteadyTimeGrid;
 
 /// \test Check the initialization status.
 TEST(SteadyTimeGridTest, Initialization) {
