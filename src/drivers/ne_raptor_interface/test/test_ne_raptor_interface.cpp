@@ -57,7 +57,7 @@ TEST_F(DISABLED_NERaptorInterface_test, DISABLED_test_cmd_mode_change_func)
   myTests[0].in_mcr = ModeChangeRequest::MODE_MANUAL;
   myTests[0].exp_success = true;
   myTests[0].exp_enable = false;
-  myTests[0].exp_disable = false;
+  myTests[0].exp_disable = true;
 
   /* Test 1: mode -> autonomous */
   myTests[1].in_mcr = ModeChangeRequest::MODE_AUTONOMOUS;
@@ -211,7 +211,7 @@ TEST_F(DISABLED_NERaptorInterface_test, test_cmd_mode_change_func_no_msg_check)
   myTests[0].in_mcr = ModeChangeRequest::MODE_MANUAL;
   myTests[0].exp_success = true;
   myTests[0].exp_enable = false;
-  myTests[0].exp_disable = false;
+  myTests[0].exp_disable = true;
 
   /* Test 1: mode -> autonomous */
   myTests[1].in_mcr = ModeChangeRequest::MODE_AUTONOMOUS;
@@ -355,7 +355,7 @@ TEST_F(DISABLED_NERaptorInterface_test, DISABLED_test_cmd_mode_change_client)
   myTests[0].in_mcr = ModeChangeRequest::MODE_MANUAL;
   myTests[0].exp_success = true;
   myTests[0].exp_enable = false;
-  myTests[0].exp_disable = false;
+  myTests[0].exp_disable = true;
 
   /* Test 1: mode -> autonomous */
   myTests[1].in_mcr = ModeChangeRequest::MODE_AUTONOMOUS;
@@ -537,7 +537,7 @@ TEST_F(DISABLED_NERaptorInterface_test, test_cmd_mode_change_client_no_msg_check
   myTests[0].in_mcr = ModeChangeRequest::MODE_MANUAL;
   myTests[0].exp_success = true;
   myTests[0].exp_enable = false;
-  myTests[0].exp_disable = false;
+  myTests[0].exp_disable = true;
 
   /* Test 1: mode -> autonomous */
   myTests[1].in_mcr = ModeChangeRequest::MODE_AUTONOMOUS;
@@ -715,7 +715,9 @@ TEST_F(DISABLED_NERaptorInterface_test, DISABLED_test_cmd_vehicle_state)
     myTests[i].exp_mc.horn_cmd = true;
     myTests[i].exp_success = (i < kTestValid_VSC) ? true : false;
     myTests[i].in_mr.drive_by_wire_enabled = true;
-    myTests[i].exp_dbw_enable = false;
+    myTests[i].in_mr.by_wire_ready = true;
+    myTests[i].in_mr.general_driver_activity = false;
+    myTests[i].exp_dbw_enable = true;
     myTests[i].exp_dbw_disable = false;
     myTests[i].exp_dbw_success = true;
   }
@@ -738,6 +740,10 @@ TEST_F(DISABLED_NERaptorInterface_test, DISABLED_test_cmd_vehicle_state)
   myTests[0].exp_mc.front_wiper_cmd.status = WiperFront::OFF;
   myTests[0].exp_mc.horn_cmd = false;
   myTests[0].in_mr.drive_by_wire_enabled = false;
+  myTests[0].in_mr.by_wire_ready = false;
+  myTests[0].in_mr.general_driver_activity = false;
+  myTests[0].exp_dbw_enable = false;
+  myTests[0].exp_dbw_disable = true;
 
   // Test valid: all off
   myTests[1].in_vsc.blinker = VehicleStateCommand::BLINKER_OFF;
@@ -757,6 +763,10 @@ TEST_F(DISABLED_NERaptorInterface_test, DISABLED_test_cmd_vehicle_state)
   myTests[1].exp_mc.horn_cmd = false;
   myTests[1].exp_success = true;
   myTests[1].in_mr.drive_by_wire_enabled = false;
+  myTests[1].in_mr.by_wire_ready = false;
+  myTests[1].in_mr.general_driver_activity = false;
+  myTests[1].exp_dbw_enable = false;
+  myTests[1].exp_dbw_disable = true;
 
   // Test valid: DBW state machine --> on (debounced)
   myTests[2].exp_dbw_enable = true;
@@ -820,6 +830,8 @@ TEST_F(DISABLED_NERaptorInterface_test, DISABLED_test_cmd_vehicle_state)
   // Test invalid: mode (keep previous: on)
   myTests[kTestValid_VSC + 9].exp_success = true;
   myTests[kTestValid_VSC + 9].exp_dbw_success = false;
+  myTests[kTestValid_VSC + 9].exp_dbw_enable = false;
+  myTests[kTestValid_VSC + 9].exp_dbw_disable = false;
   myTests[kTestValid_VSC + 9].in_mcr = ModeChangeRequest::MODE_AUTONOMOUS + 1;
   myTests[kTestValid_VSC + 9].exp_gc.enable = true;
   myTests[kTestValid_VSC + 9].exp_gec.global_enable = true;
@@ -833,10 +845,13 @@ TEST_F(DISABLED_NERaptorInterface_test, DISABLED_test_cmd_vehicle_state)
   myTests[kTestValid_VSC + 10].exp_gec.global_enable = false;
   myTests[kTestValid_VSC + 10].exp_gec.enable_joystick_limits = false;
   myTests[kTestValid_VSC + 10].exp_dbw_disable = true;
+  myTests[kTestValid_VSC + 10].exp_dbw_enable = false;
 
   // Test invalid: mode (keep previous: off)
   myTests[kTestValid_VSC + 11].exp_success = true;
   myTests[kTestValid_VSC + 11].exp_dbw_success = false;
+  myTests[kTestValid_VSC + 11].exp_dbw_enable = false;
+  myTests[kTestValid_VSC + 11].exp_dbw_disable = false;
   myTests[kTestValid_VSC + 11].in_mcr = 0xFF;
   myTests[kTestValid_VSC + 11].exp_gc.enable = false;
   myTests[kTestValid_VSC + 11].exp_gec.global_enable = false;
@@ -1042,7 +1057,9 @@ TEST_F(DISABLED_NERaptorInterface_test, test_cmd_vehicle_state_no_msg_check)
     myTests[i].exp_mc.horn_cmd = true;
     myTests[i].exp_success = (i < kTestValid_VSC) ? true : false;
     myTests[i].in_mr.drive_by_wire_enabled = true;
-    myTests[i].exp_dbw_enable = false;
+    myTests[i].in_mr.by_wire_ready = true;
+    myTests[i].in_mr.general_driver_activity = false;
+    myTests[i].exp_dbw_enable = true;
     myTests[i].exp_dbw_disable = false;
     myTests[i].exp_dbw_success = true;
   }
@@ -1065,6 +1082,8 @@ TEST_F(DISABLED_NERaptorInterface_test, test_cmd_vehicle_state_no_msg_check)
   myTests[0].exp_mc.front_wiper_cmd.status = WiperFront::OFF;
   myTests[0].exp_mc.horn_cmd = false;
   myTests[0].in_mr.drive_by_wire_enabled = false;
+  myTests[0].in_mr.by_wire_ready = false;
+  myTests[0].in_mr.general_driver_activity = false;
 
   // Test valid: all off
   myTests[1].in_vsc.blinker = VehicleStateCommand::BLINKER_OFF;
@@ -1084,6 +1103,8 @@ TEST_F(DISABLED_NERaptorInterface_test, test_cmd_vehicle_state_no_msg_check)
   myTests[1].exp_mc.horn_cmd = false;
   myTests[1].exp_success = true;
   myTests[1].in_mr.drive_by_wire_enabled = false;
+  myTests[i].in_mr.by_wire_ready = false;
+  myTests[i].in_mr.general_driver_activity = false;
 
   // Test valid: DBW state machine --> on (debounced)
   myTests[2].exp_dbw_enable = true;
@@ -1147,6 +1168,8 @@ TEST_F(DISABLED_NERaptorInterface_test, test_cmd_vehicle_state_no_msg_check)
   // Test invalid: mode (keep previous: on)
   myTests[kTestValid_VSC + 9].exp_success = true;
   myTests[kTestValid_VSC + 9].exp_dbw_success = false;
+  myTests[kTestValid_VSC + 9].exp_dbw_enable = false;
+  myTests[kTestValid_VSC + 9].exp_dbw_disable = false;
   myTests[kTestValid_VSC + 9].in_mcr = ModeChangeRequest::MODE_AUTONOMOUS + 1;
   myTests[kTestValid_VSC + 9].exp_gc.enable = true;
   myTests[kTestValid_VSC + 9].exp_gec.global_enable = true;
@@ -1160,10 +1183,13 @@ TEST_F(DISABLED_NERaptorInterface_test, test_cmd_vehicle_state_no_msg_check)
   myTests[kTestValid_VSC + 10].exp_gec.global_enable = false;
   myTests[kTestValid_VSC + 10].exp_gec.enable_joystick_limits = false;
   myTests[kTestValid_VSC + 10].exp_dbw_disable = true;
+  myTests[kTestValid_VSC + 10].exp_dbw_enable = false;
 
   // Test invalid: mode (keep previous: off)
   myTests[kTestValid_VSC + 11].exp_success = true;
   myTests[kTestValid_VSC + 11].exp_dbw_success = false;
+  myTests[kTestValid_VSC + 11].exp_dbw_enable = false;
+  myTests[kTestValid_VSC + 11].exp_dbw_disable = false;
   myTests[kTestValid_VSC + 11].in_mcr = 0xFF;
   myTests[kTestValid_VSC + 11].exp_gc.enable = false;
   myTests[kTestValid_VSC + 11].exp_gec.global_enable = false;
@@ -1360,6 +1386,9 @@ TEST_F(DISABLED_NERaptorInterface_test, DISABLED_test_cmd_high_level_control)
     // Send DBW state machine feedback to enable/disable autonomous mode
     // Send once to enable, multiple times to disable
     in_mr.drive_by_wire_enabled = myTests[i].in_mcr == ModeChangeRequest::MODE_AUTONOMOUS;
+    in_mr.by_wire_ready = in_mr.drive_by_wire_enabled;
+    in_mr.general_driver_activity = false;
+
     numDbwLoops = in_mr.drive_by_wire_enabled ? 1 : 4;
     for (j = 0; j < numDbwLoops; j++) {
       test_talker_->send_report(in_mr);
@@ -1644,6 +1673,9 @@ TEST_F(DISABLED_NERaptorInterface_test, test_cmd_high_level_control_no_msg_check
     // Send DBW state machine feedback to enable/disable autonomous mode
     // Send once to enable, multiple times to disable
     in_mr.drive_by_wire_enabled = myTests[i].in_mcr == ModeChangeRequest::MODE_AUTONOMOUS;
+    in_mr.by_wire_ready = in_mr.drive_by_wire_enabled;
+    in_mr.general_driver_activity = false;
+
     numDbwLoops = in_mr.drive_by_wire_enabled ? 1 : 4;
     for (j = 0; j < numDbwLoops; j++) {
       test_talker_->send_report(in_mr);
@@ -1959,6 +1991,9 @@ TEST_F(DISABLED_NERaptorInterface_test, DISABLED_test_cmd_vehicle_control)
     // Send DBW state machine feedback to enable/disable autonomous mode
     // Send once to enable, multiple times to disable
     in_mr.drive_by_wire_enabled = myTests[i].in_mcr == ModeChangeRequest::MODE_AUTONOMOUS;
+    in_mr.by_wire_ready = in_mr.drive_by_wire_enabled;
+    in_mr.general_driver_activity = false;
+
     numDbwLoops = in_mr.drive_by_wire_enabled ? 1 : 4;
     for (j = 0; j < numDbwLoops; j++) {
       test_talker_->send_report(in_mr);
@@ -2021,7 +2056,7 @@ TEST_F(DISABLED_NERaptorInterface_test, DISABLED_test_cmd_vehicle_control)
           "Test #" << std::to_string(test_rollover);
         EXPECT_EQ(
           test_listener_->l_accel_cmd.control_type.value,
-          ActuatorControlMode::CLOSED_LOOP_ACTUATOR) <<
+          ActuatorControlMode::CLOSED_LOOP_VEHICLE) <<
           "Test #" << std::to_string(test_rollover);
         EXPECT_FLOAT_EQ(
           test_listener_->l_accel_cmd.accel_limit,
@@ -2045,7 +2080,7 @@ TEST_F(DISABLED_NERaptorInterface_test, DISABLED_test_cmd_vehicle_control)
           "Test #" << std::to_string(test_rollover);
         EXPECT_EQ(
           test_listener_->l_brake_cmd.control_type.value,
-          ActuatorControlMode::CLOSED_LOOP_ACTUATOR) <<
+          ActuatorControlMode::CLOSED_LOOP_VEHICLE) <<
           "Test #" << std::to_string(test_rollover);
         EXPECT_FLOAT_EQ(
           test_listener_->l_brake_cmd.decel_limit,
@@ -2328,6 +2363,9 @@ TEST_F(DISABLED_NERaptorInterface_test, test_cmd_vehicle_control_no_msg_check)
     // Send DBW state machine feedback to enable/disable autonomous mode
     // Send once to enable, multiple times to disable
     in_mr.drive_by_wire_enabled = myTests[i].in_mcr == ModeChangeRequest::MODE_AUTONOMOUS;
+    in_mr.by_wire_ready = in_mr.drive_by_wire_enabled;
+    in_mr.general_driver_activity = false;
+
     numDbwLoops = in_mr.drive_by_wire_enabled ? 1 : 4;
     for (j = 0; j < numDbwLoops; j++) {
       test_talker_->send_report(in_mr);
@@ -2397,6 +2435,8 @@ TEST_F(DISABLED_NERaptorInterface_test, DISABLED_test_rpt_vehicle_state)
     myTests[i].in_gr.state.gear = Gear::DRIVE;
     myTests[i].in_mr.fuel_level = 10.0F;
     myTests[i].in_mr.drive_by_wire_enabled = true;
+    myTests[i].in_mr.by_wire_ready = true;
+    myTests[i].in_mr.general_driver_activity = false;
     myTests[i].in_oar.turn_signal_state.value = TurnSignal::HAZARDS;
     myTests[i].in_oar.high_beam_state.value = HighBeamState::ON;
     myTests[i].in_oar.front_wiper_state.status = WiperFront::WASH_BRIEF;
@@ -2550,6 +2590,8 @@ TEST_F(DISABLED_NERaptorInterface_test, test_rpt_vehicle_state_no_msg_check)
     myTests[i].in_gr.state.gear = Gear::DRIVE;
     myTests[i].in_mr.fuel_level = 10.0F;
     myTests[i].in_mr.drive_by_wire_enabled = true;
+    myTests[i].in_mr.by_wire_ready = true;
+    myTests[i].in_mr.general_driver_activity = false;
     myTests[i].in_oar.turn_signal_state.value = TurnSignal::HAZARDS;
     myTests[i].in_oar.high_beam_state.value = HighBeamState::ON;
     myTests[i].in_oar.front_wiper_state.status = WiperFront::WASH_BRIEF;

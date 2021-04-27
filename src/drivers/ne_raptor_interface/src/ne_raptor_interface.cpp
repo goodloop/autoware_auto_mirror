@@ -431,18 +431,13 @@ bool8_t NERaptorInterface::send_control_command(const VehicleControlCommand & ms
 bool8_t NERaptorInterface::handle_mode_change_request(ModeChangeRequest::SharedPtr request)
 {
   bool8_t ret{true};
-  bool8_t is_dbw_enabled = m_dbw_state_machine->enabled() ? true : false;
   std_msgs::msg::Empty send_req{};
   if (request->mode == ModeChangeRequest::MODE_MANUAL) {
-    if (is_dbw_enabled) {  // Only send on change
-      m_dbw_state_machine->user_request(false);
-      m_dbw_disable_cmd_pub->publish(send_req);
-    }
+    m_dbw_state_machine->user_request(false);
+    m_dbw_disable_cmd_pub->publish(send_req);
   } else if (request->mode == ModeChangeRequest::MODE_AUTONOMOUS) {
-    if (!is_dbw_enabled) {  // Only send on change
-      m_dbw_state_machine->user_request(true);
-      m_dbw_enable_cmd_pub->publish(send_req);
-    }
+    m_dbw_state_machine->user_request(true);
+    m_dbw_enable_cmd_pub->publish(send_req);
   } else {
     RCLCPP_ERROR_THROTTLE(
       m_logger, m_clock, CLOCK_1_SEC,
