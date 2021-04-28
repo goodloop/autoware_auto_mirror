@@ -76,23 +76,23 @@ MeasurementT message_to_measurement(
 ///
 /// @param[in]  isometry              The isometry transform
 ///
-/// @tparam     kStateDimentionality  Dimensionality of the space.
+/// @tparam     kStateDimensionality  Dimensionality of the space.
 /// @tparam     FloatT                Type of scalar.
 ///
 /// @return     Downscaled isometry.
 ///
-template<std::int32_t kStateDimentionality, typename FloatT>
+template<std::int32_t kStateDimensionality, typename FloatT>
 static constexpr Eigen::Transform<
-  FloatT, kStateDimentionality, Eigen::TransformTraits::Isometry> downscale_isometry(
+  FloatT, kStateDimensionality, Eigen::TransformTraits::Isometry> downscale_isometry(
   const Eigen::Transform<FloatT, 3, Eigen::TransformTraits::Isometry> & isometry)
 {
-  static_assert(kStateDimentionality <= 3, "We only handle scaling the isometry down.");
+  static_assert(kStateDimensionality <= 3, "We only handle scaling the isometry down.");
   using Isometry = Eigen::Transform<
-    FloatT, kStateDimentionality, Eigen::TransformTraits::Isometry>;
+    FloatT, kStateDimensionality, Eigen::TransformTraits::Isometry>;
   Isometry result{Isometry::Identity()};
   result.linear() = isometry.rotation()
-    .template block<kStateDimentionality, kStateDimentionality>(0, 0);
-  result.translation() = isometry.translation().topRows(kStateDimentionality);
+    .template block<kStateDimensionality, kStateDimensionality>(0, 0);
+  result.translation() = isometry.translation().topRows(kStateDimensionality);
   return result;
 }
 

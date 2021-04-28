@@ -1,4 +1,4 @@
-measurement_conversion {#measurement_conversion-package-design}
+measurement_conversion {#measurement-conversion-design}
 ===========
 
 This is the design document for the `measurement_conversion` package.
@@ -6,51 +6,61 @@ This is the design document for the `measurement_conversion` package.
 
 # Purpose / Use cases
 <!-- Required -->
-<!-- Things to consider:
-    - Why did we implement this feature? -->
-
+This package provides conversions from message types to measurement types, i.e. types inheriting from `MeasurementInterface`.
 
 # Design
 <!-- Required -->
-<!-- Things to consider:
-    - How does it work? -->
+The conversion is implemented as a function template. In addition to the message, it additionally takes a transform as input which is applied to the measurement.
 
 
 ## Assumptions / Known limits
-<!-- Required -->
+Message objects are assumed to be valid, e.g. in a `PoseWithCovariance` message the covariance matrix has to be symmetric and positive semi-definite, quaternions have to be unit quaternions etc.
+
 
 ## Inputs / Outputs / API
 <!-- Required -->
 <!-- Things to consider:
     - How do you use the package / API? -->
+As of writing, the API consists of a templated function `message_to_measurement` with two overloads:
+
+```
+template<typename MeasurementT, typename MessageT>
+MeasurementT message_to_measurement(const MessageT &, const Eigen::Isometry3f &)
+
+template<typename MeasurementT, typename MessageT>
+MeasurementT message_to_measurement(
+  const MessageT &, const Eigen::Isometry3f &, const Eigen::Isometry3f &)
+```
 
 
 ## Inner-workings / Algorithms
 <!-- If applicable -->
+N/A
 
 
 ## Error detection and handling
 <!-- Required -->
+N/A
 
 
 # Security considerations
 <!-- Required -->
-<!-- Things to consider:
-- Spoofing (How do you check for and handle fake input?)
-- Tampering (How do you check for and handle tampered input?)
-- Repudiation (How are you affected by the actions of external actors?).
-- Information Disclosure (Can data leak?).
-- Denial of Service (How do you handle spamming?).
-- Elevation of Privilege (Do you need to change permission levels during execution?) -->
+N/A
 
 
 # References / External links
 <!-- Optional -->
+N/A
 
 
 # Future extensions / Unimplemented parts
-<!-- Optional -->
+At the time of writing, the measurement types capture only a subset of the information conveyed by the message types, e.g. only the `x` and `y` coordinates are extracted from a `geometry_msgs::msg::Pose`, but not `z` or any orientation. More comprehensive measurement types could be added.
+
+A second template that also extracts covariance information could be useful.
+
+Variants producing a double-precision measurement type could be added.
 
 
 # Related issues
 <!-- Required -->
+N/A
