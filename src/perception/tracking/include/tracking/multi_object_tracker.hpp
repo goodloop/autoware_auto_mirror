@@ -80,7 +80,7 @@ struct TRACKING_PUBLIC TrackerUpdateResult
 struct TRACKING_PUBLIC MultiObjectTrackerOptions
 {
   /// Data association parameters.
-  DataAssociationConfig assoc_config = {2.0f, 2.5f};
+  DataAssociationConfig association_config = {2.0f, 2.5f};
   /// The frame in which to do tracking.
   std::string frame = "map";
   /// When initializing a new track, this value is used for the variance when none is provided by
