@@ -19,16 +19,17 @@
 #ifndef TRACKING_NODES__MULTI_OBJECT_TRACKER_NODE_HPP_
 #define TRACKING_NODES__MULTI_OBJECT_TRACKER_NODE_HPP_
 
+#include <autoware_auto_msgs/msg/detected_dynamic_object_array.hpp>
+#include <autoware_auto_msgs/msg/tracked_dynamic_object_array.hpp>
+#include <message_filters/subscriber.h>
+#include <message_filters/time_synchronizer.h>
+#include <nav_msgs/msg/odometry.hpp>
+#include <rclcpp/rclcpp.hpp>
+#include <tracking/multi_object_tracker.hpp>
+#include <tracking_nodes/visibility_control.hpp>
+
 #include <memory>
 
-#include "autoware_auto_msgs/msg/detected_dynamic_object_array.hpp"
-#include "autoware_auto_msgs/msg/tracked_dynamic_object_array.hpp"
-#include "message_filters/subscriber.h"
-#include "message_filters/time_synchronizer.h"
-#include "nav_msgs/msg/odometry.hpp"
-#include "rclcpp/rclcpp.hpp"
-#include "tracking/multi_object_tracker.hpp"
-#include "tracking_nodes/visibility_control.hpp"
 
 namespace autoware
 {

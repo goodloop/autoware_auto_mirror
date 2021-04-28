@@ -14,12 +14,12 @@
 
 #include "tracking_nodes/multi_object_tracker_node.hpp"
 
+#include <rclcpp_components/register_node_macro.hpp>
+
 #include <functional>
 #include <memory>
 #include <string>
 #include <utility>
-
-#include "rclcpp_components/register_node_macro.hpp"
 
 namespace autoware
 {
@@ -27,6 +27,7 @@ namespace tracking_nodes
 {
 
 using autoware::common::types::float32_t;
+using autoware::common::types::float64_t;
 using autoware::perception::tracking::MultiObjectTracker;
 using autoware::perception::tracking::MultiObjectTrackerOptions;
 using autoware::perception::tracking::TrackerUpdateResult;
@@ -41,24 +42,20 @@ namespace
 {
 MultiObjectTracker init_tracker(rclcpp::Node & node)
 {
-  MultiObjectTrackerOptions options{};
-  options.default_variance =
-    static_cast<float32_t>(node.declare_parameter(
-      "ekf_default_variance",
-      options.default_variance));
-  options.noise_variance =
-    static_cast<float32_t>(node.declare_parameter(
-      "ekf_noise_variance",
-      options.noise_variance));
   const float32_t max_distance =
     static_cast<float32_t>(node.declare_parameter(
-      "association_max_distance",
-      options.association_config.get_max_distance()));
+      "association_max_distance").get<float64_t>());
   const float32_t max_area_ratio =
     static_cast<float32_t>(node.declare_parameter(
-      "association_max_area_ratio",
-      options.association_config.get_max_area_ratio()));
-  options.association_config = {max_distance, max_area_ratio};
+      "association_max_area_ratio").get<float64_t>());
+  const float32_t default_variance =
+    static_cast<float32_t>(node.declare_parameter(
+      "ekf_default_variance").get<float64_t>());
+  const float32_t noise_variance =
+    static_cast<float32_t>(node.declare_parameter(
+      "ekf_noise_variance").get<float64_t>());
+  MultiObjectTrackerOptions options{{max_distance, max_area_ratio}, default_variance,
+    noise_variance};
   return MultiObjectTracker{options};
 }
 
