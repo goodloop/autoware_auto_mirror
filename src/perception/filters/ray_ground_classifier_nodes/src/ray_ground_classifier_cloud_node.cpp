@@ -177,7 +177,6 @@ RayGroundClassifierCloudNode::callback(const PointCloud2::SharedPtr msg)
 
     // if abort, we skip all remaining the parallel work to be able to return/throw
     if (!abort) {
-
       m_aggregator.end_of_scan();
       num_ready = m_aggregator.get_ready_ray_count();
 

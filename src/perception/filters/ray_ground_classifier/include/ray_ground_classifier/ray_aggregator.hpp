@@ -186,7 +186,6 @@ private:
 
   // which rays are ready to be reset etc. TODO(c.ho) fold this into an internal ray class
   std::vector<RayState> m_ray_state;
-
 };  // class RayAggregator
 }  // namespace ray_ground_classifier
 }  // namespace filters

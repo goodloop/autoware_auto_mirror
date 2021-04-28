@@ -111,7 +111,6 @@ RayAggregator::RayAggregator(const Config & cfg)
     m_ray_state.push_back(RayState::NOT_READY);
   }
   m_ready_indices.resize(m_ready_indices.capacity());
-
 }
 ////////////////////////////////////////////////////////////////////////////////
 void RayAggregator::end_of_scan()
@@ -143,7 +142,6 @@ bool8_t RayAggregator::insert(const PointXYZIFR & pt)
       m_ray_state[idx] = RayState::NOT_READY;
     }
     if (ray.size() >= ray.capacity()) {
-
       throw std::runtime_error("RayAggregator: Ray capacity overrun! Use smaller bins");
     }
     // insert point to ray, do some presorting
@@ -162,7 +160,6 @@ bool8_t RayAggregator::insert(const PointXYZIFR & pt)
       m_ready_indices[jdx] = idx;
       // TODO(c.ho) bounds check?
     }
-
   }
   return true;
 }
@@ -196,7 +193,6 @@ std::size_t RayAggregator::get_ready_ray_count() const
 ////////////////////////////////////////////////////////////////////////////////
 const Ray & RayAggregator::get_next_ray()
 {
-
   // move the if out from the sequential section by nullifying the operations if false
   bool8_t is_ready = is_ray_ready();
   const std::size_t local_start_idx = m_ready_start_idx;
