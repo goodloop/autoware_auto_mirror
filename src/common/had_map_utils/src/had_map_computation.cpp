@@ -58,6 +58,7 @@ lanelet::Polygon3d coalesce_drivable_areas(
         std::cerr << "Error: primitive ID " << map_segment.preferred_primitive_id <<
           " not found, skipping" <<
           std::endl;
+        continue;
       }
     }
 
