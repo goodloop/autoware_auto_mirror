@@ -86,7 +86,7 @@ private:
   void PREDICTION_NODES_LOCAL wait_for_map(
     std::chrono::milliseconds timeout = std::chrono::seconds{10U});
 
-  bool verbose;  ///< whether to use verbose output or not.
+  bool8_t verbose;  ///< whether to use verbose output or not.
 #if MSGS_UPDATED
   rclcpp::Publisher<PredictedMsgT>::SharedPtr m_predicted_dynamic_objects_pub{};
   rclcpp::Subscription<TrafficSignalT>::SharedPtr m_traffic_signal_sub{};

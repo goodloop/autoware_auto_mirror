@@ -70,7 +70,12 @@ void PREDICTION_NODES_LOCAL PredictionNodesNode::on_route(RouteMsgT::ConstShared
 }
 
 void PredictionNodesNode::on_tracked_objects(TrackedMsgT::ConstSharedPtr /*msg*/)
-{}
+{
+  // TODO publish a track in forward direction
+#if MSGS_UPDATED
+  m_predicted_dynamic_objects_pub->publish()
+#endif
+}
 
 #if MSGS_UPDATED
 void PredictionNodesNode::on_traffic_signals(TrafficSignalT::ConstSharedPtr /*msg*/)
