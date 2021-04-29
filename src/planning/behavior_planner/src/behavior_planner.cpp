@@ -147,12 +147,12 @@ void BehaviorPlanner::set_route(
   RouteWithType subroute;
   subroute.route.start_point = route.start_point;
   auto prev_type = PlannerType::UNKNOWN;
-  MapPrimitive prev_primitive;
+  autoware_auto_msgs::msg::HADMapSegment prev_segment;
   if (!route.segments.empty()) {
-    const auto & first_primitive = route.segments.front().primitives.front();
-    prev_type = get_planner_type_from_primitive(first_primitive);
+    const auto & first_segment = route.segments.front();
+    prev_type = get_planner_type_from_primitive(first_segment.primitives.front());
     subroute.planner_type = prev_type;
-    prev_primitive = first_primitive;
+    prev_segment = first_segment;
   }
 
   size_t i = 0;
@@ -189,15 +189,15 @@ void BehaviorPlanner::set_route(
 
         // reinitialize for next subroute
         subroute.planner_type = type;
-        subroute.route.segments[i].primitives.clear();
-        subroute.route.segments[i].primitives.push_back(primitive);
+        subroute.route.segments.clear();
+        subroute.route.segments.push_back(segment);
         subroute.route.start_point = subroute.route.goal_point;
       }
       if (prev_type == PlannerType::LANE && type == PlannerType::PARKING) {
         // Determine parking direction and set offset direction accordingly
         float32_t route_offset = m_config.subroute_goal_offset_lane2parking;
         const auto closest_lane_point = get_closest_point_on_lane(
-          route.goal_point, prev_primitive.id,
+          route.goal_point, prev_segment.primitives.front().id,
           lanelet_map_ptr, 0.0f);
         const auto parking_dir = get_parking_direction(
           route.goal_point, closest_lane_point);
@@ -209,20 +209,20 @@ void BehaviorPlanner::set_route(
 
         // Currently, we assume that final goal is close to lane.
         subroute.route.goal_point = get_closest_point_on_lane(
-          route.goal_point, prev_primitive.id,
+          route.goal_point, prev_segment.primitives.front().id,
           lanelet_map_ptr, route_offset);
         m_subroutes.push_back(subroute);
 
         // reinitialize for next subroute
         subroute.planner_type = type;
-        subroute.route.segments[i].primitives.clear();
-        subroute.route.segments[i].primitives.push_back(prev_primitive);
-        subroute.route.segments[i].primitives.push_back(primitive);
+        subroute.route.segments.clear();
+        subroute.route.segments.push_back(prev_segment);
+        subroute.route.segments.push_back(segment);
         subroute.route.start_point = subroute.route.goal_point;
       }
     }
     prev_type = type;
-    prev_primitive = primitive;
+    prev_segment = segment;
     ++i;
   }
 
@@ -231,7 +231,7 @@ void BehaviorPlanner::set_route(
   if (prev_type == PlannerType::LANE) {
     subroute.route.goal_point = get_closest_point_on_lane(
       route.goal_point,
-      prev_primitive.id, lanelet_map_ptr, 0.0f);
+      prev_segment.primitives.front().id, lanelet_map_ptr, 0.0f);
   } else {
     subroute.route.goal_point = route.goal_point;
   }
