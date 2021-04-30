@@ -79,6 +79,11 @@ def generate_launch_description():
         default_value=parking_planner_param_file,
         description='Path to parameter file for parking planner'
     )
+    vehicle_characteristics_param = DeclareLaunchArgument(
+        'vehicle_characteristics_param_file',
+        default_value=vehicle_characteristics_param_file,
+        description='Path to config file for vehicle characteristics'
+    )
 
     # Nodes
     behavior_planner = Node(
@@ -162,6 +167,7 @@ def generate_launch_description():
         mpc_param,
         object_collision_estimator_param,
         parking_planner_param,
+        vehicle_characteristics_param,
         behavior_planner,
         lanelet2_global_planner,
         lane_planner,
