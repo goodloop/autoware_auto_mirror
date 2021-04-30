@@ -55,15 +55,29 @@ public:
   ///
   /// @brief      Construct a new instance of the measurement from a state vector.
   ///
-  /// @param[in]  measurement  The measurement
-  /// @param[in]  variances    The variances
+  /// @details    This results in a diagonal covariance matrix, with the squared standard
+  ///             deviations as entries.
+  ///
+  /// @param[in]  measurement         The measurement
+  /// @param[in]  standard_deviation  The standard deviation for each variable.
   ///
   explicit LinearMeasurement(
     const typename StateT::Vector & measurement,
-    const typename StateT::Vector & variances)
+    const typename StateT::Vector & standard_deviation)
   : m_measurement{measurement},
-    m_variances{variances},
-    m_covariance{variances.array().square().matrix().asDiagonal()} {}
+    m_covariance{standard_deviation.array().square().matrix().asDiagonal()} {}
+
+  ///
+  /// @brief      Construct a new instance of the measurement from a state vector.
+  ///
+  /// @param[in]  measurement  The measurement
+  /// @param[in]  covariance   The covariance
+  ///
+  explicit LinearMeasurement(
+    const typename StateT::Vector & measurement,
+    const typename StateT::Matrix & covariance)
+  : m_measurement{measurement},
+    m_covariance{covariance} {}
 
 protected:
   // Allow the CRTP interface to call private functions from this class.
@@ -73,10 +87,6 @@ protected:
   inline StateT & crtp_state() noexcept {return m_measurement;}
   /// @brief      Get state vector function that is to be called by the CRTP interface.
   inline const StateT & crtp_state() const noexcept {return m_measurement;}
-  /// @brief      Get variances function that is to be called by the CRTP interface.
-  inline typename StateT::Vector & crtp_variances() noexcept {return m_variances;}
-  /// @brief      Get variances function that is to be called by the CRTP interface.
-  inline const typename StateT::Vector & crtp_variances() const noexcept {return m_variances;}
   /// @brief      Get covariance function that is to be called by the CRTP interface.
   inline typename StateT::Matrix & crtp_covariance() noexcept {return m_covariance;}
   /// @brief      Get covariance function that is to be called by the CRTP interface.
@@ -150,14 +160,12 @@ protected:
   friend bool operator==(const LinearMeasurement & lhs, const LinearMeasurement & rhs)
   {
     return (lhs.state() == rhs.state()) &&
-           lhs.variances().isApprox(rhs.variances());
+           lhs.covariance().isApprox(rhs.covariance());
   }
 
 private:
   /// Current measurement vector.
   StateT m_measurement{};
-  /// Current measurement variances.
-  typename StateT::Vector m_variances{StateT::Vector::Zero()};
   /// Current measurement covariance matrix.
   typename StateT::Matrix m_covariance{StateT::Matrix::Zero()};
 };

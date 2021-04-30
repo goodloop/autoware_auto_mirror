@@ -45,20 +45,58 @@ namespace state_estimation
 {
 
 template<>
-StampedMeasurementPoseAndSpeed message_to_measurement(
-  const nav_msgs::msg::Odometry & msg,
-  const Eigen::Isometry3f & tf__world__frame_id,
-  const Eigen::Isometry3f & tf__world__child_frame_id)
+Measurement2dSpeed message_to_measurement(
+  const geometry_msgs::msg::TwistWithCovariance & msg)
 {
   using FloatT = common::types::float32_t;
-  const auto converted_tf__world__frame_id = downscale_isometry<2>(tf__world__frame_id);
-  const auto converted_tf__world__child_frame_id = downscale_isometry<2>(tf__world__child_frame_id);
-  const Eigen::Vector2f pos_state = converted_tf__world__frame_id * Eigen::Vector2f{
+  return Measurement2dSpeed{
+    Eigen::Vector2f{msg.twist.linear.x, msg.twist.linear.y},
+    Eigen::Vector2f{static_cast<FloatT>(msg.covariance[kIndexX]),
+      static_cast<FloatT>(msg.covariance[kIndexY])}};
+}
+
+template<>
+Measurement2dPose message_to_measurement(
+  const geometry_msgs::msg::PoseWithCovariance & msg)
+{
+  using FloatT = common::types::float32_t;
+  return Measurement2dPose{Eigen::Vector2f{
+      msg.pose.position.x, msg.pose.position.y},
+    Eigen::Vector2f{static_cast<FloatT>(msg.covariance[kIndexX]),
+      static_cast<FloatT>(msg.covariance[kIndexY])}};
+}
+
+
+template<>
+StampedMeasurement2dSpeed message_to_measurement(
+  const geometry_msgs::msg::TwistWithCovarianceStamped & msg)
+{
+  return StampedMeasurement2dSpeed{
+    to_time_point(msg.header.stamp),
+    message_to_measurement<Measurement2dSpeed>(msg.twist)
+  };
+}
+
+template<>
+StampedMeasurement2dPose message_to_measurement(
+  const geometry_msgs::msg::PoseWithCovarianceStamped & msg)
+{
+  return StampedMeasurement2dPose{
+    to_time_point(msg.header.stamp),
+    message_to_measurement<Measurement2dPose>(msg.pose)
+  };
+}
+
+template<>
+StampedMeasurement2dPoseAndSpeed message_to_measurement(
+  const nav_msgs::msg::Odometry & msg)
+{
+  using FloatT = common::types::float32_t;
+  const Eigen::Vector2f pos_state {
     static_cast<FloatT>(msg.pose.pose.position.x),
     static_cast<FloatT>(msg.pose.pose.position.y),
   };
-  const Eigen::Vector2f speed_state =
-    converted_tf__world__child_frame_id.rotation() * Eigen::Vector2f{
+  const Eigen::Vector2f speed_state{
     static_cast<FloatT>(msg.twist.twist.linear.x),
     static_cast<FloatT>(msg.twist.twist.linear.y),
   };
@@ -67,45 +105,12 @@ StampedMeasurementPoseAndSpeed message_to_measurement(
   const auto x_speed_variance{static_cast<FloatT>(msg.twist.covariance[kIndexX])};
   const auto y_speed_variance{static_cast<FloatT>(msg.twist.covariance[kIndexY])};
 
-  return StampedMeasurementPoseAndSpeed{
+  return StampedMeasurement2dPoseAndSpeed{
     to_time_point(msg.header.stamp),
-    MeasurementPoseAndSpeed{
+    Measurement2dPoseAndSpeed{
       (Eigen::Vector4f{} << pos_state, speed_state).finished(),
-      {x_variance, y_variance, x_speed_variance, y_speed_variance}}};
+      Eigen::Vector4f{x_variance, y_variance, x_speed_variance, y_speed_variance}}};
 }
-
-template<>
-StampedMeasurementSpeed message_to_measurement(
-  const geometry_msgs::msg::TwistWithCovarianceStamped & msg,
-  const Eigen::Isometry3f & tf__world__frame_id)
-{
-  using FloatT = common::types::float32_t;
-  const auto converted_tf__world__frame_id = downscale_isometry<2>(tf__world__frame_id);
-  return StampedMeasurementSpeed{
-    to_time_point(msg.header.stamp),
-    MeasurementSpeed{
-      converted_tf__world__frame_id.rotation() * Eigen::Vector2f{
-        msg.twist.twist.linear.x, msg.twist.twist.linear.y},
-      {static_cast<FloatT>(msg.twist.covariance[kIndexX]),
-        static_cast<FloatT>(msg.twist.covariance[kIndexY])}}
-  };
-}
-
-template<>
-StampedMeasurementPose message_to_measurement(
-  const geometry_msgs::msg::PoseWithCovarianceStamped & msg,
-  const Eigen::Isometry3f & tf__world__frame_id)
-{
-  const auto converted_tf__world__frame_id = downscale_isometry<2>(tf__world__frame_id);
-  return StampedMeasurementPose{
-    to_time_point(msg.header.stamp),
-    MeasurementPose{converted_tf__world__frame_id * Eigen::Vector2f{
-        msg.pose.pose.position.x, msg.pose.pose.position.y},
-      {static_cast<common::types::float32_t>(msg.pose.covariance[kIndexX]),
-        static_cast<common::types::float32_t>(msg.pose.covariance[kIndexY])}}
-  };
-}
-
 
 }  // namespace state_estimation
 }  // namespace common
