@@ -50,6 +50,9 @@ def generate_launch_description():
     pc_filter_transform_param_file = os.path.join(
         avp_demo_pkg_prefix, 'param/pc_filter_transform.param.yaml')
 
+    vehicle_characteristics_param_file = os.path.join(
+        avp_demo_pkg_prefix, 'param/vehicle_characteristics.param.yaml')
+
     urdf_pkg_prefix = get_package_share_directory('lexus_rx_450h_description')
     urdf_path = os.path.join(urdf_pkg_prefix, 'urdf/lexus_rx_450h_vehicle.urdf')
     with open(urdf_path, 'r') as infp:
@@ -159,7 +162,10 @@ def generate_launch_description():
         executable='mpc_controller_node_exe',
         name='mpc_controller',
         namespace='control',
-        parameters=[LaunchConfiguration('mpc_param_file')]
+        parameters=[
+            LaunchConfiguration('mpc_param_file'),
+            LaunchConfiguration('vehicle_characteristics_param_file'),
+        ],
     )
     ssc_interface = Node(
         package='ssc_interface',
