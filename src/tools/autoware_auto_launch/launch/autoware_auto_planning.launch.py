@@ -45,6 +45,8 @@ def generate_launch_description():
         autoware_auto_launch_pkg_prefix, 'param/object_collision_estimator.param.yaml')
     parking_planner_param_file = os.path.join(
         autoware_auto_launch_pkg_prefix, 'param/parking_planner.param.yaml')
+    vehicle_characteristics_param_file = os.path.join(
+        autoware_auto_launch_pkg_prefix, 'param/vehicle_characteristics.param.yaml')
 
     # Arguments
     with_obstacles_param = DeclareLaunchArgument(
@@ -86,7 +88,8 @@ def generate_launch_description():
         executable='behavior_planner_node_exe',
         parameters=[
             LaunchConfiguration('behavior_planner_param_file'),
-            {'enable_object_collision_estimator': LaunchConfiguration('with_obstacles')}
+            {'enable_object_collision_estimator': LaunchConfiguration('with_obstacles')},
+            LaunchConfiguration('vehicle_characteristics_param_file'),
         ],
         output='screen',
         remappings=[
@@ -110,7 +113,10 @@ def generate_launch_description():
         name='lane_planner_node',
         namespace='planning',
         executable='lane_planner_node_exe',
-        parameters=[LaunchConfiguration('lane_planner_param_file')],
+        parameters=[
+            LaunchConfiguration('lane_planner_param_file'),
+            LaunchConfiguration('vehicle_characteristics_param_file'),
+        ],
         remappings=[('HAD_Map_Service', '/had_maps/HAD_Map_Service')]
     )
     mpc_controller = Node(
@@ -118,7 +124,10 @@ def generate_launch_description():
         executable='mpc_controller_node_exe',
         name='mpc_controller_node',
         namespace='control',
-        parameters=[LaunchConfiguration('mpc_param_file')]
+        parameters=[
+            LaunchConfiguration('mpc_param_file'),
+            LaunchConfiguration('vehicle_characteristics_param_file'),
+        ],
     )
     object_collision_estimator = Node(
         package='object_collision_estimator_nodes',
@@ -126,7 +135,10 @@ def generate_launch_description():
         namespace='planning',
         executable='object_collision_estimator_node_exe',
         condition=IfCondition(LaunchConfiguration('with_obstacles')),
-        parameters=[LaunchConfiguration('object_collision_estimator_param_file')],
+        parameters=[
+            LaunchConfiguration('object_collision_estimator_param_file'),
+            LaunchConfiguration('vehicle_characteristics_param_file'),
+        ],
         remappings=[
             ('obstacle_topic', '/perception/lidar_bounding_boxes_filtered'),
         ]
@@ -136,7 +148,10 @@ def generate_launch_description():
         name='parking_planner_node',
         namespace='planning',
         executable='parking_planner_node_exe',
-        parameters=[LaunchConfiguration('parking_planner_param_file')],
+        parameters=[
+            LaunchConfiguration('parking_planner_param_file'),
+            LaunchConfiguration('vehicle_characteristics_param_file'),
+        ],
         remappings=[('HAD_Map_Service', '/had_maps/HAD_Map_Service')]
     )
 
