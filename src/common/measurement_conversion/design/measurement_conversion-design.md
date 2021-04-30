@@ -32,6 +32,8 @@ MeasurementT message_to_measurement(
   const MessageT &, const Eigen::Isometry3f &, const Eigen::Isometry3f &)
 ```
 
+Please search for this function in the API docs to see a list of available specializations.
+
 
 ## Inner-workings / Algorithms
 <!-- If applicable -->
@@ -55,8 +57,6 @@ N/A
 
 # Future extensions / Unimplemented parts
 At the time of writing, the measurement types capture only a subset of the information conveyed by the message types, e.g. only the `x` and `y` coordinates are extracted from a `geometry_msgs::msg::Pose`, but not `z` or any orientation. More comprehensive measurement types could be added.
-
-A second template that also extracts covariance information could be useful.
 
 Variants producing a double-precision measurement type could be added.
 
