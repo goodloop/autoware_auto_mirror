@@ -124,6 +124,11 @@ def generate_launch_description():
         default_value=recordreplay_planner_param_file,
         description='Path to config file for record/replay planner'
     )
+    vehicle_characteristics_param = DeclareLaunchArgument(
+        'vehicle_characteristics_param_file',
+        default_value=vehicle_characteristics_param_file,
+        description='Path to config file for vehicle characteristics'
+    )
 
     # Nodes
 
@@ -273,6 +278,7 @@ def generate_launch_description():
         with_obstacle_detection_param,
         mpc_param,
         recordreplay_planner_param,
+        vehicle_characteristics_param,
         urdf_publisher,
         euclidean_clustering,
         filter_transform_vlp16_front,

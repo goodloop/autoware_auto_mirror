@@ -80,6 +80,11 @@ def generate_launch_description():
         default_value=pc_filter_transform_param_file,
         description='Path to config file for Point Cloud Filter/Transform Nodes'
     )
+    vehicle_characteristics_param = DeclareLaunchArgument(
+        'vehicle_characteristics_param_file',
+        default_value=vehicle_characteristics_param_file,
+        description='Path to config file for vehicle characteristics'
+    )
 
     # Nodes
 
@@ -163,6 +168,7 @@ def generate_launch_description():
         ndt_localizer_param,
         mpc_param,
         pc_filter_transform_param,
+        vehicle_characteristics_param,
         urdf_publisher,
         lgsvl_interface,
         map_publisher,

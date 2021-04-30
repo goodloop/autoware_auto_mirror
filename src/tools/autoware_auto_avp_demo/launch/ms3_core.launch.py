@@ -111,6 +111,11 @@ def generate_launch_description():
         default_value=off_map_obstacles_filter_param_file,
         description='Path to parameter file for off-map obstacle filter'
     )
+    vehicle_characteristics_param = DeclareLaunchArgument(
+        'vehicle_characteristics_param_file',
+        default_value=vehicle_characteristics_param_file,
+        description='Path to config file for vehicle characteristics'
+    )
 
     # Nodes
 
@@ -251,6 +256,7 @@ def generate_launch_description():
         object_collision_estimator_param,
         behavior_planner_param,
         off_map_obstacles_filter_param,
+        vehicle_characteristics_param,
         euclidean_clustering,
         ray_ground_classifier,
         scan_downsampler,
