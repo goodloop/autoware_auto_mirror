@@ -20,10 +20,9 @@ from launch.actions import DeclareLaunchArgument
 from launch.actions import IncludeLaunchDescription
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration
-from launch_ros.actions import Node, SetParameter
+from launch_ros.actions import Node
 
 import os
-import yaml
 
 
 def generate_launch_description():
@@ -42,9 +41,6 @@ def generate_launch_description():
         avp_demo_pkg_prefix, 'param/ndt_localizer.param.yaml')
     mpc_param_file = os.path.join(
         avp_demo_pkg_prefix, 'param/mpc.param.yaml')
-
-    vehicle_characteristics_param_file = os.path.join(
-        avp_demo_pkg_prefix, 'param/vehicle_characteristics.param.yaml')
 
     pc_filter_transform_param_file = os.path.join(
         avp_demo_pkg_prefix, 'param/pc_filter_transform.param.yaml')
@@ -155,7 +151,12 @@ def generate_launch_description():
         launch_arguments={}.items()
     )
 
-    nodes = [
+    return LaunchDescription([
+        lgsvl_interface_param,
+        map_publisher_param,
+        ndt_localizer_param,
+        mpc_param,
+        pc_filter_transform_param,
         urdf_publisher,
         lgsvl_interface,
         map_publisher,
@@ -163,23 +164,5 @@ def generate_launch_description():
         mpc,
         filter_transform_vlp16_front,
         filter_transform_vlp16_rear,
-    ]
-
-    with open(vehicle_characteristics_param_file) as f:
-        cfg = yaml.load(f, Loader=yaml.SafeLoader)
-        vehicle_characteristics = cfg['ros__parameters']['vehicle']
-        parameters = [
-            SetParameter(name=key, value=value) for key, value in vehicle_characteristics.items()]
-
-        return LaunchDescription([
-            lgsvl_interface_param,
-            map_publisher_param,
-            ndt_localizer_param,
-            mpc_param,
-            pc_filter_transform_param,
-            urdf_publisher,
-            lgsvl_interface,
-            *parameters,
-            *nodes,
-            core_launch,
-        ])
+        core_launch,
+    ])

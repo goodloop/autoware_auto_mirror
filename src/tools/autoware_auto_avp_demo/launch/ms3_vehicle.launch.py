@@ -21,10 +21,9 @@ from launch.actions import IncludeLaunchDescription
 from launch.conditions import IfCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration
-from launch_ros.actions import Node, SetParameter
+from launch_ros.actions import Node
 
 import os
-import yaml
 
 
 def generate_launch_description():
@@ -50,9 +49,6 @@ def generate_launch_description():
 
     pc_filter_transform_param_file = os.path.join(
         avp_demo_pkg_prefix, 'param/pc_filter_transform.param.yaml')
-
-    vehicle_characteristics_param_file = os.path.join(
-        avp_demo_pkg_prefix, 'param/vehicle_characteristics.param.yaml')
 
     urdf_pkg_prefix = get_package_share_directory('lexus_rx_450h_description')
     urdf_path = os.path.join(urdf_pkg_prefix, 'urdf/lexus_rx_450h_vehicle.urdf')
@@ -197,7 +193,15 @@ def generate_launch_description():
         launch_arguments={}.items()
     )
 
-    nodes = [
+    return LaunchDescription([
+        with_lidars_param,
+        vlp16_front_param,
+        vlp16_rear_param,
+        map_publisher_param,
+        ndt_localizer_param,
+        mpc_param,
+        ssc_interface_param,
+        pc_filter_transform_param,
         vlp16_front,
         vlp16_rear,
         filter_transform_vlp16_front,
@@ -208,24 +212,5 @@ def generate_launch_description():
         mpc,
         ssc_interface,
         odom_bl_publisher,
-    ]
-
-    with open(vehicle_characteristics_param_file) as f:
-        cfg = yaml.load(f, Loader=yaml.SafeLoader)
-        vehicle_characteristics = cfg['ros__parameters']['vehicle']
-        parameters = [
-            SetParameter(name=key, value=value) for key, value in vehicle_characteristics.items()]
-
-        return LaunchDescription([
-            with_lidars_param,
-            vlp16_front_param,
-            vlp16_rear_param,
-            map_publisher_param,
-            ndt_localizer_param,
-            mpc_param,
-            ssc_interface_param,
-            pc_filter_transform_param,
-            *parameters,
-            *nodes,
-            core_launch
-        ])
+        core_launch
+    ])

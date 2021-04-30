@@ -21,10 +21,9 @@ from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
 from launch.conditions import IfCondition
 from launch.substitutions import LaunchConfiguration
-from launch_ros.actions import Node, SetParameter
+from launch_ros.actions import Node
 
 import os
-import yaml
 
 
 def generate_launch_description():
@@ -51,9 +50,6 @@ def generate_launch_description():
         avp_demo_pkg_prefix, 'param/recordreplay_planner.param.yaml')
     pc_filter_transform_param_file = os.path.join(
         avp_demo_pkg_prefix, 'param/pc_filter_transform.param.yaml')
-
-    vehicle_characteristics_param_file = os.path.join(
-        avp_demo_pkg_prefix, 'param/vehicle_characteristics.param.yaml')
 
     point_cloud_fusion_node_pkg_prefix = get_package_share_directory(
         'point_cloud_fusion_nodes')
@@ -255,7 +251,19 @@ def generate_launch_description():
         condition=IfCondition(LaunchConfiguration('with_obstacle_detection'))
     )
 
-    nodes = [
+    return LaunchDescription([
+        euclidean_cluster_param,
+        lgsvl_interface_param,
+        map_publisher_param,
+        object_collision_estimator_param,
+        pc_filter_transform_param,
+        ray_ground_classifier_param,
+        scan_downsampler_param,
+        ndt_localizer_param,
+        with_rviz_param,
+        with_obstacle_detection_param,
+        mpc_param,
+        recordreplay_planner_param,
         urdf_publisher,
         euclidean_clustering,
         filter_transform_vlp16_front,
@@ -269,28 +277,5 @@ def generate_launch_description():
         mpc,
         recordreplay_planner,
         object_collision_estimator,
-        rviz2,
-    ]
-
-    with open(vehicle_characteristics_param_file) as f:
-        cfg = yaml.load(f, Loader=yaml.SafeLoader)
-        vehicle_characteristics = cfg['ros__parameters']['vehicle']
-        parameters = [
-            SetParameter(name=key, value=value) for key, value in vehicle_characteristics.items()]
-
-        return LaunchDescription([
-            euclidean_cluster_param,
-            lgsvl_interface_param,
-            map_publisher_param,
-            object_collision_estimator_param,
-            pc_filter_transform_param,
-            ray_ground_classifier_param,
-            scan_downsampler_param,
-            ndt_localizer_param,
-            with_rviz_param,
-            with_obstacle_detection_param,
-            mpc_param,
-            recordreplay_planner_param,
-            *parameters,
-            *nodes,
-        ])
+        rviz2
+    ])
