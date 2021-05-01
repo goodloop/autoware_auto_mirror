@@ -15,7 +15,9 @@
 // Co-developed by Tier IV, Inc. and Apex.AI, Inc.
 
 #include <ndt/ndt_map.hpp>
+#include <ndt/utils.hpp>
 #include <sensor_msgs/point_cloud2_iterator.hpp>
+#include <point_cloud_msg_wrapper/point_cloud_msg_wrapper.hpp>
 #include <algorithm>
 #include <string>
 
@@ -118,21 +120,13 @@ void DynamicNDTMap::set(const sensor_msgs::msg::PointCloud2 & msg)
 
 void DynamicNDTMap::insert(const sensor_msgs::msg::PointCloud2 & msg)
 {
-  sensor_msgs::PointCloud2ConstIterator<float32_t> x_it(msg, "x");
-  sensor_msgs::PointCloud2ConstIterator<float32_t> y_it(msg, "y");
-  sensor_msgs::PointCloud2ConstIterator<float32_t> z_it(msg, "z");
+  using PointXYZI = autoware::common::types::PointXYZI;
+  point_cloud_msg_wrapper::PointCloud2View<PointXYZI> msg_view{msg};
 
-  while (x_it != x_it.end() &&
-    y_it != y_it.end() &&
-    z_it != z_it.end())
-  {
-    const auto pt = Point({*x_it, *y_it, *z_it});
-    m_grid.add_observation(pt);  // Add or insert new voxel.
-
-    ++x_it;
-    ++y_it;
-    ++z_it;
+  for (const auto & point : msg_view) {
+    m_grid.add_observation({point.x, point.y, point.z});
   }
+
   // try to stabilizie the covariance after inserting all the points
   for (auto & vx_it : m_grid) {
     auto & vx = vx_it.second;
@@ -165,43 +159,28 @@ void push_back(
 template<>
 void DynamicNDTMap::serialize_as<StaticNDTMap>(sensor_msgs::msg::PointCloud2 & msg_out) const
 {
-  auto dummy_idx{0U};
-  common::lidar_utils::reset_pcl_msg(msg_out, 0U, dummy_idx);
-  common::lidar_utils::init_pcl_msg(
-    msg_out, frame_id(), m_grid.size() + kNumConfigPoints, 9U,
-    "x", 1U, sensor_msgs::msg::PointField::FLOAT64,
-    "y", 1U, sensor_msgs::msg::PointField::FLOAT64,
-    "z", 1U, sensor_msgs::msg::PointField::FLOAT64,
-    "icov_xx", 1U, sensor_msgs::msg::PointField::FLOAT64,
-    "icov_xy", 1U, sensor_msgs::msg::PointField::FLOAT64,
-    "icov_xz", 1U, sensor_msgs::msg::PointField::FLOAT64,
-    "icov_yy", 1U, sensor_msgs::msg::PointField::FLOAT64,
-    "icov_yz", 1U, sensor_msgs::msg::PointField::FLOAT64,
-    "icov_zz", 1U, sensor_msgs::msg::PointField::FLOAT64);
+  ndt::NdtMapCloudModifier msg_modifier{msg_out, frame_id()};
 
   msg_out.header.stamp = time_utils::to_message(m_stamp);
-  auto pc_its = get_iterators(msg_out);
 
   const auto min_point = m_grid.config().get_min_point();
   const auto max_point = m_grid.config().get_max_point();
   const auto size = m_grid.config().get_voxel_size();
 
-  // Serialize the configuration to be reconstructed
-  push_back(pc_its, {min_point.x, min_point.y, min_point.z});
-  push_back(pc_its, {max_point.x, max_point.y, max_point.z});
-  push_back(pc_its, {size.x, size.y, size.z});
+  // Serialize the configuration to be reconstructed. First 3 fields are used to store the
+  // configuration and the remaining 6 fields are left unused so they are set to 0.0
+  msg_modifier.push_back(
+    PointWithCovariances{min_point.x, min_point.y, min_point.z,
+      0.0, 0.0, 0.0, 0.0, 0.0, 0.0});
+  msg_modifier.push_back(
+    PointWithCovariances{max_point.x, max_point.y, max_point.z,
+      0.0, 0.0, 0.0, 0.0, 0.0, 0.0});
+  msg_modifier.push_back(
+    PointWithCovariances{size.x, size.y, size.z,
+      0.0, 0.0, 0.0, 0.0, 0.0, 0.0});
 
   auto num_used_cells = 0U;
   for (const auto & vx_it : m_grid) {
-    if (
-      !std::all_of(
-        pc_its.begin(), pc_its.end(), [](auto & it) {
-          return it != it.end();
-        }))
-    {
-      // This should not occur as the cloud is resized to the map's size.
-      throw std::length_error("NDT map is larger than the map point cloud.");
-    }
     const auto & vx = vx_it.second;
     if (!vx.usable()) {
       // Voxel doesn't have enough points to be used in NDT
@@ -216,8 +195,8 @@ void DynamicNDTMap::serialize_as<StaticNDTMap>(sensor_msgs::msg::PointCloud2 & m
 
     const auto & centroid = vx.centroid();
     const auto & inv_covariance = inv_covariance_opt.value();
-    push_back(
-      pc_its, {
+    msg_modifier.push_back(
+          {
             centroid(0U), centroid(1U), centroid(2U),
             inv_covariance(0U, 0U), inv_covariance(0U, 1U), inv_covariance(0U, 2U),
             inv_covariance(1U, 1U), inv_covariance(1U, 2U),
@@ -226,8 +205,6 @@ void DynamicNDTMap::serialize_as<StaticNDTMap>(sensor_msgs::msg::PointCloud2 & m
 
     ++num_used_cells;
   }
-  // Resize to throw out unused cells.
-  common::lidar_utils::resize_pcl_msg(msg_out, num_used_cells + kNumConfigPoints);
 }
 
 const DynamicNDTMap::VoxelViewVector & DynamicNDTMap::cell(const Point & pt) const
@@ -298,21 +275,15 @@ void StaticNDTMap::deserialize_from(const sensor_msgs::msg::PointCloud2 & msg)
 {
   using PointXYZ = geometry_msgs::msg::Point32;
   constexpr auto num_config_fields = 3U;
-  const auto size = validate_pcl_map(msg);
-  if (size < num_config_fields) {
-    // throwing rather than silently failing since ndt matching cannot be done with an
-    // empty/incorrect map
-    throw std::runtime_error(
-            "Point cloud representing the ndt map is either empty"
-            "or does not have the correct format.");
+  NdtMapCloudView msg_view{msg};
+  if (msg_view.size() < num_config_fields) {
+    throw std::runtime_error("StaticNDTMap: Point cloud representing the ndt map is empty.");
   }
-  const auto map_size = size - num_config_fields;
 
-  auto pc_its = get_iterators(msg);
-
-  const auto min_point = next(pc_its);
-  const auto max_point = next(pc_its);
-  const auto voxel_size = next(pc_its);
+  const auto map_size = msg_view.size() - num_config_fields;
+  const auto & min_point = msg_view[0U];
+  const auto & max_point = msg_view[1U];
+  const auto & voxel_size = msg_view[2U];
 
   const Config config{
     PointXYZ{}.set__x(static_cast<float>(min_point.x)).set__y(static_cast<float>(min_point.y)).
@@ -330,13 +301,8 @@ void StaticNDTMap::deserialize_from(const sensor_msgs::msg::PointCloud2 & msg)
     m_grid.emplace(config);
   }
 
-  while (
-    std::all_of(
-      pc_its.begin(), pc_its.end(), [](auto & it) {
-        return it != it.end();
-      }))
-  {
-    const auto voxel_point = next(pc_its);
+  for (auto it = std::next(msg_view.begin(), num_config_fields); it != msg_view.end(); ++it) {
+    const auto & voxel_point = *it;
     const Point centroid{voxel_point.x, voxel_point.y, voxel_point.z};
     const auto voxel_idx = m_grid->index(centroid);
 
