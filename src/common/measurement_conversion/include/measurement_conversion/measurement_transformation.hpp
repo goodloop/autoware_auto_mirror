@@ -36,12 +36,15 @@ namespace state_estimation
 ///
 /// @tparam     MeasurementT  Type of measurement.
 ///
+/// @param[in]  measurement          The measurement.
+/// @param[in]  tf__world__frame_id  A transform from frame_id to world frame.
+///
 /// @return     The measurement, but transformed
 ///
 template<typename MeasurementT>
 MeasurementT transform_measurement(
-  const MeasurementT &,
-  const Eigen::Isometry3f &)
+  const MeasurementT & measurement,
+  const Eigen::Isometry3f & tf__world__frame_id)
 {
   static_assert(
     sizeof(MeasurementT) == 0,
@@ -133,14 +136,10 @@ static constexpr Eigen::Transform<
   return result;
 }
 
+// Doxygen is buggy when the parameters are repeated here, so they are omitted.
 
 ///
-/// @brief      Specialization of transform_measurement for twist message.
-///
-/// @param[in]  measurement          The 2d speed measurement.
-/// @param[in]  tf__world__frame_id  A transform from message frame_id to world frame.
-///
-/// @return     The transformed measurement.
+/// @brief      Specialization of transform_measurement for speed measurement.
 ///
 template<>
 MEASUREMENT_CONVERSION_PUBLIC Measurement2dSpeed transform_measurement(
@@ -148,12 +147,7 @@ MEASUREMENT_CONVERSION_PUBLIC Measurement2dSpeed transform_measurement(
   const Eigen::Isometry3f & tf__world__frame_id);
 
 ///
-/// @brief      Specialization of transform_measurement for pose message.
-///
-/// @param[in]  measurement          The 2d pose measurement.
-/// @param[in]  tf__world__frame_id  A transform from message frame_id to world frame.
-///
-/// @return     The transformed measurement.
+/// @brief      Specialization of transform_measurement for pose measurement.
 ///
 template<>
 MEASUREMENT_CONVERSION_PUBLIC Measurement2dPose transform_measurement(
@@ -161,12 +155,7 @@ MEASUREMENT_CONVERSION_PUBLIC Measurement2dPose transform_measurement(
   const Eigen::Isometry3f & tf__world__frame_id);
 
 ///
-/// @brief      Specialization of transform_measurement for stamped twist message.
-///
-/// @param[in]  measurement          The stamped 2d twist measurement.
-/// @param[in]  tf__world__frame_id  A transform from message frame_id to world frame.
-///
-/// @return     The transformed measurement.
+/// @brief      Specialization of transform_measurement for stamped speed measurement.
 ///
 template<>
 MEASUREMENT_CONVERSION_PUBLIC StampedMeasurement2dSpeed transform_measurement(
@@ -174,12 +163,7 @@ MEASUREMENT_CONVERSION_PUBLIC StampedMeasurement2dSpeed transform_measurement(
   const Eigen::Isometry3f & tf__world__frame_id);
 
 ///
-/// @brief      Specialization of transform_measurement for stamped pose message.
-///
-/// @param[in]  measurement          The stamped 2d pose measurement.
-/// @param[in]  tf__world__frame_id  A transform from message frame_id to world frame.
-///
-/// @return     The transformed measurement.
+/// @brief      Specialization of transform_measurement for stamped pose measurement.
 ///
 template<>
 MEASUREMENT_CONVERSION_PUBLIC StampedMeasurement2dPose transform_measurement(
@@ -187,13 +171,7 @@ MEASUREMENT_CONVERSION_PUBLIC StampedMeasurement2dPose transform_measurement(
   const Eigen::Isometry3f & tf__world__frame_id);
 
 ///
-/// @brief      Specialization of transform_measurement for odometry message.
-///
-/// @param[in]  measurement                The stamped pose and speed measurement.
-/// @param[in]  tf__world__frame_id        A transform from message frame_id to world frame.
-/// @param[in]  tf__world__child_frame_id  A transform from message frame_id to child_frame_id.
-///
-/// @return     The transformed measurement.
+/// @brief      Specialization of transform_measurement for stamped pose and speed measurement.
 ///
 template<>
 MEASUREMENT_CONVERSION_PUBLIC StampedMeasurement2dPoseAndSpeed transform_measurement(

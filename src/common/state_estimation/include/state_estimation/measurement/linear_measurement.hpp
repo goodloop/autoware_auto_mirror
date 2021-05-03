@@ -74,7 +74,7 @@ public:
   /// @param[in]  measurement         The measurement
   /// @param[in]  standard_deviation  The standard deviation for each variable.
   ///
-  static LinearMeasurement with_stddev(
+  static LinearMeasurement create_with_stddev(
     const typename StateT::Vector & measurement,
     const typename StateT::Vector & standard_deviation)
   {

@@ -17,20 +17,6 @@
 
 #include <measurement_conversion/measurement_transformation.hpp>
 
-#include <common/types.hpp>
-
-namespace
-{
-constexpr auto kCovarianceMatrixRows = 6U;
-constexpr auto kIndexX = 0U;
-constexpr auto kIndexY = kCovarianceMatrixRows + 1U;
-constexpr auto kCovarianceMatrixRowsSquared = kCovarianceMatrixRows * kCovarianceMatrixRows;
-static_assert(
-  std::tuple_size<
-    geometry_msgs::msg::PoseWithCovariance::_covariance_type>::value ==
-  kCovarianceMatrixRowsSquared, "We expect the covariance matrix to have 36 entries.");
-}  // namespace
-
 namespace autoware
 {
 namespace common

@@ -92,7 +92,7 @@ TEST(TestKalmanFilter, TrackStaticObjectWithDirectMeasurements) {
   for (int i = 0; i < 10; ++i) {
     kf.predict(std::chrono::milliseconds{100LL});
     kf.correct(
-      LinearMeasurement<MeasurementState>::with_stddev(
+      LinearMeasurement<MeasurementState>::create_with_stddev(
         MeasurementState::Vector::Zero(),
         stddev));
     EXPECT_TRUE(kf.state().vector().isApproxToConstant(0.0F)) <<
@@ -118,7 +118,7 @@ TEST(TestKalmanFilter, TrackStaticObjectHiddenState) {
   for (int i = 0; i < 10; ++i) {
     kf.predict(std::chrono::milliseconds{100LL});
     kf.correct(
-      LinearMeasurement<MeasurementState>::with_stddev(
+      LinearMeasurement<MeasurementState>::create_with_stddev(
         MeasurementState::Vector::Zero(),
         stddev));
     EXPECT_TRUE(kf.state().vector().isApproxToConstant(0.0F)) <<
@@ -156,7 +156,7 @@ TEST(TestKalmanFilter, TrackMovingObject) {
     const auto observation = travelled_distance * MeasurementState::Vector::Ones();
     kf.predict(std::chrono::milliseconds{100LL});
     kf.correct(
-      LinearMeasurement<MeasurementState>::with_stddev(observation, stddev));
+      LinearMeasurement<MeasurementState>::create_with_stddev(observation, stddev));
   }
   const auto total_float_seconds = std::chrono::duration<float32_t>{total_time}.count();
   const float32_t eps = 0.001F;
@@ -221,7 +221,7 @@ TEST(TestKalmanFilter, TrackThrownBall) {
 
     kf.predict(increment);
     kf.correct(
-      LinearMeasurement<MeasurementState>::with_stddev(
+      LinearMeasurement<MeasurementState>::create_with_stddev(
         MeasurementState::Vector{expected_state.at<X>(), expected_state.at<Y>()},
         stddev));
   }
