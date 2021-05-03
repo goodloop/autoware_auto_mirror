@@ -23,7 +23,9 @@ namespace
 {
 constexpr auto kCovarianceMatrixRows = 6U;
 constexpr auto kIndexX = 0U;
+constexpr auto kIndexXY = 1U;
 constexpr auto kIndexY = kCovarianceMatrixRows + 1U;
+constexpr auto kIndexYX = kCovarianceMatrixRows;
 constexpr auto kCovarianceMatrixRowsSquared = kCovarianceMatrixRows * kCovarianceMatrixRows;
 static_assert(
   std::tuple_size<
@@ -49,10 +51,13 @@ Measurement2dSpeed message_to_measurement(
   const geometry_msgs::msg::TwistWithCovariance & msg)
 {
   using FloatT = common::types::float32_t;
+  Eigen::Matrix2d covariance;
+  covariance <<
+    msg.covariance[kIndexX], msg.covariance[kIndexXY],
+    msg.covariance[kIndexYX], msg.covariance[kIndexY];
   return Measurement2dSpeed{
     Eigen::Vector2f{msg.twist.linear.x, msg.twist.linear.y},
-    Eigen::Vector2f{static_cast<FloatT>(msg.covariance[kIndexX]),
-      static_cast<FloatT>(msg.covariance[kIndexY])}};
+    covariance.cast<FloatT>()};
 }
 
 template<>
@@ -60,10 +65,13 @@ Measurement2dPose message_to_measurement(
   const geometry_msgs::msg::PoseWithCovariance & msg)
 {
   using FloatT = common::types::float32_t;
+  Eigen::Matrix2d covariance;
+  covariance <<
+    msg.covariance[kIndexX], msg.covariance[kIndexXY],
+    msg.covariance[kIndexYX], msg.covariance[kIndexY];
   return Measurement2dPose{Eigen::Vector2f{
       msg.pose.position.x, msg.pose.position.y},
-    Eigen::Vector2f{static_cast<FloatT>(msg.covariance[kIndexX]),
-      static_cast<FloatT>(msg.covariance[kIndexY])}};
+    covariance.cast<FloatT>()};
 }
 
 
@@ -100,16 +108,19 @@ StampedMeasurement2dPoseAndSpeed message_to_measurement(
     static_cast<FloatT>(msg.twist.twist.linear.x),
     static_cast<FloatT>(msg.twist.twist.linear.y),
   };
-  const auto x_variance{static_cast<FloatT>(msg.pose.covariance[kIndexX])};
-  const auto y_variance{static_cast<FloatT>(msg.pose.covariance[kIndexY])};
-  const auto x_speed_variance{static_cast<FloatT>(msg.twist.covariance[kIndexX])};
-  const auto y_speed_variance{static_cast<FloatT>(msg.twist.covariance[kIndexY])};
+  Eigen::Matrix4d covariance;
+  covariance.topLeftCorner(2, 2) <<
+    msg.pose.covariance[kIndexX], msg.pose.covariance[kIndexXY],
+    msg.pose.covariance[kIndexYX], msg.pose.covariance[kIndexY];
+  covariance.bottomRightCorner(2, 2) <<
+    msg.twist.covariance[kIndexX], msg.twist.covariance[kIndexXY],
+    msg.twist.covariance[kIndexYX], msg.twist.covariance[kIndexY];
 
   return StampedMeasurement2dPoseAndSpeed{
     to_time_point(msg.header.stamp),
     Measurement2dPoseAndSpeed{
       (Eigen::Vector4f{} << pos_state, speed_state).finished(),
-      Eigen::Vector4f{x_variance, y_variance, x_speed_variance, y_speed_variance}}};
+      covariance.cast<FloatT>()}};
 }
 
 }  // namespace state_estimation

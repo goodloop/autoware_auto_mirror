@@ -30,7 +30,7 @@ using autoware::common::state_vector::FloatState;
 TEST(TestLinearMeasurement, Create) {
   using MeasurementState = FloatState<X, Y>;
   // When the standard deviation constructor is used, the covariance matrix is diagonal
-  LinearMeasurement<MeasurementState> measurement{{1.0F, 2.0F}, Eigen::Vector2f{3.0F, 4.0F}};
+  auto measurement = LinearMeasurement<MeasurementState>::with_stddev({1.0F, 2.0F}, {3.0F, 4.0F});
   EXPECT_EQ((MeasurementState{{1.0F, 2.0F}}), measurement.state());
   auto expected_covariance = (MeasurementState::Matrix{} <<
     9.0F, 0.0F,
@@ -48,7 +48,8 @@ TEST(TestLinearMeasurement, Create) {
 TEST(TestLinearMeasurement, CreateAndMapFromOtherState) {
   using State = FloatState<X, X_VELOCITY, Y, Y_VELOCITY>;
   using MeasurementState = FloatState<X, Y>;
-  LinearMeasurement<MeasurementState> measurement{{42.0F, 23.0F}, Eigen::Vector2f{23.0F, 42.0F}};
+  auto measurement =
+    LinearMeasurement<MeasurementState>::with_stddev({42.0F, 23.0F}, {23.0F, 42.0F});
   EXPECT_EQ((MeasurementState{{42.0F, 23.0F}}), measurement.state());
   const auto mapping_matrix = measurement.mapping_matrix_from(State{});
   ASSERT_EQ(mapping_matrix.rows(), 2);
@@ -68,7 +69,8 @@ TEST(TestLinearMeasurement, CreateAndMapFromOtherState) {
 TEST(TestLinearMeasurement, CreateAndMapToOtherState) {
   using State = FloatState<X, X_VELOCITY, Y, Y_VELOCITY>;
   using MeasurementState = FloatState<X, Y>;
-  LinearMeasurement<MeasurementState> measurement{{42.0F, 23.0F}, Eigen::Vector2f{23.0F, 42.0F}};
+  auto measurement =
+    LinearMeasurement<MeasurementState>::with_stddev({42.0F, 23.0F}, {23.0F, 42.0F});
   EXPECT_EQ((MeasurementState{{42.0F, 23.0F}}), measurement.state());
   State state{{1.0F, 2.0F, 3.0F, 4.0F}};
   const auto filled_state = measurement.map_into(state);
@@ -82,9 +84,11 @@ TEST(TestLinearMeasurement, CreateAndMapToOtherState) {
 /// @test Test equality operator.
 TEST(TestLinearMeasurement, Equality) {
   using MeasurementState = FloatState<X, Y>;
-  LinearMeasurement<MeasurementState> measurement_1{{42.42F, 23.23F},
-    Eigen::Vector2f{23.42F, 42.23F}};
-  LinearMeasurement<MeasurementState> measurement_2{{42.42F, 23.23F},
-    Eigen::Vector2f{23.42F, 42.23F}};
+  auto measurement_1 = LinearMeasurement<MeasurementState>::with_stddev(
+    {42.42F, 23.23F},
+    {23.42F, 42.23F});
+  auto measurement_2 = LinearMeasurement<MeasurementState>::with_stddev(
+    {42.42F, 23.23F},
+    {23.42F, 42.23F});
   EXPECT_EQ(measurement_1, measurement_2);
 }

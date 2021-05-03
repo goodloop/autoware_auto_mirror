@@ -55,21 +55,6 @@ public:
   ///
   /// @brief      Construct a new instance of the measurement from a state vector.
   ///
-  /// @details    This results in a diagonal covariance matrix, with the squared standard
-  ///             deviations as entries.
-  ///
-  /// @param[in]  measurement         The measurement
-  /// @param[in]  standard_deviation  The standard deviation for each variable.
-  ///
-  explicit LinearMeasurement(
-    const typename StateT::Vector & measurement,
-    const typename StateT::Vector & standard_deviation)
-  : m_measurement{measurement},
-    m_covariance{standard_deviation.array().square().matrix().asDiagonal()} {}
-
-  ///
-  /// @brief      Construct a new instance of the measurement from a state vector.
-  ///
   /// @param[in]  measurement  The measurement
   /// @param[in]  covariance   The covariance
   ///
@@ -78,6 +63,24 @@ public:
     const typename StateT::Matrix & covariance)
   : m_measurement{measurement},
     m_covariance{covariance} {}
+  ///
+  /// @brief      Convenience factory function to construct a measurement from a vector of standard
+  ///             deviations.
+  ///
+  /// @details    This results in a diagonal covariance matrix, with the squared standard
+  ///             deviations as entries. In a diagonal covariance matrix, the variables are
+  ///             uncorrelated.
+  ///
+  /// @param[in]  measurement         The measurement
+  /// @param[in]  standard_deviation  The standard deviation for each variable.
+  ///
+  static LinearMeasurement with_stddev(
+    const typename StateT::Vector & measurement,
+    const typename StateT::Vector & standard_deviation)
+  {
+    return LinearMeasurement{measurement,
+      standard_deviation.array().square().matrix().asDiagonal()};
+  }
 
 protected:
   // Allow the CRTP interface to call private functions from this class.

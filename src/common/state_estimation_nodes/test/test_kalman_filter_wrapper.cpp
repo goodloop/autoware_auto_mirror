@@ -101,7 +101,9 @@ TEST(KalmanFilterWrapperTest, ignore_everything_before_initialization) {
     "map"};
   const auto now = std::chrono::system_clock::time_point{std::chrono::system_clock::now()};
   const StampedMeasurement2dPoseAndSpeed measurement{
-    now, Measurement2dPoseAndSpeed{Vector<4U>{42.0F, 42.0F, 42.0F, 42.0F}, Vector<4U>::Identity()}};
+    now,
+    Measurement2dPoseAndSpeed{Vector<4U>{42.0F, 42.0F, 42.0F, 42.0F},
+      Eigen::Matrix4f::Identity()}};
   EXPECT_FALSE(filter.is_initialized());
   EXPECT_FALSE(filter.add_next_temporal_update_to_history());
   EXPECT_FALSE(filter.add_observation_to_history(measurement));
@@ -127,7 +129,7 @@ TEST(KalmanFilterWrapperTest, initialize) {
     now_measurement,
     Measurement2dPoseAndSpeed{
       Vector<4U>{x, y, x_speed, y_speed},
-      Vector<4U>::Identity()}};
+      Eigen::Matrix4f::Identity()}};
   EXPECT_FALSE(filter.add_observation_to_history(measurement));
   filter.add_reset_event_to_history(measurement);
   ASSERT_TRUE(filter.is_initialized());
@@ -160,7 +162,7 @@ TEST(KalmanFilterWrapperTest, ignore_measurements_from_the_past) {
     std::chrono::system_clock::time_point{std::chrono::system_clock::now()};
   const auto dt = std::chrono::milliseconds{2LL};
   const auto state = Vector<4U>{42.0F, 42.0F, 0.0F, 0.0F};
-  const auto variance = Vector<4U>{1.0F, 1.0F, 1.0F, 1.0F};
+  const auto variance = Eigen::Matrix4f::Identity();
   EXPECT_FALSE(filter.is_initialized());
   StampedMeasurement2dPoseAndSpeed measurement_now{
     now_measurement_time,
@@ -208,15 +210,15 @@ TEST(KalmanFilterWrapperTest, ignore_far_away_measurements) {
   // Check that nothing else forbids us from updating the state.
   timestamp += 10ms;
   filter.add_observation_to_history(
-    StampedMeasurement2dPose{timestamp, Measurement2dPose{Vector2f{0.0F, 0.0F}, Vector2f{1.0F,
-          1.0F}}});
+    StampedMeasurement2dPose{timestamp, Measurement2dPose{Vector2f{0.0F, 0.0F},
+        Eigen::Matrix2f::Identity()}});
   const auto odom_msg_before = filter.get_state();
   timestamp += 10ms;
   // Try to add a very precise measurement that should be ignored due to the mahalanobis gate.
   filter.add_observation_to_history(
     StampedMeasurement2dPose{
     timestamp,
-    Measurement2dPose{Vector2f{10.0F, 0.0F}, Vector2f{0.1F, 0.1F}}});
+    Measurement2dPose{Vector2f{10.0F, 0.0F}, 0.01F * Eigen::Matrix2f::Identity()}});
   const auto odom_msg_after = filter.get_state();
   EXPECT_NEAR(odom_msg_after.pose.pose.position.x, 0.0, kEpsilon);
   EXPECT_NEAR(odom_msg_after.pose.pose.position.y, 0.0, kEpsilon);
@@ -238,7 +240,8 @@ TEST(KalmanFilterWrapperTest, covariance_grows_with_time) {
   EXPECT_FALSE(filter.is_initialized());
   const auto timestamp = std::chrono::system_clock::time_point{std::chrono::system_clock::now()};
   const StampedMeasurement2dPoseAndSpeed measurement{
-    timestamp, Measurement2dPoseAndSpeed{Vector<4U>{42.0F, 42.0F, 0.0F, 0.0F}, Vector<4U>::Ones()}};
+    timestamp,
+    Measurement2dPoseAndSpeed{Vector<4U>{42.0F, 42.0F, 0.0F, 0.0F}, Eigen::Matrix4f::Ones()}};
   filter.add_reset_event_to_history(measurement);
   ASSERT_TRUE(filter.is_initialized());
   const auto odom_msg = filter.get_state();
@@ -278,7 +281,7 @@ TEST(KalmanFilterWrapperTest, track_static_object) {
   std::chrono::system_clock::time_point timestamp{std::chrono::system_clock::now()};
   filter.add_reset_event_to_history(
     StampedMeasurement2dPose{timestamp,
-      Measurement2dPose{Vector2f{42.0F, 42.0F}, Vector2f{1.0F, 1.0F}}});
+      Measurement2dPose{Vector2f{42.0F, 42.0F}, Eigen::Matrix2f::Identity()}});
   ASSERT_TRUE(filter.is_initialized());
   const auto initial_state = filter.get_state();
   for (int i = 0; i < 10; ++i) {
@@ -286,7 +289,7 @@ TEST(KalmanFilterWrapperTest, track_static_object) {
     EXPECT_TRUE(
       filter.add_observation_to_history(
         StampedMeasurement2dPose{timestamp,
-          Measurement2dPose{Vector2f{42.0F, 42.0F}, Vector2f{0.1F, 0.1F}}}));
+          Measurement2dPose{Vector2f{42.0F, 42.0F}, 0.01F * Eigen::Matrix2f::Identity()}}));
     auto odom_msg = filter.get_state();
     EXPECT_NEAR(odom_msg.pose.pose.position.x, initial_state.pose.pose.position.x, kEpsilon);
     EXPECT_NEAR(odom_msg.pose.pose.position.y, initial_state.pose.pose.position.y, kEpsilon);
@@ -347,7 +350,8 @@ TEST(KalmanFilterWrapperTest, track_thrown_ball) {
       EXPECT_TRUE(
         filter.add_observation_to_history(
           StampedMeasurement2dPose{timestamp,
-            Measurement2dPose{Vector2f{state.at<X>(), state.at<Y>()}, Vector2f{1.0F, 1.0F}}}));
+            Measurement2dPose{Vector2f{state.at<X>(), state.at<Y>()},
+              Eigen::Matrix2f::Identity()}}));
       current_cycle_milliseconds = 0ms;
     }
   }
