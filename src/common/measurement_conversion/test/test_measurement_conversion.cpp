@@ -42,13 +42,13 @@ TEST(Measurement2dConversionTest, odom) {
     msg);
   EXPECT_FLOAT_EQ(measurement.measurement.state().vector().x(), 42.0F);
   EXPECT_FLOAT_EQ(measurement.measurement.state().vector().y(), 23.0F);
-  EXPECT_FLOAT_EQ(measurement.measurement.covariance()(0, 0), 1.0F * 1.0F);
-  EXPECT_FLOAT_EQ(measurement.measurement.covariance()(1, 1), 2.0F * 2.0F);
+  EXPECT_FLOAT_EQ(measurement.measurement.covariance()(0, 0), 1.0F);
+  EXPECT_FLOAT_EQ(measurement.measurement.covariance()(1, 1), 2.0F);
 
   EXPECT_FLOAT_EQ(measurement.measurement.state().vector()[2], 23.0F);
   EXPECT_FLOAT_EQ(measurement.measurement.state().vector()[3], 42.0F);
-  EXPECT_FLOAT_EQ(measurement.measurement.covariance()(2, 2), 3.0F * 3.0F);
-  EXPECT_FLOAT_EQ(measurement.measurement.covariance()(3, 3), 4.0F * 4.0F);
+  EXPECT_FLOAT_EQ(measurement.measurement.covariance()(2, 2), 3.0F);
+  EXPECT_FLOAT_EQ(measurement.measurement.covariance()(3, 3), 4.0F);
 
   EXPECT_EQ(
     measurement.timestamp.time_since_epoch(),
@@ -69,8 +69,8 @@ TEST(Measurement2dConversionTest, pose) {
     msg);
   EXPECT_FLOAT_EQ(measurement.measurement.state().vector().x(), 42.0F);
   EXPECT_FLOAT_EQ(measurement.measurement.state().vector().y(), 23.0F);
-  EXPECT_FLOAT_EQ(measurement.measurement.covariance()(0, 0), 1.0F * 1.0F);
-  EXPECT_FLOAT_EQ(measurement.measurement.covariance()(1, 1), 2.0F * 2.0F);
+  EXPECT_FLOAT_EQ(measurement.measurement.covariance()(0, 0), 1.0F);
+  EXPECT_FLOAT_EQ(measurement.measurement.covariance()(1, 1), 2.0F);
   EXPECT_EQ(
     measurement.timestamp.time_since_epoch(),
     std::chrono::seconds{42LL});
@@ -90,8 +90,8 @@ TEST(Measurement2dConversionTest, twist) {
     msg);
   EXPECT_FLOAT_EQ(measurement.measurement.state().vector()[0], 23.0F);
   EXPECT_FLOAT_EQ(measurement.measurement.state().vector()[1], 42.0F);
-  EXPECT_FLOAT_EQ(measurement.measurement.covariance()(0, 0), 3.0F * 3.0F);
-  EXPECT_FLOAT_EQ(measurement.measurement.covariance()(1, 1), 4.0F * 4.0F);
+  EXPECT_FLOAT_EQ(measurement.measurement.covariance()(0, 0), 3.0F);
+  EXPECT_FLOAT_EQ(measurement.measurement.covariance()(1, 1), 4.0F);
 
   EXPECT_EQ(
     measurement.timestamp.time_since_epoch(),
