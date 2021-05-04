@@ -108,6 +108,7 @@ EKF init_ekf(
 
 }  // anonymous namespace
 
+/// \relates autoware::perception::tracking::TrackedObject
 TrackedObject::TrackedObject(
   const DetectedObjectMsg & detection, float32_t default_variance,
   float32_t noise_variance)
