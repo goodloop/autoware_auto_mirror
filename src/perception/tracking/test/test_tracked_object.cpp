@@ -21,12 +21,12 @@
 
 using TrackedObject = autoware::perception::tracking::TrackedObject;
 using DetectedObjectMsg = autoware_auto_msgs::msg::DetectedObject;
-using TrackedObjectMsg = autoware_auto_msgs::msg::TrackedDynamicObject;
+using TrackedObjectMsg = autoware_auto_msgs::msg::TrackedObject;
 
 // Test that creating a tracked object without pose is not allowed.
 TEST(test_tracked_object, test_pose_required) {
   DetectedObjectMsg msg;
-  EXPECT_THROW((TrackedObject{msg, 1.0F, 1.0F}), std::runtime_error);
+  EXPECT_THROW((TrackedObject{msg, 1.0F, 1.0F}), std::invalid_argument);
   msg.kinematics.has_pose = true;
   EXPECT_NO_THROW((TrackedObject{msg, 1.0F, 1.0F}));
 }

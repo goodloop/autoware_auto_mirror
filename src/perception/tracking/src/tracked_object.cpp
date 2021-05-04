@@ -20,6 +20,7 @@
 #include <Eigen/Core>
 
 #include <algorithm>
+#include <stdexcept>
 
 namespace autoware
 {
@@ -56,7 +57,7 @@ EKF init_ekf(
   float32_t noise_variance)
 {
   if (!detection.kinematics.has_pose) {
-    throw std::runtime_error("A TrackedObject can only be created from a detection with pose.");
+    throw std::invalid_argument("A TrackedObject can only be created from a detection with pose.");
   }
   auto state = MotionModel::State {};
   state.at<X>() = static_cast<float32_t>(detection.kinematics.pose.pose.position.x);
@@ -171,7 +172,8 @@ void TrackedObject::update(const DetectedObjectMsg & detection)
   } else if (detection.kinematics.has_twist) {
     m_ekf.correct(twist_measurement);
   } else {
-    // Nothing to do here.
+    // Impossible, because validation checks this condition.
+    throw std::logic_error("DetectedObject with no pose and no twist encountered.");
   }
 }
 
