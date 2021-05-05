@@ -27,18 +27,18 @@
 #include <autoware_auto_msgs/msg/route.hpp>
 
 // TODO(frederik.beaujean) Remove when autoware messages fully updated and available
-#define MSGS_UPDATED 0
+#define MSGS_UPDATED 1
+#define TRAFFIC_LIGHTS 0
 
 #if MSGS_UPDATED
-
-#include <autoware_auto_msgs/msg/predicted_dynamic_objects.hpp>
-#include <autoware_auto_msgs/msg/tracked_dynamic_objects.hpp>
-#include <autoware_auto_msgs/msg/traffic_signal_array.hpp>
-
+#include <autoware_auto_msgs/msg/predicted_objects.hpp>
+#include <autoware_auto_msgs/msg/tracked_objects.hpp>
 #else
-
 #include <autoware_auto_msgs/msg/tracked_dynamic_object_array.hpp>
+#endif
 
+#if TRAFFIC_LIGHTS
+#include <autoware_auto_msgs/msg/traffic_signal_array.hpp>
 #endif
 
 #include <lanelet2_core/LaneletMap.h>
@@ -55,6 +55,20 @@ namespace autoware
 namespace prediction_nodes
 {
 
+// TODO(#1073) These conversion functions should be stored elsewhere
+
+// copy over common members, leaving prediction-specific stuff untouched
+autoware_auto_msgs::msg::PredictedObjects from_tracked(
+  const autoware_auto_msgs::msg::TrackedObjects &);
+autoware_auto_msgs::msg::PredictedObject from_tracked(
+  const autoware_auto_msgs::msg::TrackedObject &);
+autoware_auto_msgs::msg::PredictedObjectKinematics from_tracked(
+  const autoware_auto_msgs::msg::TrackedObjectKinematics &);
+
+// TODO move to implement package
+void predict_stationary(autoware_auto_msgs::msg::PredictedObject & predicted_object);
+void predict_all_stationary(autoware_auto_msgs::msg::PredictedObjects & predicted_objects);
+
 /// \class PredictionNodesNode
 class PREDICTION_NODES_PUBLIC PredictionNodesNode : public rclcpp::Node
 {
@@ -65,19 +79,22 @@ public:
 
 private:
 #if MSGS_UPDATED
-  using PredictedMsgT = autoware_auto_msgs::msg::PredictedDynamicObjects;
-  using TrackedMsgT = autoware_auto_msgs::msg::TrackedDynamicObjects;
-  using TrafficSignalT = autoware_auto_msgs::msg::TrafficSignalArray;
+  using PredictedMsgT = autoware_auto_msgs::msg::PredictedObjects;
+  using TrackedMsgT = autoware_auto_msgs::msg::TrackedObjects;
+  using RouteMsgT = autoware_auto_msgs::msg::Route;
 #else
   using TrackedMsgT = autoware_auto_msgs::msg::TrackedDynamicObjectArray;
-  using RouteMsgT = autoware_auto_msgs::msg::Route;
+#endif
+
+#if TRAFFIC_LIGHTS
+  using TrafficSignalT = autoware_auto_msgs::msg::TrafficSignalArray;
 #endif
   using HADMapService = autoware_auto_msgs::srv::HADMapService;
 
   void PREDICTION_NODES_LOCAL on_map_response(rclcpp::Client<HADMapService>::SharedFuture future);
   void PREDICTION_NODES_LOCAL on_route(RouteMsgT::ConstSharedPtr msg);
   void PREDICTION_NODES_LOCAL on_tracked_objects(TrackedMsgT::ConstSharedPtr msg);
-#if MSGS_UPDATED
+#if TRAFFIC_LIGHTS
   void PREDICTION_NODES_LOCAL on_traffic_signals(TrafficSignalT::ConstSharedPtr msg);
 #endif
 
@@ -86,12 +103,14 @@ private:
   void PREDICTION_NODES_LOCAL wait_for_map(
     std::chrono::milliseconds timeout = std::chrono::seconds{10U});
 
-  bool8_t verbose;  ///< whether to use verbose output or not.
+  bool verbose;  ///< whether to use verbose output or not.
 #if MSGS_UPDATED
-  rclcpp::Publisher<PredictedMsgT>::SharedPtr m_predicted_dynamic_objects_pub{};
-  rclcpp::Subscription<TrafficSignalT>::SharedPtr m_traffic_signal_sub{};
+  rclcpp::Publisher<PredictedMsgT>::SharedPtr m_predicted_objects_pub{};
 #endif
   rclcpp::Subscription<TrackedMsgT>::SharedPtr m_tracked_dynamic_objects_sub{};
+#if TRAFFIC_LIGHTS
+  rclcpp::Subscription<TrafficSignalT>::SharedPtr m_traffic_signal_sub{};
+#endif
 
   rclcpp::Client<HADMapService>::SharedPtr m_map_client{};
   lanelet::LaneletMapPtr m_map{};
