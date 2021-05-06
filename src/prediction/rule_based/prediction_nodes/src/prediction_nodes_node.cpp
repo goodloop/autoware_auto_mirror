@@ -28,11 +28,16 @@ namespace prediction_nodes
 {
 using std::placeholders::_1;
 
+  rclcpp::QoS default_qos()
+  {
+return rclcpp::QoS{10}.reliable().transient_local();
+  }
+
 PredictionNodesNode::PredictionNodesNode(const rclcpp::NodeOptions & options)
 : Node("prediction_nodes", options), verbose(true),
   // TODO(frederik.beaujean) Add topics to design doc
 #if MSGS_UPDATED
-  m_predicted_objects_pub{create_publisher<PredictedMsgT>("predicted_objects", rclcpp::QoS{10})},
+  m_predicted_objects_pub{create_publisher<PredictedMsgT>("predicted_objects", default_qos())},
 #endif
 #if TRAFFIC_LIGHTS
   m_traffic_signal_sub{create_subscription<TrafficSignalT>(
@@ -72,6 +77,7 @@ void PREDICTION_NODES_LOCAL PredictionNodesNode::on_route(RouteMsgT::ConstShared
 
 void PredictionNodesNode::on_tracked_objects(TrackedMsgT::ConstSharedPtr msg)
 {
+  std::cout << "Got a TrackedObjects message with header " << msg->header.stamp.sec << std::endl;
 #if MSGS_UPDATED
   PredictedMsgT predicted_objects = from_tracked(*msg);
   predict_all_stationary(predicted_objects);
