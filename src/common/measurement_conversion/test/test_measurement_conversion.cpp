@@ -32,6 +32,11 @@ TEST(Measurement2dConversionTest, odom) {
   msg.header.stamp.nanosec = 0;
   msg.pose.pose.position.x = 42.0;
   msg.pose.pose.position.y = 23.0;
+  // Rotation around z axis by 90 degrees.
+  msg.pose.pose.orientation.x = 0.0;
+  msg.pose.pose.orientation.y = 0.0;
+  msg.pose.pose.orientation.z = 0.7071068;
+  msg.pose.pose.orientation.w = 0.7071068;
   msg.pose.covariance[0] = 1.0;
   msg.pose.covariance[7] = 2.0;
   msg.twist.twist.linear.x = 23.0;
@@ -45,8 +50,8 @@ TEST(Measurement2dConversionTest, odom) {
   EXPECT_FLOAT_EQ(measurement.measurement.covariance()(0, 0), 1.0F);
   EXPECT_FLOAT_EQ(measurement.measurement.covariance()(1, 1), 2.0F);
 
-  EXPECT_FLOAT_EQ(measurement.measurement.state().vector()[2], 23.0F);
-  EXPECT_FLOAT_EQ(measurement.measurement.state().vector()[3], 42.0F);
+  EXPECT_FLOAT_EQ(measurement.measurement.state().vector()[2], -42.0F);
+  EXPECT_FLOAT_EQ(measurement.measurement.state().vector()[3], 23.0F);
   EXPECT_FLOAT_EQ(measurement.measurement.covariance()(2, 2), 3.0F);
   EXPECT_FLOAT_EQ(measurement.measurement.covariance()(3, 3), 4.0F);
 
