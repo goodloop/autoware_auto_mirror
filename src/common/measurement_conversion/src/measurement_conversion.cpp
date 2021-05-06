@@ -34,16 +34,12 @@ constexpr auto kIndexXYRelativePos = 1U;
 constexpr auto kIndexYRelativePos = kCovarianceMatrixRowsRelativePos + 1U;
 constexpr auto kIndexYXRelativePos = kCovarianceMatrixRowsRelativePos;
 constexpr auto kCovarianceMatrixRowsSquared = kCovarianceMatrixRows * kCovarianceMatrixRows;
-constexpr auto kCovarianceMatrixRowsSquaredRelativePos =
-  kCovarianceMatrixRowsRelativePos * kCovarianceMatrixRowsRelativePos;
 static_assert(
   std::tuple_size<
     geometry_msgs::msg::PoseWithCovariance::_covariance_type>::value ==
   kCovarianceMatrixRowsSquared, "We expect the covariance matrix to have 36 entries.");
-static_assert(
-  std::tuple_size<
-    autoware_auto_msgs::msg::RelativePositionWithCovarianceStamped::_covariance_type>::value ==
-  kCovarianceMatrixRowsSquaredRelativePos, "We expect the covariance matrix to have 9 entries.");
+// TODO(#789 autoware_auto_msgs) add a static assert once the RelativePosition message covariance is
+// represented by and std::array.
 
 /// Convert the ROS timestamp to chrono time point.
 std::chrono::system_clock::time_point to_time_point(const rclcpp::Time & time)
