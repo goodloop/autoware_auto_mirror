@@ -14,6 +14,9 @@
 //
 // Co-developed by Tier IV, Inc. and Apex.AI, Inc.
 
+#include "autoware_auto_msgs/msg/tracked_object.hpp"
+#include "autoware_auto_msgs/msg/tracked_objects.hpp"
+
 #include <gtest/gtest.h>
 
 #include <tracking/detected_object_associator.hpp>
@@ -88,8 +91,8 @@ TEST_F(AssociationTester, basic)
 
   tracked_object_vec.emplace_back(track1_obj, 0.0, 0.0);
 
-  DetectedObjects objects_msg;
-  DetectedObject obj1;
+  DetectedDynamicObjectArray objects_msg;
+  DetectedDynamicObject obj1;
   obj1.shape = create_square(4.0F);
   obj1.kinematics.centroid_position.x = 2.5;
   obj1.kinematics.centroid_position.y = 2.0;
@@ -99,7 +102,7 @@ TEST_F(AssociationTester, basic)
   obj1.kinematics.position_covariance[4] = 10.43;
   objects_msg.objects.push_back(obj1);
 
-  DetectedObject obj2;
+  DetectedDynamicObject obj2;
   obj2 = obj1;
   obj2.kinematics.centroid_position.x = 2.0;
   obj2.kinematics.centroid_position.y = 3.0;
@@ -134,7 +137,7 @@ TEST_F(AssociationTester, more_tracks_less_objects)
     //  Create detections that can be associated with tracks
     if (i % 2 == 0) {
       ++num_associated_dets;
-      DetectedObject current_detection;
+      DetectedDynamicObject current_detection;
       current_detection.shape = current_shape;
       // Move detections a bit to test out distance calculation logic as well
       current_detection.kinematics.centroid_position.x =
@@ -181,7 +184,7 @@ TEST_F(AssociationTester, area_gating_fails)
     current_track.kinematics.has_position_covariance = true;
     tracked_object_vec.emplace_back(current_track, 0.0, 0.0);
 
-    DetectedObject current_detection;
+    DetectedDynamicObject current_detection;
     if (i % 2 == 0) {
       // Create detections that cannot be associated with tracks
       ++num_unassociated_dets;
