@@ -65,10 +65,6 @@ autoware_auto_msgs::msg::PredictedObject from_tracked(
 autoware_auto_msgs::msg::PredictedObjectKinematics from_tracked(
   const autoware_auto_msgs::msg::TrackedObjectKinematics &);
 
-// TODO move to implement package
-void predict_stationary(autoware_auto_msgs::msg::PredictedObject & predicted_object);
-void predict_all_stationary(autoware_auto_msgs::msg::PredictedObjects & predicted_objects);
-
 /// \class PredictionNodesNode
 class PREDICTION_NODES_PUBLIC PredictionNodesNode : public rclcpp::Node
 {

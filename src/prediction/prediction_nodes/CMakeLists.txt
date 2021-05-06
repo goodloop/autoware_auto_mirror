@@ -26,12 +26,14 @@ ament_auto_find_build_dependencies(REQUIRED
 )
 
 set(PREDICTION_NODES_LIB_SRC
+  src/lonely_world_behavior.cpp
   src/prediction_nodes.cpp
 )
 
 set(PREDICTION_NODES_LIB_HEADERS
   include/prediction_nodes/prediction_nodes.hpp
   include/prediction_nodes/visibility_control.hpp
+  include/prediction_nodes/rule_based/lonely_world_behavior.hpp
 )
 
 # generate library
@@ -81,6 +83,6 @@ endif()
 
 # ament package generation and installing
 ament_auto_package(INSTALL_TO_SHARE
-  launch
-  test
+    launch
+    test
 )
