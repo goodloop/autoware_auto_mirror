@@ -92,7 +92,6 @@ void GnssConversionNode::nav_sat_fix_callback(
     const Eigen::Vector3d variances_diagonal{
       Eigen::Map<const Eigen::Vector3d>{m_override_variances_diagonal.data()}};
     const auto override_covariance = variances_diagonal.array().square().matrix().asDiagonal();
-    out_msg.covariance.resize(static_cast<std::size_t>(override_covariance.size()));
     auto pose_covariance = Eigen::Map<Eigen::Matrix3d>{&out_msg.covariance.front()};
     pose_covariance.topLeftCorner(
       override_covariance.rows(), override_covariance.cols()) = override_covariance;
