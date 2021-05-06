@@ -22,11 +22,18 @@
 namespace
 {
 constexpr auto kCovarianceMatrixRows = 6U;
+constexpr auto kCovarianceMatrixRowsRelativePos = 3U;
 constexpr auto kIndexX = 0U;
 constexpr auto kIndexXY = 1U;
 constexpr auto kIndexY = kCovarianceMatrixRows + 1U;
 constexpr auto kIndexYX = kCovarianceMatrixRows;
+constexpr auto kIndexXRelativePos = 0U;
+constexpr auto kIndexXYRelativePos = 1U;
+constexpr auto kIndexYRelativePos = kCovarianceMatrixRowsRelativePos + 1U;
+constexpr auto kIndexYXRelativePos = kCovarianceMatrixRowsRelativePos;
 constexpr auto kCovarianceMatrixRowsSquared = kCovarianceMatrixRows * kCovarianceMatrixRows;
+constexpr auto kCovarianceMatrixRowsSquaredRelativePos =
+  kCovarianceMatrixRowsRelativePos * kCovarianceMatrixRowsRelativePos;
 static_assert(
   std::tuple_size<
     geometry_msgs::msg::PoseWithCovariance::_covariance_type>::value ==
@@ -93,6 +100,22 @@ StampedMeasurement2dPose message_to_measurement(
     to_time_point(msg.header.stamp),
     message_to_measurement<Measurement2dPose>(msg.pose)
   };
+}
+
+template<>
+StampedMeasurement2dPose message_to_measurement(
+  const autoware_auto_msgs::msg::RelativePositionWithCovarianceStamped & msg)
+{
+  using common::types::float32_t;
+  Eigen::Matrix2d covariance;
+  covariance <<
+    msg.covariance[kIndexXRelativePos], msg.covariance[kIndexXYRelativePos],
+    msg.covariance[kIndexYXRelativePos], msg.covariance[kIndexYRelativePos];
+  return StampedMeasurement2dPose{
+    to_time_point(msg.header.stamp),
+    Measurement2dPose{
+      Eigen::Vector2f{msg.position.x, msg.position.y},
+      covariance.cast<float32_t>()}};
 }
 
 template<>

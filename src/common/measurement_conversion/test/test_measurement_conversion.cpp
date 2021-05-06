@@ -76,7 +76,28 @@ TEST(Measurement2dConversionTest, pose) {
     std::chrono::seconds{42LL});
 }
 
-/// \test Create a measurement from tist.
+/// \test Create a measurement from a relative pose.
+TEST(Measurement2dConversionTest, RelativePose) {
+  autoware_auto_msgs::msg::RelativePositionWithCovarianceStamped msg{};
+  msg.header.frame_id = "map";
+  msg.header.stamp.sec = 42;
+  msg.header.stamp.nanosec = 0;
+  msg.position.x = 42.0;
+  msg.position.y = 23.0;
+  msg.covariance[0] = 1.0;
+  msg.covariance[4] = 2.0;
+  msg.covariance[8] = 3.0;
+  const auto measurement = message_to_measurement<StampedMeasurement2dPose>(msg);
+  EXPECT_FLOAT_EQ(measurement.measurement.state().vector().x(), 42.0F);
+  EXPECT_FLOAT_EQ(measurement.measurement.state().vector().y(), 23.0F);
+  EXPECT_FLOAT_EQ(measurement.measurement.covariance()(0, 0), 1.0F);
+  EXPECT_FLOAT_EQ(measurement.measurement.covariance()(1, 1), 2.0F);
+  EXPECT_EQ(
+    measurement.timestamp.time_since_epoch(),
+    std::chrono::seconds{42LL});
+}
+
+/// \test Create a measurement from twist.
 TEST(Measurement2dConversionTest, twist) {
   geometry_msgs::msg::TwistWithCovarianceStamped msg{};
   msg.header.frame_id = "map";

@@ -18,8 +18,8 @@
 #ifndef MEASUREMENT_CONVERSION__MEASUREMENT_TRANSFORMATION_HPP_
 #define MEASUREMENT_CONVERSION__MEASUREMENT_TRANSFORMATION_HPP_
 
-#include <measurement_conversion/measurement_typedefs.hpp>
 #include <measurement_conversion/measurement_conversion.hpp>
+#include <measurement_conversion/measurement_typedefs.hpp>
 #include <measurement_conversion/visibility_control.hpp>
 
 #include <Eigen/Geometry>
@@ -36,15 +36,12 @@ namespace state_estimation
 ///
 /// @tparam     MeasurementT  Type of measurement.
 ///
-/// @param[in]  measurement          The measurement.
-/// @param[in]  tf__world__frame_id  A transform from frame_id to world frame.
-///
 /// @return     The measurement, but transformed
 ///
 template<typename MeasurementT>
 MeasurementT transform_measurement(
-  const MeasurementT & measurement,
-  const Eigen::Isometry3f & tf__world__frame_id)
+  const MeasurementT &,
+  const Eigen::Isometry3f &)
 {
   static_assert(
     sizeof(MeasurementT) == 0,
