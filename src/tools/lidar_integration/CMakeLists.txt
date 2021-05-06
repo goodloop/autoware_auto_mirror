@@ -31,12 +31,6 @@ ament_auto_add_library(${SPOOFER_LIB} SHARED
   src/vlp16_integration_spoofer.cpp
   src/point_cloud_mutation_spoofer.cpp)
 autoware_set_compile_options(${SPOOFER_LIB})
-# FIXME "htons" used in src/udp_sender.cpp produces sign conversion for gcc 7.5
-# on ARM 64 Linux when compiling with optimizations, thus disable warning for
-# now until UdpSender is ported to cross platform implementation.
-# See:
-#   https://gitlab.com/autowarefoundation/autoware.auto/AutowareAuto/-/merge_requests/116#note_313794141
-target_compile_options(${SPOOFER_LIB} PRIVATE -Wno-sign-conversion)
 
 set(VLP16_INTEGRATION_SPOOFER vlp16_integration_spoofer_exe)
 ament_auto_add_executable(${VLP16_INTEGRATION_SPOOFER}

@@ -39,10 +39,6 @@ rclcpp_components_register_node(behavior_planner_node
   EXECUTABLE behavior_planner_node_exe
 )
 
-# required for tf2
-target_compile_options(behavior_planner_node PRIVATE -Wno-sign-conversion -Wno-conversion -Wno-old-style-cast
-        -Wno-useless-cast -Wno-double-promotion -Wno-nonnull-compare -Wuseless-cast)
-
 # Testing
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
