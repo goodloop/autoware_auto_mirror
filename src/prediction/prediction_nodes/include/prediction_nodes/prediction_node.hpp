@@ -16,12 +16,10 @@
 
 /// \copyright Copyright 2021 The Autoware Foundation
 /// \file
-/// \brief This file defines the prediction_nodes_node class.
+/// \brief This file defines the prediction node
 
-#ifndef PREDICTION_NODES__PREDICTION_NODES_NODE_HPP_
-#define PREDICTION_NODES__PREDICTION_NODES_NODE_HPP_
-
-#include <prediction_nodes/prediction_nodes.hpp>
+#ifndef PREDICTION_NODES__PREDICTION_NODE_HPP_
+#define PREDICTION_NODES__PREDICTION_NODE_HPP_
 
 #include <autoware_auto_msgs/srv/had_map_service.hpp>
 #include <autoware_auto_msgs/msg/route.hpp>
@@ -65,13 +63,13 @@ autoware_auto_msgs::msg::PredictedObject from_tracked(
 autoware_auto_msgs::msg::PredictedObjectKinematics from_tracked(
   const autoware_auto_msgs::msg::TrackedObjectKinematics &);
 
-/// \class PredictionNodesNode
-class PREDICTION_NODES_PUBLIC PredictionNodesNode : public rclcpp::Node
+/// \class PredictionNode
+class PREDICTION_NODES_PUBLIC PredictionNode : public rclcpp::Node
 {
 public:
   /// \brief default constructor, starts driver
   /// \throw runtime error if failed to start threads or configure driver
-  explicit PredictionNodesNode(const rclcpp::NodeOptions & options);
+  explicit PredictionNode(const rclcpp::NodeOptions & options);
 
 private:
 #if MSGS_UPDATED
@@ -120,4 +118,4 @@ private:
 }  // namespace prediction_nodes
 }  // namespace autoware
 
-#endif  // PREDICTION_NODES__PREDICTION_NODES_NODE_HPP_
+#endif  // PREDICTION_NODES__PREDICTION_NODE_HPP_

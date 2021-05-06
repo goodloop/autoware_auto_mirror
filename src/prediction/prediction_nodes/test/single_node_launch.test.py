@@ -80,7 +80,7 @@ def generate_test_description():
             composable_node_descriptions=[
                 ComposableNode(
                     package='prediction_nodes',
-                    plugin='autoware::prediction_nodes::PredictionNodesNode',
+                    plugin='autoware::prediction_nodes::PredictionNode',
                     name='prediction_nodes_node'),
             ],
             output='screen',

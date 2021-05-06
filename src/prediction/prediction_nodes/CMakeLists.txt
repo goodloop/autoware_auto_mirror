@@ -27,11 +27,9 @@ ament_auto_find_build_dependencies(REQUIRED
 
 set(PREDICTION_NODES_LIB_SRC
   src/lonely_world_behavior.cpp
-  src/prediction_nodes.cpp
 )
 
 set(PREDICTION_NODES_LIB_HEADERS
-  include/prediction_nodes/prediction_nodes.hpp
   include/prediction_nodes/visibility_control.hpp
   include/prediction_nodes/rule_based/lonely_world_behavior.hpp
 )
@@ -43,18 +41,9 @@ ament_auto_add_library(${PROJECT_NAME} SHARED
 )
 autoware_set_compile_options(${PROJECT_NAME})
 
-set(PREDICTION_NODES_NODE_SRC
-  src/prediction_nodes_node.cpp
-)
-
-set(PREDICTION_NODES_NODE_HEADERS
-  include/prediction_nodes/prediction_nodes_node.hpp
-)
-
 # generate component node library
 ament_auto_add_library(${PROJECT_NAME}_node SHARED
-  ${PREDICTION_NODES_NODE_SRC}
-  ${PREDICTION_NODES_NODE_HEADERS}
+  src/prediction_node.cpp
 )
 autoware_set_compile_options(${PROJECT_NAME}_node)
 rclcpp_components_register_node(${PROJECT_NAME}_node

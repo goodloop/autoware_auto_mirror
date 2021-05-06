@@ -14,7 +14,7 @@
 
 // Co-developed by Tier IV, Inc. and Apex.AI, Inc.
 
-#include "prediction_nodes/prediction_nodes_node.hpp"
+#include "prediction_nodes/prediction_node.hpp"
 #include "prediction_nodes/rule_based/lonely_world_behavior.hpp"
 
 #include <had_map_utils/had_map_conversion.hpp>
@@ -35,7 +35,7 @@ using std::placeholders::_1;
 return rclcpp::QoS{10}.reliable().transient_local();
   }
 
-PredictionNodesNode::PredictionNodesNode(const rclcpp::NodeOptions & options)
+PredictionNode::PredictionNode(const rclcpp::NodeOptions & options)
 : Node("prediction_nodes", options), verbose(true),
   // TODO(frederik.beaujean) Add topics to design doc
 #if MSGS_UPDATED
@@ -45,18 +45,18 @@ PredictionNodesNode::PredictionNodesNode(const rclcpp::NodeOptions & options)
   m_traffic_signal_sub{create_subscription<TrafficSignalT>(
       "tracked_signals",
       rclcpp::QoS{10},
-      std::bind(&PredictionNodesNode::on_traffic_signals, this, _1))}
+      std::bind(&PredictionNode::on_traffic_signals, this, _1))}
 #endif
   m_tracked_dynamic_objects_sub{
     create_subscription<TrackedMsgT>(
       "tracked_objects", rclcpp::QoS{10},
-      std::bind(&PredictionNodesNode::on_tracked_objects, this,
+      std::bind(&PredictionNode::on_tracked_objects, this,
       _1))},
   m_map_client{create_client<HADMapService>("HAD_Map_Service")},
   m_tf_listener(m_tf_buffer, std::shared_ptr<rclcpp::Node>(this, [](auto) {}), false),
   m_route_sub{this->create_subscription<RouteMsgT>(
       "route", rclcpp::QoS{10},
-      std::bind(&PredictionNodesNode::on_route, this, _1))}
+      std::bind(&PredictionNode::on_route, this, _1))}
 {
   // send all asynchronous requests
 //  request_map();
@@ -65,19 +65,19 @@ PredictionNodesNode::PredictionNodesNode(const rclcpp::NodeOptions & options)
 //  wait_for_map();
 }
 
-void PredictionNodesNode::on_map_response(rclcpp::Client<HADMapService>::SharedFuture future)
+void PredictionNode::on_map_response(rclcpp::Client<HADMapService>::SharedFuture future)
 {
   autoware::common::had_map_utils::fromBinaryMsg(future.get()->map, m_map);
 
   RCLCPP_INFO(get_logger(), "Received map");
 }
 
-void PREDICTION_NODES_LOCAL PredictionNodesNode::on_route(RouteMsgT::ConstSharedPtr msg)
+void PREDICTION_NODES_LOCAL PredictionNode::on_route(RouteMsgT::ConstSharedPtr msg)
 {
   m_route = msg;
 }
 
-void PredictionNodesNode::on_tracked_objects(TrackedMsgT::ConstSharedPtr msg)
+void PredictionNode::on_tracked_objects(TrackedMsgT::ConstSharedPtr msg)
 {
   std::cout << "Got a TrackedObjects message with header " << msg->header.stamp.sec << std::endl;
 #if MSGS_UPDATED
@@ -88,11 +88,11 @@ void PredictionNodesNode::on_tracked_objects(TrackedMsgT::ConstSharedPtr msg)
 }
 
 #if TRAFFIC_LIGHTS
-void PredictionNodesNode::on_traffic_signals(TrafficSignalT::ConstSharedPtr /*msg*/)
+void PredictionNode::on_traffic_signals(TrafficSignalT::ConstSharedPtr /*msg*/)
 {}
 #endif
 
-void PredictionNodesNode::request_map()
+void PredictionNode::request_map()
 {
   using namespace std::literals::chrono_literals;
 
@@ -119,10 +119,10 @@ void PredictionNodesNode::request_map()
   auto result =
     m_map_client->async_send_request(
     request,
-    std::bind(&PredictionNodesNode::on_map_response, this, _1));
+    std::bind(&PredictionNode::on_map_response, this, _1));
 }
 
-void PredictionNodesNode::wait_for_map(std::chrono::milliseconds timeout)
+void PredictionNode::wait_for_map(std::chrono::milliseconds timeout)
 {
   const auto start = std::chrono::steady_clock::now();
   while (!m_map) {
@@ -185,4 +185,4 @@ autoware_auto_msgs::msg::PredictedObjectKinematics from_tracked(
 
 // This acts as an entry point, allowing the component to be
 // discoverable when its library is being loaded into a running process
-RCLCPP_COMPONENTS_REGISTER_NODE(autoware::prediction_nodes::PredictionNodesNode)
+RCLCPP_COMPONENTS_REGISTER_NODE(autoware::prediction_nodes::PredictionNode)
