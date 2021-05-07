@@ -14,12 +14,11 @@
 //
 // Co-developed by Tier IV, Inc. and Apex.AI, Inc.
 
+#include "gtest/gtest.h"
+
 #include "autoware_auto_msgs/msg/tracked_object.hpp"
 #include "autoware_auto_msgs/msg/tracked_objects.hpp"
-
-#include <gtest/gtest.h>
-
-#include <tracking/data_association.hpp>
+#include "tracking/data_association.hpp"
 
 #include <vector>
 
