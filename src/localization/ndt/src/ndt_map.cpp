@@ -27,68 +27,6 @@ namespace localization
 {
 namespace ndt
 {
-uint32_t validate_pcl_map(const sensor_msgs::msg::PointCloud2 & msg)
-{
-  // lambda to check the fields of a PointField
-  auto field_valid = [](const auto & field, auto data_type, auto offset, auto count) {
-      return (field.datatype == data_type) && (field.offset == offset) && (field.count == count);
-    };
-
-  auto ret = 0U;
-  const auto double_field_size =
-    static_cast<uint32_t>(sizeOfPointField(sensor_msgs::msg::PointField::FLOAT64));
-
-  // TODO(cvasfi): Possibly allow additional fields that don't change the order of the fields
-  constexpr auto expected_num_fields = 9U;
-
-  // Check general pc metadata
-  if ((msg.fields.size()) != expected_num_fields ||
-    (msg.point_step != (expected_num_fields * double_field_size)) ||
-    (msg.height != 1U))
-  {
-    return 0U;
-  }
-
-  // check PointField fields
-  // Get ID of the last field before cell_ID for reverse iterating. (used to calculate offset)
-  auto double_field_idx = expected_num_fields - 1U;
-  if (!std::all_of(
-      msg.fields.rbegin(), msg.fields.rend(),               // check all float fields
-      [&double_field_idx, &field_valid, double_field_size](auto & field) {
-        return field_valid(
-          field, sensor_msgs::msg::PointField::FLOAT64,
-          ((double_field_idx--) * double_field_size), 1U);
-      }))
-  {
-    return 0U;
-  }
-
-  // Check field names
-  if ((msg.fields[0U].name != "x") ||
-    (msg.fields[1U].name != "y") ||
-    (msg.fields[2U].name != "z") ||
-    (msg.fields[3U].name != "icov_xx") ||
-    (msg.fields[4U].name != "icov_xy") ||
-    (msg.fields[5U].name != "icov_xz") ||
-    (msg.fields[6U].name != "icov_yy") ||
-    (msg.fields[7U].name != "icov_yz") ||
-    (msg.fields[8U].name != "icov_zz"))
-  {
-    return 0U;
-  }
-
-  // If the actual size and the meta data is in conflict, use the minimum length to be safe.
-  const auto min_data_length = std::min(
-    static_cast<decltype(msg.row_step)>(msg.data.size()),
-    std::min(msg.row_step, msg.width * msg.point_step));
-  // Trim the length to make it divisible to point_step, excess data cannot be read.
-  const auto safe_data_length = min_data_length - (min_data_length % msg.point_step);
-  // Return number of points that can safely be read from the point cloud
-  ret = safe_data_length / msg.point_step;
-
-  return ret;
-}
-
 DynamicNDTMap::DynamicNDTMap(const Config & voxel_grid_config)
 : m_grid{voxel_grid_config} {}
 
@@ -134,22 +72,6 @@ void DynamicNDTMap::insert(const sensor_msgs::msg::PointCloud2 & msg)
   }
   m_stamp = ::time_utils::from_message(msg.header.stamp);
   m_frame_id = msg.header.frame_id;
-}
-
-void push_back(
-  std::array<sensor_msgs::PointCloud2Iterator<ndt::Real>, 9U> & pc_its,
-  const SerializedNDTMapPoint & point)
-{
-  *pc_its[0U] = point.x;
-  *pc_its[1U] = point.y;
-  *pc_its[2U] = point.z;
-  *pc_its[3U] = point.icov_xx;
-  *pc_its[4U] = point.icov_xy;
-  *pc_its[5U] = point.icov_xz;
-  *pc_its[6U] = point.icov_yy;
-  *pc_its[7U] = point.icov_yz;
-  *pc_its[8U] = point.icov_zz;
-  std::for_each(pc_its.begin(), pc_its.end(), [](auto & it) {++it;});
 }
 
 /// The resulting point cloud has the following fields: x, y, z, cov_xx, cov_xy, cov_xz, cov_yy,
