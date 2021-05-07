@@ -47,7 +47,7 @@ class TestFilter : public FilterNodeBase
 protected:
   // Implementation of the filter child method
   virtual void filter(
-    const PointCloud2ConstPtr & input, const IndicesPtr & indices, PointCloud2 & output)
+    const PointCloud2ConstPtr & input, const IndicesPtr &, PointCloud2 & output)
   {
     // Copy the pointcloud so input = output
     output = *input;

@@ -21,13 +21,13 @@
 
 
 #include <memory>
+#include <mutex>
 #include <string>
 #include <vector>
 
-#include "boost/thread/mutex.hpp"
 #include "filter_node_base/visibility_control.hpp"
-#include "sensor_msgs/msg/point_cloud2.hpp"
 #include "common/types.hpp"
+#include "sensor_msgs/msg/point_cloud2.hpp"
 
 // Include TF
 #include "message_filters/subscriber.h"
@@ -109,7 +109,7 @@ protected:
   std::string filter_field_name_;
 
   /** \brief Internal mutex */
-  boost::mutex mutex_;
+  std::mutex mutex_;
 
   /** \brief Virtual abstract filter method called by the computePublish method at the arrival of each pointcloud message
    * \param input The input point cloud dataset.
@@ -139,9 +139,10 @@ protected:
    * specified jitter.
    **/
   bool8_t use_indices_;
+
   /** \brief True if we use an approximate time synchronizer
    * versus an exact one (false by default). */
-  bool8_t approximate_sync_;
+  bool8_t approximate_sync_{};
 
   /** \brief The maximum queue size. */
   size_t max_queue_size_;

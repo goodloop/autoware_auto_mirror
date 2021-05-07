@@ -100,7 +100,6 @@ void FilterNodeBase::computePublish(
   // Call the virtual method in the child
   filter(input, indices, output);
 
-  // Publish a boost shared ptr
   pub_output_->publish(output);
 }
 
