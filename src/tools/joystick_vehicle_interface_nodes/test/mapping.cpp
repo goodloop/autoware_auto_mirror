@@ -380,7 +380,9 @@ TEST_P(joy_vi_test, basic_mapping)
       err_print(
         "headlight", state.msg_->headlight, HeadlightsCommand::ENABLE_LOW,
         HeadlightsCommand::DISABLE, Buttons::HEADLIGHTS_TOGGLE);
-      err_print("wiper", state.msg_->wiper, WipersCommand::ENABLE_LOW, WipersCommand::DISABLE, Buttons::WIPER_TOGGLE);
+      err_print(
+        "wiper", state.msg_->wiper, WipersCommand::ENABLE_LOW, WipersCommand::DISABLE,
+        Buttons::WIPER_TOGGLE);
       EXPECT_TRUE(false);
     }
     // Easy checks w/o state
