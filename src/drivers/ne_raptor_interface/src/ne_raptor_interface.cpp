@@ -259,16 +259,16 @@ bool8_t NERaptorInterface::send_state_command(const VehicleStateCommand & msg)
     case WipersCommand::NO_COMMAND:
       // Keep previous
       break;
-    case WipersCommand::OFF:
+    case WipersCommand::DISABLE:
       m_misc_cmd.front_wiper_cmd.status = WiperFront::OFF;
       break;
-    case WipersCommand::LOW:
+    case WipersCommand::ENABLE_LOW:
       m_misc_cmd.front_wiper_cmd.status = WiperFront::CONSTANT_LOW;
       break;
-    case WipersCommand::HIGH:
+    case WipersCommand::ENABLE_HIGH:
       m_misc_cmd.front_wiper_cmd.status = WiperFront::CONSTANT_HIGH;
       break;
-    case WipersCommand::CLEAN:
+    case WipersCommand::ENABLE_CLEAN:
       m_misc_cmd.front_wiper_cmd.status = WiperFront::WASH_BRIEF;
       break;
     default:
