@@ -137,20 +137,24 @@ StampedMeasurement2dPoseAndSpeed message_to_measurement(const nav_msgs::msg::Odo
     static_cast<float32_t>(msg.twist.twist.linear.x),
     static_cast<float32_t>(msg.twist.twist.linear.y),
   };
-  Eigen::Matrix4d covariance{Eigen::Matrix4d::Zero()};
-  covariance.topLeftCorner(2, 2) <<
+  const Eigen::Vector2f speed{rx__msg_frame_id__msg_child_frame_id * speed_in_child_frame};
+  Eigen::Matrix4d covariance_double{Eigen::Matrix4d::Zero()};
+  covariance_double.topLeftCorner(2, 2) <<
     msg.pose.covariance[kIndexX], msg.pose.covariance[kIndexXY],
     msg.pose.covariance[kIndexYX], msg.pose.covariance[kIndexY];
-  covariance.bottomRightCorner(2, 2) <<
+  covariance_double.bottomRightCorner(2, 2) <<
     msg.twist.covariance[kIndexX], msg.twist.covariance[kIndexXY],
     msg.twist.covariance[kIndexYX], msg.twist.covariance[kIndexY];
+  Eigen::Matrix4f covariance{covariance_double.cast<float32_t>()};
+  // Rotate the speed covariance as the speed is now in frame_id frame and not in child_frame_id.
+  covariance.bottomRightCorner(2, 2) =
+    rx__msg_frame_id__msg_child_frame_id *
+    covariance.bottomRightCorner(2, 2) *
+    rx__msg_frame_id__msg_child_frame_id.transpose();
 
   return StampedMeasurement2dPoseAndSpeed{
     to_time_point(msg.header.stamp),
-    Measurement2dPoseAndSpeed{
-      (Eigen::Vector4f{} <<
-        pos_state, rx__msg_frame_id__msg_child_frame_id * speed_in_child_frame).finished(),
-      covariance.cast<float32_t>()}};
+    Measurement2dPoseAndSpeed{(Eigen::Vector4f{} << pos_state, speed).finished(), covariance}};
 }
 
 }  // namespace state_estimation
