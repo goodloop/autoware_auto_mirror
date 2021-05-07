@@ -837,7 +837,7 @@ TEST_F(DISABLED_NERaptorInterface_test, DISABLED_test_cmd_vehicle_state)
   myTests[kTestValid_VSC + 6].exp_mc.high_beam_cmd.status = HighBeam::OFF;
 
   // Test invalid: wiper
-  myTests[kTestValid_VSC + 7].in_vsc.wiper = WipersCommand::CLEAN + 1;
+  myTests[kTestValid_VSC + 7].in_vsc.wiper = WipersCommand::ENABLE_CLEAN + 1;
   myTests[kTestValid_VSC + 7].exp_mc.front_wiper_cmd.status = WiperFront::SNA;
 
   myTests[kTestValid_VSC + 8].in_vsc.wiper = 0xFF;
@@ -1065,7 +1065,7 @@ TEST_F(DISABLED_NERaptorInterface_test, test_cmd_vehicle_state_no_msg_check)
   for (i = 0; i < kNumTests_VSC; i++) {
     myTests[i].in_vsc.blinker = VehicleStateCommand::BLINKER_HAZARD;
     myTests[i].in_vsc.headlight = HeadlightsCommand::ENABLE_HIGH;
-    myTests[i].in_vsc.wiper = WipersCommand::HIGH;
+    myTests[i].in_vsc.wiper = WipersCommand::ENABLE_HIGH;
     myTests[i].in_vsc.gear = VehicleStateCommand::GEAR_DRIVE;
     myTests[i].in_mcr = ModeChangeRequest::MODE_AUTONOMOUS;
     myTests[i].in_vsc.hand_brake = true;
