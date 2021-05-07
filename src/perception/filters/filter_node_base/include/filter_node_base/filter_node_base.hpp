@@ -54,6 +54,21 @@ namespace filters
 namespace filter_node_base
 {
 
+/** \brief For parameter service callback */
+template<typename T>
+bool get_param(const std::vector<rclcpp::Parameter> & p, const std::string & name, T & value)
+{
+  auto it = std::find_if(
+    p.cbegin(), p.cend(), [&name](const rclcpp::Parameter & parameter) {
+      return parameter.get_name() == name;
+    });
+  if (it != p.cend()) {
+    value = it->template get_value<T>();
+    return true;
+  }
+  return false;
+}
+
 /// \class FilterNodeBase
 /// \brief The abstract class used for filter applications
 class FILTER_NODE_BASE_PUBLIC FilterNodeBase : public rclcpp::Node
@@ -75,6 +90,9 @@ public:
     const rclcpp::NodeOptions & options = rclcpp::NodeOptions());
 
 protected:
+  /** \brief Parameter service callback result : needed to be hold */
+  OnSetParametersCallbackHandle::SharedPtr set_param_res_filter_;
+
   /** \brief The input PointCloud2 subscriber */
   rclcpp::Subscription<PointCloud2>::SharedPtr sub_input_;
 
@@ -86,6 +104,9 @@ protected:
 
   /** \brief Internal mutex */
   std::mutex mutex_;
+
+  /** \brief The maximum queue size. */
+  size_t max_queue_size_;
 
   /** \brief Virtual abstract filter method called by the computePublish method at the arrival of each pointcloud message
    * \param input The input point cloud dataset.
@@ -100,9 +121,6 @@ protected:
    * \param indices A pointer to the vector of point indices to use.
    */
   void computePublish(const PointCloud2ConstPtr & input);
-
-  /** \brief The maximum queue size. */
-  size_t max_queue_size_;
 
   /** \brief Validate a sensor_msgs::msg::PointCloud2 message
    *
@@ -126,6 +144,10 @@ protected:
   }
 
 private:
+  /** \brief Parameter service callback */
+  rcl_interfaces::msg::SetParametersResult filterParamCallback(
+    const std::vector<rclcpp::Parameter> & p);
+
   /** \brief PointCloud2 + Indices data callback */
   void input_indices_callback(const PointCloud2ConstPtr cloud);
 

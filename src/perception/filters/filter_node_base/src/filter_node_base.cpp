@@ -47,7 +47,6 @@ FilterNodeBase::FilterNodeBase(
     "input", rclcpp::SensorDataQoS().keep_last(max_queue_size_), cb);
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void FilterNodeBase::computePublish(const PointCloud2ConstPtr & input)
 {
   PointCloud2 output;
@@ -57,7 +56,6 @@ void FilterNodeBase::computePublish(const PointCloud2ConstPtr & input)
   pub_output_->publish(output);
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////////
 void FilterNodeBase::input_indices_callback(const PointCloud2ConstPtr cloud)
 {
   // If cloud is given, check if it's valid
