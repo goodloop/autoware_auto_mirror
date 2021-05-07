@@ -54,8 +54,6 @@ namespace filters
 namespace filter_node_base
 {
 
-namespace sync_policies = message_filters::sync_policies;
-
 /// \class FilterNodeBase
 /// \brief The abstract class used for filter applications
 class FILTER_NODE_BASE_PUBLIC FilterNodeBase : public rclcpp::Node
@@ -67,22 +65,6 @@ public:
   typedef pcl::PointCloud<pcl::PointXYZ> PointCloud;
   typedef PointCloud::Ptr PointCloudPtr;
   typedef PointCloud::ConstPtr PointCloudConstPtr;
-
-  typedef pcl_msgs::msg::PointIndices PointIndices;
-  typedef PointIndices::SharedPtr PointIndicesPtr;
-  typedef PointIndices::ConstSharedPtr PointIndicesConstPtr;
-
-  typedef pcl_msgs::msg::ModelCoefficients ModelCoefficients;
-  typedef ModelCoefficients::SharedPtr ModelCoefficientsPtr;
-  typedef ModelCoefficients::ConstSharedPtr ModelCoefficientsConstPtr;
-
-  typedef pcl::IndicesPtr IndicesPtr;
-  typedef pcl::IndicesConstPtr IndicesConstPtr;
-
-  typedef message_filters::Synchronizer<sync_policies::ExactTime<PointCloud2, PointIndices>>
-    ExactTimeSyncPolicy;
-  typedef message_filters::Synchronizer<sync_policies::ApproximateTime<PointCloud2, PointIndices>>
-    ApproximateTimeSyncPolicy;
 
   /** \brief The default constructor for the FilterNodeBase class
    * \param filter_name The name of the node to pass on to rclcpp::Node
@@ -99,12 +81,6 @@ protected:
   /** \brief The output PointCloud2 publisher */
   rclcpp::Publisher<PointCloud2>::SharedPtr pub_output_;
 
-  /** \brief The message filter subscriber for PointCloud2 */
-  message_filters::Subscriber<PointCloud2> sub_input_filter_;
-
-  /** \brief The message filter subscriber for PointIndices */
-  message_filters::Subscriber<PointIndices> sub_indices_filter_;
-
   /** \brief The desired user filter field name */
   std::string filter_field_name_;
 
@@ -117,32 +93,13 @@ protected:
    * \param output The resultant filtered PointCloud2
    */
   virtual void filter(
-    const PointCloud2ConstPtr & input, const IndicesPtr & indices, PointCloud2 & output) = 0;
+    const PointCloud2ConstPtr & input, PointCloud2 & output) = 0;
 
   /** \brief Call the child filter () method, optionally transform the result, and publish it.
    * \param input The input point cloud dataset.
    * \param indices A pointer to the vector of point indices to use.
    */
-  void computePublish(const PointCloud2ConstPtr & input, const IndicesPtr & indices);
-
-  //////////////////////
-  // from PCLNodelet //
-  //////////////////////
-  /** \brief Set to true if point indices are used.
-   *
-   * When receiving a point cloud, if use_indices_ is false, the entire
-   * point cloud is processed for the given operation. If use_indices_ is
-   * true, then the ~indices topic is read to get the vector of point
-   * indices specifying the subset of the point cloud that will be used for
-   * the operation. In the case where use_indices_ is true, the ~input and
-   * ~indices topics must be synchronised in time, either exact or within a
-   * specified jitter.
-   **/
-  bool8_t use_indices_;
-
-  /** \brief True if we use an approximate time synchronizer
-   * versus an exact one (false by default). */
-  bool8_t approximate_sync_{};
+  void computePublish(const PointCloud2ConstPtr & input);
 
   /** \brief The maximum queue size. */
   size_t max_queue_size_;
@@ -168,33 +125,9 @@ protected:
     return true;
   }
 
-  /** \brief Validate a pcl_msgs::msg::PointIndices message
-   *
-   * Not implemented properly - just returns true
-   */
-  inline bool isValid(
-    const PointIndicesConstPtr &, const std::string & = "indices")
-  {
-    return true;
-  }
-
-  /** \brief Validate a pcl_msgs::msg::ModelCoefficients message
-   *
-   * Not implemented properly - just returns true
-   */
-  inline bool isValid(
-    const ModelCoefficientsConstPtr &, const std::string & = "model")
-  {
-    return true;
-  }
-
 private:
-  /** \brief Synchronized input, and indices */
-  std::shared_ptr<ExactTimeSyncPolicy> sync_input_indices_e_;
-  std::shared_ptr<ApproximateTimeSyncPolicy> sync_input_indices_a_;
-
   /** \brief PointCloud2 + Indices data callback */
-  void input_indices_callback(const PointCloud2ConstPtr cloud, const PointIndicesConstPtr indices);
+  void input_indices_callback(const PointCloud2ConstPtr cloud);
 
 public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
