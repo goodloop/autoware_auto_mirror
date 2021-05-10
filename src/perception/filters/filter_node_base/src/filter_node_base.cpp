@@ -48,6 +48,25 @@ FilterNodeBase::FilterNodeBase(
     &FilterNodeBase::pointcloud_callback, this, std::placeholders::_1);
   sub_input_ = create_subscription<PointCloud2>(
     "input", rclcpp::SensorDataQoS().keep_last(max_queue_size_), cb);
+
+  // Set parameter service callback
+  set_param_res_filter_ = this->add_on_set_parameters_callback(
+    std::bind(&FilterNodeBase::param_callback, this, std::placeholders::_1));
+}
+
+rcl_interfaces::msg::SetParametersResult FilterNodeBase::param_callback(
+  const std::vector<rclcpp::Parameter> & p)
+{
+  std::lock_guard<std::mutex> lock(mutex_);
+
+  // Call the virtual method to get parameters
+  get_node_parameters(p);
+
+  rcl_interfaces::msg::SetParametersResult result;
+  result.successful = true;
+  result.reason = "parameter received";
+
+  return result;
 }
 
 void FilterNodeBase::pointcloud_callback(const PointCloud2ConstPtr msg)

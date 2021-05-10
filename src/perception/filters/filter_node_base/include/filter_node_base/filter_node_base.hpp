@@ -79,9 +79,6 @@ public:
     const rclcpp::NodeOptions & options = rclcpp::NodeOptions());
 
 protected:
-  /** \brief Callback handler for parameter services */
-  OnSetParametersCallbackHandle::SharedPtr set_param_res_filter_;
-
   /** \brief The input PointCloud2 subscriber */
   rclcpp::Subscription<sensor_msgs::msg::PointCloud2>::SharedPtr sub_input_;
 
@@ -105,6 +102,17 @@ protected:
   FILTER_NODE_BASE_LOCAL virtual void filter(
     const sensor_msgs::msg::PointCloud2::ConstSharedPtr & input,
     sensor_msgs::msg::PointCloud2 & output) = 0;
+
+  /** \brief Virtual abstract method for getting parameters for various child classes of the FilterNodeBase
+   *
+   * This method is called in the param_callback method and is triggered when a parameter
+   * associated with the node is changed node should use the get_param method to retrieve any
+   * changed parameters in the node.
+   *
+   * \param p Vector of rclcpp::Parameters belonging to the node
+   */
+  FILTER_NODE_BASE_LOCAL virtual void get_node_parameters(const std::vector<rclcpp::Parameter> & p)
+  = 0;
 
   /** \brief Validate a sensor_msgs::msg::PointCloud2 message
    *
@@ -130,6 +138,9 @@ protected:
   }
 
 private:
+  /** \brief Callback handler for parameter services */
+  OnSetParametersCallbackHandle::SharedPtr set_param_res_filter_;
+
   /** \brief Parameter service callback
    * \param p Vector of rclcpp::Parameters belonging to the node
    * \return rcl_interfaces::msg::SetParametersResult Return type for the parameter service call

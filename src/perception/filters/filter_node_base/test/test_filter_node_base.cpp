@@ -57,6 +57,12 @@ protected:
     test_parameter_ = true;
   }
 
+  // Implementation of the get_node_parameters child method
+  virtual void get_node_parameters(const std::vector<rclcpp::Parameter> &)
+  {
+    // Do nothing
+  }
+
 private:
   bool8_t test_parameter_;
 
