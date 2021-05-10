@@ -49,7 +49,6 @@ FilterNodeBase::FilterNodeBase(
 
 void FilterNodeBase::pointcloud_callback(const PointCloud2ConstPtr msg)
 {
-  // If cloud is given, check if it's valid
   if (!is_valid(msg)) {
     RCLCPP_ERROR_STREAM(this->get_logger(), "[" << filter_field_name_ << "]: Invalid input!");
     return;

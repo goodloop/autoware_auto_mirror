@@ -1,6 +1,0 @@
-/**:
-  ros__parameters:
-    max_queue_size: 5
-    use_indices: false
-    latched_indices: false
-    approximate_sync: false

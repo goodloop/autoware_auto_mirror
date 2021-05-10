@@ -54,7 +54,12 @@ namespace filters
 namespace filter_node_base
 {
 
-/** \brief For parameter service callback */
+/** \brief Searches for a parameter defined by name and type T in the provided rclcpp::Parameter vector.
+ * \param p Vector of parameters for this node
+ * \param name String name of the parameter
+ * \param_t value Return value of the parameter
+ * \return bool8_t Return true if the parameter is found, else false
+ */
 template<typename T>
 bool get_param(const std::vector<rclcpp::Parameter> & p, const std::string & name, T & value)
 {
@@ -90,7 +95,7 @@ public:
     const rclcpp::NodeOptions & options = rclcpp::NodeOptions());
 
 protected:
-  /** \brief Parameter service callback result : needed to be hold */
+  /** \brief Callback handler for parameter services */
   OnSetParametersCallbackHandle::SharedPtr set_param_res_filter_;
 
   /** \brief The input PointCloud2 subscriber */
@@ -102,7 +107,7 @@ protected:
   /** \brief The desired user filter field name */
   std::string filter_field_name_;
 
-  /** \brief Internal mutex */
+  /** \brief Mutex used to access to the parameters */
   std::mutex mutex_;
 
   /** \brief The maximum queue size. */
@@ -113,29 +118,24 @@ protected:
    * \param indices A pointer to the vector of point indices to use.
    * \param output The resultant filtered PointCloud2
    */
-  virtual void filter(
+  FILTER_NODE_BASE_LOCAL virtual void filter(
     const PointCloud2ConstPtr & input, PointCloud2 & output) = 0;
-
-  /** \brief Call the child filter () method, optionally transform the result, and publish it.
-   * \param input The input point cloud dataset.
-   * \param indices A pointer to the vector of point indices to use.
-   */
-  void compute_publish(const PointCloud2ConstPtr & msg);
 
   /** \brief Validate a sensor_msgs::msg::PointCloud2 message
    *
    * Method ensure thats the size of the pointcloud defined by the width,
    * height and point_step correspond to the data size.
    *
-   * \param msg Input sensor_msgs::msg::PointCloud2 to be validated
+   * \param cloud Input sensor_msgs::msg::PointCloud2 to be validated
+   * \return bool8_t True if the pointcloud is valid, false if not
    */
-  inline bool is_valid(const PointCloud2ConstPtr & cloud)
+  FILTER_NODE_BASE_LOCAL inline bool8_t is_valid(const PointCloud2ConstPtr & cloud)
   {
     if (cloud->width * cloud->height * cloud->point_step != cloud->data.size()) {
       RCLCPP_WARN(
         this->get_logger(),
         "Invalid PointCloud (data = %zu, width = %d, height = %d, step = %d) with stamp %f, "
-        "and frame %sreceived!",
+        "and frame %s received!",
         cloud->data.size(), cloud->width, cloud->height, cloud->point_step,
         rclcpp::Time(cloud->header.stamp).seconds(), cloud->header.frame_id.c_str());
       return false;
@@ -144,15 +144,21 @@ protected:
   }
 
 private:
-  /** \brief Parameter service callback */
-  rcl_interfaces::msg::SetParametersResult param_callback(
+  /** \brief Parameter service callback
+   * \param p Vector of rclcpp::Parameters belonging to the node
+   * \return rcl_interfaces::msg::SetParametersResult Return type for the parameter service call
+   */
+  FILTER_NODE_BASE_LOCAL rcl_interfaces::msg::SetParametersResult param_callback(
     const std::vector<rclcpp::Parameter> & p);
 
-  /** \brief PointCloud2 */
-  void pointcloud_callback(const PointCloud2ConstPtr cloud);
-
-public:
-  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+  /** \brief Callback used to receive pointcloud data.
+   * 
+   * After checking the validity of the received pointcloud message, call the filter method and
+   * publish the filtered pointcloud on a new topic.
+   *
+   * \param msg Input pointcloud message to be processed by the filter
+   */
+  FILTER_NODE_BASE_LOCAL void pointcloud_callback(const PointCloud2ConstPtr msg);
 };
 }  // namespace filter_node_base
 }  // namespace filters
