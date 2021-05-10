@@ -27,20 +27,8 @@
 
 #include "filter_node_base/visibility_control.hpp"
 #include "common/types.hpp"
+#include "rclcpp/rclcpp.hpp"
 #include "sensor_msgs/msg/point_cloud2.hpp"
-
-// Include TF
-#include "message_filters/subscriber.h"
-#include "message_filters/sync_policies/approximate_time.h"
-#include "message_filters/sync_policies/exact_time.h"
-#include "message_filters/synchronizer.h"
-// PCL includes
-#include "pcl_conversions/pcl_conversions.h"
-#include "pcl_msgs/msg/model_coefficients.hpp"
-#include "pcl_msgs/msg/point_indices.hpp"
-#include "tf2_ros/buffer.h"
-#include "tf2_ros/create_timer_ros.h"
-#include "tf2_ros/transform_listener.h"
 
 
 using autoware::common::types::bool8_t;
