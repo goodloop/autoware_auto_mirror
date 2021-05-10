@@ -108,7 +108,7 @@ protected:
   /** \brief The maximum queue size. */
   size_t max_queue_size_;
 
-  /** \brief Virtual abstract filter method called by the computePublish method at the arrival of each pointcloud message
+  /** \brief Virtual abstract filter method called by the computePublish method at the arrival of each pointcloud message.
    * \param input The input point cloud dataset.
    * \param indices A pointer to the vector of point indices to use.
    * \param output The resultant filtered PointCloud2
@@ -120,16 +120,16 @@ protected:
    * \param input The input point cloud dataset.
    * \param indices A pointer to the vector of point indices to use.
    */
-  void computePublish(const PointCloud2ConstPtr & input);
+  void compute_publish(const PointCloud2ConstPtr & msg);
 
   /** \brief Validate a sensor_msgs::msg::PointCloud2 message
    *
    * Method ensure thats the size of the pointcloud defined by the width,
    * height and point_step correspond to the data size.
    *
-   * \param cloud Input sensor_msgs::msg::PointCloud2 to be validated
+   * \param msg Input sensor_msgs::msg::PointCloud2 to be validated
    */
-  inline bool isValid(const PointCloud2ConstPtr & cloud)
+  inline bool is_valid(const PointCloud2ConstPtr & cloud)
   {
     if (cloud->width * cloud->height * cloud->point_step != cloud->data.size()) {
       RCLCPP_WARN(
@@ -145,11 +145,11 @@ protected:
 
 private:
   /** \brief Parameter service callback */
-  rcl_interfaces::msg::SetParametersResult filterParamCallback(
+  rcl_interfaces::msg::SetParametersResult param_callback(
     const std::vector<rclcpp::Parameter> & p);
 
-  /** \brief PointCloud2 + Indices data callback */
-  void input_indices_callback(const PointCloud2ConstPtr cloud);
+  /** \brief PointCloud2 */
+  void pointcloud_callback(const PointCloud2ConstPtr cloud);
 
 public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW

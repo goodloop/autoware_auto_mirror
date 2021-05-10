@@ -42,36 +42,31 @@ FilterNodeBase::FilterNodeBase(
 
   // Set subscriber
   std::function<void(const PointCloud2ConstPtr msg)> cb = std::bind(
-    &FilterNodeBase::input_indices_callback, this, std::placeholders::_1);
+    &FilterNodeBase::pointcloud_callback, this, std::placeholders::_1);
   sub_input_ = create_subscription<PointCloud2>(
     "input", rclcpp::SensorDataQoS().keep_last(max_queue_size_), cb);
 }
 
-void FilterNodeBase::computePublish(const PointCloud2ConstPtr & input)
-{
-  PointCloud2 output;
-  // Call the virtual method in the child
-  filter(input, output);
-
-  pub_output_->publish(output);
-}
-
-void FilterNodeBase::input_indices_callback(const PointCloud2ConstPtr cloud)
+void FilterNodeBase::pointcloud_callback(const PointCloud2ConstPtr msg)
 {
   // If cloud is given, check if it's valid
-  if (!isValid(cloud)) {
-    RCLCPP_ERROR(this->get_logger(), "[input_indices_callback] Invalid input!");
+  if (!is_valid(msg)) {
+    RCLCPP_ERROR_STREAM(this->get_logger(), "[" << filter_field_name_ << "]: Invalid input!");
     return;
   }
 
   /// DEBUG
   RCLCPP_DEBUG(
     this->get_logger(),
-    "[input_indices_callback] PointCloud with %d data points and frame %s on input topic "
+    "[%s]: PointCloud with %d data points and frame %s on input topic "
     "received.",
-    cloud->width * cloud->height, cloud->header.frame_id.c_str());
+    filter_field_name_, msg->width * msg->height, msg->header.frame_id.c_str());
 
-  computePublish(cloud);
+  PointCloud2 output;
+  // Call the virtual method in the child
+  filter(msg, output);
+
+  pub_output_->publish(output);
 }
 
 }  // namespace filter_node_base
