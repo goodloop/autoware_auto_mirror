@@ -22,9 +22,11 @@
 #include "lidar_utils/point_cloud_utils.hpp"
 
 
-using autoware::common::types::bool8_t;
-using autoware::common::types::float32_t;
-using autoware::perception::filters::filter_node_base::FilterNodeBase;
+using bool8_t = autoware::common::types::bool8_t;
+using float32_t = autoware::common::types::float32_t;
+using FilterNodeBase = autoware::perception::filters::filter_node_base::FilterNodeBase;
+using PointCloud2 = sensor_msgs::msg::PointCloud2;
+using PointCloud2ConstPtr = sensor_msgs::msg::PointCloud2::ConstSharedPtr;
 
 class TestPCF : public ::testing::Test
 {

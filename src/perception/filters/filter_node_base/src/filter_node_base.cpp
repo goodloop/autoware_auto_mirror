@@ -18,7 +18,6 @@
 #include <string>
 #include <vector>
 
-using autoware::common::types::bool8_t;
 
 namespace autoware
 {
@@ -28,6 +27,10 @@ namespace filters
 {
 namespace filter_node_base
 {
+
+using bool8_t = autoware::common::types::bool8_t;
+using PointCloud2 = sensor_msgs::msg::PointCloud2;
+using PointCloud2ConstPtr = sensor_msgs::msg::PointCloud2::ConstSharedPtr;
 
 FilterNodeBase::FilterNodeBase(
   const std::string & filter_name, const rclcpp::NodeOptions & options)

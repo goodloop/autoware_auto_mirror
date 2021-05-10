@@ -79,12 +79,8 @@ bool get_param(const std::vector<rclcpp::Parameter> & p, const std::string & nam
 class FILTER_NODE_BASE_PUBLIC FilterNodeBase : public rclcpp::Node
 {
 public:
-  typedef sensor_msgs::msg::PointCloud2 PointCloud2;
-  typedef sensor_msgs::msg::PointCloud2::ConstSharedPtr PointCloud2ConstPtr;
-
-  typedef pcl::PointCloud<pcl::PointXYZ> PointCloud;
-  typedef PointCloud::Ptr PointCloudPtr;
-  typedef PointCloud::ConstPtr PointCloudConstPtr;
+  // using PointCloud2 = sensor_msgs::msg::PointCloud2;
+  // using PointCloud2ConstPtr = sensor_msgs::msg::PointCloud2::ConstSharedPtr;
 
   /** \brief The default constructor for the FilterNodeBase class
    * \param filter_name The name of the node to pass on to rclcpp::Node
@@ -99,10 +95,10 @@ protected:
   OnSetParametersCallbackHandle::SharedPtr set_param_res_filter_;
 
   /** \brief The input PointCloud2 subscriber */
-  rclcpp::Subscription<PointCloud2>::SharedPtr sub_input_;
+  rclcpp::Subscription<sensor_msgs::msg::PointCloud2>::SharedPtr sub_input_;
 
   /** \brief The output PointCloud2 publisher */
-  rclcpp::Publisher<PointCloud2>::SharedPtr pub_output_;
+  rclcpp::Publisher<sensor_msgs::msg::PointCloud2>::SharedPtr pub_output_;
 
   /** \brief The desired user filter field name */
   std::string filter_field_name_;
@@ -119,7 +115,8 @@ protected:
    * \param output The resultant filtered PointCloud2
    */
   FILTER_NODE_BASE_LOCAL virtual void filter(
-    const PointCloud2ConstPtr & input, PointCloud2 & output) = 0;
+    const sensor_msgs::msg::PointCloud2::ConstSharedPtr & input,
+    sensor_msgs::msg::PointCloud2 & output) = 0;
 
   /** \brief Validate a sensor_msgs::msg::PointCloud2 message
    *
@@ -129,7 +126,8 @@ protected:
    * \param cloud Input sensor_msgs::msg::PointCloud2 to be validated
    * \return bool8_t True if the pointcloud is valid, false if not
    */
-  FILTER_NODE_BASE_LOCAL inline bool8_t is_valid(const PointCloud2ConstPtr & cloud)
+  FILTER_NODE_BASE_LOCAL inline bool8_t is_valid(
+    const sensor_msgs::msg::PointCloud2::ConstSharedPtr & cloud)
   {
     if (cloud->width * cloud->height * cloud->point_step != cloud->data.size()) {
       RCLCPP_WARN(
@@ -152,13 +150,14 @@ private:
     const std::vector<rclcpp::Parameter> & p);
 
   /** \brief Callback used to receive pointcloud data.
-   * 
+   *
    * After checking the validity of the received pointcloud message, call the filter method and
    * publish the filtered pointcloud on a new topic.
    *
    * \param msg Input pointcloud message to be processed by the filter
    */
-  FILTER_NODE_BASE_LOCAL void pointcloud_callback(const PointCloud2ConstPtr msg);
+  FILTER_NODE_BASE_LOCAL void pointcloud_callback(
+    const sensor_msgs::msg::PointCloud2::ConstSharedPtr msg);
 };
 }  // namespace filter_node_base
 }  // namespace filters
