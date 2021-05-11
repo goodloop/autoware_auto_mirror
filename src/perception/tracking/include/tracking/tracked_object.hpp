@@ -70,6 +70,9 @@ public:
   /// Call when no correspondence for this track was found.
   void no_update();
 
+  /// Returns whether the tracked object can be removed.
+  bool should_be_removed() const;
+
   /// Getter for the message.
   const TrackedObjectMsg & msg();
 
@@ -78,10 +81,12 @@ private:
   TrackedObjectMsg m_msg;
   /// The state estimator.
   EKF m_ekf;
+  /// The time since this object has last been seen.
+  std::chrono::nanoseconds m_time_since_last_seen = std::chrono::nanoseconds::zero();
   /// The number of updates where this object has not been seen
   size_t m_ticks_since_last_seen = 0;
   /// The number of updates (seen or not) since this object has been created
-  size_t m_ticks_alive = 0;
+  size_t m_ticks_alive = 1;
   /// All variables will initially have this variance where the detection
   /// does not contain one.
   common::types::float32_t m_default_variance = -1.0F;
