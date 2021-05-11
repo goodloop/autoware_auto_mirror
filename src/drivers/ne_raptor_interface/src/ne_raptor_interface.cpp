@@ -152,6 +152,10 @@ void NERaptorInterface::cmdCallback()
   m_gl_en_cmd_pub->publish(m_gl_en_cmd);
   m_misc_cmd_pub->publish(m_misc_cmd);
   m_steer_cmd_pub->publish(m_steer_cmd);
+
+  // Set state flags
+  m_dbw_state_machine->control_cmd_sent();
+  m_dbw_state_machine->state_cmd_sent();
 }
 
 bool8_t NERaptorInterface::update(std::chrono::nanoseconds timeout)
@@ -288,7 +292,6 @@ bool8_t NERaptorInterface::send_state_command(const VehicleStateCommand & msg)
     (msg.hand_brake) ? ParkingBrake::ON : ParkingBrake::OFF;
 
   m_seen_vehicle_state_cmd = true;
-  m_dbw_state_machine->state_cmd_sent();
 
   return ret;
 }
@@ -334,7 +337,6 @@ bool8_t NERaptorInterface::send_control_command(const HighLevelControlCommand & 
   m_accel_cmd.speed_cmd = velocity_checked;
   m_steer_cmd.vehicle_curvature_cmd = msg.curvature;
 
-  m_dbw_state_machine->control_cmd_sent();
   return ret;
 }
 
@@ -415,7 +417,6 @@ bool8_t NERaptorInterface::send_control_command(const VehicleControlCommand & ms
   m_accel_cmd.speed_cmd = velocity_checked;
   m_steer_cmd.angle_cmd = angle_checked;
 
-  m_dbw_state_machine->control_cmd_sent();
   return ret;
 }
 
