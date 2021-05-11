@@ -1,0 +1,59 @@
+cmake_minimum_required(VERSION 3.6)
+
+project(simple_planning_simulator)
+
+### Dependencies
+find_package(ament_cmake_auto REQUIRED)
+ament_auto_find_build_dependencies()
+
+### Compile options
+if(NOT CMAKE_CXX_STANDARD)
+  set(CMAKE_CXX_STANDARD 14)
+endif()
+if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+  # add_compile_options(-Wall -Wextra -Wpedantic)
+  add_compile_options(-Wno-unused-parameter)
+endif()
+
+
+ament_auto_add_library(${PROJECT_NAME} SHARED
+  include/simple_planning_simulator/simple_planning_simulator_core.hpp
+  include/simple_planning_simulator/visibility_control.hpp
+  src/simple_planning_simulator/simple_planning_simulator_core.cpp
+  src/simple_planning_simulator/vehicle_model/sim_model_interface.cpp
+  src/simple_planning_simulator/vehicle_model/sim_model_ideal_steer_acc.cpp
+  src/simple_planning_simulator/vehicle_model/sim_model_ideal_steer_acc_geared.cpp
+  src/simple_planning_simulator/vehicle_model/sim_model_delay_steer_acc.cpp
+  src/simple_planning_simulator/vehicle_model/sim_model_ideal_steer_vel.cpp
+)
+target_include_directories(${PROJECT_NAME} SYSTEM PUBLIC ${tf2_INCLUDE_DIRS})
+autoware_set_compile_options(${PROJECT_NAME})
+
+target_compile_options(${PROJECT_NAME} PRIVATE -Wno-old-style-cast) # RCLCPP_ERROR_THROTTLE() has built-in old-style casts.
+
+
+ament_auto_add_executable(${PROJECT_NAME}_exe
+  src/simple_planning_simulator/simple_planning_simulator_node.cpp)
+target_include_directories(${PROJECT_NAME}_exe SYSTEM PUBLIC ${tf2_INCLUDE_DIRS})
+autoware_set_compile_options(${PROJECT_NAME}_exe)
+
+
+
+### Test
+if(BUILD_TESTING)
+  find_package(ament_lint_auto REQUIRED)
+  ament_lint_auto_find_test_dependencies()
+
+  # Unit test
+  ament_add_gtest(simple_planning_simulator_unit_tests
+    test/gtest_main.cpp
+    test/test_simple_planning_simulator.cpp)
+  autoware_set_compile_options(simple_planning_simulator_unit_tests)
+  target_link_libraries(simple_planning_simulator_unit_tests ${PROJECT_NAME})
+  target_include_directories(simple_planning_simulator_unit_tests PRIVATE "include")
+endif()
+
+
+
+
+ament_auto_package(INSTALL_TO_SHARE param launch)
