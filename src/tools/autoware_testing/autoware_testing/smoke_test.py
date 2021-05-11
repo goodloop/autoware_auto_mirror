@@ -16,6 +16,9 @@
 
 from ament_index_python import get_package_share_directory
 from launch import LaunchDescription
+from launch.actions import DeclareLaunchArgument
+from launch.actions import OpaqueFunction
+from launch.substitutions import LaunchConfiguration
 
 from launch_ros.actions import Node
 import launch_testing
@@ -25,32 +28,47 @@ import pytest
 import unittest
 
 
-@pytest.mark.launch_test
-@launch_testing.parametrize('arg_package')
-def generate_test_description(arg_package):
+def resolve_node(context, *args, **kwargs):
 
     smoke_test_node = Node(
-        package=arg_package,
-        node_executable=arg_package + "_exe",
-        node_namespace='test',
-        parameters=[os.path.join(
-            get_package_share_directory(arg_package),
-            'param/test.param.yaml'
-        )]
+        package=LaunchConfiguration('arg_package'),
+        executable=LaunchConfiguration('arg_package_exe'),
+        namespace='test',
+        parameters=[
+            os.path.join(
+                get_package_share_directory(LaunchConfiguration('arg_package').perform(context)),
+                'param/test.param.yaml'
+            )
+        ]
+    )
+    return [smoke_test_node]
+
+
+@pytest.mark.launch_test
+def generate_test_description():
+
+    arg_package = DeclareLaunchArgument(
+        'arg_package',
+        default_value=['default'],
+        description='Package smoke test'
+    )
+    arg_package_exe = DeclareLaunchArgument(
+        'arg_package_exe',
+        default_value=['default'],
+        description='Package smoke test'
     )
 
-    context = {arg_package: smoke_test_node}
-
     return LaunchDescription([
-        smoke_test_node,
-        # Start tests right away - no need to wait for anything
+        arg_package,
+        arg_package_exe,
+        OpaqueFunction(function=resolve_node),
         launch_testing.actions.ReadyToTest()]
-    ), context
+    )
 
 
 @launch_testing.post_shutdown_test()
 class TestProcessOutput(unittest.TestCase):
 
-    def test_exit_code(self, proc_output, proc_info, smoke_test_node):
+    def test_exit_code(self, proc_output, proc_info):
         # Check that process exits with code -15 code: termination request, sent to the program
-        launch_testing.asserts.assertExitCodes(proc_info, [-15], process=smoke_test_node)
+        launch_testing.asserts.assertExitCodes(proc_info, [-15])

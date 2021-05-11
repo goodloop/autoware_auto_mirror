@@ -18,6 +18,11 @@
 # see ros_testing package for add_ros_test arguments
 # see smoke_test.py for smoke test launch arguments
 
-function(add_smoke_test package_name)
-  add_ros_test(${autoware_testing_SHARE_DIR}/smoke_test.py ARGS "arg_package:=${package_name}")
+function(add_smoke_test package_name package_exec)
+  add_ros_test(
+    ${autoware_testing_DIR}/../autoware_testing/smoke_test.py 
+    TARGET "smoke_test" 
+    ARGS "arg_package:=${package_name}" "arg_package_exe:=${package_exec}"
+    TIMEOUT "30"
+  )
 endfunction()
