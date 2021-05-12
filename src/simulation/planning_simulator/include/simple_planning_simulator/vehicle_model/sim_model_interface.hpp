@@ -16,6 +16,7 @@
 #define SIMPLE_PLANNING_SIMULATOR__VEHICLE_MODEL__SIM_MODEL_INTERFACE_HPP_
 
 #include "eigen3/Eigen/Core"
+#include "autoware_auto_msgs/msg/vehicle_state_command.hpp"
 
 /**
  * @class simple_simple_planning_simulator vehicle model class
@@ -29,7 +30,8 @@ protected:
   Eigen::VectorXd state_;  //!< @brief vehicle state vector
   Eigen::VectorXd input_;  //!< @brief vehicle input vector
 
-  uint8_t gear_;  //!< @brief gear command defined in autoware_auto_msgs/VehicleStateCommand
+  //!< @brief gear command defined in autoware_auto_msgs/VehicleStateCommand
+  uint8_t gear_ = autoware_auto_msgs::msg::VehicleStateCommand::GEAR_DRIVE;
 
 public:
   /**

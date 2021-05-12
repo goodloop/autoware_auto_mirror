@@ -15,7 +15,7 @@
 #include "simple_planning_simulator/vehicle_model/sim_model_interface.hpp"
 
 SimModelInterface::SimModelInterface(int dim_x, int dim_u)
-: dim_x_(dim_x), dim_u_(dim_u), gear_(0)
+: dim_x_(dim_x), dim_u_(dim_u)
 {
   state_ = Eigen::VectorXd::Zero(dim_x_);
   input_ = Eigen::VectorXd::Zero(dim_u_);

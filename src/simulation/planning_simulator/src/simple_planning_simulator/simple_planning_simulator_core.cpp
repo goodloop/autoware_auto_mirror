@@ -291,11 +291,13 @@ void SimplePlanningSimulator::set_initial_state(
 
   if (vehicle_model_type_ == VehicleModelType::IDEAL_STEER_VEL) {
     state << x, y, yaw;
-  } else if (vehicle_model_type_ == VehicleModelType::IDEAL_STEER_ACC ||
+  } else if (  // NOLINT
+    vehicle_model_type_ == VehicleModelType::IDEAL_STEER_ACC ||
     vehicle_model_type_ == VehicleModelType::IDEAL_STEER_ACC_GEARED)
   {
     state << x, y, yaw, vx;
-  } else if (vehicle_model_type_ == VehicleModelType::DELAY_STEER_ACC ||
+  } else if (  // NOLINT
+    vehicle_model_type_ == VehicleModelType::DELAY_STEER_ACC ||
     vehicle_model_type_ == VehicleModelType::DELAY_STEER_ACC_GEARED)
   {
     state << x, y, yaw, vx, steer, accx;
