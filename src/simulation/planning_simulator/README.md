@@ -41,7 +41,7 @@ This node simulates the vehicle motion for a vehicle command in 2D using a simpl
  - `IDEAL_STEER_ACC`
  - `IDEAL_STEER_ACC_GEARED`
  - `DELAY_STEER_ACC`
- <!-- - `DELAY_STEER_ACC_GEARED` -->
+ - `DELAY_STEER_ACC_GEARED`
 
 The `IDEAL` model moves ideally as commanded, while the `DELAY` model moves based on a 1st-order with time delay model. The `STEER` means the model receives the steer command. The `VEL` means the model receives the target velocity command, while the `ACC` model receives the target acceleration command. The `GEARED` suffix means the motion considers the gear command: if the vehicle moves only one direction following the gear command.
 

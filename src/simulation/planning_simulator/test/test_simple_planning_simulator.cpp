@@ -16,14 +16,16 @@
 #include "gtest/gtest.h"
 
 #include "simple_planning_simulator/simple_planning_simulator_core.hpp"
+#include "motion_common/motion_common.hpp"
 
 using autoware_auto_msgs::msg::VehicleControlCommand;
+using autoware_auto_msgs::msg::VehicleStateCommand;
 using autoware_auto_msgs::msg::VehicleKinematicState;
 using geometry_msgs::msg::PoseWithCovarianceStamped;
 
 using simulation::simple_planning_simulator::SimplePlanningSimulator;
 
-
+static constexpr float COM_TO_BASELINK = 1.5f;
 class PubSubNode : public rclcpp::Node
 {
 public:
@@ -41,9 +43,13 @@ public:
     pub_initialpose_ = create_publisher<PoseWithCovarianceStamped>(
       "/initialpose",
       rclcpp::QoS{1});
+    pub_state_cmd_ = create_publisher<VehicleStateCommand>(
+      "/input/vehicle_state_command",
+      rclcpp::QoS{1});
   }
 
   rclcpp::Publisher<VehicleControlCommand>::SharedPtr pub_control_command_;
+  rclcpp::Publisher<VehicleStateCommand>::SharedPtr pub_state_cmd_;
   rclcpp::Publisher<PoseWithCovarianceStamped>::SharedPtr pub_initialpose_;
   rclcpp::Subscription<VehicleKinematicState>::SharedPtr kinematic_state_sub_;
 
@@ -75,11 +81,26 @@ void resetInitialpose(rclcpp::Node::SharedPtr sim_node, std::shared_ptr<PubSubNo
   }
 }
 
+void sendGear(
+  uint8_t gear, rclcpp::Node::SharedPtr sim_node,
+  std::shared_ptr<PubSubNode> pub_sub_node)
+{
+  VehicleStateCommand cmd;
+  cmd.stamp = sim_node->now();
+  cmd.gear = gear;
+  for (int i = 0; i < 10; ++i) {
+    pub_sub_node->pub_state_cmd_->publish(cmd);
+    rclcpp::spin_some(sim_node);
+    rclcpp::spin_some(pub_sub_node);
+    std::this_thread::sleep_for(std::chrono::milliseconds{10LL});
+  }
+}
+
 void sendCommand(
   const VehicleControlCommand & cmd, rclcpp::Node::SharedPtr sim_node,
   std::shared_ptr<PubSubNode> pub_sub_node)
 {
-  for (int i = 0; i < 100; ++i) {
+  for (int i = 0; i < 150; ++i) {
     pub_sub_node->pub_control_command_->publish(cmd);
     rclcpp::spin_some(sim_node);
     rclcpp::spin_some(pub_sub_node);
@@ -87,33 +108,76 @@ void sendCommand(
   }
 }
 
-
-void isOnForward(const VehicleKinematicState & state)
+VehicleKinematicState comToBaselink(const VehicleKinematicState & com)
 {
-  float forward_thr = 3.0f;
-  EXPECT_GT(state.state.x, forward_thr);
+  auto baselink = com;
+  double yaw = motion::motion_common::to_angle(com.state.heading);
+  baselink.state.x -= COM_TO_BASELINK * static_cast<float>(std::cos(yaw));
+  baselink.state.y -= COM_TO_BASELINK * static_cast<float>(std::sin(yaw));
+  return baselink;
 }
 
-void isOnBackward(const VehicleKinematicState & state)
+
+// Check which direction the vehicle is heading on the baselink coordinates.
+//                      y
+//                      |
+//                      |         (Fwd-Left)
+//                      |
+//  ---------(Bwd)------------------(Fwd)----------> x
+//                      |
+//        (Bwd-Right)   |
+//                      |
+//
+void isOnForward(const VehicleKinematicState & _state, const VehicleKinematicState & _init)
 {
-  float backward_thr = -3.0f;
-  EXPECT_LT(state.state.x, backward_thr);
+  float forward_thr = 1.0f;
+  auto state = comToBaselink(_state);
+  auto init = comToBaselink(_init);
+  float dx = state.state.x - init.state.x;
+  EXPECT_GT(dx, forward_thr) << "x_curr = " << state.state.x << ", x0 = " << init.state.x;
 }
 
-void isOnForwardRight(const VehicleKinematicState & state)
+void isOnBackward(const VehicleKinematicState & _state, const VehicleKinematicState & _init)
 {
-  float forward_thr = 3.0f;
-  float right_thr = 0.1f;
-  EXPECT_GT(state.state.x, forward_thr);
-  EXPECT_GT(state.state.y, right_thr);
+  float backward_thr = -1.0f;
+  auto state = comToBaselink(_state);
+  auto init = comToBaselink(_init);
+  float dx = state.state.x - init.state.x;
+  EXPECT_LT(
+    dx,
+    backward_thr) << "x_curr = " << state.state.x << ", x0 = " << init.state.x << ", s = " <<
+    state.state.front_wheel_angle_rad << ", v = " << state.state.longitudinal_velocity_mps <<
+    ", a = " << state.state.acceleration_mps2;
 }
 
-void isOnBackwardLeft(const VehicleKinematicState & state)
+void isOnForwardLeft(const VehicleKinematicState & _state, const VehicleKinematicState & _init)
 {
-  float backward_thr = -3.0f;
-  float left_thr = -0.1f;
-  EXPECT_LT(state.state.x, backward_thr);
-  EXPECT_LT(state.state.y, left_thr);
+  float forward_thr = 1.0f;
+  float left_thr = 0.1f;
+  auto state = comToBaselink(_state);
+  auto init = comToBaselink(_init);
+  float dx = state.state.x - init.state.x;
+  float dy = state.state.y - init.state.y;
+  EXPECT_GT(dx, forward_thr) << "x_curr = " << state.state.x << ", x0 = " << init.state.x;
+  EXPECT_GT(
+    dy,
+    left_thr) << "y_curr = " << state.state.y << ", y0 = " << init.state.y << ", s = " <<
+    state.state.front_wheel_angle_rad << ", v = " << state.state.longitudinal_velocity_mps;
+}
+
+void isOnBackwardRight(const VehicleKinematicState & _state, const VehicleKinematicState & _init)
+{
+  float backward_thr = -1.0f;
+  float right_thr = -0.1f;
+  auto state = comToBaselink(_state);
+  auto init = comToBaselink(_init);
+  float dx = state.state.x - init.state.x;
+  float dy = state.state.y - init.state.y;
+  EXPECT_LT(dx, backward_thr) << "x_curr = " << state.state.x << ", x0 = " << init.state.x;
+  EXPECT_LT(
+    dy,
+    right_thr) << "y_curr = " << state.state.y << ", y0 = " << init.state.y << ", s = " <<
+    state.state.front_wheel_angle_rad << ", v = " << state.state.longitudinal_velocity_mps;
 }
 
 // Send a control command and run the simulation.
@@ -122,90 +186,71 @@ TEST(test_simple_planning_simulator_IDEAL_STEER_VEL, test_moving)
 {
   rclcpp::init(0, nullptr);
 
-  rclcpp::NodeOptions node_options;
-  node_options.append_parameter_override("initialize_source", "INITIAL_POSE_TOPIC");
-  node_options.append_parameter_override("vehicle_model_type", "IDEAL_STEER_VEL");
-  const auto sim_node = std::make_shared<SimplePlanningSimulator>(
-    "simple_planning_simulator", node_options);
+  std::vector<std::string> vehicle_model_type_vec = { // NOLINT
+    "IDEAL_STEER_VEL",
+    "IDEAL_STEER_ACC",
+    "IDEAL_STEER_ACC_GEARED",
+    "DELAY_STEER_ACC",
+    "DELAY_STEER_ACC_GEARED",
+  };
 
-  const auto pub_sub_node = std::make_shared<PubSubNode>();
+  for (const auto & vehicle_model_type : vehicle_model_type_vec) {
+    std::cout << "\n\n vehicle model = " << vehicle_model_type << std::endl << std::endl;
+    rclcpp::NodeOptions node_options;
+    node_options.append_parameter_override("initialize_source", "INITIAL_POSE_TOPIC");
+    node_options.append_parameter_override("cg_to_rear_m", COM_TO_BASELINK);
+    node_options.append_parameter_override("vehicle_model_type", vehicle_model_type);
+    const auto sim_node = std::make_shared<SimplePlanningSimulator>(
+      "simple_planning_simulator", node_options);
 
-  const float target_vel = 5.0f;
-  const float target_acc = 3.0f;
-  const float target_steer = 0.2f;
+    const auto pub_sub_node = std::make_shared<PubSubNode>();
 
-  auto _resetInitialpose = [&]() {resetInitialpose(sim_node, pub_sub_node);};
-  auto _sendCommand = [&](const VehicleControlCommand & _cmd) {
-      sendCommand(_cmd, sim_node, pub_sub_node);
-    };
+    const float target_vel = 5.0f;
+    const float target_acc = 5.0f;
+    const float target_steer = 0.2f;
 
-  // go forward
-  _resetInitialpose();
-  _sendCommand(cmdGen(pub_sub_node->now(), 0.0f, target_vel, target_acc));
-  isOnForward(*(pub_sub_node->current_state_));
+    auto _resetInitialpose = [&]() {resetInitialpose(sim_node, pub_sub_node);};
+    auto _sendFwdGear = [&]() {
+        sendGear(autoware_auto_msgs::msg::VehicleStateCommand::GEAR_DRIVE, sim_node, pub_sub_node);
+      };
+    auto _sendBwdGear = [&]() {
+        sendGear(
+          autoware_auto_msgs::msg::VehicleStateCommand::GEAR_REVERSE, sim_node,
+          pub_sub_node);
+      };
+    auto _sendCommand = [&](const VehicleControlCommand & _cmd) {
+        sendCommand(_cmd, sim_node, pub_sub_node);
+      };
 
-  // go backward
-  _resetInitialpose();
-  _sendCommand(cmdGen(pub_sub_node->now(), 0.0f, -target_vel, -target_acc));
-  isOnBackward(*(pub_sub_node->current_state_));
+    // check initial pose
+    _resetInitialpose();
+    const auto init_state = *(pub_sub_node->current_state_);
 
 
-  // go forward right
-  _resetInitialpose();
-  _sendCommand(cmdGen(pub_sub_node->now(), target_steer, target_vel, target_acc));
-  isOnForwardRight(*(pub_sub_node->current_state_));
+    // go forward
+    _resetInitialpose();
+    _sendFwdGear();
+    _sendCommand(cmdGen(pub_sub_node->now(), 0.0f, target_vel, target_acc));
+    isOnForward(*(pub_sub_node->current_state_), init_state);
 
-  // go backward left
-  _resetInitialpose();
-  _sendCommand(cmdGen(pub_sub_node->now(), -target_steer, -target_vel, -target_acc));
-  isOnBackwardLeft(*(pub_sub_node->current_state_));
+    // go backward
+    _resetInitialpose();
+    _sendBwdGear();
+    _sendCommand(cmdGen(pub_sub_node->now(), 0.0f, -target_vel, -target_acc));
+    isOnBackward(*(pub_sub_node->current_state_), init_state);
+
+    // go forward left
+    _resetInitialpose();
+    _sendFwdGear();
+    _sendCommand(cmdGen(pub_sub_node->now(), target_steer, target_vel, target_acc));
+    isOnForwardLeft(*(pub_sub_node->current_state_), init_state);
+
+    // go backward right
+    _resetInitialpose();
+    _sendBwdGear();
+    _sendCommand(cmdGen(pub_sub_node->now(), -target_steer, -target_vel, -target_acc));
+    isOnBackwardRight(*(pub_sub_node->current_state_), init_state);
+  }
 
   rclcpp::shutdown();
 }
-
-// TEST(test_simple_planning_simulator_DELAY_STEER_ACC_GEARED, test_moving)
-// {
-//   rclcpp::init(0, nullptr);
-
-//   rclcpp::NodeOptions node_options;
-//   node_options.append_parameter_override("initialize_source", "INITIAL_POSE_TOPIC");
-//   node_options.append_parameter_override("vehicle_model_type", "DELAY_STEER_ACC");
-//   const auto sim_node = std::make_shared<SimplePlanningSimulator>(
-//     "simple_planning_simulator", node_options);
-
-//   const auto pub_sub_node = std::make_shared<PubSubNode>();
-
-//   const float target_vel = 5.0f;
-//   const float target_acc = 3.0f;
-//   // const float target_steer = 0.2f;
-
-//   auto _resetInitialpose = [&]() {resetInitialpose(sim_node, pub_sub_node);};
-//   auto _sendCommand = [&](const VehicleControlCommand & _cmd) {
-//       sendCommand(_cmd, sim_node, pub_sub_node);
-//     };
-
-//   // go forward
-//   _resetInitialpose();
-//   _sendCommand(cmdGen(pub_sub_node->now(), 0.0f, target_vel, target_acc));
-//   isOnForward(*(pub_sub_node->current_state_));
-
-//   // go backward
-//   _resetInitialpose();
-//   _sendCommand(cmdGen(pub_sub_node->now(), 0.0f, -target_vel, -target_acc));
-//   isOnBackward(*(pub_sub_node->current_state_));
-
-
-//   // go forward right
-//   _resetInitialpose();
-//   _sendCommand(cmdGen(pub_sub_node->now(), target_steer, target_vel, target_acc));
-//   isOnForwardRight(*(pub_sub_node->current_state_));
-
-//   // go backward left
-//   _resetInitialpose();
-//   _sendCommand(cmdGen(pub_sub_node->now(), -target_steer, -target_vel, -target_acc));
-//   isOnBackwardLeft(*(pub_sub_node->current_state_));
-
-//   EXPECT_EQ(0.0, 0.0);
-
-//   rclcpp::shutdown();
-// }
