@@ -1,4 +1,4 @@
-// Copyright 2021 The Autoware Foundation
+// Copyright 2021 Tier IV, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,9 +12,29 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "gtest/gtest.h"
-#include "outlier_filter/radius_search_2d_filter.hpp"
+#include "outlier_filter/voxel_grid_filter.hpp"
 
-TEST(test_outlier_filter, test_hello) {
-  EXPECT_EQ(autoware::perception::filters::outlier_filter::radius_search_2d_filter::print_hello(), 0);
+#include <iostream>
+
+namespace autoware
+{
+namespace perception
+{
+namespace filters
+{
+namespace outlier_filter
+{
+namespace voxel_grid_filter
+{
+
+int32_t print_hello()
+{
+  std::cout << "Hello World" << std::endl;
+  return 0;
 }
+
+}  // namespace voxel_grid_filter
+}  // namespace outlier_filter
+}  // namespace filters
+}  // namespace perception
+}  // namespace autoware

@@ -1,4 +1,4 @@
-// Copyright 2021 The Autoware Foundation
+// Copyright 2021 Tier IV, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,17 +12,29 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "outlier_filter/outlier_filter.hpp"
+#include "outlier_filter/ring_filter.hpp"
 
 #include <iostream>
 
 namespace autoware
 {
+namespace perception
+{
+namespace filters
+{
+namespace outlier_filter
+{
+namespace ring_filter
+{
 
-int32_t outlier_filter::print_hello()
+int32_t print_hello()
 {
   std::cout << "Hello World" << std::endl;
   return 0;
 }
 
+}  // namespace ring_filter
+}  // namespace outlier_filter
+}  // namespace filters
+}  // namespace perception
 }  // namespace autoware

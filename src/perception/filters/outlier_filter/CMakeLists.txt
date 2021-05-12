@@ -16,19 +16,39 @@ cmake_minimum_required(VERSION 3.5)
 
 project(outlier_filter)
 
+if(NOT CMAKE_CXX_STANDARD)
+  set(CMAKE_CXX_STANDARD 14)
+  set(CMAKE_CXX_STANDARD_REQUIRED ON)
+  set(CMAKE_CXX_EXTENSIONS OFF)
+endif()
+if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+  add_compile_options(-Wno-unused-parameter -Wall -Wextra -Wpedantic)
+endif()
+
 # require that dependencies from package.xml be available
 find_package(ament_cmake_auto REQUIRED)
+find_package(PCL REQUIRED)
+# find_package(pcl_conversions REQUIRED)
 ament_auto_find_build_dependencies(REQUIRED
   ${${PROJECT_NAME}_BUILD_DEPENDS}
   ${${PROJECT_NAME}_BUILDTOOL_DEPENDS}
 )
 
+include_directories(
+  include
+  ${PCL_INCLUDE_DIRS}
+)
+
 set(OUTLIER_FILTER_LIB_SRC
-  src/outlier_filter.cpp
+  src/radius_search_2d_filter.cpp
+  src/ring_filter.cpp
+  src/voxel_grid_filter.cpp
 )
 
 set(OUTLIER_FILTER_LIB_HEADERS
-  include/outlier_filter/outlier_filter.hpp
+  include/outlier_filter/radius_search_2d_filter.hpp
+  include/outlier_filter/ring_filter.hpp
+  include/outlier_filter/voxel_grid_filter.hpp
   include/outlier_filter/visibility_control.hpp
 )
 
@@ -38,6 +58,10 @@ ament_auto_add_library(${PROJECT_NAME} SHARED
   ${OUTLIER_FILTER_LIB_HEADERS}
 )
 autoware_set_compile_options(${PROJECT_NAME})
+
+target_link_libraries(${PROJECT_NAME}
+  ${PCL_LIBRARIES}
+)
 
 # Testing
 if(BUILD_TESTING)

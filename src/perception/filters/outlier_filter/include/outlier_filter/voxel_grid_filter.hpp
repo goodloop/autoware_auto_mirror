@@ -1,4 +1,4 @@
-// Copyright 2021 The Autoware Foundation
+// Copyright 2021 Tier IV, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/// \copyright Copyright 2021 The Autoware Foundation
+/// \copyright Copyright 2021 Tier IV, Inc.
 /// \file
-/// \brief This file defines the outlier_filter class.
+/// \brief This file defines the Radius class.
 
-#ifndef OUTLIER_FILTER__OUTLIER_FILTER_HPP_
-#define OUTLIER_FILTER__OUTLIER_FILTER_HPP_
+#ifndef OUTLIER_FILTER__VOXEL_GRID_FILTER_HPP_
+#define OUTLIER_FILTER__VOXEL_GRID_FILTER_HPP_
 
 #include <outlier_filter/visibility_control.hpp>
 
@@ -25,14 +25,21 @@
 
 namespace autoware
 {
-/// \brief TODO(jilada.eccleston): Document namespaces!
+namespace perception
+{
+namespace filters
+{
 namespace outlier_filter
 {
+namespace voxel_grid_filter
+{
 
-/// \brief TODO(jilada.eccleston): Document your functions
 int32_t OUTLIER_FILTER_PUBLIC print_hello();
 
+}  // namespace voxel_grid_filter
 }  // namespace outlier_filter
+}  // namespace filters
+}  // namespace perception
 }  // namespace autoware
 
-#endif  // OUTLIER_FILTER__OUTLIER_FILTER_HPP_
+#endif  // OUTLIER_FILTER__VOXEL_GRID_FILTER_HPP_
