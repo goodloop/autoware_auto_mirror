@@ -46,7 +46,7 @@ NERaptorInterface::NERaptorInterface(
   m_steer_to_tire_ratio{steer_to_tire_ratio},
   m_max_steer_angle{max_steer_angle},
   m_acceleration_limit{acceleration_limit},
-  m_deceleration_limit{deceleration_limit},
+  m_deceleration_limit{std::fabs(deceleration_limit)},
   m_acceleration_positive_jerk_limit{acceleration_positive_jerk_limit},
   m_deceleration_negative_jerk_limit{deceleration_negative_jerk_limit},
   m_pub_period{std::chrono::milliseconds(pub_period)},
@@ -112,7 +112,6 @@ NERaptorInterface::NERaptorInterface(
 
   m_steer_cmd.control_type.value = ActuatorControlMode::CLOSED_LOOP_ACTUATOR;  // angular position
   m_steer_cmd.ignore = false;
-  m_steer_cmd.angle_velocity = m_max_steer_rot_rate;
 
   m_gear_cmd.cmd.gear = Gear::NONE;
 
@@ -230,6 +229,9 @@ bool8_t NERaptorInterface::send_state_command(const VehicleStateCommand & msg)
       break;
   }
 
+  // Set misc command values
+  m_misc_cmd.horn_cmd = msg.horn;
+
   switch (msg.blinker) {
     case VehicleStateCommand::BLINKER_NO_COMMAND:
       // Keep previous
@@ -331,10 +333,6 @@ bool8_t NERaptorInterface::send_control_command(const HighLevelControlCommand & 
   m_brake_cmd.control_type.value = ActuatorControlMode::CLOSED_LOOP_VEHICLE;  // vehicle speed
 
   // Set limits
-  m_accel_cmd.accel_limit = m_acceleration_limit;
-  m_brake_cmd.decel_limit = m_deceleration_limit;
-  m_accel_cmd.accel_positive_jerk_limit = m_acceleration_positive_jerk_limit;
-  m_brake_cmd.decel_negative_jerk_limit = m_deceleration_negative_jerk_limit;
   m_steer_cmd.angle_velocity = m_max_steer_angle;
 
   // Check for invalid changes in direction
@@ -351,6 +349,7 @@ bool8_t NERaptorInterface::send_control_command(const HighLevelControlCommand & 
   } else {
     velocity_checked = std::fabs(msg.velocity_mps);
   }
+
   // Set commands
   m_accel_cmd.speed_cmd = velocity_checked;
   m_steer_cmd.vehicle_curvature_cmd = msg.curvature;
@@ -386,17 +385,19 @@ bool8_t NERaptorInterface::send_control_command(const VehicleControlCommand & ms
   m_brake_cmd.control_type.value = ActuatorControlMode::CLOSED_LOOP_VEHICLE;   // vehicle speed
 
   // Set limits
-  m_accel_cmd.accel_limit = m_acceleration_limit;
-  m_brake_cmd.decel_limit = m_deceleration_limit;
-  m_accel_cmd.accel_positive_jerk_limit = m_acceleration_positive_jerk_limit;
-  m_brake_cmd.decel_negative_jerk_limit = m_deceleration_negative_jerk_limit;
   m_steer_cmd.angle_velocity = m_max_steer_angle;
 
-  if (msg.long_accel_mps2 > 0.0F) {  // acceleration limit
-    m_accel_cmd.accel_limit = std::fabs(msg.long_accel_mps2);
-  } else if (msg.long_accel_mps2 < 0.0F) {  // deceleration limit
+  if (msg.long_accel_mps2 > 0.0F && msg.long_accel_mps2 < m_acceleration_limit) {
+    m_accel_cmd.accel_limit = msg.long_accel_mps2;
+  } else {
+    m_accel_cmd.accel_limit = m_acceleration_limit;
+  }
+
+  if (msg.long_accel_mps2 < 0.0F && msg.long_accel_mps2 > (-1.0F * m_deceleration_limit)) {
     m_brake_cmd.decel_limit = std::fabs(msg.long_accel_mps2);
-  } else {}  // no change
+  } else {
+    m_brake_cmd.decel_limit = m_deceleration_limit;
+  }
 
   // Check for invalid changes in direction
   if ( ( (m_vehicle_state_report.gear == VehicleStateReport::GEAR_DRIVE) &&
