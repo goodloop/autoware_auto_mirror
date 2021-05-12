@@ -153,12 +153,12 @@ void SimplePlanningSimulator::initialize_vehicle_model()
       timer_sampling_time_ms_ / 1000.0, acc_time_delay, acc_time_constant, steer_time_delay,
       steer_time_constant);
   } else if (vehicle_model_type_str == "DELAY_STEER_ACC_GEARED") {
-    // vehicle_model_type_ = VehicleModelType::DELAY_STEER_ACC_GEARED;
-    // vehicle_model_ptr_ = std::make_shared<SimModelDelaySteerAccGeared>(
-    //   vx_lim, steer_lim, vx_rate_lim,
-    //   steer_rate_lim, wheelbase,
-    //   timer_sampling_time_ms_ / 1000.0, acc_delay, acc_time_constant, steer_delay,
-    //   steer_time_constant);
+    vehicle_model_type_ = VehicleModelType::DELAY_STEER_ACC_GEARED;
+    vehicle_model_ptr_ = std::make_shared<SimModelDelaySteerAccGeared>(
+      vel_lim, steer_lim, vel_rate_lim,
+      steer_rate_lim, wheelbase,
+      timer_sampling_time_ms_ / 1000.0, acc_time_delay, acc_time_constant, steer_time_delay,
+      steer_time_constant);
   } else {
     RCLCPP_ERROR(this->get_logger(), "Invalid vehicle_model_type.");
   }
@@ -284,17 +284,21 @@ void SimplePlanningSimulator::set_initial_state(
   const double y = pose.position.y;
   const double yaw = tf2::getYaw(pose.orientation);
   const double vx = twist.linear.x;
+  const double steer = 0.0;
+  const double accx = 0.0;
 
   Eigen::VectorXd state(vehicle_model_ptr_->getDimX());
 
-  if (vehicle_model_type_ == VehicleModelType::IDEAL_STEER_ACC ||
-    vehicle_model_type_ == VehicleModelType::IDEAL_STEER_ACC_GEARED ||
-    vehicle_model_type_ == VehicleModelType::DELAY_STEER_ACC ||
-    vehicle_model_type_ == VehicleModelType::DELAY_STEER_ACC_GEARED)
+  if (vehicle_model_type_ == VehicleModelType::IDEAL_STEER_VEL) {
+    state << x, y, yaw;
+  } else if (vehicle_model_type_ == VehicleModelType::IDEAL_STEER_ACC ||
+    vehicle_model_type_ == VehicleModelType::IDEAL_STEER_ACC_GEARED)
   {
     state << x, y, yaw, vx;
-  } else if (vehicle_model_type_ == VehicleModelType::IDEAL_STEER_VEL) {
-    state << x, y, yaw;
+  } else if (vehicle_model_type_ == VehicleModelType::DELAY_STEER_ACC ||
+    vehicle_model_type_ == VehicleModelType::DELAY_STEER_ACC_GEARED)
+  {
+    state << x, y, yaw, vx, steer, accx;
   } else {
     RCLCPP_ERROR(this->get_logger(), "undesired vehicle model type! Initialization failed.");
     return;
