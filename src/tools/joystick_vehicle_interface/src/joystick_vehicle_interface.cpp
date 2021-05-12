@@ -196,6 +196,17 @@ const VehicleStateCommand & JoystickVehicleInterface::get_state_command()
   return m_state_command;
 }
 
+const VehicleStateCommand & JoystickVehicleInterface::get_previous_state_command()
+{
+  return m_previous_state_command;
+}
+
+void JoystickVehicleInterface::update_headlights_state(
+  const autoware_auto_msgs::msg::HeadlightsCommand & headlights_cmd)
+{
+  m_state_command.headlight = headlights_cmd.command;
+}
+
 const std_msgs::msg::UInt8 & JoystickVehicleInterface::get_recordreplay_command()
 {
   return m_recordreplay_command;
