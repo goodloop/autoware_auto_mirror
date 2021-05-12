@@ -33,7 +33,6 @@ public:
     kinematic_state_sub_ = create_subscription<VehicleKinematicState>(
       "output/kinematic_state", rclcpp::QoS{1},
       [this](const VehicleKinematicState::SharedPtr msg) {
-        std::cerr << "received kinematic_state!!!" << std::endl;
         current_state_ = msg;
       });
     pub_control_command_ = create_publisher<VehicleControlCommand>(
@@ -119,7 +118,7 @@ void isOnBackwardLeft(const VehicleKinematicState & state)
 
 // Send a control command and run the simulation.
 // Then check if the vehicle is moving in the desired direction.
-TEST(test_simple_planning_simulator, test_moving)
+TEST(test_simple_planning_simulator_IDEAL_STEER_VEL, test_moving)
 {
   rclcpp::init(0, nullptr);
 
@@ -163,3 +162,50 @@ TEST(test_simple_planning_simulator, test_moving)
 
   rclcpp::shutdown();
 }
+
+// TEST(test_simple_planning_simulator_DELAY_STEER_ACC_GEARED, test_moving)
+// {
+//   rclcpp::init(0, nullptr);
+
+//   rclcpp::NodeOptions node_options;
+//   node_options.append_parameter_override("initialize_source", "INITIAL_POSE_TOPIC");
+//   node_options.append_parameter_override("vehicle_model_type", "DELAY_STEER_ACC");
+//   const auto sim_node = std::make_shared<SimplePlanningSimulator>(
+//     "simple_planning_simulator", node_options);
+
+//   const auto pub_sub_node = std::make_shared<PubSubNode>();
+
+//   const float target_vel = 5.0f;
+//   const float target_acc = 3.0f;
+//   // const float target_steer = 0.2f;
+
+//   auto _resetInitialpose = [&]() {resetInitialpose(sim_node, pub_sub_node);};
+//   auto _sendCommand = [&](const VehicleControlCommand & _cmd) {
+//       sendCommand(_cmd, sim_node, pub_sub_node);
+//     };
+
+//   // go forward
+//   _resetInitialpose();
+//   _sendCommand(cmdGen(pub_sub_node->now(), 0.0f, target_vel, target_acc));
+//   isOnForward(*(pub_sub_node->current_state_));
+
+//   // go backward
+//   _resetInitialpose();
+//   _sendCommand(cmdGen(pub_sub_node->now(), 0.0f, -target_vel, -target_acc));
+//   isOnBackward(*(pub_sub_node->current_state_));
+
+
+//   // go forward right
+//   _resetInitialpose();
+//   _sendCommand(cmdGen(pub_sub_node->now(), target_steer, target_vel, target_acc));
+//   isOnForwardRight(*(pub_sub_node->current_state_));
+
+//   // go backward left
+//   _resetInitialpose();
+//   _sendCommand(cmdGen(pub_sub_node->now(), -target_steer, -target_vel, -target_acc));
+//   isOnBackwardLeft(*(pub_sub_node->current_state_));
+
+//   EXPECT_EQ(0.0, 0.0);
+
+//   rclcpp::shutdown();
+// }
