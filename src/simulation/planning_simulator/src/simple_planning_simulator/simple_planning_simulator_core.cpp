@@ -53,10 +53,8 @@ namespace simulation
 namespace simple_planning_simulator
 {
 
-SimplePlanningSimulator::SimplePlanningSimulator(
-  const std::string & node_name,
-  const rclcpp::NodeOptions & options)
-: Node(node_name, options),
+SimplePlanningSimulator::SimplePlanningSimulator(const rclcpp::NodeOptions & options)
+: Node("simple_planning_simulator", options),
   tf_buffer_(get_clock()),
   tf_listener_(tf_buffer_, std::shared_ptr<rclcpp::Node>(this, [](auto) {}), false)
 {

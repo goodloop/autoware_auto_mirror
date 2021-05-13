@@ -98,9 +98,7 @@ public:
 class PLANNING_SIMULATOR_PUBLIC SimplePlanningSimulator : public rclcpp::Node
 {
 public:
-  explicit SimplePlanningSimulator(
-    const std::string & node_name,
-    const rclcpp::NodeOptions & options);
+  explicit SimplePlanningSimulator(const rclcpp::NodeOptions & options);
 
 private:
   /* ros system */
