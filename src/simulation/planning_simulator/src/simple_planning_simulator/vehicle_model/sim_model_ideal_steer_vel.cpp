@@ -15,21 +15,21 @@
 #include "simple_planning_simulator/vehicle_model/sim_model_ideal_steer_vel.hpp"
 
 
-SimModelIdealSteerVel::SimModelIdealSteerVel(double wheelbase)
+SimModelIdealSteerVel::SimModelIdealSteerVel(float64_t wheelbase)
 : SimModelInterface(3 /* dim x */, 2 /* dim u */), wheelbase_(wheelbase) {}
 
-double SimModelIdealSteerVel::getX() {return state_(IDX::X);}
-double SimModelIdealSteerVel::getY() {return state_(IDX::Y);}
-double SimModelIdealSteerVel::getYaw() {return state_(IDX::YAW);}
-double SimModelIdealSteerVel::getVx() {return input_(IDX_U::VX_DES);}
-double SimModelIdealSteerVel::getVy() {return 0.0;}
-double SimModelIdealSteerVel::getAx() {return current_ax_;}
-double SimModelIdealSteerVel::getWz()
+float64_t SimModelIdealSteerVel::getX() {return state_(IDX::X);}
+float64_t SimModelIdealSteerVel::getY() {return state_(IDX::Y);}
+float64_t SimModelIdealSteerVel::getYaw() {return state_(IDX::YAW);}
+float64_t SimModelIdealSteerVel::getVx() {return input_(IDX_U::VX_DES);}
+float64_t SimModelIdealSteerVel::getVy() {return 0.0;}
+float64_t SimModelIdealSteerVel::getAx() {return current_ax_;}
+float64_t SimModelIdealSteerVel::getWz()
 {
   return input_(IDX_U::VX_DES) * std::tan(input_(IDX_U::STEER_DES)) / wheelbase_;
 }
-double SimModelIdealSteerVel::getSteer() {return input_(IDX_U::STEER_DES);}
-void SimModelIdealSteerVel::update(const double & dt)
+float64_t SimModelIdealSteerVel::getSteer() {return input_(IDX_U::STEER_DES);}
+void SimModelIdealSteerVel::update(const float64_t & dt)
 {
   updateRungeKutta(dt, input_);
   current_ax_ = (input_(IDX_U::VX_DES) - prev_vx_) / dt;
@@ -39,9 +39,9 @@ void SimModelIdealSteerVel::update(const double & dt)
 Eigen::VectorXd SimModelIdealSteerVel::calcModel(
   const Eigen::VectorXd & state, const Eigen::VectorXd & input)
 {
-  const double yaw = state(IDX::YAW);
-  const double vx = input(IDX_U::VX_DES);
-  const double steer = input(IDX_U::STEER_DES);
+  const float64_t yaw = state(IDX::YAW);
+  const float64_t vx = input(IDX_U::VX_DES);
+  const float64_t steer = input(IDX_U::STEER_DES);
 
   Eigen::VectorXd d_state = Eigen::VectorXd::Zero(dim_x_);
   d_state(IDX::X) = vx * std::cos(yaw);

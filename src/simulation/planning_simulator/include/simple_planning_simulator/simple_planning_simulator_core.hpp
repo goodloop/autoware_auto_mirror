@@ -39,6 +39,7 @@
 #include "autoware_auto_msgs/msg/vehicle_state_command.hpp"
 #include "autoware_auto_msgs/msg/vehicle_state_report.hpp"
 #include "autoware_auto_msgs/msg/complex32.hpp"
+#include "common/types.hpp"
 
 #include "simple_planning_simulator/vehicle_model/sim_model_interface.hpp"
 
@@ -47,6 +48,10 @@ namespace simulation
 {
 namespace simple_planning_simulator
 {
+using autoware::common::types::float32_t;
+using autoware::common::types::float64_t;
+using autoware::common::types::bool8_t;
+
 using autoware_auto_msgs::msg::VehicleKinematicState;
 using autoware_auto_msgs::msg::VehicleControlCommand;
 using autoware_auto_msgs::msg::VehicleStateReport;
@@ -63,13 +68,13 @@ class DeltaTime
 public:
   DeltaTime()
   : prev_updated_time_ptr_(nullptr) {}
-  double getDt(const rclcpp::Time & now)
+  float64_t getDt(const rclcpp::Time & now)
   {
     if (prev_updated_time_ptr_ == nullptr) {
       prev_updated_time_ptr_ = std::make_shared<rclcpp::Time>(now);
       return 0.0;
     }
-    const double dt = (now - *prev_updated_time_ptr_).seconds();
+    const float64_t dt = (now - *prev_updated_time_ptr_).seconds();
     *prev_updated_time_ptr_ = now;
     return dt;
   }
@@ -125,14 +130,14 @@ private:
   std::string origin_frame_id_;  //!< @brief map frame_id
 
   /* flags */
-  bool is_initialized_;         //!< @brief flag to check the initial position is set
-  bool add_measurement_noise_;  //!< @brief flag to add measurement noise
+  bool8_t is_initialized_;         //!< @brief flag to check the initial position is set
+  bool8_t add_measurement_noise_;  //!< @brief flag to add measurement noise
 
   DeltaTime delta_time_;  //!< @brief to calculate delta time
 
   MeasurementNoiseGenerator measurement_noise_;  //!< @brief for measurement noise
 
-  float cg_to_rear_m_;  //!< @brief length from baselink to CoM
+  float32_t cg_to_rear_m_;  //!< @brief length from baselink to CoM
 
 
   /* vehicle model */

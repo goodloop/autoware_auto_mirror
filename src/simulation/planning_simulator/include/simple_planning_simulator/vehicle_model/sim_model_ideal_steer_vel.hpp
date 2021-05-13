@@ -32,7 +32,7 @@ public:
    * @brief constructor
    * @param [in] wheelbase vehicle wheelbase length [m]
    */
-  explicit SimModelIdealSteerVel(double wheelbase);
+  explicit SimModelIdealSteerVel(float64_t wheelbase);
 
   /**
    * @brief destructor
@@ -52,55 +52,55 @@ private:
     STEER_DES,
   };
 
-  const double wheelbase_;  //!< @brief vehicle wheelbase length
-  double prev_vx_ = 0.0;
-  double current_ax_ = 0.0;
+  const float64_t wheelbase_;  //!< @brief vehicle wheelbase length
+  float64_t prev_vx_ = 0.0;
+  float64_t current_ax_ = 0.0;
 
   /**
    * @brief get vehicle position x
    */
-  double getX() override;
+  float64_t getX() override;
 
   /**
    * @brief get vehicle position y
    */
-  double getY() override;
+  float64_t getY() override;
 
   /**
    * @brief get vehicle angle yaw
    */
-  double getYaw() override;
+  float64_t getYaw() override;
 
   /**
    * @brief get vehicle longitudinal velocity
    */
-  double getVx() override;
+  float64_t getVx() override;
 
   /**
    * @brief get vehicle lateral velocity
    */
-  double getVy() override;
+  float64_t getVy() override;
 
   /**
    * @brief get vehicle longiudinal acceleration
    */
-  double getAx() override;
+  float64_t getAx() override;
 
   /**
    * @brief get vehicle angular-velocity wz
    */
-  double getWz() override;
+  float64_t getWz() override;
 
   /**
    * @brief get vehicle steering angle
    */
-  double getSteer() override;
+  float64_t getSteer() override;
 
   /**
    * @brief update vehicle states
    * @param [in] dt delta time [s]
    */
-  void update(const double & dt) override;
+  void update(const float64_t & dt) override;
 
   /**
    * @brief calculate derivative of states with ideal steering model

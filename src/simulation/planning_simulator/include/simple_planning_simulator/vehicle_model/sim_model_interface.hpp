@@ -17,6 +17,11 @@
 
 #include "eigen3/Eigen/Core"
 #include "autoware_auto_msgs/msg/vehicle_state_command.hpp"
+#include "common/types.hpp"
+
+using autoware::common::types::float32_t;
+using autoware::common::types::float64_t;
+using autoware::common::types::bool8_t;
 
 /**
  * @class simple_simple_planning_simulator vehicle model class
@@ -81,60 +86,60 @@ public:
    * @param [in] dt delta time [s]
    * @param [in] input vehicle input
    */
-  void updateRungeKutta(const double & dt, const Eigen::VectorXd & input);
+  void updateRungeKutta(const float64_t & dt, const Eigen::VectorXd & input);
 
   /**
    * @brief update vehicle states with Euler methods
    * @param [in] dt delta time [s]
    * @param [in] input vehicle input
    */
-  void updateEuler(const double & dt, const Eigen::VectorXd & input);
+  void updateEuler(const float64_t & dt, const Eigen::VectorXd & input);
 
   /**
    * @brief update vehicle states
    * @param [in] dt delta time [s]
    */
-  virtual void update(const double & dt) = 0;
+  virtual void update(const float64_t & dt) = 0;
 
   /**
    * @brief get vehicle position x
    */
-  virtual double getX() = 0;
+  virtual float64_t getX() = 0;
 
   /**
    * @brief get vehicle position y
    */
-  virtual double getY() = 0;
+  virtual float64_t getY() = 0;
 
   /**
    * @brief get vehicle angle yaw
    */
-  virtual double getYaw() = 0;
+  virtual float64_t getYaw() = 0;
 
   /**
    * @brief get vehicle velocity vx
    */
-  virtual double getVx() = 0;
+  virtual float64_t getVx() = 0;
 
   /**
    * @brief get vehicle lateral velocity
    */
-  virtual double getVy() = 0;
+  virtual float64_t getVy() = 0;
 
   /**
    * @brief get vehicle longiudinal acceleration
    */
-  virtual double getAx() = 0;
+  virtual float64_t getAx() = 0;
 
   /**
    * @brief get vehicle angular-velocity wz
    */
-  virtual double getWz() = 0;
+  virtual float64_t getWz() = 0;
 
   /**
    * @brief get vehicle steering angle
    */
-  virtual double getSteer() = 0;
+  virtual float64_t getSteer() = 0;
 
   /**
    * @brief get state vector dimension
