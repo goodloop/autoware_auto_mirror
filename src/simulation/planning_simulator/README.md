@@ -23,7 +23,7 @@ This node simulates the vehicle motion for a vehicle command in 2D using a simpl
 |:---|:---|:---|:---|
 |simulated_frame_id     | string | set to the child_frame_id in output tf |"base_link"|
 |origin_frame_id        | string | set to the frame_id in output tf |"odom"|
-|initialize_source      | string | If "ORIGIN", the initial pose is set at (0,0,0). If "INITIAL_POSE_TOPIC", node will wait until the `/initialpose` topic is published. | | "INITIAL_POSE_TOPIC" |
+|initialize_source      | string | If "ORIGIN", the initial pose is set at (0,0,0). If "INITIAL_POSE_TOPIC", node will wait until the `/initialpose` topic is published. | "INITIAL_POSE_TOPIC" | "INITIAL_POSE_TOPIC" |
 |add_measurement_noise  | bool | If true, the Gaussian noise is added to the simulated results.| true|
 |pos_noise_stddev       | double | Standard deviation for position noise   |  0.01|
 |rpy_noise_stddev       | double | Standard deviation for Euler angle noise|  0.0001|
@@ -43,7 +43,7 @@ This node simulates the vehicle motion for a vehicle command in 2D using a simpl
  - `DELAY_STEER_ACC`
  - `DELAY_STEER_ACC_GEARED`
 
-The `IDEAL` model moves ideally as commanded, while the `DELAY` model moves based on a 1st-order with time delay model. The `STEER` means the model receives the steer command. The `VEL` means the model receives the target velocity command, while the `ACC` model receives the target acceleration command. The `GEARED` suffix means the motion considers the gear command: if the vehicle moves only one direction following the gear command.
+The `IDEAL` model moves ideally as commanded, while the `DELAY` model moves based on a 1st-order with time delay model. The `STEER` means the model receives the steer command. The `VEL` means the model receives the target velocity command, while the `ACC` model receives the target acceleration command. The `GEARED` suffix means that the motion will consider the gear command: the vehicle moves only one direction following the gear.
 
 The table below shows which models correspond to what parameters. The model names are written in abbreviated form (e.g. IDEAL_STEER_VEL = I_ST_V).
 
