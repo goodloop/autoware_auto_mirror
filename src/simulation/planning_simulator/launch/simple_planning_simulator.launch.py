@@ -16,8 +16,17 @@ import ament_index_python
 import launch
 import launch_ros.actions
 
+from launch.actions import DeclareLaunchArgument
+from launch.substitutions import LaunchConfiguration
 
 def generate_launch_description():
+
+    vehicle_characteristics_param = DeclareLaunchArgument(
+        'vehicle_characteristics_param_file',
+        default_value='',
+        description='Path to config file for vehicle characteristics'
+    )
+
 
     simple_planning_simulator_node = launch_ros.actions.Node(
         package='simple_planning_simulator',
@@ -31,6 +40,7 @@ def generate_launch_description():
                     "simple_planning_simulator"
                 )
             ),
+            LaunchConfiguration('vehicle_characteristics_param_file'),
         ],
         remappings=[
             ('input/vehicle_control_command', '/vehicle/vehicle_command'),
@@ -49,6 +59,7 @@ def generate_launch_description():
         arguments=['0.0', '0.0', '0.0', '0', '0', '0', 'map', 'odom'])
 
     ld = launch.LaunchDescription([
+        vehicle_characteristics_param,
         simple_planning_simulator_node,
         map_to_odom_tf_publisher
     ])

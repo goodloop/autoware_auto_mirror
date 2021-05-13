@@ -7,7 +7,6 @@ simulation:
       initialize_source: "INITIAL_POSE_TOPIC"
       timer_sampling_time_ms: 25
       add_measurement_noise: False
-      wheelbase: 2.8
       vel_lim: 30.0
       vel_rate_lim: 30.0
       steer_lim: 0.6
@@ -16,4 +15,5 @@ simulation:
       acc_time_constant: 0.1
       steer_time_delay: 0.1
       steer_time_constant: 0.1
-      cg_to_rear_m: 1.5618  # to convert kinematic state from baselink to CoM
+
+# Note: vehicle characteristics parameters (e.g. wheelbase) are difined in a separate file.
