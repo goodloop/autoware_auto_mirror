@@ -48,6 +48,24 @@ autoware_auto_msgs::msg::VehicleKinematicState convert_baselink_to_com(
 
   return out;
 }
+
+autoware_auto_msgs::msg::VehicleKinematicState to_kinematic_state(
+  const std::shared_ptr<SimModelInterface> vehicle_model_ptr)
+{
+  autoware_auto_msgs::msg::VehicleKinematicState s;
+  s.state.x = static_cast<float32_t>(vehicle_model_ptr->getX());
+  s.state.y = static_cast<float32_t>(vehicle_model_ptr->getY());
+  s.state.heading = motion::motion_common::from_angle(vehicle_model_ptr->getYaw());
+  s.state.longitudinal_velocity_mps =
+    static_cast<float32_t>(vehicle_model_ptr->getVx());
+  s.state.lateral_velocity_mps = 0.0;
+  s.state.acceleration_mps2 = static_cast<float32_t>(vehicle_model_ptr->getAx());
+  s.state.heading_rate_rps = static_cast<float32_t>(vehicle_model_ptr->getWz());
+  s.state.front_wheel_angle_rad =
+    static_cast<float32_t>(vehicle_model_ptr->getSteer());
+  s.state.rear_wheel_angle_rad = 0.0;
+  return s;
+}
 }  // namespace
 
 namespace simulation
@@ -174,28 +192,15 @@ void SimplePlanningSimulator::on_timer()
 
   // update vehicle dynamics
   {
-    const float64_t dt = delta_time_.getDt(get_clock()->now());
+    const float64_t dt = delta_time_.get_dt(get_clock()->now());
     vehicle_model_ptr_->update(dt);
   }
 
   // set current kinematic state
-  {
-    auto & s = current_kinematic_state_;
-    s.state.x = static_cast<float32_t>(vehicle_model_ptr_->getX());
-    s.state.y = static_cast<float32_t>(vehicle_model_ptr_->getY());
-    s.state.heading = motion::motion_common::from_angle(vehicle_model_ptr_->getYaw());
-    s.state.longitudinal_velocity_mps =
-      static_cast<float32_t>(vehicle_model_ptr_->getVx());
-    s.state.lateral_velocity_mps = 0.0;
-    s.state.acceleration_mps2 = static_cast<float32_t>(vehicle_model_ptr_->getAx());
-    s.state.heading_rate_rps = static_cast<float32_t>(vehicle_model_ptr_->getWz());
-    s.state.front_wheel_angle_rad =
-      static_cast<float32_t>(vehicle_model_ptr_->getSteer());
-    s.state.rear_wheel_angle_rad = 0.0;
-  }
+  current_kinematic_state_ = to_kinematic_state(vehicle_model_ptr_);
 
   if (add_measurement_noise_) {
-    addMeasurementNoise(current_kinematic_state_);
+    add_measurement_noise(current_kinematic_state_);
   }
 
   // publish vehicle state
@@ -249,7 +254,7 @@ void SimplePlanningSimulator::on_state_cmd(
   }
 }
 
-void SimplePlanningSimulator::addMeasurementNoise(VehicleKinematicState & state) const
+void SimplePlanningSimulator::add_measurement_noise(VehicleKinematicState & state) const
 {
   auto & n = measurement_noise_;
   state.state.x += static_cast<float>((*n.pos_dist_)(*n.rand_engine_));
