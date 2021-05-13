@@ -147,13 +147,9 @@ void JoystickVehicleInterfaceNode::on_joy(const sensor_msgs::msg::Joy::SharedPtr
   // State command: modify state first
   if (m_core->update_state_command(*msg)) {
     auto & state_command = m_core->get_state_command();
-    auto & previous_state_command = m_core->get_previous_state_command();
-    if (previous_state_command.headlight != state_command.headlight) {
-      autoware_auto_msgs::msg::HeadlightsCommand headlights_cmd;
-      headlights_cmd.command = state_command.headlight;
-      m_headlights_cmd_pub->publish(headlights_cmd);
-      m_core->update_headlights_state(headlights_cmd);
-    }
+    autoware_auto_msgs::msg::HeadlightsCommand headlights_cmd;
+    headlights_cmd.command = state_command.headlight;
+    m_headlights_cmd_pub->publish(headlights_cmd);
     m_state_cmd_pub->publish(state_command);
   }
   // Command publish
