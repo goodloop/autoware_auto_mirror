@@ -221,6 +221,15 @@ TEST(test_simple_planning_simulator_IDEAL_STEER_VEL, test_moving)
         sendCommand(_cmd, sim_node, pub_sub_node);
       };
 
+    // check pub-sub connections
+    {
+      size_t expected = 1;
+      EXPECT_EQ(pub_sub_node->pub_control_command_->get_subscription_count(), expected);
+      EXPECT_EQ(pub_sub_node->pub_state_cmd_->get_subscription_count(), expected);
+      EXPECT_EQ(pub_sub_node->pub_initialpose_->get_subscription_count(), expected);
+      EXPECT_EQ(pub_sub_node->kinematic_state_sub_->get_publisher_count(), expected);
+    }
+
     // check initial pose
     _resetInitialpose();
     const auto init_state = *(pub_sub_node->current_state_);
