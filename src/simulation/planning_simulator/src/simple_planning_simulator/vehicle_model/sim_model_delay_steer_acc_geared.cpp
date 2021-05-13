@@ -73,14 +73,13 @@ void SimModelDelaySteerAccGeared::update(const float64_t & dt)
 
 void SimModelDelaySteerAccGeared::initializeInputQueue(const float64_t & dt)
 {
-  size_t vx_input_queue_size = static_cast<size_t>(round(acc_delay_ / dt));
-  for (size_t i = 0; i < vx_input_queue_size; i++) {
-    acc_input_queue_.push_back(0.0);
-  }
+  size_t acc_input_queue_size = static_cast<size_t>(round(acc_delay_ / dt));
+  acc_input_queue_.resize(acc_input_queue_size);
+  std::fill(acc_input_queue_.begin(), acc_input_queue_.end(), 0.0);
+
   size_t steer_input_queue_size = static_cast<size_t>(round(steer_delay_ / dt));
-  for (size_t i = 0; i < steer_input_queue_size; i++) {
-    steer_input_queue_.push_back(0.0);
-  }
+  steer_input_queue_.resize(steer_input_queue_size);
+  std::fill(steer_input_queue_.begin(), steer_input_queue_.end(), 0.0);
 }
 
 Eigen::VectorXd SimModelDelaySteerAccGeared::calcModel(
