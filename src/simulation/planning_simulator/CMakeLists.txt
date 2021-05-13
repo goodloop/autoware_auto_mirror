@@ -47,7 +47,6 @@ if(BUILD_TESTING)
 
   # Unit test
   ament_add_gtest(simple_planning_simulator_unit_tests
-    test/gtest_main.cpp
     test/test_simple_planning_simulator.cpp)
   autoware_set_compile_options(simple_planning_simulator_unit_tests)
   target_link_libraries(simple_planning_simulator_unit_tests ${PROJECT_NAME})
