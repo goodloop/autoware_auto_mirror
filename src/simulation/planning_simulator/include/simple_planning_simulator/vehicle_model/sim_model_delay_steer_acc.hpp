@@ -41,9 +41,9 @@ public:
    * @param [in] steer_time_constant time constant for 1D model of steering dynamics
    */
   SimModelDelaySteerAcc(
-    double vx_lim, double steer_lim, double vx_rate_lim, double steer_rate_lim, double wheelbase,
-    double dt, double acc_delay, double acc_time_constant, double steer_delay,
-    double steer_time_constant);
+    float64_t vx_lim, float64_t steer_lim, float64_t vx_rate_lim, float64_t steer_rate_lim, float64_t wheelbase,
+    float64_t dt, float64_t acc_delay, float64_t acc_time_constant, float64_t steer_delay,
+    float64_t steer_time_constant);
 
   /**
    * @brief default destructor
@@ -51,7 +51,7 @@ public:
   ~SimModelDelaySteerAcc() = default;
 
 private:
-  const double MIN_TIME_CONSTANT;  //!< @brief minimum time constant
+  const float64_t MIN_TIME_CONSTANT;  //!< @brief minimum time constant
 
   enum IDX
   {
@@ -69,70 +69,70 @@ private:
     DRIVE_SHIFT,
   };
 
-  const double vx_lim_;          //!< @brief velocity limit [m/s]
-  const double vx_rate_lim_;     //!< @brief acceleration limit [m/ss]
-  const double steer_lim_;       //!< @brief steering limit [rad]
-  const double steer_rate_lim_;  //!< @brief steering angular velocity limit [rad/s]
-  const double wheelbase_;       //!< @brief vehicle wheelbase length [m]
+  const float64_t vx_lim_;          //!< @brief velocity limit [m/s]
+  const float64_t vx_rate_lim_;     //!< @brief acceleration limit [m/ss]
+  const float64_t steer_lim_;       //!< @brief steering limit [rad]
+  const float64_t steer_rate_lim_;  //!< @brief steering angular velocity limit [rad/s]
+  const float64_t wheelbase_;       //!< @brief vehicle wheelbase length [m]
 
-  std::deque<double> acc_input_queue_;    //!< @brief buffer for accel command
-  std::deque<double> steer_input_queue_;  //!< @brief buffer for steering command
-  const double acc_delay_;                //!< @brief time delay for accel command [s]
-  const double acc_time_constant_;        //!< @brief time constant for accel dynamics
-  const double steer_delay_;              //!< @brief time delay for steering command [s]
-  const double steer_time_constant_;      //!< @brief time constant for steering dynamics
+  std::deque<float64_t> acc_input_queue_;    //!< @brief buffer for accel command
+  std::deque<float64_t> steer_input_queue_;  //!< @brief buffer for steering command
+  const float64_t acc_delay_;                //!< @brief time delay for accel command [s]
+  const float64_t acc_time_constant_;        //!< @brief time constant for accel dynamics
+  const float64_t steer_delay_;              //!< @brief time delay for steering command [s]
+  const float64_t steer_time_constant_;      //!< @brief time constant for steering dynamics
 
   /**
    * @brief set queue buffer for input command
    * @param [in] dt delta time
    */
-  void initializeInputQueue(const double & dt);
+  void initializeInputQueue(const float64_t & dt);
 
   /**
    * @brief get vehicle position x
    */
-  double getX() override;
+  float64_t getX() override;
 
   /**
    * @brief get vehicle position y
    */
-  double getY() override;
+  float64_t getY() override;
 
   /**
    * @brief get vehicle angle yaw
    */
-  double getYaw() override;
+  float64_t getYaw() override;
 
   /**
    * @brief get vehicle velocity vx
    */
-  double getVx() override;
+  float64_t getVx() override;
 
   /**
    * @brief get vehicle lateral velocity
    */
-  double getVy() override;
+  float64_t getVy() override;
 
   /**
    * @brief get vehicle longiudinal acceleration
    */
-  double getAx() override;
+  float64_t getAx() override;
 
   /**
    * @brief get vehicle angular-velocity wz
    */
-  double getWz() override;
+  float64_t getWz() override;
 
   /**
    * @brief get vehicle steering angle
    */
-  double getSteer() override;
+  float64_t getSteer() override;
 
   /**
    * @brief update vehicle states
    * @param [in] dt delta time [s]
    */
-  void update(const double & dt) override;
+  void update(const float64_t & dt) override;
 
   /**
    * @brief calculate derivative of states with time delay steering model
