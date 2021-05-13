@@ -19,9 +19,14 @@
 #ifndef OUTLIER_FILTER__RADIUS_SEARCH_2D_FILTER_HPP_
 #define OUTLIER_FILTER__RADIUS_SEARCH_2D_FILTER_HPP_
 
-#include <outlier_filter/visibility_control.hpp>
+#include <vector>
+#include <memory>
 
-#include <cstdint>
+#include "outlier_filter/visibility_control.hpp"
+
+#include "pcl/search/pcl_search.h"
+#include "sensor_msgs/msg/point_cloud2.hpp"
+
 
 namespace autoware
 {
@@ -31,11 +36,50 @@ namespace filters
 {
 namespace outlier_filter
 {
+/* Namespace for the RadiusSearch2DFilter library */
 namespace radius_search_2d_filter
 {
 
-int32_t OUTLIER_FILTER_PUBLIC print_hello();
+/* \class RadiusSearch2DFilter
+ * \brief Library for using a radius based 2D filtering algorithm on a PCL pointcloud
+ */
+class OUTLIER_FILTER_PUBLIC RadiusSearch2DFilter
+{
+public:
+  /* \brief Constructor for the RadiusSearch2DFilter class
+   * \param search_radius Radius bounding a point's neighbors
+   * \param min_neighbors Minimum number of surrounding neighbors for a point
+   */
+  OUTLIER_FILTER_PUBLIC RadiusSearch2DFilter(double search_radius, int min_neighbors);
 
+  /* \brief Filter function that runs the radius search algorithm.
+   * \param input The input point cloud for filtering
+   * \param output The output point cloud
+   */
+  void OUTLIER_FILTER_PUBLIC filter(
+    pcl::PointCloud<pcl::PointXYZ>::ConstPtr input,
+    pcl::PointCloud<pcl::PointXYZ>::Ptr output);
+
+  /* \brief Update dynamically configurable parameters
+   * \param search_radius Parameter that updates the search_radius_ member variable
+   * \param min_neighbors Parameter that updates the min_neighbors_ member variable
+   */
+  inline void OUTLIER_FILTER_PUBLIC update_parameters(double search_radius, int min_neighbors)
+  {
+    search_radius_ = search_radius;
+    min_neighbors_ = min_neighbors;
+  }
+
+private:
+  /* Radius bounding a point's neighbors */
+  double search_radius_;
+
+  /* Minimum number of surrounding neighbors for a point to not be considered an outlier */
+  int min_neighbors_;
+
+  /* PCL Search object used to perform the radial search */
+  std::shared_ptr<pcl::search::Search<pcl::PointXY>> kd_tree_;
+};
 }  // namespace radius_search_2d_filter
 }  // namespace outlier_filter
 }  // namespace filters

@@ -12,9 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <vector>
+#include <memory>
+
 #include "outlier_filter/radius_search_2d_filter.hpp"
 
-#include <iostream>
+#include "pcl/search/kdtree.h"
 
 namespace autoware
 {
@@ -27,10 +30,32 @@ namespace outlier_filter
 namespace radius_search_2d_filter
 {
 
-int32_t print_hello()
+RadiusSearch2DFilter::RadiusSearch2DFilter(double search_radius, int min_neighbors)
+: search_radius_(search_radius), min_neighbors_(min_neighbors)
 {
-  std::cout << "Hello World" << std::endl;
-  return 0;
+  kd_tree_ = std::make_shared<pcl::search::KdTree<pcl::PointXY>>(false);
+}
+
+void RadiusSearch2DFilter::filter(
+  pcl::PointCloud<pcl::PointXYZ>::ConstPtr input,
+  pcl::PointCloud<pcl::PointXYZ>::Ptr output)
+{
+  pcl::PointCloud<pcl::PointXY>::Ptr xy_cloud(new pcl::PointCloud<pcl::PointXY>);
+  xy_cloud->points.resize(input->points.size());
+  for (size_t i = 0; i < input->points.size(); ++i) {
+    xy_cloud->points[i].x = input->points[i].x;
+    xy_cloud->points[i].y = input->points[i].y;
+  }
+
+  std::vector<int> k_indices(xy_cloud->points.size());
+  std::vector<float> k_dists(xy_cloud->points.size());
+  kd_tree_->setInputCloud(xy_cloud);
+  for (size_t i = 0; i < xy_cloud->points.size(); ++i) {
+    auto k = kd_tree_->radiusSearch(static_cast<int>(i), search_radius_, k_indices, k_dists);
+    if (k >= min_neighbors_) {
+      output->points.push_back(input->points.at(i));
+    }
+  }
 }
 
 }  // namespace radius_search_2d_filter

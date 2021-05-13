@@ -69,7 +69,7 @@ if(BUILD_TESTING)
   ament_lint_auto_find_test_dependencies()
 
   # Unit tests
-  set(TEST_SOURCES test/test_outlier_filter.cpp)
+  set(TEST_SOURCES test/test_radius_search_2d_filter.cpp)
   set(TEST_OUTLIER_FILTER_EXE test_outlier_filter)
   ament_add_gtest(${TEST_OUTLIER_FILTER_EXE} ${TEST_SOURCES})
   autoware_set_compile_options(${TEST_OUTLIER_FILTER_EXE})

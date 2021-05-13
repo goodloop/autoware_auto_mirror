@@ -13,8 +13,10 @@
 // limitations under the License.
 
 #include "gtest/gtest.h"
-#include "outlier_filter/radius_search_2d_filter.hpp"
+#include "outlier_filter/ring_filter.hpp"
 
 TEST(test_outlier_filter, test_hello) {
-  EXPECT_EQ(autoware::perception::filters::outlier_filter::radius_search_2d_filter::print_hello(), 0);
+  EXPECT_EQ(
+    autoware::perception::filters::outlier_filter::ring_filter::print_hello(),
+    0);
 }
