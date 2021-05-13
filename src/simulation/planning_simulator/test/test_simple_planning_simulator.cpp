@@ -200,8 +200,7 @@ TEST(test_simple_planning_simulator_IDEAL_STEER_VEL, test_moving)
     node_options.append_parameter_override("initialize_source", "INITIAL_POSE_TOPIC");
     node_options.append_parameter_override("cg_to_rear_m", COM_TO_BASELINK);
     node_options.append_parameter_override("vehicle_model_type", vehicle_model_type);
-    const auto sim_node = std::make_shared<SimplePlanningSimulator>(
-      "simple_planning_simulator", node_options);
+    const auto sim_node = std::make_shared<SimplePlanningSimulator>(node_options);
 
     const auto pub_sub_node = std::make_shared<PubSubNode>();
 

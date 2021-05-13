@@ -24,7 +24,7 @@ int32_t main(int32_t argc, char ** argv)
   using simulation::simple_planning_simulator::SimplePlanningSimulator;
 
   rclcpp::NodeOptions options;
-  const auto node = std::make_shared<SimplePlanningSimulator>("simple_planning_simulator", options);
+  const auto node = std::make_shared<SimplePlanningSimulator>(options);
 
   rclcpp::spin(node);
   rclcpp::shutdown();
