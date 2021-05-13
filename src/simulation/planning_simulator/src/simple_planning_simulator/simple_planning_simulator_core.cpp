@@ -30,6 +30,8 @@
 #include "simple_planning_simulator/vehicle_model/sim_model.hpp"
 #include "motion_common/motion_common.hpp"
 
+#include "rclcpp_components/register_node_macro.hpp"
+
 using namespace std::chrono_literals;
 
 namespace
@@ -364,3 +366,5 @@ void SimplePlanningSimulator::publish_tf(const VehicleKinematicState & state)
 }
 }  // namespace simple_planning_simulator
 }  // namespace simulation
+
+RCLCPP_COMPONENTS_REGISTER_NODE(simulation::simple_planning_simulator::SimplePlanningSimulator)
