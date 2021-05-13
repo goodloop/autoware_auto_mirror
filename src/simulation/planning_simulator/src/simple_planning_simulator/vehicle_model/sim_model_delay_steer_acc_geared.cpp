@@ -116,16 +116,16 @@ float64_t SimModelDelaySteerAccGeared::calcVelocityWithGear(
     gear == VehicleStateCommand::GEAR_LOW ||
     gear == VehicleStateCommand::GEAR_NEUTRAL)
   {
-    if (state_(IDX::VX) < 0.0) {
+    if (state(IDX::VX) < 0.0) {
       return 0.0;
     }
-  } else if (gear_ == VehicleStateCommand::GEAR_REVERSE) {
-    if (state_(IDX::VX) > 0.0) {
+  } else if (gear == VehicleStateCommand::GEAR_REVERSE) {
+    if (state(IDX::VX) > 0.0) {
       return 0.0;
     }
-  } else if (gear_ == VehicleStateCommand::GEAR_PARK) {
+  } else if (gear == VehicleStateCommand::GEAR_PARK) {
     return 0.0;
   }
 
-  return state_(IDX::VX);
+  return state(IDX::VX);
 }
