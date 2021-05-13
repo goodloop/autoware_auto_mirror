@@ -68,7 +68,7 @@ class DeltaTime
 public:
   DeltaTime()
   : prev_updated_time_ptr_(nullptr) {}
-  float64_t getDt(const rclcpp::Time & now)
+  float64_t get_dt(const rclcpp::Time & now)
   {
     if (prev_updated_time_ptr_ == nullptr) {
       prev_updated_time_ptr_ = std::make_shared<rclcpp::Time>(now);
@@ -185,7 +185,7 @@ private:
   /**
    * @brief add measurement noise
    */
-  void addMeasurementNoise(VehicleKinematicState & state) const;
+  void add_measurement_noise(VehicleKinematicState & state) const;
 
   /**
    * @brief set initial state of simulated vehicle
