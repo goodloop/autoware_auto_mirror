@@ -17,9 +17,9 @@
 #include <algorithm>
 
 SimModelDelaySteerAcc::SimModelDelaySteerAcc(
-  float64_t vx_lim, float64_t steer_lim, float64_t vx_rate_lim, float64_t steer_rate_lim, float64_t wheelbase,
-  float64_t dt, float64_t acc_delay, float64_t acc_time_constant, float64_t steer_delay,
-  float64_t steer_time_constant)
+  float64_t vx_lim, float64_t steer_lim, float64_t vx_rate_lim, float64_t steer_rate_lim,
+  float64_t wheelbase, float64_t dt, float64_t acc_delay, float64_t acc_time_constant,
+  float64_t steer_delay, float64_t steer_time_constant)
 : SimModelInterface(6 /* dim x */, 2 /* dim u */),
   MIN_TIME_CONSTANT(0.03),
   vx_lim_(vx_lim),
