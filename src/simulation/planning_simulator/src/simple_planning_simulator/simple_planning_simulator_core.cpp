@@ -158,7 +158,7 @@ void SimplePlanningSimulator::initialize_vehicle_model()
       timer_sampling_time_ms_ / 1000.0, acc_time_delay, acc_time_constant, steer_time_delay,
       steer_time_constant);
   } else {
-    RCLCPP_ERROR(this->get_logger(), "Invalid vehicle_model_type.");
+    throw std::invalid_argument("Invalid vehicle_model_type: " + vehicle_model_type_str);
   }
 }
 
@@ -230,9 +230,6 @@ void SimplePlanningSimulator::on_vehicle_cmd(
     vehicle_model_type_ == VehicleModelType::DELAY_STEER_ACC_GEARED)
   {
     input << msg->long_accel_mps2, msg->front_wheel_angle_rad;
-  } else {
-    RCLCPP_ERROR(this->get_logger(), "invalid vehicle_model_type_");
-    return;
   }
   vehicle_model_ptr_->setInput(input);
 }
@@ -299,9 +296,6 @@ void SimplePlanningSimulator::set_initial_state(
     vehicle_model_type_ == VehicleModelType::DELAY_STEER_ACC_GEARED)
   {
     state << x, y, yaw, vx, steer, accx;
-  } else {
-    RCLCPP_ERROR(this->get_logger(), "undesired vehicle model type! Initialization failed.");
-    return;
   }
   vehicle_model_ptr_->setState(state);
 
