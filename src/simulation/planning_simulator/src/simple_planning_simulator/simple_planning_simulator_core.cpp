@@ -63,7 +63,7 @@ SimplePlanningSimulator::SimplePlanningSimulator(const rclcpp::NodeOptions & opt
   simulated_frame_id_ = declare_parameter("simulated_frame_id", "base_link");
   origin_frame_id_ = declare_parameter("origin_frame_id", "odom");
   add_measurement_noise_ = declare_parameter("add_measurement_noise", false);
-  cg_to_rear_m_ = static_cast<float>(declare_parameter("cg_to_rear_m", 1.5));
+  cg_to_rear_m_ = static_cast<float>(declare_parameter("vehicle.cg_to_rear_m", 1.5));
 
   using rclcpp::QoS;
   using std::placeholders::_1;
@@ -126,7 +126,8 @@ void SimplePlanningSimulator::initialize_vehicle_model()
 
   RCLCPP_INFO(this->get_logger(), "vehicle_model_type = %s", vehicle_model_type_str.c_str());
 
-  const float64_t wheelbase = declare_parameter("wheelbase", 3.0);
+  const float64_t cg_to_front_m = declare_parameter("vehicle.cg_to_front_m", 1.5);
+  const float64_t wheelbase = cg_to_front_m + static_cast<float64_t>(cg_to_rear_m_);
   const float64_t vel_lim = declare_parameter("vel_lim", 50.0);
   const float64_t vel_rate_lim = declare_parameter("vel_rate_lim", 7.0);
   const float64_t steer_lim = declare_parameter("steer_lim", 1.0);
