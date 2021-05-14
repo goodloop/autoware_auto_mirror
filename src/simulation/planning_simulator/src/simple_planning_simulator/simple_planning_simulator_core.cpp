@@ -99,7 +99,7 @@ SimplePlanningSimulator::SimplePlanningSimulator(const rclcpp::NodeOptions & opt
   pub_state_report_ = create_publisher<VehicleStateReport>("output/vehicle_state_report", QoS{1});
   pub_current_pose_ = create_publisher<geometry_msgs::msg::PoseStamped>("/current_pose", QoS{1});
   pub_kinematic_state_ = create_publisher<VehicleKinematicState>("output/kinematic_state", QoS{1});
-  pub_tf_ = this->create_publisher<tf2_msgs::msg::TFMessage>("/tf", QoS{1});
+  pub_tf_ = create_publisher<tf2_msgs::msg::TFMessage>("/tf", QoS{1});
 
   timer_sampling_time_ms_ = static_cast<uint32_t>(declare_parameter("timer_sampling_time_ms", 25));
   on_timer_ = create_wall_timer(
@@ -332,11 +332,9 @@ geometry_msgs::msg::TransformStamped SimplePlanningSimulator::get_transform_msg(
 void SimplePlanningSimulator::publish_kinematic_state(
   const VehicleKinematicState & state)
 {
-  rclcpp::Time now = get_clock()->now();
-
   VehicleKinematicState msg = state;
   msg.header.frame_id = origin_frame_id_;
-  msg.header.stamp = now;
+  msg.header.stamp = get_clock()->now();
 
   pub_kinematic_state_->publish(msg);
 }
@@ -354,8 +352,6 @@ void SimplePlanningSimulator::publish_state_report()
 
 void SimplePlanningSimulator::publish_tf(const VehicleKinematicState & state)
 {
-  rclcpp::Time now = get_clock()->now();
-
   geometry_msgs::msg::TransformStamped tf;
   tf.header.stamp = get_clock()->now();
   tf.header.frame_id = origin_frame_id_;
