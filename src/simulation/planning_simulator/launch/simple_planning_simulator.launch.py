@@ -19,6 +19,7 @@ import launch_ros.actions
 from launch.actions import DeclareLaunchArgument
 from launch.substitutions import LaunchConfiguration
 
+
 def generate_launch_description():
 
     vehicle_characteristics_param = DeclareLaunchArgument(
@@ -26,7 +27,6 @@ def generate_launch_description():
         default_value='',
         description='Path to config file for vehicle characteristics'
     )
-
 
     simple_planning_simulator_node = launch_ros.actions.Node(
         package='simple_planning_simulator',
