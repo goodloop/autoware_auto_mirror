@@ -18,29 +18,47 @@
 #include <memory>
 #include <string>
 
-#include "autoware_control_msgs/msg/control_command_stamped.hpp"
-#include "rclcpp/rclcpp.hpp"
+#include "autoware_auto_msgs/msg/ackermann_control_command.hpp"
+#include "autoware_auto_msgs/msg/ackermann_lateral_command.hpp"
+#include "autoware_auto_msgs/msg/longitudinal_command.hpp"
 
+#include "rclcpp/rclcpp.hpp"
+#include "rclcpp/time.hpp"
+#include "rclcpp_components/register_node_macro.hpp"
+
+namespace autoware
+{
+namespace motion
+{
+namespace control
+{
+/// \brief Resources relating to the latlon_muxer package
+namespace latlon_muxer
+{
 class LatLonMuxer : public rclcpp::Node
 {
 public:
   explicit LatLonMuxer(const rclcpp::NodeOptions & node_options);
 
 private:
-  void latCtrlCmdCallback(const autoware_control_msgs::msg::ControlCommandStamped::SharedPtr msg);
-  void lonCtrlCmdCallback(const autoware_control_msgs::msg::ControlCommandStamped::SharedPtr msg);
+  void latCtrlCmdCallback(const autoware_auto_msgs::msg::AckermannLateralCommand::SharedPtr msg);
+  void lonCtrlCmdCallback(const autoware_auto_msgs::msg::LongitudinalCommand::SharedPtr msg);
   void publishCmd();
   bool checkTimeout();
 
-  rclcpp::Publisher<autoware_control_msgs::msg::ControlCommandStamped>::SharedPtr control_cmd_pub_;
-  rclcpp::Subscription<autoware_control_msgs::msg::ControlCommandStamped>::SharedPtr
+  rclcpp::Publisher<autoware_auto_msgs::msg::AckermannControlCommand>::SharedPtr control_cmd_pub_;
+  rclcpp::Subscription<autoware_auto_msgs::msg::AckermannLateralCommand>::SharedPtr
     lat_control_cmd_sub_;
-  rclcpp::Subscription<autoware_control_msgs::msg::ControlCommandStamped>::SharedPtr
+  rclcpp::Subscription<autoware_auto_msgs::msg::LongitudinalCommand>::SharedPtr
     lon_control_cmd_sub_;
 
-  std::shared_ptr<autoware_control_msgs::msg::ControlCommandStamped> lat_cmd_;
-  std::shared_ptr<autoware_control_msgs::msg::ControlCommandStamped> lon_cmd_;
+  std::shared_ptr<autoware_auto_msgs::msg::AckermannLateralCommand> lat_cmd_;
+  std::shared_ptr<autoware_auto_msgs::msg::LongitudinalCommand> lon_cmd_;
   double timeout_thr_sec_;
-};
+};  // class LatLonMuxer
+}  // namespace latlon_muxer
+}  // namespace control
+}  // namespace motion
+}  // namespace autoware
 
 #endif  // LATLON_MUXER__NODE_HPP_

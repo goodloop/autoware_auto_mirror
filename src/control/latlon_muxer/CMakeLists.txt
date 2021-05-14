@@ -4,26 +4,13 @@ project(latlon_muxer)
 find_package(ament_cmake_auto REQUIRED)
 ament_auto_find_build_dependencies()
 
-### Compile options
-if(NOT CMAKE_CXX_STANDARD)
-  set(CMAKE_CXX_STANDARD 14)
-  set(CMAKE_CXX_STANDARD_REQUIRED ON)
-  set(CMAKE_CXX_EXTENSIONS OFF)
-endif()
-if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-  add_compile_options(-Wall -Wextra -Wpedantic -Wno-unused-parameter -Werror)
-endif()
+ament_auto_add_library(${PROJECT_NAME} SHARED src/node.cpp)
 
-ament_auto_add_library(latlon_muxer_node SHARED src/node.cpp)
+autoware_set_compile_options(${PROJECT_NAME})
+# TODO(latlon_muxer) : RCLCPP_ERROR_THROTTLE() has built-in old-style casts.
+# TODO(latlon_muxer) : Temporary workaround until this is fixed.
+target_compile_options(${PROJECT_NAME} PRIVATE -Wno-error=old-style-cast)
+rclcpp_components_register_node(${PROJECT_NAME} PLUGIN "tmp::LatLonMuxer" EXECUTABLE ${PROJECT_NAME}_exe)
 
-rclcpp_components_register_node(latlon_muxer_node
-  PLUGIN "LatLonMuxer"
-  EXECUTABLE latlon_muxer
-)
-
-if(BUILD_TESTING)
-  find_package(ament_lint_auto REQUIRED)
-  ament_lint_auto_find_test_dependencies()
-endif()
 
 ament_auto_package()
