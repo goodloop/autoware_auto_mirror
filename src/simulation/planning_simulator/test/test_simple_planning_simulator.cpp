@@ -209,14 +209,9 @@ TEST(test_simple_planning_simulator_IDEAL_STEER_VEL, test_moving)
     const float target_steer = 0.2f;
 
     auto _resetInitialpose = [&]() {resetInitialpose(sim_node, pub_sub_node);};
-    auto _sendFwdGear = [&]() {
-        sendGear(autoware_auto_msgs::msg::VehicleStateCommand::GEAR_DRIVE, sim_node, pub_sub_node);
-      };
-    auto _sendBwdGear = [&]() {
-        sendGear(
-          autoware_auto_msgs::msg::VehicleStateCommand::GEAR_REVERSE, sim_node,
-          pub_sub_node);
-      };
+    auto _sendFwdGear = [&]() {sendGear(VehicleStateCommand::GEAR_DRIVE, sim_node, pub_sub_node);};
+    auto _sendBwdGear =
+      [&]() {sendGear(VehicleStateCommand::GEAR_REVERSE, sim_node, pub_sub_node);};
     auto _sendCommand = [&](const VehicleControlCommand & _cmd) {
         sendCommand(_cmd, sim_node, pub_sub_node);
       };
