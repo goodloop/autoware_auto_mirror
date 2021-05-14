@@ -25,6 +25,16 @@ using geometry_msgs::msg::PoseWithCovarianceStamped;
 
 using simulation::simple_planning_simulator::SimplePlanningSimulator;
 
+std::string toStrInfo(const VehicleKinematicState & state)
+{
+  const auto & s = state.state;
+  std::stringstream ss;
+  ss << "state x: " << s.x << ", y: " << s.y << ", yaw: " << motion::motion_common::to_angle(
+    s.heading) << ", vx = " << s.longitudinal_velocity_mps << ", vy: " << s.lateral_velocity_mps <<
+    ", ax: " << s.acceleration_mps2 << ", steer: " << s.front_wheel_angle_rad;
+  return ss.str();
+}
+
 static constexpr float COM_TO_BASELINK = 1.5f;
 class PubSubNode : public rclcpp::Node
 {
@@ -134,7 +144,7 @@ void isOnForward(const VehicleKinematicState & _state, const VehicleKinematicSta
   auto state = comToBaselink(_state);
   auto init = comToBaselink(_init);
   float dx = state.state.x - init.state.x;
-  EXPECT_GT(dx, forward_thr) << "x_curr = " << state.state.x << ", x0 = " << init.state.x;
+  EXPECT_GT(dx, forward_thr) << "[curr] " << toStrInfo(state) << ", [init] " << toStrInfo(init);
 }
 
 void isOnBackward(const VehicleKinematicState & _state, const VehicleKinematicState & _init)
@@ -143,11 +153,7 @@ void isOnBackward(const VehicleKinematicState & _state, const VehicleKinematicSt
   auto state = comToBaselink(_state);
   auto init = comToBaselink(_init);
   float dx = state.state.x - init.state.x;
-  EXPECT_LT(
-    dx,
-    backward_thr) << "x_curr = " << state.state.x << ", x0 = " << init.state.x << ", s = " <<
-    state.state.front_wheel_angle_rad << ", v = " << state.state.longitudinal_velocity_mps <<
-    ", a = " << state.state.acceleration_mps2;
+  EXPECT_LT(dx, backward_thr) << "[curr] " << toStrInfo(state) << ", [init] " << toStrInfo(init);
 }
 
 void isOnForwardLeft(const VehicleKinematicState & _state, const VehicleKinematicState & _init)
@@ -158,11 +164,8 @@ void isOnForwardLeft(const VehicleKinematicState & _state, const VehicleKinemati
   auto init = comToBaselink(_init);
   float dx = state.state.x - init.state.x;
   float dy = state.state.y - init.state.y;
-  EXPECT_GT(dx, forward_thr) << "x_curr = " << state.state.x << ", x0 = " << init.state.x;
-  EXPECT_GT(
-    dy,
-    left_thr) << "y_curr = " << state.state.y << ", y0 = " << init.state.y << ", s = " <<
-    state.state.front_wheel_angle_rad << ", v = " << state.state.longitudinal_velocity_mps;
+  EXPECT_GT(dx, forward_thr) << "[curr] " << toStrInfo(state) << ", [init] " << toStrInfo(init);
+  EXPECT_GT(dy, left_thr) << "[curr] " << toStrInfo(state) << ", [init] " << toStrInfo(init);
 }
 
 void isOnBackwardRight(const VehicleKinematicState & _state, const VehicleKinematicState & _init)
@@ -173,11 +176,8 @@ void isOnBackwardRight(const VehicleKinematicState & _state, const VehicleKinema
   auto init = comToBaselink(_init);
   float dx = state.state.x - init.state.x;
   float dy = state.state.y - init.state.y;
-  EXPECT_LT(dx, backward_thr) << "x_curr = " << state.state.x << ", x0 = " << init.state.x;
-  EXPECT_LT(
-    dy,
-    right_thr) << "y_curr = " << state.state.y << ", y0 = " << init.state.y << ", s = " <<
-    state.state.front_wheel_angle_rad << ", v = " << state.state.longitudinal_velocity_mps;
+  EXPECT_LT(dx, backward_thr) << "[curr] " << toStrInfo(state) << ", [init] " << toStrInfo(init);
+  EXPECT_LT(dy, right_thr) << "[curr] " << toStrInfo(state) << ", [init] " << toStrInfo(init);
 }
 
 // Send a control command and run the simulation.
