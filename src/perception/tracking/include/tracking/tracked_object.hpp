@@ -20,6 +20,7 @@
 #define TRACKING__TRACKED_OBJECT_HPP_
 
 #include <chrono>
+#include <cstddef>
 
 #include "autoware_auto_msgs/msg/detected_object.hpp"
 #include "autoware_auto_msgs/msg/detected_objects.hpp"
@@ -71,7 +72,9 @@ public:
   void no_update();
 
   /// Returns whether the tracked object can be removed.
-  bool should_be_removed() const;
+  bool should_be_removed(
+    const std::chrono::nanoseconds time_threshold,
+    const std::size_t ticks_threshold) const;
 
   /// Getter for the message.
   const TrackedObjectMsg & msg();
@@ -84,9 +87,9 @@ private:
   /// The time since this object has last been seen.
   std::chrono::nanoseconds m_time_since_last_seen = std::chrono::nanoseconds::zero();
   /// The number of updates where this object has not been seen
-  size_t m_ticks_since_last_seen = 0;
+  std::size_t m_ticks_since_last_seen = 0;
   /// The number of updates (seen or not) since this object has been created
-  size_t m_ticks_alive = 1;
+  std::size_t m_ticks_alive = 1;
   /// All variables will initially have this variance where the detection
   /// does not contain one.
   common::types::float32_t m_default_variance = -1.0F;

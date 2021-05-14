@@ -235,9 +235,11 @@ const TrackedObject::TrackedObjectMsg & TrackedObject::msg()
   return m_msg;
 }
 
-bool TrackedObject::should_be_removed() const
+bool TrackedObject::should_be_removed(
+  const std::chrono::nanoseconds time_threshold,
+  const std::size_t ticks_threshold) const
 {
-  return m_time_since_last_seen > std::chrono::milliseconds(500);
+  return m_time_since_last_seen >= time_threshold || m_ticks_since_last_seen >= ticks_threshold;
 }
 
 }  // namespace tracking
