@@ -1,4 +1,4 @@
-// Copyright 2015-2020 Autoware Foundation. All rights reserved.
+// Copyright 2021 The Autoware Foundation
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -35,15 +35,22 @@ namespace control
 /// \brief Resources relating to the latlon_muxer package
 namespace latlon_muxer
 {
+/// \class LatLonMuxer
+/// \brief The node class used for muxing lateral and longitudinal messages
 class LatLonMuxer : public rclcpp::Node
 {
 public:
   explicit LatLonMuxer(const rclcpp::NodeOptions & node_options);
 
 private:
+  // \brief Callback for the lateral control command
   void latCtrlCmdCallback(const autoware_auto_msgs::msg::AckermannLateralCommand::SharedPtr msg);
+  // \brief Callback for the longitudinal control command
   void lonCtrlCmdCallback(const autoware_auto_msgs::msg::LongitudinalCommand::SharedPtr msg);
+  // \brief Publish the combined control command message
   void publishCmd();
+  // \brief Check that the received messages are not too old
+  // \return bool True if the stored messages timed out
   bool checkTimeout();
 
   rclcpp::Publisher<autoware_auto_msgs::msg::AckermannControlCommand>::SharedPtr control_cmd_pub_;
@@ -54,6 +61,7 @@ private:
 
   std::shared_ptr<autoware_auto_msgs::msg::AckermannLateralCommand> lat_cmd_;
   std::shared_ptr<autoware_auto_msgs::msg::LongitudinalCommand> lon_cmd_;
+  // \brief Timeout duration in seconds
   double timeout_thr_sec_;
 };  // class LatLonMuxer
 }  // namespace latlon_muxer
