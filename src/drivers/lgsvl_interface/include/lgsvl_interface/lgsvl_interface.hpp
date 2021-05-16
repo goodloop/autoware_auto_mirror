@@ -121,6 +121,9 @@ public:
   bool handle_mode_change_request(
     autoware_auto_msgs::srv::AutonomyModeChange_Request::SharedPtr request) override;
 
+  void on_headlights_command(
+    const autoware_auto_msgs::msg::HeadlightsCommand &) override;
+
 private:
   // Mappings from Autoware to LGSVL values
   static const std::unordered_map<WIPER_TYPE, WIPER_TYPE> autoware_to_lgsvl_wiper;
@@ -143,6 +146,8 @@ private:
   rclcpp::Subscription<lgsvl_msgs::msg::CanBusData>::SharedPtr m_state_sub{};
   rclcpp::Subscription<lgsvl_msgs::msg::VehicleOdometry>::SharedPtr m_veh_odom_sub{};
   rclcpp::TimerBase::SharedPtr m_nav_base_tf_timer{};
+
+  rclcpp::Publisher<autoware_auto_msgs::msg::HeadlightsCommand>::SharedPtr m_headlights_command_pub;
 
   Table1D m_throttle_table;
   Table1D m_brake_table;

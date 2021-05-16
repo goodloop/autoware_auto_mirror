@@ -127,6 +127,9 @@ LgsvlInterface::LgsvlInterface(
   m_state_pub = node.create_publisher<lgsvl_msgs::msg::VehicleStateData>(
     sim_state_cmd_topic, rclcpp::QoS{10});
 
+  m_headlights_command_pub = node.create_publisher<autoware_auto_msgs::msg::HeadlightsCommand>(
+    "headlights_command", rclcpp::QoS{10});
+
   // Make subscribers
   if (!sim_nav_odom_topic.empty() && ("null" != sim_nav_odom_topic)) {
     m_nav_odom_sub = node.create_subscription<nav_msgs::msg::Odometry>(
@@ -298,6 +301,10 @@ bool8_t LgsvlInterface::send_state_command(const autoware_auto_msgs::msg::Vehicl
     VSD::VEHICLE_MODE_COMPLETE_AUTO_DRIVE ? true : false);
 
   m_state_pub->publish(state_data);
+
+  autoware_auto_msgs::msg::HeadlightsCommand headlights_cmd;
+  headlights_cmd.command = msg_corrected.headlight;
+  on_headlights_command(headlights_cmd);
   return true;
 }
 
@@ -478,6 +485,12 @@ void LgsvlInterface::on_state_report(const autoware_auto_msgs::msg::VehicleState
   corrected_report.blinker++;
 
   state_report() = corrected_report;
+}
+
+void LgsvlInterface::on_headlights_command(
+  const autoware_auto_msgs::msg::HeadlightsCommand & headlights_cmd)
+{
+  m_headlights_command_pub->publish(headlights_cmd);
 }
 
 }  // namespace lgsvl_interface
