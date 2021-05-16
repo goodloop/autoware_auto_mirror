@@ -15,6 +15,8 @@
 // Co-developed by Tier IV, Inc. and Apex.AI, Inc.
 #include "vehicle_interface/platform_interface.hpp"
 
+#include "autoware_auto_msgs/msg/headlights_command.hpp"
+
 namespace autoware
 {
 namespace drivers
@@ -43,6 +45,14 @@ autoware_auto_msgs::msg::VehicleOdometry & PlatformInterface::odometry() noexcep
   //lint -e{1536} This is an active design choice to not make getters and setters pure virtual NOLINT
   return m_odometry;
 }
+
+
+void PlatformInterface::on_headlights_command(
+  const autoware_auto_msgs::msg::HeadlightsCommand &)
+{
+  throw std::runtime_error("HeadlightsCommand not supported by this vehicle interface");
+}
+
 }  // namespace vehicle_interface
 }  // namespace drivers
 }  // namespace autoware
