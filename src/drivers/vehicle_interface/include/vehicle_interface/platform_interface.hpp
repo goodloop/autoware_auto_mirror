@@ -19,6 +19,7 @@
 #define VEHICLE_INTERFACE__PLATFORM_INTERFACE_HPP_
 
 #include <common/types.hpp>
+#include <autoware_auto_msgs/msg/headlights_command.hpp>
 #include <autoware_auto_msgs/msg/raw_control_command.hpp>
 #include <autoware_auto_msgs/msg/vehicle_control_command.hpp>
 #include <autoware_auto_msgs/msg/vehicle_odometry.hpp>
@@ -99,6 +100,9 @@ public:
   /// Get the most recent odomoetry of the vehicle
   /// \return A Odometry message intended to be published.
   const VehicleOdometry & get_odometry() const noexcept;
+
+
+  virtual void on_headlights_command(const autoware_auto_msgs::msg::HeadlightsCommand &);
 
 protected:
   /// Get the underlying state report for modification
