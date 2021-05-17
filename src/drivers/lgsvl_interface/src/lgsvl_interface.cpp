@@ -29,6 +29,8 @@
 
 #include "lgsvl_interface/lgsvl_interface.hpp"
 
+#include "autoware_auto_msgs/msg/headlights_report.hpp"
+
 using autoware::common::types::bool8_t;
 using autoware::common::types::float64_t;
 namespace comp = autoware::common::helper_functions::comparisons;
@@ -163,12 +165,17 @@ LgsvlInterface::LgsvlInterface(
       } else {
         state_report.set__blinker(autoware_auto_msgs::msg::VehicleStateReport::BLINKER_OFF);
       }
+
+      autoware_auto_msgs::msg::HeadlightsReport headlights_report;
       if (msg->low_beams_active) {
         state_report.set__headlight(autoware_auto_msgs::msg::VehicleStateReport::HEADLIGHT_ON);
+        headlights_report.report = autoware_auto_msgs::msg::HeadlightsReport::ENABLE_LOW;
       } else if (msg->high_beams_active) {
         state_report.set__headlight(autoware_auto_msgs::msg::VehicleStateReport::HEADLIGHT_HIGH);
+        headlights_report.report = autoware_auto_msgs::msg::HeadlightsReport::ENABLE_HIGH;
       } else {
         state_report.set__headlight(autoware_auto_msgs::msg::VehicleStateReport::HEADLIGHT_OFF);
+        headlights_report.report = autoware_auto_msgs::msg::HeadlightsReport::DISABLE;
       }
 
       if (msg->wipers_active) {
@@ -182,6 +189,8 @@ LgsvlInterface::LgsvlInterface(
       state_report.set__hand_brake(msg->parking_brake_active);
       // state_report.set__horn()  // no horn status from LGSVL
       on_state_report(state_report);
+
+      on_headlights_report(headlights_report);
     });
 
   m_veh_odom_sub = node.create_subscription<lgsvl_msgs::msg::VehicleOdometry>(
@@ -485,6 +494,13 @@ void LgsvlInterface::on_state_report(const autoware_auto_msgs::msg::VehicleState
   corrected_report.blinker++;
 
   state_report() = corrected_report;
+}
+
+void LgsvlInterface::on_headlights_report(
+  const autoware_auto_msgs::msg::HeadlightsReport & headlights_report)
+{
+  // Do not do anything
+  (void)headlights_report;
 }
 
 void LgsvlInterface::on_headlights_command(
