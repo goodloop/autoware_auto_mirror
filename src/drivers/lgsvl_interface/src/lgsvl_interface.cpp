@@ -189,6 +189,8 @@ LgsvlInterface::LgsvlInterface(
       state_report.set__hand_brake(msg->parking_brake_active);
       // state_report.set__horn()  // no horn status from LGSVL
       on_state_report(state_report);
+
+      on_headlights_report(headlights_report);
     });
 
   m_veh_odom_sub = node.create_subscription<lgsvl_msgs::msg::VehicleOdometry>(
