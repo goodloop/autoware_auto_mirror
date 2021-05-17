@@ -116,6 +116,8 @@ public:
 
   virtual void on_headlights_command(const autoware_auto_msgs::msg::HeadlightsCommand &);
 
+  virtual void on_headlights_report(const autoware_auto_msgs::msg::HeadlightsReport &);
+
 protected:
   /// Get the underlying state report for modification
   VehicleStateReport & state_report() noexcept;
