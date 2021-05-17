@@ -23,6 +23,11 @@
 
 #include "vehicle_interface/safety_state_machine.hpp"
 
+#include "autoware_auto_msgs/msg/headlights_command.hpp"
+#include "autoware_auto_msgs/msg/headlights_report.hpp"
+#include "autoware_auto_msgs/msg/wipers_command.hpp"
+#include "autoware_auto_msgs/msg/wipers_report.hpp"
+
 using autoware::common::types::bool8_t;
 namespace comp = autoware::common::helper_functions::comparisons;
 
@@ -36,6 +41,10 @@ namespace
 {
 using VSC = autoware_auto_msgs::msg::VehicleStateCommand;
 using VSR = StateReport;
+using autoware_auto_msgs::msg::HeadlightsCommand;
+using autoware_auto_msgs::msg::HeadlightsReport;
+using autoware_auto_msgs::msg::WipersCommand;
+using autoware_auto_msgs::msg::WipersReport;
 static_assert(VSC::BLINKER_OFF == VSR::BLINKER_OFF, "BLINKER_OFF!=");
 static_assert(VSC::BLINKER_LEFT == VSR::BLINKER_LEFT, "BLINKER_LEFT !=");
 static_assert(VSC::BLINKER_RIGHT == VSR::BLINKER_RIGHT, "BLINKER_RIGHT !=");
@@ -46,7 +55,7 @@ static_assert(HeadlightsCommand::ENABLE_HIGH == VSR::HEADLIGHT_HIGH, "HEADLIGHT_
 static_assert(VSC::WIPER_OFF == VSR::WIPER_OFF, "WIPER_OFF !=");
 static_assert(VSC::WIPER_LOW == VSR::WIPER_LOW, "WIPER_LOW !=");
 static_assert(VSC::WIPER_HIGH == VSR::WIPER_HIGH, "WIPER_HIGH !=");
-static_assert(VSC::WIPER_CLEAN == VSR::WIPER_CLEAN, "WIPER_CLEAN !=");
+static_assert(WipersCommand::ENABLE_CLEAN == WipersReport::ENABLE_CLEAN, "ENABLE_CLEAN !=");
 static_assert(VSC::GEAR_DRIVE == VSR::GEAR_DRIVE, "GEAR_DRIVE !=");
 static_assert(VSC::GEAR_REVERSE == VSR::GEAR_REVERSE, "GEAR_REVERSE !=");
 static_assert(VSC::GEAR_PARK == VSR::GEAR_PARK, "GEAR_PARK !=");

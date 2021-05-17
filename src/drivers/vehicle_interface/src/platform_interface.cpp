@@ -53,6 +53,11 @@ void PlatformInterface::on_headlights_command(
   throw std::runtime_error("HeadlightsCommand not supported by this vehicle interface");
 }
 
+void PlatformInterface::on_headlights_report(const autoware_auto_msgs::msg::HeadlightsReport &)
+{
+  throw std::runtime_error("HeadlightsReport not supported by this vehicle interface");
+}
+
 }  // namespace vehicle_interface
 }  // namespace drivers
 }  // namespace autoware
