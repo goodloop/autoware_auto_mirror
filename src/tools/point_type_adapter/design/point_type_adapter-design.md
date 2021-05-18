@@ -5,6 +5,23 @@ This is the design document for the `point_type_adapter` package.
 
 # Purpose / Use cases
 
+Autoware.Auto uses `PointCloud2` messages with following field structure and order:
+| **Field Name** | **Field Datatype** |
+| --- | --- |
+| "x" | `FLOAT32` |
+| "y" | `FLOAT32` |
+| "z" | `FLOAT32` |
+| "intensity" | `FLOAT32` |
+
+The reason is, if the algoritms know this structure ahead of time, 
+we can iterate over them with almost no overhead using `point_cloud_msg_wrapper`.
+
+But various lidar drivers might output `PointCloud2` messages with extra fields
+or different orders.
+
+This node helps converting those point clouds into the type Autoware.Auto expects.
+
+## Use case: SVL Simulator
 SVL Simulator outputs point clouds with following fields:
 
 ```
@@ -20,27 +37,30 @@ types: FLOAT32, FLOAT32, FLOAT32, FLOAT32
 offsets: 0, 4, 8, 12
 ```
 
-So this node does this conversion for front and back lidars.
-
-Though this node can be modified to convert from different point cloud types.
+And this node does this conversion for front and back lidars using 
+`point_type_adapter.launch.py` file.
 
 
 # Design
 
-It simply subscribes in a PointCloud2 message with point type
-`autoware::tools::point_type_adapter::PointTypeAdapterNode::PointSvl` and converts it into
-a PointCloud2 message with point type
+It simply subscribes in a PointCloud2 message with point type **should** contain:
+| **Field Name** | **Field Datatype** |
+| --- | --- |
+| "x" | `FLOAT32` |
+| "y" | `FLOAT32` |
+| "z" | `FLOAT32` |
+| "intensity" | `FLOAT32` or `UINT8` |
+
+and converts it into a PointCloud2 message with point type
 `autoware::common::types::PointXYZI` and publishes it.
 
+- The input point cloud is allowed to contain extra fields.
+- The input point cloud is allowed to contain required fields in different orders.
 
 ## Assumptions / Known limits
 
-Input point cloud structured exactly like this:
-```
-fields: x, y, z, intensity, timestamp
-types: FLOAT32, FLOAT32, FLOAT32, UINT8, FLOAT64
-offsets: 0, 4, 8, 16, 24
-```
+If the input point cloud doesn't have either of the fields with types required,
+it will throw exceptions and won't publish anything.
 
 ## Inputs / Outputs / API
 
@@ -63,8 +83,9 @@ and it will convert topic names and types like following:
 
 
 ## Inner-workings / Algorithms
-It just iterates over the old cloud and constructs the new cloud using `std::transform`.
-
+It just iterates over the old cloud using `sensor_msgs::PointCloud2Iterator`,
+creates a point made of `x,y,z,intensity` fields, puts it to the new cloud using
+`point_cloud_msg_wrapper::PointCloud2Modifier` and publishes it.
 
 ## Error detection and handling
 If an exception occurs because the input PointCloud2 doesn't have the expected type,
