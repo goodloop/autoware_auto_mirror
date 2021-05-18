@@ -25,6 +25,7 @@
 #include <helper_functions/float_comparisons.hpp>
 #include <limits>
 #include "point_type_adapter/visibility_control.hpp"
+#include "point_cloud2_intensity_wrapper.hpp"
 
 namespace autoware
 {
@@ -48,35 +49,9 @@ public:
 
   using PointXYZI = common::types::PointXYZI;
 
-  struct PointSvl
-  {
-    float32_t x{0.0F};
-    float32_t y{0.0F};
-    alignas(float64_t) float32_t z{0.0F};
-    alignas(uint64_t) uint8_t intensity{0};
-    float64_t timestamp{0.0};
-    friend bool operator==(const PointSvl & p1, const PointSvl & p2) noexcept
-    {
-      using autoware::common::helper_functions::comparisons::rel_eq;
-      return rel_eq(
-        p1.x, p2.x,
-        std::numeric_limits<float32_t>::epsilon()) &&
-             rel_eq(
-        p1.y, p2.y,
-        std::numeric_limits<float32_t>::epsilon()) &&
-             rel_eq(
-        p1.z, p2.z,
-        std::numeric_limits<float32_t>::epsilon()) &&
-             p1.intensity == p2.intensity &&
-             rel_eq(
-        p1.timestamp, p2.timestamp,
-        std::numeric_limits<float64_t>::epsilon());
-    }
-  };
-
-  /// \brief Converts CloudSVL to CloudXYZI
-  static PointCloud2::SharedPtr cloud_svl_to_cloud_xyzi(
-    const PointCloud2::ConstSharedPtr cloud_svl);
+  /// \brief Converts CloudX to CloudXYZI
+  static PointCloud2::SharedPtr cloud_in_to_cloud_xyzi(
+    const PointCloud2::ConstSharedPtr cloud_in);
 
 private:
   rclcpp::Publisher<PointCloud2>::SharedPtr pub_ptr_cloud_output_;

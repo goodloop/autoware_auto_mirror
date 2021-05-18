@@ -12,12 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <sensor_msgs/msg/point_cloud2.hpp>
+#include <sensor_msgs/point_cloud2_iterator.hpp>
 #include <common/types.hpp>
 #include <point_cloud_msg_wrapper/point_cloud_msg_wrapper.hpp>
 #include <memory>
 #include <algorithm>
 #include <exception>
 #include <string>
+#include <vector>
 #include "point_type_adapter/point_type_adapter_node.hpp"
 
 namespace autoware
@@ -49,7 +52,7 @@ PointTypeAdapterNode::PointTypeAdapterNode(const rclcpp::NodeOptions & options)
 void PointTypeAdapterNode::callback_cloud_input(const PointCloud2::SharedPtr msg_ptr)
 {
   try {
-    PointCloud2::SharedPtr cloud_out = cloud_svl_to_cloud_xyzi(msg_ptr);
+    PointCloud2::SharedPtr cloud_out = cloud_in_to_cloud_xyzi(msg_ptr);
     pub_ptr_cloud_output_->publish(*cloud_out);
   } catch (std::exception & ex) {
     RCLCPP_ERROR(
@@ -58,30 +61,71 @@ void PointTypeAdapterNode::callback_cloud_input(const PointCloud2::SharedPtr msg
   }
 }
 
-PointCloud2::SharedPtr PointTypeAdapterNode::cloud_svl_to_cloud_xyzi(
-  const PointCloud2::ConstSharedPtr cloud_svl)
+PointCloud2::SharedPtr PointTypeAdapterNode::cloud_in_to_cloud_xyzi(
+  const PointCloud2::ConstSharedPtr cloud_in)
 {
   using CloudModifier = point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZI>;
   PointCloud2::SharedPtr cloud_out_ptr = std::make_shared<PointCloud2>();
-  CloudModifier cloud_modifier_out(*cloud_out_ptr, cloud_svl->header.frame_id);
-  cloud_out_ptr->header = cloud_svl->header;
 
-  using CloudViewSvl = point_cloud_msg_wrapper::PointCloud2View<PointSvl>;
-  CloudViewSvl cloud_view_svl(*cloud_svl);
-  cloud_modifier_out.resize(static_cast<uint32_t>(cloud_view_svl.size()));
+  auto fields_contain_field_with_name_and_datatype = [](
+    const std::vector<sensor_msgs::msg::PointField> & fields,
+    const std::string & name,
+    uint8_t datatype) {
+      auto iter_search = std::find_if(
+        fields.cbegin(), fields.cend(), [&name](
+          const sensor_msgs::msg::PointField & field) {
+          return field.name == name;
+        });
+      if (iter_search == fields.cend()) {
+        // Given field doesn't exist within given point cloud.
+        std::cerr << "Field named \"" << name << "\" doesn't exist within given point cloud." <<
+          std::endl;
+        return false;
+      }
+      // Given field exists within given point cloud, check its type.
+      return iter_search->datatype == datatype;
+    };
 
-  std::transform(
-    cloud_view_svl.cbegin(),
-    cloud_view_svl.cend(),
-    cloud_modifier_out.begin(),
-    [](const PointSvl point_svl)
-    {
-      return PointXYZI {
-        point_svl.x,
-        point_svl.y,
-        point_svl.z,
-        static_cast<float32_t>(point_svl.intensity)};
-    });
+  if (!fields_contain_field_with_name_and_datatype(
+      cloud_in->fields, "x",
+      sensor_msgs::msg::PointField::FLOAT32) ||
+    !fields_contain_field_with_name_and_datatype(
+      cloud_in->fields, "y",
+      sensor_msgs::msg::PointField::FLOAT32) ||
+    !fields_contain_field_with_name_and_datatype(
+      cloud_in->fields, "z",
+      sensor_msgs::msg::PointField::FLOAT32))
+  {
+    throw std::runtime_error("x,y,z fields either don't exist or they are not FLOAT32");
+  }
+
+  // Throws if "intensity" field doesn't exist
+  // or the field isn't with uint8_t or float32_t datatypes
+  IntensityIteratorWrapper intensity_iter_wrapper(*cloud_in);
+
+  sensor_msgs::PointCloud2ConstIterator<float32_t> iter_x(*cloud_in, "x");
+  sensor_msgs::PointCloud2ConstIterator<float32_t> iter_y(*cloud_in, "y");
+  sensor_msgs::PointCloud2ConstIterator<float32_t> iter_z(*cloud_in, "z");
+
+
+  CloudModifier cloud_modifier_out(*cloud_out_ptr, cloud_in->header.frame_id);
+  cloud_out_ptr->header = cloud_in->header;
+
+  cloud_modifier_out.reserve(cloud_in->width);
+
+  while (iter_x != iter_x.end() ||
+    iter_y != iter_y.end() ||
+    iter_z != iter_z.end() ||
+    !intensity_iter_wrapper.is_end())
+  {
+    PointXYZI point_xyzi{*iter_x, *iter_y, *iter_z,
+      intensity_iter_wrapper.get_current_value<float32_t>()};
+    cloud_modifier_out.push_back(point_xyzi);
+    iter_x += 1;
+    iter_y += 1;
+    iter_z += 1;
+    intensity_iter_wrapper.increase();
+  }
 
   return cloud_out_ptr;
 }
