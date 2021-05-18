@@ -26,7 +26,6 @@
 
 #include "gtest/gtest.h"
 
-
 using LatLonMuxer = autoware::motion::control::latlon_muxer::LatLonMuxer;
 using LateralCommand = autoware_auto_msgs::msg::AckermannLateralCommand;
 using LongitudinalCommand = autoware_auto_msgs::msg::LongitudinalCommand;
@@ -35,73 +34,121 @@ using ControlCommand = autoware_auto_msgs::msg::AckermannControlCommand;
 class TestROS : public ::testing::Test
 {
 protected:
+  std::shared_ptr<LatLonMuxer> node_;
+
+  rclcpp::Publisher<LateralCommand>::SharedPtr lat_pub_;
+  rclcpp::Publisher<LongitudinalCommand>::SharedPtr lon_pub_;
+  rclcpp::Subscription<ControlCommand>::SharedPtr cmd_sub_;
+
+  ControlCommand cmd_msg_;
+  bool received_combined_command_ = false;
+
   void SetUp()
   {
     rclcpp::init(0, nullptr);
+
+    rclcpp::NodeOptions node_options;
+    node_ = std::make_shared<LatLonMuxer>(node_options);
+
+    lat_pub_ = node_->create_publisher<LateralCommand>(
+      "input/lateral/control_cmd",
+      rclcpp::QoS(10));
+    lon_pub_ = node_->create_publisher<LongitudinalCommand>(
+      "input/longitudinal/control_cmd",
+      rclcpp::QoS(10));
+    cmd_sub_ = node_->create_subscription<ControlCommand>(
+      "output/control_cmd",
+      rclcpp::QoS(10), std::bind(&TestROS::HandleOutputCommand, this, std::placeholders::_1));
   }
+
   void TearDown()
   {
     rclcpp::shutdown();
   }
+
+  void HandleOutputCommand(const ControlCommand::SharedPtr combined_msg)
+  {
+    cmd_msg_ = *combined_msg;
+    received_combined_command_ = true;
+  }
 };
 
-TEST_F(TestROS, test_output)
-{
-  rclcpp::NodeOptions node_options;
-  auto node = std::make_shared<LatLonMuxer>(node_options);
+const rclcpp::Duration one_second(1, 0);
 
-  //// Set up
+TEST_F(TestROS, test_correct_output)
+{
+  // Prepare messages
+  LateralCommand lat_msg;
+  LongitudinalCommand lon_msg;
+  lat_msg.steering_tire_angle = 1.5;
+  lat_msg.steering_tire_rotation_rate = 0.2f;
+  lon_msg.speed = 5.0;
+  lon_msg.acceleration = -1.0;
+  lon_msg.jerk = 0.25;
+  // Publish messages
+  lat_msg.stamp = node_->now();
+  lon_msg.stamp = node_->now();
+  lat_pub_->publish(lat_msg);
+  lon_pub_->publish(lon_msg);
+  rclcpp::spin_some(node_);
+  rclcpp::spin_some(node_);
+  // Ensure the combined control command was published and contains correct data
+  ASSERT_TRUE(received_combined_command_);
+  ASSERT_EQ(cmd_msg_.lateral.steering_tire_angle, lat_msg.steering_tire_angle);
+  ASSERT_EQ(cmd_msg_.lateral.steering_tire_rotation_rate, lat_msg.steering_tire_rotation_rate);
+  ASSERT_EQ(cmd_msg_.longitudinal.speed, lon_msg.speed);
+  ASSERT_EQ(cmd_msg_.longitudinal.acceleration, lon_msg.acceleration);
+  ASSERT_EQ(cmd_msg_.longitudinal.jerk, lon_msg.jerk);
+  ASSERT_GT(rclcpp::Time(cmd_msg_.stamp), rclcpp::Time(lat_msg.stamp));
+  ASSERT_GT(rclcpp::Time(cmd_msg_.stamp), rclcpp::Time(lon_msg.stamp));
+}
+
+TEST_F(TestROS, test_lateral_timeout)
+{
   // Prepare empty messages
   LateralCommand lat_msg;
   LongitudinalCommand lon_msg;
-  ControlCommand cmd_msg;
-  // Create callback for output command
-  bool received_combined_command = false;
-  auto handle_output_cmd =
-    [&lat_msg, &lon_msg, &received_combined_command,
-      &cmd_msg](const ControlCommand::SharedPtr combined_msg)
-    -> void {
-      cmd_msg = *combined_msg;
-      received_combined_command = true;
-    };
-  // Create publishers of node inputs and subscribe to the node output
-  auto lat_pub = node->create_publisher<LateralCommand>(
-    "input/lateral/control_cmd",
-    rclcpp::QoS(10));
-  auto lon_pub = node->create_publisher<LongitudinalCommand>(
-    "input/longitudinal/control_cmd",
-    rclcpp::QoS(10));
-  auto cmd_sub_ptr = node->create_subscription<ControlCommand>(
-    "output/control_cmd",
-    rclcpp::QoS(10), handle_output_cmd);
-
-  // Publish messages
-  lat_msg.stamp = node->now();
-  lon_msg.stamp = node->now();
-  lat_pub->publish(lat_msg);
-  lon_pub->publish(lon_msg);
-  rclcpp::spin_some(node);
-  rclcpp::spin_some(node);
-  // Ensure the combined control command was published and contains correct data
-  ASSERT_TRUE(received_combined_command);
-  ASSERT_EQ(cmd_msg.lateral.steering_tire_angle, lat_msg.steering_tire_angle);
-  ASSERT_EQ(cmd_msg.lateral.steering_tire_rotation_rate, lat_msg.steering_tire_rotation_rate);
-  ASSERT_EQ(cmd_msg.longitudinal.speed, lon_msg.speed);
-  ASSERT_EQ(cmd_msg.longitudinal.acceleration, lon_msg.acceleration);
-  ASSERT_EQ(cmd_msg.longitudinal.jerk, lon_msg.jerk);
-  ASSERT_GT(rclcpp::Time(cmd_msg.stamp), rclcpp::Time(lat_msg.stamp));
-  ASSERT_GT(rclcpp::Time(cmd_msg.stamp), rclcpp::Time(lon_msg.stamp));
-
-  // Generate a timeout of the node's inputs
-  received_combined_command = false;
-  node->set_parameter(rclcpp::Parameter("timeout_thr_sec", 0.5));
-  const rclcpp::Duration one_second(1, 0);
-  lat_msg.stamp = node->now() - one_second;
-  lon_msg.stamp = node->now() - one_second;
-  lat_pub->publish(lat_msg);
-  lon_pub->publish(lon_msg);
-  rclcpp::spin_some(node);
-  rclcpp::spin_some(node);
+  // Generate a timeout of the lateral message
+  node_->set_parameter(rclcpp::Parameter("timeout_thr_sec", 0.5));
+  lat_msg.stamp = node_->now() - one_second;
+  lon_msg.stamp = node_->now();
+  lat_pub_->publish(lat_msg);
+  lon_pub_->publish(lon_msg);
+  rclcpp::spin_some(node_);
+  rclcpp::spin_some(node_);
   // Ensure the inputs were not combined
-  ASSERT_FALSE(received_combined_command);
+  ASSERT_FALSE(received_combined_command_);
+}
+
+TEST_F(TestROS, test_longitudinal_timeout)
+{
+  // Prepare empty messages
+  LateralCommand lat_msg;
+  LongitudinalCommand lon_msg;
+  // Generate a timeout of the longitudinal message
+  node_->set_parameter(rclcpp::Parameter("timeout_thr_sec", 0.5));
+  lat_msg.stamp = node_->now();
+  lon_msg.stamp = node_->now() - one_second;
+  lat_pub_->publish(lat_msg);
+  lon_pub_->publish(lon_msg);
+  rclcpp::spin_some(node_);
+  rclcpp::spin_some(node_);
+  // Ensure the inputs were not combined
+  ASSERT_FALSE(received_combined_command_);
+}
+TEST_F(TestROS, test_latlon_timeout)
+{
+  // Prepare empty messages
+  LateralCommand lat_msg;
+  LongitudinalCommand lon_msg;
+  // Generate a timeout of both messages
+  node_->set_parameter(rclcpp::Parameter("timeout_thr_sec", 0.5));
+  lat_msg.stamp = node_->now() - one_second;
+  lon_msg.stamp = node_->now() - one_second;
+  lat_pub_->publish(lat_msg);
+  lon_pub_->publish(lon_msg);
+  rclcpp::spin_some(node_);
+  rclcpp::spin_some(node_);
+  // Ensure the inputs were not combined
+  ASSERT_FALSE(received_combined_command_);
 }
