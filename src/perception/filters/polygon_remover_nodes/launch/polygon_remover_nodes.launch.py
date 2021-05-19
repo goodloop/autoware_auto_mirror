@@ -53,7 +53,7 @@ def generate_launch_description():
                                                   -23.8108, -6.61647,
                                                   -10.7277, -2.58666]},
                             {'will_visualize': True},
-                            {'topic_name_marker_polygon_pub': '/marker_polygon_remover'}]),
+                            {'topic_name_polygon_sub': '/marker_polygon_remover'}]),
         ],
         output='screen',
     )
