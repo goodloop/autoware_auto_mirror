@@ -27,7 +27,7 @@ struct PointSvl
   float32_t x{0.0F};
   float32_t y{0.0F};
   alignas(float64_t) float32_t z{0.0F};
-  alignas(uint64_t) uint8_t intensity{0};
+  alignas(std::uint64_t) std::uint8_t intensity{0};
   float64_t timestamp{0.0};
   friend bool operator==(const PointSvl & p1, const PointSvl & p2) noexcept
   {

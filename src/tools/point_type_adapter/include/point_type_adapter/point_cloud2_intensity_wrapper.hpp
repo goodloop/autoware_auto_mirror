@@ -49,7 +49,7 @@ public:
       throw std::runtime_error(
               "Required field \"intensity\" doesn't exit in the point cloud.");
     }
-    m_intensity_datatype = (*intensity_field_it).datatype;
+    m_intensity_datatype = intensity_field_it->datatype;
     switch (m_intensity_datatype) {
       case sensor_msgs::msg::PointField::UINT8:
       case sensor_msgs::msg::PointField::FLOAT32:
