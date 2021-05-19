@@ -25,7 +25,7 @@
 #include <common/types.hpp>
 #include <sensor_msgs/msg/point_cloud2.hpp>
 #include <visualization_msgs/msg/marker.h>
-#include <autoware_auto_msgs/msg/shape.hpp>
+#include <geometry_msgs/msg/polygon.hpp>
 #include <visualization_msgs/msg/marker.hpp>
 #include <cmath>
 #include <algorithm>
@@ -51,39 +51,60 @@ public:
 
   using PointXYZI = common::types::PointXYZI;
   using PointCloud2 = sensor_msgs::msg::PointCloud2;
-  using Shape = autoware_auto_msgs::msg::Shape;
+  using Polygon = geometry_msgs::msg::Polygon;
   using Marker = visualization_msgs::msg::Marker;
   typedef CGAL::Exact_predicates_inexact_constructions_kernel K;
-  typedef K::Point_2 Point;
+  typedef K::Point_2 PointCgal;
+  using bool8_t = autoware::common::types::bool8_t;
 
-  explicit PolygonRemover(bool will_visualize);
+  explicit PolygonRemover(bool8_t will_visualize);
 
-  static PointCloud2::SharedPtr  remove_shape_polygon_from_cloud(
+  /// \brief Removes the given geometry_msgs polygon from the given cloud and returns it.
+  /// \param cloud_in Input Point Cloud Shared Pointer
+  /// \param polygon_in Input Polygon
+  /// \return Filtered Point Cloud Shared Pointer
+  static PointCloud2::SharedPtr remove_polygon_geometry_from_cloud(
     const PointCloud2::ConstSharedPtr & cloud_in,
-    const Shape::ConstSharedPtr & shape_in);
+    const Polygon::ConstSharedPtr & polygon_in);
 
-  static PointCloud2::SharedPtr  remove_polyline_polygon_from_cloud(
+  /// \brief Removes the given cgal polygon from the given cloud and returns it.
+  /// \param cloud_in_ptr Input Point Cloud Shared Pointer
+  /// \param polyline_polygon Input Polygon
+  /// \return Filtered Point Cloud Shared Pointer
+  static PointCloud2::SharedPtr  remove_polygon_cgal_from_cloud(
     const PointCloud2::ConstSharedPtr & cloud_in_ptr,
-    const std::vector<Point> & polyline_polygon);
+    const std::vector<PointCgal> & polyline_polygon);
 
-  static std::vector<Point> shape_to_polyline_polygon(
-    const Shape::ConstSharedPtr & shape_in);
+  /// \brief Converts a polygon from geometry_msgs::msg::Polygon to std::vector<PointCgal>
+  /// \param polygon_in Input Polygon in geometry_msgs::msg::Polygon
+  /// \return Polygon as std::vector<PointCgal>
+  static std::vector<PointCgal> polygon_geometry_to_cgal(
+    const Polygon::ConstSharedPtr & polygon_in);
 
-  void update_polygon(const Shape::ConstSharedPtr & shape_in);
+  /// \brief Updates the stored polygon to be used later on
+  /// \param polygon_in Input Polygon
+  void update_polygon(const Polygon::ConstSharedPtr & polygon_in);
 
+  /// \brief Removes the stored polygon from the point cloud and returns the filtered point cloud.
+  /// \param cloud_in Input Point Cloud Shared Pointer
+  /// \return Filtered Point Cloud Shared Pointer
   PointCloud2::SharedPtr remove_updated_polygon_from_cloud(
     const PointCloud2::ConstSharedPtr & cloud_in);
 
-  bool polygon_is_initialized() const;
+  bool8_t polygon_is_initialized() const;
 
+  /// \brief Set the frame id of marker which will be used for visualization
+  /// \param frame_id Frame id
   void set_marker_frame_id(const std::string & frame_id);
 
+  /// \brief Returns the marker for visualization.
+  /// \return Marker
   const Marker & get_marker() const;
 
 private:
-  bool polygon_is_initialized_;
-  bool will_visualize_;
-  std::vector<Point> polyline_polygon_;
+  bool8_t polygon_is_initialized_;
+  bool8_t will_visualize_;
+  std::vector<PointCgal> polygon_cgal_;
   Marker marker_;
 };
 

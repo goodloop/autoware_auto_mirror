@@ -16,16 +16,12 @@
 #include <CGAL/Polygon_2_algorithms.h>
 #include <point_cloud_msg_wrapper/point_cloud_msg_wrapper.hpp>
 #include <common/types.hpp>
-#include <autoware_auto_msgs/msg/shape.hpp>
+#include <geometry_msgs/msg/polygon.hpp>
 #include <tuple>
 #include <memory>
 #include <string>
 #include <vector>
 #include "polygon_remover/polygon_remover.hpp"
-
-
-typedef CGAL::Exact_predicates_inexact_constructions_kernel K;
-typedef K::Point_2 Point;
 
 namespace autoware
 {
@@ -37,26 +33,29 @@ namespace polygon_remover
 {
 using common::types::PointXYZI;
 using sensor_msgs::msg::PointCloud2;
-using autoware_auto_msgs::msg::Shape;
+using Polygon = geometry_msgs::msg::Polygon;
+using K = CGAL::Exact_predicates_inexact_constructions_kernel;
+using PointCgal = K::Point_2;
+using autoware::common::types::bool8_t;
 
-PolygonRemover::PolygonRemover(bool will_visualize)
+PolygonRemover::PolygonRemover(bool8_t will_visualize)
 : polygon_is_initialized_{false},
   will_visualize_{will_visualize}
 {
 }
 
-PointCloud2::SharedPtr PolygonRemover::remove_shape_polygon_from_cloud(
-  const sensor_msgs::msg::PointCloud2::ConstSharedPtr & cloud_in,
-  const autoware_auto_msgs::msg::Shape::ConstSharedPtr & shape_in)
+PointCloud2::SharedPtr PolygonRemover::remove_polygon_geometry_from_cloud(
+  const PointCloud2::ConstSharedPtr & cloud_in,
+  const Polygon::ConstSharedPtr & polygon_in)
 {
-  return remove_polyline_polygon_from_cloud(
+  return remove_polygon_cgal_from_cloud(
     cloud_in,
-    shape_to_polyline_polygon(shape_in));
+    polygon_geometry_to_cgal(polygon_in));
 }
 
-PointCloud2::SharedPtr PolygonRemover::remove_polyline_polygon_from_cloud(
+PointCloud2::SharedPtr PolygonRemover::remove_polygon_cgal_from_cloud(
   const PointCloud2::ConstSharedPtr & cloud_in_ptr,
-  const std::vector<Point> & polyline_polygon)
+  const std::vector<PointCgal> & polyline_polygon)
 {
   PointCloud2::SharedPtr cloud_filtered_ptr = std::make_shared<PointCloud2>();
 
@@ -69,10 +68,10 @@ PointCloud2::SharedPtr PolygonRemover::remove_polyline_polygon_from_cloud(
   CloudView cloud_view_in(*cloud_in_ptr);
   cloud_modifier_filtered.resize(static_cast<uint32_t>(cloud_view_in.size()));
 
-  auto point_is_outside_polygon = [&polyline_polygon](const PointXYZI & point) -> bool {
+  auto point_is_outside_polygon = [&polyline_polygon](const PointXYZI & point) {
       auto result = CGAL::bounded_side_2(
         polyline_polygon.begin(), polyline_polygon.end(),
-        Point(point.x, point.y), K());
+        PointCgal(point.x, point.y), K());
       return result == CGAL::ON_UNBOUNDED_SIDE;  // not INSIDE or ON the polygon
     };
 
@@ -91,28 +90,28 @@ PointCloud2::SharedPtr PolygonRemover::remove_polyline_polygon_from_cloud(
   return cloud_filtered_ptr;
 }
 
-std::vector<Point> PolygonRemover::shape_to_polyline_polygon(
-  const Shape::ConstSharedPtr & shape_in)
+std::vector<PointCgal> PolygonRemover::polygon_geometry_to_cgal(
+  const Polygon::ConstSharedPtr & polygon_in)
 {
-  std::vector<Point> polyline_polygon;
-  if (shape_in->polygon.points.size() < 3) {
+  std::vector<PointCgal> polyline_polygon;
+  if (polygon_in->points.size() < 3) {
     throw std::length_error("Polygon vertex count should be larger than 2.");
   }
-  const auto & vertices_in = shape_in->polygon.points;
+  const auto & vertices_in = polygon_in->points;
   polyline_polygon.resize(vertices_in.size());
   std::transform(
-    shape_in->polygon.points.begin(),
-    shape_in->polygon.points.end(),
+    polygon_in->points.begin(),
+    polygon_in->points.end(),
     polyline_polygon.begin(),
     [](const geometry_msgs::msg::Point32 & p_in) {
-      return Point(p_in.x, p_in.y);
+      return PointCgal(p_in.x, p_in.y);
     });
   return polyline_polygon;
 }
 
-void PolygonRemover::update_polygon(const Shape::ConstSharedPtr & shape_in)
+void PolygonRemover::update_polygon(const Polygon::ConstSharedPtr & polygon_in)
 {
-  polyline_polygon_ = shape_to_polyline_polygon(shape_in);
+  polygon_cgal_ = polygon_geometry_to_cgal(polygon_in);
   if (will_visualize_) {
     marker_.ns = "ns_polygon_remover";
     marker_.id = 0;
@@ -133,12 +132,12 @@ void PolygonRemover::update_polygon(const Shape::ConstSharedPtr & shape_in)
         return point;
       };
 
-    for (size_t index_cur = 0; index_cur < polyline_polygon_.size(); ++index_cur) {
-      const auto & vertex = polyline_polygon_.at(index_cur);
+    for (size_t index_cur = 0; index_cur < polygon_cgal_.size(); ++index_cur) {
+      const auto & vertex = polygon_cgal_.at(index_cur);
 
       // Take the last segment into consideration to connect the loop
-      size_t index_next = index_cur == polyline_polygon_.size() - 1 ? 0UL : index_cur + 1;
-      const auto & vertex_next = polyline_polygon_.at(index_next);
+      size_t index_next = index_cur == polygon_cgal_.size() - 1 ? 0UL : index_cur + 1;
+      const auto & vertex_next = polygon_cgal_.at(index_next);
 
       // Build upper ring
       auto vertex_up_cur = make_point(
@@ -177,12 +176,12 @@ PointCloud2::SharedPtr PolygonRemover::remove_updated_polygon_from_cloud(
   }
   if (!polygon_is_initialized_) {
     throw std::runtime_error(
-            "Shape polygon is not initialized. Please use `update_polygon` first.");
+            "Polygon is not initialized. Please use `update_polygon` first.");
   }
-  return remove_polyline_polygon_from_cloud(cloud_in, polyline_polygon_);
+  return remove_polygon_cgal_from_cloud(cloud_in, polygon_cgal_);
 }
 
-bool PolygonRemover::polygon_is_initialized() const
+bool8_t PolygonRemover::polygon_is_initialized() const
 {
   return polygon_is_initialized_;
 }

@@ -29,7 +29,7 @@ either 2 ways:
 
 - Give it a polygon first then give it a cloud. (`update_polygon`
   then `remove_updated_polygon_from_cloud`)
-- Give it a polygon and cloud together. `remove_polyline_polygon_from_cloud`
+- Give it a polygon and cloud together. `remove_polygon_cgal_from_cloud`
 
 And it will return a polygon filtered point cloud.
 
@@ -81,7 +81,7 @@ polygon_remover.remove_updated_polygon_from_cloud(cloud_ptr);
 
 // Or provide cloud and polygon together
 PointCloud2::SharedPtr cloud_filtered_ptr =
-polygon_remover.remove_shape_polygon_from_cloud(cloud_ptr, shape_ptr);
+polygon_remover.remove_polygon_geometry_from_cloud(cloud_ptr, shape_ptr);
 
 // If you allowed visualization you can get a Marker for visualization
 Marker marker = polygon_remover.get_marker();
@@ -106,7 +106,7 @@ to check whether a point is resides within a polygon or not as implemented in:
 <!-- Required -->
 Throws:
 
-- `shape_to_polyline_polygon` method will throw
+- `polygon_geometry_to_cgal` method will throw
   `std::length_error("Polygon vertex count should be larger than 2.");`
   if polygon vertex count is less than 3.
 - `remove_updated_polygon_from_cloud` method will throw

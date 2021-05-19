@@ -14,7 +14,7 @@
 
 #include <common/types.hpp>
 #include <point_cloud_msg_wrapper/point_cloud_msg_wrapper.hpp>
-#include <autoware_auto_msgs/msg/shape.hpp>
+#include <geometry_msgs/msg/polygon.hpp>
 #include <random>
 #include <memory>
 #include "gtest/gtest.h"
@@ -22,7 +22,7 @@
 
 using PointXYZI = autoware::common::types::PointXYZI;
 using PointCloud2 = sensor_msgs::msg::PointCloud2;
-using Shape = autoware_auto_msgs::msg::Shape;
+using Polygon = geometry_msgs::msg::Polygon;
 using autoware::common::types::float32_t;
 
 geometry_msgs::msg::Point32 make_point_geo(float x, float y, float z)
@@ -131,8 +131,7 @@ TEST(test_polygon_remover, shape_to_polyline_polygon) {
   using PolygonRemover = autoware::perception::filters::polygon_remover::PolygonRemover;
   PolygonRemover polygon_remover(false);
 
-  using autoware_auto_msgs::msg::Shape;
-  Shape::SharedPtr shape = std::make_shared<Shape>();
+  Polygon::SharedPtr shape = std::make_shared<Polygon>();
 
   const float32_t bound_x_min = 0.0F;
   const float32_t bound_x_max = 3.0F;
@@ -149,19 +148,19 @@ TEST(test_polygon_remover, shape_to_polyline_polygon) {
   auto point_top_right = make_point_geo(bound_x_max, bound_y_max, 0.0F);
   auto point_top_left = make_point_geo(bound_x_max, bound_y_min, 0.0F);
 
-  shape->polygon.points.emplace_back(point_bot_left);
+  shape->points.emplace_back(point_bot_left);
   EXPECT_THROW(polygon_remover.update_polygon(shape), std::length_error);
   EXPECT_EQ(polygon_remover.polygon_is_initialized(), false);
 
-  shape->polygon.points.emplace_back(point_bot_right);
+  shape->points.emplace_back(point_bot_right);
   EXPECT_THROW(polygon_remover.update_polygon(shape), std::length_error);
   EXPECT_EQ(polygon_remover.polygon_is_initialized(), false);
 
-  shape->polygon.points.emplace_back(point_top_right);
+  shape->points.emplace_back(point_top_right);
   EXPECT_NO_THROW(polygon_remover.update_polygon(shape));
   EXPECT_EQ(polygon_remover.polygon_is_initialized(), true);
 
-  shape->polygon.points.emplace_back(point_top_left);
+  shape->points.emplace_back(point_top_left);
   EXPECT_NO_THROW(polygon_remover.update_polygon(shape));
   EXPECT_EQ(polygon_remover.polygon_is_initialized(), true);
 

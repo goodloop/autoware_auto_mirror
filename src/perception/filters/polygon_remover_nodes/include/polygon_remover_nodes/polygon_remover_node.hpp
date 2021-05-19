@@ -21,7 +21,7 @@
 
 #include <rclcpp/rclcpp.hpp>
 #include <sensor_msgs/msg/point_cloud2.hpp>
-#include <autoware_auto_msgs/msg/shape.hpp>
+#include <geometry_msgs/msg/polygon.hpp>
 #include <visualization_msgs/msg/marker.hpp>
 #include <polygon_remover/polygon_remover.hpp>
 #include <memory>
@@ -39,12 +39,13 @@ namespace polygon_remover_nodes
 {
 
 /// \class PolygonRemoverNodesNode
-/// \brief ROS 2 Node for hello world.
+/// \brief Is used for removing a polygon from point clouds.
 class POLYGON_REMOVER_NODES_PUBLIC PolygonRemoverNode : public rclcpp::Node
 {
 public:
   using PointCloud2 = sensor_msgs::msg::PointCloud2;
-  using Shape = autoware_auto_msgs::msg::Shape;
+  using Polygon = geometry_msgs::msg::Polygon;
+  using bool8_t = autoware::common::types::bool8_t;
 
   /// \brief default constructor, starts driver
   /// \throw runtime error if failed to start threads or configure driver
@@ -52,17 +53,17 @@ public:
 
   void callback_cloud(const PointCloud2::ConstSharedPtr cloud_in_ptr);
 
-  void callback_shape_polygon(const Shape::ConstSharedPtr shape_in_ptr);
+  void callback_polygon(const Polygon::ConstSharedPtr polygon_in_ptr);
 
 private:
   rclcpp::Publisher<sensor_msgs::msg::PointCloud2>::SharedPtr pub_cloud_ptr_;
   rclcpp::Publisher<visualization_msgs::msg::Marker>::SharedPtr pub_marker_ptr_;
   rclcpp::Subscription<sensor_msgs::msg::PointCloud2>::SharedPtr sub_cloud_ptr_;
-  rclcpp::Subscription<autoware_auto_msgs::msg::Shape>::SharedPtr sub_shape_polygon_ptr_;
+  rclcpp::Subscription<Polygon>::SharedPtr sub_polygon_ptr_;
 
   polygon_remover::PolygonRemover::SharedPtr polygon_remover_;
 
-  bool will_visualize_;
+  bool8_t will_visualize_;
 
   enum class WorkingMode
   {
