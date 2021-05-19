@@ -98,7 +98,7 @@ library to construct polygons as
 
 And it uses
 [Ray Casting Algorithm](https://en.wikipedia.org/wiki/Point_in_polygon#Ray_casting_algorithm) 
-to check whether a polygon is resides within a polygon or not as implemented in:
+to check whether a point is resides within a polygon or not as implemented in:
 [CGAL](https://doc.cgal.org/latest/Polygon/group__PkgPolygon2Functions.html#ga0cbb36e051264c152189a057ea385578).
 
 ## Error detection and handling
