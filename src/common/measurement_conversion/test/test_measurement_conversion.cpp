@@ -96,7 +96,7 @@ TEST(Measurement2dConversionTest, RelativePose) {
   msg.header.stamp.nanosec = 0;
   msg.position.x = 42.0;
   msg.position.y = 23.0;
-  msg.covariance.resize(9);
+  static_assert(std::tuple_size<decltype(msg.covariance)>::value == 9, "Covariance array must be of size 9");
   msg.covariance[0] = 1.0;
   msg.covariance[4] = 2.0;
   msg.covariance[8] = 3.0;
