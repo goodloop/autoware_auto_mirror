@@ -163,7 +163,7 @@ TEST_F(TestGnssConversionNode, PublishAndReceiveMsgWithNoTfConversion) {
       FAIL() << "Did not receive a message soon enough.";
     }
   }
-  EXPECT_EQ("ecef", last_msg->header.frame_id);
+  EXPECT_EQ("earth", last_msg->header.frame_id);
   EXPECT_NEAR(last_msg->position.x, 4177570.0, 1.0);
   EXPECT_NEAR(last_msg->position.y, 855840.0, 1.0);
   EXPECT_NEAR(last_msg->position.z, 4727101.0, 1.0);
@@ -203,7 +203,7 @@ TEST_F(TestGnssConversionNode, PublishAndReceiveMsgConvertToEnu) {
   const auto node{std::make_shared<GnssConversionNode>(node_options)};
 
   // Set a transformation between ENU <-> ECEF to the TF buffer. We will call the ENU frame "map".
-  node->tf_buffer().setTransform(get_tf__ecef__enu(msg, "map", "ecef"), "test_node");
+  node->tf_buffer().setTransform(get_tf__ecef__enu(msg, "map", "earth"), "test_node");
 
   // Check that the received messages are properly converted.
   RelativePositionWithCovarianceStamped::SharedPtr last_msg{};

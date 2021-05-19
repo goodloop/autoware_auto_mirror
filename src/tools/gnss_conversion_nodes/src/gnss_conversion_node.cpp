@@ -39,7 +39,7 @@ static constexpr auto kFrameIdTag = "output_frame_id";
 static constexpr auto kChildFrameIdTag = "child_frame_id";
 static constexpr auto kDefaultChildFrameIdTag = "base_link";
 static constexpr auto kOverrideCovarianceTag = "override_variances";
-static constexpr auto kDefaultFrameId = "ecef";
+static constexpr auto kDefaultFrameId = "earth";
 static constexpr auto kDefaultLoggingInterval = 1000;  // Milliseconds.
 
 using autoware_auto_msgs::msg::RelativePositionWithCovarianceStamped;

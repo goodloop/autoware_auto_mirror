@@ -9,7 +9,7 @@ GNSS Conversion Node {#gnss-conversion-nodes-design}
 In order to work with GNSS output in localization module there is a need for a node that would
 transform the GNSS input into a metric pose. This node does exactly that. By default it converts the
 GNSS pose measured in WGS84 frame into the ECEF frame. If the user provides an `output_frame_id`
-different from `"ecef"` a tf-based conversion between `"ecef"` and the `output_frame_id` will take
+different from `"earth"` a tf-based conversion between `"earth"` and the `output_frame_id` will take
 place.
 
 
@@ -21,7 +21,7 @@ place.
 The node subscribes to the GNSS messages and publishes
 `autoware_auto_msgs::msg::RelativePositionWithCovarianceStamped` messages on the `/gnss_position`
 topic setting the covariance from the user-provided values. The covariance will be set in the
-`output_frame_id` frame (`"ecef"` by default).
+`output_frame_id` frame (`"earth"` that represents the ECEF frame by default).
 
 ## Inner-workings / Algorithms
 <!-- If applicable -->
@@ -43,6 +43,3 @@ where \f$N(\phi) = \frac{a}{\sqrt{1 - e^2 \sin^2 \phi}}\f$. Here, \f$a = 6378137
 <!-- Required -->
 - For now only a transformation from WGS84 to ECEF is supported.
 - For now only the user-provided covariance is used, the one set in the original message is not propagated
-
-# Related issues
-- #768 - GNSS Localization
