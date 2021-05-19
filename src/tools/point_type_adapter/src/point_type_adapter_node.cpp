@@ -23,6 +23,8 @@
 #include <vector>
 #include "point_type_adapter/point_type_adapter_node.hpp"
 
+const std::uint32_t QOS_HISTORY_DEPTH = 10;
+
 namespace autoware
 {
 namespace tools
@@ -37,12 +39,12 @@ PointTypeAdapterNode::PointTypeAdapterNode(const rclcpp::NodeOptions & options)
   pub_ptr_cloud_output_{this->create_publisher<sensor_msgs::msg::PointCloud2>(
       static_cast<std::string>(declare_parameter(
         "name_topic_cloud_out").get<std::string>()),
-      10)}
+      rclcpp::QoS(rclcpp::KeepLast(QOS_HISTORY_DEPTH)))}
   ,
   sub_ptr_cloud_input_(this->create_subscription<PointCloud2>(
       static_cast<std::string>(declare_parameter(
         "name_topic_cloud_in").get<std::string>()),
-      rclcpp::QoS(10),
+      rclcpp::QoS(rclcpp::KeepLast(QOS_HISTORY_DEPTH)),
       std::bind(&PointTypeAdapterNode::callback_cloud_input,
       this,
       std::placeholders::_1)))
