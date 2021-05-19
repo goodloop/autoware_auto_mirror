@@ -143,7 +143,19 @@ void GnssConversionNode::nav_sat_fix_callback(
   m_wgs84_to_ecef_convertor.Forward(
     msg->latitude, msg->longitude, msg->altitude,
     out_msg.position.x, out_msg.position.y, out_msg.position.z);
-  switch_frames_if_needed(out_msg, m_frame_id, m_tf_buffer);
+  try {
+    switch_frames_if_needed(out_msg, m_frame_id, m_tf_buffer);
+  } catch (const tf2::LookupException & exception) {
+    RCLCPP_WARN_THROTTLE(
+      get_logger(),
+      m_steady_clock,
+      kDefaultLoggingInterval,
+      "Skipping publishing of a GNSS pose message.\n"
+      "Could not look up transformation between " +
+      out_msg.header.frame_id + " and " +
+      m_frame_id + " with the exception: " + exception.what());
+    return;
+  }
   if (!m_override_variances_diagonal.empty()) {
     const Eigen::Vector3d variances_diagonal{
       Eigen::Map<const Eigen::Vector3d>{m_override_variances_diagonal.data()}};

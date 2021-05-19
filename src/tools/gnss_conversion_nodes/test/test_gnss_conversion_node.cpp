@@ -267,7 +267,7 @@ TEST_F(TestGnssConversionNode, NoConversionWhenNoGnssFix) {
       const RelativePositionWithCovarianceStamped::SharedPtr) {number_of_received_msgs++;});
 
   const auto dt{std::chrono::milliseconds{100LL}};
-  const auto max_wait_time{std::chrono::seconds{2LL}};
+  const auto max_wait_time{std::chrono::seconds{1LL}};
   auto time_passed{std::chrono::milliseconds{0LL}};
   while (time_passed < max_wait_time) {
     publisher->publish(msg);
@@ -276,7 +276,7 @@ TEST_F(TestGnssConversionNode, NoConversionWhenNoGnssFix) {
     std::this_thread::sleep_for(dt);
     time_passed += dt;
   }
-  ASSERT_EQ(0, number_of_received_msgs) << "We should receive no images in this test";
+  ASSERT_EQ(0, number_of_received_msgs) << "We should receive no messages in this test";
 }
 
 /// @test Test that when tf is not available and a different frame is asked the node throws.
@@ -302,16 +302,16 @@ TEST_F(TestGnssConversionNode, ConversionThrowsWhenNoTfAvailable) {
       const RelativePositionWithCovarianceStamped::SharedPtr) {number_of_received_msgs++;});
 
   const auto dt{std::chrono::milliseconds{100LL}};
-  const auto max_wait_time{std::chrono::seconds{2LL}};
+  const auto max_wait_time{std::chrono::seconds{1LL}};
   auto time_passed{std::chrono::milliseconds{0LL}};
   while (time_passed < max_wait_time) {
     publisher->publish(msg);
-    EXPECT_THROW(rclcpp::spin_some(node), std::runtime_error);
+    rclcpp::spin_some(node);
     rclcpp::spin_some(get_fake_node());
     std::this_thread::sleep_for(dt);
     time_passed += dt;
   }
-  ASSERT_EQ(0, number_of_received_msgs) << "We should receive no images in this test";
+  ASSERT_EQ(0, number_of_received_msgs) << "We should receive no messages in this test";
 }
 
 /// @test Test that wrong initialization throws an exception.
