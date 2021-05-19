@@ -15,6 +15,7 @@
 #include <common/types.hpp>
 #include <point_cloud_msg_wrapper/point_cloud_msg_wrapper.hpp>
 #include <memory>
+#include <vector>
 #include <limits>
 #include "gtest/gtest.h"
 #include "point_type_adapter/point_type_adapter_node.hpp"
@@ -60,9 +61,18 @@ TEST(test_point_type_adapter, test_cloud_converter) {
   PointXYZI point_xyzi_0{3.0F, 4.0F, 5.0F, 100};
   PointXYZI point_xyzi_1{6.0F, 8.0F, 10.0F, 200};
 
-  PointCloud2::SharedPtr cloud_xyzi_ptr =
-    autoware::tools::point_type_adapter::PointTypeAdapterNode::cloud_in_to_cloud_xyzi(
+  rclcpp::init(0, nullptr);
+  std::vector<rclcpp::Parameter> params;
+  params.emplace_back("name_topic_cloud_in", "/dummy1");
+  params.emplace_back("name_topic_cloud_out", "/dummy2");
+
+  rclcpp::NodeOptions node_options;
+  node_options.parameter_overrides(params);
+  autoware::tools::point_type_adapter::PointTypeAdapterNode point_type_adapter_node(node_options);
+
+  PointCloud2::SharedPtr cloud_xyzi_ptr = point_type_adapter_node.cloud_in_to_cloud_xyzi(
     cloud_svl_ptr);
+  rclcpp::shutdown();
 
   using CloudViewXyzi = point_cloud_msg_wrapper::PointCloud2View<PointXYZI>;
   CloudViewXyzi cloud_view_xyzi(*cloud_xyzi_ptr);

@@ -62,12 +62,12 @@ void PointTypeAdapterNode::callback_cloud_input(const PointCloud2::SharedPtr msg
 }
 
 PointCloud2::SharedPtr PointTypeAdapterNode::cloud_in_to_cloud_xyzi(
-  const PointCloud2::ConstSharedPtr cloud_in)
+  const PointCloud2::ConstSharedPtr cloud_in) const
 {
   using CloudModifier = point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZI>;
   PointCloud2::SharedPtr cloud_out_ptr = std::make_shared<PointCloud2>();
 
-  auto fields_contain_field_with_name_and_datatype = [](
+  auto fields_contain_field_with_name_and_datatype = [this](
     const std::vector<sensor_msgs::msg::PointField> & fields,
     const std::string & name,
     uint8_t datatype) {
@@ -78,8 +78,9 @@ PointCloud2::SharedPtr PointTypeAdapterNode::cloud_in_to_cloud_xyzi(
         });
       if (iter_search == fields.cend()) {
         // Given field doesn't exist within given point cloud.
-        std::cerr << "Field named \"" << name << "\" doesn't exist within given point cloud." <<
-          std::endl;
+        RCLCPP_ERROR(
+          this->get_logger(),
+          "Field named \"" + name + "\" doesn't exist within given point cloud.");
         return false;
       }
       // Given field exists within given point cloud, check its type.

@@ -43,16 +43,16 @@ public:
   /// \brief default constructor, initializes subs and pubs
   explicit PointTypeAdapterNode(const rclcpp::NodeOptions & options);
 
+  /// \brief Converts CloudX to CloudXYZI
+  sensor_msgs::msg::PointCloud2::SharedPtr cloud_in_to_cloud_xyzi(
+    const sensor_msgs::msg::PointCloud2::ConstSharedPtr cloud_in) const;
+
 private:
   using PointCloud2 = sensor_msgs::msg::PointCloud2;
   using float32_t = autoware::common::types::float32_t;
   using float64_t = autoware::common::types::float64_t;
 
   using PointXYZI = common::types::PointXYZI;
-
-  /// \brief Converts CloudX to CloudXYZI
-  static PointCloud2::SharedPtr cloud_in_to_cloud_xyzi(
-    const PointCloud2::ConstSharedPtr cloud_in);
 
   rclcpp::Publisher<PointCloud2>::SharedPtr pub_ptr_cloud_output_;
   rclcpp::Subscription<PointCloud2>::SharedPtr sub_ptr_cloud_input_;
