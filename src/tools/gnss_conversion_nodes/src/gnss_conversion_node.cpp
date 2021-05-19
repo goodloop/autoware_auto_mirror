@@ -52,10 +52,7 @@ Eigen::Matrix3d to_eigen(const ArrayT & covariance)
             "The array representing the covariance matrix does not have enough elements. "
             "Expected " + std::to_string(9UL) + " but has " + std::to_string(covariance.size()));
   }
-  return (Eigen::Matrix3d{} <<
-         covariance[0], covariance[3], covariance[6],
-         covariance[1], covariance[4], covariance[7],
-         covariance[2], covariance[6], covariance[8]).finished();
+  return Eigen::Matrix3d{Eigen::Map<const Eigen::Matrix3d>{&covariance[0]}};
 }
 
 template<typename ArrayT>
@@ -66,15 +63,7 @@ void fill_covariance_from_eigen(ArrayT & covariance, const Eigen::Matrix3d & mat
             "The array representing the covariance matrix does not have enough elements. "
             "Expected " + std::to_string(9UL) + " but has " + std::to_string(covariance.size()));
   }
-  covariance[0] = matrix(0, 0);
-  covariance[1] = matrix(1, 0);
-  covariance[2] = matrix(2, 0);
-  covariance[3] = matrix(0, 1);
-  covariance[4] = matrix(1, 1);
-  covariance[5] = matrix(2, 1);
-  covariance[6] = matrix(0, 2);
-  covariance[7] = matrix(1, 2);
-  covariance[7] = matrix(2, 2);
+  Eigen::Map<Eigen::Matrix3d>{&covariance[0]} = matrix;
 }
 
 Eigen::Matrix3d rotate_covariance(
