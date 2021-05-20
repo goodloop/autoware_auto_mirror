@@ -38,6 +38,31 @@ namespace segmentation
 {
 namespace euclidean_cluster_nodes
 {
+
+static BBoxConfig bbox_config_declare(rclcpp::Node & n)
+{
+  using builtin_interfaces::msg::Duration;
+  using std_msgs::msg::ColorRGBA;
+
+  ColorRGBA rgba;
+  rgba.r = static_cast<decltype(ColorRGBA::r)>(
+    n.declare_parameter<float32_t>(ColorRParamName, 1.0f));
+  rgba.g = static_cast<decltype(ColorRGBA::g)>(
+    n.declare_parameter<float32_t>(ColorGParamName, 0.5f));
+  rgba.b = static_cast<decltype(ColorRGBA::b)>(
+    n.declare_parameter<float32_t>(ColorBParamName, 0.0f));
+  rgba.a = static_cast<decltype(ColorRGBA::a)>(
+    n.declare_parameter<float32_t>(ColorAParamName, 0.75f));
+
+  Duration duration;
+  duration.sec = static_cast<decltype(Duration::sec)>
+    (n.declare_parameter<int>(LifetimeSecParamName, 0));
+  duration.nanosec = static_cast<decltype(Duration::nanosec)>
+    (n.declare_parameter<int>(LifetimeNanosecParamName, 500000000));
+
+  return BBoxConfig{std::move(rgba), std::move(duration)};
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 EuclideanClusterNode::EuclideanClusterNode(
   const rclcpp::NodeOptions & node_options)
@@ -58,6 +83,10 @@ m_marker_pub_ptr{get_parameter("use_box").as_bool() ?
   create_publisher<MarkerArray>(
     "lidar_bounding_boxes_viz", rclcpp::QoS{10}) :
   nullptr},
+m_parameters_client{std::make_unique<rclcpp::AsyncParametersClient>(this)},
+m_parameter_event_sub{m_parameters_client->on_parameter_event(
+    [this](const rcl_interfaces::msg::ParameterEvent::SharedPtr event)
+    {on_parameter_event_callback(event);})},
 m_cluster_alg{
   euclidean_cluster::Config{
     declare_parameter("cluster.frame_id").get<std::string>().c_str(),
@@ -81,7 +110,8 @@ m_clusters{},
 m_boxes{},
 m_voxel_ptr{nullptr},  // Because voxel config's Point types don't accept positional arguments
 m_use_lfit{declare_parameter("use_lfit").get<bool8_t>()},
-m_use_z{declare_parameter("use_z").get<bool8_t>()}
+m_use_z{declare_parameter("use_z").get<bool8_t>()},
+m_bbox_config{bbox_config_declare(*this)}
 {
   init(m_cluster_alg.get_config());
   // Initialize voxel grid
@@ -218,12 +248,9 @@ void EuclideanClusterNode::handle_clusters(
       m.scale.x = static_cast<float64_t>(box.size.y);
       m.scale.y = static_cast<float64_t>(box.size.x);
       m.scale.z = static_cast<float64_t>(box.size.z);
-      m.color.r = 1.0;
-      m.color.g = 0.5;
-      m.color.b = 0.0;
-      m.color.a = 0.75;
-      m.lifetime.sec = 0;
-      m.lifetime.nanosec = 500000000;
+      m.color = m_bbox_config.color;
+      m.lifetime = m_bbox_config.lifetime;
+
       marker_array.markers.push_back(m);
       id_counter++;
     }
@@ -251,6 +278,70 @@ void EuclideanClusterNode::handle(const PointCloud2::SharedPtr msg_ptr)
     throw;
   }
 }
+////////////////////////////////////////////////////////////////////////////////
+void EuclideanClusterNode::on_parameter_event_callback(
+  const rcl_interfaces::msg::ParameterEvent::SharedPtr event)
+{
+  using rcl_interfaces::msg::ParameterType;
+  using builtin_interfaces::msg::Duration;
+  using std_msgs::msg::ColorRGBA;
+
+  for (auto & changed_parameter : event->changed_parameters) {
+    const auto & type = changed_parameter.value.type;
+    const auto & name = changed_parameter.name;
+    const auto & value = changed_parameter.value;
+
+    if (type == ParameterType::PARAMETER_DOUBLE) {
+      if (name == ColorRParamName) {
+        RCLCPP_INFO(
+          get_logger(), "%s set from %lf to %lf", name.c_str(),
+          static_cast<double>(m_bbox_config.color.r), value.double_value);
+        m_bbox_config.color.r = static_cast<decltype(ColorRGBA::r)>(value.double_value);
+      } else if (name == ColorGParamName) {
+        RCLCPP_INFO(
+          get_logger(), "%s set from %lf to %lf", name.c_str(),
+          static_cast<double>(m_bbox_config.color.g), value.double_value);
+        m_bbox_config.color.g = static_cast<decltype(ColorRGBA::g)>(value.double_value);
+      } else if (name == ColorBParamName) {
+        RCLCPP_INFO(
+          get_logger(), "%s set from %lf to %lf", name.c_str(),
+          static_cast<double>(m_bbox_config.color.b), value.double_value);
+        m_bbox_config.color.b = static_cast<decltype(ColorRGBA::b)>(value.double_value);
+      } else if (name == ColorAParamName) {
+        RCLCPP_INFO(
+          get_logger(), "%s set from %lf to %lf", name.c_str(),
+          static_cast<double>(m_bbox_config.color.a), value.double_value);
+        m_bbox_config.color.a = static_cast<decltype(ColorRGBA::a)>(value.double_value);
+      } else {
+        RCLCPP_INFO(
+          get_logger(), "Parameter %s type %s was not set",
+          name.c_str(), std::to_string(type).c_str());
+      }
+    } else if (type == ParameterType::PARAMETER_INTEGER) {
+      if (name == LifetimeSecParamName) {
+        RCLCPP_INFO(
+          get_logger(), "%s set from %d to %d",
+          name.c_str(), m_bbox_config.lifetime.sec, value.integer_value);
+        m_bbox_config.lifetime.sec = static_cast<decltype(Duration::sec)>(value.integer_value);
+      } else if (name == LifetimeNanosecParamName) {
+        RCLCPP_INFO(
+          get_logger(), "%s set from %d to %d", name.c_str(),
+          m_bbox_config.lifetime.nanosec, value.integer_value);
+        m_bbox_config.lifetime.nanosec =
+          static_cast<decltype(Duration::nanosec)>(value.integer_value);
+      } else {
+        RCLCPP_INFO(
+          get_logger(), "Parameter %s type %s was not set",
+          name.c_str(), std::to_string(type).c_str());
+      }
+    } else {
+      RCLCPP_INFO(
+        get_logger(), "Parameter %s type %s was not set",
+        name.c_str(), std::to_string(type).c_str());
+    }
+  }
+}
+
 }  // namespace euclidean_cluster_nodes
 }  // namespace segmentation
 }  // namespace perception
