@@ -67,9 +67,6 @@ bool get_param(const std::vector<rclcpp::Parameter> & p, const std::string & nam
 class FILTER_NODE_BASE_PUBLIC FilterNodeBase : public rclcpp::Node
 {
 public:
-  // using PointCloud2 = sensor_msgs::msg::PointCloud2;
-  // using PointCloud2ConstPtr = sensor_msgs::msg::PointCloud2::ConstSharedPtr;
-
   /** \brief The default constructor for the FilterNodeBase class
    * \param filter_name The name of the node to pass on to rclcpp::Node
    * \param options An rclcpp::NodeOptions object to pass on to rclcpp::Node
@@ -96,7 +93,6 @@ protected:
 
   /** \brief Virtual abstract filter method called by the computePublish method at the arrival of each pointcloud message.
    * \param input The input point cloud dataset.
-   * \param indices A pointer to the vector of point indices to use.
    * \param output The resultant filtered PointCloud2
    */
   FILTER_NODE_BASE_LOCAL virtual void filter(
@@ -106,17 +102,19 @@ protected:
   /** \brief Virtual abstract method for getting parameters for various child classes of the FilterNodeBase
    *
    * This method is called in the param_callback method and is triggered when a parameter
-   * associated with the node is changed node should use the get_param method to retrieve any
-   * changed parameters in the node.
+   * associated with the node is changed. The node should use the `get_param` method to retrieve
+   * any changed parameters in the node.
    *
    * \param p Vector of rclcpp::Parameters belonging to the node
+   * \return rcl_interfaces::msg::SetParametersResult Result of retrieving the parameter
    */
-  FILTER_NODE_BASE_LOCAL virtual void get_node_parameters(const std::vector<rclcpp::Parameter> & p)
+  FILTER_NODE_BASE_LOCAL virtual rcl_interfaces::msg::SetParametersResult get_node_parameters(
+    const std::vector<rclcpp::Parameter> & p)
   = 0;
 
   /** \brief Validate a sensor_msgs::msg::PointCloud2 message
    *
-   * Method ensure thats the size of the pointcloud defined by the width,
+   * Method ensures that the size of the pointcloud defined by the width,
    * height and point_step correspond to the data size.
    *
    * \param cloud Input sensor_msgs::msg::PointCloud2 to be validated

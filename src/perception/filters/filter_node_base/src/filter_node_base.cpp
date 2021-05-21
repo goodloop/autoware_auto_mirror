@@ -60,13 +60,7 @@ rcl_interfaces::msg::SetParametersResult FilterNodeBase::param_callback(
   std::lock_guard<std::mutex> lock(mutex_);
 
   // Call the virtual method to get parameters
-  get_node_parameters(p);
-
-  rcl_interfaces::msg::SetParametersResult result;
-  result.successful = true;
-  result.reason = "parameter received";
-
-  return result;
+  return get_node_parameters(p);
 }
 
 void FilterNodeBase::pointcloud_callback(const PointCloud2ConstPtr msg)

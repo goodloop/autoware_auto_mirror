@@ -48,8 +48,8 @@ class TestFilter : public FilterNodeBase
 {
 protected:
   // Implementation of the filter child method
-  virtual void filter(
-    const PointCloud2ConstPtr & input, PointCloud2 & output)
+  void filter(
+    const PointCloud2ConstPtr & input, PointCloud2 & output) override
   {
     // Copy the pointcloud so input = output
     output = *input;
@@ -58,9 +58,13 @@ protected:
   }
 
   // Implementation of the get_node_parameters child method
-  virtual void get_node_parameters(const std::vector<rclcpp::Parameter> &)
+  rcl_interfaces::msg::SetParametersResult get_node_parameters(
+    const std::vector<rclcpp::Parameter> &) override
   {
-    // Do nothing
+    rcl_interfaces::msg::SetParametersResult result{};
+    result.successful = true;
+    result.reason = "parameter received";
+    return result;
   }
 
 private:
