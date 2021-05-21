@@ -26,7 +26,6 @@ using bool8_t = autoware::common::types::bool8_t;
 using float32_t = autoware::common::types::float32_t;
 using FilterNodeBase = autoware::perception::filters::filter_node_base::FilterNodeBase;
 using PointCloud2 = sensor_msgs::msg::PointCloud2;
-using PointCloud2ConstPtr = sensor_msgs::msg::PointCloud2::ConstSharedPtr;
 
 class TestPCF : public ::testing::Test
 {
@@ -49,10 +48,11 @@ class TestFilter : public FilterNodeBase
 protected:
   // Implementation of the filter child method
   void filter(
-    const PointCloud2ConstPtr & input, PointCloud2 & output) override
+    const sensor_msgs::msg::PointCloud2 & input,
+    sensor_msgs::msg::PointCloud2 & output) override
   {
     // Copy the pointcloud so input = output
-    output = *input;
+    output = input;
     // Set parameter as true
     test_parameter_ = true;
   }

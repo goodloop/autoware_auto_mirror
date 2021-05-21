@@ -30,7 +30,7 @@ namespace filter_node_base
 
 using bool8_t = autoware::common::types::bool8_t;
 using PointCloud2 = sensor_msgs::msg::PointCloud2;
-using PointCloud2ConstPtr = sensor_msgs::msg::PointCloud2::ConstSharedPtr;
+using PointCloud2SharedPtr = sensor_msgs::msg::PointCloud2::SharedPtr;
 
 FilterNodeBase::FilterNodeBase(
   const std::string & filter_name, const rclcpp::NodeOptions & options)
@@ -44,7 +44,7 @@ FilterNodeBase::FilterNodeBase(
     "output", rclcpp::SensorDataQoS().keep_last(max_queue_size_));
 
   // Set subscriber
-  std::function<void(const PointCloud2ConstPtr msg)> cb = std::bind(
+  std::function<void(const PointCloud2SharedPtr msg)> cb = std::bind(
     &FilterNodeBase::pointcloud_callback, this, std::placeholders::_1);
   sub_input_ = create_subscription<PointCloud2>(
     "input", rclcpp::SensorDataQoS().keep_last(max_queue_size_), cb);
@@ -63,7 +63,7 @@ rcl_interfaces::msg::SetParametersResult FilterNodeBase::param_callback(
   return get_node_parameters(p);
 }
 
-void FilterNodeBase::pointcloud_callback(const PointCloud2ConstPtr msg)
+void FilterNodeBase::pointcloud_callback(const PointCloud2SharedPtr msg)
 {
   if (!is_valid(msg)) {
     RCLCPP_ERROR_STREAM(this->get_logger(), "[" << filter_field_name_ << "]: Invalid input!");
@@ -79,7 +79,7 @@ void FilterNodeBase::pointcloud_callback(const PointCloud2ConstPtr msg)
 
   PointCloud2 output;
   // Call the virtual method in the child
-  filter(msg, output);
+  filter(*msg, output);
 
   pub_output_->publish(output);
 }

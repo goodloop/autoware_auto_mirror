@@ -96,7 +96,7 @@ protected:
    * \param output The resultant filtered PointCloud2
    */
   FILTER_NODE_BASE_LOCAL virtual void filter(
-    const sensor_msgs::msg::PointCloud2::ConstSharedPtr & input,
+    const sensor_msgs::msg::PointCloud2 & input,
     sensor_msgs::msg::PointCloud2 & output) = 0;
 
   /** \brief Virtual abstract method for getting parameters for various child classes of the FilterNodeBase
@@ -154,7 +154,7 @@ private:
    * \param msg Input pointcloud message to be processed by the filter
    */
   FILTER_NODE_BASE_LOCAL void pointcloud_callback(
-    const sensor_msgs::msg::PointCloud2::ConstSharedPtr msg);
+    const sensor_msgs::msg::PointCloud2::SharedPtr msg);
 };
 }  // namespace filter_node_base
 }  // namespace filters
