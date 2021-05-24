@@ -17,113 +17,56 @@
 #include <vector>
 
 #include "filter_node_base/filter_node_base.hpp"
+
+#include "gmock/gmock.h"
 #include "gtest/gtest.h"
 #include "sensor_msgs/point_cloud2_iterator.hpp"
 #include "lidar_utils/point_cloud_utils.hpp"
 
 
-using bool8_t = autoware::common::types::bool8_t;
 using float32_t = autoware::common::types::float32_t;
 using FilterNodeBase = autoware::perception::filters::filter_node_base::FilterNodeBase;
 using PointCloud2 = sensor_msgs::msg::PointCloud2;
 
-class TestPCF : public ::testing::Test
+class TestObject : public ::testing::Test
 {
 protected:
-  void SetUp()
+  static void SetUpTestCase()
   {
     rclcpp::init(0, nullptr);
   }
-  void TearDown()
+
+  static void TearDownTestCase()
   {
     rclcpp::shutdown();
   }
 };
 
+
 /* \class TestFilter
  * \brief This class implements the FilterNodeBase to test for correct inheritence
  */
-class TestFilter : public FilterNodeBase
+class MockFilterNodeBase : public FilterNodeBase
 {
-protected:
-  // Implementation of the filter child method
-  void filter(
-    const sensor_msgs::msg::PointCloud2 & input,
-    sensor_msgs::msg::PointCloud2 & output) override
-  {
-    // Copy the pointcloud so input = output
-    output = input;
-    // Set parameter as true
-    test_parameter_ = true;
-  }
-
-  // Implementation of the get_node_parameters child method
-  rcl_interfaces::msg::SetParametersResult get_node_parameters(
-    const std::vector<rclcpp::Parameter> &) override
-  {
-    rcl_interfaces::msg::SetParametersResult result{};
-    result.successful = true;
-    result.reason = "parameter received";
-    return result;
-  }
-
-private:
-  bool8_t test_parameter_;
-
 public:
-  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-  explicit TestFilter(const rclcpp::NodeOptions & options)
-  : FilterNodeBase("test_filter_node", options), test_parameter_(false) {}
+  explicit MockFilterNodeBase(const rclcpp::NodeOptions & options)
+  : FilterNodeBase("test_filter_node", options) {}
 
-  bool8_t testSetParameter() {return test_parameter_;}
+  ~MockFilterNodeBase() {}
+
+  MOCK_METHOD(
+    void, filter,
+    (const sensor_msgs::msg::PointCloud2 & input, sensor_msgs::msg::PointCloud2 & output),
+    (override));
+  MOCK_METHOD(
+    rcl_interfaces::msg::SetParametersResult, get_node_parameters,
+    (const std::vector<rclcpp::Parameter>&p), (override));
 };
 
+using ::testing::_;
+using ::testing::AtLeast;
 
-void check_pcl_eq(sensor_msgs::msg::PointCloud2 & msg1, sensor_msgs::msg::PointCloud2 & msg2)
-{
-  EXPECT_EQ(msg1.width, msg2.width);
-  EXPECT_EQ(msg1.header.frame_id, msg2.header.frame_id);
-  EXPECT_EQ(msg1.header.stamp, msg2.header.stamp);
-
-  sensor_msgs::PointCloud2ConstIterator<float32_t> x_it_1(msg1, "x");
-  sensor_msgs::PointCloud2ConstIterator<float32_t> y_it_1(msg1, "y");
-  sensor_msgs::PointCloud2ConstIterator<float32_t> z_it_1(msg1, "z");
-  sensor_msgs::PointCloud2ConstIterator<float32_t> intensity_it_1(msg1, "intensity");
-
-  sensor_msgs::PointCloud2ConstIterator<float32_t> x_it_2(msg2, "x");
-  sensor_msgs::PointCloud2ConstIterator<float32_t> y_it_2(msg2, "y");
-  sensor_msgs::PointCloud2ConstIterator<float32_t> z_it_2(msg2, "z");
-  sensor_msgs::PointCloud2ConstIterator<float32_t> intensity_it_2(msg2, "intensity");
-
-  while (x_it_1 != x_it_1.end() &&
-    y_it_1 != y_it_1.end() &&
-    z_it_1 != z_it_1.end() &&
-    intensity_it_1 != intensity_it_1.end() &&
-    x_it_2 != x_it_2.end() &&
-    y_it_2 != y_it_2.end() &&
-    z_it_2 != z_it_2.end() &&
-    intensity_it_2 != intensity_it_2.end()
-  )
-  {
-    EXPECT_FLOAT_EQ(*x_it_1, *x_it_2);
-    EXPECT_FLOAT_EQ(*y_it_1, *y_it_2);
-    EXPECT_FLOAT_EQ(*z_it_1, *z_it_2);
-    EXPECT_FLOAT_EQ(*intensity_it_1, *intensity_it_2);
-
-    ++x_it_1;
-    ++y_it_1;
-    ++z_it_1;
-    ++intensity_it_1;
-
-    ++x_it_2;
-    ++y_it_2;
-    ++z_it_2;
-    ++intensity_it_2;
-  }
-}
-
-
-TEST_F(TestPCF, test_inheritance) {
+TEST_F(TestObject, test_filter) {
   // Generate parameters
   std::vector<rclcpp::Parameter> params;
   params.emplace_back("max_queue_size", 5);
@@ -132,9 +75,11 @@ TEST_F(TestPCF, test_inheritance) {
   node_options.parameter_overrides(params);
 
   // Create instance of the TestFilter child class
-  auto node = std::make_shared<TestFilter>(node_options);
+  auto node = std::make_shared<MockFilterNodeBase>(node_options);
 
-  //// Set up
+  // Check that the filter method in the MockFilterNodeBase class has been called
+  EXPECT_CALL(*node, filter(_, _)).Times(AtLeast(1));
+
   // Create dummy pointcloud
   sensor_msgs::msg::PointCloud2 cloud;
   std::vector<float32_t> seeds = {0.0, 0.0, 0.0};
@@ -154,23 +99,29 @@ TEST_F(TestPCF, test_inheritance) {
     "input",
     rclcpp::QoS(10));
 
-  // Create callback for cloud message
-  bool8_t received_cloud = false;
-  auto handle_cloud_output =
-    [&cloud, &received_cloud](const sensor_msgs::msg::PointCloud2::SharedPtr msg)
-    -> void {
-      check_pcl_eq(*msg, cloud);
-      received_cloud = true;
-    };
+  cloud_pub->publish(cloud);
+  rclcpp::spin_some(node);
+}
 
-  auto sub_ptr = node->create_subscription<sensor_msgs::msg::PointCloud2>(
-    "output",
-    rclcpp::SensorDataQoS().keep_last(10), handle_cloud_output);
+TEST_F(TestObject, test_parameters) {
+  // Generate parameters
+  std::vector<rclcpp::Parameter> params;
+  params.emplace_back("max_queue_size", 5);
 
-  while (rclcpp::ok() && !received_cloud) {
-    rclcpp::spin_some(node);
-    rclcpp::sleep_for(std::chrono::milliseconds(50));
-    cloud_pub->publish(cloud);
-  }
-  EXPECT_EQ(node->testSetParameter(), true);
+  rclcpp::NodeOptions node_options;
+  node_options.parameter_overrides(params);
+
+  // Create instance of the TestFilter child class
+  auto node = std::make_shared<MockFilterNodeBase>(node_options);
+  // Check that the filter method in the MockFilterNodeBase class has been called
+  EXPECT_CALL(*node, get_node_parameters(_));
+
+  // Set up parameter client
+  auto client = std::make_shared<rclcpp::SyncParametersClient>(node);
+  ASSERT_TRUE(client->wait_for_service(std::chrono::seconds(1)));
+  const std::vector<rclcpp::Parameter> parameters = {
+    rclcpp::Parameter("max_queue_size", 10),
+  };
+  client->set_parameters(parameters);
+  rclcpp::spin_some(node);
 }

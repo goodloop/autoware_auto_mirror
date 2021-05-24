@@ -59,7 +59,7 @@ rcl_interfaces::msg::SetParametersResult FilterNodeBase::param_callback(
 {
   std::lock_guard<std::mutex> lock(mutex_);
 
-  // Call the virtual method to get parameters
+  // Call the virtual method to get other parameters
   return get_node_parameters(p);
 }
 
@@ -70,7 +70,7 @@ void FilterNodeBase::pointcloud_callback(const PointCloud2SharedPtr msg)
     return;
   }
 
-  /// DEBUG
+  // DEBUG
   RCLCPP_DEBUG(
     this->get_logger(),
     "[%s]: PointCloud with %d data points and frame %s on input topic "

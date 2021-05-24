@@ -75,6 +75,8 @@ public:
     const std::string & filter_name = "filter_node_base",
     const rclcpp::NodeOptions & options = rclcpp::NodeOptions());
 
+  virtual ~FilterNodeBase() {}
+
 protected:
   /** \brief The input PointCloud2 subscriber */
   rclcpp::Subscription<sensor_msgs::msg::PointCloud2>::SharedPtr sub_input_;
