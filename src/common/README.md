@@ -29,4 +29,4 @@ across the Autoware.Auto system.
 - @subpage tvm-utility-design
 - @subpage vehicle-constants-manager-package-design
 - @subpage convex-polygon-intersection-2d
-
+- @subpage monitored-node-design
