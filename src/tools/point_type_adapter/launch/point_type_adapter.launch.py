@@ -20,19 +20,6 @@ from launch_ros.descriptions import ComposableNode
 
 def generate_launch_description():
     """Generate launch description with a single component."""
-    # container = ComposableNodeContainer(
-    #         name='point_type_adapter_container',
-    #         namespace='',
-    #         package='rclcpp_components',
-    #         executable='component_container',
-    #         composable_node_descriptions=[
-    #             ComposableNode(
-    #                 package='point_type_adapter',
-    #                 plugin='autoware::point_type_adapter::PointTypeAdapterNode',
-    #                 name='point_type_adapter_node'),
-    #         ],
-    #         output='screen',
-    # )
     container_front = ComposableNodeContainer(
         name='point_type_adapter_container_front',
         namespace='',
