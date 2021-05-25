@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <functional>
 #include <memory>
 
 #include "latlon_muxer/node.hpp"
@@ -83,7 +84,7 @@ void LatLonMuxer::publishCmd()
 void LatLonMuxer::latCtrlCmdCallback(
   const autoware_auto_msgs::msg::AckermannLateralCommand::SharedPtr input_msg)
 {
-  m_lat_cmd = std::make_shared<autoware_auto_msgs::msg::AckermannLateralCommand>(*input_msg);
+  m_lat_cmd = input_msg;
   publishCmd();
 }
 
