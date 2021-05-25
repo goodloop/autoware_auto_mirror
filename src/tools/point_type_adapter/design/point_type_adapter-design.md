@@ -67,8 +67,6 @@ Input: PointCloud2 Message
 
 Output: PointCloud2 Message
 
-You can run it with `name_topic_cloud_in` and `name_topic_cloud_out` string ros parameters.
-
 For SVL simulator, simply use:
 ```bash
 ros2 launch lgsvl_cloud_converter lgsvl_cloud_converter.launch.py
@@ -80,6 +78,8 @@ and it will convert topic names and types like following:
 "/lidar_rear/points_raw" -> "/lidar_rear/points_xyzi"
 ```
 
+It is possible to change these topic names using 
+[Topic Remapping](https://design.ros2.org/articles/static_remapping.html).
 
 ## Inner-workings / Algorithms
 It just iterates over the old cloud using `sensor_msgs::PointCloud2Iterator`,
@@ -88,7 +88,7 @@ creates a point made of `x,y,z,intensity` fields, puts it to the new cloud using
 
 ## Error detection and handling
 If an exception occurs because the input PointCloud2 doesn't have the expected type,
-it will catch it and report it in the callback.
+it will catch it and report it in the callback, end the node.
 
 
 # Security considerations
