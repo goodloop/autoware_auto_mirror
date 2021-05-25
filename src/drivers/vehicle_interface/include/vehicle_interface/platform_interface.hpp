@@ -113,7 +113,6 @@ public:
   /// \param[in] msg The control command to send to the vehicle.
   virtual void send_headlights_command(const HeadlightsCommand & msg);
 
-
   virtual void on_headlights_command(const autoware_auto_msgs::msg::HeadlightsCommand &);
 
   virtual void on_headlights_report(const autoware_auto_msgs::msg::HeadlightsReport &);
