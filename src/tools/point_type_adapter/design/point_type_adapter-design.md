@@ -112,3 +112,4 @@ it will catch it and report it in the callback.
 
 # Related issues
 <!-- Required -->
+https://gitlab.com/autowarefoundation/autoware.auto/AutowareAuto/-/issues/1024
