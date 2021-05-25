@@ -37,17 +37,17 @@ PolygonRemoverNode::PolygonRemoverNode(const rclcpp::NodeOptions & options)
 :  Node("polygon_remover_nodes", options),
   pub_cloud_ptr_{
     this->create_publisher<sensor_msgs::msg::PointCloud2>(
-      declare_parameter("topic_name_cloud_pub").get<std::string>(),
+      "cloud_polygon_removed",
       rclcpp::QoS(rclcpp::KeepLast(1)))
   },
   pub_marker_ptr_{
     this->create_publisher<visualization_msgs::msg::Marker>(
-      declare_parameter("topic_name_marker_polygon_pub").get<std::string>(),
+      "marker_polygon_remover",
       rclcpp::QoS(rclcpp::KeepLast(1)))
   },
   sub_cloud_ptr_{
     this->create_subscription<sensor_msgs::msg::PointCloud2>(
-      declare_parameter("topic_name_cloud_sub").get<std::string>(),
+      "/lidar_front/points_raw",
       rclcpp::QoS(rclcpp::KeepLast(1)),
       std::bind(
         &PolygonRemoverNode::callback_cloud,

@@ -1,8 +1,5 @@
 /**:
   ros__parameters:
-    topic_name_cloud_sub: "/lidar_front/points_raw"
-    topic_name_cloud_pub: "cloud_polygon_removed"
-
     working_mode: "Static" # "Static" or "PolygonSub"
     # if working_mode is "Static"
     # x1, y1, x2, y2, ...
@@ -48,11 +45,6 @@
 #                        -8.0, 8.0,
 #                        8.0, 0.0 ] # Triangle
 
-    # if working_mode is "PolygonSub"
-    topic_name_polygon_sub: "/polygon_to_remove"
-
     will_visualize: True
-    # if will_visualize is True
-    topic_name_marker_polygon_pub: "marker_polygon_remover"
 
 

@@ -141,12 +141,7 @@ TEST(test_polygon_remover_nodes, test_remove_rectangle) {
   auto point_top_right = make_point_geo(bound_x_max, bound_y_max, 0.0F);
   auto point_top_left = make_point_geo(bound_x_max, bound_y_min, 0.0F);
 
-  std::string topic_name_cloud_raw{"/lidar_front/points_raw"};
-  std::string topic_name_cloud_polygon_removed{"/cloud_polygon_removed"};
-
   std::vector<rclcpp::Parameter> params;
-  params.emplace_back("topic_name_cloud_sub", topic_name_cloud_raw);
-  params.emplace_back("topic_name_cloud_pub", topic_name_cloud_polygon_removed);
   params.emplace_back("working_mode", "Static");
   params.emplace_back("topic_name_shape_polygon_sub", "/polygon_to_remove");
   params.emplace_back(
@@ -158,7 +153,6 @@ TEST(test_polygon_remover_nodes, test_remove_rectangle) {
     point_top_left.x, point_top_left.y
   });
   params.emplace_back("will_visualize", false);
-  params.emplace_back("topic_name_marker_polygon_pub", "/marker_polygon_remover");
 
   rclcpp::NodeOptions node_options;
   node_options.parameter_overrides(params);
@@ -170,7 +164,7 @@ TEST(test_polygon_remover_nodes, test_remove_rectangle) {
   bool test_completed = false;
 
   auto pub_ptr_cloud_raw = node_polygon_remover->create_publisher<sensor_msgs::msg::PointCloud2>(
-    topic_name_cloud_raw,
+    "/lidar_front/points_raw",
     rclcpp::QoS(10));
 
   auto callback_cloud_polygon_removed =
@@ -184,7 +178,7 @@ TEST(test_polygon_remover_nodes, test_remove_rectangle) {
 
   auto sub_ptr_cloud_polygon_removed =
     node_polygon_remover->create_subscription<sensor_msgs::msg::PointCloud2>(
-    topic_name_cloud_polygon_removed,
+    "/cloud_polygon_removed",
     rclcpp::QoS(rclcpp::KeepLast(10)),
     callback_cloud_polygon_removed);
 

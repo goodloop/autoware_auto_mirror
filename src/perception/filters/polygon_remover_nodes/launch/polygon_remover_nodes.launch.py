@@ -12,50 +12,42 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# import os
+import os
 
-# from ament_index_python.packages import get_package_share_directory
+from ament_index_python import get_package_share_directory
 
 import launch
-from launch_ros.actions import ComposableNodeContainer
-from launch_ros.descriptions import ComposableNode
+
+from launch.actions import DeclareLaunchArgument
+
+from launch.substitutions import LaunchConfiguration
+
+from launch_ros.actions import Node
 
 
 def generate_launch_description():
     """Generate launch description with a single component."""
-    # TODO xmfcx: try to pass yaml file to a component within composion
-    # polygon_remover_node_pkg_prefix = get_package_share_directory('polygon_remover_nodes')
-    # polygon_remover_node_param_file = os.path.join(polygon_remover_node_pkg_prefix,
-    #                                                'param/test_params.yaml')
+    path_package = get_package_share_directory('polygon_remover_nodes')
 
-    container = ComposableNodeContainer(
-        name='polygon_remover_node_container',
-        namespace='',
-        package='rclcpp_components',
-        executable='component_container',
-        composable_node_descriptions=[
-            ComposableNode(
-                package='polygon_remover_nodes',
-                plugin='autoware::perception::filters::polygon_remover_nodes::PolygonRemoverNode',
-                name='polygon_remover_node',
-                # parameters=[polygon_remover_node_param_file]),
-                parameters=[{'topic_name_cloud_sub': '/lidar_front/points_raw'},
-                            {'topic_name_cloud_pub': '/cloud_polygon_removed'},
-                            {'working_mode': 'Static'},
-                            {'polygon_vertices': [0.0, -23.916,
-                                                  0.21031, -10.228,
-                                                  23.8108, -6.61647,
-                                                  10.8577, -2.18663,
-                                                  14.7159, 21.3748,
-                                                  6.50012, 10.4246,
-                                                  -14.7159, 21.3748,
-                                                  -6.8404, 10.1773,
-                                                  -23.8108, -6.61647,
-                                                  -10.7277, -2.58666]},
-                            {'will_visualize': True},
-                            {'topic_name_polygon_sub': '/marker_polygon_remover'}]),
-        ],
-        output='screen',
+    path_file_param = os.path.join(path_package, 'param/test_params.yaml')
+
+    name_launch_arg = 'param_file_polygon_remover_nodes'
+
+    launch_arg = DeclareLaunchArgument(
+        name_launch_arg,
+        default_value=path_file_param,
+        description='Path to params file for Polygon Remover Nodes'
     )
 
-    return launch.LaunchDescription([container])
+    polygon_remover_node = Node(
+        package='polygon_remover_nodes',
+        executable='polygon_remover_node_exe',
+        namespace='',
+        output='screen',
+        parameters=[
+            LaunchConfiguration(name_launch_arg)
+        ]
+    )
+
+    return launch.LaunchDescription([launch_arg,
+                                     polygon_remover_node])
