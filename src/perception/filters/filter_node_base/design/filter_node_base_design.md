@@ -111,29 +111,6 @@ constructor of the child class. Any parameter declared should be retrieved in th
 an external node purely for transforming topics.
 
 
-## Error detection and handling
-<!-- Required -->
-
-
-# Security considerations
-<!-- Required -->
-<!-- Things to consider:
-- Spoofing (How do you check for and handle fake input?)
-- Tampering (How do you check for and handle tampered input?)
-- Repudiation (How are you affected by the actions of external actors?).
-- Information Disclosure (Can data leak?).
-- Denial of Service (How do you handle spamming?).
-- Elevation of Privilege (Do you need to change permission levels during execution?) -->
-
-
-# References / External links
-<!-- Optional -->
-
-
-# Future extensions / Unimplemented parts
-<!-- Optional -->
-
-
 # Related issues
 <!-- Required -->
 See issue:
