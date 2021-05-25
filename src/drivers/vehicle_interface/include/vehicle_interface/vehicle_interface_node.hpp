@@ -151,6 +151,7 @@ private:
   rclcpp::Publisher<autoware_auto_msgs::msg::VehicleOdometry>::SharedPtr m_odom_pub{nullptr};
   rclcpp::Publisher<autoware_auto_msgs::msg::VehicleStateReport>::SharedPtr m_state_pub{nullptr};
   rclcpp::Subscription<autoware_auto_msgs::msg::VehicleStateCommand>::SharedPtr m_state_sub{};
+  rclcpp::Subscription<autoware_auto_msgs::msg::HeadlightsCommand>::SharedPtr m_headlights_cmd_sub{};
   rclcpp::Service<autoware_auto_msgs::srv::AutonomyModeChange>::SharedPtr m_mode_service{nullptr};
 
   using BasicSub = rclcpp::Subscription<BasicControlCommand>::SharedPtr;

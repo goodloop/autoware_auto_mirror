@@ -29,6 +29,7 @@
 
 #include "lgsvl_interface/lgsvl_interface.hpp"
 
+#include "autoware_auto_msgs/msg/headlights_command.hpp"
 #include "autoware_auto_msgs/msg/headlights_report.hpp"
 
 using autoware::common::types::bool8_t;
@@ -261,7 +262,7 @@ bool8_t LgsvlInterface::send_state_command(const autoware_auto_msgs::msg::Vehicl
   }
   msg_corrected.blinker--;
 
-  if (msg.headlight == HeadlightsCommand::NO_COMMAND) {
+  if (msg.headlight == autoware_auto_msgs::msg::HeadlightsCommand::NO_COMMAND) {
     msg_corrected.headlight = get_state_report().headlight;
   }
   msg_corrected.headlight--;
@@ -313,7 +314,8 @@ bool8_t LgsvlInterface::send_state_command(const autoware_auto_msgs::msg::Vehicl
 
   autoware_auto_msgs::msg::HeadlightsCommand headlights_cmd;
   headlights_cmd.command = msg_corrected.headlight;
-  on_headlights_command(headlights_cmd);
+  m_headlights_command_pub->publish(headlights_cmd);
+
   return true;
 }
 
@@ -501,12 +503,6 @@ void LgsvlInterface::on_headlights_report(
 {
   // Do not do anything
   (void)headlights_report;
-}
-
-void LgsvlInterface::on_headlights_command(
-  const autoware_auto_msgs::msg::HeadlightsCommand & headlights_cmd)
-{
-  m_headlights_command_pub->publish(headlights_cmd);
 }
 
 }  // namespace lgsvl_interface

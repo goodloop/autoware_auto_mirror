@@ -253,6 +253,11 @@ void VehicleInterfaceNode::init(
   m_state_sub = create_subscription<VSC>(
     state_command.topic, rclcpp::QoS{10U},
     [this](VSC::SharedPtr msg) {m_last_state_command = *msg;});
+  m_headlights_cmd_sub = create_subscription<autoware_auto_msgs::msg::HeadlightsCommand>(
+    "/vehicle/headlights_command", rclcpp::QoS{10U},
+    [this](autoware_auto_msgs::msg::HeadlightsCommand::SharedPtr msg)
+    { m_interface->on_headlights_command(*msg); });
+
   // State machine boilerplate for better errors
   const auto state_machine = [&state_machine_config]() -> auto {
       if (!state_machine_config) {
