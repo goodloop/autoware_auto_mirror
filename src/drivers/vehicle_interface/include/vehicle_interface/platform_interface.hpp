@@ -138,8 +138,6 @@ public:
   /// \param[in] msg The control command to send to the vehicle.
   virtual void send_wipers_command(const WipersCommand & msg);
 
-  virtual void on_headlights_report(const autoware_auto_msgs::msg::HeadlightsReport &);
-
 protected:
   /// Get the underlying state report for modification
   VehicleStateReport & state_report() noexcept;
