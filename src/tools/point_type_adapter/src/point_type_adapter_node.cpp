@@ -37,13 +37,11 @@ using sensor_msgs::msg::PointCloud2;
 PointTypeAdapterNode::PointTypeAdapterNode(const rclcpp::NodeOptions & options)
 :  Node("point_type_adapter", options),
   pub_ptr_cloud_output_{this->create_publisher<sensor_msgs::msg::PointCloud2>(
-      static_cast<std::string>(declare_parameter(
-        "name_topic_cloud_out").get<std::string>()),
+      "/lidar_front/points_xyzi",
       rclcpp::QoS(rclcpp::KeepLast(QOS_HISTORY_DEPTH)))}
   ,
   sub_ptr_cloud_input_(this->create_subscription<PointCloud2>(
-      static_cast<std::string>(declare_parameter(
-        "name_topic_cloud_in").get<std::string>()),
+      "/lidar_front/points_raw",
       rclcpp::QoS(rclcpp::KeepLast(QOS_HISTORY_DEPTH)),
       std::bind(&PointTypeAdapterNode::callback_cloud_input,
       this,
