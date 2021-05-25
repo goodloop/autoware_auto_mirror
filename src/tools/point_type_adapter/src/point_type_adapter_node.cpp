@@ -60,6 +60,7 @@ void PointTypeAdapterNode::callback_cloud_input(const PointCloud2::SharedPtr msg
     RCLCPP_ERROR(
       this->get_logger(),
       "Exception occured: " + std::string(ex.what()));
+    rclcpp::shutdown();
   }
 }
 
