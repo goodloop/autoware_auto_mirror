@@ -102,7 +102,6 @@ public:
   /// \return A Odometry message intended to be published.
   const VehicleOdometry & get_odometry() const noexcept;
 
-
   virtual void on_headlights_command(const autoware_auto_msgs::msg::HeadlightsCommand &);
 
   virtual void on_headlights_report(const autoware_auto_msgs::msg::HeadlightsReport &);
