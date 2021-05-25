@@ -1,82 +1,91 @@
 filter_node_base {#filter-node-base-package-design}
 ===========
 
-This is the design document for the `filter_node_base` package.
-
 
 # Purpose / Use cases
 <!-- Required -->
 <!-- Things to consider:
     - Why did we implement this feature? -->
 
-The FilterNodeBase class provides a base implementation for all filter nodes from the
-AutowareArchitectureProposal repository. 
-
+The `FilterNodeBase` class provides a base implementation for all filter nodes from the
+[AutowareArchitectureProposal repository](https://github.com/tier4/AutowareArchitectureProposal.iv).
 
 # Design
 <!-- Required -->
 <!-- Things to consider:
     - How does it work? -->
 
-The FilterNodeBase provides a generic filter implementation that takes an input pointcloud,
-performs some manipulation to the pointcloud and outputs the pointcloud on a different topic.
-This allows for the the filter implementations to have the same basic set of APIs and standardises
+The FilterNodeBase provides a generic filter implementation that takes an input point cloud,
+performs some manipulation to the point cloud and outputs the point cloud on a different topic.
+This allows the filter implementations to have the same basic set of APIs and standardises
 the data types used for input and outputs of these processes.
 
 ## Inner-workings / Algorithms
 <!-- If applicable -->
+Developers writing a class that inherits from the FilterNodeBase will need to implement two methods:
+ * `filter` - processes the input pointcloud and modifies the reference output pointcloud
+ * `get_node_parameters` - processes the parameters during a parameter change event
+
+These virtual functions are called by the parent class in the following methods:
+ * `pointcloud_callback` - calls `filter`
+ * `param_callback` - calls `get_node_parameters`
+
+### pointcloud_callback
+
+The `pointcloud_callback` method is bound to a subscriber object at during the construction of the
+class. This method determines the validity of the point cloud then calls the `filter` method to
+process the pointcloud. The following is the definition of the `pointcloud_callback` method:
+
+```{cpp}
+FILTER_NODE_BASE_LOCAL void pointcloud_callback(const sensor_msgs::msg::PointCloud2::SharedPtr msg)
+```
 
 ### filter
 
-The `filter` method is a virtual method in the FilterNodebase class.
-Child classes inheriting from this base class need to implement the `filter` method.
-The `filter` method is defined as follows:
+The `filter` method is a virtual method in the FilterNodebase class. The main filter algorithm is
+implemented in this method and the result of the filtering is returned via the `output`
 
 ```{cpp}
-virtual void filter(
-    const PointCloud2ConstPtr & input, const IndicesPtr & indices, PointCloud2 & output) = 0;
+FILTER_NODE_BASE_LOCAL virtual void filter(
+    const sensor_msgs::msg::PointCloud2 & input, sensor_msgs::msg::PointCloud2 & output) = 0;
 ```
 
-There are three inputs to this method with one modified output representing the filtered PointCloud:
-- `input`: `sensor_msgs::msg::PointCloud2::ConstSharedPtr` - pointcloud as received by the callback to be filter
-- `indices`: `pcl::IndicesPtr` - pointer to the indices of a pointcloud [not always used]
-- `output`: `sensor_msgs::msg::PointCloud2` - reference to the pointcloud object which will be modified by the filter method.
+There are two inputs to this method with one modified output representing the filtered PointCloud:
+- `input` - point cloud passed by reference provided by the callback; not modified. 
+- `output` - filter algorithm in this method modifies this argument which is passed by reference
+from the `pointcloud_callback` method
 
+### param_callback
 
-### computePublish
-
-The `computePublish` method calls the child `filter` method to process the pointcloud, then
-publishes the resulting output on a topic.
+The `param_callback` method is bound to a parameter service callback which is triggered when the
+node parameters are changed. The method returns a `SetParametersResult` 
 
 ```{cpp}
-void computePublish(const PointCloud2ConstPtr & input, const IndicesPtr & indices);
+FILTER_NODE_BASE_LOCAL rcl_interfaces::msg::SetParametersResult param_callback(
+    const std::vector<rclcpp::Parameter> & p);
 ```
 
-There are two inputs to this method:
-- `input`: `sensor_msgs::msg::PointCloud2::ConstSharedPtr` - pointcloud as received by the callback to be filter
-- `indices`: `pcl::IndicesPtr` - pointer to the indices of a pointcloud [not always used]
+There is one input to this method:
+ - p - List of parameters declared in the node namespace.
 
+The method returns the SetParameterResult which will determine the event successfully completed.
+The return is passed from the the `get_node_parameters` where the value is determined by successful
+parameter retrieval.
 
-### input_indices_callback
+### get_node_parameters
 
-The `input_indices_callback` method is bound to a subscriber object at during the construction of the class.
-Depending on the flags selected, up to two topics may be bound to this method.
-The following is the definition of the `input_indices_callback` method:
+The `get_node_parameters` method retrieves the node parameters from the input parameter vector,
+creates the return result structure, and returns the structure. 
 
 ```{cpp}
-void input_indices_callback(
-  const PointCloud2ConstPtr cloud, const PointIndicesConstPtr indices)
+FILTER_NODE_BASE_LOCAL virtual rcl_interfaces::msg::SetParametersResult get_node_parameters(
+    const std::vector<rclcpp::Parameter> & p) = 0;
 ```
 
-There are two inputs to this class:
-- `cloud`: `sensor_msgs::msg::PointCloud2::ConstSharedPtr` - pointcloud as received by the callback to be filter
-- `indices`: `pcl::IndicesConstPtr` - pointer to the indices of a pointcloud [not always used]
+There is one input to this method:
+ - p - List of parameters declared in the node namespace passed from `param_callback`
 
-This method determines the validity of the pointcloud and indices, transforms the indices if they
-are passed as an argument, then calls the `computePublish` method above to process the messages.
-Because there is a possibility of more than one ROS2 topic bound to the same callback, the
-synchronization policy will need to be decided during constructions these are determined by the
-parameters sets as input, see the below for more information.
+The method returns the SetParameterResult which will determine the event successfully completed.
 
 
 ## Inputs / Outputs / API
@@ -85,17 +94,14 @@ parameters sets as input, see the below for more information.
     - How do you use the package / API? -->
 ### Inputs
 
-A node inheriting from @ref autoware::perception::filters::filter_node_base::FilterNodeBase require
-the following parameters to be set:
+A node inheriting from @ref autoware::perception::filters::filter_node_base::FilterNodeBase
+requires the following parameter to be set:
 - `max_queue_size` - defines the maximum size of queues
-- `use_indices` - binds an `indices` (`pcl_msgs::msg::PointIndices`) topic to the callback
-  - `false` = Use only the pointcloud as input
-  - `true` = Bind the callback `input_indices_callback` to a pointcloud and indices topic
-- `approximate_sync` - defines the synchronization policy for two topics being received by a single callback
-  - `false` = `message_filters::Synchronizer<sync_policies::ExactTime<PointCloud2, PointIndices>>`
-  - `true` = `message_filters::Synchronizer<sync_policies::ApproximateTime<PointCloud2, PointIndices>>`
 
-@note `approximate_sync` is only used is `use_indices` is set to `true`.
+Child classes inheriting from the `FilterNodeBase` may declare additional parameters in the
+constructor of the child class. Any parameter declared should be retrieved in the
+`get_node_parameters` method - unless the parameter is not intended to change (e.g.
+`max_queue_size`).
 
 
 ## Assumptions / Known limits

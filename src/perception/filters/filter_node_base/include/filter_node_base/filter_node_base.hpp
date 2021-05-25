@@ -45,7 +45,7 @@ namespace filter_node_base
 /** \brief Searches for a parameter defined by name and type T in the provided rclcpp::Parameter vector.
  * \param p Vector of parameters for this node
  * \param name String name of the parameter
- * \param_t value Return value of the parameter
+ * \param value Return value of the parameter
  * \return bool8_t Return true if the parameter is found, else false
  */
 template<typename T>
@@ -93,7 +93,7 @@ protected:
   /** \brief The maximum queue size. */
   size_t max_queue_size_;
 
-  /** \brief Virtual abstract filter method called by the computePublish method at the arrival of each pointcloud message.
+  /** \brief Virtual abstract filter method called by the computePublish method at the arrival of each point cloud message.
    * \param input The input point cloud dataset.
    * \param output The resultant filtered PointCloud2
    */
@@ -116,11 +116,11 @@ protected:
 
   /** \brief Validate a sensor_msgs::msg::PointCloud2 message
    *
-   * Method ensures that the size of the pointcloud defined by the width,
+   * Method ensures that the size of the point cloud defined by the width,
    * height and point_step correspond to the data size.
    *
    * \param cloud Input sensor_msgs::msg::PointCloud2 to be validated
-   * \return bool8_t True if the pointcloud is valid, false if not
+   * \return bool8_t True if the point cloud is valid, false if not
    */
   FILTER_NODE_BASE_LOCAL inline bool8_t is_valid(
     const sensor_msgs::msg::PointCloud2::ConstSharedPtr & cloud)
@@ -148,12 +148,12 @@ private:
   FILTER_NODE_BASE_LOCAL rcl_interfaces::msg::SetParametersResult param_callback(
     const std::vector<rclcpp::Parameter> & p);
 
-  /** \brief Callback used to receive pointcloud data.
+  /** \brief Callback used to receive point cloud data.
    *
-   * After checking the validity of the received pointcloud message, call the filter method and
-   * publish the filtered pointcloud on a new topic.
+   * After checking the validity of the received point cloud message, call the filter method and
+   * publish the filtered point cloud on a new topic.
    *
-   * \param msg Input pointcloud message to be processed by the filter
+   * \param msg Input point cloud message to be processed by the filter
    */
   FILTER_NODE_BASE_LOCAL void pointcloud_callback(
     const sensor_msgs::msg::PointCloud2::SharedPtr msg);

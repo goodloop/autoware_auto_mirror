@@ -78,9 +78,7 @@ void FilterNodeBase::pointcloud_callback(const PointCloud2SharedPtr msg)
     filter_field_name_, msg->width * msg->height, msg->header.frame_id.c_str());
 
   PointCloud2 output;
-  // Call the virtual method in the child
   filter(*msg, output);
-
   pub_output_->publish(output);
 }
 

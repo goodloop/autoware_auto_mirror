@@ -80,7 +80,7 @@ TEST_F(TestObject, test_filter) {
   // Check that the filter method in the MockFilterNodeBase class has been called
   EXPECT_CALL(*node, filter(_, _)).Times(AtLeast(1));
 
-  // Create dummy pointcloud
+  // Create dummy point cloud
   sensor_msgs::msg::PointCloud2 cloud;
   std::vector<float32_t> seeds = {0.0, 0.0, 0.0};
   autoware::common::lidar_utils::init_pcl_msg(cloud, "base_link", seeds.size());
