@@ -43,8 +43,8 @@ def generate_launch_description():
                 package='point_type_adapter',
                 plugin='autoware::tools::point_type_adapter::PointTypeAdapterNode',
                 name='lgsvl_cloud_converter_node_front',
-                parameters=[{'name_topic_cloud_in': '/lgsvl/lidar_front/points_raw'},
-                            {'name_topic_cloud_out': '/lidar_front/points_raw'}], ),
+                parameters=[{'name_topic_cloud_in': '/lidar_front/points_raw'},
+                            {'name_topic_cloud_out': '/lidar_front/points_xyzi'}], ),
         ],
         output='screen',
     )
@@ -58,8 +58,8 @@ def generate_launch_description():
                 package='point_type_adapter',
                 plugin='autoware::tools::point_type_adapter::PointTypeAdapterNode',
                 name='lgsvl_cloud_converter_node_rear',
-                parameters=[{'name_topic_cloud_in': '/lgsvl/lidar_rear/points_raw'},
-                            {'name_topic_cloud_out': '/lidar_rear/points_raw'}], ),
+                parameters=[{'name_topic_cloud_in': '/lidar_rear/points_raw'},
+                            {'name_topic_cloud_out': '/lidar_rear/points_xyzi'}], ),
         ],
         output='screen',
     )

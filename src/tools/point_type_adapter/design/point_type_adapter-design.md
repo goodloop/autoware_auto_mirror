@@ -77,8 +77,8 @@ ros2 launch lgsvl_cloud_converter lgsvl_cloud_converter.launch.py
 
 and it will convert topic names and types like following:
 ```
-"/lgsvl/lidar_front/points_raw" -> "/lidar_front/points_raw"
-"/lgsvl/lidar_rear/points_raw" -> "/lidar_rear/points_raw"
+"/lidar_front/points_raw" -> "/lidar_front/points_xyzi"
+"/lidar_rear/points_raw" -> "/lidar_rear/points_xyzi"
 ```
 
 
