@@ -28,29 +28,29 @@ namespace latlon_muxer
 LatLonMuxer::LatLonMuxer(const rclcpp::NodeOptions & node_options)
 : rclcpp::Node("latlon_muxer", node_options)
 {
-  control_cmd_pub_ =
+  m_control_cmd_pub =
     create_publisher<autoware_auto_msgs::msg::AckermannControlCommand>(
     "output/control_cmd",
     rclcpp::QoS{1}.transient_local());
-  lat_control_cmd_sub_ =
+  m_lat_control_cmd_sub =
     create_subscription<autoware_auto_msgs::msg::AckermannLateralCommand>(
     "input/lateral/control_cmd", rclcpp::QoS{1},
     std::bind(&LatLonMuxer::latCtrlCmdCallback, this, std::placeholders::_1));
-  lon_control_cmd_sub_ =
+  m_lon_control_cmd_sub =
     create_subscription<autoware_auto_msgs::msg::LongitudinalCommand>(
     "input/longitudinal/control_cmd", rclcpp::QoS{1},
     std::bind(&LatLonMuxer::lonCtrlCmdCallback, this, std::placeholders::_1));
-  timeout_thr_sec_ = declare_parameter("timeout_thr_sec", 0.5);
+  m_timeout_thr_sec = declare_parameter("timeout_thr_sec", 0.5);
 }
 
 bool LatLonMuxer::checkTimeout()
 {
   const auto now = this->now();
-  if ((now - lat_cmd_->stamp).seconds() > timeout_thr_sec_) {
+  if ((now - m_lat_cmd->stamp).seconds() > m_timeout_thr_sec) {
     RCLCPP_ERROR_THROTTLE(get_logger(), *get_clock(), 1000 /*ms*/, "lat_cmd_ timeout failed.");
     return false;
   }
-  if ((now - lon_cmd_->stamp).seconds() > timeout_thr_sec_) {
+  if ((now - m_lon_cmd->stamp).seconds() > m_timeout_thr_sec) {
     RCLCPP_ERROR_THROTTLE(get_logger(), *get_clock(), 1000 /*ms*/, "lon_cmd_ timeout failed.");
     return false;
   }
@@ -59,7 +59,7 @@ bool LatLonMuxer::checkTimeout()
 
 void LatLonMuxer::publishCmd()
 {
-  if (!lat_cmd_ || !lon_cmd_) {
+  if (!m_lat_cmd || !m_lon_cmd) {
     return;
   }
   if (!checkTimeout()) {
@@ -71,23 +71,23 @@ void LatLonMuxer::publishCmd()
 
   autoware_auto_msgs::msg::AckermannControlCommand out;
   out.stamp = rclcpp::Node::now();
-  out.lateral = *lat_cmd_;
-  out.longitudinal = *lon_cmd_;
+  out.lateral = *m_lat_cmd;
+  out.longitudinal = *m_lon_cmd;
 
-  control_cmd_pub_->publish(out);
+  m_control_cmd_pub->publish(out);
 }
 
 void LatLonMuxer::latCtrlCmdCallback(
   const autoware_auto_msgs::msg::AckermannLateralCommand::SharedPtr input_msg)
 {
-  lat_cmd_ = std::make_shared<autoware_auto_msgs::msg::AckermannLateralCommand>(*input_msg);
+  m_lat_cmd = std::make_shared<autoware_auto_msgs::msg::AckermannLateralCommand>(*input_msg);
   publishCmd();
 }
 
 void LatLonMuxer::lonCtrlCmdCallback(
   const autoware_auto_msgs::msg::LongitudinalCommand::SharedPtr input_msg)
 {
-  lon_cmd_ = std::make_shared<autoware_auto_msgs::msg::LongitudinalCommand>(*input_msg);
+  m_lon_cmd = std::make_shared<autoware_auto_msgs::msg::LongitudinalCommand>(*input_msg);
   publishCmd();
 }
 }  // namespace latlon_muxer

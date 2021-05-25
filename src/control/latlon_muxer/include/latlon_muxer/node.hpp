@@ -53,16 +53,16 @@ private:
   // \return bool True if the stored messages timed out
   bool checkTimeout();
 
-  rclcpp::Publisher<autoware_auto_msgs::msg::AckermannControlCommand>::SharedPtr control_cmd_pub_;
+  rclcpp::Publisher<autoware_auto_msgs::msg::AckermannControlCommand>::SharedPtr m_control_cmd_pub;
   rclcpp::Subscription<autoware_auto_msgs::msg::AckermannLateralCommand>::SharedPtr
-    lat_control_cmd_sub_;
+    m_lat_control_cmd_sub;
   rclcpp::Subscription<autoware_auto_msgs::msg::LongitudinalCommand>::SharedPtr
-    lon_control_cmd_sub_;
+    m_lon_control_cmd_sub;
 
-  std::shared_ptr<autoware_auto_msgs::msg::AckermannLateralCommand> lat_cmd_;
-  std::shared_ptr<autoware_auto_msgs::msg::LongitudinalCommand> lon_cmd_;
+  std::shared_ptr<autoware_auto_msgs::msg::AckermannLateralCommand> m_lat_cmd;
+  std::shared_ptr<autoware_auto_msgs::msg::LongitudinalCommand> m_lon_cmd;
   // \brief Timeout duration in seconds
-  double timeout_thr_sec_;
+  double m_timeout_thr_sec;
 };  // class LatLonMuxer
 }  // namespace latlon_muxer
 }  // namespace control
