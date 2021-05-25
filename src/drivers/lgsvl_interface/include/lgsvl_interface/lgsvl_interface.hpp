@@ -102,6 +102,7 @@ public:
     Table1D && throttle_table,
     Table1D && brake_table,
     Table1D && steer_table,
+    rclcpp::Publisher<autoware_auto_msgs::msg::HeadlightsReport>::SharedPtr headlights_report_pub,
     bool publish_tf = NO_PUBLISH,
     bool publish_pose = PUBLISH);
 
@@ -134,8 +135,6 @@ private:
 
   // store state_report with gear value correction
   void on_state_report(const autoware_auto_msgs::msg::VehicleStateReport & msg);
-
-  void on_headlights_report(const autoware_auto_msgs::msg::HeadlightsReport & msg) override;
 
   rclcpp::Publisher<lgsvl_msgs::msg::VehicleControlData>::SharedPtr m_cmd_pub{};
   rclcpp::Publisher<lgsvl_msgs::msg::VehicleStateData>::SharedPtr m_state_pub{};
