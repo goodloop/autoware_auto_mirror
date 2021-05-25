@@ -45,6 +45,23 @@ using visualization_msgs::msg::Marker;
 using visualization_msgs::msg::MarkerArray;
 using BoundingBox = autoware_auto_msgs::msg::BoundingBox;
 using BoundingBoxArray = autoware_auto_msgs::msg::BoundingBoxArray;
+
+
+static constexpr const char ColorRParamName[] = "bbox.color.r";
+static constexpr const char ColorGParamName[] = "bbox.color.g";
+static constexpr const char ColorBParamName[] = "bbox.color.b";
+static constexpr const char ColorAParamName[] = "bbox.color.a";
+static constexpr const char LifetimeSecParamName[] = "bbox.lifetime.sec";
+static constexpr const char LifetimeNanosecParamName[] = "bbox.lifetime.nanosec";
+
+/// \brief Bounding Box visualization configuration, which configures the Marker
+/// color ane lifetime fields.
+struct BBoxConfig
+{
+  std_msgs::msg::ColorRGBA color;
+  builtin_interfaces::msg::Duration lifetime;
+};
+
 /// \brief Combined object detection node, primarily does clustering, can also do in-place
 ///        downsampling and bounding box formation
 class EUCLIDEAN_CLUSTER_NODES_PUBLIC EuclideanClusterNode : public rclcpp::Node
@@ -77,12 +94,20 @@ private:
   void EUCLIDEAN_CLUSTER_NODES_LOCAL handle_clusters(
     Clusters & clusters,
     const std_msgs::msg::Header & header);
+  /// \brief Handle the ros param command
+  void EUCLIDEAN_CLUSTER_NODES_LOCAL on_parameter_event_callback(
+    const rcl_interfaces::msg::ParameterEvent::SharedPtr event);
 
   // pub/sub
   const rclcpp::Subscription<PointCloud2>::SharedPtr m_cloud_sub_ptr;
   const rclcpp::Publisher<Clusters>::SharedPtr m_cluster_pub_ptr;
   const rclcpp::Publisher<BoundingBoxArray>::SharedPtr m_box_pub_ptr;
   const rclcpp::Publisher<MarkerArray>::SharedPtr m_marker_pub_ptr;
+
+  // ros config parameters
+  const rclcpp::AsyncParametersClient::UniquePtr m_parameters_client;
+  const rclcpp::Subscription<rcl_interfaces::msg::ParameterEvent>::SharedPtr m_parameter_event_sub;
+
   // algorithms
   euclidean_cluster::EuclideanCluster m_cluster_alg;
   Clusters m_clusters;
@@ -90,6 +115,9 @@ private:
   std::unique_ptr<VoxelAlgorithm> m_voxel_ptr;
   const bool8_t m_use_lfit;
   const bool8_t m_use_z;
+
+  // Published marker lifetime and color config
+  BBoxConfig m_bbox_config;
 };  // class EuclideanClusterNode
 }  // namespace euclidean_cluster_nodes
 }  // namespace segmentation

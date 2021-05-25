@@ -40,6 +40,13 @@ protected:
 
 TEST_F(EuclideanClusterNodesTest, instantiate)
 {
+  using autoware::perception::segmentation::euclidean_cluster_nodes::ColorRParamName;
+  using autoware::perception::segmentation::euclidean_cluster_nodes::ColorGParamName;
+  using autoware::perception::segmentation::euclidean_cluster_nodes::ColorBParamName;
+  using autoware::perception::segmentation::euclidean_cluster_nodes::ColorAParamName;
+  using autoware::perception::segmentation::euclidean_cluster_nodes::LifetimeSecParamName;
+  using autoware::perception::segmentation::euclidean_cluster_nodes::LifetimeNanosecParamName;
+
   rclcpp::NodeOptions node_options;
 
   std::vector<rclcpp::Parameter> params;
@@ -112,6 +119,15 @@ TEST_F(EuclideanClusterNodesTest, instantiate)
   ASSERT_THROW(EuclideanClusterNode{node_options}, rclcpp::ParameterTypeException);
 
   params.emplace_back("hash.side_length", 1.0);
+  node_options.parameter_overrides(params);
+  ASSERT_NO_THROW(EuclideanClusterNode{node_options});
+
+  params.emplace_back(ColorRParamName, 1.0);
+  params.emplace_back(ColorGParamName, 1.0);
+  params.emplace_back(ColorBParamName, 1.0);
+  params.emplace_back(ColorAParamName, 1.0);
+  params.emplace_back(LifetimeNanosecParamName, 1);
+  params.emplace_back(LifetimeSecParamName, 1);
   node_options.parameter_overrides(params);
 
   ASSERT_NO_THROW(EuclideanClusterNode{node_options});
