@@ -47,11 +47,17 @@ bool LatLonMuxer::checkTimeout()
 {
   const auto now = this->now();
   if ((now - m_lat_cmd->stamp).seconds() > m_timeout_thr_sec) {
-    RCLCPP_ERROR_THROTTLE(get_logger(), *get_clock(), 1000 /*ms*/, "lat_cmd_ timeout failed.");
+    RCLCPP_ERROR_THROTTLE(
+      get_logger(),
+      *get_clock(), 1000 /*ms*/,
+      "Lateral control command too old, muxed command will not be published.");
     return false;
   }
   if ((now - m_lon_cmd->stamp).seconds() > m_timeout_thr_sec) {
-    RCLCPP_ERROR_THROTTLE(get_logger(), *get_clock(), 1000 /*ms*/, "lon_cmd_ timeout failed.");
+    RCLCPP_ERROR_THROTTLE(
+      get_logger(),
+      *get_clock(), 1000 /*ms*/,
+      "Longitudinal control command too old, muxed command will not be published.");
     return false;
   }
   return true;
@@ -63,14 +69,11 @@ void LatLonMuxer::publishCmd()
     return;
   }
   if (!checkTimeout()) {
-    RCLCPP_ERROR_THROTTLE(
-      get_logger(), *get_clock(), 1000 /*ms*/,
-      "timeout failed. stop publish command.");
     return;
   }
 
   autoware_auto_msgs::msg::AckermannControlCommand out;
-  out.stamp = rclcpp::Node::now();
+  out.stamp = this->now();
   out.lateral = *m_lat_cmd;
   out.longitudinal = *m_lon_cmd;
 
