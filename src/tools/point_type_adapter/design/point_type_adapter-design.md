@@ -16,10 +16,9 @@ Autoware.Auto uses `PointCloud2` messages with following field structure and ord
 The reason is, if the algoritms know this structure ahead of time, 
 we can iterate over them with almost no overhead using `point_cloud_msg_wrapper`.
 
-But various lidar drivers might output `PointCloud2` messages with extra fields
-or different orders.
-
-This node helps converting those point clouds into the type Autoware.Auto expects.
+Various lidar drivers might output `PointCloud2` messages with extra fields
+or with different field orders. This node helps to convert those point clouds
+into the type Autoware.Auto expects.
 
 ## Use case: SVL Simulator
 SVL Simulator outputs point clouds with following fields:
@@ -37,13 +36,13 @@ types: FLOAT32, FLOAT32, FLOAT32, FLOAT32
 offsets: 0, 4, 8, 12
 ```
 
-And this node does this conversion for front and back lidars using 
+This node converts the data into Autoware.Auto format using the
 `point_type_adapter.launch.py` file.
 
 
 # Design
 
-It simply subscribes in a PointCloud2 message with point type **should** contain:
+The node subscribes to a PointCloud2 message which **should** contain (at least):
 | **Field Name** | **Field Datatype** |
 | --- | --- |
 | "x" | `FLOAT32` |
@@ -59,7 +58,7 @@ and converts it into a PointCloud2 message with point type
 
 ## Assumptions / Known limits
 
-If the input point cloud doesn't have either of the fields with types required,
+If the input point cloud doesn't have all of the fields with types required,
 it will throw exceptions and won't publish anything.
 
 ## Inputs / Outputs / API
@@ -70,7 +69,7 @@ Output: PointCloud2 Message
 
 You can run it with `name_topic_cloud_in` and `name_topic_cloud_out` string ros parameters.
 
-For simulator, simply use:
+For SVL simulator, simply use:
 ```bash
 ros2 launch lgsvl_cloud_converter lgsvl_cloud_converter.launch.py
 ```
