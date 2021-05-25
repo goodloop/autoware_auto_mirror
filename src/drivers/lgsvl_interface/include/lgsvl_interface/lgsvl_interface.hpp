@@ -102,6 +102,7 @@ public:
     Table1D && throttle_table,
     Table1D && brake_table,
     Table1D && steer_table,
+    rclcpp::Publisher<autoware_auto_msgs::msg::HeadlightsReport>::SharedPtr headlights_report_pub,
     bool publish_tf = NO_PUBLISH,
     bool publish_pose = PUBLISH);
 
@@ -133,20 +134,18 @@ private:
   // store state_report with gear value correction
   void on_state_report(const autoware_auto_msgs::msg::VehicleStateReport & msg);
 
-  void on_headlights_report(const autoware_auto_msgs::msg::HeadlightsReport & msg) override;
-
   rclcpp::Publisher<lgsvl_msgs::msg::VehicleControlData>::SharedPtr m_cmd_pub{};
   rclcpp::Publisher<lgsvl_msgs::msg::VehicleStateData>::SharedPtr m_state_pub{};
   rclcpp::Publisher<autoware_auto_msgs::msg::VehicleKinematicState>::SharedPtr
     m_kinematic_state_pub{};
   rclcpp::Publisher<tf2_msgs::msg::TFMessage>::SharedPtr m_tf_pub{};
   rclcpp::Publisher<geometry_msgs::msg::PoseWithCovarianceStamped>::SharedPtr m_pose_pub{};
+  rclcpp::Publisher<autoware_auto_msgs::msg::HeadlightsReport>::SharedPtr m_headlights_report_pub{};
+
   rclcpp::Subscription<nav_msgs::msg::Odometry>::SharedPtr m_nav_odom_sub{};
   rclcpp::Subscription<lgsvl_msgs::msg::CanBusData>::SharedPtr m_state_sub{};
   rclcpp::Subscription<lgsvl_msgs::msg::VehicleOdometry>::SharedPtr m_veh_odom_sub{};
   rclcpp::TimerBase::SharedPtr m_nav_base_tf_timer{};
-
-  rclcpp::Publisher<autoware_auto_msgs::msg::HeadlightsCommand>::SharedPtr m_headlights_command_pub;
 
   Table1D m_throttle_table;
   Table1D m_brake_table;
