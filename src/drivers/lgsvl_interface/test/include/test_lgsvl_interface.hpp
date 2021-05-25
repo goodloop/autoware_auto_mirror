@@ -45,6 +45,10 @@ protected:
     rclcpp::init(0, nullptr);
 
     node_ = std::make_shared<rclcpp::Node>("lgsvl_interface_test_node", "/gtest");
+    auto headlights_report_pub = node_->create_publisher<
+      autoware_auto_msgs::msg::HeadlightsReport>(
+      "/vehicle/headlights_report", rclcpp::QoS{10U});
+
     lgsvl_interface_ = std::make_unique<lgsvl_interface::LgsvlInterface>(
       *node_,
       sim_ctrl_cmd_topic,
@@ -56,7 +60,8 @@ protected:
       sim_odom_child_frame,
       Table1D({0.0, 3.0}, {0.0, 100.0}),
       Table1D({-3.0, 0.0}, {100.0, 0.0}),
-      Table1D({-0.331, 0.331}, {-100.0, 100.0}));
+      Table1D({-0.331, 0.331}, {-100.0, 100.0}),
+      headlights_report_pub);
 
     broadcaster_ = std::make_unique<tf2_ros::StaticTransformBroadcaster>(node_);
 

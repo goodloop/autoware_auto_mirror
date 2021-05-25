@@ -25,6 +25,8 @@
 #include <chrono>
 #include <string>
 
+#include "autoware_auto_msgs/msg/headlights_report.hpp"
+
 namespace lgsvl_interface
 {
 
@@ -37,6 +39,11 @@ public:
   /// ROS 2 parameter constructor
   /// \param[in] options An rclcpp::NodeOptions object
   explicit LgsvlInterfaceNode(const rclcpp::NodeOptions & options);
+
+  rclcpp::Publisher<autoware_auto_msgs::msg::HeadlightsReport>::SharedPtr m_headlights_report_pub{};
+
+  rclcpp::Subscription<autoware_auto_msgs::msg::HeadlightsReport>::SharedPtr m_headlights_report_sub{};
+
 };  // class LgsvlInterfaceNode
 }  // namespace lgsvl_interface
 
