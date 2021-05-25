@@ -29,7 +29,9 @@ def generate_launch_description():
             ComposableNode(
                 package='point_type_adapter',
                 plugin='autoware::tools::point_type_adapter::PointTypeAdapterNode',
-                name='lgsvl_cloud_converter_node_front')
+                name='lgsvl_cloud_converter_node_front',
+                remappings=[('/points_raw', '/lidar_front/points_raw'),
+                            ('/points_xyzi', '/lidar_front/points_xyzi')], )
         ],
         output='screen',
     )
@@ -43,8 +45,8 @@ def generate_launch_description():
                 package='point_type_adapter',
                 plugin='autoware::tools::point_type_adapter::PointTypeAdapterNode',
                 name='lgsvl_cloud_converter_node_rear',
-                remappings=[('/lidar_front/points_raw', '/lidar_rear/points_raw'),
-                            ('/lidar_front/points_xyzi', '/lidar_rear/points_xyzi')], ),
+                remappings=[('/points_raw', '/lidar_rear/points_raw'),
+                            ('/points_xyzi', '/lidar_rear/points_xyzi')], )
         ],
         output='screen',
     )
