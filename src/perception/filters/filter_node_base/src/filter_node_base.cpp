@@ -78,7 +78,10 @@ void FilterNodeBase::pointcloud_callback(const PointCloud2SharedPtr msg)
     filter_field_name_, msg->width * msg->height, msg->header.frame_id.c_str());
 
   PointCloud2 output;
-  filter(*msg, output);
+  {
+    std::lock_guard<std::mutex> lock(mutex_);
+    filter(*msg, output);
+  }
   pub_output_->publish(output);
 }
 
