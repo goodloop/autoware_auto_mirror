@@ -40,6 +40,15 @@ if(BUILD_TESTING)
   target_compile_options(${LATLON_MUXER_TEST} PRIVATE -Wno-error=old-style-cast)
   autoware_set_compile_options(${LATLON_MUXER_TEST})
   target_link_libraries(${LATLON_MUXER_TEST} ${PROJECT_NAME})
+
+  add_ros_test(
+    test/test_latlon_muxer_node_launch.py
+    TIMEOUT "30"
+  )
+
 endif()
 
-ament_auto_package()
+ament_auto_package(
+  INSTALL_TO_SHARE
+  param
+)
