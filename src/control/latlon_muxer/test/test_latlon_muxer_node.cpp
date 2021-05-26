@@ -34,29 +34,31 @@ using ControlCommand = autoware_auto_msgs::msg::AckermannControlCommand;
 class TestROS : public ::testing::Test
 {
 protected:
-  std::shared_ptr<LatLonMuxer> node_;
+  std::shared_ptr<LatLonMuxer> m_node;
 
-  rclcpp::Publisher<LateralCommand>::SharedPtr lat_pub_;
-  rclcpp::Publisher<LongitudinalCommand>::SharedPtr lon_pub_;
-  rclcpp::Subscription<ControlCommand>::SharedPtr cmd_sub_;
+  rclcpp::Publisher<LateralCommand>::SharedPtr m_lat_pub;
+  rclcpp::Publisher<LongitudinalCommand>::SharedPtr m_lon_pub;
+  rclcpp::Subscription<ControlCommand>::SharedPtr m_cmd_sub;
 
-  ControlCommand cmd_msg_;
-  bool received_combined_command_ = false;
+  ControlCommand m_cmd_msg;
+  bool m_received_combined_command = false;
 
   void SetUp()
   {
     rclcpp::init(0, nullptr);
 
     rclcpp::NodeOptions node_options;
-    node_ = std::make_shared<LatLonMuxer>(node_options);
+    node_options.allow_undeclared_parameters(true);
+    node_options.append_parameter_override("timeout_thr_sec", 0.5);
+    m_node = std::make_shared<LatLonMuxer>(node_options);
 
-    lat_pub_ = node_->create_publisher<LateralCommand>(
+    m_lat_pub = m_node->create_publisher<LateralCommand>(
       "input/lateral/control_cmd",
       rclcpp::QoS(10));
-    lon_pub_ = node_->create_publisher<LongitudinalCommand>(
+    m_lon_pub = m_node->create_publisher<LongitudinalCommand>(
       "input/longitudinal/control_cmd",
       rclcpp::QoS(10));
-    cmd_sub_ = node_->create_subscription<ControlCommand>(
+    m_cmd_sub = m_node->create_subscription<ControlCommand>(
       "output/control_cmd",
       rclcpp::QoS(10), std::bind(&TestROS::HandleOutputCommand, this, std::placeholders::_1));
   }
@@ -68,8 +70,8 @@ protected:
 
   void HandleOutputCommand(const ControlCommand::SharedPtr combined_msg)
   {
-    cmd_msg_ = *combined_msg;
-    received_combined_command_ = true;
+    m_cmd_msg = *combined_msg;
+    m_received_combined_command = true;
   }
 };
 
@@ -86,21 +88,21 @@ TEST_F(TestROS, test_correct_output)
   lon_msg.acceleration = -1.0;
   lon_msg.jerk = 0.25;
   // Publish messages
-  lat_msg.stamp = node_->now();
-  lon_msg.stamp = node_->now();
-  lat_pub_->publish(lat_msg);
-  lon_pub_->publish(lon_msg);
-  rclcpp::spin_some(node_);
-  rclcpp::spin_some(node_);
+  lat_msg.stamp = m_node->now();
+  lon_msg.stamp = m_node->now();
+  m_lat_pub->publish(lat_msg);
+  m_lon_pub->publish(lon_msg);
+  rclcpp::spin_some(m_node);
+  rclcpp::spin_some(m_node);
   // Ensure the combined control command was published and contains correct data
-  ASSERT_TRUE(received_combined_command_);
-  ASSERT_EQ(cmd_msg_.lateral.steering_tire_angle, lat_msg.steering_tire_angle);
-  ASSERT_EQ(cmd_msg_.lateral.steering_tire_rotation_rate, lat_msg.steering_tire_rotation_rate);
-  ASSERT_EQ(cmd_msg_.longitudinal.speed, lon_msg.speed);
-  ASSERT_EQ(cmd_msg_.longitudinal.acceleration, lon_msg.acceleration);
-  ASSERT_EQ(cmd_msg_.longitudinal.jerk, lon_msg.jerk);
-  ASSERT_GT(rclcpp::Time(cmd_msg_.stamp), rclcpp::Time(lat_msg.stamp));
-  ASSERT_GT(rclcpp::Time(cmd_msg_.stamp), rclcpp::Time(lon_msg.stamp));
+  ASSERT_TRUE(m_received_combined_command);
+  ASSERT_EQ(m_cmd_msg.lateral.steering_tire_angle, lat_msg.steering_tire_angle);
+  ASSERT_EQ(m_cmd_msg.lateral.steering_tire_rotation_rate, lat_msg.steering_tire_rotation_rate);
+  ASSERT_EQ(m_cmd_msg.longitudinal.speed, lon_msg.speed);
+  ASSERT_EQ(m_cmd_msg.longitudinal.acceleration, lon_msg.acceleration);
+  ASSERT_EQ(m_cmd_msg.longitudinal.jerk, lon_msg.jerk);
+  ASSERT_GT(rclcpp::Time(m_cmd_msg.stamp), rclcpp::Time(lat_msg.stamp));
+  ASSERT_GT(rclcpp::Time(m_cmd_msg.stamp), rclcpp::Time(lon_msg.stamp));
 }
 
 TEST_F(TestROS, test_lateral_timeout)
@@ -109,15 +111,14 @@ TEST_F(TestROS, test_lateral_timeout)
   LateralCommand lat_msg;
   LongitudinalCommand lon_msg;
   // Generate a timeout of the lateral message
-  node_->set_parameter(rclcpp::Parameter("timeout_thr_sec", 0.5));
-  lat_msg.stamp = node_->now() - one_second;
-  lon_msg.stamp = node_->now();
-  lat_pub_->publish(lat_msg);
-  lon_pub_->publish(lon_msg);
-  rclcpp::spin_some(node_);
-  rclcpp::spin_some(node_);
+  lat_msg.stamp = m_node->now() - one_second;
+  lon_msg.stamp = m_node->now();
+  m_lat_pub->publish(lat_msg);
+  m_lon_pub->publish(lon_msg);
+  rclcpp::spin_some(m_node);
+  rclcpp::spin_some(m_node);
   // Ensure the inputs were not combined
-  ASSERT_FALSE(received_combined_command_);
+  ASSERT_FALSE(m_received_combined_command);
 }
 
 TEST_F(TestROS, test_longitudinal_timeout)
@@ -126,15 +127,14 @@ TEST_F(TestROS, test_longitudinal_timeout)
   LateralCommand lat_msg;
   LongitudinalCommand lon_msg;
   // Generate a timeout of the longitudinal message
-  node_->set_parameter(rclcpp::Parameter("timeout_thr_sec", 0.5));
-  lat_msg.stamp = node_->now();
-  lon_msg.stamp = node_->now() - one_second;
-  lat_pub_->publish(lat_msg);
-  lon_pub_->publish(lon_msg);
-  rclcpp::spin_some(node_);
-  rclcpp::spin_some(node_);
+  lat_msg.stamp = m_node->now();
+  lon_msg.stamp = m_node->now() - one_second;
+  m_lat_pub->publish(lat_msg);
+  m_lon_pub->publish(lon_msg);
+  rclcpp::spin_some(m_node);
+  rclcpp::spin_some(m_node);
   // Ensure the inputs were not combined
-  ASSERT_FALSE(received_combined_command_);
+  ASSERT_FALSE(m_received_combined_command);
 }
 TEST_F(TestROS, test_latlon_timeout)
 {
@@ -142,13 +142,13 @@ TEST_F(TestROS, test_latlon_timeout)
   LateralCommand lat_msg;
   LongitudinalCommand lon_msg;
   // Generate a timeout of both messages
-  node_->set_parameter(rclcpp::Parameter("timeout_thr_sec", 0.5));
-  lat_msg.stamp = node_->now() - one_second;
-  lon_msg.stamp = node_->now() - one_second;
-  lat_pub_->publish(lat_msg);
-  lon_pub_->publish(lon_msg);
-  rclcpp::spin_some(node_);
-  rclcpp::spin_some(node_);
+  m_node->set_parameter(rclcpp::Parameter("timeout_thr_sec", 0.5));
+  lat_msg.stamp = m_node->now() - one_second;
+  lon_msg.stamp = m_node->now() - one_second;
+  m_lat_pub->publish(lat_msg);
+  m_lon_pub->publish(lon_msg);
+  rclcpp::spin_some(m_node);
+  rclcpp::spin_some(m_node);
   // Ensure the inputs were not combined
-  ASSERT_FALSE(received_combined_command_);
+  ASSERT_FALSE(m_received_combined_command);
 }
