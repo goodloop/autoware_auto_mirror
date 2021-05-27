@@ -144,15 +144,15 @@ void TrackedObject::update(const DetectedObjectMsg & detection)
   // Speculatively convert the message to measurement and fix up the covariance. "Speculatively"
   // because the "has_pose" and "has_twist" fields are not checked yet. This is done to avoid
   // repeating this conversion code.
-  auto pose_measurement =
-    autoware::common::state_estimation::message_to_measurement<Measurement2dPose>(
+  Measurement2dPose pose_measurement =
+    autoware::common::state_estimation::message_to_measurement<float64_t>(
     detection.kinematics.pose);
   if (!detection.kinematics.has_pose_covariance) {
     pose_measurement.covariance() = m_default_variance *
       Measurement2dPose::State::Matrix::Identity();
   }
-  auto twist_measurement =
-    autoware::common::state_estimation::message_to_measurement<Measurement2dSpeed>(
+  Measurement2dSpeed twist_measurement =
+    autoware::common::state_estimation::message_to_measurement<float64_t>(
     detection.kinematics.twist);
   if (!detection.kinematics.has_twist_covariance) {
     twist_measurement.covariance() = m_default_variance *
