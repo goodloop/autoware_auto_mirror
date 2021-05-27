@@ -157,6 +157,11 @@ def generate_launch_description():
         parameters=[{'robot_description': urdf_file}],
     )
 
+    odom_bl_publisher = Node(
+        package='tf2_ros',
+        executable='static_transform_publisher',
+        arguments=["0", "0", "0", "0", "0", "0", "odom", "base_link"]
+    )
 
     return LaunchDescription([
         map_publisher_param,
@@ -170,5 +175,6 @@ def generate_launch_description():
         ndt_localizer,
         lgsvl_interface,
         urdf_publisher,
+        odom_bl_publisher,
         rviz2
     ])
