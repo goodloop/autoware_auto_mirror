@@ -58,19 +58,8 @@ MEASUREMENT_CONVERSION_PUBLIC MeasurementT message_to_measurement(const MessageT
 ///
 /// @return     The measurement containing speed.
 ///
-template<>
-MEASUREMENT_CONVERSION_PUBLIC Measurement2dSpeed32 message_to_measurement(
-  const geometry_msgs::msg::TwistWithCovariance & msg);
-
-///
-/// @brief      Specialization of message_to_measurement for twist message.
-///
-/// @param[in]  msg                  The twist message.
-///
-/// @return     The measurement containing speed.
-///
-template<>
-MEASUREMENT_CONVERSION_PUBLIC Measurement2dSpeed64 message_to_measurement(
+template<typename ScalarT>
+MEASUREMENT_CONVERSION_PUBLIC Measurement2dSpeed<ScalarT> message_to_measurement(
   const geometry_msgs::msg::TwistWithCovariance & msg);
 
 ///
@@ -80,19 +69,8 @@ MEASUREMENT_CONVERSION_PUBLIC Measurement2dSpeed64 message_to_measurement(
 ///
 /// @return     The measurement containing pose.
 ///
-template<>
-MEASUREMENT_CONVERSION_PUBLIC Measurement2dPose32 message_to_measurement(
-  const geometry_msgs::msg::PoseWithCovariance & msg);
-
-///
-/// @brief      Specialization of message_to_measurement for pose message.
-///
-/// @param[in]  msg                  The pose message.
-///
-/// @return     The measurement containing pose.
-///
-template<>
-MEASUREMENT_CONVERSION_PUBLIC Measurement2dPose64 message_to_measurement(
+template<typename ScalarT>
+MEASUREMENT_CONVERSION_PUBLIC Measurement2dPose<ScalarT> message_to_measurement(
   const geometry_msgs::msg::PoseWithCovariance & msg);
 
 ///

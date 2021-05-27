@@ -57,10 +57,9 @@ namespace common
 {
 namespace state_estimation
 {
-namespace
-{
+
 template<typename ScalarT>
-Measurement2dSpeed<ScalarT> twist_message_to_measurement(
+Measurement2dSpeed<ScalarT> message_to_measurement(
   const geometry_msgs::msg::TwistWithCovariance & msg)
 {
   Eigen::Vector2d mean{msg.twist.linear.x, msg.twist.linear.y};
@@ -73,8 +72,13 @@ Measurement2dSpeed<ScalarT> twist_message_to_measurement(
     covariance.cast<ScalarT>()};
 }
 
+template Measurement2dSpeed32 message_to_measurement<float32_t>(
+  const geometry_msgs::msg::TwistWithCovariance & msg);
+template Measurement2dSpeed64 message_to_measurement<float64_t>(
+  const geometry_msgs::msg::TwistWithCovariance & msg);
+
 template<typename ScalarT>
-Measurement2dPose<ScalarT> pose_message_to_measurement(
+Measurement2dPose<ScalarT> message_to_measurement(
   const geometry_msgs::msg::PoseWithCovariance & msg)
 {
   Eigen::Vector2d mean{msg.pose.position.x, msg.pose.position.y};
@@ -86,35 +90,11 @@ Measurement2dPose<ScalarT> pose_message_to_measurement(
     mean.cast<ScalarT>(),
     covariance.cast<ScalarT>()};
 }
-}  // namespace
 
-template<>
-Measurement2dSpeed32 message_to_measurement(
-  const geometry_msgs::msg::TwistWithCovariance & msg)
-{
-  return twist_message_to_measurement<float32_t>(msg);
-}
-
-template<>
-Measurement2dSpeed64 message_to_measurement(
-  const geometry_msgs::msg::TwistWithCovariance & msg)
-{
-  return twist_message_to_measurement<float64_t>(msg);
-}
-
-template<>
-Measurement2dPose32 message_to_measurement(
-  const geometry_msgs::msg::PoseWithCovariance & msg)
-{
-  return pose_message_to_measurement<float32_t>(msg);
-}
-
-template<>
-Measurement2dPose64 message_to_measurement(
-  const geometry_msgs::msg::PoseWithCovariance & msg)
-{
-  return pose_message_to_measurement<float64_t>(msg);
-}
+template Measurement2dPose32 message_to_measurement<float32_t>(
+  const geometry_msgs::msg::PoseWithCovariance & msg);
+template Measurement2dPose64 message_to_measurement<float64_t>(
+  const geometry_msgs::msg::PoseWithCovariance & msg);
 
 template<>
 StampedMeasurement2dSpeed32 message_to_measurement(
@@ -122,7 +102,7 @@ StampedMeasurement2dSpeed32 message_to_measurement(
 {
   return StampedMeasurement2dSpeed32{
     to_time_point(msg.header.stamp),
-    message_to_measurement<Measurement2dSpeed32>(msg.twist)
+    message_to_measurement<float32_t>(msg.twist)
   };
 }
 
@@ -132,7 +112,7 @@ StampedMeasurement2dPose32 message_to_measurement(
 {
   return StampedMeasurement2dPose32{
     to_time_point(msg.header.stamp),
-    message_to_measurement<Measurement2dPose32>(msg.pose)
+    message_to_measurement<float32_t>(msg.pose)
   };
 }
 
