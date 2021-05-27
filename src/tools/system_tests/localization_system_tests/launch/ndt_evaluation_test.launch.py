@@ -49,6 +49,10 @@ def generate_launch_description():
         get_package_share_directory('localization_system_tests'),
         'param/lgsvl_interface.param.yaml')
 
+    evaluator_param_file = os.path.join(
+        get_package_share_directory('localization_system_tests'),
+        'param/localization_evaluator.param.yaml')
+
     urdf_pkg_prefix = get_package_share_directory('lexus_rx_450h_description')
     urdf_path = os.path.join(urdf_pkg_prefix, 'urdf/lexus_rx_450h.urdf')
     with open(urdf_path, 'r') as infp:
@@ -82,6 +86,12 @@ def generate_launch_description():
         'lgsvl_interface_param_file',
         default_value=lgsvl_param_file,
         description='Path to config file for LGSVL Interface'
+    )
+
+    evaluator_param = DeclareLaunchArgument(
+        'evaluator_param_file',
+        default_value=evaluator_param_file,
+        description='Path to config file for the localization evaluator'
     )
 
     # Node definitions.
@@ -143,6 +153,12 @@ def generate_launch_description():
         ]
     )
 
+    localization_evaluator = Node(
+        package='localization_system_tests',
+        executable='localization_system_tests_exe',
+        parameters=[LaunchConfiguration('evaluator_param_file')]
+    )
+
     rviz2 = Node(
         package='rviz2',
         executable='rviz2',
@@ -169,6 +185,7 @@ def generate_launch_description():
         scan_downsampler_param,
         ndt_localizer_param,
         lgsvl_interface_param,
+        evaluator_param,
         filter_transform_vlp16_front,
         map_publisher,
         scan_downsampler,
@@ -176,5 +193,6 @@ def generate_launch_description():
         lgsvl_interface,
         urdf_publisher,
         odom_bl_publisher,
+        localization_evaluator,
         rviz2
     ])

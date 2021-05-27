@@ -1,4 +1,4 @@
-// Copyright 2020 the Autoware Foundation
+// Copyright 2021 the Autoware Foundation
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@
 #include <tf2_eigen/tf2_eigen.h>
 #include <Eigen/Geometry>
 #include <chrono>
-#include <iostream>
 #include <ratio>
 #include <string>
 
@@ -39,18 +38,43 @@ LocalizationEvaluationNode::LocalizationEvaluationNode(
   m_ground_truth_sub{
   create_subscription<Pose>(
     "/vehicle/odom_pose",
-    rclcpp::QoS{rclcpp::KeepLast{20U}},
+    rclcpp::QoS{rclcpp::KeepLast{50U}},
     [this](typename Pose::ConstSharedPtr msg) {ground_truth_callback(msg);}),
 } {
-  EigTransform map_bl_tf;
-  map_bl_tf.setIdentity();
-  map_bl_tf.translate(Eigen::Vector3d{-58.22, -40.98, -1.9});
+  EigTransform estimate_offset;
+  estimate_offset.setIdentity();
+  estimate_offset.translate(
+    Eigen::Vector3d{
+      declare_parameter("estimate_offset.translation.x").get<double>(),
+      declare_parameter("estimate_offset.translation.y").get<double>(),
+      declare_parameter("estimate_offset.translation.z").get<double>()
+    });
+  estimate_offset.rotate(
+    Eigen::Quaterniond {
+      declare_parameter("estimate_offset.rotation.w").get<double>(),
+      declare_parameter("estimate_offset.rotation.x").get<double>(),
+      declare_parameter("estimate_offset.rotation.y").get<double>(),
+      declare_parameter("estimate_offset.rotation.z").get<double>()
+    });
 
-  EigTransform odom_bl_tf;
-  odom_bl_tf.setIdentity();
-  map_bl_tf.translate(Eigen::Vector3d{-0.00358963, -0.00601959, 0.0491562});
+  EigTransform gt_offset;
+  gt_offset.setIdentity();
+  gt_offset.translate(
+    Eigen::Vector3d{
+      declare_parameter("ground_truth_offset.translation.x").get<double>(),
+      declare_parameter("ground_truth_offset.translation.y").get<double>(),
+      declare_parameter("ground_truth_offset.translation.z").get<double>()
+    });
 
-  m_map_odom_tf = map_bl_tf * odom_bl_tf.inverse();
+  estimate_offset.rotate(
+    Eigen::Quaterniond {
+      declare_parameter("ground_truth_offset.rotation.w").get<double>(),
+      declare_parameter("ground_truth_offset.rotation.x").get<double>(),
+      declare_parameter("ground_truth_offset.rotation.y").get<double>(),
+      declare_parameter("ground_truth_offset.rotation.z").get<double>()
+    });
+
+  m_ground_truth_to_estimate_tf = estimate_offset * gt_offset.inverse();
 }
 
 LocalizationEvaluationNode::~LocalizationEvaluationNode() noexcept
@@ -58,19 +82,21 @@ LocalizationEvaluationNode::~LocalizationEvaluationNode() noexcept
   std::stringstream report;
   const std::chrono::nanoseconds duration = m_end_tp - m_start_tp;
   const auto duration_in_ms =
-    static_cast<double>((m_end_tp - m_start_tp).count()) * std::milli::den /
+    static_cast<float64_t>((m_end_tp - m_start_tp).count() * std::milli::den) /
     std::nano::den;
+
   const auto avg_localization_dur =
-    duration_in_ms / static_cast<double>(m_num_computed + m_estimates.size());
+    duration_in_ms / static_cast<float64_t>(m_num_computed + m_estimates.size());
+
 
   report <<
-    "Period of localization estimates: " << avg_localization_dur << " ms." << std::endl <<
+    "Average period of the received localization estimates: " << avg_localization_dur << " ms." <<
+    std::endl <<
     "Processed " << m_num_computed << " samples. Left out " << m_estimates.size() <<
     " estimates." << std::endl <<
     "Average translation error: " << m_average_translation_err << " meters." << std::endl <<
     "Average rotation error: " << m_average_rotation_err << " radians." << std::endl;
-
-  std::cout << report.str();
+  RCLCPP_INFO(get_logger(), report.str());
 }
 
 void LocalizationEvaluationNode::ground_truth_callback(Pose::ConstSharedPtr & ground_truth)
@@ -105,12 +131,43 @@ void LocalizationEvaluationNode::localizer_callback(Pose::ConstSharedPtr & estim
   }
 }
 
-double LocalizationEvaluationNode::get_new_average(double current_avg, double addition)
+LocalizationEvaluationNode::float64_t
+LocalizationEvaluationNode::get_new_average(float64_t current_avg, float64_t addition)
 {
-  const auto current_num_samples = static_cast<double>(m_num_computed);
+  const auto current_num_samples = static_cast<float64_t>(m_num_computed);
   const auto total_err = (current_avg * current_num_samples) + addition;
   return total_err / (current_num_samples + 1.0);
 }
+
+LocalizationEvaluationNode::float64_t LocalizationEvaluationNode::translation_error(
+  const LocalizationEvaluationNode::EigTranslationPart & tf1,
+  const LocalizationEvaluationNode::EigTranslationPart & tf2)
+{
+  return (tf1 - tf2).norm();
+}
+
+LocalizationEvaluationNode::float64_t LocalizationEvaluationNode::rotation_error(
+  const LocalizationEvaluationNode::EigRotationPart & tf1,
+  const LocalizationEvaluationNode::EigRotationPart & tf2)
+{
+  const Eigen::Quaterniond rot1{tf1};
+  const Eigen::Quaterniond rot2{tf2};
+  return std::fabs(rot1.angularDistance(rot2));
+}
+
+void LocalizationEvaluationNode::compute_and_update_metrics(
+  const EigTransform & ground_truth, const EigTransform & estimate)
+{
+  const auto translation_err =
+    translation_error(ground_truth.translation(), estimate.translation());
+  const auto rotation_err = rotation_error(ground_truth.rotation(), estimate.rotation());
+
+  m_average_translation_err = get_new_average(m_average_translation_err, translation_err);
+  m_average_rotation_err = get_new_average(m_average_rotation_err, rotation_err);
+
+  ++m_num_computed;
+}
+
 
 void LocalizationEvaluationNode::compute(const Pose & estimate, const Pose & ground_truth)
 {
@@ -121,18 +178,9 @@ void LocalizationEvaluationNode::compute(const Pose & estimate, const Pose & gro
   tf2::fromMsg(estimate.pose.pose, estimate_eig);
   tf2::fromMsg(ground_truth.pose.pose, ground_truth_eig);
 
-  ground_truth_in_map_frame_eig = m_map_odom_tf * ground_truth_eig;
+  ground_truth_in_map_frame_eig = m_ground_truth_to_estimate_tf * ground_truth_eig;
 
-  Eigen::Quaterniond estimate_rot{estimate_eig.rotation()};
-  Eigen::Quaterniond ground_truth_rot{ground_truth_in_map_frame_eig.rotation()};
-
-  const auto translation_err =
-    (ground_truth_in_map_frame_eig.translation() - estimate_eig.translation()).norm();
-  const auto rotation_err = std::fabs(ground_truth_rot.angularDistance(estimate_rot));
-
-  m_average_translation_err = get_new_average(m_average_translation_err, translation_err);
-  m_average_rotation_err = get_new_average(m_average_rotation_err, rotation_err);
-  ++m_num_computed;
+  compute_and_update_metrics(ground_truth_in_map_frame_eig, estimate_eig);
 }
 }  // namespace localization_system_tests
 
