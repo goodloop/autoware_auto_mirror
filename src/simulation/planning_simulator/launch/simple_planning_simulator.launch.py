@@ -18,13 +18,19 @@ import launch_ros.actions
 
 from launch.actions import DeclareLaunchArgument
 from launch.substitutions import LaunchConfiguration
+from ament_index_python import get_package_share_directory
 
+import os
 
 def generate_launch_description():
 
+    default_vehicle_characteristics_param = os.path.join(
+        get_package_share_directory('simple_planning_simulator'),
+        'param/vehicle_characteristics.param.param.yaml')
+
     vehicle_characteristics_param = DeclareLaunchArgument(
         'vehicle_characteristics_param_file',
-        default_value='',
+        default_value=default_vehicle_characteristics_param,
         description='Path to config file for vehicle characteristics'
     )
 
