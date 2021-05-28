@@ -143,7 +143,6 @@ TEST(test_polygon_remover_nodes, test_remove_rectangle) {
 
   std::vector<rclcpp::Parameter> params;
   params.emplace_back("working_mode", "Static");
-  params.emplace_back("topic_name_shape_polygon_sub", "/polygon_to_remove");
   params.emplace_back(
     "polygon_vertices",
     std::vector<float32_t>{
@@ -164,7 +163,7 @@ TEST(test_polygon_remover_nodes, test_remove_rectangle) {
   bool test_completed = false;
 
   auto pub_ptr_cloud_raw = node_polygon_remover->create_publisher<sensor_msgs::msg::PointCloud2>(
-    "/lidar_front/points_raw",
+    "points_xyzi",
     rclcpp::QoS(10));
 
   auto callback_cloud_polygon_removed =
@@ -178,7 +177,7 @@ TEST(test_polygon_remover_nodes, test_remove_rectangle) {
 
   auto sub_ptr_cloud_polygon_removed =
     node_polygon_remover->create_subscription<sensor_msgs::msg::PointCloud2>(
-    "/cloud_polygon_removed",
+    "cloud_polygon_removed",
     rclcpp::QoS(rclcpp::KeepLast(10)),
     callback_cloud_polygon_removed);
 
