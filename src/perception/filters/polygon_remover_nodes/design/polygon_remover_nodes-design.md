@@ -44,6 +44,17 @@ Explained in detail here:
 <!-- Things to consider:
     - How do you use the package / API? -->
 
+Subscribers:
+- `points_xyzi` `(sensor_msgs::msg::PointCloud2)`
+
+Publishers:
+- `cloud_polygon_removed` `(sensor_msgs::msg::PointCloud2)`
+  - Publishes point cloud where polygon area is removed.
+- `marker_polygon_remover` `(visualization_msgs::msg::Marker)`
+  - Will publish the marker of the polygon if `will_visualize` is set to `True`
+
+Setting Parameters:
+
 ```bash
 cd ~/adehome/Autoware.Auto
 source install/setup.bash
@@ -57,22 +68,17 @@ ros2 run polygon_remover_nodes polygon_remover_node_exe --ros-args --params-file
 # or provide parameters
 ros2 run polygon_remover_nodes polygon_remover_node_exe \
 --ros-args \
--p topic_name_cloud_sub:="/lidar_front/points_raw" \
--p topic_name_cloud_pub:="/cloud_polygon_removed" \
+-r "points_xyzi":="/lidar_front/points_xyzi" \
 -p working_mode:="Static" \
 -p polygon_vertices:=[-8.0,-8.0,\
 -8.0,8.0,\
 8.0,0.0] \
--p will_visualize:=True \
--p topic_name_marker_polygon_pub:="/marker_polygon_remover"
+-p will_visualize:=True
 ```
 
 ```yaml
 /polygon_remover_nodes:
   ros__parameters:
-    topic_name_cloud_sub: "/lidar_front/points_raw"
-    topic_name_cloud_pub: "/cloud_polygon_removed"
-
     working_mode: "Static" # "Static" or "PolygonSub"
     # if working_mode is "Static"
     # x1, y1, x2, y2, ...
@@ -80,28 +86,7 @@ ros2 run polygon_remover_nodes polygon_remover_node_exe \
                         -6.0, 6.0,
                         6.0, 6.0,
                         6.0, -6.0 ] # Square
-
-    # if working_mode is "PolygonSub"
-    topic_name_shape_polygon_sub: "/polygon_to_remove"
-
     will_visualize: True
-    # if will_visualize is True
-    topic_name_marker_polygon_pub: "/marker_polygon_remover"
-```
-
-Here is a graph in mermaid syntax that explains which parameters should be set
-under which circumstances:
-
-```mermaid
-graph TD
-    nd_set((set)) --- nd_topic_name_cloud_sub[topic_name_cloud_sub]
-    nd_set --- nd_topic_name_cloud_pub[topic_name_cloud_sub]
-
-    nd_set --- nd_working_mode{working_mode} -->|Static| nd_polygon_vertices[polygon_vertices]
-    nd_working_mode -->|PolygonSub| nd_topic_name_shape_polygon_sub[topic_name_shape_polygon_sub]
-
-    nd_set --- nd_will_visualize{will_visualize}
-    nd_will_visualize -->|True| nd_topic_name_marker_polygon_pub[topic_name_marker_polygon_pub]
 ```
 
 ## Inner-workings / Algorithms
