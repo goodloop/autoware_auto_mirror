@@ -1,19 +1,6 @@
 # Simple Planning Simulator
 This node simulates the vehicle motion for a vehicle command in 2D using a simple vehicle model.
 
-## Interface
-
-**input**
- - /vehicle/vehicle_command [`autoware_auto_msgs/msg/VehicleControlCommand`] : target command to drive a vehicle.
- - /vehicle/state_command [`autoware_auto_msgs/msg/VehicleStateCommand`] : target state command (e.g. gear).
- - /localization/initialpose [`geometry_msgs/msg/PoseWithCovarianceStamped`] : for initial pose
-
-**output**
- - /tf [`tf2_msgs/msg/TFMessage`] : simulated vehicle pose (base_link)
- - /vehicle/vehicle_kinematic_state [`autoware_auto_msgs/msg/VehicleKinematicState`] : simulated kinematic state (defined in CoM)
- - /vehicle/state_report [`autoware_auto_msgs/msg/VehicleStateReport`] : current vehicle state (e.g. gear, mode, etc.)
-
-
 
 ## Parameter Description
 
