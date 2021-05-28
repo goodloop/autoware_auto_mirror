@@ -58,9 +58,22 @@ using Measurement2dPoseAndSpeed = LinearMeasurement<
 using Measurement2dPoseAndSpeed32 = Measurement2dPoseAndSpeed<common::types::float32_t>;
 using Measurement2dPoseAndSpeed64 = Measurement2dPoseAndSpeed<common::types::float64_t>;
 
-using StampedMeasurement2dPose32 = Stamped<Measurement2dPose32>;
-using StampedMeasurement2dSpeed32 = Stamped<Measurement2dSpeed32>;
-using StampedMeasurement2dPoseAndSpeed32 = Stamped<Measurement2dPoseAndSpeed32>;
+template<typename ScalarT>
+using StampedMeasurement2dPose = Stamped<Measurement2dPose<ScalarT>>;
+using StampedMeasurement2dPose32 = StampedMeasurement2dPose<common::types::float32_t>;
+using StampedMeasurement2dPose64 = StampedMeasurement2dPose<common::types::float64_t>;
+
+template<typename ScalarT>
+using StampedMeasurement2dSpeed = Stamped<Measurement2dSpeed<ScalarT>>;
+using StampedMeasurement2dSpeed32 = StampedMeasurement2dSpeed<common::types::float32_t>;
+using StampedMeasurement2dSpeed64 = StampedMeasurement2dSpeed<common::types::float64_t>;
+
+template<typename ScalarT>
+using StampedMeasurement2dPoseAndSpeed = Stamped<Measurement2dPoseAndSpeed<ScalarT>>;
+using StampedMeasurement2dPoseAndSpeed32 =
+  StampedMeasurement2dPoseAndSpeed<common::types::float32_t>;
+using StampedMeasurement2dPoseAndSpeed64 =
+  StampedMeasurement2dPoseAndSpeed<common::types::float64_t>;
 
 }  // namespace state_estimation
 }  // namespace common

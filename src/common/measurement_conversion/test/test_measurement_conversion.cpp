@@ -18,6 +18,7 @@
 #include <gtest/gtest.h>
 
 #include <measurement_conversion/measurement_conversion.hpp>
+#include <common/types.hpp>
 
 using autoware::common::state_estimation::StampedMeasurement2dPose32;
 using autoware::common::state_estimation::StampedMeasurement2dSpeed32;
@@ -27,6 +28,7 @@ using autoware::common::state_vector::variable::X;
 using autoware::common::state_vector::variable::Y;
 using autoware::common::state_vector::variable::X_VELOCITY;
 using autoware::common::state_vector::variable::Y_VELOCITY;
+using autoware::common::types::float32_t;
 
 /// \test Create a measurement from odometry.
 TEST(Measurement2dConversionTest, odom) {
@@ -47,7 +49,7 @@ TEST(Measurement2dConversionTest, odom) {
   msg.twist.twist.linear.y = 42.0;
   msg.twist.covariance[0] = 3.0;
   msg.twist.covariance[7] = 4.0;
-  const auto measurement = message_to_measurement<StampedMeasurement2dPoseAndSpeed32>(msg);
+  const auto measurement = message_to_measurement<float32_t>(msg);
   EXPECT_FLOAT_EQ(measurement.measurement.state().at<X>(), 42.0F);
   EXPECT_FLOAT_EQ(measurement.measurement.state().at<Y>(), 23.0F);
   const auto x_idx = measurement.measurement.state().index_of<X>();
@@ -77,7 +79,7 @@ TEST(Measurement2dConversionTest, pose) {
   msg.pose.pose.position.y = 23.0;
   msg.pose.covariance[0] = 1.0;
   msg.pose.covariance[7] = 2.0;
-  const auto measurement = message_to_measurement<StampedMeasurement2dPose32>(
+  const auto measurement = message_to_measurement<float32_t>(
     msg);
   EXPECT_FLOAT_EQ(measurement.measurement.state().vector().x(), 42.0F);
   EXPECT_FLOAT_EQ(measurement.measurement.state().vector().y(), 23.0F);
@@ -99,7 +101,7 @@ TEST(Measurement2dConversionTest, RelativePose) {
   msg.covariance[0] = 1.0;
   msg.covariance[4] = 2.0;
   msg.covariance[8] = 3.0;
-  const auto measurement = message_to_measurement<StampedMeasurement2dPose32>(msg);
+  const auto measurement = message_to_measurement<float32_t>(msg);
   EXPECT_FLOAT_EQ(measurement.measurement.state().vector().x(), 42.0F);
   EXPECT_FLOAT_EQ(measurement.measurement.state().vector().y(), 23.0F);
   EXPECT_FLOAT_EQ(measurement.measurement.covariance()(0, 0), 1.0F);
@@ -119,7 +121,7 @@ TEST(Measurement2dConversionTest, twist) {
   msg.twist.twist.linear.y = 42.0;
   msg.twist.covariance[0] = 3.0;
   msg.twist.covariance[7] = 4.0;
-  const auto measurement = message_to_measurement<StampedMeasurement2dSpeed32>(
+  const auto measurement = message_to_measurement<float32_t>(
     msg);
   EXPECT_FLOAT_EQ(measurement.measurement.state().vector()[0], 23.0F);
   EXPECT_FLOAT_EQ(measurement.measurement.state().vector()[1], 42.0F);

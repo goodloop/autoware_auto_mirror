@@ -49,24 +49,6 @@ MeasurementT transform_measurement(
     "Only specializations for transform_measurement() function are allowed!");
 }
 
-///
-/// @brief      Convenience function for converting a message into a measurement and transforming
-///             it into a different coordinate frame.
-///
-/// @tparam     MeasurementT  Type of measurement.
-/// @tparam     MessageT      Type of ROS 2 message.
-///
-/// @return     The measurement created from a message.
-///
-template<typename MeasurementT, typename MessageT>
-MeasurementT message_to_transformed_measurement(
-  const MessageT & msg,
-  const Eigen::Isometry3f & tf__world__frame_id)
-{
-  const auto measurement = message_to_measurement<MeasurementT, MessageT>(msg);
-  return transform_measurement(measurement, tf__world__frame_id);
-}
-
 // Doxygen is buggy when the parameters are repeated here, so they are omitted.
 
 ///

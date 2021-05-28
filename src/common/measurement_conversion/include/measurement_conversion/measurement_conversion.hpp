@@ -80,8 +80,8 @@ MEASUREMENT_CONVERSION_PUBLIC Measurement2dPose<ScalarT> message_to_measurement(
 ///
 /// @return     The measurement containing speed.
 ///
-template<>
-MEASUREMENT_CONVERSION_PUBLIC StampedMeasurement2dSpeed32 message_to_measurement(
+template<typename ScalarT>
+MEASUREMENT_CONVERSION_PUBLIC StampedMeasurement2dSpeed<ScalarT> message_to_measurement(
   const geometry_msgs::msg::TwistWithCovarianceStamped & msg);
 
 ///
@@ -91,8 +91,8 @@ MEASUREMENT_CONVERSION_PUBLIC StampedMeasurement2dSpeed32 message_to_measurement
 ///
 /// @return     The measurement containing pose.
 ///
-template<>
-MEASUREMENT_CONVERSION_PUBLIC StampedMeasurement2dPose32 message_to_measurement(
+template<typename ScalarT>
+MEASUREMENT_CONVERSION_PUBLIC StampedMeasurement2dPose<ScalarT> message_to_measurement(
   const geometry_msgs::msg::PoseWithCovarianceStamped & msg);
 
 ///
@@ -102,8 +102,8 @@ MEASUREMENT_CONVERSION_PUBLIC StampedMeasurement2dPose32 message_to_measurement(
 ///
 /// @return     The measurement containing the relative position.
 ///
-template<>
-MEASUREMENT_CONVERSION_PUBLIC StampedMeasurement2dPose32 message_to_measurement(
+template<typename ScalarT>
+MEASUREMENT_CONVERSION_PUBLIC StampedMeasurement2dPose<ScalarT> message_to_measurement(
   const autoware_auto_msgs::msg::RelativePositionWithCovarianceStamped & msg);
 
 ///
@@ -113,8 +113,8 @@ MEASUREMENT_CONVERSION_PUBLIC StampedMeasurement2dPose32 message_to_measurement(
 ///
 /// @return     The measurement containing pose and speed.
 ///
-template<>
-MEASUREMENT_CONVERSION_PUBLIC StampedMeasurement2dPoseAndSpeed32 message_to_measurement(
+template<typename ScalarT>
+MEASUREMENT_CONVERSION_PUBLIC StampedMeasurement2dPoseAndSpeed<ScalarT> message_to_measurement(
   const nav_msgs::msg::Odometry & msg);
 
 }  // namespace state_estimation
