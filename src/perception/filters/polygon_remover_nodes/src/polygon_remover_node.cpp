@@ -108,7 +108,7 @@ PolygonRemoverNode::PolygonRemoverNode(const rclcpp::NodeOptions & options)
         // Set polygon from callback
         sub_polygon_ptr_ =
           this->create_subscription<Polygon>(
-          declare_parameter("topic_name_polygon_sub").get<std::string>(),
+          "cloud_polygon_removed",
           rclcpp::QoS(rclcpp::KeepLast(1)),
           std::bind(
             &PolygonRemoverNode::callback_polygon,
