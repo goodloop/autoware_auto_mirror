@@ -35,7 +35,7 @@ std::string toStrInfo(const VehicleKinematicState & state)
   return ss.str();
 }
 
-static constexpr float COM_TO_BASELINK = 1.5f;
+static constexpr float32_t COM_TO_BASELINK = 1.5f;
 class PubSubNode : public rclcpp::Node
 {
 public:
@@ -67,7 +67,7 @@ public:
 };
 
 VehicleControlCommand cmdGen(
-  const builtin_interfaces::msg::Time & t, float steer, float vel, float acc)
+  const builtin_interfaces::msg::Time & t, float32_t steer, float32_t vel, float32_t acc)
 {
   VehicleControlCommand cmd;
   cmd.stamp = t;
@@ -121,7 +121,7 @@ void sendCommand(
 VehicleKinematicState comToBaselink(const VehicleKinematicState & com)
 {
   auto baselink = com;
-  double yaw = motion::motion_common::to_angle(com.state.heading);
+  float64_t yaw = motion::motion_common::to_angle(com.state.heading);
   baselink.state.x -= COM_TO_BASELINK * static_cast<float>(std::cos(yaw));
   baselink.state.y -= COM_TO_BASELINK * static_cast<float>(std::sin(yaw));
   return baselink;
@@ -140,42 +140,42 @@ VehicleKinematicState comToBaselink(const VehicleKinematicState & com)
 //
 void isOnForward(const VehicleKinematicState & _state, const VehicleKinematicState & _init)
 {
-  float forward_thr = 1.0f;
+  float32_t forward_thr = 1.0f;
   auto state = comToBaselink(_state);
   auto init = comToBaselink(_init);
-  float dx = state.state.x - init.state.x;
+  float32_t dx = state.state.x - init.state.x;
   EXPECT_GT(dx, forward_thr) << "[curr] " << toStrInfo(state) << ", [init] " << toStrInfo(init);
 }
 
 void isOnBackward(const VehicleKinematicState & _state, const VehicleKinematicState & _init)
 {
-  float backward_thr = -1.0f;
+  float32_t backward_thr = -1.0f;
   auto state = comToBaselink(_state);
   auto init = comToBaselink(_init);
-  float dx = state.state.x - init.state.x;
+  float32_t dx = state.state.x - init.state.x;
   EXPECT_LT(dx, backward_thr) << "[curr] " << toStrInfo(state) << ", [init] " << toStrInfo(init);
 }
 
 void isOnForwardLeft(const VehicleKinematicState & _state, const VehicleKinematicState & _init)
 {
-  float forward_thr = 1.0f;
-  float left_thr = 0.1f;
+  float32_t forward_thr = 1.0f;
+  float32_t left_thr = 0.1f;
   auto state = comToBaselink(_state);
   auto init = comToBaselink(_init);
-  float dx = state.state.x - init.state.x;
-  float dy = state.state.y - init.state.y;
+  float32_t dx = state.state.x - init.state.x;
+  float32_t dy = state.state.y - init.state.y;
   EXPECT_GT(dx, forward_thr) << "[curr] " << toStrInfo(state) << ", [init] " << toStrInfo(init);
   EXPECT_GT(dy, left_thr) << "[curr] " << toStrInfo(state) << ", [init] " << toStrInfo(init);
 }
 
 void isOnBackwardRight(const VehicleKinematicState & _state, const VehicleKinematicState & _init)
 {
-  float backward_thr = -1.0f;
-  float right_thr = -0.1f;
+  float32_t backward_thr = -1.0f;
+  float32_t right_thr = -0.1f;
   auto state = comToBaselink(_state);
   auto init = comToBaselink(_init);
-  float dx = state.state.x - init.state.x;
-  float dy = state.state.y - init.state.y;
+  float32_t dx = state.state.x - init.state.x;
+  float32_t dy = state.state.y - init.state.y;
   EXPECT_LT(dx, backward_thr) << "[curr] " << toStrInfo(state) << ", [init] " << toStrInfo(init);
   EXPECT_LT(dy, right_thr) << "[curr] " << toStrInfo(state) << ", [init] " << toStrInfo(init);
 }
@@ -204,9 +204,9 @@ TEST(test_simple_planning_simulator_IDEAL_STEER_VEL, test_moving)
 
     const auto pub_sub_node = std::make_shared<PubSubNode>();
 
-    const float target_vel = 5.0f;
-    const float target_acc = 5.0f;
-    const float target_steer = 0.2f;
+    const float32_t target_vel = 5.0f;
+    const float32_t target_acc = 5.0f;
+    const float32_t target_steer = 0.2f;
 
     auto _resetInitialpose = [&]() {resetInitialpose(sim_node, pub_sub_node);};
     auto _sendFwdGear = [&]() {sendGear(VehicleStateCommand::GEAR_DRIVE, sim_node, pub_sub_node);};
