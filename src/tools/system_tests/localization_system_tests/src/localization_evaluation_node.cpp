@@ -18,8 +18,7 @@
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 #include <tf2_eigen/tf2_eigen.h>
 #include <Eigen/Geometry>
-#include <chrono>
-#include <ratio>
+#include <memory>
 #include <string>
 
 namespace localization_system_tests
@@ -27,20 +26,11 @@ namespace localization_system_tests
 
 LocalizationEvaluationNode::LocalizationEvaluationNode(
   const rclcpp::NodeOptions & options)
-: Node("localization_evaluator", options),
-  m_listener{m_tf_core},
-  m_localizer_pose_sub{
-    create_subscription<Pose>(
-      "localization/ndt_pose",
-      rclcpp::QoS{rclcpp::KeepLast{20U}},
-      [this](typename Pose::ConstSharedPtr msg) {localizer_callback(msg);}),
-  },
-  m_ground_truth_sub{
-  create_subscription<Pose>(
-    "/vehicle/odom_pose",
-    rclcpp::QoS{rclcpp::KeepLast{50U}},
-    [this](typename Pose::ConstSharedPtr msg) {ground_truth_callback(msg);}),
-} {
+: Node("localization_evaluator", options), m_pose_subscribers{
+    std::make_unique<message_filters::Subscriber<Pose>>(this, "localization/ndt_pose"),
+    std::make_unique<message_filters::Subscriber<Pose>>(this, "/vehicle/odom_pose")
+}
+{
   EigTransform estimate_offset;
   estimate_offset.setIdentity();
   estimate_offset.translate(
@@ -75,60 +65,40 @@ LocalizationEvaluationNode::LocalizationEvaluationNode(
     });
 
   m_ground_truth_to_estimate_tf = estimate_offset * gt_offset.inverse();
+
+  m_pose_synchronizer = std::make_unique<message_filters::Synchronizer<SyncPolicyT>>(
+    SyncPolicyT(50), *m_pose_subscribers[0], *m_pose_subscribers[1]);
+
+  m_pose_synchronizer->registerCallback(
+    std::bind(
+      &LocalizationEvaluationNode::evaluation_callback, this,
+      std::placeholders::_1, std::placeholders::_2));
+}
+
+void LocalizationEvaluationNode::evaluation_callback(
+  const Pose::ConstSharedPtr & estimate, const Pose::ConstSharedPtr & ground_truth)
+{
+  EigTransform estimate_eig;
+  EigTransform ground_truth_eig;
+  EigTransform ground_truth_in_map_frame_eig;
+
+  tf2::fromMsg(estimate->pose.pose, estimate_eig);
+  tf2::fromMsg(ground_truth->pose.pose, ground_truth_eig);
+
+  ground_truth_in_map_frame_eig = m_ground_truth_to_estimate_tf * ground_truth_eig;
+
+  compute_and_update_metrics(ground_truth_in_map_frame_eig, estimate_eig);
 }
 
 LocalizationEvaluationNode::~LocalizationEvaluationNode() noexcept
 {
   std::stringstream report;
-  const std::chrono::nanoseconds duration = m_end_tp - m_start_tp;
-  const auto duration_in_ms =
-    static_cast<float64_t>((m_end_tp - m_start_tp).count() * std::milli::den) /
-    std::nano::den;
-
-  const auto avg_localization_dur =
-    duration_in_ms / static_cast<float64_t>(m_num_computed + m_estimates.size());
-
 
   report <<
-    "Average period of the received localization estimates: " << avg_localization_dur << " ms." <<
-    std::endl <<
-    "Processed " << m_num_computed << " samples. Left out " << m_estimates.size() <<
-    " estimates." << std::endl <<
+    "Processed " << m_num_computed << " samples." << std::endl <<
     "Average translation error: " << m_average_translation_err << " meters." << std::endl <<
     "Average rotation error: " << m_average_rotation_err << " radians." << std::endl;
   RCLCPP_INFO(get_logger(), report.str());
-}
-
-void LocalizationEvaluationNode::ground_truth_callback(Pose::ConstSharedPtr & ground_truth)
-{
-  // Check if there's a correspondence in ground truth
-  const auto it = m_estimates.find(*ground_truth);
-  // Assume unique
-  if (it != m_estimates.end()) {
-    compute(*it, *ground_truth);
-    // remove
-    (void)m_estimates.erase(it);
-  } else {  // insert
-    (void)m_ground_truths.insert(*ground_truth);
-  }
-}
-
-void LocalizationEvaluationNode::localizer_callback(Pose::ConstSharedPtr & estimate)
-{
-  if (m_start_tp == std::chrono::steady_clock::time_point::min()) {
-    m_start_tp = std::chrono::steady_clock::now();
-  }
-  m_end_tp = std::chrono::steady_clock::now();
-  // Check if there's a correspondence in ground truth
-  const auto it = m_ground_truths.find(*estimate);
-  // Assume unique
-  if (it != m_ground_truths.end()) {
-    compute(*estimate, *it);
-    // remove
-    (void)m_ground_truths.erase(it);
-  } else {  // insert
-    (void)m_estimates.insert(*estimate);
-  }
 }
 
 LocalizationEvaluationNode::float64_t
@@ -166,21 +136,6 @@ void LocalizationEvaluationNode::compute_and_update_metrics(
   m_average_rotation_err = get_new_average(m_average_rotation_err, rotation_err);
 
   ++m_num_computed;
-}
-
-
-void LocalizationEvaluationNode::compute(const Pose & estimate, const Pose & ground_truth)
-{
-  EigTransform estimate_eig;
-  EigTransform ground_truth_eig;
-  EigTransform ground_truth_in_map_frame_eig;
-
-  tf2::fromMsg(estimate.pose.pose, estimate_eig);
-  tf2::fromMsg(ground_truth.pose.pose, ground_truth_eig);
-
-  ground_truth_in_map_frame_eig = m_ground_truth_to_estimate_tf * ground_truth_eig;
-
-  compute_and_update_metrics(ground_truth_in_map_frame_eig, estimate_eig);
 }
 }  // namespace localization_system_tests
 
