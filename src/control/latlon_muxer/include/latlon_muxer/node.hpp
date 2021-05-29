@@ -18,6 +18,8 @@
 #include <memory>
 #include <string>
 
+#include "latlon_muxer/visibility_control.hpp"
+
 #include "autoware_auto_msgs/msg/ackermann_control_command.hpp"
 #include "autoware_auto_msgs/msg/ackermann_lateral_command.hpp"
 #include "autoware_auto_msgs/msg/longitudinal_command.hpp"
@@ -40,7 +42,7 @@ namespace latlon_muxer
 class LatLonMuxer : public rclcpp::Node
 {
 public:
-  explicit LatLonMuxer(const rclcpp::NodeOptions & node_options);
+  explicit LATLON_MUXER_PUBLIC LatLonMuxer(const rclcpp::NodeOptions & node_options);
 
 private:
   // \brief Callback for the lateral control command
