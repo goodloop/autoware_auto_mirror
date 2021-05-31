@@ -66,6 +66,14 @@ LgsvlInterfaceNode::LgsvlInterfaceNode(
     [this](autoware_auto_msgs::msg::HeadlightsReport::SharedPtr msg)
     {m_headlights_report_pub->publish(*msg);});
 
+  m_gear_report_pub = create_publisher<autoware_auto_msgs::msg::GearReport>(
+    "/vehicle/gear_report", rclcpp::QoS{10U});
+
+  m_gear_report_sub = create_subscription<autoware_auto_msgs::msg::GearReport>(
+    "/lgsvl/gear_report", rclcpp::QoS{10U},
+    [this](autoware_auto_msgs::msg::GearReport::SharedPtr msg)
+    {m_gear_report_pub->publish(*msg);});
+
   // Set up interface
   set_interface(
     std::make_unique<LgsvlInterface>(
@@ -81,6 +89,7 @@ LgsvlInterfaceNode::LgsvlInterfaceNode(
       table("brake"),
       table("steer"),
       m_headlights_report_pub,
+      m_gear_report_pub,
       pub_tf,
       pub_pose
   ));

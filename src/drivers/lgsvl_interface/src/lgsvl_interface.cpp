@@ -29,6 +29,8 @@
 
 #include "lgsvl_interface/lgsvl_interface.hpp"
 
+#include "autoware_auto_msgs/msg/gear_report.hpp"
+
 #include "autoware_auto_msgs/msg/headlights_command.hpp"
 #include "autoware_auto_msgs/msg/headlights_report.hpp"
 
@@ -312,6 +314,10 @@ bool8_t LgsvlInterface::send_state_command(const autoware_auto_msgs::msg::Vehicl
   autoware_auto_msgs::msg::HeadlightsReport headlights_report;
   headlights_report.report = msg_corrected.headlight;
   m_headlights_report_pub->publish(headlights_report);
+
+  autoware_auto_msgs::msg::GearReport gear_report;
+  gear_report.report = msg_corrected.gear;
+  m_gear_report_pub->publish(gear_report);
 
   return true;
 }

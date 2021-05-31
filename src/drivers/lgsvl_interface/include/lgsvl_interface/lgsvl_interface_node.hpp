@@ -25,6 +25,8 @@
 #include <chrono>
 #include <string>
 
+#include "autoware_auto_msgs/msg/gear_report.hpp"
+
 #include "autoware_auto_msgs/msg/headlights_report.hpp"
 
 namespace lgsvl_interface
@@ -43,6 +45,11 @@ public:
   rclcpp::Publisher<autoware_auto_msgs::msg::HeadlightsReport>::SharedPtr m_headlights_report_pub{};
 
   rclcpp::Subscription<autoware_auto_msgs::msg::HeadlightsReport>::SharedPtr m_headlights_report_sub
+  {};
+
+  rclcpp::Publisher<autoware_auto_msgs::msg::GearReport>::SharedPtr m_gear_report_pub{};
+
+  rclcpp::Subscription<autoware_auto_msgs::msg::GearReport>::SharedPtr m_gear_report_sub
   {};
 };  // class LgsvlInterfaceNode
 }  // namespace lgsvl_interface

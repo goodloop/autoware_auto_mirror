@@ -46,6 +46,9 @@ protected:
     auto headlights_report_pub = node_->create_publisher<
       autoware_auto_msgs::msg::HeadlightsReport>(
       "/vehicle/headlights_report", rclcpp::QoS{10U});
+    auto gear_report_pub = node_->create_publisher<
+      autoware_auto_msgs::msg::GearReport>(
+      "/vehicle/gear_report", rclcpp::QoS{10U});
 
     lgsvl_interface_ = std::make_unique<lgsvl_interface::LgsvlInterface>(
       *node_,
@@ -59,7 +62,8 @@ protected:
       Table1D({0.0, 3.0}, {0.0, 100.0}),
       Table1D({-3.0, 0.0}, {100.0, 0.0}),
       Table1D({-0.331, 0.331}, {-100.0, 100.0}),
-      headlights_report_pub);
+      headlights_report_pub,
+      gear_report_pub);
 
     broadcaster_ = std::make_unique<tf2_ros::StaticTransformBroadcaster>(node_);
 

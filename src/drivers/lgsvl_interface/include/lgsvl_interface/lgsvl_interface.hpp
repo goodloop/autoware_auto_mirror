@@ -105,6 +105,7 @@ public:
     Table1D && brake_table,
     Table1D && steer_table,
     rclcpp::Publisher<autoware_auto_msgs::msg::HeadlightsReport>::SharedPtr headlights_report_pub,
+    rclcpp::Publisher<autoware_auto_msgs::msg::GearReport>::SharedPtr gear_report_pub,
     bool publish_tf = NO_PUBLISH,
     bool publish_pose = PUBLISH);
 
@@ -143,6 +144,7 @@ private:
   rclcpp::Publisher<tf2_msgs::msg::TFMessage>::SharedPtr m_tf_pub{};
   rclcpp::Publisher<geometry_msgs::msg::PoseWithCovarianceStamped>::SharedPtr m_pose_pub{};
   rclcpp::Publisher<autoware_auto_msgs::msg::HeadlightsReport>::SharedPtr m_headlights_report_pub{};
+  rclcpp::Publisher<autoware_auto_msgs::msg::GearReport>::SharedPtr m_gear_report_pub{};
 
   rclcpp::Subscription<nav_msgs::msg::Odometry>::SharedPtr m_nav_odom_sub{};
   rclcpp::Subscription<lgsvl_msgs::msg::CanBusData>::SharedPtr m_state_sub{};
