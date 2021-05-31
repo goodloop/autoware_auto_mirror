@@ -20,6 +20,8 @@
 
 #include <lgsvl_interface/visibility_control.hpp>
 
+#include <autoware_auto_msgs/msg/gear_report.hpp>
+
 #include <autoware_auto_msgs/msg/headlights_command.hpp>
 #include <autoware_auto_msgs/msg/headlights_report.hpp>
 #include <autoware_auto_msgs/msg/raw_control_command.hpp>
