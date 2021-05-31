@@ -23,17 +23,17 @@ using autoware::common::state_estimation::downscale_isometry;
 
 /// \test Check that we can downscale a trivial isometry.
 TEST(Measurement2dConversionTest, trivial_isometry_downscaling) {
-  const auto isometry = downscale_isometry<2>(Eigen::Isometry3f::Identity());
-  EXPECT_TRUE(isometry.isApprox(Eigen::Isometry2f::Identity()));
+  const auto isometry = downscale_isometry<2>(Eigen::Isometry3d::Identity());
+  EXPECT_TRUE(isometry.isApprox(Eigen::Isometry2d::Identity()));
 }
 
 /// \test Check that we can downscale an isometry.
 TEST(Measurement2dConversionTest, isometry_downscaling) {
-  Eigen::Isometry3f initial_isometry;
+  Eigen::Isometry3d initial_isometry;
   initial_isometry.linear() =
-    Eigen::AngleAxisf{autoware::common::types::PI, Eigen::Vector3f::UnitZ()} *Eigen::Scaling(1.0F);
+    Eigen::AngleAxisd{autoware::common::types::PI, Eigen::Vector3d::UnitZ()} *Eigen::Scaling(1.0);
   const auto isometry = downscale_isometry<2>(initial_isometry);
-  Eigen::Matrix2f expected_rotation = Eigen::Rotation2Df(autoware::common::types::PI) *
-    Eigen::Scaling(1.0F);
+  Eigen::Matrix2d expected_rotation = Eigen::Rotation2Dd(autoware::common::types::PI) *
+    Eigen::Scaling(1.0);
   EXPECT_TRUE(isometry.linear().isApprox(expected_rotation));
 }

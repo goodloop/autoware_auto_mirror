@@ -34,6 +34,16 @@ struct Stamped
 {
   std::chrono::system_clock::time_point timestamp;
   MeasurementT measurement;
+
+  template<typename NewScalarT>
+  auto cast() const noexcept
+  {
+    using NewMeasurementT = decltype(measurement.template cast<NewScalarT>());
+    return Stamped<NewMeasurementT> {
+      timestamp,
+      measurement.template cast<NewScalarT>()
+    };
+  }
 };
 
 template<typename ScalarT>
