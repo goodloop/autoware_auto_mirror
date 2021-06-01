@@ -41,7 +41,7 @@ if(BUILD_TESTING)
   ament_lint_auto_find_test_dependencies()
 
   find_package(autoware_testing REQUIRED)
-  add_smoke_test("point_cloud_fusion_nodes" "pointcloud_fusion_node_exe")
+  add_smoke_test(${PROJECT_NAME} ${PC_FUSION_LIB}_exe)
 
   # gtest
   set(PCF_GTEST pointcloud_fusion_gtest)

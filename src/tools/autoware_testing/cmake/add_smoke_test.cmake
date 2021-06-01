@@ -15,13 +15,15 @@
 # Developed by Robotec.ai
 
 # Add a smoke test
-# see ros_testing package for add_ros_test arguments
-# see smoke_test.py for smoke test launch arguments
+# :param package_name: name of the package to smoke test
+# :type package_name: string
+# :param package_exec: package executable to run during smoke test
+# :type package_exec: string
 
 function(add_smoke_test package_name package_exec)
   add_ros_test(
-    ${autoware_testing_DIR}/../autoware_testing/smoke_test.py 
-    TARGET "smoke_test" 
+    ${autoware_testing_DIR}/../autoware_testing/smoke_test.py
+    TARGET "smoke_test"
     ARGS "arg_package:=${package_name}" "arg_package_exe:=${package_exec}"
     TIMEOUT "30"
   )

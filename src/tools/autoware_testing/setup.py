@@ -15,7 +15,7 @@ setup(
     zip_safe=True,
     maintainer='Adam Dabrowski',
     maintainer_email='adam.dabrowski@robotec.ai',
-    description='Tools for launch testing',
+    description='Tools for handling standard tests based on ros_testing',
     license='Apache 2.0',
     tests_require=['pytest'],
     entry_points={

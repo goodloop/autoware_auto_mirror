@@ -5,12 +5,12 @@ This is the design document for the `autoware_testing` package.
 
 # Purpose / Use cases
 
-The package aims to provide an unified way to add standard testing functionality to the package, currently supporting:
-- Smoke testing (add_smoke_test)
+The package aims to provide a unified way to add standard testing functionality to the package, currently supporting:
+- Smoke testing (add_smoke_test): launch a node with default configuration and ensure that it starts up and does not crash.
 
 # Design
 
-Uses ros_testing (which is an extension of launch_testing) and provides some parametrized, reusable standard tests to run.
+Uses `ros_testing` (which is an extension of `launch_testing`) and provides some parametrized, reusable standard tests to run.
 
 ## Assumptions / Known limits
 
@@ -36,4 +36,4 @@ Extending parametrization of smoke test.
 Adding more types of standard tests.
 
 # Related issues
-Issue #700
+- Issue #700: add smoke test
