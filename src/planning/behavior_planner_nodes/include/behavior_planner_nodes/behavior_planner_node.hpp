@@ -118,7 +118,7 @@ private:
   void on_route(const HADMapRoute::SharedPtr & msg);
   void on_lane_trajectory(const Trajectory::SharedPtr & msg);
   void on_parking_trajectory(const Trajectory::SharedPtr & msg);
-  void on_vehicle_state_report(const VehicleStateReport::SharedPtr & msg);
+  void on_gear_report(const GearReport::SharedPtr & msg);
   void map_response(rclcpp::Client<HADMapService>::SharedFuture future);
   void modify_trajectory_response(rclcpp::Client<ModifyTrajectory>::SharedFuture future);
   void clear_trajectory_cache();
