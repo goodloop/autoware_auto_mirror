@@ -15,7 +15,7 @@
 #include <functional>
 #include <memory>
 
-#include "latlon_muxer/node.hpp"
+#include "trajectory_follower_nodes/latlon_muxer_node.hpp"
 
 namespace autoware
 {
@@ -23,7 +23,7 @@ namespace motion
 {
 namespace control
 {
-namespace latlon_muxer
+namespace trajectory_follower_nodes
 {
 
 LatLonMuxer::LatLonMuxer(const rclcpp::NodeOptions & node_options)
@@ -94,9 +94,9 @@ void LatLonMuxer::lonCtrlCmdCallback(
   m_lon_cmd = std::make_shared<autoware_auto_msgs::msg::LongitudinalCommand>(*input_msg);
   publishCmd();
 }
-}  // namespace latlon_muxer
+}  // namespace trajectory_follower_nodes
 }  // namespace control
 }  // namespace motion
 }  // namespace autoware
 
-RCLCPP_COMPONENTS_REGISTER_NODE(autoware::motion::control::latlon_muxer::LatLonMuxer)
+RCLCPP_COMPONENTS_REGISTER_NODE(autoware::motion::control::trajectory_follower_nodes::LatLonMuxer)

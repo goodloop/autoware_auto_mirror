@@ -12,13 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef LATLON_MUXER__NODE_HPP_
-#define LATLON_MUXER__NODE_HPP_
+#ifndef TRAJECTORY_FOLLOWER_NODES__LATLON_MUXER_NODE_HPP_
+#define TRAJECTORY_FOLLOWER_NODES__LATLON_MUXER_NODE_HPP_
 
 #include <memory>
 #include <string>
 
-#include "latlon_muxer/visibility_control.hpp"
+#include "trajectory_follower_nodes/visibility_control.hpp"
 
 #include "autoware_auto_msgs/msg/ackermann_control_command.hpp"
 #include "autoware_auto_msgs/msg/ackermann_lateral_command.hpp"
@@ -34,15 +34,15 @@ namespace motion
 {
 namespace control
 {
-/// \brief Resources relating to the latlon_muxer package
-namespace latlon_muxer
+/// \brief Resources relating to the trajectory_follower_nodes package
+namespace trajectory_follower_nodes
 {
 /// \class LatLonMuxer
 /// \brief The node class used for muxing lateral and longitudinal messages
 class LatLonMuxer : public rclcpp::Node
 {
 public:
-  explicit LATLON_MUXER_PUBLIC LatLonMuxer(const rclcpp::NodeOptions & node_options);
+  explicit TRAJECTORY_FOLLOWER_PUBLIC LatLonMuxer(const rclcpp::NodeOptions & node_options);
 
 private:
   // \brief Callback for the lateral control command
@@ -66,9 +66,9 @@ private:
   // \brief Timeout duration in seconds
   double m_timeout_thr_sec;
 };  // class LatLonMuxer
-}  // namespace latlon_muxer
+}  // namespace trajectory_follower_nodes
 }  // namespace control
 }  // namespace motion
 }  // namespace autoware
 
-#endif  // LATLON_MUXER__NODE_HPP_
+#endif  // TRAJECTORY_FOLLOWER_NODES__LATLON_MUXER_NODE_HPP_

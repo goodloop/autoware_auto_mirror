@@ -13,21 +13,22 @@
 # limitations under the License.
 
 cmake_minimum_required(VERSION 3.5)
-project(latlon_muxer)
+project(trajectory_follower_nodes)
 
 find_package(ament_cmake_auto REQUIRED)
 ament_auto_find_build_dependencies()
 
-ament_auto_add_library(${PROJECT_NAME} SHARED
-  include/latlon_muxer/node.hpp
-  src/node.cpp
+set(LATLON_MUXER_NODE latlon_muxer_node)
+ament_auto_add_library(${LATLON_MUXER_NODE} SHARED
+  include/trajectory_follower_nodes/latlon_muxer_node.hpp
+  src/latlon_muxer_node.cpp
 )
 
-autoware_set_compile_options(${PROJECT_NAME})
+autoware_set_compile_options(${LATLON_MUXER_NODE})
 # TODO(latlon_muxer) : RCLCPP_ERROR_THROTTLE() has built-in old-style casts.
 # TODO(latlon_muxer) : Temporary workaround until this is fixed.
-target_compile_options(${PROJECT_NAME} PRIVATE -Wno-error=old-style-cast)
-rclcpp_components_register_node(${PROJECT_NAME} PLUGIN "autoware::motion::control::latlon_muxer::LatLonMuxer" EXECUTABLE ${PROJECT_NAME}_exe)
+target_compile_options(${LATLON_MUXER_NODE} PRIVATE -Wno-error=old-style-cast)
+rclcpp_components_register_node(${LATLON_MUXER_NODE} PLUGIN "autoware::motion::control::latlon_muxer::LatLonMuxer" EXECUTABLE ${LATLON_MUXER_NODE}_exe)
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
@@ -37,7 +38,7 @@ if(BUILD_TESTING)
   ament_add_gtest(${LATLON_MUXER_TEST} test/test_latlon_muxer_node.cpp)
   target_compile_options(${LATLON_MUXER_TEST} PRIVATE -Wno-error=old-style-cast)
   autoware_set_compile_options(${LATLON_MUXER_TEST})
-  target_link_libraries(${LATLON_MUXER_TEST} ${PROJECT_NAME})
+  target_link_libraries(${LATLON_MUXER_TEST} ${LATLON_MUXER_NODE})
 
   add_ros_test(
     test/test_latlon_muxer_node_launch.py

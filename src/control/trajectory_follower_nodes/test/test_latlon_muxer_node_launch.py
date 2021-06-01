@@ -26,13 +26,13 @@ import unittest
 def generate_test_description():
 
     latlon_muxer_node = Node(
-        package="latlon_muxer",
-        executable="latlon_muxer_exe",
+        package="trajectory_follower_nodes",
+        executable="latlon_muxer_node_exe",
         name="latlon_muxer",
         parameters=[
             os.path.join(
-                get_package_share_directory('latlon_muxer'),
-                'param/defaults.yaml'
+                get_package_share_directory('trajectory_follower_nodes'),
+                'param/latlon_muxer_defaults.yaml'
             )
         ]
     )

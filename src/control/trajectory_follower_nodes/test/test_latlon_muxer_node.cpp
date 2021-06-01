@@ -15,7 +15,7 @@
 #include <memory>
 #include <vector>
 
-#include "latlon_muxer/node.hpp"
+#include "trajectory_follower_nodes/latlon_muxer_node.hpp"
 
 #include "autoware_auto_msgs/msg/ackermann_control_command.hpp"
 #include "autoware_auto_msgs/msg/ackermann_lateral_command.hpp"
@@ -26,7 +26,7 @@
 
 #include "gtest/gtest.h"
 
-using LatLonMuxer = autoware::motion::control::latlon_muxer::LatLonMuxer;
+using LatLonMuxer = autoware::motion::control::trajectory_follower_nodes::LatLonMuxer;
 using LateralCommand = autoware_auto_msgs::msg::AckermannLateralCommand;
 using LongitudinalCommand = autoware_auto_msgs::msg::LongitudinalCommand;
 using ControlCommand = autoware_auto_msgs::msg::AckermannControlCommand;
