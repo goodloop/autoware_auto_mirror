@@ -235,7 +235,7 @@ void PurePursuit::compute_interpolate_target_point(
 ////////////////////////////////////////////////////////////////////////////////
 bool8_t PurePursuit::compute_target_point(const TrajectoryPoint & current_point)
 {
-  uint32_t idx = 0u;
+  auto idx = static_cast<uint32_t>(get_current_state_spatial_index());
   bool8_t is_travel_direct = false;
   uint32_t last_idx_for_noupdate = 0U;
   const auto & traj = get_reference_trajectory();
