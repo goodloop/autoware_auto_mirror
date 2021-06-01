@@ -57,7 +57,7 @@ TEST(Measurement2dConversionTest, odom) {
   EXPECT_DOUBLE_EQ(measurement.measurement.covariance()(x_idx, x_idx), 1.0);
   EXPECT_DOUBLE_EQ(measurement.measurement.covariance()(y_idx, y_idx), 2.0);
 
-  const auto kPrecision = 0.000001;
+  const auto kPrecision = 0.00001;
   // Note that the expected values for x and y are switched because of the 90 deg rotation.
   EXPECT_NEAR(measurement.measurement.state().at<X_VELOCITY>(), -42.0, kPrecision);
   EXPECT_NEAR(measurement.measurement.state().at<Y_VELOCITY>(), 23.0, kPrecision);
