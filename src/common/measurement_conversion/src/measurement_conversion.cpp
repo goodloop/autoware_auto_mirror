@@ -151,8 +151,7 @@ StampedMeasurement2dPoseAndSpeed64 message_to_measurement(
     covariance.bottomRightCorner(2, 2) *
     rx__msg_frame_id__msg_child_frame_id.transpose();
 
-  Eigen::Vector4d mean;
-  mean << pos_state, speed;
+  const Eigen::Vector4d mean = (Eigen::Vector4d{} << pos_state, speed).finished();
   return StampedMeasurement2dPoseAndSpeed64{
     to_time_point(msg.header.stamp),
     Measurement2dPoseAndSpeed64{mean, covariance}};
