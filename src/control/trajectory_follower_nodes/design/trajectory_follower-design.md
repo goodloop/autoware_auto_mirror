@@ -1,4 +1,4 @@
-Trajectory Follower {#trajectory-follower}
+Trajectory Follower Package {#trajectory-follower-package-design}
 =============================================
 
 # Purpose
@@ -13,4 +13,4 @@ This functionality is decomposed into three nodes.
 - [`LatLonMuxer`](latlon_muxer-design.md): combines the lateral and longitudinal control commands
 into a single control command.
 
-![Image of Yaktocat](trajectory_follower-diagram.png)
+@image html images/trajectory_follower-diagram.png "Overview of the Trajectory Follower package"

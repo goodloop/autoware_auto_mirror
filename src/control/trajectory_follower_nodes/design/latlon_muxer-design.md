@@ -1,4 +1,4 @@
-Lateral/Longitudinal Control Muxer {#latlon-muxer}
+Lateral/Longitudinal Control Muxer {#latlon-muxer-design}
 =============================================
 
 # Purpose
