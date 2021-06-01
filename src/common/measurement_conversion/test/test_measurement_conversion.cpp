@@ -58,13 +58,13 @@ TEST(Measurement2dConversionTest, odom) {
   EXPECT_DOUBLE_EQ(measurement.measurement.covariance()(y_idx, y_idx), 2.0);
 
   // Note that the expected values for x and y are switched because of the 90 deg rotation.
-  EXPECT_DOUBLE_EQ(measurement.measurement.state().at<X_VELOCITY>(), -42.0);
-  EXPECT_DOUBLE_EQ(measurement.measurement.state().at<Y_VELOCITY>(), 23.0);
+  EXPECT_NEAR(measurement.measurement.state().at<X_VELOCITY>(), -42.0, 0.000001);
+  EXPECT_NEAR(measurement.measurement.state().at<Y_VELOCITY>(), 23.0, 0.000001);
   // Note that the expected values for x and y are switched because of the 90 deg rotation.
   const auto x_speed_idx = measurement.measurement.state().index_of<X_VELOCITY>();
   const auto y_speed_idx = measurement.measurement.state().index_of<Y_VELOCITY>();
-  EXPECT_DOUBLE_EQ(measurement.measurement.covariance()(x_speed_idx, x_speed_idx), 4.0);
-  EXPECT_DOUBLE_EQ(measurement.measurement.covariance()(y_speed_idx, y_speed_idx), 3.0);
+  EXPECT_NEAR(measurement.measurement.covariance()(x_speed_idx, x_speed_idx), 4.0, 0.000001);
+  EXPECT_NEAR(measurement.measurement.covariance()(y_speed_idx, y_speed_idx), 3.0, 0.000001);
 
   EXPECT_EQ(measurement.timestamp.time_since_epoch(), std::chrono::seconds{42LL});
 }
