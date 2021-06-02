@@ -212,7 +212,7 @@ void MultiObjectTracker::transform(
       // An even more accurate implementation could additionally include the odometry covariance.
       Eigen::Map<Eigen::Matrix<double, 3, 3, Eigen::RowMajor>> cov(
         detection.kinematics.position_covariance.data());
-      cov.topLeftCorner<3, 3>() = rot_d * cov.topLeftCorner<3, 3>() * rot_d.transpose();
+      cov = rot_d * cov * rot_d.transpose();
     }
     // Transform the twist.
     if (detection.kinematics.has_twist) {
