@@ -31,6 +31,8 @@
 
 #include "autoware_auto_msgs/msg/headlights_command.hpp"
 #include "autoware_auto_msgs/msg/headlights_report.hpp"
+#include "autoware_auto_msgs/msg/wipers_command.hpp"
+#include "autoware_auto_msgs/msg/wipers_report.hpp"
 
 using autoware::common::types::bool8_t;
 using autoware::common::types::float64_t;
@@ -39,9 +41,9 @@ using namespace std::chrono_literals;
 
 namespace lgsvl_interface
 {
-
 using autoware_auto_msgs::msg::HeadlightsCommand;
 using autoware_auto_msgs::msg::HeadlightsReport;
+using autoware_auto_msgs::msg::WipersCommand;
 
 const std::unordered_map<WIPER_TYPE, WIPER_TYPE> LgsvlInterface::autoware_to_lgsvl_wiper {
   {WipersCommand::NO_COMMAND, static_cast<WIPER_TYPE>(VSD::WIPERS_OFF)},
