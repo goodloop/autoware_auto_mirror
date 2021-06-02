@@ -109,6 +109,9 @@ TEST_F(TestFilterNodeBase, test_filter) {
     "input",
     rclcpp::QoS(10));
 
+  // Adding sleep to wwait for the discovery process to occur
+  std::this_thread::sleep_for(std::chrono::seconds(1));
+
   // Check that the filter method in the MockFilterNodeBase class has been called at least once
   EXPECT_CALL(*mock_filter_node_base, filter(_, _)).Times(AtLeast(1));
   // Publish cloud
