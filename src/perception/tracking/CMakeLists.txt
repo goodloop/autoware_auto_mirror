@@ -35,6 +35,7 @@ set(TRACKING_LIB_SRC
   src/multi_object_tracker.cpp
   src/tracked_object.cpp
   src/projection.cpp
+  src/roi_association.cpp
 )
 
 set(TRACKING_LIB_HEADERS
@@ -66,6 +67,7 @@ if(BUILD_TESTING)
     test/test_projection.cpp
     test/test_multi_object_tracker.cpp
     test/test_tracked_object.cpp
+    test/test_roi_association.cpp
   )
   set(TEST_TRACKING_EXE test_multi_object_tracker)
   ament_add_gtest(${TEST_TRACKING_EXE} ${TEST_SOURCES})
