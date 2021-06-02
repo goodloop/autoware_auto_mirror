@@ -22,6 +22,7 @@
 
 #include <autoware_auto_msgs/msg/headlights_command.hpp>
 #include <autoware_auto_msgs/msg/headlights_report.hpp>
+#include <autoware_auto_msgs/msg/wipers_report.hpp>
 #include <autoware_auto_msgs/msg/raw_control_command.hpp>
 #include <autoware_auto_msgs/msg/vehicle_kinematic_state.hpp>
 #include <autoware_auto_msgs/msg/vehicle_state_command.hpp>
@@ -103,6 +104,7 @@ public:
     Table1D && brake_table,
     Table1D && steer_table,
     rclcpp::Publisher<autoware_auto_msgs::msg::HeadlightsReport>::SharedPtr headlights_report_pub,
+    rclcpp::Publisher<autoware_auto_msgs::msg::WipersReport>::SharedPtr wipers_report_pub,
     bool publish_tf = NO_PUBLISH,
     bool publish_pose = PUBLISH);
 

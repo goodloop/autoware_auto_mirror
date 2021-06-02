@@ -21,6 +21,7 @@
 #include <common/types.hpp>
 #include <autoware_auto_msgs/msg/headlights_command.hpp>
 #include <autoware_auto_msgs/msg/headlights_report.hpp>
+#include <autoware_auto_msgs/msg/wipers_command.hpp>
 #include <autoware_auto_msgs/msg/raw_control_command.hpp>
 #include <autoware_auto_msgs/msg/vehicle_control_command.hpp>
 #include <autoware_auto_msgs/msg/vehicle_odometry.hpp>
@@ -114,6 +115,8 @@ public:
   virtual void send_headlights_command(const HeadlightsCommand & msg);
 
   virtual void on_headlights_command(const autoware_auto_msgs::msg::HeadlightsCommand &);
+
+  virtual void on_wipers_command(const autoware_auto_msgs::msg::WipersCommand &);
 
 protected:
   /// Get the underlying state report for modification
