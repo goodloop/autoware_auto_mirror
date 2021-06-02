@@ -40,6 +40,9 @@ using namespace std::chrono_literals;
 namespace lgsvl_interface
 {
 
+using autoware_auto_msgs::msg::HeadlightsCommand;
+using autoware_auto_msgs::msg::HeadlightsReport;
+
 const std::unordered_map<WIPER_TYPE, WIPER_TYPE> LgsvlInterface::autoware_to_lgsvl_wiper {
   {VSC::WIPER_NO_COMMAND, static_cast<WIPER_TYPE>(VSD::WIPERS_OFF)},
   {VSC::WIPER_OFF, static_cast<WIPER_TYPE>(VSD::WIPERS_OFF)},
@@ -75,7 +78,7 @@ LgsvlInterface::LgsvlInterface(
   Table1D && throttle_table,
   Table1D && brake_table,
   Table1D && steer_table,
-  rclcpp::Publisher<autoware_auto_msgs::msg::HeadlightsReport>::SharedPtr headlights_report_pub,
+  rclcpp::Publisher<HeadlightsReport>::SharedPtr headlights_report_pub,
   bool publish_tf,
   bool publish_pose)
 : m_headlights_report_pub{headlights_report_pub},
@@ -166,16 +169,16 @@ LgsvlInterface::LgsvlInterface(
         state_report.set__blinker(autoware_auto_msgs::msg::VehicleStateReport::BLINKER_OFF);
       }
 
-      autoware_auto_msgs::msg::HeadlightsReport headlights_report;
+      HeadlightsReport headlights_report;
       if (msg->low_beams_active) {
         state_report.set__headlight(autoware_auto_msgs::msg::VehicleStateReport::HEADLIGHT_ON);
-        headlights_report.report = autoware_auto_msgs::msg::HeadlightsReport::ENABLE_LOW;
+        headlights_report.report = HeadlightsReport::ENABLE_LOW;
       } else if (msg->high_beams_active) {
         state_report.set__headlight(autoware_auto_msgs::msg::VehicleStateReport::HEADLIGHT_HIGH);
-        headlights_report.report = autoware_auto_msgs::msg::HeadlightsReport::ENABLE_HIGH;
+        headlights_report.report = HeadlightsReport::ENABLE_HIGH;
       } else {
         state_report.set__headlight(autoware_auto_msgs::msg::VehicleStateReport::HEADLIGHT_OFF);
-        headlights_report.report = autoware_auto_msgs::msg::HeadlightsReport::DISABLE;
+        headlights_report.report = HeadlightsReport::DISABLE;
       }
 
       if (msg->wipers_active) {
@@ -259,7 +262,7 @@ bool8_t LgsvlInterface::send_state_command(const autoware_auto_msgs::msg::Vehicl
   }
   msg_corrected.blinker--;
 
-  if (msg.headlight == autoware_auto_msgs::msg::HeadlightsCommand::NO_COMMAND) {
+  if (msg.headlight == HeadlightsCommand::NO_COMMAND) {
     msg_corrected.headlight = get_state_report().headlight;
   }
   msg_corrected.headlight--;
@@ -309,7 +312,7 @@ bool8_t LgsvlInterface::send_state_command(const autoware_auto_msgs::msg::Vehicl
 
   m_state_pub->publish(state_data);
 
-  autoware_auto_msgs::msg::HeadlightsReport headlights_report;
+  HeadlightsReport headlights_report;
   headlights_report.report = msg_corrected.headlight;
   m_headlights_report_pub->publish(headlights_report);
 
