@@ -16,6 +16,10 @@
 
 #include <tracking/visibility_control.hpp>
 #include <geometry/intersection.hpp>
+#include <tracking/data_association.hpp>
+#include <tracking/projection.hpp>
+#include <autoware_auto_msgs/msg/classified_roi_array.hpp>
+#include <unordered_set>
 
 namespace autoware
 {
@@ -25,7 +29,7 @@ namespace tracking
 {
 
 /// \brief Simple heuristic functor that returns the IoU between two shapes.
-class IOUHeuristic
+struct TRACKING_PUBLIC IOUHeuristic
 {
   /// \brief Get the match score of a projection and a roi
   /// \tparam Iterable1T A container class that has stl style iterators defined.
@@ -42,6 +46,42 @@ class IOUHeuristic
   {
     return common::geometry::convex_intersection_over_union_2d(shape1, shape2);
   }
+};
+
+/// \brief Class to associate the tracks to ROIs on a first-come-first-serve manner.
+class TRACKING_PUBLIC GreedyRoiAssociator
+{
+public:
+  /// \brief Constructor
+  /// \param intrinsics Camera intrinsics of the ROI
+  /// \param tf_camera_from_ego ego->camera transform
+  /// \param match_score_threshold Minimum score result for a track and ROI to be considered a
+  // match
+  GreedyRoiAssociator(
+    const CameraIntrinsics & intrinsics,
+    const geometry_msgs::msg::Transform & tf_camera_from_ego,
+    float32_t match_score_threshold = 0.1F
+  );
+
+  /// \brief Assign the tracks to the ROIs. The assignment is done by first projecting the tracks,
+  /// Then assigning each track to a detection according to the IoU metric in a greedy fashion.
+  /// \param rois ROI detections
+  /// \param tracks Tracks
+  /// \return The association between the tracks and the rois
+  AssociatorResult assign(
+    const autoware_auto_msgs::msg::ClassifiedRoiArray & rois,
+    const autoware_auto_msgs::msg::TrackedObjects & tracks);
+
+private:
+  // Scan the ROIs to find the best matching roi for a given track projection
+  std::size_t match_detection(
+    const Projection & projection,
+    const std::unordered_set<std::size_t> & available_roi_indices,
+    const autoware_auto_msgs::msg::ClassifiedRoiArray & rois);
+
+  CameraModel m_camera;
+  IOUHeuristic m_match_function{};
+  float32_t m_match_threshold{0.1F};
 };
 
 }  // namespace tracking
