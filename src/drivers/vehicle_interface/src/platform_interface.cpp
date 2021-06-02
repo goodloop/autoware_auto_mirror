@@ -63,6 +63,12 @@ void PlatformInterface::send_headlights_command(
   throw std::runtime_error("HeadlightsCommand not supported by this vehicle interface");
 }
 
+void PlatformInterface::on_wipers_command(
+  const autoware_auto_msgs::msg::WipersCommand &)
+{
+  throw std::runtime_error("WipersCommand not supported by this vehicle interface");
+}
+
 }  // namespace vehicle_interface
 }  // namespace drivers
 }  // namespace autoware

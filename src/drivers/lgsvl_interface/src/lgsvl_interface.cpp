@@ -44,6 +44,7 @@ namespace lgsvl_interface
 using autoware_auto_msgs::msg::HeadlightsCommand;
 using autoware_auto_msgs::msg::HeadlightsReport;
 using autoware_auto_msgs::msg::WipersCommand;
+using autoware_auto_msgs::msg::WipersReport;
 
 const std::unordered_map<WIPER_TYPE, WIPER_TYPE> LgsvlInterface::autoware_to_lgsvl_wiper {
   {WipersCommand::NO_COMMAND, static_cast<WIPER_TYPE>(VSD::WIPERS_OFF)},
@@ -81,9 +82,11 @@ LgsvlInterface::LgsvlInterface(
   Table1D && brake_table,
   Table1D && steer_table,
   rclcpp::Publisher<HeadlightsReport>::SharedPtr headlights_report_pub,
+  rclcpp::Publisher<WipersReport>::SharedPtr wipers_report_pub,
   bool publish_tf,
   bool publish_pose)
 : m_headlights_report_pub{headlights_report_pub},
+  m_wipers_report_pub{wipers_report_pub},
   m_throttle_table{throttle_table},
   m_brake_table{brake_table},
   m_steer_table{steer_table},
@@ -182,10 +185,13 @@ LgsvlInterface::LgsvlInterface(
         headlights_report().report = HeadlightsReport::DISABLE;
       }
 
+      WipersReport wipers_report;
       if (msg->wipers_active) {
         state_report.set__wiper(autoware_auto_msgs::msg::VehicleStateReport::WIPER_LOW);
+        wipers_report.report = WipersReport::ENABLE_LOW;
       } else {
         state_report.set__wiper(autoware_auto_msgs::msg::VehicleStateReport::WIPER_OFF);
+        wipers_report.report = WipersReport::DISABLE;
       }
 
       state_report.set__gear(static_cast<uint8_t>(msg->selected_gear));
@@ -305,6 +311,10 @@ bool8_t LgsvlInterface::send_state_command(const autoware_auto_msgs::msg::Vehicl
     VSD::VEHICLE_MODE_COMPLETE_AUTO_DRIVE ? true : false);
 
   m_state_pub->publish(m_lgsvl_state);
+
+  WipersReport wipers_report;
+  wipers_report.report = msg_corrected.wiper;
+  m_wipers_report_pub->publish(wipers_report);
 
   return true;
 }

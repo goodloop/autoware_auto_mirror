@@ -72,6 +72,14 @@ LgsvlInterfaceNode::LgsvlInterfaceNode(
     [this](autoware_auto_msgs::msg::HeadlightsReport::SharedPtr msg)
     {m_headlights_report_pub->publish(*msg);});
 
+  m_wipers_report_pub = create_publisher<autoware_auto_msgs::msg::WipersReport>(
+    "/vehicle/wipers_report", rclcpp::QoS{10U});
+
+  m_wipers_report_sub = create_subscription<autoware_auto_msgs::msg::WipersReport>(
+    "/lgsvl/wipers_report", rclcpp::QoS{10U},
+    [this](autoware_auto_msgs::msg::WipersReport::SharedPtr msg)
+    {m_wipers_report_pub->publish(*msg);});
+
   // Set up interface
   set_interface(
     std::make_unique<LgsvlInterface>(
@@ -87,6 +95,7 @@ LgsvlInterfaceNode::LgsvlInterfaceNode(
       table("brake"),
       table("steer"),
       m_headlights_report_pub,
+      m_wipers_report_pub,
       pub_tf,
       pub_pose
   ));
