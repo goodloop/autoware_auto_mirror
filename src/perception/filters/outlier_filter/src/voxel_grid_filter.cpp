@@ -14,7 +14,7 @@
 
 #include "outlier_filter/voxel_grid_filter.hpp"
 
-#include <iostream>
+#include <memory>
 
 namespace autoware
 {
@@ -27,12 +27,39 @@ namespace outlier_filter
 namespace voxel_grid_filter
 {
 
-int32_t print_hello()
+VoxelGridFilter::VoxelGridFilter(
+  float voxel_size_x, float voxel_size_y, float voxel_size_z,
+  uint32_t voxel_points_threshold)
+: voxel_size_x_(voxel_size_x), voxel_size_y_(voxel_size_y), voxel_size_z_(voxel_size_z),
+  voxel_points_threshold_(voxel_points_threshold)
 {
-  std::cout << "Hello World" << std::endl;
-  return 0;
+  voxel_filter_ = std::make_shared<pcl::VoxelGrid<pcl::PointXYZ>>();
 }
 
+void VoxelGridFilter::filter(
+  pcl::PointCloud<pcl::PointXYZ>::ConstPtr input,
+  pcl::PointCloud<pcl::PointXYZ>::Ptr output)
+{
+  pcl::PointCloud<pcl::PointXYZ>::Ptr pcl_voxelized_input(new pcl::PointCloud<pcl::PointXYZ>);
+  pcl_voxelized_input->points.reserve(input->points.size());
+
+  // Set parameters for voxel filter object
+  voxel_filter_->setInputCloud(input);
+  voxel_filter_->setSaveLeafLayout(true);
+  voxel_filter_->setLeafSize(voxel_size_x_, voxel_size_y_, voxel_size_z_);
+  voxel_filter_->setMinimumPointsNumberPerVoxel(voxel_points_threshold_);
+  voxel_filter_->filter(*pcl_voxelized_input);
+
+  output->points.reserve(input->points.size());
+  for (size_t i = 0; i < input->points.size(); ++i) {
+    const int index = voxel_filter_->getCentroidIndexAt(
+      voxel_filter_->getGridCoordinates(
+        input->points.at(i).x, input->points.at(i).y, input->points.at(i).z));
+    if (index != -1) {  // not empty voxel
+      output->points.push_back(input->points.at(i));
+    }
+  }
+}
 }  // namespace voxel_grid_filter
 }  // namespace outlier_filter
 }  // namespace filters
