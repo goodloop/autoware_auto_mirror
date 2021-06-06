@@ -28,6 +28,27 @@ using float32_t = autoware::common::types::float32_t;
 using FilterNodeBase = autoware::perception::filters::filter_node_base::FilterNodeBase;
 using PointCloud2 = sensor_msgs::msg::PointCloud2;
 
+namespace
+{
+// TODO(nikolai.morin): Deduplicate, see #1149
+template<typename T>
+void wait_for_subscriber(
+  const T & pub_ptr,
+  const uint32_t num_expected_subs = 1U,
+  std::chrono::milliseconds match_timeout = std::chrono::seconds{10U})
+{
+  const auto match_start = std::chrono::steady_clock::now();
+  // Ensure map publisher has a map that is listening.
+  while (pub_ptr->get_subscription_count() < num_expected_subs) {
+    rclcpp::sleep_for(std::chrono::milliseconds(100));
+    if (std::chrono::steady_clock::now() - match_start > match_timeout) {
+      throw std::runtime_error("timed out waiting for subscriber");
+    }
+  }
+}
+
+}  // anonymous namespace
+
 /* \class MockFilterNodeBase
  * \brief This class implements the FilterNodeBase to test for correct inheritence
  */
@@ -109,11 +130,13 @@ TEST_F(TestFilterNodeBase, DISABLED_test_filter) {
     "input",
     rclcpp::QoS(10));
 
-  // Check that the filter method in the MockFilterNodeBase class has been called at least once
-  EXPECT_CALL(*mock_filter_node_base, filter(_, _)).Times(AtLeast(1));
+  wait_for_subscriber(cloud_pub);
+
   // Publish cloud
   cloud_pub->publish(cloud);
   rclcpp::spin_some(mock_filter_node_base);
+    // Check that the filter method in the MockFilterNodeBase class has been called at least once
+  EXPECT_CALL(*mock_filter_node_base, filter(_, _)).Times(AtLeast(1));
 }
 
 TEST_F(TestFilterNodeBase, test_parameters) {
