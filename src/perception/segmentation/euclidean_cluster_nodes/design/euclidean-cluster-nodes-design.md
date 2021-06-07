@@ -77,10 +77,10 @@ The latter is provided for the purposes of memory efficiency.
 - `use_box` - When true clusters are formed into a shape and published as a msg (type depends on `use_detected_objects_type` param); otherwise, shape estimation is not done. Note: At least one of `use_cluster` and `use_box` has to be set to true
 - `max_cloud_size` - Maximum number of points expected in the input point cloud. Used to preallocate internal types  
 - `downsample` - Parameter to control whether to downsample the input point cloud using a voxel grid. If this is set to true, a set of `voxel` parameters need to be defined  
-- `use_lfit` - When true `L-fit` method of fitting a bounding box to cluster will be usedl; otherwise, `EigenBoxes` method will be used  
+- `use_lfit` - When true `L-fit` method of fitting a bounding box to cluster will be used; otherwise, `EigenBoxes` method will be used  
 - `use_z` - When true height of bounding boxes will be estimated; otherwise, height will be set to zero 
 
-In addition to the above params `cluster` parameters are also needed to run this node and `voxel` parameters may also be needed depending on `downsample` param.
+In addition to the above params, `cluster` parameters are also needed to run this node and `voxel` parameters may also be needed depending on `downsample` param.
 
 ## Error detection and handling
 

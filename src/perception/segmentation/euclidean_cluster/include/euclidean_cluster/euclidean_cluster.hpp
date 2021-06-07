@@ -19,6 +19,7 @@
 #ifndef EUCLIDEAN_CLUSTER__EUCLIDEAN_CLUSTER_HPP_
 #define EUCLIDEAN_CLUSTER__EUCLIDEAN_CLUSTER_HPP_
 
+#include <autoware_auto_msgs/msg/bounding_box_array.hpp>
 #include <autoware_auto_msgs/msg/detected_objects.hpp>
 #include <autoware_auto_msgs/msg/point_clusters.hpp>
 #include <geometry/spatial_hash.hpp>
@@ -227,6 +228,31 @@ private:
   std::vector<bool8_t> m_seen;
 };  // class EuclideanCluster
 
+/// \brief Common euclidean cluster functions not intended for external use
+namespace details
+{
+using BoundingBox = autoware_auto_msgs::msg::BoundingBox;
+using BoundingBoxArray = autoware_auto_msgs::msg::BoundingBoxArray;
+using DetectedObjects = autoware_auto_msgs::msg::DetectedObjects;
+/// \brief Compute lfit bounding boxes from clusters
+/// \param[in] compute_height Compute the height of the bounding box as well.
+/// \param[inout] clusters A set of clusters for which to compute the bounding boxes. Individual
+///                        clusters get their points shuffled
+/// \returns Bounding boxes
+EUCLIDEAN_CLUSTER_PUBLIC
+BoundingBoxArray compute_lfit_bounding_boxes(Clusters & clusters, const bool compute_height);
+/// \brief Compute eigenboxes from clusters
+/// \param[in] clusters A set of clusters for which to compute the bounding boxes
+/// \param[in] compute_height Compute the height of the bounding box as well.
+/// \returns Bounding boxes
+EUCLIDEAN_CLUSTER_PUBLIC
+BoundingBoxArray compute_eigenboxes(const Clusters & clusters, const bool compute_height);
+/// \brief Convert this bounding box to a DetectedObjects message
+/// \param[in] boxes A bounding box array
+/// \returns A DetectedObjects message with the bounding boxes inside
+EUCLIDEAN_CLUSTER_PUBLIC
+DetectedObjects convert_to_detected_objects(const BoundingBoxArray & boxes);
+}  // namespace details
 }  // namespace euclidean_cluster
 }  // namespace segmentation
 }  // namespace perception
