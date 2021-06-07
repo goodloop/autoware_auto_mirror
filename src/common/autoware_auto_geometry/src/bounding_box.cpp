@@ -69,9 +69,11 @@ void finalize_box(const decltype(BoundingBox::corners) & corners, BoundingBox & 
 autoware_auto_msgs::msg::Shape make_shape(const BoundingBox & box)
 {
   autoware_auto_msgs::msg::Shape ret;
-  for (const auto & corner_pt : box.corners) {
-    ret.polygon.points.emplace_back(corner_pt);
+  for (auto corner_pt : box.corners) {
+    corner_pt.z -= box.size.z;
+    ret.polygon.points.push_back(corner_pt);
   }
+  ret.height = 2.0F * box.size.z;
   return ret;
 }
 
