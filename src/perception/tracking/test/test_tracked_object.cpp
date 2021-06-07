@@ -65,22 +65,25 @@ TEST(test_tracked_object, test_optional_covariance) {
   // =========== same thing for twist ===========
   msg.kinematics.twist.covariance[0] = 5.0;
   msg.kinematics.twist.covariance[1] = 4.0;
-  msg.kinematics.twist.covariance[3] = 4.0;
-  msg.kinematics.twist.covariance[4] = 5.0;
-  msg.kinematics.twist.covariance[8] = 5.0;
+  msg.kinematics.twist.covariance[6] = 4.0;
+  msg.kinematics.twist.covariance[7] = 5.0;
+  msg.kinematics.twist.covariance[14] = 5.0;
+  msg.kinematics.twist.covariance[35] = 5.0;
   object = TrackedObject {msg, kDefaultVarianceF, 30.0F};
   EXPECT_EQ(object.msg().kinematics.twist.covariance[0], kDefaultVarianceD);
   EXPECT_EQ(object.msg().kinematics.twist.covariance[1], 0.0);
-  EXPECT_EQ(object.msg().kinematics.twist.covariance[3], 0.0);
-  EXPECT_EQ(object.msg().kinematics.twist.covariance[4], kDefaultVarianceD);
-  EXPECT_EQ(object.msg().kinematics.twist.covariance[8], 0.0);
+  EXPECT_EQ(object.msg().kinematics.twist.covariance[6], 0.0);
+  EXPECT_EQ(object.msg().kinematics.twist.covariance[7], kDefaultVarianceD);
+  EXPECT_EQ(object.msg().kinematics.twist.covariance[14], 0.0);
+  EXPECT_EQ(object.msg().kinematics.twist.covariance[35], 0.0);
   msg.kinematics.has_twist_covariance = true;
   object = TrackedObject {msg, kDefaultVarianceF, 30.0F};
   EXPECT_EQ(object.msg().kinematics.twist.covariance[0], 5.0);
   EXPECT_EQ(object.msg().kinematics.twist.covariance[1], 4.0);
-  EXPECT_EQ(object.msg().kinematics.twist.covariance[3], 4.0);
-  EXPECT_EQ(object.msg().kinematics.twist.covariance[4], 5.0);
-  EXPECT_EQ(object.msg().kinematics.twist.covariance[8], 0.0);
+  EXPECT_EQ(object.msg().kinematics.twist.covariance[6], 4.0);
+  EXPECT_EQ(object.msg().kinematics.twist.covariance[7], 5.0);
+  EXPECT_EQ(object.msg().kinematics.twist.covariance[14], 0.0);
+  EXPECT_EQ(object.msg().kinematics.twist.covariance[35], 0.0);
 }
 
 // Test that calling predict() indeed changes the coordinates
