@@ -65,7 +65,7 @@ LinearMotionModel<StateT>::crtp_jacobian(
   return create_jacobian<typename State::Scalar, State::size()>(dt);
 }
 
-#ifndef DOXYGEN_SKIP
+/// \cond DO_NOT_DOCUMENT
 
 template class MOTION_MODEL_PUBLIC LinearMotionModel<state_vector::ConstAccelerationXY32>;
 template class MOTION_MODEL_PUBLIC LinearMotionModel<state_vector::ConstAccelerationXY64>;
@@ -82,7 +82,7 @@ template class MOTION_MODEL_PUBLIC LinearMotionModel<state_vector::ConstAccelera
 template class MOTION_MODEL_PUBLIC LinearMotionModel<state_vector::ConstAccelerationXYZRPY32>;
 template class MOTION_MODEL_PUBLIC LinearMotionModel<state_vector::ConstAccelerationXYZRPY64>;
 
-#endif
+/// \endcond
 
 }  // namespace motion_model
 }  // namespace common

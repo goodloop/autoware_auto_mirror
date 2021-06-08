@@ -67,7 +67,7 @@ typename StateT::Matrix WienerNoise<StateT>::crtp_covariance(
 }
 
 
-#ifndef DOXYGEN_SKIP
+/// \cond DO_NOT_DOCUMENT
 
 template class STATE_ESTIMATION_PUBLIC WienerNoise<state_vector::ConstAccelerationXY32>;
 template class STATE_ESTIMATION_PUBLIC WienerNoise<state_vector::ConstAccelerationXY64>;
@@ -84,7 +84,7 @@ template class STATE_ESTIMATION_PUBLIC WienerNoise<state_vector::ConstAccelerati
 template class STATE_ESTIMATION_PUBLIC WienerNoise<state_vector::ConstAccelerationXYZRPY32>;
 template class STATE_ESTIMATION_PUBLIC WienerNoise<state_vector::ConstAccelerationXYZRPY64>;
 
-#endif
+/// \endcond
 
 }  // namespace state_estimation
 }  // namespace common
