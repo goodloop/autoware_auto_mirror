@@ -72,9 +72,9 @@ more compact and simpler to interpret and handle.
 The latter is provided for the purposes of memory efficiency.
 
 ### Parameters
-- `use_detected_objects_type` - When true the node publishes `DetectedObjects` msg; otherwise, publishes `BoundingBoxArray` msg
+- `use_detected_objects` - When true the node publishes bounding boxes as a `DetectedObjects` msg
 - `use_cluster` - When true the node publishes clusters as `PointClusters` msg; otherwise, clusters are not published
-- `use_box` - When true clusters are formed into a shape and published as a msg (type depends on `use_detected_objects_type` param); otherwise, shape estimation is not done. Note: At least one of `use_cluster` and `use_box` has to be set to true
+- `use_box` - When true clusters are formed into a shape and published as a msg; Note: At least one of `use_cluster`, `use_box` and `use_detected_objects` has to be set to true
 - `max_cloud_size` - Maximum number of points expected in the input point cloud. Used to preallocate internal types  
 - `downsample` - Parameter to control whether to downsample the input point cloud using a voxel grid. If this is set to true, a set of `voxel` parameters need to be defined  
 - `use_lfit` - When true `L-fit` method of fitting a bounding box to cluster will be used; otherwise, `EigenBoxes` method will be used  
