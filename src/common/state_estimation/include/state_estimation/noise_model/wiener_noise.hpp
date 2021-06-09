@@ -36,7 +36,8 @@ namespace state_estimation
 /// @tparam     StateT  A state vector type.
 ///
 template<typename StateT>
-struct number_of_acceleration_components : public std::integral_constant<std::size_t, 0UL> {
+struct number_of_acceleration_components : public std::integral_constant<std::size_t, 0UL>
+{
   static_assert(sizeof(StateT) == 0, "This class must be specialized to a specific state type.");
 };
 
