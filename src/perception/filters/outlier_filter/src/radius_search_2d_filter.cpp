@@ -40,7 +40,7 @@ void RadiusSearch2DFilter::filter(
   pcl::PointCloud<pcl::PointXYZ>::ConstPtr input,
   pcl::PointCloud<pcl::PointXYZ>::Ptr output)
 {
-  pcl::PointCloud<pcl::PointXY>::Ptr xy_cloud(new pcl::PointCloud<pcl::PointXY>);
+  pcl::PointCloud<pcl::PointXY>::Ptr xy_cloud(new pcl::PointCloud<pcl::PointXY>());
   xy_cloud->points.resize(input->points.size());
   for (size_t i = 0; i < input->points.size(); ++i) {
     xy_cloud->points[i].x = input->points[i].x;
