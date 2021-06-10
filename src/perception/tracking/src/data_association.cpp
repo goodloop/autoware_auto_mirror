@@ -174,7 +174,7 @@ AssociatorResult Associator::extract_result() const
     for (size_t track_idx = 0U; track_idx < m_num_tracks; track_idx++) {
       const auto det_idx =
         static_cast<size_t>(m_assigner.get_assignment(static_cast<assigner_idx_t>(track_idx)));
-      if (det_idx != m_assigner.UNASSIGNED) {
+      if (det_idx != AssociatorResult::UNASSIGNED) {
         ret.track_assignments[track_idx] = det_idx;
         detections_assigned[det_idx] = true;
       } else {
