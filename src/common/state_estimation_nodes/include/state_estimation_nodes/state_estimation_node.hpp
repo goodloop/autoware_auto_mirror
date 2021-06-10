@@ -76,6 +76,7 @@ private:
   using TwistMsgT = geometry_msgs::msg::TwistWithCovarianceStamped;
   using RelativePosMsgT = autoware_auto_msgs::msg::RelativePositionWithCovarianceStamped;
   using TfMsgT = tf2_msgs::msg::TFMessage;
+  using FilterWrapperT = ConstantAccelerationFilterWrapperXYZRPY;
 
   template<std::int32_t kDim>
   using VectorT = Eigen::Matrix<autoware::common::types::float32_t, kDim, 1>;
@@ -147,7 +148,7 @@ private:
 
   // TODO(igor): we can replace the unique_ptr here with std::variant or alike at a later time to
   // allow configuring which filter to use at runtime.
-  std::unique_ptr<ConstantAccelerationFilterWrapper> m_ekf{};
+  std::unique_ptr<FilterWrapperT> m_ekf{};
 
   tf2::BufferCore m_tf_buffer;
   tf2_ros::TransformListener m_tf_listener;
