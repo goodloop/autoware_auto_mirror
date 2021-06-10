@@ -77,29 +77,13 @@ autoware_auto_msgs::msg::Shape make_shape(const BoundingBox & box)
   return ret;
 }
 
-///////////////////////////////////////////////////////////////////////////////
-
-geometry_msgs::msg::Pose make_pose(const BoundingBox & box)
-{
-  geometry_msgs::msg::Pose ret;
-  ret.position.x = static_cast<double>(box.centroid.x);
-  ret.position.y = static_cast<double>(box.centroid.y);
-  ret.position.z = static_cast<double>(box.centroid.z);
-
-  ret.orientation.x = static_cast<double>(box.orientation.x);
-  ret.orientation.y = static_cast<double>(box.orientation.y);
-  ret.orientation.z = static_cast<double>(box.orientation.z);
-  ret.orientation.w = static_cast<double>(box.orientation.w);
-
-  return ret;
-}
-
 autoware_auto_msgs::msg::DetectedObject make_detected_object(const BoundingBox & box)
 {
   autoware_auto_msgs::msg::DetectedObject ret;
 
-  ret.kinematics.has_pose = true;
-  ret.kinematics.pose.pose = make_pose(box);
+  ret.kinematics.centroid_position.x = static_cast<double>(box.centroid.x);
+  ret.kinematics.centroid_position.y = static_cast<double>(box.centroid.y);
+  ret.kinematics.centroid_position.z = static_cast<double>(box.centroid.z);
 
   ret.shape = make_shape(box);
 
