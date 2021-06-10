@@ -1,4 +1,4 @@
-// Copyright 2019-2020 the Autoware Foundation
+// Copyright 2019-2021 the Autoware Foundation
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,10 +17,11 @@
 /// \brief This file implements a clustering node that published colored point clouds and convex
 ///        hulls
 
+#include <euclidean_cluster_nodes/euclidean_cluster_node.hpp>
+
 #include <autoware_auto_msgs/msg/bounding_box_array.hpp>
 #include <autoware_auto_msgs/msg/detected_objects.hpp>
 #include <common/types.hpp>
-#include <euclidean_cluster_nodes/euclidean_cluster_node.hpp>
 #include <lidar_utils/point_cloud_utils.hpp>
 #include <rclcpp_components/register_node_macro.hpp>
 #include <rclcpp/rclcpp.hpp>
@@ -31,6 +32,7 @@
 
 using autoware::common::types::bool8_t;
 using autoware::common::types::float32_t;
+using autoware::perception::segmentation::euclidean_cluster::details::BboxMethod;
 using BoundingBoxArray = autoware_auto_msgs::msg::BoundingBoxArray;
 using DetectedObjects = autoware_auto_msgs::msg::DetectedObjects;
 
@@ -90,7 +92,10 @@ m_voxel_ptr{nullptr},  // Because voxel config's Point types don't accept positi
 m_use_lfit{declare_parameter("use_lfit").get<bool8_t>()},
 m_use_z{declare_parameter("use_z").get<bool8_t>()}
 {
-  init();
+  // Sanity check
+  if ((!m_detected_objects_pub_ptr) && (!m_box_pub_ptr) && (!m_cluster_pub_ptr)) {
+    throw std::domain_error{"EuclideanClusterNode: No publisher topics provided"};
+  }
   // Initialize voxel grid
   if (declare_parameter("downsample").get<bool8_t>()) {
     filters::voxel_grid::PointXYZ min_point;
@@ -121,14 +126,6 @@ m_use_z{declare_parameter("use_z").get<bool8_t>()}
   }
 }
 
-////////////////////////////////////////////////////////////////////////////////
-void EuclideanClusterNode::init()
-{
-  // Sanity check
-  if ((!m_detected_objects_pub_ptr) && (!m_box_pub_ptr) && (!m_cluster_pub_ptr)) {
-    throw std::domain_error{"EuclideanClusterNode: No publisher topics provided"};
-  }
-}
 ////////////////////////////////////////////////////////////////////////////////
 void EuclideanClusterNode::insert_plain(const PointCloud2 & cloud)
 {
@@ -188,9 +185,11 @@ void EuclideanClusterNode::handle_clusters(
 
   BoundingBoxArray boxes;
   if (m_use_lfit) {
-    boxes = euclidean_cluster::details::compute_lfit_bounding_boxes(clusters, m_use_z);
+    boxes = euclidean_cluster::details::compute_bounding_boxes(clusters, BboxMethod::LFit, m_use_z);
   } else {
-    boxes = euclidean_cluster::details::compute_eigenboxes(clusters, m_use_z);
+    boxes = euclidean_cluster::details::compute_bounding_boxes(
+      clusters, BboxMethod::Eigenbox,
+      m_use_z);
   }
   boxes.header.stamp = header.stamp;
   boxes.header.frame_id = header.frame_id;

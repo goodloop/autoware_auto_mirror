@@ -12,14 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#ifndef TEST_BOUNDING_BOX_COMPUTATION_HPP_
+#define TEST_BOUNDING_BOX_COMPUTATION_HPP_
+
 #include <euclidean_cluster/euclidean_cluster.hpp>
 
 #include <vector>
 
 #include "gtest/gtest.h"
-
-#ifndef TEST_SHAPE_ESTIMATION_HPP_
-#define TEST_SHAPE_ESTIMATION_HPP_
 
 using Clusters = autoware_auto_msgs::msg::PointClusters;
 using BoundingBox = autoware_auto_msgs::msg::BoundingBox;
@@ -28,11 +28,11 @@ using DetectedObjects = autoware_auto_msgs::msg::DetectedObjects;
 using DetectedObject = autoware_auto_msgs::msg::DetectedObject;
 using Pt = autoware_auto_msgs::msg::PointXYZIF;
 
-using autoware::perception::segmentation::euclidean_cluster::details::compute_lfit_bounding_boxes;
-using autoware::perception::segmentation::euclidean_cluster::details::compute_eigenboxes;
+using autoware::perception::segmentation::euclidean_cluster::details::compute_bounding_boxes;
+using autoware::perception::segmentation::euclidean_cluster::details::BboxMethod;
 using autoware::perception::segmentation::euclidean_cluster::details::convert_to_detected_objects;
 
-class ShapeEstimationTest : public ::testing::Test
+class BoundingBoxComputationTest : public ::testing::Test
 {
 protected:
   Pt make_pt(const float x, const float y, const float z = 0.0F)
@@ -121,12 +121,12 @@ protected:
 // This test needs to make sure cluster points are navigated and passed to bounding box
 // computation properly and, in case of DetectedObjects, needs to make sure BoundingBox is copied
 // over to DetectedObjects properly.
-TEST_F(ShapeEstimationTest, basic_lfit_2d)
+TEST_F(BoundingBoxComputationTest, basic_lfit_2d)
 {
   auto clusters = make_clusters(
     {pt_vector, pt_vector});
 
-  BoundingBoxArray boxes_msg = compute_lfit_bounding_boxes(clusters, false);
+  BoundingBoxArray boxes_msg = compute_bounding_boxes(clusters, BboxMethod::LFit, false);
   ASSERT_EQ(boxes_msg.boxes.size(), 2U);
   for (const auto & box : boxes_msg.boxes) {
     test_corners(box, lfit_expected_corners, 0.25F);
@@ -139,11 +139,11 @@ TEST_F(ShapeEstimationTest, basic_lfit_2d)
   }
 }
 
-TEST_F(ShapeEstimationTest, basic_eigen_2d) {
+TEST_F(BoundingBoxComputationTest, basic_eigen_2d) {
   auto clusters = make_clusters(
     {pt_vector, pt_vector});
 
-  BoundingBoxArray boxes_msg = compute_eigenboxes(clusters, false);
+  BoundingBoxArray boxes_msg = compute_bounding_boxes(clusters, BboxMethod::Eigenbox, false);
   ASSERT_EQ(boxes_msg.boxes.size(), 2U);
   for (const auto & box : boxes_msg.boxes) {
     test_corners(box, eigen_expected_corners, 0.25F);
@@ -156,14 +156,14 @@ TEST_F(ShapeEstimationTest, basic_eigen_2d) {
   }
 }
 
-TEST_F(ShapeEstimationTest, basic_lfit_3d)
+TEST_F(BoundingBoxComputationTest, basic_lfit_3d)
 {
   auto pt_vector_3d = pt_vector;
   pt_vector_3d[0U].z = -2.F;
   pt_vector_3d[1U].z = 2.F;
   auto clusters = make_clusters({pt_vector_3d, pt_vector_3d});
 
-  BoundingBoxArray boxes_msg = compute_lfit_bounding_boxes(clusters, true);
+  BoundingBoxArray boxes_msg = compute_bounding_boxes(clusters, BboxMethod::LFit, true);
   DetectedObjects objects_msg = convert_to_detected_objects(boxes_msg);
 
   auto expected_corners_3d = lfit_expected_corners;
@@ -178,14 +178,14 @@ TEST_F(ShapeEstimationTest, basic_lfit_3d)
   }
 }
 
-TEST_F(ShapeEstimationTest, basic_eigen_3d)
+TEST_F(BoundingBoxComputationTest, basic_eigen_3d)
 {
   auto pt_vector_3d = pt_vector;
   pt_vector_3d[0U].z = -2.F;
   pt_vector_3d[1U].z = 2.F;
   auto clusters = make_clusters({pt_vector_3d, pt_vector_3d});
 
-  BoundingBoxArray boxes_msg = compute_eigenboxes(clusters, true);
+  BoundingBoxArray boxes_msg = compute_bounding_boxes(clusters, BboxMethod::Eigenbox, true);
   DetectedObjects objects_msg = convert_to_detected_objects(boxes_msg);
 
   auto expected_corners_3d = eigen_expected_corners;
@@ -201,4 +201,4 @@ TEST_F(ShapeEstimationTest, basic_eigen_3d)
 }
 
 
-#endif   // TEST_SHAPE_ESTIMATION_HPP_
+#endif   // TEST_BOUNDING_BOX_COMPUTATION_HPP_

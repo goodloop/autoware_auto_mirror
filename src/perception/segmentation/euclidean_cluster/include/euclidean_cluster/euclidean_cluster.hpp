@@ -1,4 +1,4 @@
-// Copyright 2019-2020 the Autoware Foundation
+// Copyright 2019-2021 the Autoware Foundation
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -234,19 +234,21 @@ namespace details
 using BoundingBox = autoware_auto_msgs::msg::BoundingBox;
 using BoundingBoxArray = autoware_auto_msgs::msg::BoundingBoxArray;
 using DetectedObjects = autoware_auto_msgs::msg::DetectedObjects;
-/// \brief Compute lfit bounding boxes from clusters
+
+enum class BboxMethod
+{
+  Eigenbox,
+  LFit,
+};
+/// \brief Compute bounding boxes from clusters
+/// \param[in] method Whether to use the eigenboxes or L-Fit algorithm.
 /// \param[in] compute_height Compute the height of the bounding box as well.
 /// \param[inout] clusters A set of clusters for which to compute the bounding boxes. Individual
-///                        clusters get their points shuffled
+///                        clusters may get their points shuffled.
 /// \returns Bounding boxes
 EUCLIDEAN_CLUSTER_PUBLIC
-BoundingBoxArray compute_lfit_bounding_boxes(Clusters & clusters, const bool compute_height);
-/// \brief Compute eigenboxes from clusters
-/// \param[in] clusters A set of clusters for which to compute the bounding boxes
-/// \param[in] compute_height Compute the height of the bounding box as well.
-/// \returns Bounding boxes
-EUCLIDEAN_CLUSTER_PUBLIC
-BoundingBoxArray compute_eigenboxes(const Clusters & clusters, const bool compute_height);
+BoundingBoxArray compute_bounding_boxes(
+  Clusters & clusters, const BboxMethod method, const bool compute_height);
 /// \brief Convert this bounding box to a DetectedObjects message
 /// \param[in] boxes A bounding box array
 /// \returns A DetectedObjects message with the bounding boxes inside

@@ -1,4 +1,4 @@
-// Copyright 2019-2020 the Autoware Foundation
+// Copyright 2019-2021 the Autoware Foundation
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -63,8 +63,6 @@ public:
 private:
   /// \brief Main callback function
   void EUCLIDEAN_CLUSTER_NODES_LOCAL handle(const PointCloud2::SharedPtr msg_ptr);
-  /// \brief Initialization function
-  void EUCLIDEAN_CLUSTER_NODES_LOCAL init();
   /// \brief Insert directly into clustering algorithm
   void EUCLIDEAN_CLUSTER_NODES_LOCAL insert_plain(const PointCloud2 & cloud);
   /// \brief Pass points through a voxel grid before inserting into clustering algorithm
