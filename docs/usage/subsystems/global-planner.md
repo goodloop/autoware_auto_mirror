@@ -29,7 +29,7 @@ ade$ ros2 launch autoware_auto_launch autoware_auto_visualization.launch.py
 ```{bash}
 > ade enter
 ade$ source /opt/AutowareAuto/setup.bash
-ade$ stdbuf -o L ros2 launch autoware_auto_avp_demo ms3_sim.launch.py
+ade$ stdbuf -o L ros2 launch autoware_demos avp_sim.launch.py
 ```
 
 The `stdbuf` command above is needed because the default in ROS is to only output lines from `stdout` when the buffer is full.
@@ -108,7 +108,7 @@ primitives:
   primitive_type: parking
 ```
 
-To check if the route is reasonable, open the OSM map `AutowareAuto/src/tools/autoware_auto_avp_demo/data/autonomousstuff_parking_lot.osm` in a text editor and search for `way id='9824`.
+To check if the route is reasonable, open the OSM map `AutowareAuto/src/tools/autoware_demos/data/autonomousstuff_parking_lot.osm` in a text editor and search for `way id='9824`.
 It references a node, the center of the entrance line, `9831` in this case.
 Searching for its coordinates, they are:
 ```{xml}

@@ -36,13 +36,13 @@ def generate_launch_description():
     )
 
     scan_downsampler_param_file_path = os.path.join(
-        autoware_demos_pkg_path,
+        get_package_share_directory('autoware_auto_launch'),
         'param',
-        'scan_downsampler_ms3.param.yaml'
+        'scan_downsampler.param.yaml'
     )
 
     ndt_localizer_param_file_path = os.path.join(
-        autoware_demos_pkg_path,
+        get_package_share_directory('autoware_auto_launch'),
         'param',
         'ndt_localizer.param.yaml'
     )

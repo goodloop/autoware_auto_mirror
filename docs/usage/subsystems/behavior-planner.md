@@ -29,7 +29,7 @@ ade$ ros2 launch autoware_auto_launch autoware_auto_visualization.launch.py
 ```{bash}
 > ade enter
 ade$ source /opt/AutowareAuto/setup.bash
-ade$ stdbuf -o L ros2 launch autoware_auto_avp_demo ms3_sim.launch.py
+ade$ stdbuf -o L ros2 launch autoware_demos avp_sim.launch.py
 ```
 
 The `stdbuf` command above is needed because the default in ROS is to only output lines from `stdout` when the buffer is full.
