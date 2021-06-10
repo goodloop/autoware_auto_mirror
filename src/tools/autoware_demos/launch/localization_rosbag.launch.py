@@ -22,10 +22,11 @@ from launch.conditions import IfCondition
 from launch.substitutions import LaunchConfiguration
 from ament_index_python.packages import get_package_share_directory
 
+
 def generate_launch_description():
 
-    autoware_auto_avp_demo_pkg_path = get_package_share_directory(
-        'autoware_auto_avp_demo'
+    autoware_demos_pkg_path = get_package_share_directory(
+        'autoware_demos'
     )
 
     pc_filter_transform_param_file_path = os.path.join(
@@ -35,13 +36,13 @@ def generate_launch_description():
     )
 
     scan_downsampler_param_file_path = os.path.join(
-        autoware_auto_avp_demo_pkg_path,
+        autoware_demos_pkg_path,
         'param',
         'scan_downsampler_ms3.param.yaml'
     )
 
     ndt_localizer_param_file_path = os.path.join(
-        autoware_auto_avp_demo_pkg_path,
+        autoware_demos_pkg_path,
         'param',
         'ndt_localizer.param.yaml'
     )
@@ -58,13 +59,13 @@ def generate_launch_description():
     }
 
     map_pcd_file = os.path.join(
-        autoware_auto_avp_demo_pkg_path,
+        autoware_demos_pkg_path,
         'data',
         'autonomoustuff_parking_lot.pcd'
     )
 
     map_yaml_file = os.path.join(
-        autoware_auto_avp_demo_pkg_path,
+        autoware_demos_pkg_path,
         'data',
         'autonomoustuff_parking_lot.yaml'
     )
@@ -101,7 +102,7 @@ def generate_launch_description():
         urdf_file = infp.read()
 
     lanelet2_osm_file_path = os.path.join(
-        autoware_auto_avp_demo_pkg_path,
+        autoware_demos_pkg_path,
         'data',
         'autonomoustuff_parking_lot.osm'
     )
@@ -232,7 +233,8 @@ def generate_launch_description():
 
         # play the rosbag data
         ExecuteProcess(
-            cmd=['ros2',
+            cmd=[
+                'ros2',
                 'bag',
                 'play',
                 LaunchConfiguration('rosbag_file_path'),

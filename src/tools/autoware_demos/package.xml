@@ -24,7 +24,6 @@
   <exec_depend>velodyne_nodes</exec_depend>
   <exec_depend>voxel_grid_nodes</exec_depend>
   <exec_depend>ament_index_python</exec_depend>
-  <exec_depend>autoware_auto_avp_demo</exec_depend>
   <exec_depend>autoware_auto_launch</exec_depend>
 
   <export>

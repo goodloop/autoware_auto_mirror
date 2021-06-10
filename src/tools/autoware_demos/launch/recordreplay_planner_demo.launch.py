@@ -1,4 +1,4 @@
-# Copyright 2020-2021, The Autoware Foundation
+# Copyright 2021, The Autoware Foundation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,62 +12,64 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Launch Modules for Milestone 3 of the AVP 2020 Demo."""
+"""Launch Modules for Demo of Record/Replay Planner."""
 
 from ament_index_python import get_package_share_directory
+from launch.launch_description_sources import PythonLaunchDescriptionSource
+from launch.actions import IncludeLaunchDescription
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
 from launch.conditions import IfCondition
 from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
 
-import launch.actions
 import os
 
 
 def generate_launch_description():
-    """
-    Launch all nodes defined in the architecture for Milestone 3 of the AVP 2020 Demo.
+    """Launch all nodes required to record and replay a path with obstacle detection."""
+    demos_pkg_prefix = get_package_share_directory('autoware_demos')
+    autoware_launch_pkg_prefix = get_package_share_directory('autoware_auto_launch')
 
-    More details about what is included can
-    be found at https://gitlab.com/autowarefoundation/autoware.auto/AutowareAuto/-/milestones/25.
-    """
-    avp_demo_pkg_prefix = get_package_share_directory('autoware_auto_avp_demo')
     euclidean_cluster_param_file = os.path.join(
-        avp_demo_pkg_prefix, 'param/euclidean_cluster.param.yaml')
+        autoware_launch_pkg_prefix, 'param/euclidean_cluster.param.yaml')
     lgsvl_param_file = os.path.join(
-        avp_demo_pkg_prefix, 'param/lgsvl_interface.param.yaml')
+        autoware_launch_pkg_prefix, 'param/lgsvl_interface.param.yaml')
     map_publisher_param_file = os.path.join(
-        avp_demo_pkg_prefix, 'param/map_publisher.param.yaml')
-#    odom_state_estimator_param_file = os.path.join(
-#        avp_demo_pkg_prefix, 'param/odom_state_estimator.param.yaml')
-    ray_ground_classifier_param_file = os.path.join(
-        avp_demo_pkg_prefix, 'param/ray_ground_classifier.param.yaml')
-    rviz_cfg_path = os.path.join(get_package_share_directory('autoware_auto_launch'),
-                                 'config/avp.rviz')
-    scan_downsampler_param_file = os.path.join(
-        avp_demo_pkg_prefix, 'param/scan_downsampler_ms3.param.yaml')
-    ndt_localizer_param_file = os.path.join(
-        avp_demo_pkg_prefix, 'param/ndt_localizer.param.yaml')
-    mpc_param_file = os.path.join(
-        avp_demo_pkg_prefix, 'param/mpc.param.yaml')
-    recordreplay_planner_param_file = os.path.join(
-        avp_demo_pkg_prefix, 'param/recordreplay_planner.param.yaml')
+        autoware_launch_pkg_prefix, 'param/map_publisher.param.yaml')
 
-    pc_filter_transform_pkg_prefix = get_package_share_directory(
-        'point_cloud_filter_transform_nodes')
+    ray_ground_classifier_param_file = os.path.join(
+        demos_pkg_prefix, 'param/ray_ground_classifier.param.yaml')
+
+    scan_downsampler_param_file = os.path.join(
+        autoware_launch_pkg_prefix, 'param/scan_downsampler.param.yaml')
+    ndt_localizer_param_file = os.path.join(
+        autoware_launch_pkg_prefix, 'param/ndt_localizer.param.yaml')
+
+    mpc_param_file = os.path.join(
+        demos_pkg_prefix, 'param/mpc.param.yaml')
+    object_collision_estimator_param_file = os.path.join(
+        demos_pkg_prefix, 'param/object_collision_estimator.param.yaml')
+    recordreplay_planner_param_file = os.path.join(
+        demos_pkg_prefix, 'param/recordreplay_planner.param.yaml')
     pc_filter_transform_param_file = os.path.join(
-        pc_filter_transform_pkg_prefix, 'param/vlp16_sim_lexus_filter_transform.param.yaml')
+        demos_pkg_prefix, 'param/avp/pc_filter_transform.param.yaml')
+
+    vehicle_characteristics_param_file = os.path.join(
+        demos_pkg_prefix, 'param/vehicle_characteristics.param.yaml')
 
     point_cloud_fusion_node_pkg_prefix = get_package_share_directory(
         'point_cloud_fusion_nodes')
-    point_cloud_fusion_node_param_file = os.path.join(
-        point_cloud_fusion_node_pkg_prefix, 'param/vlp16_sim_lexus_pc_fusion.param.yaml')
+
+    point_type_adapter_pkg_prefix = get_package_share_directory(
+        'point_type_adapter')
 
     urdf_pkg_prefix = get_package_share_directory('lexus_rx_450h_description')
     urdf_path = os.path.join(urdf_pkg_prefix, 'urdf/lexus_rx_450h.urdf')
     with open(urdf_path, 'r') as infp:
         urdf_file = infp.read()
+
+    rviz_cfg_path = os.path.join(demos_pkg_prefix, 'config/rviz2/recordreplay_planner_demo.rviz')
 
     # Arguments
 
@@ -86,11 +88,11 @@ def generate_launch_description():
         default_value=map_publisher_param_file,
         description='Path to config file for Map Publisher'
     )
-#    odom_state_estimator_param = DeclareLaunchArgument(
-#        'odom_state_estimator_param_file',
-#        default_value=odom_state_estimator_param_file,
-#        description='Path to config file for Odometry State Estimator'
-#    )
+    object_collision_estimator_param = DeclareLaunchArgument(
+        'object_collision_estimator_param_file',
+        default_value=object_collision_estimator_param_file,
+        description='Path to paramter file for object collision estimator'
+    )
     pc_filter_transform_param = DeclareLaunchArgument(
         'pc_filter_transform_param_file',
         default_value=pc_filter_transform_param_file,
@@ -105,6 +107,11 @@ def generate_launch_description():
         'with_rviz',
         default_value='True',
         description='Launch RVIZ2 in addition to other nodes'
+    )
+    with_obstacle_detection_param = DeclareLaunchArgument(
+        'with_obstacle_detection',
+        default_value='False',
+        description='Use obstacle detection to stop for obstacles'
     )
     ndt_localizer_param = DeclareLaunchArgument(
         'ndt_localizer_param_file',
@@ -126,10 +133,15 @@ def generate_launch_description():
         default_value=recordreplay_planner_param_file,
         description='Path to config file for record/replay planner'
     )
-    point_cloud_fusion_node_param = DeclareLaunchArgument(
-        'point_cloud_fusion_node_param_file',
-        default_value=point_cloud_fusion_node_param_file,
-        description='Path to config file for point cloud fusion'
+    vehicle_characteristics_param = DeclareLaunchArgument(
+        'vehicle_characteristics_param_file',
+        default_value=vehicle_characteristics_param_file,
+        description='Path to config file for vehicle characteristics'
+    )
+    launch_description_point_type_adapter = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            os.path.join(point_type_adapter_pkg_prefix,
+                         'launch/point_type_adapter.launch.py'))
     )
 
     # Nodes
@@ -139,9 +151,7 @@ def generate_launch_description():
         executable='euclidean_cluster_node_exe',
         namespace='perception',
         parameters=[LaunchConfiguration('euclidean_cluster_param_file')],
-        remappings=[
-            ("points_in", "points_nonground")
-        ]
+        remappings=[("points_in", "points_nonground")]
     )
     filter_transform_vlp16_front = Node(
         package='point_cloud_filter_transform_nodes',
@@ -159,17 +169,10 @@ def generate_launch_description():
         parameters=[LaunchConfiguration('pc_filter_transform_param_file')],
         remappings=[("points_in", "points_xyzi")]
     )
-    # point cloud fusion runner to fuse front and rear lidar
-    point_cloud_fusion_node = Node(
-        package='point_cloud_fusion_nodes',
-        executable='pointcloud_fusion_node_exe',
-        namespace='lidars',
-        parameters=[LaunchConfiguration('point_cloud_fusion_node_param_file')],
-        remappings=[
-            ("output_topic", "points_fused"),
-            ("input_topic1", "/lidar_front/points_filtered"),
-            ("input_topic2", "/lidar_rear/points_filtered")
-        ]
+    point_cloud_fusion_node = IncludeLaunchDescription(
+            PythonLaunchDescriptionSource(
+                os.path.join(point_cloud_fusion_node_pkg_prefix,
+                             'launch/vlp16_sim_lexus_pc_fusion.launch.py'))
     )
     lgsvl_interface = Node(
         package='lgsvl_interface',
@@ -177,8 +180,8 @@ def generate_launch_description():
         namespace='vehicle',
         output='screen',
         parameters=[
-            LaunchConfiguration('lgsvl_interface_param_file'),
-            {"lgsvl.publish_tf": True}
+          LaunchConfiguration('lgsvl_interface_param_file'),
+          {"lgsvl.publish_tf": True}
         ],
         remappings=[
             ("vehicle_control_cmd", "/lgsvl/vehicle_control_cmd"),
@@ -195,12 +198,6 @@ def generate_launch_description():
         namespace='localization',
         parameters=[LaunchConfiguration('map_publisher_param_file')]
     )
-#    odom_state_estimator = Node(
-#        package='robot_localization',
-#        executable='ekf_node',
-#        namespace='localization/odom',
-#        parameters=[LaunchConfiguration('odom_state_estimator_param_file')]
-#    )
     ray_ground_classifier = Node(
         package='ray_ground_classifier_nodes',
         executable='ray_ground_classifier_cloud_node_exe',
@@ -213,8 +210,7 @@ def generate_launch_description():
         executable='rviz2',
         name='rviz2',
         arguments=['-d', str(rviz_cfg_path)],
-        condition=IfCondition(LaunchConfiguration('with_rviz')),
-        remappings=[("initialpose", "/localization/initialpose")]
+        condition=IfCondition(LaunchConfiguration('with_rviz'))
     )
     urdf_publisher = Node(
         package='robot_state_publisher',
@@ -249,26 +245,60 @@ def generate_launch_description():
         executable='mpc_controller_node_exe',
         name='mpc_controller',
         namespace='control',
-        parameters=[LaunchConfiguration('mpc_param_file')]
+        parameters=[
+            LaunchConfiguration('mpc_param_file'),
+            LaunchConfiguration('vehicle_characteristics_param_file'),
+        ],
     )
     recordreplay_planner = Node(
         package='recordreplay_planner_nodes',
         executable='recordreplay_planner_node_exe',
         name='recordreplay_planner',
         namespace='planning',
-        parameters=[LaunchConfiguration('recordreplay_planner_param_file')],
+        parameters=[
+            LaunchConfiguration('recordreplay_planner_param_file'),
+            {"enable_object_collision_estimator": LaunchConfiguration('with_obstacle_detection')}
+        ],
         remappings=[
             ('vehicle_state', '/vehicle/vehicle_kinematic_state'),
-            ('planned_trajectory', '/planning/trajectory'),
-            ('obstacle_bounding_boxes', '/perception/lidar_bounding_boxes'),
+            ('planned_trajectory', '/planning/trajectory')
         ]
     )
+    object_collision_estimator = Node(
+        package='object_collision_estimator_nodes',
+        name='object_collision_estimator_node',
+        namespace='planning',
+        executable='object_collision_estimator_node_exe',
+        parameters=[
+            LaunchConfiguration('object_collision_estimator_param_file'),
+            LaunchConfiguration('vehicle_characteristics_param_file'),
+        ],
+        remappings=[
+            ('obstacle_topic', '/perception/lidar_bounding_boxes'),
+        ],
+        condition=IfCondition(LaunchConfiguration('with_obstacle_detection'))
+    )
 
-    nodes = [
+    return LaunchDescription([
+        launch_description_point_type_adapter,
+        euclidean_cluster_param,
+        lgsvl_interface_param,
+        map_publisher_param,
+        object_collision_estimator_param,
+        pc_filter_transform_param,
+        ray_ground_classifier_param,
+        scan_downsampler_param,
+        ndt_localizer_param,
+        with_rviz_param,
+        with_obstacle_detection_param,
+        mpc_param,
+        recordreplay_planner_param,
+        vehicle_characteristics_param,
         urdf_publisher,
         euclidean_clustering,
         filter_transform_vlp16_front,
         filter_transform_vlp16_rear,
+        point_cloud_fusion_node,
         lgsvl_interface,
         map_publisher,
         ray_ground_classifier,
@@ -276,29 +306,6 @@ def generate_launch_description():
         ndt_localizer,
         mpc,
         recordreplay_planner,
-        point_cloud_fusion_node,
+        object_collision_estimator,
         rviz2
-    ]
-
-    event_handlers = [
-        launch.actions.RegisterEventHandler(
-            event_handler=launch.event_handlers.OnProcessExit(
-                target_action=n,
-                on_exit=[launch.actions.EmitEvent(event=launch.events.Shutdown())]
-            )) for n in nodes]
-
-    return LaunchDescription([
-        euclidean_cluster_param,
-        lgsvl_interface_param,
-        map_publisher_param,
-        pc_filter_transform_param,
-        ray_ground_classifier_param,
-        scan_downsampler_param,
-        ndt_localizer_param,
-        with_rviz_param,
-        mpc_param,
-        recordreplay_planner_param,
-        point_cloud_fusion_node_param,
-        *nodes,
-        *event_handlers
     ])

@@ -44,7 +44,7 @@ def generate_launch_description():
         autoware_launch_pkg_prefix, 'param/scan_downsampler.param.yaml')
 
     lanelet2_map_provider_param_file = os.path.join(
-        avp_demo_pkg_prefix, 'param/avp_lanelet2_map_provider.param.yaml')
+        avp_demo_pkg_prefix, 'param/avp/lanelet2_map_provider.param.yaml')
 
     lane_planner_param_file = os.path.join(
         autoware_launch_pkg_prefix, 'param/lane_planner.param.yaml')
