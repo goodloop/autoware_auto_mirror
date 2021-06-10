@@ -101,9 +101,13 @@ rclcpp::NodeOptions get_default_options(const bool8_t data_driven, const bool8_t
   node_options.append_parameter_override("child_frame_id", "base_link");
   node_options.append_parameter_override("mahalanobis_threshold", 10.0);
   node_options.append_parameter_override(
-    "state_variances", std::vector<float64_t>{1.0, 1.0, 1.0, 1.0, 1.0, 1.0});
+    "state_variances", std::vector<float64_t>{
+      1.0, 1.0, 1.0, 1.0, 1.0, 1.0,  // Position variances.
+      1.0, 1.0, 1.0, 1.0, 1.0, 1.0,  // Velocity variances.
+      1.0, 1.0, 1.0, 1.0, 1.0, 1.0   // Acceleration variances.
+    });
   node_options.append_parameter_override(
-    "process_noise_variances.acceleration", std::vector<float64_t>{1.0, 1.0});
+    "process_noise_variances.acceleration", std::vector<float64_t>{1.0, 1.0, 1.0, 1.0, 1.0, 1.0});
   return node_options;
 }
 

@@ -90,17 +90,16 @@ Eigen::Matrix<float32_t, kStateDim, kStateDim> create_state_variances(
   const std::vector<float64_t> & state_variances)
 {
   if (state_variances.size() != static_cast<size_t>(kStateDim)) {
-    throw std::logic_error("State variances are of wrong size.");
+    throw std::logic_error(
+            "State variances are of wrong size. Read " +
+            std::to_string(state_variances.size()) + " values, but " +
+            std::to_string(kStateDim) + " values expected.");
   }
   assert_all_entries_positive(state_variances, "state_variances");
-  Eigen::Matrix<float32_t, kStateDim, 1> diagonal;
-  diagonal <<
-    static_cast<float32_t>(state_variances[0]),
-    static_cast<float32_t>(state_variances[1]),
-    static_cast<float32_t>(state_variances[2]),
-    static_cast<float32_t>(state_variances[3]),
-    static_cast<float32_t>(state_variances[4]),
-    static_cast<float32_t>(state_variances[5]);
+  Eigen::Matrix<float32_t, kStateDim, 1> diagonal = Eigen::Matrix<float32_t, kStateDim, 1>::Zero();
+  for (int i = 0; i < diagonal.size(); ++i) {
+    diagonal[i] = static_cast<float32_t>(state_variances[static_cast<std::size_t>(i)]);
+  }
   return diagonal.asDiagonal();
 }
 
@@ -137,11 +136,11 @@ StateEstimationNode::StateEstimationNode(
   const auto mahalanobis_threshold{
     declare_parameter("mahalanobis_threshold", std::numeric_limits<float32_t>::max())};
 
-  using State = ConstantAccelerationFilterWrapper::State;
-  m_ekf = std::make_unique<ConstantAccelerationFilterWrapper>(
+  using State = typename FilterWrapperT::State;
+  m_ekf = std::make_unique<FilterWrapperT>(
     common::motion_model::LinearMotionModel<State>{},
     common::state_estimation::make_wiener_noise<State>(acceleration_variances),
-    create_state_variances<6>(state_variances),
+    create_state_variances<State::size()>(state_variances),
     time_between_publish_requests,
     m_frame_id,
     kDefaultHistoryLength,

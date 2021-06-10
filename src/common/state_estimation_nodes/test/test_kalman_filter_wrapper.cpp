@@ -30,7 +30,7 @@
 using autoware::common::types::float64_t;
 using autoware::common::types::float32_t;
 
-using autoware::common::state_estimation::ConstantAccelerationFilterWrapper;
+using autoware::common::state_estimation::ConstantAccelerationFilterWrapperXY;
 using autoware::common::motion_model::LinearMotionModel;
 using autoware::common::state_estimation::WienerNoise;
 using autoware::common::state_estimation::StampedMeasurement2dPose32;
@@ -81,8 +81,8 @@ const auto kNoiseIdentity{(Eigen::Matrix<float32_t, 6, 2>{} <<
 
 /// \test Creating an empty filter and checking that everything is zero.
 TEST(KalmanFilterWrapperTest, create_empty) {
-  using State = ConstantAccelerationFilterWrapper::State;
-  ConstantAccelerationFilterWrapper filter{
+  using State = ConstantAccelerationFilterWrapperXY::State;
+  ConstantAccelerationFilterWrapperXY filter{
     LinearMotionModel<State>{},
     WienerNoise<State>{{1.0F, 1.0F}},
     kCovarianceIdentity,
@@ -94,8 +94,8 @@ TEST(KalmanFilterWrapperTest, create_empty) {
 
 /// \test Before the filter is initialized we don't want to accept any updates.
 TEST(KalmanFilterWrapperTest, ignore_everything_before_initialization) {
-  using State = ConstantAccelerationFilterWrapper::State;
-  ConstantAccelerationFilterWrapper filter{
+  using State = ConstantAccelerationFilterWrapperXY::State;
+  ConstantAccelerationFilterWrapperXY filter{
     LinearMotionModel<State>{},
     WienerNoise<State>{{1.0F, 1.0F}},
     kCovarianceIdentity,
@@ -113,8 +113,8 @@ TEST(KalmanFilterWrapperTest, ignore_everything_before_initialization) {
 
 /// \test Initialize filter with a measurement.
 TEST(KalmanFilterWrapperTest, initialize) {
-  using State = ConstantAccelerationFilterWrapper::State;
-  ConstantAccelerationFilterWrapper filter{
+  using State = ConstantAccelerationFilterWrapperXY::State;
+  ConstantAccelerationFilterWrapperXY filter{
     LinearMotionModel<State>{},
     WienerNoise<State>{{1.0F, 1.0F}},
     kCovarianceIdentity,
@@ -153,8 +153,8 @@ TEST(KalmanFilterWrapperTest, initialize) {
 
 /// \test Initialize filter with a measurement and ignore the ones coming from the past.
 TEST(KalmanFilterWrapperTest, ignore_measurements_from_the_past) {
-  using State = ConstantAccelerationFilterWrapper::State;
-  ConstantAccelerationFilterWrapper filter{
+  using State = ConstantAccelerationFilterWrapperXY::State;
+  ConstantAccelerationFilterWrapperXY filter{
     LinearMotionModel<State>{},
     WienerNoise<State>{{1.0F, 1.0F}},
     kCovarianceIdentity,
@@ -191,10 +191,10 @@ TEST(KalmanFilterWrapperTest, ignore_measurements_from_the_past) {
 
 /// \test Ignore measurements that don't pass the Mahalanobis threshold.
 TEST(KalmanFilterWrapperTest, ignore_far_away_measurements) {
-  using State = ConstantAccelerationFilterWrapper::State;
+  using State = ConstantAccelerationFilterWrapperXY::State;
   using namespace std::chrono_literals;
   const float32_t mahalanobis_threshold = 1.0F;
-  ConstantAccelerationFilterWrapper filter{
+  ConstantAccelerationFilterWrapperXY filter{
     LinearMotionModel<State>{},
     WienerNoise<State>{{1.0F, 1.0F}},
     kCovarianceIdentity,
@@ -232,8 +232,8 @@ TEST(KalmanFilterWrapperTest, ignore_far_away_measurements) {
 
 /// \test Covariance of a static object grows without new observations.
 TEST(KalmanFilterWrapperTest, covariance_grows_with_time) {
-  using State = ConstantAccelerationFilterWrapper::State;
-  ConstantAccelerationFilterWrapper filter{
+  using State = ConstantAccelerationFilterWrapperXY::State;
+  ConstantAccelerationFilterWrapperXY filter{
     LinearMotionModel<State>{},
     WienerNoise<State>{{1.0F, 1.0F}},
     kCovarianceIdentity,
@@ -272,8 +272,8 @@ TEST(KalmanFilterWrapperTest, covariance_grows_with_time) {
 /// \test Track a static object.
 TEST(KalmanFilterWrapperTest, track_static_object) {
   using namespace std::chrono_literals;
-  using State = ConstantAccelerationFilterWrapper::State;
-  ConstantAccelerationFilterWrapper filter{
+  using State = ConstantAccelerationFilterWrapperXY::State;
+  ConstantAccelerationFilterWrapperXY filter{
     LinearMotionModel<State>{},
     WienerNoise<State>{{1.0F, 1.0F}},
     kCovarianceIdentity,
@@ -318,8 +318,8 @@ TEST(KalmanFilterWrapperTest, track_thrown_ball) {
   const float32_t g = -9.80665F;  // m/s^2.
   const float32_t initial_speed = 9.80665F;  // m/s
 
-  using State = ConstantAccelerationFilterWrapper::State;
-  ConstantAccelerationFilterWrapper filter{
+  using State = ConstantAccelerationFilterWrapperXY::State;
+  ConstantAccelerationFilterWrapperXY filter{
     LinearMotionModel<State>{},
     WienerNoise<State>{{1.0F, 1.0F}},
     kCovarianceIdentity,
