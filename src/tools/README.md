@@ -13,5 +13,6 @@ visualization tools and interfaces for debugging.
 - @subpage autoware-auto-launch-package-design
 - @subpage avp_web_interface-package-design
 - @subpage lidar-integration-design
+- @subpage simple_planning_simulator-design
 - @subpage gnss-conversion-nodes-design
 - @subpage test_trajectory_following-package-design
