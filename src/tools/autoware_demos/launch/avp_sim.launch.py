@@ -32,21 +32,22 @@ def generate_launch_description():
     More details about what is included can
     be found at https://gitlab.com/autowarefoundation/autoware.auto/AutowareAuto/-/milestones/25.
     """
-    avp_demo_pkg_prefix = get_package_share_directory('autoware_auto_avp_demo')
+    avp_demo_pkg_prefix = get_package_share_directory('autoware_demos')
+    autoware_launch_pkg_prefix = get_package_share_directory('autoware_auto_launch')
+
     lgsvl_param_file = os.path.join(
-        avp_demo_pkg_prefix, 'param/lgsvl_interface.param.yaml')
+        autoware_launch_pkg_prefix, 'param/lgsvl_interface.param.yaml')
+
     map_publisher_param_file = os.path.join(
-        avp_demo_pkg_prefix, 'param/map_publisher.param.yaml')
+        avp_demo_pkg_prefix, 'param/avp/map_publisher_sim.param.yaml')
     ndt_localizer_param_file = os.path.join(
-        avp_demo_pkg_prefix, 'param/ndt_localizer.param.yaml')
+        avp_demo_pkg_prefix, 'param/avp/ndt_localizer_sim.param.yaml')
     mpc_param_file = os.path.join(
-        avp_demo_pkg_prefix, 'param/mpc.param.yaml')
-
+        avp_demo_pkg_prefix, 'param/avp/mpc_sim.param.yaml')
     pc_filter_transform_param_file = os.path.join(
-        avp_demo_pkg_prefix, 'param/pc_filter_transform.param.yaml')
-
+        avp_demo_pkg_prefix, 'param/avp/pc_filter_transform.param.yaml')
     vehicle_characteristics_param_file = os.path.join(
-        avp_demo_pkg_prefix, 'param/vehicle_characteristics.param.yaml')
+        avp_demo_pkg_prefix, 'param/avp/vehicle_characteristics_sim.param.yaml')
 
     urdf_pkg_prefix = get_package_share_directory('lexus_rx_450h_description')
     urdf_path = os.path.join(urdf_pkg_prefix, 'urdf/lexus_rx_450h.urdf')
@@ -158,7 +159,7 @@ def generate_launch_description():
     )
 
     core_launch = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource([avp_demo_pkg_prefix, '/launch/ms3_core.launch.py']),
+        PythonLaunchDescriptionSource([avp_demo_pkg_prefix, '/launch/avp_core.launch.py']),
         launch_arguments={}.items()
     )
 

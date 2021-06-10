@@ -33,25 +33,26 @@ def generate_launch_description():
     More details about what is included can
     be found at https://gitlab.com/autowarefoundation/autoware.auto/AutowareAuto/-/milestones/25.
     """
-    avp_demo_pkg_prefix = get_package_share_directory('autoware_auto_avp_demo')
+    avp_demo_pkg_prefix = get_package_share_directory('autoware_demos')
+
     map_publisher_param_file = os.path.join(
-        avp_demo_pkg_prefix, 'param/map_publisher_vehicle.param.yaml')
+        avp_demo_pkg_prefix, 'param/avp/map_publisher_vehicle.param.yaml')
     ndt_localizer_param_file = os.path.join(
-        avp_demo_pkg_prefix, 'param/ndt_localizer_vehicle.param.yaml')
+        avp_demo_pkg_prefix, 'param/avp/ndt_localizer_vehicle.param.yaml')
     mpc_param_file = os.path.join(
-        avp_demo_pkg_prefix, 'param/mpc_vehicle.param.yaml')
+        avp_demo_pkg_prefix, 'param/avp/mpc_vehicle.param.yaml')
     vlp16_front_param_file = os.path.join(
-        avp_demo_pkg_prefix, 'param/vlp16_front_vehicle.param.yaml')
+        avp_demo_pkg_prefix, 'param/avp/vlp16_front_vehicle.param.yaml')
     vlp16_rear_param_file = os.path.join(
-        avp_demo_pkg_prefix, 'param/vlp16_rear_vehicle.param.yaml')
+        avp_demo_pkg_prefix, 'param/avp/vlp16_rear_vehicle.param.yaml')
     ssc_interface_param_file = os.path.join(
-        avp_demo_pkg_prefix, 'param/ssc_interface.param.yaml')
+        avp_demo_pkg_prefix, 'param/avp/ssc_interface.param.yaml')
 
     pc_filter_transform_param_file = os.path.join(
-        avp_demo_pkg_prefix, 'param/pc_filter_transform.param.yaml')
+        avp_demo_pkg_prefix, 'param/avp/pc_filter_transform.param.yaml')
 
     vehicle_characteristics_param_file = os.path.join(
-        avp_demo_pkg_prefix, 'param/vehicle_characteristics.param.yaml')
+        avp_demo_pkg_prefix, 'param/avp/vehicle_characteristics_vehicle.param.yaml')
 
     urdf_pkg_prefix = get_package_share_directory('lexus_rx_450h_description')
     urdf_path = os.path.join(urdf_pkg_prefix, 'urdf/lexus_rx_450h_vehicle.urdf')
@@ -200,7 +201,7 @@ def generate_launch_description():
     )
 
     core_launch = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource([avp_demo_pkg_prefix, '/launch/ms3_core.launch.py']),
+        PythonLaunchDescriptionSource([avp_demo_pkg_prefix, '/launch/avp_core.launch.py']),
         launch_arguments={}.items()
     )
 
