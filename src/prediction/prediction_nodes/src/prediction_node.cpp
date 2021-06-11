@@ -15,6 +15,8 @@
 // Co-developed by Tier IV, Inc. and Apex.AI, Inc.
 
 #include <had_map_utils/had_map_conversion.hpp>
+#include <autoware_auto_msgs/msg/predicted_object.hpp>
+#include <autoware_auto_msgs/msg/predicted_object_kinematics.hpp>
 
 #include <functional>
 #include <memory>
@@ -22,8 +24,9 @@
 #include "prediction_nodes/prediction_node.hpp"
 #include "prediction_nodes/rule_based/lonely_world_behavior.hpp"
 
-namespace {
-using namespace autoware::prediction;
+
+namespace
+{
 
 using std::placeholders::_1;
 
@@ -32,7 +35,8 @@ rclcpp::QoS default_qos()
   return rclcpp::QoS{10}.reliable().transient_local();
 }
 
-}
+}  // namespace
+
 namespace autoware
 {
 namespace prediction_nodes
@@ -85,7 +89,7 @@ void PredictionNode::on_tracked_objects(TrackedMsgT::ConstSharedPtr msg)
   std::cout << "Got a TrackedObjects message with header " << msg->header.stamp.sec << std::endl;
 #if MSGS_UPDATED
   PredictedMsgT predicted_objects = from_tracked(*msg);
-  predict_all_stationary(predicted_objects);
+  prediction::predict_all_stationary(predicted_objects);
   m_predicted_objects_pub->publish(predicted_objects);
 #endif
 }
@@ -158,27 +162,22 @@ autoware_auto_msgs::msg::PredictedObjects from_tracked(
 autoware_auto_msgs::msg::PredictedObject from_tracked(
   const autoware_auto_msgs::msg::TrackedObject & tracked)
 {
-  autoware_auto_msgs::msg::PredictedObject predicted{rosidl_runtime_cpp::MessageInitialization::ZERO};
-  predicted.object_id = tracked.object_id;
-  predicted.existence_probability = tracked.existence_probability;
-  predicted.classification = tracked.classification;
-  predicted.kinematics = from_tracked(tracked.kinematics);
-  predicted.shape = tracked.shape;
-
-  return predicted;
+  return autoware_auto_msgs::build<autoware_auto_msgs::msg::PredictedObject>()
+         .object_id(tracked.object_id)
+         .existence_probability(tracked.existence_probability)
+         .classification(tracked.classification)
+         .kinematics(from_tracked(tracked.kinematics))
+         .shape(tracked.shape);
 }
+
 autoware_auto_msgs::msg::PredictedObjectKinematics from_tracked(
   const autoware_auto_msgs::msg::TrackedObjectKinematics & tracked)
 {
-  autoware_auto_msgs::msg::PredictedObjectKinematics predicted{rosidl_runtime_cpp::
-    MessageInitialization::ZERO};
-  predicted.initial_pose = tracked.pose;
-  predicted.initial_twist = tracked.twist;
-  predicted.initial_acceleration = tracked.acceleration;
-
-  // empty predicted paths
-
-  return predicted;
+  return autoware_auto_msgs::build<autoware_auto_msgs::msg::PredictedObjectKinematics>()
+         .initial_pose(tracked.pose)
+         .initial_twist(tracked.twist)
+         .initial_acceleration(tracked.acceleration)
+         .predicted_paths({});
 }
 
 }  // namespace prediction_nodes

@@ -15,7 +15,8 @@
 // Co-developed by Tier IV, Inc. and Apex.AI, Inc.
 
 #include "prediction_nodes/prediction_node.hpp"
-//#include <fake_test_node/fake_test_node.hpp>
+// TODO(frederik.beaujean) Add integration test with fake_test_node
+// #include <fake_test_node/fake_test_node.hpp>
 
 #include "gtest/gtest.h"
 
