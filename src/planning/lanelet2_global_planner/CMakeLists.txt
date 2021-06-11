@@ -33,6 +33,12 @@ if(BUILD_TESTING)
     COPYONLY
   )
 
+  configure_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/test/map_data/kashiwanoha_map.osm
+    ${CMAKE_CURRENT_BINARY_DIR}/test/map_data/kashiwanoha_map.osm
+    COPYONLY
+  )
+
   # gtest
   set(GB_PLANNER_GTEST lanelet2_global_planner_gtest)
   ament_add_gtest(${GB_PLANNER_GTEST}
