@@ -21,9 +21,11 @@
 #ifndef PREDICTION_NODES__PREDICTION_NODE_HPP_
 #define PREDICTION_NODES__PREDICTION_NODE_HPP_
 
+
 #include <autoware_auto_msgs/srv/had_map_service.hpp>
 #include <autoware_auto_msgs/msg/route.hpp>
 
+#include "visibility_control.hpp"
 // TODO(frederik.beaujean) Remove when autoware messages fully updated and available
 #define MSGS_UPDATED 1
 #define TRAFFIC_LIGHTS 0

@@ -14,9 +14,11 @@
 
 // Co-developed by Tier IV, Inc. and Apex.AI, Inc.
 
-#include "gtest/gtest.h"
 #include "prediction_nodes/prediction_node.hpp"
+//#include <fake_test_node/fake_test_node.hpp>
 
-TEST(test_prediction_nodes, test_hello) {
-  EXPECT_EQ(autoware::prediction_nodes::print_hello(), 0);
+#include "gtest/gtest.h"
+
+TEST(test_prediction_nodes, test_fail) {
+  EXPECT_TRUE(false);
 }

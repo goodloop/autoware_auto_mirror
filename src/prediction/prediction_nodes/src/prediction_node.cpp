@@ -14,26 +14,29 @@
 
 // Co-developed by Tier IV, Inc. and Apex.AI, Inc.
 
-#include "prediction_nodes/prediction_node.hpp"
-#include "prediction_nodes/rule_based/lonely_world_behavior.hpp"
-
 #include <had_map_utils/had_map_conversion.hpp>
 
 #include <functional>
 #include <memory>
 
-namespace autoware
-{
-namespace prediction_nodes
-{
+#include "prediction_nodes/prediction_node.hpp"
+#include "prediction_nodes/rule_based/lonely_world_behavior.hpp"
+
+namespace {
 using namespace autoware::prediction;
 
 using std::placeholders::_1;
 
-  rclcpp::QoS default_qos()
-  {
-return rclcpp::QoS{10}.reliable().transient_local();
-  }
+rclcpp::QoS default_qos()
+{
+  return rclcpp::QoS{10}.reliable().transient_local();
+}
+
+}
+namespace autoware
+{
+namespace prediction_nodes
+{
 
 PredictionNode::PredictionNode(const rclcpp::NodeOptions & options)
 : Node("prediction_nodes", options), verbose(true),
@@ -141,10 +144,10 @@ autoware_auto_msgs::msg::PredictedObjects from_tracked(
     ZERO};
   predicted.header = tracked.header;
 
-  predicted.objects.resize(tracked.objects.size());
+  predicted.objects.reserve(tracked.objects.size());
   std::transform(
     tracked.objects.begin(), tracked.objects.end(),
-    predicted.objects.begin(),
+    std::back_inserter(predicted.objects),
     [](const autoware_auto_msgs::msg::TrackedObject & t) {
       return from_tracked(t);
     });
