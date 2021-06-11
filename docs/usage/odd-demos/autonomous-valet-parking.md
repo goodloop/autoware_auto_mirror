@@ -277,8 +277,3 @@ ade$ ros2 launch autoware_auto_launch autoware_auto_visualization.launch.py
 The system architecture that was developed to address the AVP ODD in Autoware.Auto is given below:
 
 ![Autoware.Auto AVP Architecture](images/AVP_Architecture.png)
-
-
-# Related packages
-
-- @subpage avp-demo-package-design
