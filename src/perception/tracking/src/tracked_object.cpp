@@ -41,10 +41,11 @@ using autoware::common::state_vector::variable::Y_VELOCITY;
 using autoware::common::state_vector::variable::X_ACCELERATION;
 using autoware::common::state_vector::variable::Y_ACCELERATION;
 
-using autoware::common::state_estimation::Measurement2dPose64;
-using autoware::common::state_estimation::Measurement2dSpeed64;
-using autoware::common::state_estimation::Measurement2dPoseAndSpeed64;
-using autoware::common::state_estimation::StampedMeasurement2dPose64;
+using autoware::common::state_estimation::MeasurementXYPos64;
+using autoware::common::state_estimation::MeasurementXYSpeed64;
+using autoware::common::state_estimation::MeasurementXYPosAndSpeed64;
+using autoware::common::state_estimation::Stamped;
+using autoware::common::state_estimation::convert_to;
 
 using common::types::float64_t;
 
@@ -146,18 +147,17 @@ void TrackedObject::update(const DetectedObjectMsg & detection)
   position.position.z = detection.kinematics.centroid_position.z;
   position.covariance = detection.kinematics.position_covariance;
   auto pose_measurement =
-    autoware::common::state_estimation::message_to_measurement<StampedMeasurement2dPose64>(position)
-    .measurement;
+    convert_to<Stamped<MeasurementXYPos64>>::from(position).measurement;
   if (!detection.kinematics.has_position_covariance) {
     pose_measurement.covariance() = m_default_variance *
-      Measurement2dPose64::State::Matrix::Identity();
+      MeasurementXYPos64::State::Matrix::Identity();
   }
   auto twist_measurement =
-    autoware::common::state_estimation::message_to_measurement<Measurement2dSpeed64>(
+    convert_to<MeasurementXYSpeed64>::from(
     detection.kinematics.twist);
   if (!detection.kinematics.has_twist_covariance) {
     twist_measurement.covariance() = m_default_variance *
-      Measurement2dSpeed64::State::Matrix::Identity();
+      MeasurementXYSpeed64::State::Matrix::Identity();
   }
 
   if (detection.kinematics.has_twist) {
@@ -167,7 +167,7 @@ void TrackedObject::update(const DetectedObjectMsg & detection)
     Eigen::Matrix4d covariance = Eigen::Matrix4d::Zero();
     covariance.topLeftCorner<2, 2>() = pose_measurement.covariance();
     covariance.bottomRightCorner<2, 2>() = twist_measurement.covariance();
-    Measurement2dPoseAndSpeed64 full_measurement = Measurement2dPoseAndSpeed64{
+    MeasurementXYPosAndSpeed64 full_measurement = MeasurementXYPosAndSpeed64{
       state,
       covariance};
     m_ekf.correct(full_measurement);

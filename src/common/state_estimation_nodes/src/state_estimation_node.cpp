@@ -4,7 +4,7 @@
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//     http://www.apache.org/licenses/LICENSE-2.0
+//    http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -51,7 +51,7 @@ constexpr auto kIndexY{kCovarianceMatrixRows + 1U};
 constexpr auto kCovarianceMatrixRowsSquared{kCovarianceMatrixRows * kCovarianceMatrixRows};
 static_assert(
   std::tuple_size<
-    geometry_msgs::msg::PoseWithCovariance::_covariance_type>::value ==
+  geometry_msgs::msg::PoseWithCovariance::_covariance_type>::value ==
   kCovarianceMatrixRowsSquared, "We expect the covariance matrix to have 36 entries.");
 
 void assert_all_entries_positive(const std::vector<float64_t> & entries, const std::string & tag)
@@ -184,7 +184,7 @@ void StateEstimationNode::odom_callback(const OdomMsgT::SharedPtr msg)
     throw std::runtime_error("Odometry message frames don't match the expected ones.");
   }
   const auto measurement =
-    message_to_measurement<StampedMeasurement2dPoseAndSpeed64>(*msg);
+    convert_to<Stamped<MeasurementXYPosAndSpeed64>>::from(*msg);
   if (m_ekf->is_initialized()) {
     if (!m_ekf->add_observation_to_history(measurement.cast<float32_t>())) {
       throw std::runtime_error("Cannot add an odometry observation to history.");
@@ -207,7 +207,7 @@ void StateEstimationNode::pose_callback(const PoseMsgT::SharedPtr msg)
     throw std::runtime_error("Pose message frames don't match the expected ones.");
   }
   const auto measurement =
-    message_to_measurement<StampedMeasurement2dPose64>(*msg);
+    convert_to<Stamped<MeasurementXYPos64>>::from(*msg);
   if (m_ekf->is_initialized()) {
     if (!m_ekf->add_observation_to_history(measurement.cast<float32_t>())) {
       throw std::runtime_error("Cannot add an odometry observation to history.");
@@ -231,7 +231,7 @@ void StateEstimationNode::relative_pos_callback(const RelativePosMsgT::SharedPtr
   if ((msg->header.frame_id != m_frame_id) || (msg->child_frame_id != m_child_frame_id)) {
     throw std::runtime_error("RelativePosition message frames don't match the expected ones.");
   }
-  const auto measurement = message_to_measurement<StampedMeasurement2dPose64>(*msg);
+  const auto measurement = convert_to<Stamped<MeasurementXYPos64>>::from(*msg);
   if (m_ekf->is_initialized()) {
     if (!m_ekf->add_observation_to_history(measurement.cast<float32_t>())) {
       throw std::runtime_error("Cannot add an odometry observation to history.");
@@ -256,7 +256,7 @@ void StateEstimationNode::twist_callback(const TwistMsgT::SharedPtr msg)
       "Received twist update, but ekf has not been initialized with any state yet. Skipping.");
     return;
   }
-  const auto measurement = message_to_measurement<StampedMeasurement2dSpeed64>(*msg);
+  const auto measurement = convert_to<Stamped<MeasurementXYSpeed64>>::from(*msg);
   if (!m_ekf->add_observation_to_history(measurement.cast<float32_t>())) {
     throw std::runtime_error("Cannot add a twist observation to history.");
   }

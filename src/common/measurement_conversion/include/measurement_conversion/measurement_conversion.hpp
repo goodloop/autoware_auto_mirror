@@ -4,7 +4,7 @@
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//     http://www.apache.org/licenses/LICENSE-2.0
+//    http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -37,87 +37,118 @@ namespace common
 namespace state_estimation
 {
 
+namespace detail
+{
+inline std::chrono::system_clock::time_point to_time_point(const rclcpp::Time & time)
+{
+  return std::chrono::system_clock::time_point{std::chrono::nanoseconds{time.nanoseconds()}};
+}
+inline geometry_msgs::msg::PoseWithCovariance unstamp(
+  const geometry_msgs::msg::PoseWithCovarianceStamped & msg)
+{
+  return msg.pose;
+}
+inline geometry_msgs::msg::TwistWithCovariance unstamp(
+  const geometry_msgs::msg::TwistWithCovarianceStamped & msg)
+{
+  return msg.twist;
+}
+inline const nav_msgs::msg::Odometry & unstamp(const nav_msgs::msg::Odometry & msg) {return msg;}
+inline const autoware_auto_msgs::msg::RelativePositionWithCovarianceStamped & unstamp(
+  const autoware_auto_msgs::msg::RelativePositionWithCovarianceStamped & msg) {return msg;}
+
+}  // namespace detail
+
 ///
-/// @brief      Interface for converting a message into a measurement.
+/// @brief      A default template structure used for message conversion. Only its specializations
+///             are to be used.
 ///
-/// @tparam     MeasurementT  Type of measurement.
-/// @tparam     MessageT      Type of ROS 2 message.
+/// @tparam     MeasurementT  A measurement into which the conversion takes place.
 ///
-/// @return     The measurement created from a message.
-///
-template<typename MeasurementT, typename MessageT>
-MEASUREMENT_CONVERSION_PUBLIC MeasurementT message_to_measurement(const MessageT &)
+template<typename MeasurementT>
+struct MEASUREMENT_CONVERSION_PUBLIC convert_to
 {
   static_assert(
-    sizeof(MessageT) == 0,
-    "Only specializations for message_to_measurement() function are allowed!");
-}
+    autoware::common::type_traits::impossible_branch<MeasurementT>(),
+    "This struct should always have a specialization.");
+};
 
 ///
-/// @brief      Specialization of message_to_measurement for twist message.
+/// @brief      A specialization of `convert_to` to convert to any `Stamped` measurement.
 ///
-/// @param[in]  msg                  The twist message.
+/// @tparam     MeasurementT  A non-stamped measurement into which the conversion takes place.
 ///
-/// @return     The measurement containing speed.
-///
-template<>
-MEASUREMENT_CONVERSION_PUBLIC Measurement2dSpeed64 message_to_measurement(
-  const geometry_msgs::msg::TwistWithCovariance & msg);
+template<typename MeasurementT>
+struct MEASUREMENT_CONVERSION_PUBLIC convert_to<Stamped<MeasurementT>>
+{
+  ///
+  /// @brief      A general function to be called for all `Stamped` measurements.
+  ///
+  /// @details    This function forwards the call to the conversion function that produces a
+  ///             non-stamped version of the measurement and wraps it into the `Stamped` struct.
+  ///
+  /// @param[in]  msg   The message to be converted to a stamped measurement.
+  ///
+  /// @tparam     MsgT  A message type that must have a header.
+  ///
+  /// @return     A stamped measurement.
+  ///
+  template<typename MsgT>
+  static Stamped<MeasurementT> from(const MsgT & msg)
+  {
+    return Stamped<MeasurementT>{
+      detail::to_time_point(msg.header.stamp),
+      convert_to<MeasurementT>::from(detail::unstamp(msg))
+    };
+  }
+};
 
-///
-/// @brief      Specialization of message_to_measurement for pose message.
-///
-/// @param[in]  msg                  The pose message.
-///
-/// @return     The measurement containing pose.
-///
 template<>
-MEASUREMENT_CONVERSION_PUBLIC Measurement2dPose64 message_to_measurement(
-  const geometry_msgs::msg::PoseWithCovariance & msg);
+struct MEASUREMENT_CONVERSION_PUBLIC convert_to<MeasurementXYPos64>
+{
+  static MeasurementXYPos64 from(const geometry_msgs::msg::PoseWithCovariance & msg);
+  static MeasurementXYPos64 from(
+    const autoware_auto_msgs::msg::RelativePositionWithCovarianceStamped & msg);
+};
 
-///
-/// @brief      Specialization of message_to_measurement for stamped twist message.
-///
-/// @param[in]  msg                  The stamped twist message.
-///
-/// @return     The measurement containing speed.
-///
 template<>
-MEASUREMENT_CONVERSION_PUBLIC StampedMeasurement2dSpeed64 message_to_measurement(
-  const geometry_msgs::msg::TwistWithCovarianceStamped & msg);
+struct MEASUREMENT_CONVERSION_PUBLIC convert_to<MeasurementXYZRPYPos64>
+{
+  static MeasurementXYZRPYPos64 from(const geometry_msgs::msg::PoseWithCovariance & msg);
+  static MeasurementXYZRPYPos64 from(
+    const autoware_auto_msgs::msg::RelativePositionWithCovarianceStamped & msg);
+};
 
-///
-/// @brief      Specialization of message_to_measurement for stamped pose message.
-///
-/// @param[in]  msg                  The stamped pose message.
-///
-/// @return     The measurement containing pose.
-///
 template<>
-MEASUREMENT_CONVERSION_PUBLIC StampedMeasurement2dPose64 message_to_measurement(
-  const geometry_msgs::msg::PoseWithCovarianceStamped & msg);
+struct MEASUREMENT_CONVERSION_PUBLIC convert_to<MeasurementXYZPos64>
+{
+  static MeasurementXYZPos64 from(
+    const autoware_auto_msgs::msg::RelativePositionWithCovarianceStamped & msg);
+};
 
-///
-/// @brief      Specialization of message_to_measurement for stamped relative position message.
-///
-/// @param[in]  msg                  The stamped relative position message.
-///
-/// @return     The measurement containing the relative position.
-///
 template<>
-MEASUREMENT_CONVERSION_PUBLIC StampedMeasurement2dPose64 message_to_measurement(
-  const autoware_auto_msgs::msg::RelativePositionWithCovarianceStamped & msg);
+struct MEASUREMENT_CONVERSION_PUBLIC convert_to<MeasurementXYSpeed64>
+{
+  static MeasurementXYSpeed64 from(const geometry_msgs::msg::TwistWithCovariance & msg);
+};
 
-///
-/// @brief      Specialization of message_to_measurement for odometry message.
-///
-/// @param[in]  msg                  The odometry message.
-///
-/// @return     The measurement containing pose and speed.
-///
 template<>
-MEASUREMENT_CONVERSION_PUBLIC StampedMeasurement2dPoseAndSpeed64 message_to_measurement(
-  const nav_msgs::msg::Odometry & msg);
+struct MEASUREMENT_CONVERSION_PUBLIC convert_to<MeasurementXYZRPYSpeed64>
+{
+  static MeasurementXYZRPYSpeed64 from(const geometry_msgs::msg::TwistWithCovariance & msg);
+};
+
+template<>
+struct MEASUREMENT_CONVERSION_PUBLIC convert_to<MeasurementXYPosAndSpeed64>
+{
+  static MeasurementXYPosAndSpeed64 from(const nav_msgs::msg::Odometry & msg);
+};
+
+template<>
+struct MEASUREMENT_CONVERSION_PUBLIC convert_to<MeasurementXYZRPYPosAndSpeed64>
+{
+  static MeasurementXYZRPYPosAndSpeed64 from(const nav_msgs::msg::Odometry & msg);
+};
 
 }  // namespace state_estimation
 }  // namespace common
