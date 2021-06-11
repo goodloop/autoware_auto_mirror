@@ -39,7 +39,7 @@ def generate_launch_description():
         autoware_launch_pkg_prefix, 'param/map_publisher.param.yaml')
 
     ray_ground_classifier_param_file = os.path.join(
-        demos_pkg_prefix, 'param/ray_ground_classifier.param.yaml')
+        autoware_launch_pkg_prefix, 'param/ray_ground_classifier.param.yaml')
 
     scan_downsampler_param_file = os.path.join(
         autoware_launch_pkg_prefix, 'param/scan_downsampler.param.yaml')
@@ -47,7 +47,7 @@ def generate_launch_description():
         autoware_launch_pkg_prefix, 'param/ndt_localizer.param.yaml')
 
     mpc_param_file = os.path.join(
-        demos_pkg_prefix, 'param/mpc.param.yaml')
+        demos_pkg_prefix, 'param/mpc_controller.param.yaml')
     object_collision_estimator_param_file = os.path.join(
         demos_pkg_prefix, 'param/object_collision_estimator.param.yaml')
     recordreplay_planner_param_file = os.path.join(

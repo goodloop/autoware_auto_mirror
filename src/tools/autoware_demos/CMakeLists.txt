@@ -24,7 +24,8 @@ ament_auto_find_build_dependencies()
 
 ament_auto_package(
     INSTALL_TO_SHARE
-    param
-    launch
     config/rviz2
+    data
+    launch
+    param
 )

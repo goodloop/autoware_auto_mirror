@@ -58,7 +58,7 @@ def generate_launch_description():
         autoware_launch_pkg_prefix, 'param/off_map_obstacles_filter.param.yaml')
 
     vehicle_characteristics_param_file = os.path.join(
-        avp_demo_pkg_prefix, 'param/avp_vehicle_characteristics.param.yaml')
+        avp_demo_pkg_prefix, 'param/vehicle_characteristics.param.yaml')
 
     point_cloud_fusion_node_pkg_prefix = get_package_share_directory(
         'point_cloud_fusion_nodes')
