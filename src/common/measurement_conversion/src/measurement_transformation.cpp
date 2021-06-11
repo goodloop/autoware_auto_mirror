@@ -4,7 +4,7 @@
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//     http://www.apache.org/licenses/LICENSE-2.0
+//    http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -27,24 +27,24 @@ namespace state_estimation
 {
 
 template<>
-Measurement2dSpeed64 transform_measurement(
-  const Measurement2dSpeed64 & measurement,
+MeasurementXYSpeed64 transform_measurement(
+  const MeasurementXYSpeed64 & measurement,
   const Eigen::Isometry3d & tf__world__frame_id)
 {
   const auto converted_tf__world__frame_id = downscale_isometry<2>(tf__world__frame_id);
-  return Measurement2dSpeed64{
+  return MeasurementXYSpeed64{
     converted_tf__world__frame_id.rotation() * measurement.state().vector(),
     Eigen::Matrix2d{converted_tf__world__frame_id.rotation() * measurement.covariance().matrix() *
       converted_tf__world__frame_id.rotation().transpose()}};
 }
 
 template<>
-Measurement2dPose64 transform_measurement(
-  const Measurement2dPose64 & measurement,
+MeasurementXYPos64 transform_measurement(
+  const MeasurementXYPos64 & measurement,
   const Eigen::Isometry3d & tf__world__frame_id)
 {
   const auto converted_tf__world__frame_id = downscale_isometry<2>(tf__world__frame_id);
-  return Measurement2dPose64{
+  return MeasurementXYPos64{
     converted_tf__world__frame_id * measurement.state().vector(),
     Eigen::Matrix2d
     {
@@ -56,29 +56,29 @@ Measurement2dPose64 transform_measurement(
 }
 
 template<>
-StampedMeasurement2dSpeed64 transform_measurement(
-  const StampedMeasurement2dSpeed64 & measurement,
+Stamped<MeasurementXYSpeed64> transform_measurement(
+  const Stamped<MeasurementXYSpeed64> & measurement,
   const Eigen::Isometry3d & tf__world__frame_id)
 {
-  return StampedMeasurement2dSpeed64 {
+  return Stamped<MeasurementXYSpeed64> {
     measurement.timestamp,
     transform_measurement(measurement.measurement, tf__world__frame_id)};
 }
 
 template<>
-StampedMeasurement2dPose64 transform_measurement(
-  const StampedMeasurement2dPose64 & measurement,
+Stamped<MeasurementXYPos64> transform_measurement(
+  const Stamped<MeasurementXYPos64> & measurement,
   const Eigen::Isometry3d & tf__world__frame_id)
 {
-  return StampedMeasurement2dPose64 {
+  return Stamped<MeasurementXYPos64> {
     measurement.timestamp,
     transform_measurement(measurement.measurement, tf__world__frame_id)};
 }
 
 
 template<>
-StampedMeasurement2dPoseAndSpeed64 transform_measurement(
-  const StampedMeasurement2dPoseAndSpeed64 & measurement,
+Stamped<MeasurementXYPosAndSpeed64> transform_measurement(
+  const Stamped<MeasurementXYPosAndSpeed64> & measurement,
   const Eigen::Isometry3d & tf__world__frame_id)
 {
   const auto converted_tf__world__frame_id = downscale_isometry<2>(tf__world__frame_id);
@@ -88,9 +88,9 @@ StampedMeasurement2dPoseAndSpeed64 transform_measurement(
   const Eigen::Vector2d speed_state = converted_tf__world__frame_id.rotation() *
     Eigen::Vector2d{state(2), state(3)};
 
-  return StampedMeasurement2dPoseAndSpeed64{
+  return Stamped<MeasurementXYPosAndSpeed64>{
     measurement.timestamp,
-    Measurement2dPoseAndSpeed64{
+    MeasurementXYPosAndSpeed64{
       (Eigen::Vector4d{} << pos_state, speed_state).finished(),
       measurement.measurement.covariance()}
   };

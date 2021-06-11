@@ -4,7 +4,7 @@
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//     http://www.apache.org/licenses/LICENSE-2.0
+//    http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -65,7 +65,7 @@ MeasurementT message_to_transformed_measurement(
   const MessageT & msg,
   const Eigen::Isometry3d & tf__world__frame_id)
 {
-  const auto measurement = message_to_measurement<MeasurementT, MessageT>(msg);
+  const auto measurement = convert_to<MeasurementT>::from(msg);
   return transform_measurement(measurement, tf__world__frame_id);
 }
 
@@ -76,40 +76,40 @@ MeasurementT message_to_transformed_measurement(
 /// @brief      Specialization of transform_measurement for speed measurement.
 ///
 template<>
-MEASUREMENT_CONVERSION_PUBLIC Measurement2dSpeed64 transform_measurement(
-  const Measurement2dSpeed64 & measurement,
+MEASUREMENT_CONVERSION_PUBLIC MeasurementXYSpeed64 transform_measurement(
+  const MeasurementXYSpeed64 & measurement,
   const Eigen::Isometry3d & tf__world__frame_id);
 
 ///
 /// @brief      Specialization of transform_measurement for pose measurement.
 ///
 template<>
-MEASUREMENT_CONVERSION_PUBLIC Measurement2dPose64 transform_measurement(
-  const Measurement2dPose64 & measurement,
+MEASUREMENT_CONVERSION_PUBLIC MeasurementXYPos64 transform_measurement(
+  const MeasurementXYPos64 & measurement,
   const Eigen::Isometry3d & tf__world__frame_id);
 
 ///
 /// @brief      Specialization of transform_measurement for stamped speed measurement.
 ///
 template<>
-MEASUREMENT_CONVERSION_PUBLIC StampedMeasurement2dSpeed64 transform_measurement(
-  const StampedMeasurement2dSpeed64 & measurement,
+MEASUREMENT_CONVERSION_PUBLIC Stamped<MeasurementXYSpeed64> transform_measurement(
+  const Stamped<MeasurementXYSpeed64> & measurement,
   const Eigen::Isometry3d & tf__world__frame_id);
 
 ///
 /// @brief      Specialization of transform_measurement for stamped pose measurement.
 ///
 template<>
-MEASUREMENT_CONVERSION_PUBLIC StampedMeasurement2dPose64 transform_measurement(
-  const StampedMeasurement2dPose64 & measurement,
+MEASUREMENT_CONVERSION_PUBLIC Stamped<MeasurementXYPos64> transform_measurement(
+  const Stamped<MeasurementXYPos64> & measurement,
   const Eigen::Isometry3d & tf__world__frame_id);
 
 ///
 /// @brief      Specialization of transform_measurement for stamped pose and speed measurement.
 ///
 template<>
-MEASUREMENT_CONVERSION_PUBLIC StampedMeasurement2dPoseAndSpeed64 transform_measurement(
-  const StampedMeasurement2dPoseAndSpeed64 & measurement,
+MEASUREMENT_CONVERSION_PUBLIC Stamped<MeasurementXYPosAndSpeed64> transform_measurement(
+  const Stamped<MeasurementXYPosAndSpeed64> & measurement,
   const Eigen::Isometry3d & tf__world__frame_id);
 
 }  // namespace state_estimation
