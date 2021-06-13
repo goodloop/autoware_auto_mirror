@@ -23,7 +23,7 @@
 #include "simple_planning_simulator/vehicle_model/sim_model_interface.hpp"
 
 /**
- * @class wf_simulator ideal acceleration and steering model
+ * @class SimModelIdealSteerAcc
  * @brief calculate ideal steering dynamics
  */
 class SimModelIdealSteerAcc : public SimModelInterface

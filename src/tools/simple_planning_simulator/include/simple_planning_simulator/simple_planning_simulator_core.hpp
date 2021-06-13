@@ -167,8 +167,8 @@ private:
   /**
    * @brief get transform from two frame_ids
    * @param [in] parent_frame parent frame id
-   * @param [in] child frame id
-   * @param [out] transform transform from parent frame to child frame
+   * @param [in] child_frame child frame id
+   * @return transform from parent frame to child frame
    */
   TransformStamped get_transform_msg(const std::string parent_frame, const std::string child_frame);
 
@@ -203,19 +203,18 @@ private:
 
   /**
    * @brief publish pose and twist
-   * @param [in]
+   * @param [in] state The kinematic state to publish
    */
   void publish_kinematic_state(const VehicleKinematicState & state);
 
   /**
    * @brief publish vehicle state report
-   * @param [in]
    */
   void publish_state_report();
 
   /**
    * @brief publish tf
-   * @param [in]
+   * @param [in] state The kinematic state to publish as a TF
    */
   void publish_tf(const VehicleKinematicState & state);
 };

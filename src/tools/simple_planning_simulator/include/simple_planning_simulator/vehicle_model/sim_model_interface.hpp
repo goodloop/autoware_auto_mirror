@@ -24,8 +24,8 @@ using autoware::common::types::float64_t;
 using autoware::common::types::bool8_t;
 
 /**
- * @class simple_simple_planning_simulator vehicle model class
- * @brief calculate vehicle dynamics
+ * @class SimModelInterface
+ * @brief simple_planning_simulator vehicle model class to calculate vehicle dynamics
  */
 class SimModelInterface
 {
@@ -77,7 +77,7 @@ public:
 
   /**
    * @brief set gear
-   * @param [in] input gear command defined in autoware_auto_msgs/VehicleStateCommand
+   * @param [in] gear gear command defined in autoware_auto_msgs/VehicleStateCommand
    */
   void setGear(const uint8_t gear);
 
