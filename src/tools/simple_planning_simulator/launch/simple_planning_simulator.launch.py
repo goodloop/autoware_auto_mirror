@@ -22,6 +22,7 @@ from ament_index_python import get_package_share_directory
 
 import os
 
+
 def generate_launch_description():
 
     default_vehicle_characteristics_param = os.path.join(
