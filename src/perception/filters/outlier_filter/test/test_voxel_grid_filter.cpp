@@ -13,13 +13,111 @@
 // limitations under the License.
 
 #include <memory>
+#include <vector>
 
 #include "gtest/gtest.h"
 #include "outlier_filter/voxel_grid_filter.hpp"
+#include "point_cloud_utils.hpp"
 
 using VoxelGridFilter =
   autoware::perception::filters::outlier_filter::voxel_grid_filter::VoxelGridFilter;
 
-TEST(VoxelGridFilterTest, test_parameter) {
-  auto filter = std::make_shared<VoxelGridFilter>(1.0f, 1.0f, 1.0f, static_cast<uint32_t>(10));
+// TEST METHODS
+/* TEST 1: Four equispaced points
+ *     |
+ *  x  |  x
+ *     |
+ * --------- -> the same
+ *     |
+ *  x  |  x
+ *     |
+ */
+TEST(VoxelGridFilterTest, test_four_equispaced_points) {
+  auto filter = std::make_shared<VoxelGridFilter>(1.0f, 1.0f, 1.0f, static_cast<uint32_t>(1));
+  std::vector<pcl::PointXYZ> points = {
+    make_point(-1.0f, 1.0f, 0.0f),
+    make_point(-1.0f, -1.0f, 0.0f),
+    make_point(1.0f, 1.0f, 0.0f),
+    make_point(1.0f, -1.0f, 0.0f)};
+  auto time0 = std::chrono::system_clock::now();
+  auto t0 = to_msg_time(time0);
+  auto input = make_pc(points, t0);
+
+  // Run the filter
+  pcl::PointCloud<pcl::PointXYZ>::Ptr output(new pcl::PointCloud<pcl::PointXYZ>());
+  pcl::PointCloud<pcl::PointXYZ>::ConstPtr pc(new pcl::PointCloud<pcl::PointXYZ>(input));
+  filter->filter(pc, output);
+
+  // Perform the check
+  check_pc(points, output);
+}
+
+/* TEST 2: Four equispaced points + one close point
+ *     |            |
+ *  xx |  x      xx |
+ *     |            |
+ * --------- -> ---------
+ *     |            |
+ *  x  |  x         |
+ *     |            |
+ */
+TEST(VoxelGridFilterTest, test_two_close_points) {
+  auto filter = std::make_shared<VoxelGridFilter>(1.0f, 1.0f, 1.0f, static_cast<uint32_t>(2));
+  std::vector<pcl::PointXYZ> points = {
+    make_point(-1.0f, 1.0f, 0.0f),
+    make_point(-0.8f, 1.0f, 0.0f),
+    make_point(-1.0f, -1.0f, 0.0f),
+    make_point(1.0f, 1.0f, 0.0f),
+    make_point(1.0f, -1.0f, 0.0f)};
+  auto time0 = std::chrono::system_clock::now();
+  auto t0 = to_msg_time(time0);
+  auto input = make_pc(points, t0);
+
+  // Run the filter
+  pcl::PointCloud<pcl::PointXYZ>::Ptr output(new pcl::PointCloud<pcl::PointXYZ>());
+  pcl::PointCloud<pcl::PointXYZ>::ConstPtr pc(new pcl::PointCloud<pcl::PointXYZ>(input));
+  filter->filter(pc, output);
+
+  // Perform the check
+  std::vector<pcl::PointXYZ> filter_points = {
+    make_point(-1.0f, 1.0f, 0.0f),
+    make_point(-0.8f, 1.0f, 0.0f)
+  };
+  check_pc(filter_points, output);
+}
+
+/* TEST 3: Line of 10 points 
+ * Due to the gridding structure the grid has a range of [0.0 - 1.0)
+ *      |              |
+ * xxxxxxxxxxx    xxxxxxxxxx
+ *      |              |
+ * ----------- -> -----------
+ */
+TEST(VoxelGridFilterTest, test_line) {
+  auto filter = std::make_shared<VoxelGridFilter>(1.0f, 1.0f, 1.0f, static_cast<uint32_t>(2));
+  std::vector<pcl::PointXYZ> points = {
+    make_point(-1.0f, 1.0f, 0.0f),
+    make_point(-0.8f, 1.0f, 0.0f),
+    make_point(-0.6f, 1.0f, 0.0f),
+    make_point(-0.4f, 1.0f, 0.0f),
+    make_point(-0.2f, 1.0f, 0.0f),
+    make_point(0.0f, 1.0f, 0.0f),
+    make_point(0.2f, 1.0f, 0.0f),
+    make_point(0.4f, 1.0f, 0.0f),
+    make_point(0.6f, 1.0f, 0.0f),
+    make_point(0.8f, 1.0f, 0.0f),
+    make_point(1.0f, 1.0f, 0.0f)};
+  auto time0 = std::chrono::system_clock::now();
+  auto t0 = to_msg_time(time0);
+  auto input = make_pc(points, t0);
+
+  // Run the filter
+  pcl::PointCloud<pcl::PointXYZ>::Ptr output(new pcl::PointCloud<pcl::PointXYZ>());
+  pcl::PointCloud<pcl::PointXYZ>::ConstPtr pc(new pcl::PointCloud<pcl::PointXYZ>(input));
+  filter->filter(pc, output);
+
+  // Perform the check
+  // Voxel is exclusive of the range, hence the final value is clipped
+  points.pop_back();
+  check_pc(points, output);
 }
