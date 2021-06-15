@@ -310,6 +310,10 @@ bool8_t LgsvlInterface::send_state_command(const autoware_auto_msgs::msg::Vehicl
     msg_corrected.mode ==
     VSD::VEHICLE_MODE_COMPLETE_AUTO_DRIVE ? true : false);
 
+  HandbrakeReport handbrake_report;
+  handbrake_report.report = msg_corrected.hand_brake;
+  m_handbrake_report_pub->publish(handbrake_report);
+
   m_state_pub->publish(state_data);
 
   HeadlightsReport headlights_report;
