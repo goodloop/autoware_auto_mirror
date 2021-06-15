@@ -265,6 +265,15 @@ def generate_launch_description():
         condition=IfCondition(LaunchConfiguration('with_obstacle_detection'))
     )
 
+    point_type_adapter_pkg_prefix = get_package_share_directory(
+        'point_type_adapter')
+
+    adapter_launch = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            os.path.join(point_type_adapter_pkg_prefix,
+                         'launch/point_type_adapter.launch.py'))
+    )
+
     return LaunchDescription([
         euclidean_cluster_param,
         lgsvl_interface_param,
@@ -292,5 +301,6 @@ def generate_launch_description():
         mpc,
         recordreplay_planner,
         object_collision_estimator,
-        rviz2
+        rviz2,
+        adapter_launch
     ])
