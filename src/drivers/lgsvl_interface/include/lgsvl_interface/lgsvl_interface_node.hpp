@@ -26,6 +26,7 @@
 #include <string>
 
 #include "autoware_auto_msgs/msg/headlights_report.hpp"
+#include "autoware_auto_msgs/msg/horn_report.hpp"
 #include "autoware_auto_msgs/msg/wipers_report.hpp"
 
 namespace lgsvl_interface
@@ -44,6 +45,11 @@ public:
   rclcpp::Publisher<autoware_auto_msgs::msg::HeadlightsReport>::SharedPtr m_headlights_report_pub{};
 
   rclcpp::Subscription<autoware_auto_msgs::msg::HeadlightsReport>::SharedPtr m_headlights_report_sub
+  {};
+
+  rclcpp::Publisher<autoware_auto_msgs::msg::HornReport>::SharedPtr m_horn_report_pub{};
+
+  rclcpp::Subscription<autoware_auto_msgs::msg::HornReport>::SharedPtr m_horn_report_sub
   {};
 };  // class LgsvlInterfaceNode
 }  // namespace lgsvl_interface

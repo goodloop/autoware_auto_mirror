@@ -103,7 +103,7 @@ public:
     Table1D && brake_table,
     Table1D && steer_table,
     rclcpp::Publisher<autoware_auto_msgs::msg::HeadlightsReport>::SharedPtr headlights_report_pub,
-    rclcpp::Publisher<autoware_auto_msgs::msg::HeadlightsReport>::SharedPtr horn_report_pub,
+    rclcpp::Publisher<autoware_auto_msgs::msg::HornReport>::SharedPtr horn_report_pub,
     bool publish_tf = NO_PUBLISH,
     bool publish_pose = PUBLISH);
 
