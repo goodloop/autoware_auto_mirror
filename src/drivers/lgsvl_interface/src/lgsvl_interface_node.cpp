@@ -88,6 +88,7 @@ LgsvlInterfaceNode::LgsvlInterfaceNode(
       table("throttle"),
       table("brake"),
       table("steer"),
+      m_hand_brake_report_pub,
       m_headlights_report_pub,
       pub_tf,
       pub_pose
