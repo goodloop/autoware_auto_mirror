@@ -45,6 +45,8 @@ namespace lgsvl_interface
 {
 using autoware_auto_msgs::msg::HeadlightsCommand;
 using autoware_auto_msgs::msg::HeadlightsReport;
+using autoware_auto_msgs::msg::HornCommand;
+using autoware_auto_msgs::msg::HornReport;
 using autoware_auto_msgs::msg::WipersCommand;
 using autoware_auto_msgs::msg::WipersReport;
 
