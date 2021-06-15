@@ -18,96 +18,12 @@
 #include "gtest/gtest.h"
 #include "pcl_conversions/pcl_conversions.h"
 
-#include "geometry_msgs/msg/point32.hpp"
 #include "outlier_filter/radius_search_2d_filter.hpp"
-#include "lidar_utils/point_cloud_utils.hpp"
+#include "point_cloud_utils.hpp"
 
-using autoware::common::types::float32_t;
-using PointXYZ = geometry_msgs::msg::Point32;
+
 using RadiusSearch2DFilter =
   autoware::perception::filters::outlier_filter::radius_search_2d_filter::RadiusSearch2DFilter;
-
-// Helper methods
-// FIXME(jilada): this function is based on a function from test_point_cloud_fusion.hpp
-pcl::PointCloud<pcl::PointXYZ> make_pc(
-  std::vector<pcl::PointXYZ> points,
-  builtin_interfaces::msg::Time stamp)
-{
-  sensor_msgs::msg::PointCloud2 msg;
-  autoware::common::lidar_utils::init_pcl_msg(msg, "base_link", points.size());
-
-  uint32_t pidx = 0;
-  for (auto point : points) {
-    autoware::common::types::PointXYZIF pt;
-    pt.x = point.x;
-    pt.y = point.y;
-    pt.z = point.z;
-    pt.intensity = 1.0;
-    autoware::common::lidar_utils::add_point_to_cloud(msg, pt, pidx);
-  }
-
-  msg.header.stamp = stamp;
-  pcl::PointCloud<pcl::PointXYZ> pcl_cloud;
-  pcl::moveFromROSMsg(msg, pcl_cloud);
-
-  return pcl_cloud;
-}
-
-pcl::PointXYZ make_point(float x, float y, float z)
-{
-  pcl::PointXYZ p;
-  p.x = x;
-  p.y = y;
-  p.z = z;
-  return p;
-}
-
-// FIXME(jilada): this function is copied from test_point_cloud_fusion.hpp
-builtin_interfaces::msg::Time to_msg_time(
-  const std::chrono::system_clock::time_point time_point)
-{
-  const auto tse = time_point.time_since_epoch();
-  if (tse < std::chrono::nanoseconds(0LL)) {
-    throw std::invalid_argument("ROS 2 builtin interfaces time does not support negative a epoch.");
-  }
-  builtin_interfaces::msg::Time result;
-
-  result.sec = static_cast<decltype(result.sec)>(
-    std::chrono::duration_cast<std::chrono::seconds>(tse).count());
-
-  result.nanosec = static_cast<decltype(result.nanosec)>((
-      tse - std::chrono::duration_cast<std::chrono::seconds>(tse)).count());
-
-  return result;
-}
-
-void check_pc(
-  std::vector<pcl::PointXYZ> new_points,
-  pcl::PointCloud<pcl::PointXYZ>::Ptr filtered_pc)
-{
-  // Check that points are of equal size
-  EXPECT_EQ(new_points.size(), filtered_pc->points.size());
-
-  // Compare points
-  auto pc_it = filtered_pc->begin();
-  auto p_it = new_points.begin();
-
-  while (pc_it != filtered_pc->end() && p_it != new_points.end()) {
-    // Check values
-    ASSERT_FLOAT_EQ(pc_it->x, p_it->x);
-    ASSERT_FLOAT_EQ(pc_it->y, p_it->y);
-    ASSERT_FLOAT_EQ(pc_it->z, p_it->z);
-
-    // Update iterators
-    pc_it++;
-    p_it++;
-  }
-
-  // Check that both iterators have reach the end
-  ASSERT_EQ(pc_it, filtered_pc->end());
-  ASSERT_EQ(p_it, new_points.end());
-}
-
 
 // TEST METHODS
 /* TEST 1: A single point pointcloud

@@ -71,7 +71,8 @@ if(BUILD_TESTING)
   # Unit tests
   set(TEST_SOURCES
     test/test_radius_search_2d_filter.cpp
-    test/test_voxel_grid_filter.cpp)
+    test/test_voxel_grid_filter.cpp
+    test/point_cloud_utils.hpp)
   set(TEST_OUTLIER_FILTER_EXE test_outlier_filter)
   ament_add_gtest(${TEST_OUTLIER_FILTER_EXE} ${TEST_SOURCES})
   autoware_set_compile_options(${TEST_OUTLIER_FILTER_EXE})
