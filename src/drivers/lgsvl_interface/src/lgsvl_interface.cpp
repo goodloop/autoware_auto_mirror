@@ -31,6 +31,8 @@
 
 #include "autoware_auto_msgs/msg/headlights_command.hpp"
 #include "autoware_auto_msgs/msg/headlights_report.hpp"
+#include "autoware_auto_msgs/msg/horn_command.hpp"
+#include "autoware_auto_msgs/msg/horn_report.hpp"
 #include "autoware_auto_msgs/msg/wipers_command.hpp"
 #include "autoware_auto_msgs/msg/wipers_report.hpp"
 
@@ -82,9 +84,11 @@ LgsvlInterface::LgsvlInterface(
   Table1D && brake_table,
   Table1D && steer_table,
   rclcpp::Publisher<HeadlightsReport>::SharedPtr headlights_report_pub,
+  rclcpp::Publisher<HornReport>::SharedPtr horn_report_pub,
   bool publish_tf,
   bool publish_pose)
 : m_headlights_report_pub{headlights_report_pub},
+  m_horn_report_pub{horn_report_pub},
   m_throttle_table{throttle_table},
   m_brake_table{brake_table},
   m_steer_table{steer_table},
@@ -307,6 +311,10 @@ bool8_t LgsvlInterface::send_state_command(const autoware_auto_msgs::msg::Vehicl
     VSD::VEHICLE_MODE_COMPLETE_AUTO_DRIVE ? true : false);
 
   m_state_pub->publish(m_lgsvl_state);
+
+  HornReport horn_report;
+  horn_report.report = msg_corrected.horn;
+  m_horn_report_pub->publish(horn_report);
 
   return true;
 }
