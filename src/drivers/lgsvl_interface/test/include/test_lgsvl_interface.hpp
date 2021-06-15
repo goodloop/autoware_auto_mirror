@@ -58,7 +58,8 @@ protected:
       Table1D({0.0, 3.0}, {0.0, 100.0}),
       Table1D({-3.0, 0.0}, {100.0, 0.0}),
       Table1D({-0.331, 0.331}, {-100.0, 100.0}),
-      headlights_report_pub);
+      headlights_report_pub,
+      horn_report_pub);
 
     broadcaster_ = std::make_unique<tf2_ros::StaticTransformBroadcaster>(node_);
 
