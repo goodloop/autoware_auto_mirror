@@ -66,6 +66,14 @@ LgsvlInterfaceNode::LgsvlInterfaceNode(
     [this](autoware_auto_msgs::msg::HeadlightsReport::SharedPtr msg)
     {m_headlights_report_pub->publish(*msg);});
 
+  m_hand_brake_report_pub = create_publisher<autoware_auto_msgs::msg::HandBrakeReport>(
+    "/vehicle/hand_brake_report", rclcpp::QoS{10U});
+
+  m_hand_brake_report_sub = create_subscription<autoware_auto_msgs::msg::HandBrakeReport>(
+    "/lgsvl/hand_brake_report", rclcpp::QoS{10U},
+    [this](autoware_auto_msgs::msg::HandBrakeReport::SharedPtr msg)
+    {m_hand_brake_report_pub->publish(*msg);});
+
   // Set up interface
   set_interface(
     std::make_unique<LgsvlInterface>(

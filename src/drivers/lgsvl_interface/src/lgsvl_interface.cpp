@@ -29,8 +29,8 @@
 
 #include "lgsvl_interface/lgsvl_interface.hpp"
 
-#include "autoware_auto_msgs/msg/handbrake_command.hpp"
-#include "autoware_auto_msgs/msg/handbrake_report.hpp"
+#include "autoware_auto_msgs/msg/hand_brake_command.hpp"
+#include "autoware_auto_msgs/msg/hand_brake_report.hpp"
 #include "autoware_auto_msgs/msg/headlights_command.hpp"
 #include "autoware_auto_msgs/msg/headlights_report.hpp"
 
@@ -42,8 +42,8 @@ using namespace std::chrono_literals;
 namespace lgsvl_interface
 {
 
-using autoware_auto_msgs::msg::HandbrakeCommand;
-using autoware_auto_msgs::msg::HandbrakeReport;
+using autoware_auto_msgs::msg::HandBrakeCommand;
+using autoware_auto_msgs::msg::HandBrakeReport;
 using autoware_auto_msgs::msg::HeadlightsCommand;
 using autoware_auto_msgs::msg::HeadlightsReport;
 
@@ -82,10 +82,12 @@ LgsvlInterface::LgsvlInterface(
   Table1D && throttle_table,
   Table1D && brake_table,
   Table1D && steer_table,
+  rclcpp::Publisher<HandBrakeReport>::SharedPtr hand_brake_report_pub,
   rclcpp::Publisher<HeadlightsReport>::SharedPtr headlights_report_pub,
   bool publish_tf,
   bool publish_pose)
-: m_headlights_report_pub{headlights_report_pub},
+: m_hand_brake_report_pub{hand_brake_report_pub},
+  m_headlights_report_pub{headlights_report_pub},
   m_throttle_table{throttle_table},
   m_brake_table{brake_table},
   m_steer_table{steer_table},
@@ -314,9 +316,9 @@ bool8_t LgsvlInterface::send_state_command(const autoware_auto_msgs::msg::Vehicl
     msg_corrected.mode ==
     VSD::VEHICLE_MODE_COMPLETE_AUTO_DRIVE ? true : false);
 
-  HandbrakeReport handbrake_report;
-  handbrake_report.report = msg_corrected.hand_brake;
-  m_handbrake_report_pub->publish(handbrake_report);
+  HandBrakeReport hand_brake_report;
+  hand_brake_report.report = msg_corrected.hand_brake;
+  m_hand_brake_report_pub->publish(hand_brake_report);
 
   m_state_pub->publish(state_data);
 
