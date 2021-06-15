@@ -44,6 +44,8 @@ namespace lgsvl_interface
 
 using autoware_auto_msgs::msg::HeadlightsCommand;
 using autoware_auto_msgs::msg::HeadlightsReport;
+using autoware_auto_msgs::msg::HornCommand;
+using autoware_auto_msgs::msg::HornReport;
 
 const std::unordered_map<WIPER_TYPE, WIPER_TYPE> LgsvlInterface::autoware_to_lgsvl_wiper {
   {VSC::WIPER_NO_COMMAND, static_cast<WIPER_TYPE>(VSD::WIPERS_OFF)},
