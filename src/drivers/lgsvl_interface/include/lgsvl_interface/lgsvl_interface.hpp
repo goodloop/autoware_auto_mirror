@@ -22,6 +22,8 @@
 
 #include <autoware_auto_msgs/msg/headlights_command.hpp>
 #include <autoware_auto_msgs/msg/headlights_report.hpp>
+#include <autoware_auto_msgs/msg/horn_command.hpp>
+#include <autoware_auto_msgs/msg/horn_report.hpp>
 #include <autoware_auto_msgs/msg/raw_control_command.hpp>
 #include <autoware_auto_msgs/msg/vehicle_kinematic_state.hpp>
 #include <autoware_auto_msgs/msg/vehicle_state_command.hpp>
