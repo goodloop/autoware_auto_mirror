@@ -20,17 +20,18 @@
       translation: 50.0
       # Rotation threshold in radians
       rotation: 3.15
-    load_initial_pose_from_parameters: true
+    load_initial_pose_from_parameters: False
+    # used only when load_initial_pose_from_parameters is True
     initial_pose:
       translation:
-        x: -57.6
+        x: -58.1
         y: -41.0
-        z: -2.01
+        z: 0.0
       quaternion:
         x: 0.0
         y: 0.0
-        z: 0.0
-        w: 1.0
+        z: -0.992857
+        w: 0.119311
       enabled: false
     # localizer specific configuration
     localizer:
