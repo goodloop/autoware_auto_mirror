@@ -21,11 +21,13 @@ Parameters file for the package is expected to be in `param/test.param.yaml`.
 
 To add a smoke test to your package tests, add test dependency on `autoware_testing` to `package.xml`
 
-`<test_depend>autoware_testing</test_depend>`
+```{xml}
+<test_depend>autoware_testing</test_depend>
+```
 
 and add the following two lines to `CMakeLists.txt` in the `IF (BUILD_TESTING)` section:
 
-```
+```{cmake}
 find_package(autoware_testing REQUIRED)
 add_smoke_test(${PROJECT_NAME} <EXECUTABLE_NAME>)
 ```
