@@ -1,13 +1,14 @@
 outlier_filter {#outlier_filter-package-design}
 ===========
 
-This is the design document for the `outlier_filter` package.
-
 
 # Purpose / Use cases
-<!-- Required -->
-<!-- Things to consider:
-    - Why did we implement this feature? -->
+
+The `outlier_filter` package is a library package containing the implementations of the three
+outlier filters from the TierIV [AutowareArchitectureProposal repository](https://github.com/tier4/AutowareArchitectureProposal.iv):
+ * `radius_search_2d_filter` - uses PCL functions to radially search a point for surrounding neighbours 
+ * `voxel_grid_filter` - uses voxels to determine if a particular voxel contains outliers
+ * `ring_filter` (Not Implemented Yet) - uses ring information from the lidar to determine if a point is an outlier  
 
 
 # Design
@@ -15,22 +16,128 @@ This is the design document for the `outlier_filter` package.
 <!-- Things to consider:
     - How does it work? -->
 
+The algorithm orginally coupled with the ROS2 Node interfaces has been separated to create two new
+packages following the package design guidelines in the AutowareAuto. This library package contains
+the main implementation of the filtering algorithms for the three outlier filter types.
+
+The implementation of the classes are straightforward. The constructor is passed the parameters use
+for filtering.   
+
+## radius_search_2d_filter
+
+The original implementation of the `radius_search_2d_filter` can be found in the TierIV
+AutowareArchitectureProposal repository:
+* [`radius_search_2d_outlier_filter_nodelet.hpp`](https://github.com/tier4/AutowareArchitectureProposal.iv/blob/ros2/sensing/preprocessor/pointcloud/pointcloud_preprocessor/include/pointcloud_preprocessor/outlier_filter/radius_search_2d_outlier_filter_nodelet.hpp)
+* [`radius_search_2d_outlier_filter_nodelet.cpp`](https://github.com/tier4/AutowareArchitectureProposal.iv/blob/ros2/sensing/preprocessor/pointcloud/pointcloud_preprocessor/src/outlier_filter/radius_search_2d_outlier_filter_nodelet.cpp)
+
+
+## voxel_grid_filter
+
+The original implementation of the `voxel_grid_filter` can be found in the TierIV
+AutowareArchitectureProposal repository:
+* [`voxel_grid_outlier_filter_nodelet.hpp`](https://github.com/tier4/AutowareArchitectureProposal.iv/blob/ros2/sensing/preprocessor/pointcloud/pointcloud_preprocessor/include/pointcloud_preprocessor/outlier_filter/voxel_grid_outlier_filter_nodelet.hpp)
+* [`voxel_grid_outlier_filter_nodelet.cpp`](https://github.com/tier4/AutowareArchitectureProposal.iv/blob/ros2/sensing/preprocessor/pointcloud/pointcloud_preprocessor/src/outlier_filter/voxel_grid_outlier_filter_nodelet.cpp)
+
 
 ## Assumptions / Known limits
 <!-- Required -->
+
+### Discretization
+
+The `voxel_grid_filter` implementation using dicretized voxel to determine whether a point is an
+outlier. Due to the nature of discretized algorithms, a small approximation error could be
+introduced. For applications where the reduction of approximation error is important, alternative
+outlier filter implementations such as the `radius_search_2d_filter` should be used instead.
+
+### Radius Search 2D Only
+
+The `radius_search_2d_filter` implementation is only in the 2d space. More details in the sections below.
+
+### Controlling Access To Parameters
+
+As parameters may be changed during runtime, the node class using the filter classes will need to be
+control access to the parameters via mutexes. The functions that require guarding are
+`update_parameters` and `filter`.
+
 
 ## Inputs / Outputs / API
 <!-- Required -->
 <!-- Things to consider:
     - How do you use the package / API? -->
+### Constructor
+
+Parameters used by the filtering algorithm should be initially passed into the filter class through
+the class constructor. A typical constructor for filter class in this package would be in the
+form:
+
+```{cpp}
+explicit OUTLIER_FILTER_PUBLIC OutlierFilterTypeFilter(int input_a, int input_b);
+```
+
+Where `input_a` and `input_b` are the exhaustive list of parameters required for the filter
+functionality. The name of the filter should be appended with the suffix `Filter`. 
+
+
+#### radius_search_2d_filter
+
+The following parameters are required by the `radius_search_2d_filter` c;ass constructor:
+ * `search_radius_` - radius around point where neighbors are searched 
+ * `min_neighbors_` - minimum number of neighbors required for point to not be considered an outlier
+
+
+#### voxel_grid_filter
+
+The following parameters are required by the `voxel_grid_filter` class constructor:
+ * `voxel_size_x` - voxel leaf size in the x-axis
+ * `voxel_size_y` - voxel leaf size in the y-axis 
+ * `voxel_size_z` - voxel leaf size in the z-axis
+ * `voxel_points_threshold` - minimum number of points in voxel for a voxel to be valid
+
+### Filtering Function
+
+Each of the filter classes should contain some filter activation function which will run the filter
+on an input pointcloud.
+
+```{cpp}
+void OUTLIER_FILTER_PUBLIC filter(
+    pcl::PointCloud<pcl::PointXYZ>::ConstPtr input,
+    pcl::PointCloud<pcl::PointXYZ>::Ptr output);
+```
+
+Depending on the filtering method the point type used in the input may differ. Those intending to
+use the filters will need to ensure that the input is converted to the correct point cloud type
+with the correct point type. The input `output` is returned with the filtered point cloud.
+
+
+### Modifying Parameters
+
+The classes allow for parameters to be modified during run-time. The Node class using the filter
+library should call the `update_parameters` method and pass in the all parameters.
 
 
 ## Inner-workings / Algorithms
 <!-- If applicable -->
+### radius_search_2d_filter
+
+The `radius_search_2d_filter` filtering method is straightforward. The input point cloud is
+flattened by converting the PointXYZ to PointXY. It utilises the PCl `Search` object to search a
+radius (defined by `search_radius_`) around the point of interest for neighboring points. If the
+minimum number of neighboring points is found, the original point is added to the output point
+cloud.
+
+
+### voxel_grid_filter
+
+The `voxel_grid_filter` filtering method using the PCL library `VoxelGrid` object to discretize the
+point cloud into equi-sized voxels containing a certain number of points. Then the 3D grid is
+searched to determine if a point lies within a voxel. Points returning an existing voxel are not
+considered outliers and are added to the output point cloud.
 
 
 ## Error detection and handling
 <!-- Required -->
+
+N/A
 
 
 # Security considerations
@@ -43,14 +150,11 @@ This is the design document for the `outlier_filter` package.
 - Denial of Service (How do you handle spamming?).
 - Elevation of Privilege (Do you need to change permission levels during execution?) -->
 
-
-# References / External links
-<!-- Optional -->
-
-
-# Future extensions / Unimplemented parts
-<!-- Optional -->
+N/A
 
 
 # Related issues
 <!-- Required -->
+
+See:
+ - #917
