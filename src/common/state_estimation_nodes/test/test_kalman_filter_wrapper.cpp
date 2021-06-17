@@ -4,7 +4,7 @@
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//     http://www.apache.org/licenses/LICENSE-2.0
+//    http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -33,9 +33,7 @@ using autoware::common::types::float32_t;
 using autoware::common::state_estimation::ConstantAccelerationFilterWrapperXY;
 using autoware::common::motion_model::LinearMotionModel;
 using autoware::common::state_estimation::WienerNoise;
-using autoware::common::state_estimation::MeasurementXYPos32;
-using autoware::common::state_estimation::MeasurementXYSpeed32;
-using autoware::common::state_estimation::MeasurementXYPosAndSpeed32;
+using autoware::common::state_estimation::MeasurementXYZPos32;
 using autoware::common::state_estimation::Stamped;
 using autoware::common::state_vector::variable::X;
 using autoware::common::state_vector::variable::Y;
@@ -100,10 +98,9 @@ TEST(KalmanFilterWrapperTest, ignore_everything_before_initialization) {
     std::chrono::milliseconds{100LL},
     "map"};
   const auto now = std::chrono::system_clock::time_point{std::chrono::system_clock::now()};
-  const Stamped<MeasurementXYPosAndSpeed32> measurement{
+  const Stamped<MeasurementXYZPos32> measurement{
     now,
-    MeasurementXYPosAndSpeed32{Vector<4U>{42.0F, 42.0F, 42.0F, 42.0F},
-      Eigen::Matrix4f::Identity()}};
+    MeasurementXYZPos32{Eigen::Vector3f{42.0F, 42.0F, 42.0F}, Eigen::Matrix3f::Identity()}};
   EXPECT_FALSE(filter.is_initialized());
   EXPECT_FALSE(filter.add_next_temporal_update_to_history());
   EXPECT_FALSE(filter.add_observation_to_history(measurement));
@@ -123,23 +120,15 @@ TEST(KalmanFilterWrapperTest, initialize) {
   EXPECT_FALSE(filter.is_initialized());
   const auto x = 1.0F;
   const auto y = 2.0F;
-  const auto x_speed = 3.0F;
-  const auto y_speed = 4.0F;
-  const Stamped<MeasurementXYPosAndSpeed32> measurement{
+  const Stamped<MeasurementXYZPos32> measurement{
     now_measurement,
-    MeasurementXYPosAndSpeed32{
-      Vector<4U>{x, y, x_speed, y_speed},
-      Eigen::Matrix4f::Identity()}};
+    MeasurementXYZPos32{Eigen::Vector3f{x, y, 0.0F}, Eigen::Matrix3f::Identity()}};
   EXPECT_FALSE(filter.add_observation_to_history(measurement));
   filter.add_reset_event_to_history(measurement);
   ASSERT_TRUE(filter.is_initialized());
   const auto odom_msg = filter.get_state();
   EXPECT_NEAR(odom_msg.pose.pose.position.x, x, kEpsilon);
   EXPECT_NEAR(odom_msg.pose.pose.position.y, y, kEpsilon);
-  EXPECT_NEAR(
-    odom_msg.twist.twist.linear.x,
-    static_cast<float64_t>(std::sqrt(x_speed * x_speed + y_speed * y_speed)),
-    kEpsilon);
   EXPECT_NEAR(odom_msg.twist.twist.linear.y, 0.0, kEpsilon);
   EXPECT_NEAR(odom_msg.twist.twist.linear.z, 0.0, kEpsilon);
 
@@ -161,30 +150,30 @@ TEST(KalmanFilterWrapperTest, ignore_measurements_from_the_past) {
   const auto now_measurement_time =
     std::chrono::system_clock::time_point{std::chrono::system_clock::now()};
   const auto dt = std::chrono::milliseconds{2LL};
-  const auto state = Vector<4U>{42.0F, 42.0F, 0.0F, 0.0F};
-  const auto variance = Eigen::Matrix4f::Identity();
+  const auto measurement_state = Eigen::Vector3f{42.0F, 42.0F, 42.0F};
+  const auto variance = Eigen::Matrix3f::Identity();
   EXPECT_FALSE(filter.is_initialized());
-  Stamped<MeasurementXYPosAndSpeed32> measurement_now{
+  Stamped<MeasurementXYZPos32> measurement_now{
     now_measurement_time,
-    MeasurementXYPosAndSpeed32{state, variance}};
-  Stamped<MeasurementXYPosAndSpeed32> measurement_later{
+    MeasurementXYZPos32{measurement_state, variance}};
+  Stamped<MeasurementXYZPos32> measurement_later{
     now_measurement_time + dt,
-    MeasurementXYPosAndSpeed32{state, variance}};
+    MeasurementXYZPos32{measurement_state, variance}};
   filter.add_reset_event_to_history(measurement_now);
   ASSERT_TRUE(filter.is_initialized());
   EXPECT_TRUE(filter.add_observation_to_history(measurement_later));
   const auto mid_measurement_time{now_measurement_time + dt / 2};
-  Stamped<MeasurementXYPosAndSpeed32> mid_measurement{
+  Stamped<MeasurementXYZPos32> mid_measurement{
     mid_measurement_time,
-    MeasurementXYPosAndSpeed32{state, variance}};
+    MeasurementXYZPos32{measurement_state, variance}};
   // Update that comes in the future bt carries a measurement after the first one, but before the
   // last one, so it should land in the middle of history.
   EXPECT_TRUE(filter.add_observation_to_history(mid_measurement));
   const auto odom_msg = filter.get_state();
-  EXPECT_NEAR(odom_msg.pose.pose.position.x, state.x(), kEpsilon);
-  EXPECT_NEAR(odom_msg.pose.pose.position.y, state.y(), kEpsilon);
-  EXPECT_NEAR(odom_msg.twist.twist.linear.x, state[2], kEpsilon);
-  EXPECT_NEAR(odom_msg.twist.twist.linear.y, state[3], kEpsilon);
+  EXPECT_NEAR(odom_msg.pose.pose.position.x, measurement_state.x(), kEpsilon);
+  EXPECT_NEAR(odom_msg.pose.pose.position.y, measurement_state.y(), kEpsilon);
+  // The z coordinate is zero as we are using a 2D EKF in this test.
+  EXPECT_NEAR(odom_msg.pose.pose.position.z, 0.0F, kEpsilon);
 }
 
 /// \test Ignore measurements that don't pass the Mahalanobis threshold.
@@ -210,15 +199,15 @@ TEST(KalmanFilterWrapperTest, ignore_far_away_measurements) {
   // Check that nothing else forbids us from updating the state.
   timestamp += 10ms;
   filter.add_observation_to_history(
-    Stamped<MeasurementXYPos32>{timestamp, MeasurementXYPos32{Vector2f{0.0F, 0.0F},
-        Eigen::Matrix2f::Identity()}});
+    Stamped<MeasurementXYZPos32>{timestamp, MeasurementXYZPos32{Eigen::Vector3f{0.0F, 0.0F, 0.0F},
+        Eigen::Matrix3f::Identity()}});
   const auto odom_msg_before = filter.get_state();
   timestamp += 10ms;
   // Try to add a very precise measurement that should be ignored due to the mahalanobis gate.
   filter.add_observation_to_history(
-    Stamped<MeasurementXYPos32>{
+    Stamped<MeasurementXYZPos32>{
     timestamp,
-    MeasurementXYPos32{Vector2f{10.0F, 0.0F}, 0.01F * Eigen::Matrix2f::Identity()}});
+    MeasurementXYZPos32{Eigen::Vector3f{10.0F, 0.0F, 0.0F}, 0.01F * Eigen::Matrix3f::Identity()}});
   const auto odom_msg_after = filter.get_state();
   EXPECT_NEAR(odom_msg_after.pose.pose.position.x, 0.0, kEpsilon);
   EXPECT_NEAR(odom_msg_after.pose.pose.position.y, 0.0, kEpsilon);
@@ -239,9 +228,9 @@ TEST(KalmanFilterWrapperTest, covariance_grows_with_time) {
     "map"};
   EXPECT_FALSE(filter.is_initialized());
   const auto timestamp = std::chrono::system_clock::time_point{std::chrono::system_clock::now()};
-  const Stamped<MeasurementXYPosAndSpeed32> measurement{
+  const Stamped<MeasurementXYZPos32> measurement{
     timestamp,
-    MeasurementXYPosAndSpeed32{Vector<4U>{42.0F, 42.0F, 0.0F, 0.0F}, Eigen::Matrix4f::Ones()}};
+    MeasurementXYZPos32{Eigen::Vector3f{42.0F, 42.0F, 42.0F}, Eigen::Matrix3f::Identity()}};
   filter.add_reset_event_to_history(measurement);
   ASSERT_TRUE(filter.is_initialized());
   const auto odom_msg = filter.get_state();
@@ -280,16 +269,18 @@ TEST(KalmanFilterWrapperTest, track_static_object) {
   EXPECT_FALSE(filter.is_initialized());
   std::chrono::system_clock::time_point timestamp{std::chrono::system_clock::now()};
   filter.add_reset_event_to_history(
-    Stamped<MeasurementXYPos32>{timestamp,
-      MeasurementXYPos32{Vector2f{42.0F, 42.0F}, Eigen::Matrix2f::Identity()}});
+    Stamped<MeasurementXYZPos32>{timestamp,
+      MeasurementXYZPos32{Eigen::Vector3f{42.0F, 42.0F, 0.0F}, Eigen::Matrix3f::Identity()}});
   ASSERT_TRUE(filter.is_initialized());
   const auto initial_state = filter.get_state();
   for (int i = 0; i < 10; ++i) {
     timestamp += 100ms;
     EXPECT_TRUE(
       filter.add_observation_to_history(
-        Stamped<MeasurementXYPos32>{timestamp,
-          MeasurementXYPos32{Vector2f{42.0F, 42.0F}, 0.01F * Eigen::Matrix2f::Identity()}}));
+        Stamped<MeasurementXYZPos32>{timestamp,
+          MeasurementXYZPos32{
+            Eigen::Vector3f{42.0F, 42.0F, 0.0F},
+            0.01F * Eigen::Matrix3f::Identity()}}));
     auto odom_msg = filter.get_state();
     EXPECT_NEAR(odom_msg.pose.pose.position.x, initial_state.pose.pose.position.x, kEpsilon);
     EXPECT_NEAR(odom_msg.pose.pose.position.y, initial_state.pose.pose.position.y, kEpsilon);
@@ -349,9 +340,9 @@ TEST(KalmanFilterWrapperTest, track_thrown_ball) {
     if (current_cycle_milliseconds >= observation_interval) {
       EXPECT_TRUE(
         filter.add_observation_to_history(
-          Stamped<MeasurementXYPos32>{timestamp,
-            MeasurementXYPos32{Vector2f{state.at<X>(), state.at<Y>()},
-              Eigen::Matrix2f::Identity()}}));
+          Stamped<MeasurementXYZPos32>{timestamp,
+            MeasurementXYZPos32{Eigen::Vector3f{state.at<X>(), state.at<Y>(), 0.0F},
+              Eigen::Matrix3f::Identity()}}));
       current_cycle_milliseconds = 0ms;
     }
   }
