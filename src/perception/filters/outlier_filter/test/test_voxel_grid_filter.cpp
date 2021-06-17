@@ -1,4 +1,4 @@
-// Copyright 2021 The Autoware Foundation
+// Copyright 2021 Tier IV, Inc
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -86,7 +86,7 @@ TEST(VoxelGridFilterTest, test_two_close_points) {
   check_pc(filter_points, output);
 }
 
-/* TEST 3: Line of 10 points 
+/* TEST 3: Line of 10 points
  * Due to the gridding structure the grid has a range of [0.0 - 1.0)
  *      |              |
  * xxxxxxxxxxx    xxxxxxxxxx

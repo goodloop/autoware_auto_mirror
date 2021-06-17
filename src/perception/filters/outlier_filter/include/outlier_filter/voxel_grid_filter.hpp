@@ -14,7 +14,7 @@
 
 /// \copyright Copyright 2021 Tier IV, Inc.
 /// \file
-/// \brief This file defines the Radius class.
+/// \brief This file defines the VoxelGridFilter class.
 
 #ifndef OUTLIER_FILTER__VOXEL_GRID_FILTER_HPP_
 #define OUTLIER_FILTER__VOXEL_GRID_FILTER_HPP_

@@ -1,4 +1,4 @@
-# Copyright 2021 The Autoware Foundation
+# Copyright 2021 Tier IV, Inc
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -41,13 +41,11 @@ include_directories(
 
 set(OUTLIER_FILTER_LIB_SRC
   src/radius_search_2d_filter.cpp
-  src/ring_filter.cpp
   src/voxel_grid_filter.cpp
 )
 
 set(OUTLIER_FILTER_LIB_HEADERS
   include/outlier_filter/radius_search_2d_filter.hpp
-  include/outlier_filter/ring_filter.hpp
   include/outlier_filter/voxel_grid_filter.hpp
   include/outlier_filter/visibility_control.hpp
 )
@@ -81,6 +79,4 @@ if(BUILD_TESTING)
 endif()
 
 # ament package generation and installing
-ament_auto_package(INSTALL_TO_SHARE
-  launch
-)
+ament_auto_package(INSTALL_TO_SHARE)

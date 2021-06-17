@@ -14,7 +14,7 @@
 
 /// \copyright Copyright 2021 Tier IV, Inc.
 /// \file
-/// \brief This file defines the Radius class.
+/// \brief This file defines the RadiusSearch2DFilter class.
 
 #ifndef OUTLIER_FILTER__RADIUS_SEARCH_2D_FILTER_HPP_
 #define OUTLIER_FILTER__RADIUS_SEARCH_2D_FILTER_HPP_
