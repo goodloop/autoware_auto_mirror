@@ -118,8 +118,8 @@ def generate_launch_description():
         namespace='perception',
         on_exit=Shutdown(),
         package='tracking_nodes',
-        parameters=[get_param_file('tracking_nodes',
-                                   'test.param.yaml')],
+        parameters=[get_param_file('autoware_demos',
+                                   'multi_object_tracker.param.yaml')],
         remappings=[
             ("detected_objects", "/lidars/lidar_detected_objects"),
             ("odometry", "/localization/odometry")
