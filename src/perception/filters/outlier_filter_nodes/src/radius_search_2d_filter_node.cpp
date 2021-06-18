@@ -12,28 +12,46 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "outlier_filter_nodes/outlier_filter_node.hpp"
+#include "outlier_filter_nodes/radius_search_2d_filter_node.hpp"
 
 namespace autoware
+{
+namespace perception
+{
+namespace filters
 {
 namespace outlier_filter_nodes
 {
 
-OutlierFilterNode::OutlierFilterNode(const rclcpp::NodeOptions & options)
-:  Node("outlier_filter_nodes", options),
-  verbose(true)
+RadiusSearch2DFilterNode::RadiusSearch2DFilterNode(const rclcpp::NodeOptions & options)
+:  FilterNodeBase("radius_search_2d_filter_node", options)
 {
 }
 
-void OutlierFilterNode::print_hello()
+void filter(
+  const sensor_msgs::msg::PointCloud2 &,
+  sensor_msgs::msg::PointCloud2 &)
 {
+}
+
+rcl_interfaces::msg::SetParametersResult get_node_parameters(
+  const std::vector<rclcpp::Parameter> &)
+{
+  rcl_interfaces::msg::SetParametersResult result;
+  result.successful = true;
+  result.reason = "success";
+
+  return result;
 }
 
 }  // namespace outlier_filter_nodes
+}  // namespace filters
+}  // namespace perception
 }  // namespace autoware
 
 #include "rclcpp_components/register_node_macro.hpp"
 
 // This acts as an entry point, allowing the component to be
 // discoverable when its library is being loaded into a running process
-RCLCPP_COMPONENTS_REGISTER_NODE(autoware::outlier_filter_nodes::OutlierFilterNode)
+RCLCPP_COMPONENTS_REGISTER_NODE(
+  autoware::perception::filters::outlier_filter_nodes::RadiusSearch2DFilterNode)

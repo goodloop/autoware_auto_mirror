@@ -16,35 +16,46 @@
 /// \file
 /// \brief This file defines the outlier_filter_nodes_node class.
 
-#ifndef OUTLIER_FILTER_NODES__OUTLIER_FILTER_NODE_HPP_
-#define OUTLIER_FILTER_NODES__OUTLIER_FILTER_NODE_HPP_
+#ifndef OUTLIER_FILTER_NODES__RADIUS_SEARCH_2D_FILTER_NODE_HPP_
+#define OUTLIER_FILTER_NODES__RADIUS_SEARCH_2D_FILTER_NODE_HPP_
 
 #include "outlier_filter_nodes/visibility_control.hpp"
+
+#include "filter_node_base/filter_node_base.hpp"
 
 #include <rclcpp/rclcpp.hpp>
 
 namespace autoware
 {
+namespace perception
+{
+namespace filters
+{
 namespace outlier_filter_nodes
 {
 
+using FilterNodeBase = autoware::perception::filters::filter_node_base::FilterNodeBase;
+
 /// \class OutlierFilterNodesNode
 /// \brief ROS 2 Node for hello world.
-class OUTLIER_FILTER_NODES_PUBLIC OutlierFilterNode : public rclcpp::Node
+class OUTLIER_FILTER_NODES_PUBLIC RadiusSearch2DFilterNode : public FilterNodeBase
 {
 public:
   /// \brief default constructor, starts driver
   /// \throw runtime error if failed to start threads or configure driver
-  explicit OutlierFilterNode(const rclcpp::NodeOptions & options);
+  explicit RadiusSearch2DFilterNode(const rclcpp::NodeOptions & options);
 
-  /// \brief print hello
-  /// return 0 if successful.
-  void print_hello();
+protected:
+  OUTLIER_FILTER_NODES_PUBLIC virtual void filter(
+    const sensor_msgs::msg::PointCloud2 & input,
+    sensor_msgs::msg::PointCloud2 & output);
 
-private:
-  bool verbose;  ///< whether to use verbose output or not.
+  OUTLIER_FILTER_NODES_PUBLIC virtual rcl_interfaces::msg::SetParametersResult get_node_parameters(
+    const std::vector<rclcpp::Parameter> & p);
 };
 }  // namespace outlier_filter_nodes
+}  // namespace filters
+}  // namespace perception
 }  // namespace autoware
 
-#endif  // OUTLIER_FILTER_NODES__OUTLIER_FILTER_NODE_HPP_
+#endif  // OUTLIER_FILTER_NODES__RADIUS_SEARCH_2D_FILTER_NODE_HPP_

@@ -3,13 +3,14 @@
 <package format="3">
   <name>outlier_filter_nodes</name>
   <version>1.0.0</version>
-  <description>Outlier Filter implementations</description>
+  <description>Outlier Filter Nodes</description>
   <maintainer email="jilada.eccleston@tier4.jp">Jilada Eccleston</maintainer>
   <license>Apache 2.0</license>
 
   <buildtool_depend>ament_cmake_auto</buildtool_depend>
   <buildtool_depend>autoware_auto_cmake</buildtool_depend>
 
+  <depend>filter_node_base</depend>
   <depend>rclcpp</depend>
   <depend>rclcpp_components</depend>
 

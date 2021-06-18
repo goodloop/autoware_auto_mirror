@@ -24,11 +24,11 @@ ament_auto_find_build_dependencies(REQUIRED
 )
 
 set(OUTLIER_FILTER_NODES_SRC
-  src/outlier_filter_node.cpp
+  src/radius_search_2d_filter_node.cpp
 )
 
 set(OUTLIER_FILTER_NODES_HEADERS
-  include/outlier_filter_nodes/outlier_filter_node.hpp
+  include/outlier_filter_nodes/radius_search_2d_filter_node.hpp
 )
 
 # generate component node library
