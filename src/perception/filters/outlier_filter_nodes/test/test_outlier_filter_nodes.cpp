@@ -13,7 +13,7 @@
 // limitations under the License.
 
 #include "gtest/gtest.h"
-#include "outlier_filter_nodes/outlier_filter_node.hpp"
+#include "outlier_filter_nodes/radius_search_2d_filter_node.hpp"
 
 TEST(test_outlier_filter_nodes, test_hello) {
   // EXPECT_EQ(autoware::outlier_filter_nodes::print_hello(), 0);
