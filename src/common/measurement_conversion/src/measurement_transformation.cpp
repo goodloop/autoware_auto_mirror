@@ -27,73 +27,26 @@ namespace state_estimation
 {
 
 template<>
-MeasurementXYSpeed64 transform_measurement(
-  const MeasurementXYSpeed64 & measurement,
+MeasurementXYZPos64 transform_measurement(
+  const MeasurementXYZPos64 & measurement,
   const Eigen::Isometry3d & tf__world__frame_id)
 {
-  const auto converted_tf__world__frame_id = downscale_isometry<2>(tf__world__frame_id);
-  return MeasurementXYSpeed64{
-    converted_tf__world__frame_id.rotation() * measurement.state().vector(),
-    Eigen::Matrix2d{converted_tf__world__frame_id.rotation() * measurement.covariance().matrix() *
-      converted_tf__world__frame_id.rotation().transpose()}};
-}
-
-template<>
-MeasurementXYPos64 transform_measurement(
-  const MeasurementXYPos64 & measurement,
-  const Eigen::Isometry3d & tf__world__frame_id)
-{
-  const auto converted_tf__world__frame_id = downscale_isometry<2>(tf__world__frame_id);
-  return MeasurementXYPos64{
-    converted_tf__world__frame_id * measurement.state().vector(),
-    Eigen::Matrix2d
-    {
-      converted_tf__world__frame_id.rotation() *
-        measurement.covariance().matrix() *
-        converted_tf__world__frame_id.rotation().transpose()
-    }
+  return MeasurementXYZPos64{
+    tf__world__frame_id * measurement.state().vector(),
+      tf__world__frame_id.rotation() *
+      measurement.covariance().matrix() *
+      tf__world__frame_id.rotation().transpose()
   };
 }
 
 template<>
-Stamped<MeasurementXYSpeed64> transform_measurement(
-  const Stamped<MeasurementXYSpeed64> & measurement,
+Stamped<MeasurementXYZPos64> transform_measurement(
+  const Stamped<MeasurementXYZPos64> & measurement,
   const Eigen::Isometry3d & tf__world__frame_id)
 {
-  return Stamped<MeasurementXYSpeed64> {
+  return Stamped<MeasurementXYZPos64> {
     measurement.timestamp,
     transform_measurement(measurement.measurement, tf__world__frame_id)};
-}
-
-template<>
-Stamped<MeasurementXYPos64> transform_measurement(
-  const Stamped<MeasurementXYPos64> & measurement,
-  const Eigen::Isometry3d & tf__world__frame_id)
-{
-  return Stamped<MeasurementXYPos64> {
-    measurement.timestamp,
-    transform_measurement(measurement.measurement, tf__world__frame_id)};
-}
-
-
-template<>
-Stamped<MeasurementXYPosAndSpeed64> transform_measurement(
-  const Stamped<MeasurementXYPosAndSpeed64> & measurement,
-  const Eigen::Isometry3d & tf__world__frame_id)
-{
-  const auto converted_tf__world__frame_id = downscale_isometry<2>(tf__world__frame_id);
-  const auto & state = measurement.measurement.state().vector();
-  const Eigen::Vector2d pos_state = converted_tf__world__frame_id *
-    Eigen::Vector2d{state(0), state(1)};
-  const Eigen::Vector2d speed_state = converted_tf__world__frame_id.rotation() *
-    Eigen::Vector2d{state(2), state(3)};
-
-  return Stamped<MeasurementXYPosAndSpeed64>{
-    measurement.timestamp,
-    MeasurementXYPosAndSpeed64{
-      (Eigen::Vector4d{} << pos_state, speed_state).finished(),
-      measurement.measurement.covariance()}
-  };
 }
 
 }  // namespace state_estimation

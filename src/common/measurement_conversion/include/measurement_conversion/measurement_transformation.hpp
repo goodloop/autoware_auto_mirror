@@ -73,43 +73,19 @@ MeasurementT message_to_transformed_measurement(
 // Doxygen is buggy when the parameters are repeated here, so they are omitted.
 
 ///
-/// @brief      Specialization of transform_measurement for speed measurement.
-///
-template<>
-MEASUREMENT_CONVERSION_PUBLIC MeasurementXYSpeed64 transform_measurement(
-  const MeasurementXYSpeed64 & measurement,
-  const Eigen::Isometry3d & tf__world__frame_id);
-
-///
 /// @brief      Specialization of transform_measurement for pose measurement.
 ///
 template<>
-MEASUREMENT_CONVERSION_PUBLIC MeasurementXYPos64 transform_measurement(
-  const MeasurementXYPos64 & measurement,
-  const Eigen::Isometry3d & tf__world__frame_id);
-
-///
-/// @brief      Specialization of transform_measurement for stamped speed measurement.
-///
-template<>
-MEASUREMENT_CONVERSION_PUBLIC Stamped<MeasurementXYSpeed64> transform_measurement(
-  const Stamped<MeasurementXYSpeed64> & measurement,
+MEASUREMENT_CONVERSION_PUBLIC MeasurementXYZPos64 transform_measurement(
+  const MeasurementXYZPos64 & measurement,
   const Eigen::Isometry3d & tf__world__frame_id);
 
 ///
 /// @brief      Specialization of transform_measurement for stamped pose measurement.
 ///
 template<>
-MEASUREMENT_CONVERSION_PUBLIC Stamped<MeasurementXYPos64> transform_measurement(
-  const Stamped<MeasurementXYPos64> & measurement,
-  const Eigen::Isometry3d & tf__world__frame_id);
-
-///
-/// @brief      Specialization of transform_measurement for stamped pose and speed measurement.
-///
-template<>
-MEASUREMENT_CONVERSION_PUBLIC Stamped<MeasurementXYPosAndSpeed64> transform_measurement(
-  const Stamped<MeasurementXYPosAndSpeed64> & measurement,
+MEASUREMENT_CONVERSION_PUBLIC Stamped<MeasurementXYZPos64> transform_measurement(
+  const Stamped<MeasurementXYZPos64> & measurement,
   const Eigen::Isometry3d & tf__world__frame_id);
 
 }  // namespace state_estimation
