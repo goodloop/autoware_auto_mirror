@@ -51,7 +51,7 @@ constexpr auto kIndexY{kCovarianceMatrixRows + 1U};
 constexpr auto kCovarianceMatrixRowsSquared{kCovarianceMatrixRows * kCovarianceMatrixRows};
 static_assert(
   std::tuple_size<
-  geometry_msgs::msg::PoseWithCovariance::_covariance_type>::value ==
+    geometry_msgs::msg::PoseWithCovariance::_covariance_type>::value ==
   kCovarianceMatrixRowsSquared, "We expect the covariance matrix to have 36 entries.");
 
 void assert_all_entries_positive(const std::vector<float64_t> & entries, const std::string & tag)
