@@ -20,23 +20,9 @@ if(BUILD_TESTING)
   find_package(ament_lint_auto)
   ament_lint_auto_find_test_dependencies()
 
-  # Copy example files to build dir
-  configure_file(
-    ${CMAKE_CURRENT_SOURCE_DIR}/test/map_data/AStuff_test_map.osm
-    ${CMAKE_CURRENT_BINARY_DIR}/test/map_data/AStuff_test_map.osm
-    COPYONLY
-  )
-
-  configure_file(
-    ${CMAKE_CURRENT_SOURCE_DIR}/test/map_data/mapping_example_pk.osm
-    ${CMAKE_CURRENT_BINARY_DIR}/test/map_data/mapping_example_pk.osm
-    COPYONLY
-  )
-
-  configure_file(
-    ${CMAKE_CURRENT_SOURCE_DIR}/test/map_data/kashiwanoha_map.osm
-    ${CMAKE_CURRENT_BINARY_DIR}/test/map_data/kashiwanoha_map.osm
-    COPYONLY
+  # Install test maps to share directory
+  install(DIRECTORY test/map_data
+    DESTINATION share/${PROJECT_NAME}/test
   )
 
   # gtest
