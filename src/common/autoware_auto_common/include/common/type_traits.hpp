@@ -58,12 +58,12 @@ struct COMMON_PUBLIC index<QueryT, std::tuple<HeadT, Tail...>>
 /// @return     Does not return anything. Capture variables in a lambda to return any values.
 ///
 template<std::size_t I = 0UL, typename Callable, typename ... TypesT>
-COMMON_PUBLIC inline typename std::enable_if_t<I == sizeof...(TypesT)>
-visit(std::tuple<TypesT...> &, Callable) {}
+COMMON_PUBLIC inline constexpr typename std::enable_if_t<I == sizeof...(TypesT)>
+visit(std::tuple<TypesT...> &, Callable) noexcept {}
 /// @brief      Same as the previous specialization but for const tuple.
 template<std::size_t I = 0UL, typename Callable, typename ... TypesT>
-COMMON_PUBLIC inline typename std::enable_if_t<I == sizeof...(TypesT)>
-visit(const std::tuple<TypesT...> &, Callable) {}
+COMMON_PUBLIC inline constexpr typename std::enable_if_t<I == sizeof...(TypesT)>
+visit(const std::tuple<TypesT...> &, Callable) noexcept {}
 
 ///
 /// @brief      Visit every element in a tuple.
@@ -81,16 +81,16 @@ visit(const std::tuple<TypesT...> &, Callable) {}
 /// @return     Does not return anything. Capture variables in a lambda to return any values.
 ///
 template<std::size_t I = 0UL, typename Callable, typename ... TypesT>
-COMMON_PUBLIC inline typename std::enable_if_t<I != sizeof...(TypesT)>
-visit(std::tuple<TypesT...> & tuple, Callable callable)
+COMMON_PUBLIC inline constexpr typename std::enable_if_t<I != sizeof...(TypesT)>
+visit(std::tuple<TypesT...> & tuple, Callable callable) noexcept
 {
   callable(std::get<I>(tuple));
   visit<I + 1UL, Callable, TypesT...>(tuple, callable);
 }
 /// @brief      Same as the previous specialization but for const tuple.
 template<std::size_t I = 0UL, typename Callable, typename ... TypesT>
-COMMON_PUBLIC inline typename std::enable_if_t<I != sizeof...(TypesT)>
-visit(const std::tuple<TypesT...> & tuple, Callable callable)
+COMMON_PUBLIC inline constexpr typename std::enable_if_t<I != sizeof...(TypesT)>
+visit(const std::tuple<TypesT...> & tuple, Callable callable) noexcept
 {
   callable(std::get<I>(tuple));
   visit<I + 1UL, Callable, TypesT...>(tuple, callable);
