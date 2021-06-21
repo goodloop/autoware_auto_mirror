@@ -42,7 +42,7 @@ namespace type_traits
 /// @return     A boolean that should be false for any type passed into this function.
 ///
 template<typename T>
-constexpr autoware::common::types::bool8_t COMMON_PUBLIC impossible_branch() noexcept
+constexpr inline autoware::common::types::bool8_t COMMON_PUBLIC impossible_branch() noexcept
 {
   return sizeof(T) == 0;
 }
