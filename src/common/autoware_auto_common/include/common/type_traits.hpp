@@ -172,9 +172,9 @@ struct intersect
   {
     return std::tuple_cat(
       std::conditional_t<
-      has_type<std::tuple_element_t<Indices, TupleT1>, TupleT2>::value,
-      std::tuple<std::tuple_element_t<Indices, TupleT1>>,
-      std::tuple<>>{} ...);
+        has_type<std::tuple_element_t<Indices, TupleT1>, TupleT2>::value,
+        std::tuple<std::tuple_element_t<Indices, TupleT1>>,
+        std::tuple<>>{} ...);
   }
   /// The resulting tuple type.
   using type =

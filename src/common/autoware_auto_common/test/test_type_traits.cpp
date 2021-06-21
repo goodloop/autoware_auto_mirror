@@ -86,10 +86,10 @@ TEST(TestCommonTypeTraits, TypeIntersection) {
   using C = std::tuple<T3>;
   EXPECT_TRUE(
     (std::is_same<std::tuple<T2>,
-      autoware::common::type_traits::intersect<A, B>::type>::value));
+    autoware::common::type_traits::intersect<A, B>::type>::value));
   EXPECT_TRUE(
     (std::is_same<A, autoware::common::type_traits::intersect<A, A>::type>::value));
   EXPECT_TRUE(
     (std::is_same<std::tuple<>,
-      autoware::common::type_traits::intersect<A, C>::type>::value));
+    autoware::common::type_traits::intersect<A, C>::type>::value));
 }
