@@ -73,128 +73,6 @@ namespace common
 namespace state_estimation
 {
 
-MeasurementXYPos64 convert_to<MeasurementXYPos64>::from(
-  const geometry_msgs::msg::PoseWithCovariance & msg)
-{
-  Eigen::Vector2d mean{msg.pose.position.x, msg.pose.position.y};
-  Eigen::Matrix2d covariance;
-  covariance <<
-    msg.covariance[kIndexX], msg.covariance[kIndexXY],
-    msg.covariance[kIndexYX], msg.covariance[kIndexY];
-  return MeasurementXYPos64{
-    mean,
-    covariance};
-}
-
-MeasurementXYPosAndSpeed64 convert_to<MeasurementXYPosAndSpeed64>::from(
-  const nav_msgs::msg::Odometry & msg)
-{
-  Eigen::Isometry3d tf__msg_frame_id__msg_child_frame_id;
-  tf2::fromMsg(msg.pose.pose, tf__msg_frame_id__msg_child_frame_id);
-  const Eigen::Matrix2d rx__msg_frame_id__msg_child_frame_id = downscale_isometry<2>(
-    tf__msg_frame_id__msg_child_frame_id).rotation();
-
-  const Eigen::Vector2d pos_state {
-    msg.pose.pose.position.x,
-    msg.pose.pose.position.y,
-  };
-  const Eigen::Vector2d speed_in_child_frame{
-    msg.twist.twist.linear.x,
-    msg.twist.twist.linear.y,
-  };
-  const Eigen::Vector2d speed{rx__msg_frame_id__msg_child_frame_id * speed_in_child_frame};
-  Eigen::Matrix4d covariance{Eigen::Matrix4d::Zero()};
-  covariance.topLeftCorner(2, 2) <<
-    msg.pose.covariance[kIndexX], msg.pose.covariance[kIndexXY],
-    msg.pose.covariance[kIndexYX], msg.pose.covariance[kIndexY];
-  covariance.bottomRightCorner(2, 2) <<
-    msg.twist.covariance[kIndexX], msg.twist.covariance[kIndexXY],
-    msg.twist.covariance[kIndexYX], msg.twist.covariance[kIndexY];
-  // Rotate the speed covariance as the speed is now in frame_id frame and not in child_frame_id.
-  covariance.bottomRightCorner(2, 2) =
-    rx__msg_frame_id__msg_child_frame_id *
-    covariance.bottomRightCorner(2, 2) *
-    rx__msg_frame_id__msg_child_frame_id.transpose();
-
-  const Eigen::Vector4d mean = (Eigen::Vector4d{} << pos_state, speed).finished();
-  return MeasurementXYPosAndSpeed64{mean, covariance};
-}
-
-MeasurementXYZRPYPosAndSpeed64 convert_to<MeasurementXYZRPYPosAndSpeed64>::from(
-  const nav_msgs::msg::Odometry & msg)
-{
-  using Vector12d = Eigen::Matrix<float64_t, 12, 1>;
-  using Matrix12d = Eigen::Matrix<float64_t, 12, 12>;
-  Eigen::Isometry3d tf__msg_frame_id__msg_child_frame_id;
-  tf2::fromMsg(msg.pose.pose, tf__msg_frame_id__msg_child_frame_id);
-  const Eigen::Matrix3d rx__msg_frame_id__msg_child_frame_id =
-    tf__msg_frame_id__msg_child_frame_id.rotation();
-  const Eigen::Vector3d roll_pitch_yaw = rx__msg_frame_id__msg_child_frame_id.eulerAngles(0, 1, 2);
-  const Eigen::Vector3d pos_state {
-    msg.pose.pose.position.x,
-    msg.pose.pose.position.y,
-    msg.pose.pose.position.z,
-  };
-  const Eigen::Vector3d speed_in_child_frame{
-    msg.twist.twist.linear.x,
-    msg.twist.twist.linear.y,
-    msg.twist.twist.linear.z,
-  };
-  const Eigen::Vector3d angular_speed_in_child_frame{
-    msg.twist.twist.angular.x,
-    msg.twist.twist.angular.y,
-    msg.twist.twist.angular.z,
-  };
-  const Eigen::Vector3d speed{rx__msg_frame_id__msg_child_frame_id * speed_in_child_frame};
-  // TODO(@niosus) This is wrong! I don't know how exactly to rotate the angular velocity right now.
-  // Not rotating it will work for preserving 2D rotation around z but will not work for a more
-  // general case.
-  const Eigen::Vector3d angular_speed{angular_speed_in_child_frame};
-  Matrix12d covariance{Matrix12d::Zero()};
-  {
-    const auto & cov = msg.pose.covariance;
-    covariance.block<3, 3>(0, 0) <<
-      cov[kIndexX], cov[kIndexXY], cov[kIndexXZ],
-      cov[kIndexYX], cov[kIndexY], cov[kIndexYZ],
-      cov[kIndexZX], cov[kIndexZY], cov[kIndexZ];
-    covariance.block<3, 3>(3, 3) <<
-      cov[kAngleOffset + kIndexX], cov[kAngleOffset + kIndexXY], cov[kAngleOffset + kIndexXZ],
-      cov[kAngleOffset + kIndexYX], cov[kAngleOffset + kIndexY], cov[kAngleOffset + kIndexYZ],
-      cov[kAngleOffset + kIndexZX], cov[kAngleOffset + kIndexZY], cov[kAngleOffset + kIndexZ];
-  }
-  {
-    const auto & cov = msg.twist.covariance;
-    covariance.block<3, 3>(6, 6) <<
-      cov[kIndexX], cov[kIndexXY], cov[kIndexXZ],
-      cov[kIndexYX], cov[kIndexY], cov[kIndexYZ],
-      cov[kIndexZX], cov[kIndexZY], cov[kIndexZ];
-    covariance.block<3, 3>(9, 9) <<
-      cov[kAngleOffset + kIndexX], cov[kAngleOffset + kIndexXY], cov[kAngleOffset + kIndexXZ],
-      cov[kAngleOffset + kIndexYX], cov[kAngleOffset + kIndexY], cov[kAngleOffset + kIndexYZ],
-      cov[kAngleOffset + kIndexZX], cov[kAngleOffset + kIndexZY], cov[kAngleOffset + kIndexZ];
-  }
-  // Rotate the speed covariance as the speed is now in frame_id frame and not in child_frame_id.
-  covariance.block<3, 3>(6, 6) =
-    rx__msg_frame_id__msg_child_frame_id *
-    covariance.block<3, 3>(6, 6) *
-    rx__msg_frame_id__msg_child_frame_id.transpose();
-
-  const Vector12d mean =
-    (Vector12d{} << pos_state, roll_pitch_yaw, speed, angular_speed).finished();
-  return MeasurementXYZRPYPosAndSpeed64{mean, covariance};
-}
-
-MeasurementXYPos64 convert_to<MeasurementXYPos64>::from(
-  const autoware_auto_msgs::msg::RelativePositionWithCovarianceStamped & msg)
-{
-  Eigen::Vector2d mean{msg.position.x, msg.position.y};
-  Eigen::Matrix2d covariance;
-  covariance <<
-    msg.covariance[kIndexXRelativePos], msg.covariance[kIndexXYRelativePos],
-    msg.covariance[kIndexYXRelativePos], msg.covariance[kIndexYRelativePos];
-  return MeasurementXYPos64{mean, covariance};
-}
-
 MeasurementXYZRPYPos64 convert_to<MeasurementXYZRPYPos64>::from(
   const geometry_msgs::msg::PoseWithCovariance & msg)
 {
@@ -221,31 +99,6 @@ MeasurementXYZRPYPos64 convert_to<MeasurementXYZRPYPos64>::from(
     covariance};
 }
 
-MeasurementXYZRPYSpeed64 convert_to<MeasurementXYZRPYSpeed64>::from(
-  const geometry_msgs::msg::TwistWithCovariance & msg)
-{
-  // TODO(niosus): this probably should be changed as we probably expect twist to be in the moving
-  // reference frame
-  using Vector6d = Eigen::Matrix<float64_t, 6, 1>;
-  using Matrix6d = Eigen::Matrix<float64_t, 6, 6>;
-  const Vector6d mean = (Vector6d{} <<
-    msg.twist.linear.x, msg.twist.linear.y, msg.twist.linear.z,
-    msg.twist.angular.x, msg.twist.angular.y, msg.twist.angular.z).finished();
-  Matrix6d covariance = Matrix6d::Zero();
-  const auto cov = msg.covariance;
-  covariance.topLeftCorner(3, 3) <<
-    cov[kIndexX], cov[kIndexXY], cov[kIndexXZ],
-    cov[kIndexYX], cov[kIndexY], cov[kIndexYZ],
-    cov[kIndexZX], cov[kIndexZY], cov[kIndexZ];
-  covariance.bottomRightCorner(3, 3) <<
-    cov[kAngleOffset + kIndexX], cov[kAngleOffset + kIndexXY], cov[kAngleOffset + kIndexXZ],
-    cov[kAngleOffset + kIndexYX], cov[kAngleOffset + kIndexY], cov[kAngleOffset + kIndexYZ],
-    cov[kAngleOffset + kIndexZX], cov[kAngleOffset + kIndexZY], cov[kAngleOffset + kIndexZ];
-  return MeasurementXYZRPYSpeed64{
-    mean,
-    covariance};
-}
-
 MeasurementXYZPos64 convert_to<MeasurementXYZPos64>::from(
   const autoware_auto_msgs::msg::RelativePositionWithCovarianceStamped & msg)
 {
@@ -256,21 +109,6 @@ MeasurementXYZPos64 convert_to<MeasurementXYZPos64>::from(
     cov[kIndexYXRelativePos], cov[kIndexYRelativePos], cov[kIndexYZRelativePos],
     cov[kIndexZXRelativePos], cov[kIndexZYRelativePos], cov[kIndexZRelativePos]).finished();
   return MeasurementXYZPos64{
-    mean,
-    covariance};
-}
-
-MeasurementXYSpeed64 convert_to<MeasurementXYSpeed64>::from(
-  const geometry_msgs::msg::TwistWithCovariance & msg)
-{
-  // TODO(niosus): this probably should be changed as we probably expect twist to be in the moving
-  // reference frame aka "child_frame_id", similar to twist in Odometry message.
-  Eigen::Vector2d mean{msg.twist.linear.x, msg.twist.linear.y};
-  Eigen::Matrix2d covariance;
-  covariance <<
-    msg.covariance[kIndexX], msg.covariance[kIndexXY],
-    msg.covariance[kIndexYX], msg.covariance[kIndexY];
-  return MeasurementXYSpeed64{
     mean,
     covariance};
 }

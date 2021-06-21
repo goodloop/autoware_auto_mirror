@@ -48,12 +48,6 @@ inline geometry_msgs::msg::PoseWithCovariance unstamp(
 {
   return msg.pose;
 }
-inline geometry_msgs::msg::TwistWithCovariance unstamp(
-  const geometry_msgs::msg::TwistWithCovarianceStamped & msg)
-{
-  return msg.twist;
-}
-inline const nav_msgs::msg::Odometry & unstamp(const nav_msgs::msg::Odometry & msg) {return msg;}
 inline const autoware_auto_msgs::msg::RelativePositionWithCovarianceStamped & unstamp(
   const autoware_auto_msgs::msg::RelativePositionWithCovarianceStamped & msg) {return msg;}
 
@@ -103,51 +97,19 @@ struct MEASUREMENT_CONVERSION_PUBLIC convert_to<Stamped<MeasurementT>>
   }
 };
 
-template<>
-struct MEASUREMENT_CONVERSION_PUBLIC convert_to<MeasurementXYPos64>
-{
-  static MeasurementXYPos64 from(const geometry_msgs::msg::PoseWithCovariance & msg);
-  static MeasurementXYPos64 from(
-    const autoware_auto_msgs::msg::RelativePositionWithCovarianceStamped & msg);
-};
-
+/// A specialization for MeasurementXYZRPYPos64.
 template<>
 struct MEASUREMENT_CONVERSION_PUBLIC convert_to<MeasurementXYZRPYPos64>
 {
   static MeasurementXYZRPYPos64 from(const geometry_msgs::msg::PoseWithCovariance & msg);
-  static MeasurementXYZRPYPos64 from(
-    const autoware_auto_msgs::msg::RelativePositionWithCovarianceStamped & msg);
 };
 
+/// A specialization for MeasurementXYZPos64.
 template<>
 struct MEASUREMENT_CONVERSION_PUBLIC convert_to<MeasurementXYZPos64>
 {
   static MeasurementXYZPos64 from(
     const autoware_auto_msgs::msg::RelativePositionWithCovarianceStamped & msg);
-};
-
-template<>
-struct MEASUREMENT_CONVERSION_PUBLIC convert_to<MeasurementXYSpeed64>
-{
-  static MeasurementXYSpeed64 from(const geometry_msgs::msg::TwistWithCovariance & msg);
-};
-
-template<>
-struct MEASUREMENT_CONVERSION_PUBLIC convert_to<MeasurementXYZRPYSpeed64>
-{
-  static MeasurementXYZRPYSpeed64 from(const geometry_msgs::msg::TwistWithCovariance & msg);
-};
-
-template<>
-struct MEASUREMENT_CONVERSION_PUBLIC convert_to<MeasurementXYPosAndSpeed64>
-{
-  static MeasurementXYPosAndSpeed64 from(const nav_msgs::msg::Odometry & msg);
-};
-
-template<>
-struct MEASUREMENT_CONVERSION_PUBLIC convert_to<MeasurementXYZRPYPosAndSpeed64>
-{
-  static MeasurementXYZRPYPosAndSpeed64 from(const nav_msgs::msg::Odometry & msg);
 };
 
 }  // namespace state_estimation
