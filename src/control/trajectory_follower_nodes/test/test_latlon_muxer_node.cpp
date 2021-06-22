@@ -16,6 +16,7 @@
 #include <fake_test_node/fake_test_node.hpp>
 
 #include <memory>
+#include <string>
 #include <vector>
 
 #include "trajectory_follower_nodes/latlon_muxer_node.hpp"
@@ -53,7 +54,9 @@ void waitForMessage(
     time_passed += dt;
     if (time_passed > max_wait_time) {
       if (fail_on_timeout) {
-        FAIL() << "Did not receive a message soon enough.";
+        throw std::runtime_error(
+                std::string(
+                  "Did not receive a message soon enough"));
       } else {
         break;
       }
