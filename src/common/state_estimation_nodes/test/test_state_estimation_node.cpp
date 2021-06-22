@@ -110,16 +110,16 @@ struct ParameterBundle
 constexpr ParameterBundle kPublish{true};
 constexpr ParameterBundle kNoPublish{false};
 
-using DISABLED_StateEstimationNodeTest =
+using StateEstimationNodeTest =
   autoware::tools::testing::FakeTestNodeParametrized<ParameterBundle>;
 
 INSTANTIATE_TEST_CASE_P(
   StateEstimationNodeTests,
-  DISABLED_StateEstimationNodeTest,
+  StateEstimationNodeTest,
   ::testing::Values(kPublish, kNoPublish), /*This comment needed to shut off a warning*/);
 
 /// @test Test that if we publish one message, it generates a state estimate which is sent out.
-TEST_P(DISABLED_StateEstimationNodeTest, PublishAndReceivePoseMessage) {
+TEST_P(StateEstimationNodeTest, PublishAndReceivePoseMessage) {
   auto msg = create_empty_pose("map");
   msg.header.stamp.sec = 5;
   msg.header.stamp.nanosec = 12345U;
@@ -171,7 +171,7 @@ TEST_P(DISABLED_StateEstimationNodeTest, PublishAndReceivePoseMessage) {
 }
 
 /// @test Test that we can track an object moving in a straight line.
-TEST_P(DISABLED_StateEstimationNodeTest, TrackObjectStraightLine) {
+TEST_P(StateEstimationNodeTest, TrackObjectStraightLine) {
   geometry_msgs::msg::TransformStamped transform;
   auto expected_child_frame_id = "base_link";
 
@@ -272,7 +272,7 @@ TEST_P(DISABLED_StateEstimationNodeTest, TrackObjectStraightLine) {
 }
 
 /// @test Test for the case when we publish on a timer.
-TEST_F(DISABLED_StateEstimationNodeTest, publish_on_timer) {
+TEST_F(StateEstimationNodeTest, publish_on_timer) {
   auto msg = create_empty_pose("map");
   msg.header.stamp.sec = 5;
   msg.header.stamp.nanosec = 12345U;
