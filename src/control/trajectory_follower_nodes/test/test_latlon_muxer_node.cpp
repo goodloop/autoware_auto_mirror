@@ -100,14 +100,13 @@ TEST_F(FakeNodeFixture, test_correct_output)
   waitForMessage(node, this, received_combined_command);
   // Ensure the combined control command was published and contains correct data
   ASSERT_TRUE(received_combined_command);
-  ASSERT_EQ(cmd_msg->lateral.steering_tire_angle, lat_msg.steering_tire_angle);
-  ASSERT_EQ(cmd_msg->lateral.steering_tire_rotation_rate, lat_msg.steering_tire_rotation_rate);
-  ASSERT_EQ(cmd_msg->longitudinal.speed, lon_msg.speed);
-  ASSERT_EQ(cmd_msg->longitudinal.acceleration, lon_msg.acceleration);
-  ASSERT_EQ(cmd_msg->longitudinal.jerk, lon_msg.jerk);
-  ASSERT_GT(rclcpp::Time(cmd_msg->stamp), rclcpp::Time(lat_msg.stamp));
-  ASSERT_GT(rclcpp::Time(cmd_msg->stamp), rclcpp::Time(lon_msg.stamp));
-  SUCCEED();
+  EXPECT_EQ(cmd_msg->lateral.steering_tire_angle, lat_msg.steering_tire_angle);
+  EXPECT_EQ(cmd_msg->lateral.steering_tire_rotation_rate, lat_msg.steering_tire_rotation_rate);
+  EXPECT_EQ(cmd_msg->longitudinal.speed, lon_msg.speed);
+  EXPECT_EQ(cmd_msg->longitudinal.acceleration, lon_msg.acceleration);
+  EXPECT_EQ(cmd_msg->longitudinal.jerk, lon_msg.jerk);
+  EXPECT_GT(rclcpp::Time(cmd_msg->stamp), rclcpp::Time(lat_msg.stamp));
+  EXPECT_GT(rclcpp::Time(cmd_msg->stamp), rclcpp::Time(lon_msg.stamp));
 }
 
 TEST_F(FakeNodeFixture, test_lateral_timeout)
@@ -145,7 +144,6 @@ TEST_F(FakeNodeFixture, test_lateral_timeout)
   waitForMessage(node, this, received_combined_command, std::chrono::seconds{1LL}, false);
   // Ensure combined command was not published
   ASSERT_FALSE(received_combined_command);
-  SUCCEED();
 }
 
 TEST_F(FakeNodeFixture, test_longitudinal_timeout)
@@ -183,7 +181,6 @@ TEST_F(FakeNodeFixture, test_longitudinal_timeout)
   waitForMessage(node, this, received_combined_command, std::chrono::seconds{1LL}, false);
   // Ensure combined command was not published
   ASSERT_FALSE(received_combined_command);
-  SUCCEED();
 }
 
 TEST_F(FakeNodeFixture, test_latlon_timeout)
@@ -221,5 +218,4 @@ TEST_F(FakeNodeFixture, test_latlon_timeout)
   waitForMessage(node, this, received_combined_command, std::chrono::seconds{1LL}, false);
   // Ensure combined command was not published
   ASSERT_FALSE(received_combined_command);
-  SUCCEED();
 }
