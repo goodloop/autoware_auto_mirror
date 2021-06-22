@@ -32,6 +32,7 @@ if(BUILD_TESTING)
           test/test_lanelet2_global_planner.cpp
           include/lanelet2_global_planner/lanelet2_global_planner.hpp
           src/lanelet2_global_planner.cpp)
+  ament_target_dependencies(${GB_PLANNER_GTEST} "ament_index_cpp")
   autoware_set_compile_options(${GB_PLANNER_GTEST})
   target_compile_options(${GB_PLANNER_GTEST} PRIVATE -Wno-sign-conversion -Wno-conversion
     -Wno-useless-cast -Wno-double-promotion)
