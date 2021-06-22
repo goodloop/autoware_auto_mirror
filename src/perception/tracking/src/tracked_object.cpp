@@ -41,9 +41,7 @@ using autoware::common::state_vector::variable::Y_VELOCITY;
 using autoware::common::state_vector::variable::X_ACCELERATION;
 using autoware::common::state_vector::variable::Y_ACCELERATION;
 
-using autoware::common::state_estimation::MeasurementXYPos64;
-using autoware::common::state_estimation::MeasurementXYSpeed64;
-using autoware::common::state_estimation::MeasurementXYPosAndSpeed64;
+using autoware::common::state_estimation::MeasurementXYZPos64;
 using autoware::common::state_estimation::Stamped;
 using autoware::common::state_estimation::convert_to;
 
@@ -147,35 +145,12 @@ void TrackedObject::update(const DetectedObjectMsg & detection)
   position.position.z = detection.kinematics.centroid_position.z;
   position.covariance = detection.kinematics.position_covariance;
   auto pose_measurement =
-    convert_to<Stamped<MeasurementXYPos64>>::from(position).measurement;
+    convert_to<Stamped<MeasurementXYZPos64>>::from(position).measurement;
   if (!detection.kinematics.has_position_covariance) {
     pose_measurement.covariance() = m_default_variance *
-      MeasurementXYPos64::State::Matrix::Identity();
+      MeasurementXYZPos64::State::Matrix::Identity();
   }
-  auto twist_measurement =
-    convert_to<MeasurementXYSpeed64>::from(
-    detection.kinematics.twist);
-  if (!detection.kinematics.has_twist_covariance) {
-    twist_measurement.covariance() = m_default_variance *
-      MeasurementXYSpeed64::State::Matrix::Identity();
-  }
-
-  if (detection.kinematics.has_twist) {
-    // Combine both into one measurement
-    Eigen::Vector4d state{};
-    state << pose_measurement.state().vector(), twist_measurement.state().vector();
-    Eigen::Matrix4d covariance = Eigen::Matrix4d::Zero();
-    covariance.topLeftCorner<2, 2>() = pose_measurement.covariance();
-    covariance.bottomRightCorner<2, 2>() = twist_measurement.covariance();
-    MeasurementXYPosAndSpeed64 full_measurement = MeasurementXYPosAndSpeed64{
-      state,
-      covariance};
-    m_ekf.correct(full_measurement);
-  } else if (detection.kinematics.has_twist) {
-    m_ekf.correct(twist_measurement);
-  } else {
-    m_ekf.correct(pose_measurement);
-  }
+  m_ekf.correct(pose_measurement);
 }
 
 void TrackedObject::no_update()
