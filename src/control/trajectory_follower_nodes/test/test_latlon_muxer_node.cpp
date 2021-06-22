@@ -76,13 +76,13 @@ TEST_F(FakeNodeFixture, test_correct_output)
   std::shared_ptr<LatLonMuxer> node = std::make_shared<LatLonMuxer>(node_options);
   // Publisher/Subscribers
   rclcpp::Publisher<LateralCommand>::SharedPtr lat_pub =
-    this->template create_publisher<LateralCommand>(
+    this->create_publisher<LateralCommand>(
     "input/lateral/control_cmd");
   rclcpp::Publisher<LongitudinalCommand>::SharedPtr lon_pub =
-    this->template create_publisher<LongitudinalCommand>(
+    this->create_publisher<LongitudinalCommand>(
     "input/longitudinal/control_cmd");
   rclcpp::Subscription<ControlCommand>::SharedPtr cmd_sub =
-    this->template create_subscription<ControlCommand>(
+    this->create_subscription<ControlCommand>(
     "output/control_cmd", *node,
     [&cmd_msg, &received_combined_command](const ControlCommand::SharedPtr msg) {
       cmd_msg = msg; received_combined_command = true;
@@ -124,13 +124,13 @@ TEST_F(FakeNodeFixture, test_lateral_timeout)
   std::shared_ptr<LatLonMuxer> node = std::make_shared<LatLonMuxer>(node_options);
   // Publisher/Subscribers
   rclcpp::Publisher<LateralCommand>::SharedPtr lat_pub =
-    this->template create_publisher<LateralCommand>(
+    this->create_publisher<LateralCommand>(
     "input/lateral/control_cmd");
   rclcpp::Publisher<LongitudinalCommand>::SharedPtr lon_pub =
-    this->template create_publisher<LongitudinalCommand>(
+    this->create_publisher<LongitudinalCommand>(
     "input/longitudinal/control_cmd");
   rclcpp::Subscription<ControlCommand>::SharedPtr cmd_sub =
-    this->template create_subscription<ControlCommand>(
+    this->create_subscription<ControlCommand>(
     "output/control_cmd", *node,
     [&cmd_msg, &received_combined_command](const ControlCommand::SharedPtr msg) {
       cmd_msg = msg; received_combined_command = true;
@@ -161,13 +161,13 @@ TEST_F(FakeNodeFixture, test_longitudinal_timeout)
   std::shared_ptr<LatLonMuxer> node = std::make_shared<LatLonMuxer>(node_options);
   // Publisher/Subscribers
   rclcpp::Publisher<LateralCommand>::SharedPtr lat_pub =
-    this->template create_publisher<LateralCommand>(
+    this->create_publisher<LateralCommand>(
     "input/lateral/control_cmd");
   rclcpp::Publisher<LongitudinalCommand>::SharedPtr lon_pub =
-    this->template create_publisher<LongitudinalCommand>(
+    this->create_publisher<LongitudinalCommand>(
     "input/longitudinal/control_cmd");
   rclcpp::Subscription<ControlCommand>::SharedPtr cmd_sub =
-    this->template create_subscription<ControlCommand>(
+    this->create_subscription<ControlCommand>(
     "output/control_cmd", *node,
     [&cmd_msg, &received_combined_command](const ControlCommand::SharedPtr msg) {
       cmd_msg = msg; received_combined_command = true;
@@ -198,13 +198,13 @@ TEST_F(FakeNodeFixture, test_latlon_timeout)
   std::shared_ptr<LatLonMuxer> node = std::make_shared<LatLonMuxer>(node_options);
   // Publisher/Subscribers
   rclcpp::Publisher<LateralCommand>::SharedPtr lat_pub =
-    this->template create_publisher<LateralCommand>(
+    this->create_publisher<LateralCommand>(
     "input/lateral/control_cmd");
   rclcpp::Publisher<LongitudinalCommand>::SharedPtr lon_pub =
-    this->template create_publisher<LongitudinalCommand>(
+    this->create_publisher<LongitudinalCommand>(
     "input/longitudinal/control_cmd");
   rclcpp::Subscription<ControlCommand>::SharedPtr cmd_sub =
-    this->template create_subscription<ControlCommand>(
+    this->create_subscription<ControlCommand>(
     "output/control_cmd", *node,
     [&cmd_msg, &received_combined_command](const ControlCommand::SharedPtr msg) {
       cmd_msg = msg; received_combined_command = true;
