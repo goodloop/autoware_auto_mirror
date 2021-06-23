@@ -31,11 +31,15 @@
     # the state. For example, if your state concerns 2D motion (along x and y) then there should be
     # two values in the provided array.
     process_noise_variances:
-      acceleration: [2.0, 2.0]
+      acceleration: [2.0, 2.0, 2.0]
 
     # Specify the variances for the state noise. Note that these are not sigma squared, but just
     # sigma values.
-    state_variances: [1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
+    state_variances: [
+      1.0, 1.0, 1.0, 1.0, 1.0, 1.0,  # position variances
+      1.0, 1.0, 1.0, 1.0, 1.0, 1.0,  # velocity variances
+      1.0, 1.0, 1.0, 1.0, 1.0, 1.0   # acceleration variances
+    ]
 
     # Set the mahalanobis threshold for rejecting outlier measurements. [optional]
     mahalanobis_threshold: 10.0
