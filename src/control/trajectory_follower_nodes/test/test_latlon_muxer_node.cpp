@@ -71,7 +71,6 @@ TEST_F(FakeNodeFixture, test_correct_output)
   bool received_combined_command = false;
   // Node
   rclcpp::NodeOptions node_options;
-  node_options.allow_undeclared_parameters(true);
   node_options.append_parameter_override("timeout_thr_sec", 0.5);
   std::shared_ptr<LatLonMuxer> node = std::make_shared<LatLonMuxer>(node_options);
   // Publisher/Subscribers
@@ -119,7 +118,6 @@ TEST_F(FakeNodeFixture, test_lateral_timeout)
   bool received_combined_command = false;
   // Node
   rclcpp::NodeOptions node_options;
-  node_options.allow_undeclared_parameters(true);
   node_options.append_parameter_override("timeout_thr_sec", 0.5);
   std::shared_ptr<LatLonMuxer> node = std::make_shared<LatLonMuxer>(node_options);
   // Publisher/Subscribers
@@ -156,7 +154,6 @@ TEST_F(FakeNodeFixture, test_longitudinal_timeout)
   bool received_combined_command = false;
   // Node
   rclcpp::NodeOptions node_options;
-  node_options.allow_undeclared_parameters(true);
   node_options.append_parameter_override("timeout_thr_sec", 0.5);
   std::shared_ptr<LatLonMuxer> node = std::make_shared<LatLonMuxer>(node_options);
   // Publisher/Subscribers
@@ -193,7 +190,6 @@ TEST_F(FakeNodeFixture, test_latlon_timeout)
   bool received_combined_command = false;
   // Node
   rclcpp::NodeOptions node_options;
-  node_options.allow_undeclared_parameters(true);
   node_options.append_parameter_override("timeout_thr_sec", 0.5);
   std::shared_ptr<LatLonMuxer> node = std::make_shared<LatLonMuxer>(node_options);
   // Publisher/Subscribers
