@@ -19,3 +19,7 @@ repositories:
     type: git
     url: https://github.com/autowarefoundation/tvm_vendor/
     version: fef2b164240720b0452d8a9524aaa1e8316eaf91
+  src/external/rclcpp_generic:
+    type: git
+    url: https://github.com/ApexAI/rclcpp_generic.git
+    version: autoware
