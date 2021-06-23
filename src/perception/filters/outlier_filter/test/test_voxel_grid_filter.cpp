@@ -17,7 +17,8 @@
 
 #include "gtest/gtest.h"
 #include "outlier_filter/voxel_grid_filter.hpp"
-#include "point_cloud_utils.hpp"
+#include "outlier_filter_test_utils.hpp"
+
 
 using VoxelGridFilter =
   autoware::perception::filters::outlier_filter::voxel_grid_filter::VoxelGridFilter;

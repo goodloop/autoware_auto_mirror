@@ -28,7 +28,6 @@ endif()
 # require that dependencies from package.xml be available
 find_package(ament_cmake_auto REQUIRED)
 find_package(PCL REQUIRED)
-# find_package(pcl_conversions REQUIRED)
 ament_auto_find_build_dependencies(REQUIRED
   ${${PROJECT_NAME}_BUILD_DEPENDS}
   ${${PROJECT_NAME}_BUILDTOOL_DEPENDS}
@@ -64,13 +63,14 @@ target_link_libraries(${PROJECT_NAME}
 # Testing
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
+  find_package(pcl_conversions REQUIRED)
   ament_lint_auto_find_test_dependencies()
 
   # Unit tests
   set(TEST_SOURCES
     test/test_radius_search_2d_filter.cpp
     test/test_voxel_grid_filter.cpp
-    test/point_cloud_utils.hpp)
+    test/outlier_filter_test_utils.hpp)
   set(TEST_OUTLIER_FILTER_EXE test_outlier_filter)
   ament_add_gtest(${TEST_OUTLIER_FILTER_EXE} ${TEST_SOURCES})
   autoware_set_compile_options(${TEST_OUTLIER_FILTER_EXE})

@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef POINT_CLOUD_UTILS_HPP_
-#define POINT_CLOUD_UTILS_HPP_
+#ifndef OUTLIER_FILTER_TEST_UTILS_HPP_
+#define OUTLIER_FILTER_TEST_UTILS_HPP_
 
 #include <vector>
 
@@ -29,7 +29,8 @@ using PointXYZ = geometry_msgs::msg::Point32;
 namespace
 {
 // Helper methods
-// FIXME(jilada): this function is based on a function from test_point_cloud_fusion.hpp
+// TODO(jilada): refactor in #1150
+// Note: this method is slightly different to accommodate for the PCL point cloud type
 pcl::PointCloud<pcl::PointXYZ> make_pc(
   std::vector<pcl::PointXYZ> points,
   builtin_interfaces::msg::Time stamp)
@@ -54,6 +55,7 @@ pcl::PointCloud<pcl::PointXYZ> make_pc(
   return pcl_cloud;
 }
 
+// TODO(jilada): refactor in #1150
 pcl::PointXYZ make_point(float x, float y, float z)
 {
   pcl::PointXYZ p;
@@ -63,7 +65,7 @@ pcl::PointXYZ make_point(float x, float y, float z)
   return p;
 }
 
-// FIXME(jilada): this function is copied from test_point_cloud_fusion.hpp
+// TODO(jilada): refactor in #1150
 builtin_interfaces::msg::Time to_msg_time(
   const std::chrono::system_clock::time_point time_point)
 {
@@ -82,6 +84,8 @@ builtin_interfaces::msg::Time to_msg_time(
   return result;
 }
 
+// TODO(jilada): refactor in #1150
+// Note: this method is slightly different to accommodate for the PCL point cloud type
 void check_pc(
   std::vector<pcl::PointXYZ> new_points,
   pcl::PointCloud<pcl::PointXYZ>::Ptr filtered_pc)
@@ -110,4 +114,4 @@ void check_pc(
 }
 }  // namespace
 
-#endif  // POINT_CLOUD_UTILS_HPP_
+#endif  // OUTLIER_FILTER_TEST_UTILS_HPP_

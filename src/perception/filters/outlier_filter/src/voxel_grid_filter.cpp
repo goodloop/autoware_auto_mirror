@@ -45,6 +45,9 @@ void VoxelGridFilter::filter(
 
   // Set parameters for voxel filter object
   voxel_filter_->setInputCloud(input);
+  // Leaf size set to true to save a copy of the tree layout for faster access when invoking
+  // getCentroidIndexAt
+  // Ref: https://pointclouds.org/documentation/classpcl_1_1_voxel_grid.html#a57f1511c023294989ab5ae83bc439ae3
   voxel_filter_->setSaveLeafLayout(true);
   voxel_filter_->setLeafSize(voxel_size_x_, voxel_size_y_, voxel_size_z_);
   voxel_filter_->setMinimumPointsNumberPerVoxel(voxel_points_threshold_);

@@ -19,7 +19,7 @@
 #include "pcl_conversions/pcl_conversions.h"
 
 #include "outlier_filter/radius_search_2d_filter.hpp"
-#include "point_cloud_utils.hpp"
+#include "outlier_filter_test_utils.hpp"
 
 
 using RadiusSearch2DFilter =
