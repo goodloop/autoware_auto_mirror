@@ -40,9 +40,8 @@ TEST(RadiusSearch2DFilter, test_single_point) {
   auto input = make_pc(points, t0);
 
   // Run the filter
-  pcl::PointCloud<pcl::PointXYZ>::Ptr output(new pcl::PointCloud<pcl::PointXYZ>());
-  pcl::PointCloud<pcl::PointXYZ>::ConstPtr pc(new pcl::PointCloud<pcl::PointXYZ>(input));
-  filter->filter(pc, output);
+  pcl::PointCloud<pcl::PointXYZ> output;
+  filter->filter(input, output);
 
   // Perform checks on the output pointcloud
   // For this test the single pointcloud is considered an outlier and will be removed
@@ -67,9 +66,8 @@ TEST(RadiusSearch2DFilter, test_simple_cloud) {
   auto input = make_pc(points, t0);
 
   // Run the filter
-  pcl::PointCloud<pcl::PointXYZ>::Ptr output(new pcl::PointCloud<pcl::PointXYZ>());
-  pcl::PointCloud<pcl::PointXYZ>::ConstPtr pc(new pcl::PointCloud<pcl::PointXYZ>(input));
-  filter->filter(pc, output);
+  pcl::PointCloud<pcl::PointXYZ> output;
+  filter->filter(input, output);
 
   // Perform checks on the output pointcloud
   // For this test the pointcloud should remain the same
@@ -95,9 +93,8 @@ TEST(RadiusSearch2DFilter, test_outlier_point) {
   auto input = make_pc(points, t0);
 
   // Run the filter
-  pcl::PointCloud<pcl::PointXYZ>::Ptr output(new pcl::PointCloud<pcl::PointXYZ>());
-  pcl::PointCloud<pcl::PointXYZ>::ConstPtr pc(new pcl::PointCloud<pcl::PointXYZ>(input));
-  filter->filter(pc, output);
+  pcl::PointCloud<pcl::PointXYZ> output;
+  filter->filter(input, output);
 
   // Perform checks on the output pointcloud
   // For this test the single pointcloud is considered an outlier and will be removed
@@ -124,9 +121,8 @@ TEST(RadiusSearch2DFilter, test_increase_min_neighbours) {
   auto input = make_pc(points, t0);
 
   // Run the filter
-  pcl::PointCloud<pcl::PointXYZ>::Ptr output(new pcl::PointCloud<pcl::PointXYZ>());
-  pcl::PointCloud<pcl::PointXYZ>::ConstPtr pc(new pcl::PointCloud<pcl::PointXYZ>(input));
-  filter->filter(pc, output);
+  pcl::PointCloud<pcl::PointXYZ> output;
+  filter->filter(input, output);
 
   // Perform checks on the output pointcloud
   // Min neighbours increased, not enough neighbours all points should fail checks
@@ -151,9 +147,8 @@ TEST(RadiusSearch2DFilter, test_decrease_search_radius) {
   auto input = make_pc(points, t0);
 
   // Run the filter
-  pcl::PointCloud<pcl::PointXYZ>::Ptr output(new pcl::PointCloud<pcl::PointXYZ>());
-  pcl::PointCloud<pcl::PointXYZ>::ConstPtr pc(new pcl::PointCloud<pcl::PointXYZ>(input));
-  filter->filter(pc, output);
+  pcl::PointCloud<pcl::PointXYZ> output;
+  filter->filter(input, output);
 
   // Perform checks on the output pointcloud
   // Min neighbours increased, not enough neighbours all points should fail checks

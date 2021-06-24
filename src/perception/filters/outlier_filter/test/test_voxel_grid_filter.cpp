@@ -45,9 +45,8 @@ TEST(VoxelGridFilterTest, test_four_equispaced_points) {
   auto input = make_pc(points, t0);
 
   // Run the filter
-  pcl::PointCloud<pcl::PointXYZ>::Ptr output(new pcl::PointCloud<pcl::PointXYZ>());
-  pcl::PointCloud<pcl::PointXYZ>::ConstPtr pc(new pcl::PointCloud<pcl::PointXYZ>(input));
-  filter->filter(pc, output);
+  pcl::PointCloud<pcl::PointXYZ> output;
+  filter->filter(input, output);
 
   // Perform the check
   check_pc(points, output);
@@ -75,9 +74,8 @@ TEST(VoxelGridFilterTest, test_two_close_points) {
   auto input = make_pc(points, t0);
 
   // Run the filter
-  pcl::PointCloud<pcl::PointXYZ>::Ptr output(new pcl::PointCloud<pcl::PointXYZ>());
-  pcl::PointCloud<pcl::PointXYZ>::ConstPtr pc(new pcl::PointCloud<pcl::PointXYZ>(input));
-  filter->filter(pc, output);
+  pcl::PointCloud<pcl::PointXYZ> output;
+  filter->filter(input, output);
 
   // Perform the check
   std::vector<pcl::PointXYZ> filter_points = {
@@ -113,9 +111,8 @@ TEST(VoxelGridFilterTest, test_line) {
   auto input = make_pc(points, t0);
 
   // Run the filter
-  pcl::PointCloud<pcl::PointXYZ>::Ptr output(new pcl::PointCloud<pcl::PointXYZ>());
-  pcl::PointCloud<pcl::PointXYZ>::ConstPtr pc(new pcl::PointCloud<pcl::PointXYZ>(input));
-  filter->filter(pc, output);
+  pcl::PointCloud<pcl::PointXYZ> output;
+  filter->filter(input, output);
 
   // Perform the check
   // Voxel is exclusive of the range, hence the final value is clipped

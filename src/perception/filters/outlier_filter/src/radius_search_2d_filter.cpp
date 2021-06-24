@@ -37,14 +37,14 @@ RadiusSearch2DFilter::RadiusSearch2DFilter(double search_radius, int min_neighbo
 }
 
 void RadiusSearch2DFilter::filter(
-  pcl::PointCloud<pcl::PointXYZ>::ConstPtr input,
-  pcl::PointCloud<pcl::PointXYZ>::Ptr output)
+  const pcl::PointCloud<pcl::PointXYZ> & input,
+  pcl::PointCloud<pcl::PointXYZ> & output)
 {
   pcl::PointCloud<pcl::PointXY>::Ptr xy_cloud(new pcl::PointCloud<pcl::PointXY>());
-  xy_cloud->points.resize(input->points.size());
-  for (size_t i = 0; i < input->points.size(); ++i) {
-    xy_cloud->points[i].x = input->points[i].x;
-    xy_cloud->points[i].y = input->points[i].y;
+  xy_cloud->points.resize(input.points.size());
+  for (size_t i = 0; i < input.points.size(); ++i) {
+    xy_cloud->points[i].x = input.points[i].x;
+    xy_cloud->points[i].y = input.points[i].y;
   }
 
   std::vector<int> k_indices(xy_cloud->points.size());
@@ -53,7 +53,7 @@ void RadiusSearch2DFilter::filter(
   for (size_t i = 0; i < xy_cloud->points.size(); ++i) {
     auto k = kd_tree_->radiusSearch(static_cast<int>(i), search_radius_, k_indices, k_dists);
     if (k >= min_neighbors_) {
-      output->points.push_back(input->points.at(i));
+      output.points.push_back(input.points.at(i));
     }
   }
 }

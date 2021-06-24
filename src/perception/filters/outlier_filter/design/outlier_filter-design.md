@@ -100,8 +100,8 @@ on an input point cloud.
 
 ```{cpp}
 void OUTLIER_FILTER_PUBLIC filter(
-    pcl::PointCloud<pcl::PointXYZ>::ConstPtr input,
-    pcl::PointCloud<pcl::PointXYZ>::Ptr output);
+    const pcl::PointCloud<pcl::PointXYZ> & input,
+    pcl::PointCloud<pcl::PointXYZ> & output);
 ```
 
 Depending on the filtering method the point type used in the input may differ. The filtered point

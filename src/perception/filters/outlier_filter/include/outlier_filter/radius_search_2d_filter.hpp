@@ -57,8 +57,8 @@ public:
    * \param output The output point cloud
    */
   void OUTLIER_FILTER_PUBLIC filter(
-    pcl::PointCloud<pcl::PointXYZ>::ConstPtr input,
-    pcl::PointCloud<pcl::PointXYZ>::Ptr output);
+    const pcl::PointCloud<pcl::PointXYZ> & input,
+    pcl::PointCloud<pcl::PointXYZ> & output);
 
   /* \brief Update dynamically configurable parameters
    * \param search_radius Parameter that updates the search_radius_ member variable

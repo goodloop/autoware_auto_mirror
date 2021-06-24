@@ -88,16 +88,16 @@ builtin_interfaces::msg::Time to_msg_time(
 // Note: this method is slightly different to accommodate for the PCL point cloud type
 void check_pc(
   std::vector<pcl::PointXYZ> new_points,
-  pcl::PointCloud<pcl::PointXYZ>::Ptr filtered_pc)
+  pcl::PointCloud<pcl::PointXYZ> & filtered_pc)
 {
   // Check that points are of equal size
-  EXPECT_EQ(new_points.size(), filtered_pc->points.size());
+  EXPECT_EQ(new_points.size(), filtered_pc.points.size());
 
   // Compare points
-  auto pc_it = filtered_pc->begin();
+  auto pc_it = filtered_pc.begin();
   auto p_it = new_points.begin();
 
-  while (pc_it != filtered_pc->end() && p_it != new_points.end()) {
+  while (pc_it != filtered_pc.end() && p_it != new_points.end()) {
     // Check values
     ASSERT_FLOAT_EQ(pc_it->x, p_it->x);
     ASSERT_FLOAT_EQ(pc_it->y, p_it->y);
@@ -109,7 +109,7 @@ void check_pc(
   }
 
   // Check that both iterators have reach the end
-  ASSERT_EQ(pc_it, filtered_pc->end());
+  ASSERT_EQ(pc_it, filtered_pc.end());
   ASSERT_EQ(p_it, new_points.end());
 }
 }  // namespace

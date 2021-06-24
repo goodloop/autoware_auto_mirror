@@ -37,14 +37,15 @@ VoxelGridFilter::VoxelGridFilter(
 }
 
 void VoxelGridFilter::filter(
-  pcl::PointCloud<pcl::PointXYZ>::ConstPtr input,
-  pcl::PointCloud<pcl::PointXYZ>::Ptr output)
+  const pcl::PointCloud<pcl::PointXYZ> & input,
+  pcl::PointCloud<pcl::PointXYZ> & output)
 {
   pcl::PointCloud<pcl::PointXYZ>::Ptr pcl_voxelized_input(new pcl::PointCloud<pcl::PointXYZ>);
-  pcl_voxelized_input->points.reserve(input->points.size());
+  pcl_voxelized_input->points.reserve(input.points.size());
 
   // Set parameters for voxel filter object
-  voxel_filter_->setInputCloud(input);
+  pcl::PointCloud<pcl::PointXYZ>::ConstPtr pc_input(new pcl::PointCloud<pcl::PointXYZ>(input));
+  voxel_filter_->setInputCloud(pc_input);
   // Leaf size set to true to save a copy of the tree layout for faster access when invoking
   // getCentroidIndexAt
   // Ref: https://pointclouds.org/documentation/classpcl_1_1_voxel_grid.html#a57f1511c023294989ab5ae83bc439ae3
@@ -53,13 +54,13 @@ void VoxelGridFilter::filter(
   voxel_filter_->setMinimumPointsNumberPerVoxel(voxel_points_threshold_);
   voxel_filter_->filter(*pcl_voxelized_input);
 
-  output->points.reserve(input->points.size());
-  for (size_t i = 0; i < input->points.size(); ++i) {
+  output.points.reserve(input.points.size());
+  for (size_t i = 0; i < input.points.size(); ++i) {
     const int index = voxel_filter_->getCentroidIndexAt(
       voxel_filter_->getGridCoordinates(
-        input->points.at(i).x, input->points.at(i).y, input->points.at(i).z));
+        input.points.at(i).x, input.points.at(i).y, input.points.at(i).z));
     if (index != -1) {  // not empty voxel
-      output->points.push_back(input->points.at(i));
+      output.points.push_back(input.points.at(i));
     }
   }
 }
