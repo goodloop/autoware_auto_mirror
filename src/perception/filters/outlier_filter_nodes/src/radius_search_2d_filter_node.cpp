@@ -14,6 +14,9 @@
 
 #include "outlier_filter_nodes/radius_search_2d_filter_node.hpp"
 
+#include "pcl_conversions/pcl_conversions.h"
+
+
 namespace autoware
 {
 namespace perception
@@ -23,23 +26,57 @@ namespace filters
 namespace outlier_filter_nodes
 {
 
+using RadiusSearch2DFilter =
+  autoware::perception::filters::outlier_filter::radius_search_2d_filter::
+  RadiusSearch2DFilter;
+
 RadiusSearch2DFilterNode::RadiusSearch2DFilterNode(const rclcpp::NodeOptions & options)
 :  FilterNodeBase("radius_search_2d_filter_node", options)
 {
+  radius_search_2d_filter_ = std::make_shared<RadiusSearch2DFilter>(
+    declare_parameter("search_radius").get<double>(),
+    declare_parameter("min_neighbors").get<int>()
+  );
 }
 
-void filter(
-  const sensor_msgs::msg::PointCloud2 &,
-  sensor_msgs::msg::PointCloud2 &)
+void RadiusSearch2DFilterNode::filter(
+  const sensor_msgs::msg::PointCloud2 & input,
+  sensor_msgs::msg::PointCloud2 & output)
 {
+  pcl::PointCloud<pcl::PointXYZ> pcl_input;
+  pcl::PointCloud<pcl::PointXYZ> pcl_output;
+  pcl::fromROSMsg(input, pcl_input);
+
+  // Perform the filtering
+  radius_search_2d_filter_->filter(pcl_input, pcl_output);
+
+  pcl::toROSMsg(pcl_output, output);
 }
 
-rcl_interfaces::msg::SetParametersResult get_node_parameters(
-  const std::vector<rclcpp::Parameter> &)
+rcl_interfaces::msg::SetParametersResult RadiusSearch2DFilterNode::get_node_parameters(
+  const std::vector<rclcpp::Parameter> & p)
 {
   rcl_interfaces::msg::SetParametersResult result;
   result.successful = true;
-  result.reason = "success";
+  result.reason = "";
+
+  {
+    using namespace autoware::perception::filters::filter_node_base;
+
+    if (get_param<double>(p, "search_radius", search_radius_)) {
+      result.successful = false;
+      result.reason += "Failed to retrieve search_radius parameter. ";
+      RCLCPP_DEBUG(get_logger(), "Setting new search radius to: %f.", search_radius_);
+    }
+    if (get_param<long int>(p, "min_neighbors", min_neighbors_)) {
+      result.successful = false;
+      result.reason += "Failed to retrieve min_neighbors parameter. ";
+      RCLCPP_DEBUG(get_logger(), "Setting new min neighbors to: %d.", min_neighbors_);
+    }
+  }
+
+  // Call update method
+  radius_search_2d_filter_->update_parameters(search_radius_, static_cast<int>(min_neighbors_));
 
   return result;
 }
