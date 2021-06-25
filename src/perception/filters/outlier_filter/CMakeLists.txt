@@ -40,12 +40,12 @@ include_directories(
 
 set(OUTLIER_FILTER_LIB_SRC
   src/radius_search_2d_filter.cpp
-  src/voxel_grid_filter.cpp
+  src/voxel_grid_outlier_filter.cpp
 )
 
 set(OUTLIER_FILTER_LIB_HEADERS
   include/outlier_filter/radius_search_2d_filter.hpp
-  include/outlier_filter/voxel_grid_filter.hpp
+  include/outlier_filter/voxel_grid_outlier_filter.hpp
   include/outlier_filter/visibility_control.hpp
 )
 
@@ -69,7 +69,7 @@ if(BUILD_TESTING)
   # Unit tests
   set(TEST_SOURCES
     test/test_radius_search_2d_filter.cpp
-    test/test_voxel_grid_filter.cpp
+    test/test_voxel_grid_outlier_filter.cpp
     test/outlier_filter_test_utils.hpp)
   set(TEST_OUTLIER_FILTER_EXE test_outlier_filter)
   ament_add_gtest(${TEST_OUTLIER_FILTER_EXE} ${TEST_SOURCES})

@@ -14,10 +14,10 @@
 
 /// \copyright Copyright 2021 Tier IV, Inc.
 /// \file
-/// \brief This file defines the VoxelGridFilter class.
+/// \brief This file defines the VoxelGridOutlierFilter class.
 
-#ifndef OUTLIER_FILTER__VOXEL_GRID_FILTER_HPP_
-#define OUTLIER_FILTER__VOXEL_GRID_FILTER_HPP_
+#ifndef OUTLIER_FILTER__VOXEL_GRID_OUTLIER_FILTER_HPP_
+#define OUTLIER_FILTER__VOXEL_GRID_OUTLIER_FILTER_HPP_
 
 #include <memory>
 
@@ -36,23 +36,23 @@ namespace filters
 {
 namespace outlier_filter
 {
-/* Namespace for the VoxelGridFilter library */
-namespace voxel_grid_filter
+/* Namespace for the VoxelGridOutlierFilter library */
+namespace voxel_grid_outlier_filter
 {
 
-/* \class VoxelGridFilter
+/* \class VoxelGridOutlierFilter
  * \brief Library for applying voxel-based filtering on a PCL pointcloud
  */
-class OUTLIER_FILTER_PUBLIC VoxelGridFilter
+class OUTLIER_FILTER_PUBLIC VoxelGridOutlierFilter
 {
 public:
-  /* \brief Constructor for the VoxelGridFilter class
+  /* \brief Constructor for the VoxelGridOutlierFilter class
    * \param voxel_size_x Voxel leaf size of side X
    * \param voxel_size_y Voxel leaf size of side Y
    * \param voxel_size_z Voxel leaf size of side Z
    * \param voxel_points_threshold Minimum number of points per voxel
    */
-  explicit OUTLIER_FILTER_PUBLIC VoxelGridFilter(
+  explicit OUTLIER_FILTER_PUBLIC VoxelGridOutlierFilter(
     float voxel_size_x, float voxel_size_y,
     float voxel_size_z, uint32_t voxel_points_threshold);
 
@@ -98,10 +98,10 @@ private:
   std::shared_ptr<pcl::VoxelGrid<pcl::PointXYZ>> voxel_filter_;
 };
 
-}  // namespace voxel_grid_filter
+}  // namespace voxel_grid_outlier_filter
 }  // namespace outlier_filter
 }  // namespace filters
 }  // namespace perception
 }  // namespace autoware
 
-#endif  // OUTLIER_FILTER__VOXEL_GRID_FILTER_HPP_
+#endif  // OUTLIER_FILTER__VOXEL_GRID_OUTLIER_FILTER_HPP_

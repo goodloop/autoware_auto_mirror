@@ -7,7 +7,7 @@ outlier_filter {#outlier_filter-package-design}
 The `outlier_filter` package is a library package containing the implementations of the three
 outlier filters from the TierIV [AutowareArchitectureProposal repository](https://github.com/tier4/AutowareArchitectureProposal.iv):
  * `radius_search_2d_filter` - uses PCL functions to radially search a point for surrounding neighbors 
- * `voxel_grid_filter` - uses voxels to determine if a particular voxel contains outliers
+ * `voxel_grid_outlier_filter` - uses voxels to determine if a particular voxel contains outliers
  * `ring_filter` (Not Implemented Yet) - uses ring information from the lidar to determine if a point is an outlier  
 
 
@@ -26,7 +26,7 @@ the main implementation of the filtering algorithms for the three outlier filter
 
 ### Discretization
 
-The `voxel_grid_filter` implementation using discretized voxel to determine whether a point is an
+The `voxel_grid_outlier_filter` implementation using discretized voxel to determine whether a point is an
 outlier. Due to the nature of discretized algorithms, a small approximation error could be
 introduced. For applications where the reduction of approximation error is important, alternative
 outlier filter implementations such as the `radius_search_2d_filter` should be used instead.
@@ -53,7 +53,7 @@ the class constructor. A typical constructor for filter class in this package wo
 form:
 
 ```{cpp}
-explicit OUTLIER_FILTER_PUBLIC OutlierFilterTypeFilter(int input_a, int input_b);
+explicit OUTLIER_FILTER_PUBLIC src/perception/filters/outlier_filter/src/voxel_grid_outlier_filter.cpp(int input_a, int input_b);
 ```
 
 Where `input_a` and `input_b` are the exhaustive list of parameters required for the filter
@@ -67,9 +67,9 @@ The following parameters are required by the `radius_search_2d_filter`:
  * `min_neighbors_` - minimum number of neighbors required for point to not be considered an outlier (Type: `int`)
 
 
-#### voxel_grid_filter
+#### voxel_grid_outlier_filter
 
-The following parameters are required by the `voxel_grid_filter` class constructor:
+The following parameters are required by the `voxel_grid_outlier_filter` class constructor:
  * `voxel_size_x` - voxel leaf size in the x-axis (Type: `float`, Unit: meters)
  * `voxel_size_y` - voxel leaf size in the y-axis (Type: `float`, Unit: meters) 
  * `voxel_size_z` - voxel leaf size in the z-axis (Type: `float`, Unit: meters)
@@ -119,9 +119,9 @@ flattened by converting the PointXYZ to PointXY. It utilizes the [PCL `Search` o
 number of neighboring points is found, the original point is added to the output point cloud.
 
 
-### voxel_grid_filter
+### voxel_grid_outlier_filter
 
-The `voxel_grid_filter` filtering method using the PCL library `VoxelGrid` object to discretize the
+The `voxel_grid_outlier_filter` filtering method using the PCL library `VoxelGrid` object to discretize the
 point cloud into equi-sized voxels containing a certain number of points. Then the 3D grid is
 searched to determine if a point lies within a voxel. Points returning an existing voxel are not
 considered outliers and are added to the output point cloud.
@@ -155,9 +155,9 @@ AutowareArchitectureProposal repository:
 * [`radius_search_2d_outlier_filter_nodelet.cpp`](https://github.com/tier4/AutowareArchitectureProposal.iv/blob/ros2/sensing/preprocessor/pointcloud/pointcloud_preprocessor/src/outlier_filter/radius_search_2d_outlier_filter_nodelet.cpp)
 
 
-## voxel_grid_filter
+## voxel_grid_outlier_filter
 
-The original implementation of the `voxel_grid_filter` can be found in the TierIV
+The original implementation of the `voxel_grid_outlier_filter` can be found in the TierIV
 AutowareArchitectureProposal repository:
 * [`voxel_grid_outlier_filter_nodelet.hpp`](https://github.com/tier4/AutowareArchitectureProposal.iv/blob/ros2/sensing/preprocessor/pointcloud/pointcloud_preprocessor/include/pointcloud_preprocessor/outlier_filter/voxel_grid_outlier_filter_nodelet.hpp)
 * [`voxel_grid_outlier_filter_nodelet.cpp`](https://github.com/tier4/AutowareArchitectureProposal.iv/blob/ros2/sensing/preprocessor/pointcloud/pointcloud_preprocessor/src/outlier_filter/voxel_grid_outlier_filter_nodelet.cpp)

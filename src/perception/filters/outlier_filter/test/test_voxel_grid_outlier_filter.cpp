@@ -16,12 +16,12 @@
 #include <vector>
 
 #include "gtest/gtest.h"
-#include "outlier_filter/voxel_grid_filter.hpp"
+#include "outlier_filter/voxel_grid_outlier_filter.hpp"
 #include "outlier_filter_test_utils.hpp"
 
 
-using VoxelGridFilter =
-  autoware::perception::filters::outlier_filter::voxel_grid_filter::VoxelGridFilter;
+using VoxelGridOutlierFilter =
+  autoware::perception::filters::outlier_filter::voxel_grid_outlier_filter::VoxelGridOutlierFilter;
 
 // TEST METHODS
 /* TEST 1: Four equispaced points
@@ -33,8 +33,9 @@ using VoxelGridFilter =
  *  x  |  x
  *     |
  */
-TEST(VoxelGridFilterTest, test_four_equispaced_points) {
-  auto filter = std::make_shared<VoxelGridFilter>(1.0f, 1.0f, 1.0f, static_cast<uint32_t>(1));
+TEST(VoxelGridOutlierFilterTest, test_four_equispaced_points) {
+  auto filter =
+    std::make_shared<VoxelGridOutlierFilter>(1.0f, 1.0f, 1.0f, static_cast<uint32_t>(1));
   std::vector<pcl::PointXYZ> points = {
     make_point(-1.0f, 1.0f, 0.0f),
     make_point(-1.0f, -1.0f, 0.0f),
@@ -61,8 +62,9 @@ TEST(VoxelGridFilterTest, test_four_equispaced_points) {
  *  x  |  x         |
  *     |            |
  */
-TEST(VoxelGridFilterTest, test_two_close_points) {
-  auto filter = std::make_shared<VoxelGridFilter>(1.0f, 1.0f, 1.0f, static_cast<uint32_t>(2));
+TEST(VoxelGridOutlierFilterTest, test_two_close_points) {
+  auto filter =
+    std::make_shared<VoxelGridOutlierFilter>(1.0f, 1.0f, 1.0f, static_cast<uint32_t>(2));
   std::vector<pcl::PointXYZ> points = {
     make_point(-1.0f, 1.0f, 0.0f),
     make_point(-0.8f, 1.0f, 0.0f),
@@ -92,8 +94,9 @@ TEST(VoxelGridFilterTest, test_two_close_points) {
  *      |              |
  * ----------- -> -----------
  */
-TEST(VoxelGridFilterTest, test_line) {
-  auto filter = std::make_shared<VoxelGridFilter>(1.0f, 1.0f, 1.0f, static_cast<uint32_t>(2));
+TEST(VoxelGridOutlierFilterTest, test_line) {
+  auto filter =
+    std::make_shared<VoxelGridOutlierFilter>(1.0f, 1.0f, 1.0f, static_cast<uint32_t>(2));
   std::vector<pcl::PointXYZ> points = {
     make_point(-1.0f, 1.0f, 0.0f),
     make_point(-0.8f, 1.0f, 0.0f),

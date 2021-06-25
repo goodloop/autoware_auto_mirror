@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "outlier_filter/voxel_grid_filter.hpp"
+#include "outlier_filter/voxel_grid_outlier_filter.hpp"
 
 #include <memory>
 
@@ -24,10 +24,10 @@ namespace filters
 {
 namespace outlier_filter
 {
-namespace voxel_grid_filter
+namespace voxel_grid_outlier_filter
 {
 
-VoxelGridFilter::VoxelGridFilter(
+VoxelGridOutlierFilter::VoxelGridOutlierFilter(
   float voxel_size_x, float voxel_size_y, float voxel_size_z,
   uint32_t voxel_points_threshold)
 : voxel_size_x_(voxel_size_x), voxel_size_y_(voxel_size_y), voxel_size_z_(voxel_size_z),
@@ -36,7 +36,7 @@ VoxelGridFilter::VoxelGridFilter(
   voxel_filter_ = std::make_shared<pcl::VoxelGrid<pcl::PointXYZ>>();
 }
 
-void VoxelGridFilter::filter(
+void VoxelGridOutlierFilter::filter(
   const pcl::PointCloud<pcl::PointXYZ> & input,
   pcl::PointCloud<pcl::PointXYZ> & output)
 {
@@ -64,7 +64,7 @@ void VoxelGridFilter::filter(
     }
   }
 }
-}  // namespace voxel_grid_filter
+}  // namespace voxel_grid_outlier_filter
 }  // namespace outlier_filter
 }  // namespace filters
 }  // namespace perception
