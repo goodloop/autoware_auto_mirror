@@ -27,24 +27,20 @@ double calcDistance2d(const geometry_msgs::msg::Point & p1, const geometry_msgs:
   return std::hypot(p1.x - p2.x, p1.y - p2.y);
 }
 
-double calcDistance2d(const geometry_msgs::msg::Pose & p1, const geometry_msgs::msg::Pose & p2)
-{
-  return calcDistance2d(p1.position, p2.position);
-}
-
 bool isNearGoal(
-  const geometry_msgs::msg::Pose & current_pose, const geometry_msgs::msg::Pose & goal_pose,
+  const geometry_msgs::msg::Pose & current_pose,
+  const autoware_auto_msgs::msg::RoutePoint & goal_pose,
   const double th_dist)
 {
-  return calcDistance2d(current_pose, goal_pose) < th_dist;
+  return calcDistance2d(current_pose.position, goal_pose.position) < th_dist;
 }
 
 bool isStopped(
-  const std::deque<geometry_msgs::msg::TwistStamped::ConstSharedPtr> & twist_buffer,
+  const std::deque<autoware_auto_msgs::msg::VehicleOdometry::ConstSharedPtr> & odometry_buffer,
   const double th_stopped_velocity_mps)
 {
-  for (const auto & twist : twist_buffer) {
-    if (std::abs(twist->twist.linear.x) > th_stopped_velocity_mps) {
+  for (const auto & odometry : odometry_buffer) {
+    if (std::abs(odometry->velocity_mps) > th_stopped_velocity_mps) {
       return false;
     }
   }
@@ -150,19 +146,21 @@ bool StateMachine::isPlanningCompleted() const
 
 bool StateMachine::isEngaged() const
 {
-  if (!state_input_.autoware_engage) {
+  using autoware_auto_msgs::msg::VehicleStateReport;
+
+  if (!state_input_.engage) {
     return false;
   }
 
-  if (state_input_.autoware_engage->engage != 1) {
+  if (state_input_.engage->engage != 1) {
     return false;
   }
 
-  if (!state_input_.vehicle_control_mode) {
+  if (!state_input_.vehicle_state_report) {
     return false;
   }
 
-  if (state_input_.vehicle_control_mode->data == autoware_vehicle_msgs::msg::ControlMode::MANUAL) {
+  if (state_input_.vehicle_state_report->mode == VehicleStateReport::MODE_MANUAL) {
     return false;
   }
 
@@ -185,7 +183,7 @@ bool StateMachine::hasArrivedGoal() const
   const auto is_near_goal = isNearGoal(
     state_input_.current_pose->pose, *state_input_.goal_pose, state_param_.th_arrived_distance_m);
   const auto is_stopped =
-    isStopped(state_input_.twist_buffer, state_param_.th_stopped_velocity_mps);
+    isStopped(state_input_.odometry_buffer, state_param_.th_stopped_velocity_mps);
 
   if (is_near_goal && is_stopped) {
     return true;

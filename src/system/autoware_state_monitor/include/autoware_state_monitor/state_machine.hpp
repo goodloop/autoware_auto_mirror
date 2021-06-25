@@ -19,14 +19,14 @@
 #include <string>
 #include <vector>
 
-#include "autoware_planning_msgs/msg/route.hpp"
-#include "autoware_planning_msgs/msg/trajectory.hpp"
-#include "autoware_control_msgs/msg/emergency_mode.hpp"
-#include "autoware_system_msgs/msg/autoware_state.hpp"
-#include "autoware_vehicle_msgs/msg/control_mode.hpp"
-#include "autoware_vehicle_msgs/msg/engage.hpp"
+#include <autoware_auto_msgs/msg/autoware_state.hpp>
+#include <autoware_auto_msgs/msg/emergency_mode.hpp>
+#include <autoware_auto_msgs/msg/engage.hpp>
+#include <autoware_auto_msgs/msg/had_map_route.hpp>
+#include <autoware_auto_msgs/msg/vehicle_odometry.hpp>
+#include <autoware_auto_msgs/msg/vehicle_state_report.hpp>
+
 #include "geometry_msgs/msg/pose_stamped.hpp"
-#include "geometry_msgs/msg/twist_stamped.hpp"
 #include "rclcpp/time.hpp"
 
 #include "autoware_state_monitor/autoware_state.hpp"
@@ -42,16 +42,16 @@ struct StateInput
   rclcpp::Time current_time;
 
   geometry_msgs::msg::PoseStamped::ConstSharedPtr current_pose;
-  geometry_msgs::msg::Pose::ConstSharedPtr goal_pose;
+  autoware_auto_msgs::msg::RoutePoint::ConstSharedPtr goal_pose;
 
-  autoware_vehicle_msgs::msg::Engage::ConstSharedPtr autoware_engage;
-  autoware_vehicle_msgs::msg::ControlMode::ConstSharedPtr vehicle_control_mode;
-  autoware_control_msgs::msg::EmergencyMode::ConstSharedPtr emergency_mode;
+  autoware_auto_msgs::msg::Engage::ConstSharedPtr engage;
+  autoware_auto_msgs::msg::VehicleStateReport::ConstSharedPtr vehicle_state_report;
+  autoware_auto_msgs::msg::EmergencyMode::ConstSharedPtr emergency_mode;
   bool is_finalizing = false;
   bool is_route_reset_required = false;
-  autoware_planning_msgs::msg::Route::ConstSharedPtr route;
-  geometry_msgs::msg::TwistStamped::ConstSharedPtr twist;
-  std::deque<geometry_msgs::msg::TwistStamped::ConstSharedPtr> twist_buffer;
+  autoware_auto_msgs::msg::HADMapRoute::ConstSharedPtr route;
+  autoware_auto_msgs::msg::VehicleOdometry::ConstSharedPtr odometry;
+  std::deque<autoware_auto_msgs::msg::VehicleOdometry::ConstSharedPtr> odometry_buffer;
 };
 
 struct StateParam
@@ -93,7 +93,7 @@ private:
   mutable std::vector<std::string> msgs_;
   mutable Times times_;
   mutable Flags flags_;
-  mutable autoware_planning_msgs::msg::Route::ConstSharedPtr executing_route_ = nullptr;
+  mutable autoware_auto_msgs::msg::HADMapRoute::ConstSharedPtr executing_route_ = nullptr;
 
   AutowareState judgeAutowareState() const;
 
