@@ -27,7 +27,7 @@ endif()
 
 # require that dependencies from package.xml be available
 find_package(ament_cmake_auto REQUIRED)
-find_package(PCL REQUIRED)
+find_package(PCL 1.8 REQUIRED)
 ament_auto_find_build_dependencies(REQUIRED
   ${${PROJECT_NAME}_BUILD_DEPENDS}
   ${${PROJECT_NAME}_BUILDTOOL_DEPENDS}
@@ -79,4 +79,5 @@ if(BUILD_TESTING)
 endif()
 
 # ament package generation and installing
+ament_export_include_directories(${PCL_INCLUDE_DIRS})
 ament_auto_package(INSTALL_TO_SHARE)
