@@ -18,9 +18,16 @@ project(outlier_filter_nodes)
 
 # require that dependencies from package.xml be available
 find_package(ament_cmake_auto REQUIRED)
+find_package(PCL REQUIRED)
+find_package(pcl_conversions)
 ament_auto_find_build_dependencies(REQUIRED
   ${${PROJECT_NAME}_BUILD_DEPENDS}
   ${${PROJECT_NAME}_BUILDTOOL_DEPENDS}
+)
+
+include_directories(
+  include
+  ${PCL_INCLUDE_DIRS}
 )
 
 set(OUTLIER_FILTER_NODES_SRC
@@ -37,10 +44,15 @@ ament_auto_add_library(${PROJECT_NAME} SHARED
   ${OUTLIER_FILTER_NODES_HEADERS}
 )
 autoware_set_compile_options(${PROJECT_NAME})
+target_link_libraries(${PROJECT_NAME}
+  ${PCL_LIBRARIES}
+)
+
 rclcpp_components_register_node(${PROJECT_NAME}
-  PLUGIN "autoware::outlier_filter_nodes::OutlierFilterNode"
+  PLUGIN "autoware::perception::filters::outlier_filter_nodes::RadiusSearch2DFilterNode"
   EXECUTABLE ${PROJECT_NAME}_exe
 )
+
 
 # Testing
 if(BUILD_TESTING)

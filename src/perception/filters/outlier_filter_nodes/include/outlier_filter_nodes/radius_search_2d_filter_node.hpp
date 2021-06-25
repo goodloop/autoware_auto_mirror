@@ -22,6 +22,7 @@
 #include "outlier_filter_nodes/visibility_control.hpp"
 
 #include "filter_node_base/filter_node_base.hpp"
+#include "outlier_filter/radius_search_2d_filter.hpp"
 
 #include <rclcpp/rclcpp.hpp>
 
@@ -35,7 +36,9 @@ namespace outlier_filter_nodes
 {
 
 using FilterNodeBase = autoware::perception::filters::filter_node_base::FilterNodeBase;
-
+using RadiusSearch2DFilter =
+  autoware::perception::filters::outlier_filter::radius_search_2d_filter::
+  RadiusSearch2DFilter;
 /// \class OutlierFilterNodesNode
 /// \brief ROS 2 Node for hello world.
 class OUTLIER_FILTER_NODES_PUBLIC RadiusSearch2DFilterNode : public FilterNodeBase
@@ -52,6 +55,13 @@ protected:
 
   OUTLIER_FILTER_NODES_PUBLIC virtual rcl_interfaces::msg::SetParametersResult get_node_parameters(
     const std::vector<rclcpp::Parameter> & p);
+
+private:
+  std::shared_ptr<RadiusSearch2DFilter> radius_search_2d_filter_;
+
+  double search_radius_;
+
+  long int min_neighbors_;
 };
 }  // namespace outlier_filter_nodes
 }  // namespace filters
