@@ -70,7 +70,7 @@ public:
    * \param voxel_size_z Parameter that updates the voxel_size_z_ member variable
    * \param voxel_points_threshold Parameter that updates the voxel_points_threshold member variable
    */
-  inline void OUTLIER_FILTER_PUBLIC update_parameters(
+  void OUTLIER_FILTER_PUBLIC update_parameters(
     float voxel_size_x, float voxel_size_y,
     float voxel_size_z,
     uint32_t voxel_points_threshold)

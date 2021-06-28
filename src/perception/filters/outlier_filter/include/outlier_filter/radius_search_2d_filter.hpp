@@ -64,7 +64,7 @@ public:
    * \param search_radius Parameter that updates the search_radius_ member variable
    * \param min_neighbors Parameter that updates the min_neighbors_ member variable
    */
-  inline void OUTLIER_FILTER_PUBLIC update_parameters(double search_radius, int min_neighbors)
+  void OUTLIER_FILTER_PUBLIC update_parameters(double search_radius, int min_neighbors)
   {
     search_radius_ = search_radius;
     min_neighbors_ = min_neighbors;
