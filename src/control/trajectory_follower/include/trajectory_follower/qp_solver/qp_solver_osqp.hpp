@@ -25,7 +25,7 @@
 #include "osqp_interface/osqp_interface.hpp"
 #include "eigen3/Eigen/Dense"
 #include "rclcpp/rclcpp.hpp"
-#include "mpc_follower/qp_solver/qp_solver_interface.hpp"
+#include "trajectory_follower/qp_solver/qp_solver_interface.hpp"
 
 class QPSolverOSQP : public QPSolverInterface
 {
@@ -58,7 +58,7 @@ public:
     const Eigen::VectorXd & ubA, Eigen::VectorXd & U) override;
 
 private:
-  osqp::OSQPInterface osqpsolver_;
+  common::osqp::OSQPInterface osqpsolver_;
   rclcpp::Logger logger_;
 };
 #endif  // MPC_FOLLOWER__QP_SOLVER__QP_SOLVER_OSQP_HPP_

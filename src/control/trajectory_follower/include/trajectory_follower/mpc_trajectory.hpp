@@ -48,6 +48,6 @@ public:
    * @brief check size of MPCTrajectory
    * @return size, or 0 if the size for each components are inconsistent
    */
-  unsigned int size() const;
+  size_t size() const;
 };
 #endif  // MPC_FOLLOWER__MPC_TRAJECTORY_HPP_

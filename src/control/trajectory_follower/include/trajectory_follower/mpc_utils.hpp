@@ -19,8 +19,8 @@
 #include <string>
 #include <vector>
 
-#include "mpc_follower/interpolate.hpp"
-#include "mpc_follower/mpc_trajectory.hpp"
+#include "trajectory_follower/interpolate.hpp"
+#include "trajectory_follower/mpc_trajectory.hpp"
 
 #include "tf2/utils.h"
 #include "tf2_geometry_msgs/tf2_geometry_msgs.h"
@@ -28,7 +28,9 @@
 #include "geometry_msgs/msg/twist_stamped.hpp"
 #include "rclcpp/rclcpp.hpp"
 #include "visualization_msgs/msg/marker_array.hpp"
-#include "autoware_planning_msgs/msg/trajectory.hpp"
+#include "autoware_auto_msgs/msg/trajectory.hpp"
+#include "autoware_auto_msgs/msg/trajectory_point.hpp"
+#include "motion_common/motion_common.hpp"
 
 #include "eigen3/Eigen/Core"
 
@@ -65,9 +67,9 @@ double calcLateralError(
   const geometry_msgs::msg::Pose & ego_pose, const geometry_msgs::msg::Pose & ref_pose);
 
 bool convertToMPCTrajectory(
-  const autoware_planning_msgs::msg::Trajectory & input, MPCTrajectory * output);
+  const autoware_auto_msgs::msg::Trajectory & input, MPCTrajectory * output);
 bool convertToAutowareTrajectory(
-  const MPCTrajectory & input, autoware_planning_msgs::msg::Trajectory * output);
+  const MPCTrajectory & input, autoware_auto_msgs::msg::Trajectory * output);
 void calcMPCTrajectoryArclength(const MPCTrajectory & trajectory, std::vector<double> * arclength);
 bool resampleMPCTrajectoryByDistance(
   const MPCTrajectory & input, const double resample_interval_dist, MPCTrajectory * output);
@@ -79,7 +81,7 @@ bool splineInterpMPCTrajectory(
   const std::vector<double> & out_index, MPCTrajectory * out_traj);
 bool calcMPCTrajectoryTime(MPCTrajectory * traj);
 void dynamicSmoothingVelocity(
-  const int start_idx, const double start_vel, const double acc_lim, const double tau,
+  const size_t start_idx, const double start_vel, const double acc_lim, const double tau,
   MPCTrajectory * traj);
 
 /**
@@ -93,7 +95,7 @@ void calcTrajectoryYawFromXY(MPCTrajectory * traj);
  * @param [in] curvature_smoothing_num index distance for 3 points for curvature calculation
  * @param [inout] traj object trajectory
  */
-bool calcTrajectoryCurvature(int curvature_smoothing_num, MPCTrajectory * traj);
+bool calcTrajectoryCurvature(const size_t curvature_smoothing_num, MPCTrajectory * traj);
 
 /**
  * @brief Calculate path curvature by 3-points circle fitting with smoothing num (use nearest 3 points when num = 1)
@@ -101,7 +103,7 @@ bool calcTrajectoryCurvature(int curvature_smoothing_num, MPCTrajectory * traj);
  * @param [inout] curvature vector
  */
 std::vector<double> calcTrajectoryCurvature(
-  const int curvature_smoothing_num, const MPCTrajectory & traj);
+  const size_t curvature_smoothing_num, const MPCTrajectory & traj);
 
 /**
  * @brief calculate nearest pose on MPCTrajectory with linear interpolation
@@ -116,17 +118,17 @@ std::vector<double> calcTrajectoryCurvature(
  */
 bool calcNearestPoseInterp(
   const MPCTrajectory & traj, const geometry_msgs::msg::Pose & self_pose,
-  geometry_msgs::msg::Pose * nearest_pose, int * nearest_index, double * nearest_time,
+  geometry_msgs::msg::Pose * nearest_pose, size_t * nearest_index, double * nearest_time,
   rclcpp::Logger logger, rclcpp::Clock & clock);
 
 int calcNearestIndex(const MPCTrajectory & traj, const geometry_msgs::msg::Pose & self_pose);
 int calcNearestIndex(
-  const autoware_planning_msgs::msg::Trajectory & traj, const geometry_msgs::msg::Pose & self_pose);
+  const autoware_auto_msgs::msg::Trajectory & traj, const geometry_msgs::msg::Pose & self_pose);
 /**
  * @brief convert MPCTraj to visualization marker for visualization
  */
 visualization_msgs::msg::MarkerArray convertTrajToMarker(
-  const MPCTrajectory & traj, std::string ns, double r, double g, double b, double z,
+  const MPCTrajectory & traj, std::string ns, float r, float g, float b, float z,
   const std::string & frame_id, const builtin_interfaces::msg::Time & stamp);
 
 }  // namespace MPCUtils

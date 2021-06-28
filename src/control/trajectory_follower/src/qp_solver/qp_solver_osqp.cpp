@@ -15,7 +15,7 @@
 #include <string>
 #include <vector>
 
-#include "mpc_follower/qp_solver/qp_solver_osqp.hpp"
+#include "trajectory_follower/qp_solver/qp_solver_osqp.hpp"
 
 QPSolverOSQP::QPSolverOSQP(const rclcpp::Logger & logger)
 : logger_{logger} {}
@@ -24,9 +24,9 @@ bool QPSolverOSQP::solve(
   const Eigen::VectorXd & lb, const Eigen::VectorXd & ub, const Eigen::VectorXd & lbA,
   const Eigen::VectorXd & ubA, Eigen::VectorXd & U)
 {
-  const int raw_a = A.rows();
-  const int col_a = A.cols();
-  const int DIM_U = ub.size();
+  const Eigen::Index raw_a = A.rows();
+  const Eigen::Index col_a = A.cols();
+  const Eigen::Index DIM_U = ub.size();
   Eigen::MatrixXd I = Eigen::MatrixXd::Identity(DIM_U, DIM_U);
 
   // convert matrix to vector for osqpsolver
@@ -52,7 +52,7 @@ bool QPSolverOSQP::solve(
   auto result = osqpsolver_.optimize(Hmat, osqpA, f, lower_bound, upper_bound);
 
   std::vector<double> U_osqp = std::get<0>(result);
-  U = Eigen::Map<Eigen::Matrix<double, Eigen::Dynamic, 1>>(&U_osqp[0], U_osqp.size(), 1);
+  U = Eigen::Map<Eigen::Matrix<double, Eigen::Dynamic, 1>>(&U_osqp[0], static_cast<Eigen::Index>(U_osqp.size()), 1);
 
   // polish status: successful (1), unperformed (0), (-1) unsuccessful
   int status_polish = std::get<2>(result);

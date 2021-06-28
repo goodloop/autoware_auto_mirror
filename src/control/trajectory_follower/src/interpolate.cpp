@@ -15,7 +15,7 @@
 #include <vector>
 #include <algorithm>
 
-#include "mpc_follower/interpolate.hpp"
+#include "trajectory_follower/interpolate.hpp"
 
 /*
  * linear interpolation
@@ -79,8 +79,8 @@ bool LinearInterpolate::interpolate(
   }
 
   // calculate linear interpolation
-  int i = 0;
-  const int base_size = static_cast<int>(base_index.size());
+  size_t i = 0;
+  const size_t base_size = base_index.size();
   for (const auto idx : return_index) {
     if (base_index.at(i) == idx) {
       return_value.push_back(base_value.at(i));
@@ -133,7 +133,7 @@ SplineInterpolate::SplineInterpolate(const std::vector<double> & x) {generateSpl
 SplineInterpolate::~SplineInterpolate() {}
 void SplineInterpolate::generateSpline(const std::vector<double> & x)
 {
-  int N = x.size();
+  const size_t N = x.size();
 
   a_.clear();
   b_.clear();
@@ -143,7 +143,7 @@ void SplineInterpolate::generateSpline(const std::vector<double> & x)
   a_ = x;
 
   c_.push_back(0.0);
-  for (int i = 1; i < N - 1; i++) {
+  for (size_t i = 1; i < N - 1; i++) {
     c_.push_back(3.0 * (a_.at(i - 1) - 2.0 * a_.at(i) + a_.at(i + 1)));
   }
   c_.push_back(0.0);
@@ -152,17 +152,17 @@ void SplineInterpolate::generateSpline(const std::vector<double> & x)
   w_.push_back(0.0);
 
   double tmp;
-  for (int i = 1; i < N - 1; i++) {
+  for (size_t i = 1; i < N - 1; i++) {
     tmp = 1.0 / (4.0 - w_.at(i - 1));
     c_.at(i) = (c_.at(i) - c_.at(i - 1)) * tmp;
     w_.push_back(tmp);
   }
 
-  for (int i = N - 2; i > 0; i--) {
+  for (size_t i = N - 2; i > 0; i--) {
     c_.at(i) = c_.at(i) - c_.at(i + 1) * w_.at(i);
   }
 
-  for (int i = 0; i < N - 1; i++) {
+  for (size_t i = 0; i < N - 1; i++) {
     d_.push_back((c_.at(i + 1) - c_.at(i)) / 3.0);
     b_.push_back(a_.at(i + 1) - a_.at(i) - c_.at(i) - d_.at(i));
   }
@@ -176,8 +176,8 @@ double SplineInterpolate::getValue(const double & s)
 {
   if (!initialized_) {return 0.0;}
 
-  int j = std::max(std::min(static_cast<int>(std::floor(s)), static_cast<int>(a_.size()) - 1), 0);
-  const double ds = s - j;
+  size_t j = std::max(std::min(static_cast<size_t>(std::floor(s)), a_.size() - 1), size_t(0));
+  const double ds = s - static_cast<double>(j);
   return a_.at(j) + (b_.at(j) + (c_.at(j) + d_.at(j) * ds) * ds) * ds;
 }
 
@@ -204,12 +204,12 @@ bool SplineInterpolate::interpolate(
   std::vector<double> normalized_idx;
 
   // calculate normalized index
-  int i = 0;
-  const int base_size = static_cast<int>(base_index.size());
+  size_t i = 0;
+  const size_t base_size = base_index.size();
 
   for (const auto idx : return_index) {
     if (base_index.at(i) == idx) {
-      normalized_idx.push_back(i);
+      normalized_idx.push_back(static_cast<double>(i));
       continue;
     }
     while (base_index.at(i) < idx) {
@@ -227,8 +227,9 @@ bool SplineInterpolate::interpolate(
     const double dist_base_idx = base_index.at(i) - base_index.at(i - 1);
     const double dist_to_forward = base_index.at(i) - idx;
     const double dist_to_backward = idx - base_index.at(i - 1);
+    const double i_double = static_cast<double>(i);
     const double value =
-      (dist_to_backward * i + dist_to_forward * (i - 1)) / std::max(dist_base_idx, 1.0E-10);
+      (dist_to_backward * i_double + dist_to_forward * (i_double - 1)) / std::max(dist_base_idx, std::numeric_limits<double>::epsilon());
     normalized_idx.push_back(value);
   }
 

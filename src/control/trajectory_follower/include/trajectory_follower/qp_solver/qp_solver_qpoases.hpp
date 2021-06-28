@@ -29,7 +29,7 @@
 #include "eigen3/Eigen/LU"
 #include "qpoases_vendor/qpOASES.hpp"
 
-#include "mpc_follower/qp_solver/qp_solver_interface.hpp"
+#include "trajectory_follower/qp_solver/qp_solver_interface.hpp"
 
 class QPSolverQpoasesHotstart : public QPSolverInterface
 {

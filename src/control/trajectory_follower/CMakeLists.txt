@@ -25,10 +25,35 @@ ament_auto_find_build_dependencies(REQUIRED
 
 set(LATERAL_CONTROLLER_LIB lateral_controller_lib)
 set(LATERAL_CONTROLLER_LIB_SRC
+  src/interpolate.cpp
+  src/lowpass_filter.cpp
+  src/mpc_trajectory.cpp
+  src/mpc_utils.cpp
+  src/qp_solver/qp_solver_osqp.cpp
+  # TODO(Maxime CLEMENT): remove support for qpoases or find a way to install ros-foxy-qpoases-vendor
+  # src/qp_solver/qp_solver_qpoases.cpp
+  src/qp_solver/qp_solver_unconstr_fast.cpp
+  src/vehicle_model/vehicle_model_bicycle_dynamics.cpp
+  src/vehicle_model/vehicle_model_bicycle_kinematics_no_delay.cpp
+  src/vehicle_model/vehicle_model_bicycle_kinematics.cpp
+  src/vehicle_model/vehicle_model_interface.cpp
 )
 
 set(LATERAL_CONTROLLER_LIB_HEADERS
   include/trajectory_follower/visibility_control.hpp
+  include/trajectory_follower/interpolate.hpp
+  include/trajectory_follower/lowpass_filter.hpp
+  include/trajectory_follower/mpc_trajectory.hpp
+  include/trajectory_follower/mpc_utils.hpp
+  include/trajectory_follower/qp_solver/qp_solver_interface.hpp
+  include/trajectory_follower/qp_solver/qp_solver_osqp.hpp
+  # TODO(Maxime CLEMENT): remove support for qpoases or find a way to install ros-foxy-qpoases-vendor
+  # include/trajectory_follower/qp_solver/qp_solver_qpoases.hpp
+  include/trajectory_follower/qp_solver/qp_solver_unconstr_fast.hpp
+  include/trajectory_follower/vehicle_model/vehicle_model_bicycle_dynamics.hpp
+  include/trajectory_follower/vehicle_model/vehicle_model_bicycle_kinematics_no_delay.hpp
+  include/trajectory_follower/vehicle_model/vehicle_model_bicycle_kinematics.hpp
+  include/trajectory_follower/vehicle_model/vehicle_model_interface.hpp
 )
 
 # generate library
@@ -45,12 +70,12 @@ if(BUILD_TESTING)
   ament_lint_auto_find_test_dependencies()
 
   # Unit tests
-  set(TEST_SOURCES
-  )
-  set(TEST_LATERAL_CONTROLLER_EXE test_trajectory_follower)
-  ament_add_gtest(${TEST_LATERAL_CONTROLLER_EXE} ${TEST_SOURCES})
-  autoware_set_compile_options(${TEST_LATERAL_CONTROLLER_EXE})
-  target_link_libraries(${TEST_LATERAL_CONTROLLER_EXE} ${LATERAL_CONTROLLER_LIB})
+  # set(TEST_SOURCES
+  # )
+  # set(TEST_LATERAL_CONTROLLER_EXE test_trajectory_follower)
+  # ament_add_gtest(${TEST_LATERAL_CONTROLLER_EXE} ${TEST_SOURCES})
+  # autoware_set_compile_options(${TEST_LATERAL_CONTROLLER_EXE})
+  # target_link_libraries(${TEST_LATERAL_CONTROLLER_EXE} ${LATERAL_CONTROLLER_LIB})
 endif()
 
 # ament package generation and installing

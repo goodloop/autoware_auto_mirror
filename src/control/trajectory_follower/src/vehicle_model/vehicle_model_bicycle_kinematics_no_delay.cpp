@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "mpc_follower/vehicle_model/vehicle_model_bicycle_kinematics_no_delay.hpp"
+#include "trajectory_follower/vehicle_model/vehicle_model_bicycle_kinematics_no_delay.hpp"
 
 KinematicsBicycleModelNoDelay::KinematicsBicycleModelNoDelay(
   const double & wheelbase, const double & steer_lim)

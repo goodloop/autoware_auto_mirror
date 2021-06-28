@@ -14,7 +14,7 @@
 
 #include <vector>
 
-#include "mpc_follower/lowpass_filter.hpp"
+#include "trajectory_follower/lowpass_filter.hpp"
 
 Butterworth2dFilter::Butterworth2dFilter(double dt, double f_cutoff_hz)
 {
@@ -120,10 +120,10 @@ bool MoveAverageFilter::filt_vector(const int num, std::vector<double> & u)
     }
 
     for (int j = -num_tmp; j <= num_tmp; ++j) {
-      tmp += u[i + j];
+      tmp += u[static_cast<size_t>(i + j)];
       ++count;
     }
-    filtered_u[i] = tmp / count;
+    filtered_u[static_cast<size_t>(i)] = tmp / count;
   }
   u = filtered_u;
   return true;

@@ -49,7 +49,7 @@
 #define MPC_FOLLOWER__VEHICLE_MODEL__VEHICLE_MODEL_BICYCLE_KINEMATICS_HPP_
 #include "eigen3/Eigen/Core"
 #include "eigen3/Eigen/LU"
-#include "mpc_follower/vehicle_model/vehicle_model_interface.hpp"
+#include "trajectory_follower/vehicle_model/vehicle_model_interface.hpp"
 
 /**
  * @class vehicle model class of bicycle kinematics

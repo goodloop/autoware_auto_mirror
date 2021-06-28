@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "mpc_follower/mpc_trajectory.hpp"
+#include "trajectory_follower/mpc_trajectory.hpp"
 
 void MPCTrajectory::push_back(
   const double & xp, const double & yp, const double & zp, const double & yawp, const double & vxp,
@@ -40,7 +40,7 @@ void MPCTrajectory::clear()
   relative_time.clear();
 }
 
-unsigned int MPCTrajectory::size() const
+size_t MPCTrajectory::size() const
 {
   if (
     x.size() == y.size() && x.size() == z.size() && x.size() == yaw.size() &&
