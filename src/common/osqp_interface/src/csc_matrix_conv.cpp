@@ -1,23 +1,23 @@
-// Copyright 2020 Tier IV, Inc.
+// Copyright 2021 The Autoware Foundation
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//     http://www.apache.org/licenses/LICENSE-2.0
+//     http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+
 #include <exception>
 #include <iostream>
 #include <vector>
 
 #include "eigen3/Eigen/Core"
 #include "eigen3/Eigen/SparseCore"
-
 #include "osqp_interface/csc_matrix_conv.hpp"
 
 namespace common
@@ -43,8 +43,8 @@ CSC_Matrix calCSCMatrix(const Eigen::MatrixXd & mat)
 
   col_idxs.push_back(0);
 
-  for (int j = 0; j < cols; j++) { // col iteration
-    for (int i = 0; i < rows; i++) { // row iteration
+  for (int j = 0; j < cols; j++) {  // col iteration
+    for (int i = 0; i < rows; i++) {  // row iteration
       // Get values of nonzero elements
       val = mat(i, j);
       if (std::fabs(val) < 1e-9) {
@@ -89,8 +89,8 @@ CSC_Matrix calCSCMatrixTrapezoidal(const Eigen::MatrixXd & mat)
 
   col_idxs.push_back(0);
 
-  for (int j = 0; j < cols; j++) { // col iteration
-    for (int i = 0; i <= trap_last_idx; i++) { // row iteration
+  for (int j = 0; j < cols; j++) {  // col iteration
+    for (int i = 0; i <= trap_last_idx; i++) {  // row iteration
       // Get values of nonzero elements
       val = mat(i, j);
       if (std::fabs(val) < 1e-9) {

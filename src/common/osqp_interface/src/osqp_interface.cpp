@@ -1,27 +1,25 @@
-/*
- * Copyright 2015-2019 Autoware Foundation. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- * Author: Robin Karlsson
- */
+// Copyright 2021 The Autoware Foundation
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 #include <chrono>
 #include <iostream>
 #include <memory>
 #include <string>
+#include <tuple>
 #include <vector>
 
-#include "osqp.h"
+#include "osqp/osqp.h"
 #include "osqp_interface/csc_matrix_conv.hpp"
 #include "osqp_interface/osqp_interface.hpp"
 
@@ -95,11 +93,13 @@ c_int OSQPInterface::initializeProblem(
   data->m = constr_m;
   data->n = param_n;
   data->P = csc_matrix(
-    data->n, data->n, static_cast<c_int>(P_csc.vals.size()), P_csc.vals.data(), P_csc.row_idxs.data(),
+    data->n, data->n, static_cast<c_int>(P_csc.vals.size()), P_csc.vals.data(),
+    P_csc.row_idxs.data(),
     P_csc.col_idxs.data());
   data->q = q_dyn;
   data->A = csc_matrix(
-    data->m, data->n, static_cast<c_int>(A_csc.vals.size()), A_csc.vals.data(), A_csc.row_idxs.data(),
+    data->m, data->n, static_cast<c_int>(A_csc.vals.size()), A_csc.vals.data(),
+    A_csc.row_idxs.data(),
     A_csc.col_idxs.data());
   data->l = l_dyn;
   data->u = u_dyn;
@@ -184,25 +184,33 @@ void OSQPInterface::updateBounds(
 void OSQPInterface::updateEpsAbs(const double eps_abs)
 {
   settings->eps_abs = eps_abs;                               // for default setting
-  if (work_initialized) osqp_update_eps_abs(work, eps_abs);  // for current work
+  if (work_initialized) {
+    osqp_update_eps_abs(work, eps_abs);                      // for current work
+  }
 }
 
 void OSQPInterface::updateEpsRel(const double eps_rel)
 {
   settings->eps_rel = eps_rel;                               // for default setting
-  if (work_initialized) osqp_update_eps_rel(work, eps_rel);  // for current work
+  if (work_initialized) {
+    osqp_update_eps_rel(work, eps_rel);                      // for current work
+  }
 }
 
 void OSQPInterface::updateMaxIter(const int max_iter)
 {
   settings->max_iter = max_iter;                               // for default setting
-  if (work_initialized) osqp_update_max_iter(work, max_iter);  // for current work
+  if (work_initialized) {
+    osqp_update_max_iter(work, max_iter);                      // for current work
+  }
 }
 
 void OSQPInterface::updateVerbose(const bool is_verbose)
 {
   settings->verbose = is_verbose;                               // for default setting
-  if (work_initialized) osqp_update_verbose(work, is_verbose);  // for current work
+  if (work_initialized) {
+    osqp_update_verbose(work, is_verbose);                      // for current work
+  }
 }
 
 void OSQPInterface::updateRhoInterval(const int rho_interval)
