@@ -23,4 +23,4 @@
       1.0, 1.0, 1.0, 1.0, 1.0, 1.0   # acceleration variances
     ]
     process_noise_variances:
-      acceleration: [1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
+      acceleration: [2.0, 2.0, 2.0, 2.0, 2.0, 2.0]
