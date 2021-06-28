@@ -12,10 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef OSQP_INTERFACE_H
-#define OSQP_INTERFACE_H
+#ifndef OSQP_INTERFACE_HPP_
+#define OSQP_INTERFACE_HPP_
+
+#include "osqp_interface/visibility_control.hpp"
 
 #include "eigen3/Eigen/Core"
+#include <memory>
 #include <string>
 #include <vector>
 #include "osqp.h"
@@ -64,15 +67,15 @@ const c_float INF = OSQP_INFTY;
  *
  * Ref: https://osqp.org/docs/solver/index.html
  */
-OSQP_INTERFACE_PUBLIC class OSQPInterface
+class OSQP_INTERFACE_PUBLIC OSQPInterface
 {
 private:
   /*****************************
    * OSQP WORKSPACE STRUCTURES
    *****************************/
-  OSQPWorkspace * work;
-  OSQPSettings * settings;
-  OSQPData * data;
+  OSQPWorkspace* work;
+  std::unique_ptr<OSQPSettings> settings;
+  std::unique_ptr<OSQPData> data;
 
   // store last work info since work is cleaned up at every execution to prevent memory leak.
   OSQPInfo latest_work_info;
@@ -230,8 +233,8 @@ public:
   std::string getStatusMessage() { return static_cast<std::string>(latest_work_info.status); }
   int getStatus() { return static_cast<int>(latest_work_info.status_val); }
   int getStatusPolish() { return static_cast<int>(latest_work_info.status_polish); }
-  double getRunTime() { return static_cast<double>(latest_work_info.run_time); }
-  double getObjVal() { return static_cast<double>(latest_work_info.obj_val); }
+  double getRunTime() { return latest_work_info.run_time; }
+  double getObjVal() { return latest_work_info.obj_val; }
 };
 
 }  // namespace osqp

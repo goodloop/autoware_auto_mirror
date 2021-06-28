@@ -17,6 +17,7 @@
  */
 #include <chrono>
 #include <iostream>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -33,14 +34,14 @@ OSQPInterface::OSQPInterface(const c_float eps_abs, const bool polish)
   /************************
    * INITIALIZE WORKSPACE
    ************************/
-  settings = (OSQPSettings *)c_malloc(sizeof(OSQPSettings));
-  data = (OSQPData *)c_malloc(sizeof(OSQPData));
+  settings = std::make_unique<OSQPSettings>();
+  data = std::make_unique<OSQPData>();
 
   /*******************
    * SOLVER SETTINGS
    *******************/
   if (settings) {
-    osqp_set_default_settings(settings);
+    osqp_set_default_settings(settings.get());
     settings->alpha = 1.6;  // Change alpha parameter
     settings->eps_rel = 1.0E-4;
     settings->eps_abs = eps_abs;
@@ -94,11 +95,11 @@ c_int OSQPInterface::initializeProblem(
   data->m = constr_m;
   data->n = param_n;
   data->P = csc_matrix(
-    data->n, data->n, P_csc.vals.size(), P_csc.vals.data(), P_csc.row_idxs.data(),
+    data->n, data->n, static_cast<c_int>(P_csc.vals.size()), P_csc.vals.data(), P_csc.row_idxs.data(),
     P_csc.col_idxs.data());
   data->q = q_dyn;
   data->A = csc_matrix(
-    data->m, data->n, A_csc.vals.size(), A_csc.vals.data(), A_csc.row_idxs.data(),
+    data->m, data->n, static_cast<c_int>(A_csc.vals.size()), A_csc.vals.data(), A_csc.row_idxs.data(),
     A_csc.col_idxs.data());
   data->l = l_dyn;
   data->u = u_dyn;
@@ -107,7 +108,7 @@ c_int OSQPInterface::initializeProblem(
   problem_in_memory = true;
 
   // Setup workspace
-  exitflag = osqp_setup(&work, data, settings);
+  exitflag = osqp_setup(&work, data.get(), settings.get());
   work_initialized = true;
 
   return exitflag;
@@ -119,14 +120,6 @@ OSQPInterface::~OSQPInterface()
   if (work) {
     osqp_cleanup(work);
   }
-  if (data) {
-    if (problem_in_memory) {
-      c_free(data->A);
-      c_free(data->P);
-    }
-    c_free(data);
-  }
-  if (settings) {c_free(settings);}
 }
 
 void OSQPInterface::updateP(const Eigen::MatrixXd & P_new)
@@ -141,7 +134,7 @@ void OSQPInterface::updateP(const Eigen::MatrixXd & P_new)
   c_int P_elem_N = P_sparse.nonZeros();
   */
   CSC_Matrix P_csc = calCSCMatrixTrapezoidal(P_new);
-  osqp_update_P(work, P_csc.vals.data(), OSQP_NULL, P_csc.vals.size());
+  osqp_update_P(work, P_csc.vals.data(), OSQP_NULL, static_cast<c_int>(P_csc.vals.size()));
 }
 
 void OSQPInterface::updateA(const Eigen::MatrixXd & A_new)
@@ -154,7 +147,7 @@ void OSQPInterface::updateA(const Eigen::MatrixXd & A_new)
   c_int A_elem_N = A_sparse.nonZeros();
   */
   CSC_Matrix A_csc = calCSCMatrix(A_new);
-  osqp_update_A(work, A_csc.vals.data(), OSQP_NULL, A_csc.vals.size());
+  osqp_update_A(work, A_csc.vals.data(), OSQP_NULL, static_cast<c_int>(A_csc.vals.size()));
 }
 
 void OSQPInterface::updateQ(const std::vector<double> & q_new)
@@ -230,9 +223,9 @@ std::tuple<std::vector<double>, std::vector<double>, int, int> OSQPInterface::so
   std::vector<double> sol_primal(sol_x, sol_x + static_cast<int>(param_n));
   std::vector<double> sol_lagrange_multiplier(sol_y, sol_y + static_cast<int>(param_n));
   // Solver polish status
-  int status_polish = work->info->status_polish;
+  c_int status_polish = work->info->status_polish;
   // Solver solution status
-  int status_solution = work->info->status_val;
+  c_int status_solution = work->info->status_val;
   // Result tuple
   std::tuple<std::vector<double>, std::vector<double>, int, int> result =
     std::make_tuple(sol_primal, sol_lagrange_multiplier, status_polish, status_solution);

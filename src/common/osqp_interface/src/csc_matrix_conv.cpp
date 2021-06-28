@@ -26,9 +26,9 @@ namespace osqp
 {
 CSC_Matrix calCSCMatrix(const Eigen::MatrixXd & mat)
 {
-  int elem = mat.nonZeros();
-  int rows = mat.rows();
-  int cols = mat.cols();
+  const size_t elem = static_cast<size_t>(mat.nonZeros());
+  const Eigen::Index rows = mat.rows();
+  const Eigen::Index cols = mat.cols();
 
   std::vector<c_float> vals;
   vals.reserve(elem);
@@ -67,9 +67,9 @@ CSC_Matrix calCSCMatrix(const Eigen::MatrixXd & mat)
 
 CSC_Matrix calCSCMatrixTrapezoidal(const Eigen::MatrixXd & mat)
 {
-  int elem = mat.nonZeros();
-  int rows = mat.rows();
-  int cols = mat.cols();
+  const size_t elem = static_cast<size_t>(mat.nonZeros());
+  const Eigen::Index rows = mat.rows();
+  const Eigen::Index cols = mat.cols();
 
   if (rows != cols) {
     throw std::invalid_argument("Matrix must be square (n, n)");

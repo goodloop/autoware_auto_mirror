@@ -44,6 +44,7 @@ ament_auto_add_library(${PROJECT_NAME} SHARED
   ${OSQP_INTERFACE_LIB_HEADERS}
 )
 autoware_set_compile_options(${PROJECT_NAME})
+target_compile_options(${PROJECT_NAME} PRIVATE -Wno-error=old-style-cast -Wno-error=useless-cast)
 
 target_include_directories(osqp_interface PUBLIC "${OSQP_INCLUDE_DIR}")
 ament_target_dependencies(osqp_interface Eigen3)
