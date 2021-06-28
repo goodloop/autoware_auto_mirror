@@ -7,11 +7,11 @@ This is the design document for the `autoware_demos` package.
 # Purpose / Use cases
 <!-- Required -->
 Autoware.Auto is designed to be flexible and cover many ODDs and use-cases. However, this
-flexibility makes it difficult to build a node architecture for a sigle use-case. The purpose
-of this package is to provide demonstration launch and accompanying files to showcase featuresets
+flexibility makes it difficult to build a node architecture for a single use case. The purpose
+of this package is to provide demonstration launch and accompanying files to showcase feature sets
 or complete architectures for specific use-cases.
 
-The primary launch files for each ODD development cycle will also be stored here and named
+The primary launch files for each ODD development cycle are also be stored here and named
 according to the ODD.
 
 
@@ -56,4 +56,4 @@ integration test for each launch file.
 
 # Related issues
 <!-- Required -->
-[#904](https://gitlab.com/autowarefoundation/autoware.auto/AutowareAuto/-/issues/904)
+- create `autoware_demos` package [#904](https://gitlab.com/autowarefoundation/autoware.auto/AutowareAuto/-/issues/904)
