@@ -32,10 +32,12 @@ include_directories(
 
 set(OUTLIER_FILTER_NODES_SRC
   src/radius_search_2d_filter_node.cpp
+  src/voxel_grid_outlier_filter_node.cpp
 )
 
 set(OUTLIER_FILTER_NODES_HEADERS
   include/outlier_filter_nodes/radius_search_2d_filter_node.hpp
+  include/outlier_filter_nodes/voxel_grid_outlier_filter_node.hpp
 )
 
 # generate component node library
