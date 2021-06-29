@@ -50,14 +50,14 @@ bool isOverLevel(const int & diag_level, const std::string & failure_level_str)
 }
 
 std::vector<diagnostic_msgs::msg::DiagnosticStatus> & getTargetDiagnosticsRef(
-  const int hazard_level, autoware_system_msgs::msg::HazardStatus * hazard_status)
+  const int hazard_level, autoware_auto_msgs::msg::HazardStatus & hazard_status)
 {
-  using autoware_system_msgs::msg::HazardStatus;
+  using autoware_auto_msgs::msg::HazardStatus;
 
-  if (hazard_level == HazardStatus::NO_FAULT) {return hazard_status->diagnostics_nf;}
-  if (hazard_level == HazardStatus::SAFE_FAULT) {return hazard_status->diagnostics_sf;}
-  if (hazard_level == HazardStatus::LATENT_FAULT) {return hazard_status->diagnostics_lf;}
-  if (hazard_level == HazardStatus::SINGLE_POINT_FAULT) {return hazard_status->diagnostics_spf;}
+  if (hazard_level == HazardStatus::NO_FAULT) {return hazard_status.diagnostics_nf;}
+  if (hazard_level == HazardStatus::SAFE_FAULT) {return hazard_status.diagnostics_sf;}
+  if (hazard_level == HazardStatus::LATENT_FAULT) {return hazard_status.diagnostics_lf;}
+  if (hazard_level == HazardStatus::SINGLE_POINT_FAULT) {return hazard_status.diagnostics_spf;}
 
   throw std::runtime_error(fmt::format("invalid hazard level: {}", hazard_level));
 }
@@ -79,7 +79,7 @@ AutowareErrorMonitor::AutowareErrorMonitor()
     std::bind(&AutowareErrorMonitor::onDiagArray, this, std::placeholders::_1));
 
   // Publisher
-  pub_driving_capability_ = create_publisher<autoware_system_msgs::msg::DrivingCapability>(
+  pub_driving_capability_ = create_publisher<autoware_auto_msgs::msg::DrivingCapability>(
     "output/driving_capability", rclcpp::QoS{1});
 
   // Timer
@@ -159,7 +159,7 @@ void AutowareErrorMonitor::onTimer()
     return;
   }
 
-  autoware_system_msgs::msg::DrivingCapability driving_capability;
+  autoware_auto_msgs::msg::DrivingCapability driving_capability;
 
   driving_capability.autonomous_driving = judgeHazardStatus(KeyName::autonomous_driving);
   driving_capability.remote_control = judgeHazardStatus(KeyName::remote_control);
@@ -185,7 +185,7 @@ boost::optional<DiagStamped> AutowareErrorMonitor::getLatestDiag(const std::stri
 int AutowareErrorMonitor::getHazardLevel(
   const DiagConfig & required_module, const int diag_level)
 {
-  using autoware_system_msgs::msg::HazardStatus;
+  using autoware_auto_msgs::msg::HazardStatus;
 
   if (isOverLevel(diag_level, required_module.spf_at)) {return HazardStatus::SINGLE_POINT_FAULT;}
   if (isOverLevel(diag_level, required_module.lf_at)) {return HazardStatus::LATENT_FAULT;}
@@ -196,7 +196,7 @@ int AutowareErrorMonitor::getHazardLevel(
 
 void AutowareErrorMonitor::appendHazardDiag(
   const DiagConfig & required_module, const diagnostic_msgs::msg::DiagnosticStatus & hazard_diag,
-  autoware_system_msgs::msg::HazardStatus * hazard_status)
+  autoware_auto_msgs::msg::HazardStatus & hazard_status)
 {
   const auto hazard_level = getHazardLevel(required_module, hazard_diag.level);
 
@@ -211,16 +211,16 @@ void AutowareErrorMonitor::appendHazardDiag(
     }
   }
 
-  hazard_status->level = std::max(hazard_status->level, hazard_level);
+  hazard_status.level = std::max(static_cast<int>(hazard_status.level), hazard_level);
 }
 
-autoware_system_msgs::msg::HazardStatus AutowareErrorMonitor::judgeHazardStatus(
+autoware_auto_msgs::msg::HazardStatus AutowareErrorMonitor::judgeHazardStatus(
   const std::string & key)
 {
-  using autoware_system_msgs::msg::HazardStatus;
+  using autoware_auto_msgs::msg::HazardStatus;
   using diagnostic_msgs::msg::DiagnosticStatus;
 
-  autoware_system_msgs::msg::HazardStatus hazard_status;
+  autoware_auto_msgs::msg::HazardStatus hazard_status;
 
   for (const auto & required_module : required_modules_map_.at(key)) {
     const auto & diag_name = required_module.name;
@@ -237,7 +237,7 @@ autoware_system_msgs::msg::HazardStatus AutowareErrorMonitor::judgeHazardStatus(
         missing_diag.level = DiagnosticStatus::STALE;
         missing_diag.message = "no diag found";
 
-        appendHazardDiag(required_module, missing_diag, &hazard_status);
+        appendHazardDiag(required_module, missing_diag, hazard_status);
       }
 
       continue;
@@ -245,7 +245,7 @@ autoware_system_msgs::msg::HazardStatus AutowareErrorMonitor::judgeHazardStatus(
 
     // diag level high
     {
-      appendHazardDiag(required_module, latest_diag->status, &hazard_status);
+      appendHazardDiag(required_module, latest_diag->status, hazard_status);
     }
 
     // diag timeout
@@ -256,7 +256,7 @@ autoware_system_msgs::msg::HazardStatus AutowareErrorMonitor::judgeHazardStatus(
         timeout_diag.level = DiagnosticStatus::STALE;
         timeout_diag.message = "timeout";
 
-        appendHazardDiag(required_module, timeout_diag, &hazard_status);
+        appendHazardDiag(required_module, timeout_diag, hazard_status);
       }
     }
   }

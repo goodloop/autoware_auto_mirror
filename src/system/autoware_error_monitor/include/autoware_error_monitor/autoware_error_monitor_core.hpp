@@ -23,7 +23,7 @@
 
 #include "boost/optional.hpp"
 
-#include "autoware_system_msgs/msg/driving_capability.hpp"
+#include "autoware_auto_msgs/msg/driving_capability.hpp"
 #include "diagnostic_msgs/msg/diagnostic_array.hpp"
 #include "rclcpp/create_timer.hpp"
 #include "rclcpp/rclcpp.hpp"
@@ -97,7 +97,7 @@ private:
   diagnostic_msgs::msg::DiagnosticArray::ConstSharedPtr diag_array_;
 
   // Publisher
-  rclcpp::Publisher<autoware_system_msgs::msg::DrivingCapability>::SharedPtr
+  rclcpp::Publisher<autoware_auto_msgs::msg::DrivingCapability>::SharedPtr
     pub_driving_capability_;
 
   // Algorithm
@@ -105,8 +105,8 @@ private:
   int getHazardLevel(const DiagConfig & required_module, const int diag_level);
   void appendHazardDiag(
     const DiagConfig & required_module, const diagnostic_msgs::msg::DiagnosticStatus & diag,
-    autoware_system_msgs::msg::HazardStatus * hazard_status);
-  autoware_system_msgs::msg::HazardStatus judgeHazardStatus(const std::string & key);
+    autoware_auto_msgs::msg::HazardStatus & hazard_status);
+  autoware_auto_msgs::msg::HazardStatus judgeHazardStatus(const std::string & key);
 
   const double diag_timeout_sec_ = 1.0;
 };
