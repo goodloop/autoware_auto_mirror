@@ -33,8 +33,8 @@ namespace autoware
 namespace ground_truth_detections
 {
 
-/// \class GroundTruthDetectionsNode
-/// \brief ROS 2 Node for hello world.
+/// \brief ROS 2 Node for to convert ground-truth detections from the simulator format to the format
+/// needed in Autoware.Auto
 class GROUND_TRUTH_DETECTIONS_PUBLIC GroundTruthDetectionsNode : public rclcpp::Node
 {
 public:

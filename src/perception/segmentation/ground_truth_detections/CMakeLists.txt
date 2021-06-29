@@ -66,9 +66,6 @@ if(BUILD_TESTING)
   ament_lint_auto_find_test_dependencies()
   find_package(fake_test_node REQUIRED)
 
-  # TODO(frederik.beaujean) smoke test is flaky and component test below tests bring up node and much more
-  # add_smoke_test(${PROJECT_NAME} ${PROJECT_NAME}_node_exe)
-
   # Component test
   set(TEST_SOURCES test/test_ground_truth_detections_node.cpp)
   set(TEST_GROUND_TRUTH_DETECTIONS_EXE test_ground_truth_detections)
@@ -77,15 +74,11 @@ if(BUILD_TESTING)
   target_link_libraries(${TEST_GROUND_TRUTH_DETECTIONS_EXE} ${PROJECT_NAME} ${PROJECT_NAME}_node)
   add_dependencies(${TEST_GROUND_TRUTH_DETECTIONS_EXE} ${PROJECT_NAME}_node)
   ament_target_dependencies(${TEST_GROUND_TRUTH_DETECTIONS_EXE}
-    "rclcpp"
-    "rclcpp_components"
-    "autoware_auto_msgs"
-    "lgsvl_msgs"
+    "fake_test_node"
   )
 endif()
 
 # ament package generation and installing
 ament_auto_package(INSTALL_TO_SHARE
   config
-  launch
 )

@@ -7,8 +7,8 @@ ground_truth_detections {#ground_truth_detections-package-design}
 <!-- Things to consider:
     - Why did we implement this feature? -->
 
-The `ground_truth_detections` package converts the ground truth from the SVL
-simulator regarding dynamic detections into the format understood by the
+The `ground_truth_detections` package converts the ground-truth dynamic
+detections from the SVL simulator into the format understood by the
 Autoware.Auto perception module.
 
 # Design

@@ -33,15 +33,20 @@ using geometry_msgs::msg::Vector3;
 using lgsvl_msgs::msg::Detection2DArray;
 using lgsvl_msgs::msg::Detection2D;
 
-using FakeNodeFixture = autoware::tools::testing::FakeTestNode;
+using GroundTruth2dDetectionsTest = autoware::tools::testing::FakeTestNode;
 
 using namespace std::chrono_literals;
+
+static constexpr float_t CAR_CENTER_X = 15.3F;
+static constexpr float_t CAR_CENTER_Y = 17.4F;
+static constexpr float_t CAR_BBOX_HEIGHT = 5.2F;
+static constexpr float_t CAR_BBOX_WIDTH = 2.7F;
 
 // One detection for each supported label + one detection with unsupported label
 Detection2DArray make_sample_detections()
 {
   Detection2DArray detections;
-  detections.header.stamp.sec = 34;
+  detections.header.stamp.sec = 24;
   detections.header.stamp.nanosec = 8723U;
 
   const auto add_detection = [&detections](const char * label) -> Detection2D & {
@@ -57,10 +62,10 @@ Detection2DArray make_sample_detections()
 
     d.label = "Hatchback";
     d.header = detections.header;
-    d.bbox.x = 15.3F;
-    d.bbox.y = 17.4F;
-    d.bbox.height = 5.2F;
-    d.bbox.width = 2.7F;
+    d.bbox.x = CAR_CENTER_X;
+    d.bbox.y = CAR_CENTER_Y;
+    d.bbox.height = CAR_BBOX_HEIGHT;
+    d.bbox.width = CAR_BBOX_WIDTH;
     d.id = 0;
     d.score = 1.0F;
     d.velocity.linear = geometry_msgs::build<Vector3>().x(1.1).y(2.2).z(3.3);
@@ -72,21 +77,24 @@ Detection2DArray make_sample_detections()
   add_detection("SUV");
   add_detection("BoxTruck");
 
+  // add a position that would give rise to a lower-left corner just outside the allowed
+  // range if half of the width (or height) were subtracted
   {
     Detection2D & d = add_detection("Pedestrian");
     d.bbox.x = 5.0F;
-    d.bbox.y = 6.0F;
     d.bbox.width = 10.00003F;
+
+    d.bbox.y = 6.0F;
     d.bbox.height = 12.00002F;
   }
 
-  add_detection("Foo");
+  add_detection("Unsupported_label");
 
   return detections;
 }
 
 // cppcheck-suppress syntaxError
-TEST_F(FakeNodeFixture, receive_detections)
+TEST_F(GroundTruth2dDetectionsTest, receive_detections)
 {
   rclcpp::NodeOptions options{};
   const auto node = std::make_shared<GroundTruthDetectionsNode>(options);
@@ -135,34 +143,35 @@ TEST_F(FakeNodeFixture, receive_detections)
 
   {
     const auto & lower_left = car_roi.polygon.points[0];
-    EXPECT_FLOAT_EQ(lower_left.x, 15.3F - 0.5F * 2.7F);
-    EXPECT_FLOAT_EQ(lower_left.y, 17.4F - 0.5F * 5.2F);
+    EXPECT_FLOAT_EQ(lower_left.x, CAR_CENTER_X - 0.5F * CAR_BBOX_WIDTH);
+    EXPECT_FLOAT_EQ(lower_left.y, CAR_CENTER_Y - 0.5F * CAR_BBOX_HEIGHT);
     EXPECT_EQ(lower_left.z, 0.0F);
 
     const auto & lower_right = car_roi.polygon.points[1];
-    EXPECT_FLOAT_EQ(lower_right.x, 15.3F + 0.5F * 2.7F);
-    EXPECT_FLOAT_EQ(lower_right.y, 17.4F - 0.5F * 5.2F);
+    EXPECT_FLOAT_EQ(lower_right.x, CAR_CENTER_X + 0.5F * CAR_BBOX_WIDTH);
+    EXPECT_FLOAT_EQ(lower_right.y, CAR_CENTER_Y - 0.5F * CAR_BBOX_HEIGHT);
     EXPECT_EQ(lower_right.z, 0.0F);
 
     const auto & upper_right = car_roi.polygon.points[2];
-    EXPECT_FLOAT_EQ(upper_right.x, 15.3F + 0.5F * 2.7F);
-    EXPECT_FLOAT_EQ(upper_right.y, 17.4F + 0.5F * 5.2F);
+    EXPECT_FLOAT_EQ(upper_right.x, CAR_CENTER_X + 0.5F * CAR_BBOX_WIDTH);
+    EXPECT_FLOAT_EQ(upper_right.y, CAR_CENTER_Y + 0.5F * CAR_BBOX_HEIGHT);
     EXPECT_EQ(upper_right.z, 0.0F);
 
     const auto & upper_left = car_roi.polygon.points[3];
-    EXPECT_FLOAT_EQ(upper_left.x, 15.3F - 0.5F * 2.7F);
-    EXPECT_FLOAT_EQ(upper_left.y, 17.4F + 0.5F * 5.2F);
+    EXPECT_FLOAT_EQ(upper_left.x, CAR_CENTER_X - 0.5F * CAR_BBOX_WIDTH);
+    EXPECT_FLOAT_EQ(upper_left.y, CAR_CENTER_Y + 0.5F * CAR_BBOX_HEIGHT);
     EXPECT_EQ(upper_left.z, 0.0F);
   }
 
-  for (size_t i = 1; i < 4; ++i) {
+  static constexpr size_t N_CARS = 4;
+  for (size_t i = 1U; i < N_CARS; ++i) {
     const auto & other_car_roi = last_received_msg->rois[i];
     EXPECT_EQ(other_car_roi.classifications, car_roi.classifications);
     EXPECT_EQ(other_car_roi.polygon, car_roi.polygon);
   }
 
   {
-    const auto & truck_roi = last_received_msg->rois[4];
+    const auto & truck_roi = last_received_msg->rois[N_CARS];
     EXPECT_EQ(
       truck_roi.classifications.at(0).classification,
       autoware_auto_msgs::msg::ObjectClassification::TRUCK);
