@@ -63,10 +63,10 @@ protected:
 private:
   std::shared_ptr<VoxelGridOutlierFilter> voxel_grid_outlier_filter_;
 
-  float voxel_size_x_;
-  float voxel_size_y_;
-  float voxel_size_z_;
-  uint32_t voxel_points_threshold_;
+  double voxel_size_x_;
+  double voxel_size_y_;
+  double voxel_size_z_;
+  int64_t voxel_points_threshold_;
 };
 }  // namespace outlier_filter_nodes
 }  // namespace filters
