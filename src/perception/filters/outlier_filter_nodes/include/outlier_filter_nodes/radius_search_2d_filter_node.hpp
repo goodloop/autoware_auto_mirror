@@ -19,12 +19,16 @@
 #ifndef OUTLIER_FILTER_NODES__RADIUS_SEARCH_2D_FILTER_NODE_HPP_
 #define OUTLIER_FILTER_NODES__RADIUS_SEARCH_2D_FILTER_NODE_HPP_
 
+#include <vector>
+#include <memory>
+
 #include "outlier_filter_nodes/visibility_control.hpp"
 
 #include "filter_node_base/filter_node_base.hpp"
 #include "outlier_filter/radius_search_2d_filter.hpp"
 
-#include <rclcpp/rclcpp.hpp>
+#include "rclcpp/rclcpp.hpp"
+
 
 namespace autoware
 {
@@ -61,7 +65,7 @@ private:
 
   double search_radius_;
 
-  long int min_neighbors_;
+  int64_t min_neighbors_;
 };
 }  // namespace outlier_filter_nodes
 }  // namespace filters

@@ -12,6 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <memory>
+#include <vector>
+
 #include "outlier_filter_nodes/radius_search_2d_filter_node.hpp"
 
 #include "pcl_conversions/pcl_conversions.h"
@@ -61,14 +64,14 @@ rcl_interfaces::msg::SetParametersResult RadiusSearch2DFilterNode::get_node_para
   result.reason = "";
 
   {
-    using namespace autoware::perception::filters::filter_node_base;
+    using namespace autoware::perception::filters::filter_node_base; //NOLINT
 
     if (get_param<double>(p, "search_radius", search_radius_)) {
       result.successful = false;
       result.reason += "Failed to retrieve search_radius parameter. ";
       RCLCPP_DEBUG(get_logger(), "Setting new search radius to: %f.", search_radius_);
     }
-    if (get_param<long int>(p, "min_neighbors", min_neighbors_)) {
+    if (get_param<int64_t>(p, "min_neighbors", min_neighbors_)) {
       result.successful = false;
       result.reason += "Failed to retrieve min_neighbors parameter. ";
       RCLCPP_DEBUG(get_logger(), "Setting new min neighbors to: %d.", min_neighbors_);
