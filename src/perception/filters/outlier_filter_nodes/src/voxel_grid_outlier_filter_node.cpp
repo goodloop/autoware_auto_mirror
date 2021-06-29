@@ -27,10 +27,18 @@ namespace filters
 namespace outlier_filter_nodes
 {
 
+using VoxelGridOutlierFilter =
+  autoware::perception::filters::outlier_filter::voxel_grid_outlier_filter::
+  VoxelGridOutlierFilter;
+
 VoxelGridOutlierFilterNode::VoxelGridOutlierFilterNode(const rclcpp::NodeOptions & options)
 : FilterNodeBase("voxel_grid_outlier_filter_node", options)
 {
-
+  voxel_grid_outlier_filter_ = std::make_shared<VoxelGridOutlierFilter>(
+    declare_parameter("voxel_size_x").get<float>(),
+    declare_parameter("voxel_size_y").get<float>(),
+    declare_parameter("voxel_size_z").get<float>(),
+    declare_parameter("voxel_point_threshold").get<uint32_t>());
 }
 
 void VoxelGridOutlierFilterNode::filter(
