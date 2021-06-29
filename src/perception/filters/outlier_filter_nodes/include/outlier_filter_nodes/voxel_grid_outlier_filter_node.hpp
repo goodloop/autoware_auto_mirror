@@ -19,11 +19,13 @@
 #ifndef OUTLIER_FILTER_NODES__VOXEL_GRID_OUTLIER_FILTER_NODE_HPP_
 #define OUTLIER_FILTER_NODES__VOXEL_GRID_OUTLIER_FILTER_NODE_HPP_
 
+#include <memory>
+#include <vector>
+
 #include "outlier_filter_nodes/visibility_control.hpp"
 
 #include "filter_node_base/filter_node_base.hpp"
 #include "outlier_filter/voxel_grid_outlier_filter.hpp"
-
 #include "rclcpp/rclcpp.hpp"
 
 
@@ -37,6 +39,9 @@ namespace outlier_filter_nodes
 {
 
 using FilterNodeBase = autoware::perception::filters::filter_node_base::FilterNodeBase;
+using VoxelGridOutlierFilter =
+  autoware::perception::filters::outlier_filter::voxel_grid_outlier_filter::
+  VoxelGridOutlierFilter;
 
 /// \class OutlierFilterNodesNode
 /// \brief ROS 2 Node for hello world.
@@ -54,6 +59,14 @@ protected:
 
   OUTLIER_FILTER_NODES_PUBLIC virtual rcl_interfaces::msg::SetParametersResult get_node_parameters(
     const std::vector<rclcpp::Parameter> & p);
+
+private:
+  std::shared_ptr<VoxelGridOutlierFilter> voxel_grid_outlier_filter_;
+
+  float voxel_size_x_;
+  float voxel_size_y_;
+  float voxel_size_z_;
+  uint32_t voxel_points_threshold_;
 };
 }  // namespace outlier_filter_nodes
 }  // namespace filters
