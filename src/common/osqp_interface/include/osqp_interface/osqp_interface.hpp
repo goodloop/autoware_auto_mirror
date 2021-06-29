@@ -15,6 +15,7 @@
 #ifndef OSQP_INTERFACE__OSQP_INTERFACE_HPP_
 #define OSQP_INTERFACE__OSQP_INTERFACE_HPP_
 
+#include <limits>
 #include <memory>
 #include <string>
 #include <tuple>
@@ -23,14 +24,14 @@
 #include "eigen3/Eigen/Core"
 #include "osqp/osqp.h"
 #include "osqp_interface/visibility_control.hpp"
+#include "osqp_interface/csc_matrix_conv.hpp"
 
 
 namespace common
 {
 namespace osqp
 {
-struct CSC_Matrix;
-const c_float INF = OSQP_INFTY;
+constexpr c_float INF = OSQP_INFTY;
 
 /**
  * Implementation of a native C++ interface for the OSQP solver.
@@ -72,52 +73,24 @@ const c_float INF = OSQP_INFTY;
 class OSQP_INTERFACE_PUBLIC OSQPInterface
 {
 private:
-  /*****************************
-   * OSQP WORKSPACE STRUCTURES
-   *****************************/
-  OSQPWorkspace * work;
-  std::unique_ptr<OSQPSettings> settings;
-  std::unique_ptr<OSQPData> data;
-
+  OSQPWorkspace * m_work;
+  std::unique_ptr<OSQPSettings> m_settings;
+  std::unique_ptr<OSQPData> m_data;
   // store last work info since work is cleaned up at every execution to prevent memory leak.
-  OSQPInfo latest_work_info;
-
+  OSQPInfo m_latest_work_info;
   // Number of parameters to optimize
-  c_int param_n;
-
+  c_int m_param_n;
   // For destructor to know if matrices P, A are in
-  bool problem_in_memory = false;
-
+  bool m_problem_in_memory = false;
   // Flag to check if the current work exists
-  bool work_initialized = false;
+  bool m_work_initialized = false;
+  // Exitflag
+  c_int m_exitflag;
 
   // Runs the solver on the stored problem.
   std::tuple<std::vector<double>, std::vector<double>, int, int> solve();
 
-  /*****************************
-   * DATA CONVERSION FUNCTIONS
-   *****************************/
-  // Converts problem input matrices to CSC matrix structs.
-  CSC_Matrix transformP(const Eigen::MatrixXd & P, int * nonzeros);
-  CSC_Matrix transformA(const Eigen::MatrixXd & A);
-  // Converts problem input vectors to dynamic arrays.
-  double * transformQ(const std::vector<double> & q);
-  double * transformL(const std::vector<double> & l);
-  double * transformU(const std::vector<double> & u);
-  // Converts an Eigen matrix into a CSC matrix struct.
-  CSC_Matrix convEigenMatrixToCSCMatrix(const Eigen::MatrixXd A);
-  // Converts an Eigen vector matrix into a dynamic array.
-  double * convEigenVecToDynFloatArray(const Eigen::MatrixXd x);
-
-  // Exitflag
-  c_int exitflag;
-
-  inline bool isEqual(double x, double y);
-
 public:
-  // Returns a flag for asserting interface condition (Healthy condition: 0).
-  c_int getExitFlag(void);
-
   /****************************
    * INITIALIZATION FUNCTIONS
    ****************************/
@@ -127,7 +100,8 @@ public:
   // Steps:
   //   1. Initializes the OSQP object (incl. settings, data objects).
   //   2. Solver settings (accuracy etc.).
-  explicit OSQPInterface(const c_float eps_abs = 1.0e-4, const bool polish = true);
+  explicit OSQPInterface(
+    const c_float eps_abs = std::numeric_limits<c_float>::epsilon(), const bool polish = true);
 
   // Initializes the OSQP solver interface and sets up the problem.
   //
@@ -233,12 +207,14 @@ public:
   void updateVerbose(const bool verbose);
   void updateRhoInterval(const int rho_interval);
 
-  int getTakenIter() {return static_cast<int>(latest_work_info.iter);}
-  std::string getStatusMessage() {return static_cast<std::string>(latest_work_info.status);}
-  int getStatus() {return static_cast<int>(latest_work_info.status_val);}
-  int getStatusPolish() {return static_cast<int>(latest_work_info.status_polish);}
-  double getRunTime() {return latest_work_info.run_time;}
-  double getObjVal() {return latest_work_info.obj_val;}
+  int getTakenIter() const {return static_cast<int>(m_latest_work_info.iter);}
+  std::string getStatusMessage() const {return static_cast<std::string>(m_latest_work_info.status);}
+  int getStatus() const {return static_cast<int>(m_latest_work_info.status_val);}
+  int getStatusPolish() const {return static_cast<int>(m_latest_work_info.status_polish);}
+  double getRunTime() const {return m_latest_work_info.run_time;}
+  double getObjVal() const {return m_latest_work_info.obj_val;}
+  /// \brief Returns flag asserting interface condition (Healthy condition: 0).
+  c_int getExitFlag() const {return m_exitflag;}
 };
 
 }  // namespace osqp

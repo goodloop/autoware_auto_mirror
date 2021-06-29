@@ -115,28 +115,28 @@ CSC_Matrix calCSCMatrixTrapezoidal(const Eigen::MatrixXd & mat)
 void printCSCMatrix(CSC_Matrix & csc_mat)
 {
   std::cout << "[";
-  for (std::vector<c_float>::const_iterator it = csc_mat.vals.begin(); it != csc_mat.vals.end();
+  for (std::vector<c_float>::const_iterator it = csc_mat.m_vals.begin(); it != csc_mat.m_vals.end();
     it++)
   {
     std::cout << *it << ", ";
   }
-  std::cout << "]" << std::endl;
+  std::cout << "]\n";
 
   std::cout << "[";
-  for (std::vector<c_int>::const_iterator it = csc_mat.row_idxs.begin();
-    it != csc_mat.row_idxs.end(); it++)
+  for (std::vector<c_int>::const_iterator it = csc_mat.m_row_idxs.begin();
+    it != csc_mat.m_row_idxs.end(); it++)
   {
     std::cout << *it << ", ";
   }
-  std::cout << "]" << std::endl;
+  std::cout << "]\n";
 
   std::cout << "[";
-  for (std::vector<c_int>::const_iterator it = csc_mat.col_idxs.begin();
-    it != csc_mat.col_idxs.end(); it++)
+  for (std::vector<c_int>::const_iterator it = csc_mat.m_col_idxs.begin();
+    it != csc_mat.m_col_idxs.end(); it++)
   {
     std::cout << *it << ", ";
   }
-  std::cout << "]" << std::endl;
+  std::cout << "]\n";
 }
 
 }  // namespace osqp

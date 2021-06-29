@@ -24,20 +24,20 @@ namespace common
 {
 namespace osqp
 {
-// Struct for containing a 'Compressed-Column-Sparse Matrix' object.
-//
-// Elements:
-//   vals: Vector of non-zero values. Ex: [4,1,1,2]
-//   row_idxs:  Vector of row index corresponding to values. Ex: [0, 1, 0, 1] (Eigen: 'inner')
-//   col_idxs:  Vector of 'val' indices where each column starts. Ex: [0, 2, 4] (Eigen: 'outer')
+/// \brief Compressed-Column-Sparse Matrix
 struct CSC_Matrix
 {
-  std::vector<c_float> vals;
-  std::vector<c_int> row_idxs;
-  std::vector<c_int> col_idxs;
+  /// Vector of non-zero values. Ex: [4,1,1,2]
+  std::vector<c_float> m_vals;
+  /// Vector of row index corresponding to values. Ex: [0, 1, 0, 1] (Eigen: 'inner')
+  std::vector<c_int> m_row_idxs;
+  /// Vector of 'val' indices where each column starts. Ex: [0, 2, 4] (Eigen: 'outer')
+  std::vector<c_int> m_col_idxs;
 };
 
+/// \brief Calculate CSC matrix from Eigen matrix
 CSC_Matrix calCSCMatrix(const Eigen::MatrixXd & mat);
+/// \brief Calculate CSC matrix from square Eigen matrix
 CSC_Matrix calCSCMatrixTrapezoidal(const Eigen::MatrixXd & mat);
 
 void printCSCMatrix(CSC_Matrix & csc_mat);
