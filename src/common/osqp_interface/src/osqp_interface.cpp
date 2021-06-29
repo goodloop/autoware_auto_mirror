@@ -251,9 +251,6 @@ std::tuple<std::vector<double>, std::vector<double>, int, int> OSQPInterface::op
   // Run the solver on the stored problem representation.
   std::tuple<std::vector<double>, std::vector<double>, int, int> result = solve();
 
-  // Free allocated memory for problem
-  osqp_cleanup(m_work);
-  m_work_initialized = false;
   return result;
 }
 
