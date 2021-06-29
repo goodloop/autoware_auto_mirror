@@ -1,4 +1,4 @@
-osqp_interface {#osqp_interface-package-design}
+Interface for the OSQP library {#osqp_interface-package-design}
 ===========
 
 This is the design document for the `osqp_interface` package.
@@ -8,49 +8,59 @@ This is the design document for the `osqp_interface` package.
 <!-- Required -->
 <!-- Things to consider:
     - Why did we implement this feature? -->
+This packages provides a C++ interface for the [OSQP library](https://osqp.org/docs/solver/index.html).
 
 
 # Design
 <!-- Required -->
 <!-- Things to consider:
     - How does it work? -->
-
+The class `OSQPInterface` takes a problem formulation as Eigen matrices and vectors, converts these objects into
+C-style Compressed-Column-Sparse matrices and dynamic arrays, loads the data into the OSQP workspace dataholder, and runs the optimizer.
 
 ## Assumptions / Known limits
 <!-- Required -->
+Updating individual parameters of the problem (`updateP`, `updateA`, `updateQ`, etc) does not work.
+Please use `osqp.initializeProblem(P_new, A_new, q_new, l_new, u_new)` to update all parameters at once instead.
 
 ## Inputs / Outputs / API
 <!-- Required -->
 <!-- Things to consider:
     - How do you use the package / API? -->
+ The interface can be used in several ways:
 
+   1. Initialize the interface WITHOUT data. Load the problem formulation at the optimization call.
+   ```
+        osqp_interface = OSQPInterface();
+        osqp_interface.optimize(P, A, q, l, u);
+   ```
 
-## Inner-workings / Algorithms
-<!-- If applicable -->
+   2. Initialize the interface WITH data.
+   ```
+        osqp_interface = OSQPInterface(P, A, q, l, u);
+        osqp_interface.optimize();
+   ```
 
+   3. WARM START OPTIMIZATION by modifying the problem formulation between optimization runs.
+   ```
+        osqp_interface = OSQPInterface(P, A, q, l, u);
+        osqp_interface.optimize();
+        osqp.initializeProblem(P_new, A_new, q_new, l_new, u_new);
+        osqp_interface.optimize();
+   ```
 
-## Error detection and handling
-<!-- Required -->
-
-
-# Security considerations
-<!-- Required -->
-<!-- Things to consider:
-- Spoofing (How do you check for and handle fake input?)
-- Tampering (How do you check for and handle tampered input?)
-- Repudiation (How are you affected by the actions of external actors?).
-- Information Disclosure (Can data leak?).
-- Denial of Service (How do you handle spamming?).
-- Elevation of Privilege (Do you need to change permission levels during execution?) -->
-
+The optimization results are returned as a vector by the optimization function.
+```
+ std::tuple<std::vector<double>, std::vector<double>> result = osqp_interface.optimize();
+ std::vector<double> param = std::get<0>(result);
+ double x_0 = param[0];
+ double x_1 = param[1];
+```
 
 # References / External links
 <!-- Optional -->
-
-
-# Future extensions / Unimplemented parts
-<!-- Optional -->
-
+- OSQP library: https://osqp.org/
 
 # Related issues
 <!-- Required -->
+- This package was introduced as a dependency of the MPC-based lateral controller: https://gitlab.com/autowarefoundation/autoware.auto/AutowareAuto/-/issues/1057
