@@ -19,8 +19,8 @@
  * @date 2019.05.01
  */
 
-#ifndef MPC_FOLLOWER__LOWPASS_FILTER_HPP_
-#define MPC_FOLLOWER__LOWPASS_FILTER_HPP_
+#ifndef TRAJECTORY_FOLLOWER__LOWPASS_FILTER_HPP_
+#define TRAJECTORY_FOLLOWER__LOWPASS_FILTER_HPP_
 #include <algorithm>
 #include <cmath>
 #include <iostream>
@@ -123,4 +123,4 @@ public:
    */
   static bool filt_vector(const int num, std::vector<double> & u);
 };
-#endif  // MPC_FOLLOWER__LOWPASS_FILTER_HPP_
+#endif  // TRAJECTORY_FOLLOWER__LOWPASS_FILTER_HPP_

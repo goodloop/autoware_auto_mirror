@@ -278,7 +278,11 @@ std::vector<double> MPCUtils::calcTrajectoryCurvature(
     p1.y = traj.y[prev_idx];
     p2.y = traj.y[curr_idx];
     p3.y = traj.y[next_idx];
-    double den = std::max(calcDist2d(p1, p2) * calcDist2d(p2, p3) * calcDist2d(p3, p1), std::numeric_limits<double>::epsilon());
+    double den = std::max(
+      calcDist2d(p1, p2) * calcDist2d(p2, p3) * calcDist2d(
+        p3,
+        p1),
+      std::numeric_limits<double>::epsilon());
     const double curvature =
       2.0 * ((p2.x - p1.x) * (p3.y - p1.y) - (p2.y - p1.y) * (p3.x - p1.x)) / den;
     curvature_vec.at(curr_idx) = curvature;
@@ -287,7 +291,9 @@ std::vector<double> MPCUtils::calcTrajectoryCurvature(
   /* first and last curvature is copied from next value */
   for (size_t i = 0; i < std::min(L, traj.x.size()); ++i) {
     curvature_vec.at(i) = curvature_vec.at(std::min(L, traj.x.size() - 1));
-    curvature_vec.at(traj.x.size() - i - 1) = curvature_vec.at(std::max(traj.x.size() - L - 1, size_t(0)));
+    curvature_vec.at(
+      traj.x.size() - i -
+      1) = curvature_vec.at(std::max(traj.x.size() - L - 1, size_t(0)));
   }
   return curvature_vec;
 }
@@ -459,7 +465,8 @@ bool MPCUtils::calcNearestPoseInterp(
     return true;
   }
 
-  auto calcSquaredDist = [](const geometry_msgs::msg::Pose & p, const MPCTrajectory & t, const size_t idx) {
+  auto calcSquaredDist =
+    [](const geometry_msgs::msg::Pose & p, const MPCTrajectory & t, const size_t idx) {
       const double dx = p.position.x - t.x[idx];
       const double dy = p.position.y - t.y[idx];
       return dx * dx + dy * dy;

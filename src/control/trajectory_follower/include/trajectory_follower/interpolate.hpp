@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef MPC_FOLLOWER__INTERPOLATE_HPP_
-#define MPC_FOLLOWER__INTERPOLATE_HPP_
+#ifndef TRAJECTORY_FOLLOWER__INTERPOLATE_HPP_
+#define TRAJECTORY_FOLLOWER__INTERPOLATE_HPP_
 #include <cmath>
 #include <iostream>
 #include <vector>
@@ -50,4 +50,4 @@ public:
     const std::vector<double> & return_index, std::vector<double> & return_value);
   void getValueVector(const std::vector<double> & s_v, std::vector<double> & value_v);
 };
-#endif  // MPC_FOLLOWER__INTERPOLATE_HPP__
+#endif  // TRAJECTORY_FOLLOWER__INTERPOLATE_HPP__

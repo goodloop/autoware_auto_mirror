@@ -12,8 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <vector>
 #include <algorithm>
+#include <limits>
+#include <vector>
 
 #include "trajectory_follower/interpolate.hpp"
 
@@ -229,7 +230,9 @@ bool SplineInterpolate::interpolate(
     const double dist_to_backward = idx - base_index.at(i - 1);
     const double i_double = static_cast<double>(i);
     const double value =
-      (dist_to_backward * i_double + dist_to_forward * (i_double - 1)) / std::max(dist_base_idx, std::numeric_limits<double>::epsilon());
+      (dist_to_backward * i_double + dist_to_forward * (i_double - 1)) / std::max(
+      dist_base_idx,
+      std::numeric_limits<double>::epsilon());
     normalized_idx.push_back(value);
   }
 

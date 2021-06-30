@@ -52,7 +52,10 @@ bool QPSolverOSQP::solve(
   auto result = osqpsolver_.optimize(Hmat, osqpA, f, lower_bound, upper_bound);
 
   std::vector<double> U_osqp = std::get<0>(result);
-  U = Eigen::Map<Eigen::Matrix<double, Eigen::Dynamic, 1>>(&U_osqp[0], static_cast<Eigen::Index>(U_osqp.size()), 1);
+  U =
+    Eigen::Map<Eigen::Matrix<double, Eigen::Dynamic, 1>>(
+    &U_osqp[0],
+    static_cast<Eigen::Index>(U_osqp.size()), 1);
 
   // polish status: successful (1), unperformed (0), (-1) unsuccessful
   int status_polish = std::get<2>(result);

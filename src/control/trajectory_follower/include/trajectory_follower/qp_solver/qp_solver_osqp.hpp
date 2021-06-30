@@ -19,8 +19,8 @@
  * @date 2020.02
  */
 
-#ifndef MPC_FOLLOWER__QP_SOLVER__QP_SOLVER_OSQP_HPP_
-#define MPC_FOLLOWER__QP_SOLVER__QP_SOLVER_OSQP_HPP_
+#ifndef TRAJECTORY_FOLLOWER__QP_SOLVER__QP_SOLVER_OSQP_HPP_
+#define TRAJECTORY_FOLLOWER__QP_SOLVER__QP_SOLVER_OSQP_HPP_
 
 #include "osqp_interface/osqp_interface.hpp"
 #include "eigen3/Eigen/Dense"
@@ -61,4 +61,4 @@ private:
   common::osqp::OSQPInterface osqpsolver_;
   rclcpp::Logger logger_;
 };
-#endif  // MPC_FOLLOWER__QP_SOLVER__QP_SOLVER_OSQP_HPP_
+#endif  // TRAJECTORY_FOLLOWER__QP_SOLVER__QP_SOLVER_OSQP_HPP_

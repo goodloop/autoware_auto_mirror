@@ -42,8 +42,8 @@
  *
  */
 
-#ifndef MPC_FOLLOWER__VEHICLE_MODEL__VEHICLE_MODEL_BICYCLE_KINEMATICS_NO_DELAY_HPP_  // NOLINT
-#define MPC_FOLLOWER__VEHICLE_MODEL__VEHICLE_MODEL_BICYCLE_KINEMATICS_NO_DELAY_HPP_  // NOLINT
+#ifndef TRAJECTORY_FOLLOWER__VEHICLE_MODEL__VEHICLE_MODEL_BICYCLE_KINEMATICS_NO_DELAY_HPP_  // NOLINT
+#define TRAJECTORY_FOLLOWER__VEHICLE_MODEL__VEHICLE_MODEL_BICYCLE_KINEMATICS_NO_DELAY_HPP_  // NOLINT
 #include "eigen3/Eigen/Core"
 #include "eigen3/Eigen/LU"
 #include "trajectory_follower/vehicle_model/vehicle_model_interface.hpp"
@@ -89,4 +89,4 @@ private:
   double wheelbase_;  //!< @brief wheelbase length [m]
   double steer_lim_;  //!< @brief steering angle limit [rad]
 };
-#endif  // MPC_FOLLOWER__VEHICLE_MODEL__VEHICLE_MODEL_BICYCLE_KINEMATICS_NO_DELAY_HPP_
+#endif  // TRAJECTORY_FOLLOWER__VEHICLE_MODEL__VEHICLE_MODEL_BICYCLE_KINEMATICS_NO_DELAY_HPP_

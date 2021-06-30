@@ -19,8 +19,8 @@
  * @date 2019.05.01
  */
 
-#ifndef MPC_FOLLOWER__QP_SOLVER__QP_SOLVER_QPOASES_HPP_
-#define MPC_FOLLOWER__QP_SOLVER__QP_SOLVER_QPOASES_HPP_
+#ifndef TRAJECTORY_FOLLOWER__QP_SOLVER__QP_SOLVER_QPOASES_HPP_
+#define TRAJECTORY_FOLLOWER__QP_SOLVER__QP_SOLVER_QPOASES_HPP_
 
 #include <cmath>
 #include <iostream>
@@ -67,4 +67,4 @@ public:
     const Eigen::VectorXd & lb, const Eigen::VectorXd & ub, const Eigen::VectorXd & lbA,
     const Eigen::VectorXd & ubA, Eigen::VectorXd & U) override;
 };
-#endif  // MPC_FOLLOWER__QP_SOLVER__QP_SOLVER_QPOASES_HPP_
+#endif  // TRAJECTORY_FOLLOWER__QP_SOLVER__QP_SOLVER_QPOASES_HPP_
