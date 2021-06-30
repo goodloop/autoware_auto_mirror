@@ -12,13 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "autoware_state_monitor/autoware_state_monitor_node.hpp"
+
 #include <deque>
 #include <memory>
 #include <string>
 #include <utility>
 #include <vector>
-
-#include "autoware_state_monitor/autoware_state_monitor_node.hpp"
 
 #include "tf2_geometry_msgs/tf2_geometry_msgs.h"
 
@@ -474,7 +474,8 @@ AutowareStateMonitorNode::AutowareStateMonitorNode()
   sub_engage_ = this->create_subscription<autoware_auto_msgs::msg::Engage>(
     "input/engage", 1,
     std::bind(&AutowareStateMonitorNode::onAutowareEngage, this, _1), subscriber_option);
-  sub_vehicle_state_report_ = this->create_subscription<autoware_auto_msgs::msg::VehicleStateReport>(
+  sub_vehicle_state_report_ =
+    this->create_subscription<autoware_auto_msgs::msg::VehicleStateReport>(
     "input/vehicle_state_report", 1,
     std::bind(&AutowareStateMonitorNode::onVehicleStateReport, this, _1), subscriber_option);
   sub_is_emergency_ = this->create_subscription<autoware_auto_msgs::msg::EmergencyMode>(

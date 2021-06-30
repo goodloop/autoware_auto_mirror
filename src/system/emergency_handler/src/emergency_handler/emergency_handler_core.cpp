@@ -49,16 +49,16 @@ diagnostic_msgs::msg::DiagnosticArray convertHazardStatusToDiagnosticArray(
       return diag;
     };
 
-  for (const auto & hazard_diag : hazard_status.diagnostics_nf) {
+  for (const auto & hazard_diag : hazard_status.diag_no_fault) {
     diag_array.status.push_back(decorateDiag(hazard_diag, "[No Fault]"));
   }
-  for (const auto & hazard_diag : hazard_status.diagnostics_sf) {
+  for (const auto & hazard_diag : hazard_status.diag_safe_fault) {
     diag_array.status.push_back(decorateDiag(hazard_diag, "[Safe Fault]"));
   }
-  for (const auto & hazard_diag : hazard_status.diagnostics_lf) {
+  for (const auto & hazard_diag : hazard_status.diag_latent_fault) {
     diag_array.status.push_back(decorateDiag(hazard_diag, "[Latent Fault]"));
   }
-  for (const auto & hazard_diag : hazard_status.diagnostics_spf) {
+  for (const auto & hazard_diag : hazard_status.diag_single_point_fault) {
     diag_array.status.push_back(decorateDiag(hazard_diag, "[Single Point Fault]"));
   }
 
@@ -87,13 +87,13 @@ EmergencyHandler::EmergencyHandler()
     "input/driving_capability", rclcpp::QoS{1},
     std::bind(&EmergencyHandler::onDrivingCapability, this, _1));
   sub_prev_control_command_ = create_subscription<autoware_auto_msgs::msg::VehicleControlCommand>(
-    "~/input/prev_control_command", rclcpp::QoS{1},
+    "input/prev_control_command", rclcpp::QoS{1},
     std::bind(&EmergencyHandler::onPrevControlCommand, this, _1));
   sub_state_report_ = create_subscription<autoware_auto_msgs::msg::VehicleStateReport>(
-    "~/input/state_report", rclcpp::QoS{1},
+    "input/state_report", rclcpp::QoS{1},
     std::bind(&EmergencyHandler::onStateReport, this, _1));
   sub_odometry_ = create_subscription<autoware_auto_msgs::msg::VehicleOdometry>(
-    "~/input/odometry", rclcpp::QoS{1}, std::bind(&EmergencyHandler::onOdometry, this, _1));
+    "input/odometry", rclcpp::QoS{1}, std::bind(&EmergencyHandler::onOdometry, this, _1));
 
   // Heartbeat
   heartbeat_driving_capability_ =
@@ -107,7 +107,7 @@ EmergencyHandler::EmergencyHandler()
 
   // Publisher
   pub_control_command_ = create_publisher<autoware_auto_msgs::msg::VehicleControlCommand>(
-    "~/output/control_command", rclcpp::QoS{1});
+    "output/control_command", rclcpp::QoS{1});
   pub_state_command_ = create_publisher<autoware_auto_msgs::msg::VehicleStateCommand>(
     "output/state_command", rclcpp::QoS{1});
   pub_is_emergency_ = create_publisher<autoware_auto_msgs::msg::EmergencyMode>(
@@ -115,7 +115,7 @@ EmergencyHandler::EmergencyHandler()
   pub_hazard_status_ = create_publisher<autoware_auto_msgs::msg::HazardStatusStamped>(
     "output/hazard_status", rclcpp::QoS{1});
   pub_diagnostics_err_ = create_publisher<diagnostic_msgs::msg::DiagnosticArray>(
-    "~/output/diagnostics_err", rclcpp::QoS{1});
+    "output/diagnostics_err", rclcpp::QoS{1});
 
   // Initialize
   odometry_ = autoware_auto_msgs::msg::VehicleOdometry::ConstSharedPtr(
@@ -269,7 +269,7 @@ void EmergencyHandler::onTimer()
       diag.name = "emergency_handler/input_data_timeout";
       diag.hardware_id = "emergency_handler";
       diag.level = diagnostic_msgs::msg::DiagnosticStatus::ERROR;
-      hazard_status.diagnostics_spf.push_back(diag);
+      hazard_status.diag_single_point_fault.push_back(diag);
 
       publishHazardStatus(hazard_status);
     }
@@ -358,7 +358,7 @@ autoware_auto_msgs::msg::HazardStatus EmergencyHandler::judgeHazardStatus()
         this->get_logger(), *this->get_clock(), std::chrono::milliseconds(1000).count(),
         "heartbeat_driving_capability is timeout");
       hazard_status.level = HazardStatus::SINGLE_POINT_FAULT;
-      hazard_status.diagnostics_spf.push_back(
+      hazard_status.diag_single_point_fault.push_back(
         createDiagnosticStatus(
           DiagnosticStatus::ERROR, "emergency_handler/heartbeat_timeout",
           "heartbeat_driving_capability is timeout"));

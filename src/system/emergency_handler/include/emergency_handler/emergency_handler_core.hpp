@@ -19,22 +19,22 @@
 #include <memory>
 #include <string>
 
-// Autoware
-#include <autoware_auto_msgs/msg/autoware_state.hpp>
-#include <autoware_auto_msgs/msg/driving_capability.hpp>
-#include <autoware_auto_msgs/msg/emergency_mode.hpp>
-#include <autoware_auto_msgs/msg/hazard_status_stamped.hpp>
-#include <autoware_auto_msgs/msg/timeout_notification.hpp>
-#include <autoware_auto_msgs/msg/vehicle_odometry.hpp>
-#include <autoware_auto_msgs/msg/vehicle_control_command.hpp>
-#include <autoware_auto_msgs/msg/vehicle_state_report.hpp>
-#include <autoware_auto_msgs/msg/vehicle_state_command.hpp>
-
-// ROS2 core
+// ROS
 #include "diagnostic_msgs/msg/diagnostic_array.hpp"
 #include "std_srvs/srv/trigger.hpp"
 #include "rclcpp/create_timer.hpp"
 #include "rclcpp/rclcpp.hpp"
+
+// Autoware
+#include "autoware_auto_msgs/msg/autoware_state.hpp"
+#include "autoware_auto_msgs/msg/driving_capability.hpp"
+#include "autoware_auto_msgs/msg/emergency_mode.hpp"
+#include "autoware_auto_msgs/msg/hazard_status_stamped.hpp"
+#include "autoware_auto_msgs/msg/timeout_notification.hpp"
+#include "autoware_auto_msgs/msg/vehicle_odometry.hpp"
+#include "autoware_auto_msgs/msg/vehicle_control_command.hpp"
+#include "autoware_auto_msgs/msg/vehicle_state_report.hpp"
+#include "autoware_auto_msgs/msg/vehicle_state_command.hpp"
 
 #include "emergency_handler/util/heartbeat_checker.hpp"
 
@@ -61,7 +61,8 @@ private:
 
   void onAutowareState(const autoware_auto_msgs::msg::AutowareState::ConstSharedPtr msg);
   void onDrivingCapability(const autoware_auto_msgs::msg::DrivingCapability::ConstSharedPtr msg);
-  void onPrevControlCommand(const autoware_auto_msgs::msg::VehicleControlCommand::ConstSharedPtr msg);
+  void onPrevControlCommand(
+    const autoware_auto_msgs::msg::VehicleControlCommand::ConstSharedPtr msg);
   void onStateReport(const autoware_auto_msgs::msg::VehicleStateReport::ConstSharedPtr msg);
   void onOdometry(const autoware_auto_msgs::msg::VehicleOdometry::ConstSharedPtr msg);
   void onIsStateTimeout(
