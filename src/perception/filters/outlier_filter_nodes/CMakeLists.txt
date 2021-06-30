@@ -55,6 +55,10 @@ rclcpp_components_register_node(${PROJECT_NAME}
   EXECUTABLE ${PROJECT_NAME}_exe
 )
 
+rclcpp_components_register_node(${PROJECT_NAME}
+  PLUGIN "autoware::perception::filters::outlier_filter_nodes::VoxelGridOutlierFilterNode"
+  EXECUTABLE ${PROJECT_NAME}_exe
+)
 
 # Testing
 if(BUILD_TESTING)
