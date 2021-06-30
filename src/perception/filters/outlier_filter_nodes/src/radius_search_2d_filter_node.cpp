@@ -34,11 +34,13 @@ using RadiusSearch2DFilter =
   RadiusSearch2DFilter;
 
 RadiusSearch2DFilterNode::RadiusSearch2DFilterNode(const rclcpp::NodeOptions & options)
-:  FilterNodeBase("radius_search_2d_filter_node", options)
+:  FilterNodeBase("radius_search_2d_filter_node", options),
+  search_radius_(declare_parameter("search_radius").get<double>()),
+  min_neighbors_(declare_parameter("min_neighbors").get<int>())
 {
   radius_search_2d_filter_ = std::make_shared<RadiusSearch2DFilter>(
-    declare_parameter("search_radius").get<double>(),
-    declare_parameter("min_neighbors").get<int>()
+    search_radius_,
+    min_neighbors_
   );
 }
 
