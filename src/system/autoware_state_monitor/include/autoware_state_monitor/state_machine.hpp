@@ -15,20 +15,24 @@
 #ifndef AUTOWARE_STATE_MONITOR__STATE_MACHINE_HPP_
 #define AUTOWARE_STATE_MONITOR__STATE_MACHINE_HPP_
 
+// Core
 #include <deque>
 #include <string>
 #include <vector>
 
-#include <autoware_auto_msgs/msg/autoware_state.hpp>
-#include <autoware_auto_msgs/msg/emergency_mode.hpp>
-#include <autoware_auto_msgs/msg/engage.hpp>
-#include <autoware_auto_msgs/msg/had_map_route.hpp>
-#include <autoware_auto_msgs/msg/vehicle_odometry.hpp>
-#include <autoware_auto_msgs/msg/vehicle_state_report.hpp>
-
+// ROS
 #include "geometry_msgs/msg/pose_stamped.hpp"
 #include "rclcpp/time.hpp"
 
+// Autoware
+#include "autoware_auto_msgs/msg/autoware_state.hpp"
+#include "autoware_auto_msgs/msg/emergency_mode.hpp"
+#include "autoware_auto_msgs/msg/engage.hpp"
+#include "autoware_auto_msgs/msg/had_map_route.hpp"
+#include "autoware_auto_msgs/msg/vehicle_odometry.hpp"
+#include "autoware_auto_msgs/msg/vehicle_state_report.hpp"
+
+// Local
 #include "autoware_state_monitor/autoware_state.hpp"
 #include "autoware_state_monitor/config.hpp"
 #include "autoware_state_monitor/module_name.hpp"

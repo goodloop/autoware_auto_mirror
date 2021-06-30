@@ -12,13 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <deque>
-#include <vector>
+#include "autoware_state_monitor/state_machine.hpp"
 
 #define FMT_HEADER_ONLY
-#include "fmt/format.h"
+#include <fmt/format.h>
 
-#include "autoware_state_monitor/state_machine.hpp"
+#include <deque>
+#include <vector>
 
 namespace
 {

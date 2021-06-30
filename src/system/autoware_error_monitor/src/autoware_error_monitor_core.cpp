@@ -54,10 +54,18 @@ std::vector<diagnostic_msgs::msg::DiagnosticStatus> & getTargetDiagnosticsRef(
 {
   using autoware_auto_msgs::msg::HazardStatus;
 
-  if (hazard_level == HazardStatus::NO_FAULT) {return hazard_status.diagnostics_nf;}
-  if (hazard_level == HazardStatus::SAFE_FAULT) {return hazard_status.diagnostics_sf;}
-  if (hazard_level == HazardStatus::LATENT_FAULT) {return hazard_status.diagnostics_lf;}
-  if (hazard_level == HazardStatus::SINGLE_POINT_FAULT) {return hazard_status.diagnostics_spf;}
+  if (hazard_level == HazardStatus::NO_FAULT) {
+    return hazard_status.diag_no_fault;
+  }
+  if (hazard_level == HazardStatus::SAFE_FAULT) {
+    return hazard_status.diag_safe_fault;
+  }
+  if (hazard_level == HazardStatus::LATENT_FAULT) {
+    return hazard_status.diag_latent_fault;
+  }
+  if (hazard_level == HazardStatus::SINGLE_POINT_FAULT) {
+    return hazard_status.diag_single_point_fault;
+  }
 
   throw std::runtime_error(fmt::format("invalid hazard level: {}", hazard_level));
 }

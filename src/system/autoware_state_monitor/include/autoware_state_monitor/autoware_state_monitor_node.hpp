@@ -15,31 +15,34 @@
 #ifndef AUTOWARE_STATE_MONITOR__AUTOWARE_STATE_MONITOR_NODE_HPP_
 #define AUTOWARE_STATE_MONITOR__AUTOWARE_STATE_MONITOR_NODE_HPP_
 
+// Core
 #include <deque>
 #include <map>
 #include <memory>
 #include <string>
 #include <vector>
 
-#include "autoware_state_monitor/autoware_state.hpp"
-#include "autoware_state_monitor/config.hpp"
-#include "autoware_state_monitor/state_machine.hpp"
-
-#include <geometry_msgs/msg/pose_stamped.hpp>
-#include <std_srvs/srv/trigger.hpp>
-
-#include <autoware_auto_msgs/msg/autoware_state.hpp>
-#include <autoware_auto_msgs/msg/emergency_mode.hpp>
-#include <autoware_auto_msgs/msg/engage.hpp>
-#include <autoware_auto_msgs/msg/had_map_route.hpp>
-#include <autoware_auto_msgs/msg/vehicle_odometry.hpp>
-#include <autoware_auto_msgs/msg/vehicle_state_report.hpp>
-
+// ROS
+#include "geometry_msgs/msg/pose_stamped.hpp"
+#include "std_srvs/srv/trigger.hpp"
 #include "tf2_ros/buffer.h"
 #include "tf2_ros/transform_listener.h"
 #include "diagnostic_updater/diagnostic_updater.hpp"
 #include "rclcpp_generic/generic_subscription.hpp"
 #include "rclcpp/rclcpp.hpp"
+
+// Autoware
+#include "autoware_auto_msgs/msg/autoware_state.hpp"
+#include "autoware_auto_msgs/msg/emergency_mode.hpp"
+#include "autoware_auto_msgs/msg/engage.hpp"
+#include "autoware_auto_msgs/msg/had_map_route.hpp"
+#include "autoware_auto_msgs/msg/vehicle_odometry.hpp"
+#include "autoware_auto_msgs/msg/vehicle_state_report.hpp"
+
+// Local
+#include "autoware_state_monitor/state_machine.hpp"
+#include "autoware_state_monitor/autoware_state.hpp"
+#include "autoware_state_monitor/config.hpp"
 
 class AutowareStateMonitorNode : public rclcpp::Node
 {
@@ -67,7 +70,8 @@ private:
 
   // Subscriber
   rclcpp::Subscription<autoware_auto_msgs::msg::Engage>::SharedPtr sub_engage_;
-  rclcpp::Subscription<autoware_auto_msgs::msg::VehicleStateReport>::SharedPtr sub_vehicle_state_report_;
+  rclcpp::Subscription<autoware_auto_msgs::msg::VehicleStateReport>::SharedPtr
+    sub_vehicle_state_report_;
   rclcpp::Subscription<autoware_auto_msgs::msg::EmergencyMode>::SharedPtr sub_is_emergency_;
   rclcpp::Subscription<autoware_auto_msgs::msg::HADMapRoute>::SharedPtr sub_route_;
   rclcpp::Subscription<autoware_auto_msgs::msg::VehicleOdometry>::SharedPtr sub_odometry_;
