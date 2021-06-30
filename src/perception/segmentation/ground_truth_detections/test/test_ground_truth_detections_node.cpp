@@ -101,7 +101,7 @@ TEST_F(GroundTruth2dDetectionsTest, receive_detections)
 
   ClassifiedRoiArray::SharedPtr last_received_msg{};
   const auto input_topic = "/simulator/ground_truth/detections2D";
-  const auto output_topic = "/simulator/ground_truth/detections2D_roi";
+  const auto output_topic = "/perception/ground_truth_detections_2d";
 
   auto fake_publisher = create_publisher<Detection2DArray>(input_topic, 1s);
 

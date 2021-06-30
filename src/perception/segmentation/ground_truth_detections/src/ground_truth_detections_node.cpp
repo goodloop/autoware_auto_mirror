@@ -26,7 +26,7 @@ namespace ground_truth_detections
 GroundTruthDetectionsNode::GroundTruthDetectionsNode(const rclcpp::NodeOptions & options)
 :  Node("ground_truth_detections", options),
   m_detection2d_pub{create_publisher<autoware_auto_msgs::msg::ClassifiedRoiArray>(
-      "/simulator/ground_truth/detections2D_roi", rclcpp::QoS{10})},
+      "/perception/ground_truth_detections_2d", rclcpp::QoS{10})},
   m_detection2d_sub{create_subscription<lgsvl_msgs::msg::Detection2DArray>(
       "/simulator/ground_truth/detections2D", rclcpp::QoS{10},
       [this](lgsvl_msgs::msg::Detection2DArray::SharedPtr msg) {on_detection(*msg);}

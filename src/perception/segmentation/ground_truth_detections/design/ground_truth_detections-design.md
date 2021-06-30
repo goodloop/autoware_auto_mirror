@@ -37,7 +37,7 @@ This node has no ROS2 parameters.
 
 ### Output
 
-- **topic** `/simulator/ground_truth/detections2D_roi`
+- **topic** `/perception/ground_truth_detections_2d`
 - **type**  [`autoware_auto_msgs::msg::ClassifiedRoiArray`](https://gitlab.com/autowarefoundation/autoware.auto/autoware_auto_msgs/-/blob/master/autoware_auto_msgs/msg/ClassifiedRoiArray.idl)
 
 ## Inner-workings / Algorithms
