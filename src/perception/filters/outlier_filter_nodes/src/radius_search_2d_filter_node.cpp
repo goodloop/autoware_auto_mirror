@@ -1,4 +1,4 @@
-// Copyright 2021 The Autoware Foundation
+// Copyright 2021 Tier IV, Inc
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -52,7 +52,7 @@ void RadiusSearch2DFilterNode::filter(
   pcl::PointCloud<pcl::PointXYZ> pcl_output;
   pcl::fromROSMsg(input, pcl_input);
 
-  // Perform the filtering
+  // Perform filtering
   radius_search_2d_filter_->filter(pcl_input, pcl_output);
 
   pcl::toROSMsg(pcl_output, output);
@@ -80,7 +80,7 @@ rcl_interfaces::msg::SetParametersResult RadiusSearch2DFilterNode::get_node_para
     }
   }
 
-  // Call update method
+  // Call update method in filter class object
   radius_search_2d_filter_->update_parameters(search_radius_, static_cast<int>(min_neighbors_));
 
   return result;
