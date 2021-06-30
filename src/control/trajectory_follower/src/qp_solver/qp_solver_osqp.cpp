@@ -17,6 +17,12 @@
 
 #include "trajectory_follower/qp_solver/qp_solver_osqp.hpp"
 
+namespace motion
+{
+namespace control
+{
+namespace trajectory_follower
+{
 QPSolverOSQP::QPSolverOSQP(const rclcpp::Logger & logger)
 : logger_{logger} {}
 bool QPSolverOSQP::solve(
@@ -69,3 +75,6 @@ bool QPSolverOSQP::solve(
   }
   return true;
 }
+}  // namespace trajectory_follower
+}  // namespace control
+}  // namespace motion

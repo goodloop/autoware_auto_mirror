@@ -35,6 +35,12 @@
 #include "eigen3/Eigen/Core"
 
 
+namespace motion
+{
+namespace control
+{
+namespace trajectory_follower
+{
 namespace MPCUtils
 {
 /**
@@ -132,4 +138,7 @@ visualization_msgs::msg::MarkerArray convertTrajToMarker(
   const std::string & frame_id, const builtin_interfaces::msg::Time & stamp);
 
 }  // namespace MPCUtils
+}  // namespace trajectory_follower
+}  // namespace control
+}  // namespace motion
 #endif  // TRAJECTORY_FOLLOWER__MPC_UTILS_HPP_

@@ -14,6 +14,12 @@
 
 #include "trajectory_follower/vehicle_model/vehicle_model_bicycle_kinematics_no_delay.hpp"
 
+namespace motion
+{
+namespace control
+{
+namespace trajectory_follower
+{
 KinematicsBicycleModelNoDelay::KinematicsBicycleModelNoDelay(
   const double & wheelbase, const double & steer_lim)
 : VehicleModelInterface(/* dim_x */ 2, /* dim_u */ 1, /* dim_y */ 2)
@@ -50,3 +56,6 @@ void KinematicsBicycleModelNoDelay::calculateReferenceInput(Eigen::MatrixXd & Ur
 {
   Uref(0, 0) = std::atan(wheelbase_ * curvature_);
 }
+}  // namespace trajectory_follower
+}  // namespace control
+}  // namespace motion

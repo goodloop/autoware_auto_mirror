@@ -14,6 +14,12 @@
 
 #include "trajectory_follower/mpc_trajectory.hpp"
 
+namespace motion
+{
+namespace control
+{
+namespace trajectory_follower
+{
 void MPCTrajectory::push_back(
   const double & xp, const double & yp, const double & zp, const double & yawp, const double & vxp,
   const double & kp, const double & smooth_kp, const double & tp)
@@ -53,3 +59,6 @@ size_t MPCTrajectory::size() const
     return 0;
   }
 }
+}  // namespace trajectory_follower
+}  // namespace control
+}  // namespace motion

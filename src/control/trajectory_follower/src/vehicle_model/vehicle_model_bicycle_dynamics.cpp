@@ -16,6 +16,12 @@
 
 #include "trajectory_follower/vehicle_model/vehicle_model_bicycle_dynamics.hpp"
 
+namespace motion
+{
+namespace control
+{
+namespace trajectory_follower
+{
 DynamicsBicycleModel::DynamicsBicycleModel(
   double & wheelbase, double & mass_fl, double & mass_fr, double & mass_rl, double & mass_rr,
   double & cf, double & cr)
@@ -85,3 +91,6 @@ void DynamicsBicycleModel::calculateReferenceInput(Eigen::MatrixXd & Uref)
   const double Kv = lr_ * mass_ / (2 * cf_ * wheelbase_) - lf_ * mass_ / (2 * cr_ * wheelbase_);
   Uref(0, 0) = wheelbase_ * curvature_ + Kv * vel * vel * curvature_;
 }
+}  // namespace trajectory_follower
+}  // namespace control
+}  // namespace motion

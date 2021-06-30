@@ -51,6 +51,12 @@
 #include "eigen3/Eigen/LU"
 #include "trajectory_follower/vehicle_model/vehicle_model_interface.hpp"
 
+namespace motion
+{
+namespace control
+{
+namespace trajectory_follower
+{
 /**
  * @class vehicle model class of bicycle kinematics
  * @brief calculate model-related values
@@ -95,4 +101,7 @@ private:
   double steer_lim_;  //!< @brief steering angle limit [rad]
   double steer_tau_;  //!< @brief steering time constant for 1d-model
 };
+}  // namespace trajectory_follower
+}  // namespace control
+}  // namespace motion
 #endif  // TRAJECTORY_FOLLOWER__VEHICLE_MODEL__VEHICLE_MODEL_BICYCLE_KINEMATICS_HPP_

@@ -14,6 +14,12 @@
 
 #include "trajectory_follower/vehicle_model/vehicle_model_interface.hpp"
 
+namespace motion
+{
+namespace control
+{
+namespace trajectory_follower
+{
 VehicleModelInterface::VehicleModelInterface(int dim_x, int dim_u, int dim_y)
 : dim_x_(dim_x), dim_u_(dim_u), dim_y_(dim_y)
 {
@@ -23,3 +29,6 @@ int VehicleModelInterface::getDimU() {return dim_u_;}
 int VehicleModelInterface::getDimY() {return dim_y_;}
 void VehicleModelInterface::setVelocity(const double & velocity) {velocity_ = velocity;}
 void VehicleModelInterface::setCurvature(const double & curvature) {curvature_ = curvature;}
+}  // namespace trajectory_follower
+}  // namespace control
+}  // namespace motion

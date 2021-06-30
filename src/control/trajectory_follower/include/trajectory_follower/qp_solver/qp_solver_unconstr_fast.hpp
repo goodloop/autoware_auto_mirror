@@ -28,6 +28,12 @@
 #include "eigen3/Eigen/LU"
 #include "trajectory_follower/qp_solver/qp_solver_interface.hpp"
 
+namespace motion
+{
+namespace control
+{
+namespace trajectory_follower
+{
 class QPSolverEigenLeastSquareLLT : public QPSolverInterface
 {
 public:
@@ -58,4 +64,7 @@ public:
     const Eigen::VectorXd & lb, const Eigen::VectorXd & ub, const Eigen::VectorXd & lbA,
     const Eigen::VectorXd & ubA, Eigen::VectorXd & U) override;
 };
+}  // namespace trajectory_follower
+}  // namespace control
+}  // namespace motion
 #endif  // TRAJECTORY_FOLLOWER__QP_SOLVER__QP_SOLVER_UNCONSTR_FAST_HPP_

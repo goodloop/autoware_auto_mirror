@@ -14,6 +14,12 @@
 
 #include "trajectory_follower/qp_solver/qp_solver_unconstr_fast.hpp"
 
+namespace motion
+{
+namespace control
+{
+namespace trajectory_follower
+{
 QPSolverEigenLeastSquareLLT::QPSolverEigenLeastSquareLLT() {}
 bool QPSolverEigenLeastSquareLLT::solve(
   const Eigen::MatrixXd & Hmat, const Eigen::MatrixXd & fvec, const Eigen::MatrixXd & /*A*/,
@@ -26,3 +32,6 @@ bool QPSolverEigenLeastSquareLLT::solve(
 
   return true;
 }
+}  // namespace trajectory_follower
+}  // namespace control
+}  // namespace motion

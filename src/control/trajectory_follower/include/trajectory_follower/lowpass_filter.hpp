@@ -26,6 +26,12 @@
 #include <iostream>
 #include <vector>
 
+namespace motion
+{
+namespace control
+{
+namespace trajectory_follower
+{
 /**
  * @class 2nd-order Butterworth Filter
  * @brief filtering values
@@ -123,4 +129,7 @@ public:
    */
   static bool filt_vector(const int num, std::vector<double> & u);
 };
+}  // namespace trajectory_follower
+}  // namespace control
+}  // namespace motion
 #endif  // TRAJECTORY_FOLLOWER__LOWPASS_FILTER_HPP_

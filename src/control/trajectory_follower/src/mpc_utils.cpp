@@ -19,50 +19,58 @@
 
 #include "trajectory_follower/mpc_utils.hpp"
 
-geometry_msgs::msg::Quaternion MPCUtils::getQuaternionFromYaw(const double & yaw)
+namespace motion
+{
+namespace control
+{
+namespace trajectory_follower
+{
+namespace MPCUtils
+{
+geometry_msgs::msg::Quaternion getQuaternionFromYaw(const double & yaw)
 {
   tf2::Quaternion q;
   q.setRPY(0, 0, yaw);
   return tf2::toMsg(q);
 }
 
-void MPCUtils::convertEulerAngleToMonotonic(std::vector<double> * a)
+void convertEulerAngleToMonotonic(std::vector<double> * a)
 {
   if (!a) {
     return;
   }
   for (unsigned int i = 1; i < a->size(); ++i) {
     const double da = a->at(i) - a->at(i - 1);
-    a->at(i) = a->at(i - 1) + MPCUtils::normalizeRadian(da);
+    a->at(i) = a->at(i - 1) + normalizeRadian(da);
   }
 }
 
-double MPCUtils::normalizeRadian(const double angle)
+double normalizeRadian(const double angle)
 {
   double n_angle = std::fmod(angle, 2 * M_PI);
   n_angle = n_angle > M_PI ? n_angle - 2 * M_PI : n_angle < -M_PI ? 2 * M_PI + n_angle : n_angle;
   return n_angle;
 }
 
-double MPCUtils::calcDist2d(
+double calcDist2d(
   const geometry_msgs::msg::PoseStamped & p0, const geometry_msgs::msg::PoseStamped & p1)
 {
   return calcDist2d(p0.pose.position, p1.pose.position);
 }
 
-double MPCUtils::calcDist2d(
+double calcDist2d(
   const geometry_msgs::msg::Pose & p0, const geometry_msgs::msg::Pose & p1)
 {
   return calcDist2d(p0.position, p1.position);
 }
 
-double MPCUtils::calcDist2d(
+double calcDist2d(
   const geometry_msgs::msg::Point & p0, const geometry_msgs::msg::Point & p1)
 {
   return std::hypot(p0.x - p1.x, p0.y - p1.y);
 }
 
-double MPCUtils::calcSquaredDist2d(
+double calcSquaredDist2d(
   const geometry_msgs::msg::Point & p0, const geometry_msgs::msg::Point & p1)
 {
   double dx = p1.x - p0.x;
@@ -70,7 +78,7 @@ double MPCUtils::calcSquaredDist2d(
   return dx * dx + dy * dy;
 }
 
-double MPCUtils::calcDist3d(
+double calcDist3d(
   const geometry_msgs::msg::Point & p0, const geometry_msgs::msg::Point & p1)
 {
   double dx = p1.x - p0.x;
@@ -79,7 +87,7 @@ double MPCUtils::calcDist3d(
   return std::sqrt(dx * dx + dy * dy + dz * dz);
 }
 
-double MPCUtils::calcLateralError(
+double calcLateralError(
   const geometry_msgs::msg::Pose & ego_pose, const geometry_msgs::msg::Pose & ref_pose)
 {
   const double err_x = ego_pose.position.x - ref_pose.position.x;
@@ -89,7 +97,7 @@ double MPCUtils::calcLateralError(
   return lat_err;
 }
 
-void MPCUtils::calcMPCTrajectoryArclength(
+void calcMPCTrajectoryArclength(
   const MPCTrajectory & trajectory, std::vector<double> * arclength)
 {
   double dist = 0.0;
@@ -103,7 +111,7 @@ void MPCUtils::calcMPCTrajectoryArclength(
   }
 }
 
-bool MPCUtils::resampleMPCTrajectoryByDistance(
+bool resampleMPCTrajectoryByDistance(
   const MPCTrajectory & input, const double resample_interval_dist, MPCTrajectory * output)
 {
   if (!output) {
@@ -128,7 +136,7 @@ bool MPCUtils::resampleMPCTrajectoryByDistance(
   // splineInterpMPCTrajectory(input_arclength, input, output_arclength, output);
 
   std::vector<double> input_yaw = input.yaw;
-  MPCUtils::convertEulerAngleToMonotonic(&input_yaw);
+  convertEulerAngleToMonotonic(&input_yaw);
 
   LinearInterpolate linear_interp;
   SplineInterpolate spline_interp;
@@ -151,7 +159,7 @@ bool MPCUtils::resampleMPCTrajectoryByDistance(
   return true;
 }
 
-bool MPCUtils::linearInterpMPCTrajectory(
+bool linearInterpMPCTrajectory(
   const std::vector<double> & in_index, const MPCTrajectory & in_traj,
   const std::vector<double> & out_index, MPCTrajectory * out_traj)
 {
@@ -165,7 +173,7 @@ bool MPCUtils::linearInterpMPCTrajectory(
   }
 
   std::vector<double> in_traj_yaw = in_traj.yaw;
-  MPCUtils::convertEulerAngleToMonotonic(&in_traj_yaw);
+  convertEulerAngleToMonotonic(&in_traj_yaw);
 
   LinearInterpolate linear_interp;
   if (
@@ -191,7 +199,7 @@ bool MPCUtils::linearInterpMPCTrajectory(
   return true;
 }
 
-bool MPCUtils::splineInterpMPCTrajectory(
+bool splineInterpMPCTrajectory(
   const std::vector<double> & in_index, const MPCTrajectory & in_traj,
   const std::vector<double> & out_index, MPCTrajectory * out_traj)
 {
@@ -204,7 +212,7 @@ bool MPCUtils::splineInterpMPCTrajectory(
   }
 
   std::vector<double> in_traj_yaw = in_traj.yaw;
-  MPCUtils::convertEulerAngleToMonotonic(&in_traj_yaw);
+  convertEulerAngleToMonotonic(&in_traj_yaw);
 
   out_traj->clear();
   SplineInterpolate spline_interp;
@@ -232,7 +240,7 @@ bool MPCUtils::splineInterpMPCTrajectory(
   return true;
 }
 
-void MPCUtils::calcTrajectoryYawFromXY(MPCTrajectory * traj)
+void calcTrajectoryYawFromXY(MPCTrajectory * traj)
 {
   if (traj->yaw.size() == 0) {return;}
 
@@ -247,7 +255,7 @@ void MPCUtils::calcTrajectoryYawFromXY(MPCTrajectory * traj)
   }
 }
 
-bool MPCUtils::calcTrajectoryCurvature(const size_t curvature_smoothing_num, MPCTrajectory * traj)
+bool calcTrajectoryCurvature(const size_t curvature_smoothing_num, MPCTrajectory * traj)
 {
   if (!traj) {
     return false;
@@ -258,7 +266,7 @@ bool MPCUtils::calcTrajectoryCurvature(const size_t curvature_smoothing_num, MPC
   return true;
 }
 
-std::vector<double> MPCUtils::calcTrajectoryCurvature(
+std::vector<double> calcTrajectoryCurvature(
   const size_t curvature_smoothing_num, const MPCTrajectory & traj)
 {
   const int traj_size = static_cast<int>(traj.x.size());
@@ -298,7 +306,7 @@ std::vector<double> MPCUtils::calcTrajectoryCurvature(
   return curvature_vec;
 }
 
-bool MPCUtils::convertToMPCTrajectory(
+bool convertToMPCTrajectory(
   const autoware_auto_msgs::msg::Trajectory & input, MPCTrajectory * output)
 {
   if (!output) {
@@ -320,7 +328,7 @@ bool MPCUtils::convertToMPCTrajectory(
   return true;
 }
 
-bool MPCUtils::convertToAutowareTrajectory(
+bool convertToAutowareTrajectory(
   const MPCTrajectory & input, autoware_auto_msgs::msg::Trajectory * output)
 {
   if (!output) {
@@ -340,7 +348,7 @@ bool MPCUtils::convertToAutowareTrajectory(
   return true;
 }
 
-bool MPCUtils::calcMPCTrajectoryTime(MPCTrajectory * traj)
+bool calcMPCTrajectoryTime(MPCTrajectory * traj)
 {
   if (!traj) {
     return false;
@@ -360,7 +368,7 @@ bool MPCUtils::calcMPCTrajectoryTime(MPCTrajectory * traj)
   return true;
 }
 
-void MPCUtils::dynamicSmoothingVelocity(
+void dynamicSmoothingVelocity(
   const size_t start_idx, const double start_vel, const double acc_lim, const double tau,
   MPCTrajectory * traj)
 {
@@ -382,7 +390,7 @@ void MPCUtils::dynamicSmoothingVelocity(
   calcMPCTrajectoryTime(traj);
 }
 
-int MPCUtils::calcNearestIndex(
+int calcNearestIndex(
   const MPCTrajectory & traj, const geometry_msgs::msg::Pose & self_pose)
 {
   if (traj.size() == 0) {
@@ -409,7 +417,7 @@ int MPCUtils::calcNearestIndex(
   return nearest_idx;
 }
 
-int MPCUtils::calcNearestIndex(
+int calcNearestIndex(
   const autoware_auto_msgs::msg::Trajectory & traj, const geometry_msgs::msg::Pose & self_pose)
 {
   if (traj.points.size() == 0) {
@@ -437,7 +445,7 @@ int MPCUtils::calcNearestIndex(
   return nearest_idx;
 }
 
-bool MPCUtils::calcNearestPoseInterp(
+bool calcNearestPoseInterp(
   const MPCTrajectory & traj, const geometry_msgs::msg::Pose & self_pose,
   geometry_msgs::msg::Pose * nearest_pose, size_t * nearest_index, double * nearest_time,
   rclcpp::Logger logger, rclcpp::Clock & clock)
@@ -508,7 +516,7 @@ bool MPCUtils::calcNearestPoseInterp(
   return true;
 }
 
-visualization_msgs::msg::MarkerArray MPCUtils::convertTrajToMarker(
+visualization_msgs::msg::MarkerArray convertTrajToMarker(
   const MPCTrajectory & traj, std::string ns, float r, float g, float b, float z,
   const std::string & frame_id, const builtin_interfaces::msg::Time & stamp)
 {
@@ -557,9 +565,13 @@ visualization_msgs::msg::MarkerArray MPCUtils::convertTrajToMarker(
     marker_poses.pose.position.x = traj.x.at(i);
     marker_poses.pose.position.y = traj.y.at(i);
     marker_poses.pose.position.z = traj.z.at(i);
-    marker_poses.pose.orientation = MPCUtils::getQuaternionFromYaw(traj.yaw.at(i));
+    marker_poses.pose.orientation = getQuaternionFromYaw(traj.yaw.at(i));
     markers.markers.push_back(marker_poses);
   }
 
   return markers;
 }
+}  // namespace MPCUtils
+}  // namespace trajectory_follower
+}  // namespace control
+}  // namespace motion

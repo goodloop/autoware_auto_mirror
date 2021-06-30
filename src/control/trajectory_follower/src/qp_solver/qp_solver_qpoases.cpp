@@ -14,6 +14,12 @@
 
 #include "trajectory_follower/qp_solver/qp_solver_qpoases.hpp"
 
+namespace motion
+{
+namespace control
+{
+namespace trajectory_follower
+{
 QPSolverQpoasesHotstart::QPSolverQpoasesHotstart(const int max_iter)
 : is_solver_initialized_(false), max_iter_(max_iter)
 {
@@ -89,3 +95,6 @@ bool QPSolverQpoasesHotstart::solve(
 
   return true;
 }
+}  // namespace trajectory_follower
+}  // namespace control
+}  // namespace motion

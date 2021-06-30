@@ -18,6 +18,12 @@
 #include <iostream>
 #include <vector>
 
+namespace motion
+{
+namespace control
+{
+namespace trajectory_follower
+{
 class LinearInterpolate
 {
 public:
@@ -50,4 +56,7 @@ public:
     const std::vector<double> & return_index, std::vector<double> & return_value);
   void getValueVector(const std::vector<double> & s_v, std::vector<double> & value_v);
 };
+}  // namespace trajectory_follower
+}  // namespace control
+}  // namespace motion
 #endif  // TRAJECTORY_FOLLOWER__INTERPOLATE_HPP__

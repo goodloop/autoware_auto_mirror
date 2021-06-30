@@ -27,6 +27,12 @@
 #include "rclcpp/rclcpp.hpp"
 #include "trajectory_follower/qp_solver/qp_solver_interface.hpp"
 
+namespace motion
+{
+namespace control
+{
+namespace trajectory_follower
+{
 class QPSolverOSQP : public QPSolverInterface
 {
 public:
@@ -61,4 +67,7 @@ private:
   common::osqp::OSQPInterface osqpsolver_;
   rclcpp::Logger logger_;
 };
+}  // namespace trajectory_follower
+}  // namespace control
+}  // namespace motion
 #endif  // TRAJECTORY_FOLLOWER__QP_SOLVER__QP_SOLVER_OSQP_HPP_

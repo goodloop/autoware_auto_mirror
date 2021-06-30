@@ -15,6 +15,12 @@
 #include "trajectory_follower/vehicle_model/vehicle_model_bicycle_kinematics.hpp"
 #include <iostream>
 
+namespace motion
+{
+namespace control
+{
+namespace trajectory_follower
+{
 KinematicsBicycleModel::KinematicsBicycleModel(
   const double & wheelbase, const double & steer_lim, const double & steer_tau)
 : VehicleModelInterface(/* dim_x */ 3, /* dim_u */ 1, /* dim_y */ 2)
@@ -58,3 +64,6 @@ void KinematicsBicycleModel::calculateReferenceInput(Eigen::MatrixXd & Uref)
 {
   Uref(0, 0) = std::atan(wheelbase_ * curvature_);
 }
+}  // namespace trajectory_follower
+}  // namespace control
+}  // namespace motion

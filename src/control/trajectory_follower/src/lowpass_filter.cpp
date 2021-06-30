@@ -16,6 +16,12 @@
 
 #include "trajectory_follower/lowpass_filter.hpp"
 
+namespace motion
+{
+namespace control
+{
+namespace trajectory_follower
+{
 Butterworth2dFilter::Butterworth2dFilter(double dt, double f_cutoff_hz)
 {
   initialize(dt, f_cutoff_hz);
@@ -128,3 +134,6 @@ bool MoveAverageFilter::filt_vector(const int num, std::vector<double> & u)
   u = filtered_u;
   return true;
 }
+}  // namespace trajectory_follower
+}  // namespace control
+}  // namespace motion

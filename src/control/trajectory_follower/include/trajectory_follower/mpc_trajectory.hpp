@@ -17,6 +17,12 @@
 #include <iostream>
 #include <vector>
 
+namespace motion
+{
+namespace control
+{
+namespace trajectory_follower
+{
 /**
  * @class trajectory class for mpc follower
  * @brief calculate control command to follow reference waypoints
@@ -50,4 +56,7 @@ public:
    */
   size_t size() const;
 };
+}  // namespace trajectory_follower
+}  // namespace control
+}  // namespace motion
 #endif  // TRAJECTORY_FOLLOWER__MPC_TRAJECTORY_HPP_

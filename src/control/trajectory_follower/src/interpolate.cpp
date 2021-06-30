@@ -22,6 +22,12 @@
  * linear interpolation
  */
 
+namespace motion
+{
+namespace control
+{
+namespace trajectory_follower
+{
 namespace
 {
 bool isIncrease(const std::vector<double> & x)
@@ -245,3 +251,6 @@ bool SplineInterpolate::interpolate(
   }
   return true;
 }
+}  // namespace trajectory_follower
+}  // namespace control
+}  // namespace motion

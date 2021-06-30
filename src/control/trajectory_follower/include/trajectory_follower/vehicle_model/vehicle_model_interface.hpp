@@ -23,6 +23,12 @@
 #define TRAJECTORY_FOLLOWER__VEHICLE_MODEL__VEHICLE_MODEL_INTERFACE_HPP_
 #include "eigen3/Eigen/Core"
 
+namespace motion
+{
+namespace control
+{
+namespace trajectory_follower
+{
 /**
  * @class vehicle model class
  * @brief calculate model-related values
@@ -98,4 +104,7 @@ public:
    */
   virtual void calculateReferenceInput(Eigen::MatrixXd & Uref) = 0;
 };
+}  // namespace trajectory_follower
+}  // namespace control
+}  // namespace motion
 #endif  // TRAJECTORY_FOLLOWER__VEHICLE_MODEL__VEHICLE_MODEL_INTERFACE_HPP_
