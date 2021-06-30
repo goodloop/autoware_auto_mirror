@@ -54,7 +54,7 @@ void VoxelGridOutlierFilterNode::filter(
   pcl::PointCloud<pcl::PointXYZ> pcl_output;
   pcl::fromROSMsg(input, pcl_input);
 
-  // Perform the filtering
+  // Perform filtering
   voxel_grid_outlier_filter_->filter(pcl_input, pcl_output);
 
   pcl::toROSMsg(pcl_output, output);
@@ -93,7 +93,7 @@ rcl_interfaces::msg::SetParametersResult VoxelGridOutlierFilterNode::get_node_pa
     }
   }
 
-  // Call update method
+  // Call update method in filter class object
   voxel_grid_outlier_filter_->update_parameters(
     static_cast<float>(voxel_size_x_), static_cast<float>(voxel_size_y_),
     static_cast<float>(voxel_size_z_),
