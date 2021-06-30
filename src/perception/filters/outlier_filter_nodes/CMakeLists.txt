@@ -52,12 +52,12 @@ target_link_libraries(${PROJECT_NAME}
 
 rclcpp_components_register_node(${PROJECT_NAME}
   PLUGIN "autoware::perception::filters::outlier_filter_nodes::RadiusSearch2DFilterNode"
-  EXECUTABLE ${PROJECT_NAME}_exe
+  EXECUTABLE radius_search_2d_filter_node_exe
 )
 
 rclcpp_components_register_node(${PROJECT_NAME}
   PLUGIN "autoware::perception::filters::outlier_filter_nodes::VoxelGridOutlierFilterNode"
-  EXECUTABLE ${PROJECT_NAME}_exe
+  EXECUTABLE voxel_grid_outlier_filter_node_exe
 )
 
 # Testing
