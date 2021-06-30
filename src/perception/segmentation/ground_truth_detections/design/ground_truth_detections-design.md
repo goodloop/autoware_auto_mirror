@@ -59,19 +59,7 @@ The coordinates of bounding boxes in camera coordinates are transformed to polyg
 
 ## Error detection and handling
 <!-- Required -->
-
-
-# Security considerations
-<!-- Required -->
-<!-- Things to consider:
-- Spoofing (How do you check for and handle fake input?)
-- Tampering (How do you check for and handle tampered input?)
-- Repudiation (How are you affected by the actions of external actors?).
-- Information Disclosure (Can data leak?).
-- Denial of Service (How do you handle spamming?).
-- Elevation of Privilege (Do you need to change permission levels during execution?) -->
-
-Not available.
+The only check is to ensure that corners of the bounding box are not negative.
 
 # References / External links
 <!-- Optional -->
@@ -88,4 +76,4 @@ Not available.
 # Related issues
 <!-- Required -->
 
-- #1099 Initial implementation
+- [#1099](https://gitlab.com/autowarefoundation/autoware.auto/AutowareAuto/-/issues/1099) Initial implementation
