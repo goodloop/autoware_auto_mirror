@@ -65,7 +65,9 @@ void convertEulerAngleToMonotonic(std::vector<double> * a);
 double calcDist2d(
   const geometry_msgs::msg::PoseStamped & p0, const geometry_msgs::msg::PoseStamped & p1);
 double calcDist2d(const geometry_msgs::msg::Pose & p0, const geometry_msgs::msg::Pose & p1);
-double calcDist2d(const geometry_msgs::msg::Point & p0, const geometry_msgs::msg::Point & p1);
+template <typename T0, typename T1> double calcDist2d(const T0 & p0, const T1 & p1) {
+  return std::hypot(p0.x - p1.x, p0.y - p1.y);
+}
 double calcDist3d(const geometry_msgs::msg::Point & p0, const geometry_msgs::msg::Point & p1);
 double calcSquaredDist2d(
   const geometry_msgs::msg::Point & p0, const geometry_msgs::msg::Point & p1);

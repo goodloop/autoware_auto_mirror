@@ -64,12 +64,6 @@ double calcDist2d(
   return calcDist2d(p0.position, p1.position);
 }
 
-double calcDist2d(
-  const geometry_msgs::msg::Point & p0, const geometry_msgs::msg::Point & p1)
-{
-  return std::hypot(p0.x - p1.x, p0.y - p1.y);
-}
-
 double calcSquaredDist2d(
   const geometry_msgs::msg::Point & p0, const geometry_msgs::msg::Point & p1)
 {
