@@ -94,75 +94,75 @@ public:
 private:
   //!< @brief topic publisher for control command
   rclcpp::Publisher<autoware_auto_msgs::msg::AckermannLateralCommand>::SharedPtr
-    pub_ctrl_cmd_;
+    m_pub_ctrl_cmd;
   //!< @brief topic publisher for predicted trajectory
   rclcpp::Publisher<autoware_auto_msgs::msg::Trajectory>::SharedPtr
-    pub_predicted_traj_;
+    m_pub_predicted_traj;
   //!< @brief topic subscription for reference waypoints
   rclcpp::Subscription<autoware_auto_msgs::msg::Trajectory>::SharedPtr
-    sub_ref_path_;
+    m_sub_ref_path;
   //!< @brief subscription for current steering
   rclcpp::Subscription<autoware_auto_msgs::msg::VehicleKinematicState>::SharedPtr
-    sub_steering_;
+    m_sub_steering;
   //!< @brief subscription for current velocity
   rclcpp::Subscription<geometry_msgs::msg::TwistStamped>::SharedPtr
-    sub_current_vel_;
+    m_sub_current_vel;
   //!< @brief timer to update after a given interval
-  rclcpp::TimerBase::SharedPtr timer_;
+  rclcpp::TimerBase::SharedPtr m_timer;
   //!< initialize timer to work in real, simulation, and replay
   void initTimer(double period_s);
 
   //!< @brief reference trajectory to be followed
-  trajectory_follower::MPCTrajectory ref_traj_;
+  trajectory_follower::MPCTrajectory m_ref_traj;
   //!< @brief lowpass filter for steering command
-  trajectory_follower::Butterworth2dFilter lpf_steering_cmd_;
+  trajectory_follower::Butterworth2dFilter m_lpf_steering_cmd;
   //!< @brief lowpass filter for lateral error
-  trajectory_follower::Butterworth2dFilter lpf_lateral_error_;
+  trajectory_follower::Butterworth2dFilter m_lpf_lateral_error;
   //!< @brief lowpass filter for heading error
-  trajectory_follower::Butterworth2dFilter lpf_yaw_error_;
+  trajectory_follower::Butterworth2dFilter m_lpf_yaw_error;
   //!< @brief vehicle model type for MPC
-  std::string vehicle_model_type_;
+  std::string m_vehicle_model_type;
   //!< @brief vehicle model for MPC
-  std::shared_ptr<trajectory_follower::VehicleModelInterface> vehicle_model_ptr_;
+  std::shared_ptr<trajectory_follower::VehicleModelInterface> m_vehicle_model_ptr;
   //!< @brief qp solver for MPC
-  std::shared_ptr<trajectory_follower::QPSolverInterface> qpsolver_ptr_;
+  std::shared_ptr<trajectory_follower::QPSolverInterface> m_qpsolver_ptr;
   //!< @brief mpc_output buffer for delay time compensation
-  std::deque<double> input_buffer_;
+  std::deque<double> m_input_buffer;
 
   /* parameters for control*/
   //!< @brief control frequency [s]
-  double ctrl_period_;
+  double m_ctrl_period;
   //!< @brief cutoff frequency for steering command [Hz]
-  double steering_lpf_cutoff_hz_;
+  double m_steering_lpf_cutoff_hz;
   //!< @brief use stop cmd when lateral error exceeds this [m]
-  double admissible_position_error_;
+  double m_admissible_position_error;
   //!< @brief use stop cmd when yaw error exceeds this [rad]
-  double admissible_yaw_error_rad_;
+  double m_admissible_yaw_error_rad;
   //!< @brief steering command limit [rad]
-  double steer_lim_;
+  double m_steer_lim;
   //!< @brief steering rate limit [rad/s]
-  double steer_rate_lim_;
+  double m_steer_rate_lim;
   //!< @brief vehicle wheelbase length [m]
-  double wheelbase_;
+  double m_wheelbase;
 
   /* parameters for path smoothing */
   //!< @brief flag for path smoothing
-  bool enable_path_smoothing_;
+  bool m_enable_path_smoothing;
   //!< @brief flag for recalculation of yaw angle after resampling
-  bool enable_yaw_recalculation_;
+  bool m_enable_yaw_recalculation;
   //!< @brief flag to use predicted steer, not measured steer.
-  bool use_steer_prediction_;
+  bool m_use_steer_prediction;
   //!< @brief param of moving average filter for path smoothing
-  int path_filter_moving_ave_num_;
+  int m_path_filter_moving_ave_num;
   //!< @brief point-to-point index distance for curvature calculation
-  int curvature_smoothing_num_;
+  int m_curvature_smoothing_num;
   //!< @brief path resampling interval [m]
-  double traj_resample_dist_;
+  double m_traj_resample_dist;
 
   /* parameters for stop state */
-  double stop_state_entry_ego_speed_;
-  double stop_state_entry_target_speed_;
-  double stop_state_keep_stopping_dist_;
+  double m_stop_state_entry_ego_speed;
+  double m_stop_state_entry_target_speed;
+  double m_stop_state_keep_stopping_dist;
 
   struct MPCParam
   {
@@ -226,7 +226,7 @@ private:
     double low_curvature_thresh_curvature;
   };
   // for mpc design parameter
-  MPCParam mpc_param_;
+  MPCParam m_mpc_param;
 
   struct MPCMatrix
   {
@@ -242,42 +242,42 @@ private:
   };
 
   //!< @brief measured pose
-  geometry_msgs::msg::PoseStamped::SharedPtr current_pose_ptr_;
+  geometry_msgs::msg::PoseStamped::SharedPtr m_current_pose_ptr;
   //!< @brief measured velocity
-  geometry_msgs::msg::TwistStamped::SharedPtr current_velocity_ptr_;
+  geometry_msgs::msg::TwistStamped::SharedPtr m_current_velocity_ptr;
   //!< @brief measured steering
-  autoware_auto_msgs::msg::VehicleKinematicState::SharedPtr current_steer_ptr_;
+  autoware_auto_msgs::msg::VehicleKinematicState::SharedPtr m_current_steer_ptr;
   autoware_auto_msgs::msg::Trajectory::SharedPtr
   //!< @brief reference trajectory
-    current_trajectory_ptr_;
+    m_current_trajectory_ptr;
 
   //!< @brief mpc raw output in previous period
-  double raw_steer_cmd_prev_ = 0.0;
+  double m_raw_steer_cmd_prev = 0.0;
   //!< @brief mpc raw output in two times previous period
-  double raw_steer_cmd_pprev_ = 0.0;
+  double m_raw_steer_cmd_pprev = 0.0;
   //!< @brief mpc filtered output in previous period
-  double steer_cmd_prev_ = 0.0;
+  double m_steer_cmd_prev = 0.0;
   //!< @brief previous lateral error for derivative
-  double lateral_error_prev_ = 0.0;
+  double m_lateral_error_prev = 0.0;
   //!< @brief previous lateral error for derivative
-  double yaw_error_prev_ = 0.0;
+  double m_yaw_error_prev = 0.0;
 
-  std::shared_ptr<double> steer_prediction_prev_;
-  rclcpp::Time time_prev_ = rclcpp::Time(0, 0, RCL_ROS_TIME);
+  std::shared_ptr<double> m_steer_prediction_prev;
+  rclcpp::Time m_time_prev = rclcpp::Time(0, 0, RCL_ROS_TIME);
   //!< @brief sign of previous target speed to calculate curvature when the target speed is 0.
-  double sign_vx_ = 0.0;
+  double m_sign_vx = 0.0;
   std::vector<autoware_auto_msgs::msg::AckermannLateralCommand>
   //!< buffer of send command
-  ctrl_cmd_vec_;
+  m_ctrl_cmd_vec;
 
-  //!< @brief flag of ctrl_cmd_prev_ initialization
-  bool is_ctrl_cmd_prev_initialized_ = false;
+  //!< @brief flag of m_ctrl_cmd_prev initialization
+  bool m_is_ctrl_cmd_prev_initialized = false;
   //!< @brief previous control command
-  autoware_auto_msgs::msg::AckermannLateralCommand ctrl_cmd_prev_;
+  autoware_auto_msgs::msg::AckermannLateralCommand m_ctrl_cmd_prev;
 
-  tf2_ros::Buffer tf_buffer_;
+  tf2_ros::Buffer m_tf_buffer;
   //!< @brief tf listener
-  tf2_ros::TransformListener tf_listener_;
+  tf2_ros::TransformListener m_tf_listener;
 
   /**
    * @brief compute and publish control command for path follow with a constant control period
@@ -285,7 +285,7 @@ private:
   void onTimer();
 
   /**
-   * @brief set current_trajectory_ with received message
+   * @brief set m_current_trajectory with received message
    */
   void onTrajectory(const autoware_auto_msgs::msg::Trajectory::SharedPtr);
 
@@ -418,7 +418,7 @@ private:
    */
   bool isValidTrajectory(const autoware_auto_msgs::msg::Trajectory & traj) const;
 
-  OnSetParametersCallbackHandle::SharedPtr set_param_res_;
+  OnSetParametersCallbackHandle::SharedPtr m_set_param_res;
 
   /**
    * @brief Declare MPC parameters as ROS parameters to allow tuning on the fly
@@ -434,55 +434,55 @@ private:
 
   bool isLowCurvature(const double curvature)
   {
-    return std::fabs(curvature) < mpc_param_.low_curvature_thresh_curvature;
+    return std::fabs(curvature) < m_mpc_param.low_curvature_thresh_curvature;
   }
 
   double getWeightLatError(const double curvature)
   {
-    return isLowCurvature(curvature) ? mpc_param_.low_curvature_weight_lat_error :
-           mpc_param_.weight_lat_error;
+    return isLowCurvature(curvature) ? m_mpc_param.low_curvature_weight_lat_error :
+           m_mpc_param.weight_lat_error;
   }
 
   double getWeightHeadingError(const double curvature)
   {
-    return isLowCurvature(curvature) ? mpc_param_.low_curvature_weight_heading_error :
-           mpc_param_.weight_heading_error;
+    return isLowCurvature(curvature) ? m_mpc_param.low_curvature_weight_heading_error :
+           m_mpc_param.weight_heading_error;
   }
 
   double getWeightHeadingErrorSqVel(const double curvature)
   {
-    return isLowCurvature(curvature) ? mpc_param_.low_curvature_weight_heading_error_squared_vel :
-           mpc_param_.weight_heading_error_squared_vel;
+    return isLowCurvature(curvature) ? m_mpc_param.low_curvature_weight_heading_error_squared_vel :
+           m_mpc_param.weight_heading_error_squared_vel;
   }
 
   double getWeightSteerInput(const double curvature)
   {
-    return isLowCurvature(curvature) ? mpc_param_.low_curvature_weight_steering_input :
-           mpc_param_.weight_steering_input;
+    return isLowCurvature(curvature) ? m_mpc_param.low_curvature_weight_steering_input :
+           m_mpc_param.weight_steering_input;
   }
 
   double getWeightSteerInputSqVel(const double curvature)
   {
-    return isLowCurvature(curvature) ? mpc_param_.low_curvature_weight_steering_input_squared_vel :
-           mpc_param_.weight_steering_input_squared_vel;
+    return isLowCurvature(curvature) ? m_mpc_param.low_curvature_weight_steering_input_squared_vel :
+           m_mpc_param.weight_steering_input_squared_vel;
   }
 
   double getWeightLatJerk(const double curvature)
   {
-    return isLowCurvature(curvature) ? mpc_param_.low_curvature_weight_lat_jerk :
-           mpc_param_.weight_lat_jerk;
+    return isLowCurvature(curvature) ? m_mpc_param.low_curvature_weight_lat_jerk :
+           m_mpc_param.weight_lat_jerk;
   }
 
   double getWeightSteerRate(const double curvature)
   {
-    return isLowCurvature(curvature) ? mpc_param_.low_curvature_weight_steer_rate :
-           mpc_param_.weight_steer_rate;
+    return isLowCurvature(curvature) ? m_mpc_param.low_curvature_weight_steer_rate :
+           m_mpc_param.weight_steer_rate;
   }
 
   double getWeightSteerAcc(const double curvature)
   {
-    return isLowCurvature(curvature) ? mpc_param_.low_curvature_weight_steer_acc :
-           mpc_param_.weight_steer_acc;
+    return isLowCurvature(curvature) ? m_mpc_param.low_curvature_weight_steer_acc :
+           m_mpc_param.weight_steer_acc;
   }
 };
 }  // namespace trajectory_follower_nodes
