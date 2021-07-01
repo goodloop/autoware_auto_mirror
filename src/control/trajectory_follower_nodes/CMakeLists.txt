@@ -54,8 +54,9 @@ if(BUILD_TESTING)
   # Unit tests
   set(TRAJECTORY_FOLLOWER_NODES_TEST test_trajectory_follower_nodes)
   ament_add_gtest(${TRAJECTORY_FOLLOWER_NODES_TEST}
-    test/test_latlon_muxer_node.cpp
-    # test/test_lateral_controller_node.cpp
+    test/trajectory_follower_test_utils.hpp
+    # test/test_latlon_muxer_node.cpp
+    test/test_lateral_controller_node.cpp
   )
   ament_target_dependencies(${TRAJECTORY_FOLLOWER_NODES_TEST} fake_test_node)
   autoware_set_compile_options(${TRAJECTORY_FOLLOWER_NODES_TEST})

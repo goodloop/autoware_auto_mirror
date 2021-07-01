@@ -1,0 +1,191 @@
+// Copyright 2021 The Autoware Foundation
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+
+#include <trajectory_follower_nodes/lateral_controller_node.hpp>
+
+#include <memory>
+#include <vector>
+
+#include "autoware_auto_msgs/msg/trajectory.hpp"
+#include "autoware_auto_msgs/msg/ackermann_lateral_command.hpp"
+#include "autoware_auto_msgs/msg/vehicle_kinematic_state.hpp"
+#include "geometry_msgs/msg/pose.hpp"
+#include "geometry_msgs/msg/pose_stamped.hpp"
+#include "geometry_msgs/msg/transform_stamped.hpp"
+#include "geometry_msgs/msg/twist_stamped.hpp"
+#include "fake_test_node/fake_test_node.hpp"
+
+#include "rclcpp/rclcpp.hpp"
+#include "rclcpp/time.hpp"
+#include "gtest/gtest.h"
+#include "trajectory_follower_test_utils.hpp"
+
+
+using LateralController = autoware::motion::control::trajectory_follower_nodes::MPCFollower;
+using LateralCommand = autoware_auto_msgs::msg::AckermannLateralCommand;
+using Trajectory = autoware_auto_msgs::msg::Trajectory;
+using TrajectoryPoint = autoware_auto_msgs::msg::TrajectoryPoint;
+using TwistStamped = geometry_msgs::msg::TwistStamped;
+using VehicleKinematicState = autoware_auto_msgs::msg::VehicleKinematicState;
+
+using FakeNodeFixture = autoware::tools::testing::FakeTestNode;
+
+const rclcpp::Duration one_second(1, 0);
+
+TEST_F(FakeNodeFixture, test_correct_lateral_output)
+{
+  // Data to test
+  LateralCommand::SharedPtr cmd_msg;
+  bool received_lateral_command = false;
+  // Node
+  rclcpp::NodeOptions node_options;
+  std::shared_ptr<LateralController> node = std::make_shared<LateralController>(node_options);
+  // Publisher/Subscribers
+  rclcpp::Publisher<Trajectory>::SharedPtr traj_pub =
+    this->create_publisher<Trajectory>(
+    "input/reference_trajectory");
+  rclcpp::Publisher<TwistStamped>::SharedPtr twist_pub =
+    this->create_publisher<TwistStamped>(
+    "input/current_velocity");
+  rclcpp::Publisher<VehicleKinematicState>::SharedPtr state_pub =
+    this->create_publisher<VehicleKinematicState>(
+    "input/current_kinematic_state");
+  rclcpp::Subscription<LateralCommand>::SharedPtr cmd_sub =
+    this->create_subscription<LateralCommand>(
+    "output/lateral_control_cmd", *node,
+    [&cmd_msg, &received_lateral_command](const LateralCommand::SharedPtr msg) {
+      cmd_msg = msg; received_lateral_command = true;
+    });
+  std::shared_ptr<tf2_ros::StaticTransformBroadcaster> br =
+    std::make_shared<tf2_ros::StaticTransformBroadcaster>(node);
+
+  // Enable all logging in the node
+  auto ret = rcutils_logging_set_logger_level(
+    node->get_logger().get_name(), RCUTILS_LOG_SEVERITY_DEBUG);
+  if (ret != RCUTILS_RET_OK) {std::cout << "Failed to set logging severerity to DEBUG\n";}
+
+  // No published data: expect a stopped command
+  test_utils::waitForMessage(node, this, received_lateral_command);
+  ASSERT_TRUE(received_lateral_command);
+  EXPECT_EQ(cmd_msg->steering_tire_angle, 0.0f);
+  EXPECT_EQ(cmd_msg->steering_tire_rotation_rate, 0.0f);
+
+  received_lateral_command = false;
+  // Dummy transform: ego is at (0.0, 0.0) in map frame
+  geometry_msgs::msg::TransformStamped transform = test_utils::getDummyTransform();
+  transform.header.stamp = node->now();
+  br->sendTransform(transform);
+  // Empty trajectory: expect a stopped command
+  Trajectory traj_msg;
+  traj_msg.header.stamp = node->now();
+  TwistStamped twist_msg;
+  twist_msg.twist.linear.x = 0.0;
+  twist_msg.header.stamp = node->now();
+  VehicleKinematicState state_msg;
+  state_msg.header.stamp = node->now();
+  state_msg.state.front_wheel_angle_rad = 0.0;
+  traj_pub->publish(traj_msg);
+  twist_pub->publish(twist_msg);
+  state_pub->publish(state_msg);
+
+  test_utils::waitForMessage(node, this, received_lateral_command);
+  ASSERT_TRUE(received_lateral_command);
+  EXPECT_EQ(cmd_msg->steering_tire_angle, 0.0f);
+  EXPECT_EQ(cmd_msg->steering_tire_rotation_rate, 0.0f);
+  EXPECT_GT(rclcpp::Time(cmd_msg->stamp), rclcpp::Time(traj_msg.header.stamp));
+
+  // Straight trajectory: expect no steering
+  received_lateral_command = false;
+  traj_msg.header.stamp = node->now();
+  TrajectoryPoint p;
+  p.x = -1.0f;
+  p.y = 0.0f;
+  p.longitudinal_velocity_mps = 1.0f;
+  traj_msg.points.push_back(p);
+  p.x = 0.0f;
+  p.y = 0.0f;
+  p.longitudinal_velocity_mps = 1.0f;
+  traj_msg.points.push_back(p);
+  p.x = 1.0f;
+  p.y = 0.0f;
+  p.longitudinal_velocity_mps = 1.0f;
+  p.x = 2.0f;
+  p.y = 0.0f;
+  p.longitudinal_velocity_mps = 1.0f;
+  traj_msg.points.push_back(p);
+  traj_msg.points.push_back(p);
+  traj_pub->publish(traj_msg);
+  twist_msg.twist.linear.x = 1.0;
+  twist_pub->publish(twist_msg);
+
+  test_utils::waitForMessage(node, this, received_lateral_command);
+  ASSERT_TRUE(received_lateral_command);
+  EXPECT_EQ(cmd_msg->steering_tire_angle, 0.0f);
+  EXPECT_EQ(cmd_msg->steering_tire_rotation_rate, 0.0f);
+  EXPECT_GT(rclcpp::Time(cmd_msg->stamp), rclcpp::Time(traj_msg.header.stamp));
+
+  // Right turning trajectory: expect right steering
+  received_lateral_command = false;
+  traj_msg.points.clear();
+  p.x = -1.0f;
+  p.y = -1.0f;
+  p.longitudinal_velocity_mps = 1.0f;
+  traj_msg.points.push_back(p);
+  p.x = 0.0f;
+  p.y = 0.0f;
+  p.longitudinal_velocity_mps = 1.0f;
+  traj_msg.points.push_back(p);
+  p.x = 1.0f;
+  p.y = -1.0f;
+  p.longitudinal_velocity_mps = 1.0f;
+  traj_msg.points.push_back(p);
+  p.x = 2.0f;
+  p.y = -2.0f;
+  p.longitudinal_velocity_mps = 1.0f;
+  traj_msg.points.push_back(p);
+  traj_pub->publish(traj_msg);
+
+  test_utils::waitForMessage(node, this, received_lateral_command);
+  ASSERT_TRUE(received_lateral_command);
+  EXPECT_GT(cmd_msg->steering_tire_angle, 0.0f);
+  EXPECT_GT(cmd_msg->steering_tire_rotation_rate, 0.0f);
+  EXPECT_GT(rclcpp::Time(cmd_msg->stamp), rclcpp::Time(traj_msg.header.stamp));
+  // Left turning trajectory: expect left steering
+  received_lateral_command = false;
+  traj_msg.points.clear();
+  p.x = -1.0f;
+  p.y = -1.0f;
+  p.longitudinal_velocity_mps = 1.0f;
+  traj_msg.points.push_back(p);
+  p.x = 0.0f;
+  p.y = 0.0f;
+  p.longitudinal_velocity_mps = 1.0f;
+  traj_msg.points.push_back(p);
+  p.x = 1.0f;
+  p.y = 1.0f;
+  p.longitudinal_velocity_mps = 1.0f;
+  traj_msg.points.push_back(p);
+  p.x = 2.0f;
+  p.y = 2.0f;
+  p.longitudinal_velocity_mps = 1.0f;
+  traj_msg.points.push_back(p);
+  traj_pub->publish(traj_msg);
+
+  test_utils::waitForMessage(node, this, received_lateral_command);
+  ASSERT_TRUE(received_lateral_command);
+  EXPECT_LT(cmd_msg->steering_tire_angle, 0.0f);
+  EXPECT_LT(cmd_msg->steering_tire_rotation_rate, 0.0f);
+  EXPECT_GT(rclcpp::Time(cmd_msg->stamp), rclcpp::Time(traj_msg.header.stamp));
+}

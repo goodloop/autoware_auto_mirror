@@ -142,16 +142,18 @@ MPCFollower::MPCFollower(const rclcpp::NodeOptions & node_options)
   initTimer(ctrl_period_);
 
   pub_ctrl_cmd_ =
-    create_publisher<autoware_auto_msgs::msg::AckermannLateralCommand>("~/output/lateral_control_cmd", 1);
+    create_publisher<autoware_auto_msgs::msg::AckermannLateralCommand>(
+    "output/lateral_control_cmd",
+    1);
   pub_predicted_traj_ =
-    create_publisher<autoware_auto_msgs::msg::Trajectory>("~/output/predicted_trajectory", 1);
+    create_publisher<autoware_auto_msgs::msg::Trajectory>("output/predicted_trajectory", 1);
   sub_ref_path_ = create_subscription<autoware_auto_msgs::msg::Trajectory>(
-    "~/input/reference_trajectory", rclcpp::QoS{1},
+    "input/reference_trajectory", rclcpp::QoS{1},
     std::bind(&MPCFollower::onTrajectory, this, _1));
   sub_current_vel_ = create_subscription<geometry_msgs::msg::TwistStamped>(
-    "~/input/current_velocity", rclcpp::QoS{1}, std::bind(&MPCFollower::onVelocity, this, _1));
+    "input/current_velocity", rclcpp::QoS{1}, std::bind(&MPCFollower::onVelocity, this, _1));
   sub_steering_ = create_subscription<autoware_auto_msgs::msg::VehicleKinematicState>(
-    "~/input/current_kinematic_state", rclcpp::QoS{1}, std::bind(&MPCFollower::onSteering, this, _1));
+    "input/current_kinematic_state", rclcpp::QoS{1}, std::bind(&MPCFollower::onSteering, this, _1));
 
   // TODO(Frederik.Beaujean) ctor is too long, should factor out parameter declarations
   declareMPCparameters();
