@@ -14,6 +14,7 @@
 
 
 #include <memory>
+#include <string>
 #include <vector>
 
 #include "filter_node_base/filter_node_base.hpp"
@@ -35,7 +36,13 @@ class MockFilterNodeBase : public FilterNodeBase
 {
 public:
   explicit MockFilterNodeBase(const rclcpp::NodeOptions & options)
-  : FilterNodeBase("test_filter_node", options) {}
+  : FilterNodeBase("test_filter_node", options)
+  {
+    test_param_1_ = declare_parameter("test_param_1").get<double>();
+    test_param_2_ = declare_parameter("test_param_2").get<std::string>();
+
+    this->set_param_callback();
+  }
 
   ~MockFilterNodeBase() {}
 
@@ -46,6 +53,10 @@ public:
   MOCK_METHOD(
     rcl_interfaces::msg::SetParametersResult, get_node_parameters,
     (const std::vector<rclcpp::Parameter>&p), (override));
+
+  // Parameters used by the class
+  double test_param_1_;
+  std::string test_param_2_;
 };
 
 /* \class TestFilterNodeBase
@@ -69,6 +80,8 @@ protected:
     // Generate parameters
     std::vector<rclcpp::Parameter> params;
     params.emplace_back("max_queue_size", 5);
+    params.emplace_back("test_param_1", 0.5);
+    params.emplace_back("test_param_2", "frame_1");
 
     rclcpp::NodeOptions node_options;
     node_options.parameter_overrides(params);
@@ -117,6 +130,10 @@ TEST_F(TestFilterNodeBase, DISABLED_test_filter) {
 }
 
 TEST_F(TestFilterNodeBase, test_parameters) {
+  // Check that upon set up the parameters are set correctly
+  ASSERT_EQ(mock_filter_node_base->test_param_1_, 0.5);
+  ASSERT_EQ(mock_filter_node_base->test_param_2_, "frame_1");
+
   // Set up parameter client
   auto client = std::make_shared<rclcpp::SyncParametersClient>(mock_filter_node_base);
   ASSERT_TRUE(client->wait_for_service(std::chrono::seconds(1)));
