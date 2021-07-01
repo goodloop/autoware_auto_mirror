@@ -22,10 +22,12 @@
 #ifndef TRAJECTORY_FOLLOWER__QP_SOLVER__QP_SOLVER_OSQP_HPP_
 #define TRAJECTORY_FOLLOWER__QP_SOLVER__QP_SOLVER_OSQP_HPP_
 
-#include "osqp_interface/osqp_interface.hpp"
-#include "eigen3/Eigen/Dense"
-#include "rclcpp/rclcpp.hpp"
 #include "trajectory_follower/qp_solver/qp_solver_interface.hpp"
+
+#include "eigen3/Eigen/Dense"
+#include "osqp_interface/osqp_interface.hpp"
+#include "rclcpp/rclcpp.hpp"
+#include "trajectory_follower/visibility_control.hpp"
 
 namespace motion
 {
@@ -33,7 +35,7 @@ namespace control
 {
 namespace trajectory_follower
 {
-class QPSolverOSQP : public QPSolverInterface
+class TRAJECTORY_FOLLOWER_PUBLIC QPSolverOSQP : public QPSolverInterface
 {
 public:
   /**

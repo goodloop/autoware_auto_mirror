@@ -14,8 +14,11 @@
 
 #ifndef TRAJECTORY_FOLLOWER__MPC_TRAJECTORY_HPP_
 #define TRAJECTORY_FOLLOWER__MPC_TRAJECTORY_HPP_
+
 #include <iostream>
 #include <vector>
+
+#include "trajectory_follower/visibility_control.hpp"
 
 namespace motion
 {
@@ -27,7 +30,7 @@ namespace trajectory_follower
  * @class trajectory class for mpc follower
  * @brief calculate control command to follow reference waypoints
  */
-class MPCTrajectory
+class TRAJECTORY_FOLLOWER_PUBLIC MPCTrajectory
 {
 public:
   std::vector<double> x;              //!< @brief x position x vector

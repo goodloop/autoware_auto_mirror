@@ -51,9 +51,12 @@
 
 #ifndef TRAJECTORY_FOLLOWER__VEHICLE_MODEL__VEHICLE_MODEL_BICYCLE_DYNAMICS_HPP_
 #define TRAJECTORY_FOLLOWER__VEHICLE_MODEL__VEHICLE_MODEL_BICYCLE_DYNAMICS_HPP_
+
+#include "trajectory_follower/vehicle_model/vehicle_model_interface.hpp"
+#include "trajectory_follower/visibility_control.hpp"
+
 #include "eigen3/Eigen/Core"
 #include "eigen3/Eigen/LU"
-#include "trajectory_follower/vehicle_model/vehicle_model_interface.hpp"
 
 namespace motion
 {
@@ -65,7 +68,7 @@ namespace trajectory_follower
  * @class vehicle model class of bicycle dynamics
  * @brief calculate model-related values
  */
-class DynamicsBicycleModel : public VehicleModelInterface
+class TRAJECTORY_FOLLOWER_PUBLIC DynamicsBicycleModel : public VehicleModelInterface
 {
 public:
   /**

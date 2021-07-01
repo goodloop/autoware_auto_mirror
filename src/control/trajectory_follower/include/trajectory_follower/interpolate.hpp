@@ -14,9 +14,12 @@
 
 #ifndef TRAJECTORY_FOLLOWER__INTERPOLATE_HPP_
 #define TRAJECTORY_FOLLOWER__INTERPOLATE_HPP_
+
 #include <cmath>
 #include <iostream>
 #include <vector>
+
+#include "trajectory_follower/visibility_control.hpp"
 
 namespace motion
 {
@@ -24,7 +27,7 @@ namespace control
 {
 namespace trajectory_follower
 {
-class LinearInterpolate
+class TRAJECTORY_FOLLOWER_PUBLIC LinearInterpolate
 {
 public:
   LinearInterpolate() {}
@@ -37,7 +40,7 @@ public:
     const double & return_index, double & return_value);
 };
 
-class SplineInterpolate
+class TRAJECTORY_FOLLOWER_PUBLIC SplineInterpolate
 {
   bool initialized_;
   std::vector<double> a_;  //!< @brief temporal vector for calculation

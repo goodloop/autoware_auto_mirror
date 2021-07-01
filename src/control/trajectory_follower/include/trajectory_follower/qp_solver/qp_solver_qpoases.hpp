@@ -22,14 +22,16 @@
 #ifndef TRAJECTORY_FOLLOWER__QP_SOLVER__QP_SOLVER_QPOASES_HPP_
 #define TRAJECTORY_FOLLOWER__QP_SOLVER__QP_SOLVER_QPOASES_HPP_
 
+#include "trajectory_follower/qp_solver/qp_solver_interface.hpp"
+
 #include <cmath>
 #include <iostream>
+
 #include "eigen3/Eigen/Core"
 #include "eigen3/Eigen/Dense"
 #include "eigen3/Eigen/LU"
 #include "qpoases_vendor/qpOASES.hpp"
-
-#include "trajectory_follower/qp_solver/qp_solver_interface.hpp"
+#include "trajectory_follower/visibility_control.hpp"
 
 namespace motion
 {
@@ -37,7 +39,7 @@ namespace control
 {
 namespace trajectory_follower
 {
-class QPSolverQpoasesHotstart : public QPSolverInterface
+class TRAJECTORY_FOLLOWER_PUBLIC QPSolverQpoasesHotstart : public QPSolverInterface
 {
 private:
   bool is_solver_initialized_;  //!< @brief flag to check initialization

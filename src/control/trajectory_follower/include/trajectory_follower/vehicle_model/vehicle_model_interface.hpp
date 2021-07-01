@@ -21,7 +21,9 @@
 
 #ifndef TRAJECTORY_FOLLOWER__VEHICLE_MODEL__VEHICLE_MODEL_INTERFACE_HPP_
 #define TRAJECTORY_FOLLOWER__VEHICLE_MODEL__VEHICLE_MODEL_INTERFACE_HPP_
+
 #include "eigen3/Eigen/Core"
+#include "trajectory_follower/visibility_control.hpp"
 
 namespace motion
 {
@@ -33,7 +35,7 @@ namespace trajectory_follower
  * @class vehicle model class
  * @brief calculate model-related values
  */
-class VehicleModelInterface
+class TRAJECTORY_FOLLOWER_PUBLIC VehicleModelInterface
 {
 protected:
   const int dim_x_;   //!< @brief dimension of state x

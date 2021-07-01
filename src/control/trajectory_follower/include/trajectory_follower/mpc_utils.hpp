@@ -19,6 +19,8 @@
 #include <string>
 #include <vector>
 
+#include "trajectory_follower/visibility_control.hpp"
+
 #include "trajectory_follower/interpolate.hpp"
 #include "trajectory_follower/mpc_trajectory.hpp"
 
@@ -48,47 +50,55 @@ namespace MPCUtils
  * @param [in] yaw input yaw angle
  * @return quaternion
  */
-geometry_msgs::msg::Quaternion getQuaternionFromYaw(const double & yaw);
+TRAJECTORY_FOLLOWER_PUBLIC geometry_msgs::msg::Quaternion getQuaternionFromYaw(const double & yaw);
 
 /**
  * @brief normalize angle into [-pi to pi]
  * @param [in] _angle input angle
  * @return normalized angle
  */
-double normalizeRadian(const double angle);
+TRAJECTORY_FOLLOWER_PUBLIC double normalizeRadian(const double angle);
 
 /**
  * @brief convert Euler angle vector including +-2pi to 0 jump to continuous series data
  * @param [out] a input angle vector
  */
-void convertEulerAngleToMonotonic(std::vector<double> * a);
-double calcDist2d(
+TRAJECTORY_FOLLOWER_PUBLIC void convertEulerAngleToMonotonic(std::vector<double> * a);
+TRAJECTORY_FOLLOWER_PUBLIC double calcDist2d(
   const geometry_msgs::msg::PoseStamped & p0, const geometry_msgs::msg::PoseStamped & p1);
-double calcDist2d(const geometry_msgs::msg::Pose & p0, const geometry_msgs::msg::Pose & p1);
-template <typename T0, typename T1> double calcDist2d(const T0 & p0, const T1 & p1) {
+TRAJECTORY_FOLLOWER_PUBLIC double calcDist2d(
+  const geometry_msgs::msg::Pose & p0,
+  const geometry_msgs::msg::Pose & p1);
+template<typename T0, typename T1>
+TRAJECTORY_FOLLOWER_PUBLIC double calcDist2d(const T0 & p0, const T1 & p1)
+{
   return std::hypot(p0.x - p1.x, p0.y - p1.y);
 }
-double calcDist3d(const geometry_msgs::msg::Point & p0, const geometry_msgs::msg::Point & p1);
-double calcSquaredDist2d(
+TRAJECTORY_FOLLOWER_PUBLIC double calcDist3d(
+  const geometry_msgs::msg::Point & p0,
+  const geometry_msgs::msg::Point & p1);
+TRAJECTORY_FOLLOWER_PUBLIC double calcSquaredDist2d(
   const geometry_msgs::msg::Point & p0, const geometry_msgs::msg::Point & p1);
-double calcLateralError(
+TRAJECTORY_FOLLOWER_PUBLIC double calcLateralError(
   const geometry_msgs::msg::Pose & ego_pose, const geometry_msgs::msg::Pose & ref_pose);
 
-bool convertToMPCTrajectory(
+TRAJECTORY_FOLLOWER_PUBLIC bool convertToMPCTrajectory(
   const autoware_auto_msgs::msg::Trajectory & input, MPCTrajectory * output);
-bool convertToAutowareTrajectory(
+TRAJECTORY_FOLLOWER_PUBLIC bool convertToAutowareTrajectory(
   const MPCTrajectory & input, autoware_auto_msgs::msg::Trajectory * output);
-void calcMPCTrajectoryArclength(const MPCTrajectory & trajectory, std::vector<double> * arclength);
-bool resampleMPCTrajectoryByDistance(
+TRAJECTORY_FOLLOWER_PUBLIC void calcMPCTrajectoryArclength(
+  const MPCTrajectory & trajectory,
+  std::vector<double> * arclength);
+TRAJECTORY_FOLLOWER_PUBLIC bool resampleMPCTrajectoryByDistance(
   const MPCTrajectory & input, const double resample_interval_dist, MPCTrajectory * output);
-bool linearInterpMPCTrajectory(
+TRAJECTORY_FOLLOWER_PUBLIC bool linearInterpMPCTrajectory(
   const std::vector<double> & in_index, const MPCTrajectory & in_traj,
   const std::vector<double> & out_index, MPCTrajectory * out_traj);
-bool splineInterpMPCTrajectory(
+TRAJECTORY_FOLLOWER_PUBLIC bool splineInterpMPCTrajectory(
   const std::vector<double> & in_index, const MPCTrajectory & in_traj,
   const std::vector<double> & out_index, MPCTrajectory * out_traj);
-bool calcMPCTrajectoryTime(MPCTrajectory * traj);
-void dynamicSmoothingVelocity(
+TRAJECTORY_FOLLOWER_PUBLIC bool calcMPCTrajectoryTime(MPCTrajectory * traj);
+TRAJECTORY_FOLLOWER_PUBLIC void dynamicSmoothingVelocity(
   const size_t start_idx, const double start_vel, const double acc_lim, const double tau,
   MPCTrajectory * traj);
 
@@ -96,21 +106,23 @@ void dynamicSmoothingVelocity(
  * @brief calculate yaw angle in MPCTrajectory from xy vector
  * @param [inout] traj object trajectory
  */
-void calcTrajectoryYawFromXY(MPCTrajectory * traj);
+TRAJECTORY_FOLLOWER_PUBLIC void calcTrajectoryYawFromXY(MPCTrajectory * traj);
 
 /**
  * @brief Calculate path curvature by 3-points circle fitting with smoothing num (use nearest 3 points when num = 1)
  * @param [in] curvature_smoothing_num index distance for 3 points for curvature calculation
  * @param [inout] traj object trajectory
  */
-bool calcTrajectoryCurvature(const size_t curvature_smoothing_num, MPCTrajectory * traj);
+TRAJECTORY_FOLLOWER_PUBLIC bool calcTrajectoryCurvature(
+  const size_t curvature_smoothing_num,
+  MPCTrajectory * traj);
 
 /**
  * @brief Calculate path curvature by 3-points circle fitting with smoothing num (use nearest 3 points when num = 1)
  * @param [in] curvature_smoothing_num index distance for 3 points for curvature calculation
  * @param [inout] curvature vector
  */
-std::vector<double> calcTrajectoryCurvature(
+TRAJECTORY_FOLLOWER_PUBLIC std::vector<double> calcTrajectoryCurvature(
   const size_t curvature_smoothing_num, const MPCTrajectory & traj);
 
 /**
@@ -124,18 +136,20 @@ std::vector<double> calcTrajectoryCurvature(
  * @param [in] clock to throttle log output
  * @return false when nearest pose couldn't find for some reasons
  */
-bool calcNearestPoseInterp(
+TRAJECTORY_FOLLOWER_PUBLIC bool calcNearestPoseInterp(
   const MPCTrajectory & traj, const geometry_msgs::msg::Pose & self_pose,
   geometry_msgs::msg::Pose * nearest_pose, size_t * nearest_index, double * nearest_time,
   rclcpp::Logger logger, rclcpp::Clock & clock);
 
-int calcNearestIndex(const MPCTrajectory & traj, const geometry_msgs::msg::Pose & self_pose);
-int calcNearestIndex(
+TRAJECTORY_FOLLOWER_PUBLIC int calcNearestIndex(
+  const MPCTrajectory & traj,
+  const geometry_msgs::msg::Pose & self_pose);
+TRAJECTORY_FOLLOWER_PUBLIC int calcNearestIndex(
   const autoware_auto_msgs::msg::Trajectory & traj, const geometry_msgs::msg::Pose & self_pose);
 /**
  * @brief convert MPCTraj to visualization marker for visualization
  */
-visualization_msgs::msg::MarkerArray convertTrajToMarker(
+TRAJECTORY_FOLLOWER_PUBLIC visualization_msgs::msg::MarkerArray convertTrajToMarker(
   const MPCTrajectory & traj, std::string ns, float r, float g, float b, float z,
   const std::string & frame_id, const builtin_interfaces::msg::Time & stamp);
 

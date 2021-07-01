@@ -21,10 +21,13 @@
 
 #ifndef TRAJECTORY_FOLLOWER__LOWPASS_FILTER_HPP_
 #define TRAJECTORY_FOLLOWER__LOWPASS_FILTER_HPP_
+
 #include <algorithm>
 #include <cmath>
 #include <iostream>
 #include <vector>
+
+#include "trajectory_follower/visibility_control.hpp"
 
 namespace motion
 {
@@ -41,7 +44,7 @@ namespace trajectory_follower
  * reference : S. Butterworth, "On the Theory of Filter Amplifier", Experimental wireless, 1930.
  */
 
-class Butterworth2dFilter
+class TRAJECTORY_FOLLOWER_PUBLIC Butterworth2dFilter
 {
 private:
   double y1_;  //!< @brief filter coefficient calculated with cutoff frequency and sampling time
@@ -109,7 +112,7 @@ public:
  * @class Move Average Filter
  * @brief filtering values
  */
-class MoveAverageFilter
+class TRAJECTORY_FOLLOWER_PUBLIC MoveAverageFilter
 {
 public:
   /**

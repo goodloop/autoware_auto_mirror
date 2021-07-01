@@ -26,13 +26,15 @@
 #include "eigen3/Eigen/Dense"
 #include "eigen3/Eigen/LU"
 
+#include "trajectory_follower/visibility_control.hpp"
+
 namespace motion
 {
 namespace control
 {
 namespace trajectory_follower
 {
-class QPSolverInterface
+class TRAJECTORY_FOLLOWER_PUBLIC QPSolverInterface
 {
 public:
   /**
