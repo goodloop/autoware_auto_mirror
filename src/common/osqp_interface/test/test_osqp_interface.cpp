@@ -62,6 +62,7 @@ TEST(test_osqp_interface, basic_qp) {
     check_result(result);
   }
   {
+    std::tuple<std::vector<double>, std::vector<double>, int, int> result;
     // Dummy initial problem
     Eigen::MatrixXd P = Eigen::MatrixXd::Zero(2, 2);
     Eigen::MatrixXd A = Eigen::MatrixXd::Zero(2, 4);
@@ -78,16 +79,35 @@ TEST(test_osqp_interface, basic_qp) {
     std::vector<double> q_new = {1.0, 1.0};
     std::vector<double> l_new = {1.0, 0.0, 0.0, -common::osqp::INF};
     std::vector<double> u_new = {1.0, 0.7, 0.7, common::osqp::INF};
-    /* TODO(Maxime CLEMENT): optimization fails when individually updating parameters
     osqp.updateP(P_new);
     osqp.updateA(A_new);
     osqp.updateQ(q_new);
     osqp.updateBounds(l_new, u_new);
-    std::tuple<std::vector<double>, std::vector<double>, int, int> result = osqp.optimize();
-    check_result(result);
-    */
+    result = osqp.optimize();
+    // TODO(Maxime CLEMENT): wrong result after individually updating the parameters
+    // check_result(result);
     osqp.initializeProblem(P_new, A_new, q_new, l_new, u_new);
-    std::tuple<std::vector<double>, std::vector<double>, int, int> result = osqp.optimize();
+    result = osqp.optimize();
     check_result(result);
   }
+}
+
+TEST(test_osqp_interface_update, smoke_test)
+{
+  Eigen::MatrixXd P = Eigen::MatrixXd::Zero(2, 2);
+  Eigen::MatrixXd A = Eigen::MatrixXd::Zero(2, 4);
+  std::vector<double> q(2);
+  std::vector<double> l(4);
+  std::vector<double> u(4);
+  common::osqp::OSQPInterface osqp(P, A, q, l, u, 1e-6);
+  osqp.updateL({-2.0, -2.0, -2.0, -2.0});
+  osqp.updateU({2.0, 2.0, 2.0, 2.0});
+  // lower bound higher than the upper bound generates an error message
+  osqp.updateL({3.0, 3.0, 3.0, 3.0});
+  osqp.updateEpsAbs(0.5);
+  osqp.updateEpsRel(0.1);
+  osqp.updateMaxIter(100);
+  osqp.updateRhoInterval(1);
+  osqp.updateVerbose(true);
+  osqp.updateVerbose(false);
 }
