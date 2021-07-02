@@ -30,6 +30,8 @@ using FilterNodeBase = autoware::perception::filters::filter_node_base::FilterNo
 using PointCloud2 = sensor_msgs::msg::PointCloud2;
 
 using ::testing::_;
+using ::testing::AtLeast;
+using ::testing::Eq;
 using ::testing::Invoke;
 
 /* \class MockFilterNodeBase
@@ -58,8 +60,6 @@ public:
     rcl_interfaces::msg::SetParametersResult, get_node_parameters,
     (const std::vector<rclcpp::Parameter>&p), (override));
 
-  // Delegate mock_get_node_parameters method to be called by default when get_node_parameters is
-  // called. This allows changes to the child class sepcific parameters to be tested.
   void DelegateToFake()
   {
     ON_CALL(*this, get_node_parameters(_))
@@ -127,10 +127,8 @@ protected:
   std::shared_ptr<MockFilterNodeBase> mock_filter_node_base;
 };
 
-using ::testing::AtLeast;
-
 /* \brief Create a dummy point cloud for publishing */
-inline void create_dummy_cloud(sensor_msgs::msg::PointCloud2 & cloud)
+void create_dummy_cloud(sensor_msgs::msg::PointCloud2 & cloud)
 {
   std::vector<float32_t> seeds = {0.0, 0.0, 0.0};
   autoware::common::lidar_utils::init_pcl_msg(cloud, "base_link", seeds.size());
@@ -164,8 +162,10 @@ TEST_F(TestFilterNodeBase, DISABLED_test_filter) {
 
 TEST_F(TestFilterNodeBase, test_parameters) {
   // Check that upon set up the parameters are set correctly
-  ASSERT_EQ(mock_filter_node_base->test_param_1_, 0.5);
-  ASSERT_EQ(mock_filter_node_base->test_param_2_, "frame_2");
+  // ASSERT_EQ(mock_filter_node_base->test_param_1_, 0.5);
+  EXPECT_THAT(mock_filter_node_base->test_param_1_, Eq(0.5));
+  EXPECT_THAT(mock_filter_node_base->test_param_2_, Eq("frame_2"));
+  // ASSERT_EQ(mock_filter_node_base->test_param_2_, "frame_2");
 
   // Set up parameter client
   auto client = std::make_shared<rclcpp::SyncParametersClient>(mock_filter_node_base);
@@ -191,6 +191,6 @@ TEST_F(TestFilterNodeBase, test_parameters) {
   rclcpp::spin_some(mock_filter_node_base);
 
   // Check that upon update the parameters are set correctly
-  ASSERT_EQ(mock_filter_node_base->test_param_1_, 1.5);
-  ASSERT_EQ(mock_filter_node_base->test_param_2_, "new_frame_2");
+  EXPECT_THAT(mock_filter_node_base->test_param_1_, Eq(1.5));
+  EXPECT_THAT(mock_filter_node_base->test_param_2_, Eq("new_frame_2"));
 }
