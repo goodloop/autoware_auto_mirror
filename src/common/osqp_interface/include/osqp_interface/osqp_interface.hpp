@@ -40,7 +40,7 @@ constexpr c_float INF = OSQP_INFTY;
 class OSQP_INTERFACE_PUBLIC OSQPInterface
 {
 private:
-  OSQPWorkspace * m_work;
+  OSQPWorkspace * m_work = nullptr;
   std::unique_ptr<OSQPSettings> m_settings;
   std::unique_ptr<OSQPData> m_data;
   // store last work info since work is cleaned up at every execution to prevent memory leak.
