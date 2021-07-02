@@ -61,7 +61,10 @@ if(BUILD_TESTING)
   ament_lint_auto_find_test_dependencies()
 
   # Unit tests
-  set(TEST_SOURCES test/test_osqp_interface.cpp)
+  set(TEST_SOURCES
+    test/test_osqp_interface.cpp
+    test/test_csc_matrix_conv.cpp
+  )
   set(TEST_OSQP_INTERFACE_EXE test_osqp_interface)
   ament_add_gtest(${TEST_OSQP_INTERFACE_EXE} ${TEST_SOURCES})
   autoware_set_compile_options(${TEST_OSQP_INTERFACE_EXE})

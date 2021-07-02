@@ -19,13 +19,14 @@
 #include <vector>
 
 #include "eigen3/Eigen/Core"
+#include "osqp_interface/visibility_control.hpp"
 
 namespace common
 {
 namespace osqp
 {
 /// \brief Compressed-Column-Sparse Matrix
-struct CSC_Matrix
+struct OSQP_INTERFACE_PUBLIC CSC_Matrix
 {
   /// Vector of non-zero values. Ex: [4,1,1,2]
   std::vector<c_float> m_vals;
@@ -36,11 +37,11 @@ struct CSC_Matrix
 };
 
 /// \brief Calculate CSC matrix from Eigen matrix
-CSC_Matrix calCSCMatrix(const Eigen::MatrixXd & mat);
-/// \brief Calculate CSC matrix from square Eigen matrix
-CSC_Matrix calCSCMatrixTrapezoidal(const Eigen::MatrixXd & mat);
+OSQP_INTERFACE_PUBLIC CSC_Matrix calCSCMatrix(const Eigen::MatrixXd & mat);
+/// \brief Calculate upper trapezoidal CSC matrix from square Eigen matrix
+OSQP_INTERFACE_PUBLIC CSC_Matrix calCSCMatrixTrapezoidal(const Eigen::MatrixXd & mat);
 
-void printCSCMatrix(CSC_Matrix & csc_mat);
+OSQP_INTERFACE_PUBLIC void printCSCMatrix(const CSC_Matrix & csc_mat);
 
 }  // namespace osqp
 }  // namespace common
