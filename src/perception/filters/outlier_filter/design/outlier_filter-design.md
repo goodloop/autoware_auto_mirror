@@ -79,17 +79,20 @@ The following parameters are required by the `voxel_grid_outlier_filter` class c
 ### Modifying Parameters
 
 The classes allow for parameters to be modified during run-time. The Node class using the filter
-library should call the `update_parameters` method and pass in the all parameters. The following
-are examples of how the `update_parameters` method is to be called:
+library should call the `update_parameters` method and pass in all the parameters; for example:
 
 ```{cpp}
+std::mutex mutex_;
 float search_radius = 1.0;
 int min_neighbors = 5;
 auto filter = std::make_shared<RadiusSearch2DFilter>(search_radius, min_neighbors);
 
 // Perform some update on the parameters
 search_radius = 1.5;
-filter->update_parameters(search_radius, min_neighbors);
+{
+    std::lock_guard<std::mutex> lock(mutex_);
+    filter->update_parameters(search_radius, min_neighbors);
+}
 ```
 
 
@@ -167,4 +170,4 @@ AutowareArchitectureProposal repository:
 <!-- Required -->
 
 See:
- - #917
+ - Port from ArchitectureProposal (#917)

@@ -3,7 +3,7 @@
 <package format="3">
   <name>outlier_filter</name>
   <version>1.0.0</version>
-  <description>Collection of outlier filter library implementations</description>
+  <description>Collection of outlier-filter implementations</description>
   <maintainer email="jilada.eccleston@tier4.jp">Jilada Eccleston</maintainer>
   <license>Apache 2.0</license>
 
