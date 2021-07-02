@@ -112,29 +112,23 @@ CSC_Matrix calCSCMatrixTrapezoidal(const Eigen::MatrixXd & mat)
   return csc_matrix;
 }
 
-void printCSCMatrix(CSC_Matrix & csc_mat)
+void printCSCMatrix(const CSC_Matrix & csc_mat)
 {
   std::cout << "[";
-  for (std::vector<c_float>::const_iterator it = csc_mat.m_vals.begin(); it != csc_mat.m_vals.end();
-    it++)
-  {
-    std::cout << *it << ", ";
+  for (const c_float & val : csc_mat.m_vals) {
+    std::cout << val << ", ";
   }
   std::cout << "]\n";
 
   std::cout << "[";
-  for (std::vector<c_int>::const_iterator it = csc_mat.m_row_idxs.begin();
-    it != csc_mat.m_row_idxs.end(); it++)
-  {
-    std::cout << *it << ", ";
+  for (const c_int & row : csc_mat.m_row_idxs) {
+    std::cout << row << ", ";
   }
   std::cout << "]\n";
 
   std::cout << "[";
-  for (std::vector<c_int>::const_iterator it = csc_mat.m_col_idxs.begin();
-    it != csc_mat.m_col_idxs.end(); it++)
-  {
-    std::cout << *it << ", ";
+  for (const c_int & col : csc_mat.m_col_idxs) {
+    std::cout << col << ", ";
   }
   std::cout << "]\n";
 }
