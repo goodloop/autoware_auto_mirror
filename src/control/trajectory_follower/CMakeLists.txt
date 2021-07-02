@@ -30,8 +30,6 @@ set(LATERAL_CONTROLLER_LIB_SRC
   src/mpc_trajectory.cpp
   src/mpc_utils.cpp
   src/qp_solver/qp_solver_osqp.cpp
-  # TODO(Maxime CLEMENT): remove support for qpoases or find a way to install ros-foxy-qpoases-vendor
-  # src/qp_solver/qp_solver_qpoases.cpp
   src/qp_solver/qp_solver_unconstr_fast.cpp
   src/vehicle_model/vehicle_model_bicycle_dynamics.cpp
   src/vehicle_model/vehicle_model_bicycle_kinematics_no_delay.cpp
@@ -47,8 +45,6 @@ set(LATERAL_CONTROLLER_LIB_HEADERS
   include/trajectory_follower/mpc_utils.hpp
   include/trajectory_follower/qp_solver/qp_solver_interface.hpp
   include/trajectory_follower/qp_solver/qp_solver_osqp.hpp
-  # TODO(Maxime CLEMENT): remove support for qpoases or find a way to install ros-foxy-qpoases-vendor
-  # include/trajectory_follower/qp_solver/qp_solver_qpoases.hpp
   include/trajectory_follower/qp_solver/qp_solver_unconstr_fast.hpp
   include/trajectory_follower/vehicle_model/vehicle_model_bicycle_dynamics.hpp
   include/trajectory_follower/vehicle_model/vehicle_model_bicycle_kinematics_no_delay.hpp
