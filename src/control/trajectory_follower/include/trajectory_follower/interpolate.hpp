@@ -27,18 +27,12 @@ namespace control
 {
 namespace trajectory_follower
 {
-class TRAJECTORY_FOLLOWER_PUBLIC LinearInterpolate
-{
-public:
-  LinearInterpolate() {}
-  ~LinearInterpolate() {}
-  static bool interpolate(
-    const std::vector<double> & base_index, const std::vector<double> & base_value,
-    const std::vector<double> & return_index, std::vector<double> & return_value);
-  static bool interpolate(
-    const std::vector<double> & base_index, const std::vector<double> & base_value,
-    const double & return_index, double & return_value);
-};
+TRAJECTORY_FOLLOWER_PUBLIC bool linearInterpolate(
+  const std::vector<double> & base_index, const std::vector<double> & base_value,
+  const std::vector<double> & return_index, std::vector<double> & return_value);
+TRAJECTORY_FOLLOWER_PUBLIC bool linearInterpolate(
+  const std::vector<double> & base_index, const std::vector<double> & base_value,
+  const double & return_index, double & return_value);
 
 class TRAJECTORY_FOLLOWER_PUBLIC SplineInterpolate
 {

@@ -75,7 +75,7 @@ bool isValidInput(
 }
 }  // namespace
 
-bool LinearInterpolate::interpolate(
+bool linearInterpolate(
   const std::vector<double> & base_index, const std::vector<double> & base_value,
   const std::vector<double> & return_index, std::vector<double> & return_value)
 {
@@ -117,7 +117,7 @@ bool LinearInterpolate::interpolate(
   return true;
 }
 
-bool LinearInterpolate::interpolate(
+bool linearInterpolate(
   const std::vector<double> & base_index, const std::vector<double> & base_value,
   const double & return_index, double & return_value)
 {
@@ -125,7 +125,7 @@ bool LinearInterpolate::interpolate(
   return_index_v.push_back(return_index);
 
   std::vector<double> return_value_v;
-  if (!interpolate(base_index, base_value, return_index_v, return_value_v)) {
+  if (!linearInterpolate(base_index, base_value, return_index_v, return_value_v)) {
     return false;
   }
   return_value = return_value_v.at(0);

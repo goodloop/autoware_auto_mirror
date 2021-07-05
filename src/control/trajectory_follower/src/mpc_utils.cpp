@@ -132,18 +132,17 @@ bool resampleMPCTrajectoryByDistance(
   std::vector<double> input_yaw = input.yaw;
   convertEulerAngleToMonotonic(&input_yaw);
 
-  LinearInterpolate linear_interp;
   SplineInterpolate spline_interp;
   if (
     !spline_interp.interpolate(input_arclength, input.x, output_arclength, output->x) ||
     !spline_interp.interpolate(input_arclength, input.y, output_arclength, output->y) ||
     !spline_interp.interpolate(input_arclength, input.z, output_arclength, output->z) ||
     !spline_interp.interpolate(input_arclength, input_yaw, output_arclength, output->yaw) ||
-    !linear_interp.interpolate(input_arclength, input.vx, output_arclength, output->vx) ||
+    !linearInterpolate(input_arclength, input.vx, output_arclength, output->vx) ||
     !spline_interp.interpolate(input_arclength, input.k, output_arclength, output->k) ||
     !spline_interp.interpolate(
       input_arclength, input.smooth_k, output_arclength, output->smooth_k) ||
-    !linear_interp.interpolate(
+    !linearInterpolate(
       input_arclength, input.relative_time, output_arclength, output->relative_time))
   {
     std::cerr << "linearInterpMPCTrajectory error!" << std::endl;
@@ -169,16 +168,15 @@ bool linearInterpMPCTrajectory(
   std::vector<double> in_traj_yaw = in_traj.yaw;
   convertEulerAngleToMonotonic(&in_traj_yaw);
 
-  LinearInterpolate linear_interp;
   if (
-    !linear_interp.interpolate(in_index, in_traj.x, out_index, out_traj->x) ||
-    !linear_interp.interpolate(in_index, in_traj.y, out_index, out_traj->y) ||
-    !linear_interp.interpolate(in_index, in_traj.z, out_index, out_traj->z) ||
-    !linear_interp.interpolate(in_index, in_traj_yaw, out_index, out_traj->yaw) ||
-    !linear_interp.interpolate(in_index, in_traj.vx, out_index, out_traj->vx) ||
-    !linear_interp.interpolate(in_index, in_traj.k, out_index, out_traj->k) ||
-    !linear_interp.interpolate(in_index, in_traj.smooth_k, out_index, out_traj->smooth_k) ||
-    !linear_interp.interpolate(
+    !linearInterpolate(in_index, in_traj.x, out_index, out_traj->x) ||
+    !linearInterpolate(in_index, in_traj.y, out_index, out_traj->y) ||
+    !linearInterpolate(in_index, in_traj.z, out_index, out_traj->z) ||
+    !linearInterpolate(in_index, in_traj_yaw, out_index, out_traj->yaw) ||
+    !linearInterpolate(in_index, in_traj.vx, out_index, out_traj->vx) ||
+    !linearInterpolate(in_index, in_traj.k, out_index, out_traj->k) ||
+    !linearInterpolate(in_index, in_traj.smooth_k, out_index, out_traj->smooth_k) ||
+    !linearInterpolate(
       in_index, in_traj.relative_time, out_index, out_traj->relative_time))
   {
     std::cerr << "linearInterpMPCTrajectory error!" << std::endl;
