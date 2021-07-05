@@ -21,8 +21,8 @@
 #include "osqp_interface/csc_matrix_conv.hpp"
 
 TEST(test_csc_matrix_conv, nominal) {
-  using common::osqp::CSC_Matrix;
-  using common::osqp::calCSCMatrix;
+  using autoware::common::osqp::CSC_Matrix;
+  using autoware::common::osqp::calCSCMatrix;
 
   Eigen::MatrixXd rect1(1, 2);
   rect1 << 0.0, 1.0;
@@ -119,8 +119,8 @@ TEST(test_csc_matrix_conv, nominal) {
   EXPECT_EQ(square_m2.m_col_idxs[6], 19);
 }
 TEST(test_csc_matrix_conv, trapezoidal) {
-  using common::osqp::CSC_Matrix;
-  using common::osqp::calCSCMatrixTrapezoidal;
+  using autoware::common::osqp::CSC_Matrix;
+  using autoware::common::osqp::calCSCMatrixTrapezoidal;
 
   Eigen::MatrixXd square1(2, 2);
   Eigen::MatrixXd square2(3, 3);
@@ -170,10 +170,10 @@ TEST(test_csc_matrix_conv, trapezoidal) {
   }
 }
 TEST(test_csc_matrix_conv, print) {
-  using common::osqp::CSC_Matrix;
-  using common::osqp::printCSCMatrix;
-  using common::osqp::calCSCMatrix;
-  using common::osqp::calCSCMatrixTrapezoidal;
+  using autoware::common::osqp::CSC_Matrix;
+  using autoware::common::osqp::printCSCMatrix;
+  using autoware::common::osqp::calCSCMatrix;
+  using autoware::common::osqp::calCSCMatrixTrapezoidal;
   Eigen::MatrixXd square1(2, 2);
   Eigen::MatrixXd rect1(1, 2);
   square1 << 1.0, 2.0, 2.0, 4.0;

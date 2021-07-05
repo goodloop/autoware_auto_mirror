@@ -36,14 +36,14 @@ TEST(test_osqp_interface, basic_qp) {
 
   {
     // Define problem after initialization
-    common::osqp::OSQPInterface osqp;
+    autoware::common::osqp::OSQPInterface osqp;
     Eigen::MatrixXd P(2, 2);
     P << 4, 1, 1, 2;
     Eigen::MatrixXd A(2, 4);
     A << 1, 1, 1, 0, 0, 1, 0, 1;
     std::vector<double> q = {1.0, 1.0};
-    std::vector<double> l = {1.0, 0.0, 0.0, -common::osqp::INF};
-    std::vector<double> u = {1.0, 0.7, 0.7, common::osqp::INF};
+    std::vector<double> l = {1.0, 0.0, 0.0, -autoware::common::osqp::INF};
+    std::vector<double> u = {1.0, 0.7, 0.7, autoware::common::osqp::INF};
     std::tuple<std::vector<double>, std::vector<double>, int, int> result = osqp.optimize(
       P, A, q, l, u);
     check_result(result);
@@ -55,9 +55,9 @@ TEST(test_osqp_interface, basic_qp) {
     Eigen::MatrixXd A(2, 4);
     A << 1, 1, 1, 0, 0, 1, 0, 1;
     std::vector<double> q = {1.0, 1.0};
-    std::vector<double> l = {1.0, 0.0, 0.0, -common::osqp::INF};
-    std::vector<double> u = {1.0, 0.7, 0.7, common::osqp::INF};
-    common::osqp::OSQPInterface osqp(P, A, q, l, u, 1e-6);
+    std::vector<double> l = {1.0, 0.0, 0.0, -autoware::common::osqp::INF};
+    std::vector<double> u = {1.0, 0.7, 0.7, autoware::common::osqp::INF};
+    autoware::common::osqp::OSQPInterface osqp(P, A, q, l, u, 1e-6);
     std::tuple<std::vector<double>, std::vector<double>, int, int> result = osqp.optimize();
     check_result(result);
   }
@@ -69,7 +69,7 @@ TEST(test_osqp_interface, basic_qp) {
     std::vector<double> q(2);
     std::vector<double> l(4);
     std::vector<double> u(4);
-    common::osqp::OSQPInterface osqp(P, A, q, l, u, 1e-6);
+    autoware::common::osqp::OSQPInterface osqp(P, A, q, l, u, 1e-6);
     osqp.optimize();
     // Redefine problem
     Eigen::MatrixXd P_new(2, 2);
@@ -77,8 +77,8 @@ TEST(test_osqp_interface, basic_qp) {
     Eigen::MatrixXd A_new(2, 4);
     A_new << 1, 1, 1, 0, 0, 1, 0, 1;
     std::vector<double> q_new = {1.0, 1.0};
-    std::vector<double> l_new = {1.0, 0.0, 0.0, -common::osqp::INF};
-    std::vector<double> u_new = {1.0, 0.7, 0.7, common::osqp::INF};
+    std::vector<double> l_new = {1.0, 0.0, 0.0, -autoware::common::osqp::INF};
+    std::vector<double> u_new = {1.0, 0.7, 0.7, autoware::common::osqp::INF};
     osqp.updateP(P_new);
     osqp.updateA(A_new);
     osqp.updateQ(q_new);
@@ -99,7 +99,7 @@ TEST(test_osqp_interface_update, smoke_test)
   std::vector<double> q(2);
   std::vector<double> l(4);
   std::vector<double> u(4);
-  common::osqp::OSQPInterface osqp(P, A, q, l, u, 1e-6);
+  autoware::common::osqp::OSQPInterface osqp(P, A, q, l, u, 1e-6);
   osqp.updateL({-2.0, -2.0, -2.0, -2.0});
   osqp.updateU({2.0, 2.0, 2.0, 2.0});
   // lower bound higher than the upper bound generates an error message

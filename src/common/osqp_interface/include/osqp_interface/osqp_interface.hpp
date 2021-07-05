@@ -27,6 +27,8 @@
 #include "osqp_interface/csc_matrix_conv.hpp"
 
 
+namespace autoware
+{
 namespace common
 {
 namespace osqp
@@ -153,5 +155,6 @@ public:
 
 }  // namespace osqp
 }  // namespace common
+}  // namespace autoware
 
 #endif  // OSQP_INTERFACE__OSQP_INTERFACE_HPP_

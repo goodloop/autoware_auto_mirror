@@ -24,6 +24,8 @@
 #include "osqp_interface/csc_matrix_conv.hpp"
 #include "osqp_interface/osqp_interface.hpp"
 
+namespace autoware
+{
 namespace common
 {
 namespace osqp
@@ -256,3 +258,4 @@ std::tuple<std::vector<double>, std::vector<double>, int, int> OSQPInterface::op
 
 }  // namespace osqp
 }  // namespace common
+}  // namespace autoware

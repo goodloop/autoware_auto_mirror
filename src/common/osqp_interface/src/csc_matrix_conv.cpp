@@ -20,6 +20,8 @@
 #include "eigen3/Eigen/SparseCore"
 #include "osqp_interface/csc_matrix_conv.hpp"
 
+namespace autoware
+{
 namespace common
 {
 namespace osqp
@@ -135,3 +137,4 @@ void printCSCMatrix(const CSC_Matrix & csc_mat)
 
 }  // namespace osqp
 }  // namespace common
+}  // namespace autoware

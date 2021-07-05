@@ -21,6 +21,8 @@
 #include "eigen3/Eigen/Core"
 #include "osqp_interface/visibility_control.hpp"
 
+namespace autoware
+{
 namespace common
 {
 namespace osqp
@@ -45,5 +47,6 @@ OSQP_INTERFACE_PUBLIC void printCSCMatrix(const CSC_Matrix & csc_mat);
 
 }  // namespace osqp
 }  // namespace common
+}  // namespace autoware
 
 #endif  // OSQP_INTERFACE__CSC_MATRIX_CONV_HPP_
