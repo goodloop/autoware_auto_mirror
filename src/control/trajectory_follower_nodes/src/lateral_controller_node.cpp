@@ -327,7 +327,8 @@ bool MPCFollower::getData(const trajectory_follower::MPCTrajectory & traj, MPCDa
     m_current_pose_ptr->pose,
     data->nearest_pose);
   data->yaw_err = trajectory_follower::MPCUtils::normalizeRadian(
-    tf2::getYaw(m_current_pose_ptr->pose.orientation) - tf2::getYaw(data->nearest_pose.orientation));
+    tf2::getYaw(m_current_pose_ptr->pose.orientation) -
+    tf2::getYaw(data->nearest_pose.orientation));
 
   /* get predicted steer */
   if (!m_steer_prediction_prev) {
@@ -507,10 +508,10 @@ bool MPCFollower::updateStateForDelayCompensation(
     double k = 0.0;
     double v = 0.0;
     if (
-      !trajectory_follower::LinearInterpolate::interpolate(
+      !trajectory_follower::linearInterpolate(
         traj.relative_time, traj.k,
         mpc_curr_time, k) ||
-      !trajectory_follower::LinearInterpolate::interpolate(
+      !trajectory_follower::linearInterpolate(
         traj.relative_time, traj.vx,
         mpc_curr_time, v))
     {
@@ -536,7 +537,8 @@ bool MPCFollower::updateStateForDelayCompensation(
 trajectory_follower::MPCTrajectory MPCFollower::applyVelocityDynamicsFilter(
   const trajectory_follower::MPCTrajectory & input, const double v0)
 {
-  int nearest_idx = trajectory_follower::MPCUtils::calcNearestIndex(input, m_current_pose_ptr->pose);
+  int nearest_idx =
+    trajectory_follower::MPCUtils::calcNearestIndex(input, m_current_pose_ptr->pose);
   if (nearest_idx < 0) {return input;}
 
   const double alim = m_mpc_param.acceleration_limit;
@@ -826,7 +828,8 @@ void MPCFollower::addSteerWeightF(Eigen::MatrixXd * f_ptr) const
 
 double MPCFollower::getPredictionTime() const
 {
-  return (m_mpc_param.prediction_horizon - 1) * m_mpc_param.prediction_dt + m_mpc_param.input_delay +
+  return (m_mpc_param.prediction_horizon - 1) * m_mpc_param.prediction_dt +
+         m_mpc_param.input_delay +
          m_ctrl_period;
 }
 
@@ -1062,7 +1065,8 @@ void MPCFollower::initTimer(double period_s)
 
 void MPCFollower::declareMPCparameters()
 {
-  m_mpc_param.prediction_horizon = static_cast<int>(declare_parameter("mpc_prediction_horizon", 50));
+  m_mpc_param.prediction_horizon =
+    static_cast<int>(declare_parameter("mpc_prediction_horizon", 50));
   m_mpc_param.prediction_dt = declare_parameter("mpc_prediction_dt", 0.1);
   m_mpc_param.weight_lat_error = declare_parameter("mpc_weight_lat_error", 0.1);
   m_mpc_param.weight_heading_error = declare_parameter("mpc_weight_heading_error", 0.0);
