@@ -66,12 +66,14 @@ if(BUILD_TESTING)
   ament_lint_auto_find_test_dependencies()
 
   # Unit tests
-  # set(TEST_SOURCES
-  # )
-  # set(TEST_LATERAL_CONTROLLER_EXE test_trajectory_follower)
-  # ament_add_gtest(${TEST_LATERAL_CONTROLLER_EXE} ${TEST_SOURCES})
-  # autoware_set_compile_options(${TEST_LATERAL_CONTROLLER_EXE})
-  # target_link_libraries(${TEST_LATERAL_CONTROLLER_EXE} ${LATERAL_CONTROLLER_LIB})
+  set(TEST_SOURCES
+    test/test_mpc_trajectory.cpp
+    test/test_interpolate.cpp
+  )
+  set(TEST_LATERAL_CONTROLLER_EXE test_trajectory_follower)
+  ament_add_gtest(${TEST_LATERAL_CONTROLLER_EXE} ${TEST_SOURCES})
+  autoware_set_compile_options(${TEST_LATERAL_CONTROLLER_EXE})
+  target_link_libraries(${TEST_LATERAL_CONTROLLER_EXE} ${LATERAL_CONTROLLER_LIB})
 endif()
 
 # ament package generation and installing
