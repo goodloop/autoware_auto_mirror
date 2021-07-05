@@ -41,7 +41,7 @@ public:
    * @param [in] fvec parameter matrix in object function
    * @param [in] A parameter matrix for constraint lbA < A*U < ubA
    * @param [in] lb parameter matrix for constraint lb < U < ub
-   * @param [in] up parameter matrix for constraint lb < U < ub
+   * @param [in] ub parameter matrix for constraint lb < U < ub
    * @param [in] lbA parameter matrix for constraint lbA < A*U < ubA
    * @param [in] ubA parameter matrix for constraint lbA < A*U < ubA
    * @param [out] U optimal variable vector

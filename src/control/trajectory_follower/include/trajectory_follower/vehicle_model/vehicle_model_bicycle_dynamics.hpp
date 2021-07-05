@@ -12,13 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/**
- * @file vehicle_model_bicycle_dynamics.h
- * @brief vehicle model class of bicycle dynamics
- * @author Takamasa Horibe, Yutaka Shimizu
- * @date 2019.05.01
- */
-
 /*
  *    Representation
  * e      : lateral error
@@ -65,7 +58,7 @@ namespace control
 namespace trajectory_follower
 {
 /**
- * @class vehicle model class of bicycle dynamics
+ * Vehicle model class of bicycle dynamics
  * @brief calculate model-related values
  */
 class TRAJECTORY_FOLLOWER_PUBLIC DynamicsBicycleModel : public VehicleModelInterface
@@ -104,7 +97,7 @@ public:
 
   /**
    * @brief calculate reference input
-   * @param [out] reference input
+   * @param [out] Uref input
    */
   void calculateReferenceInput(Eigen::MatrixXd & Uref) override;
 

@@ -27,7 +27,7 @@ namespace control
 namespace trajectory_follower
 {
 /**
- * @class trajectory class for mpc follower
+ * Trajectory class for mpc follower
  * @brief calculate control command to follow reference waypoints
  */
 class TRAJECTORY_FOLLOWER_PUBLIC MPCTrajectory

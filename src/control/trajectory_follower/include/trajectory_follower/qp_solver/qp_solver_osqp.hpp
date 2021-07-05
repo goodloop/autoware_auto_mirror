@@ -47,7 +47,7 @@ public:
    * @param [in] fvec parameter matrix in object function
    * @param [in] A parameter matrix for constraint lbA < A*U < ubA (not used here)
    * @param [in] lb parameter matrix for constraint lb < U < ub (not used here)
-   * @param [in] up parameter matrix for constraint lb < U < ub (not used here)
+   * @param [in] ub parameter matrix for constraint lb < U < ub (not used here)
    * @param [in] lbA parameter matrix for constraint lbA < A*U < ubA (not used here)
    * @param [in] ubA parameter matrix for constraint lbA < A*U < ubA (not used here)
    * @param [out] U optimal variable vector
@@ -59,7 +59,7 @@ public:
     const Eigen::VectorXd & ubA, Eigen::VectorXd & U) override;
 
 private:
-  common::osqp::OSQPInterface osqpsolver_;
+  autoware::common::osqp::OSQPInterface osqpsolver_;
   rclcpp::Logger logger_;
 };
 }  // namespace trajectory_follower

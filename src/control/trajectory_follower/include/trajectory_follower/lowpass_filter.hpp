@@ -29,11 +29,7 @@ namespace control
 namespace trajectory_follower
 {
 /**
- * @class 2nd-order Butterworth Filter
- * @brief filtering values
- */
-
-/*
+ * @brief 2nd-order Butterworth Filter
  * reference : S. Butterworth, "On the Theory of Filter Amplifier", Experimental wireless, 1930.
  */
 
@@ -102,8 +98,7 @@ public:
 };
 
 /**
- * @class Move Average Filter
- * @brief filtering values
+ * @brief Move Average Filter
  */
 class TRAJECTORY_FOLLOWER_PUBLIC MoveAverageFilter
 {

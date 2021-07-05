@@ -54,7 +54,7 @@ TRAJECTORY_FOLLOWER_PUBLIC geometry_msgs::msg::Quaternion getQuaternionFromYaw(c
 
 /**
  * @brief normalize angle into [-pi to pi]
- * @param [in] _angle input angle
+ * @param [in] angle input angle
  * @return normalized angle
  */
 TRAJECTORY_FOLLOWER_PUBLIC double normalizeRadian(const double angle);
@@ -120,7 +120,8 @@ TRAJECTORY_FOLLOWER_PUBLIC bool calcTrajectoryCurvature(
 /**
  * @brief Calculate path curvature by 3-points circle fitting with smoothing num (use nearest 3 points when num = 1)
  * @param [in] curvature_smoothing_num index distance for 3 points for curvature calculation
- * @param [inout] curvature vector
+ * @param [in] traj input trajectory
+ * @return vector of curvatures at each point of the given trajectory
  */
 TRAJECTORY_FOLLOWER_PUBLIC std::vector<double> calcTrajectoryCurvature(
   const size_t curvature_smoothing_num, const MPCTrajectory & traj);

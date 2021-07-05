@@ -12,13 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/**
- * @file vehicle_model_interface.h
- * @brief vehicle model interface class
- * @author Takamasa Horibe
- * @date 2019.05.01
- */
-
 #ifndef TRAJECTORY_FOLLOWER__VEHICLE_MODEL__VEHICLE_MODEL_INTERFACE_HPP_
 #define TRAJECTORY_FOLLOWER__VEHICLE_MODEL__VEHICLE_MODEL_INTERFACE_HPP_
 
@@ -32,7 +25,7 @@ namespace control
 namespace trajectory_follower
 {
 /**
- * @class vehicle model class
+ * Vehicle model class
  * @brief calculate model-related values
  */
 class TRAJECTORY_FOLLOWER_PUBLIC VehicleModelInterface
@@ -78,7 +71,7 @@ public:
 
   /**
    * @brief set velocity
-   * @param [in] vehicle velocity
+   * @param [in] velocity vehicle velocity
    */
   void setVelocity(const double & velocity);
 
@@ -102,7 +95,7 @@ public:
 
   /**
    * @brief calculate reference input
-   * @param [out] reference input
+   * @param [out] Uref input
    */
   virtual void calculateReferenceInput(Eigen::MatrixXd & Uref) = 0;
 };
