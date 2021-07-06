@@ -23,6 +23,7 @@
 #include <Eigen/Geometry>
 #include <geometry/interval.hpp>
 #include <list>
+#include <algorithm>
 #include "visibility_control.hpp"
 
 namespace autoware
@@ -48,6 +49,72 @@ struct CameraIntrinsics
   float32_t skew{0.0F};
 };
 
+template<typename PointT>
+struct Line
+{
+  PointT anchor;
+  PointT direction;
+};
+
+template<typename ScalarT, std::size_t N, typename PointT>
+void filter_outer_points_and_clamp(
+  Projection & projection,
+  const common::geometry::Interval<ScalarT> & width_interval,
+  const common::geometry::Interval<ScalarT> & heigh_interval,
+  std::array<Line<PointT>, N> image_boundary_lines
+)
+{
+  using Interval = common::geometry::Interval<ScalarT>;
+  const auto on_image = [&width_interval, &heigh_interval](const auto & pt) {
+      return Interval::contains(width_interval, pt.x()) &&
+             Interval::contains(heigh_interval, pt.y());
+    };
+
+  auto & points2d = projection.shape;
+  const auto firs_pt = points2d.front();
+
+  const auto hull_end = points2d.end();
+  auto hull_it = points2d.begin();
+
+  while (hull_it != hull_end) {
+    const auto & pt = *hull_it;
+    const auto next_it = std::next(hull_it);
+    const auto & next_pt = (next_it != hull_end) ? *next_it : firs_pt;
+
+    if (!on_image(pt)) {
+      const Eigen::Vector3f hull_edge_direction = next_pt - pt;
+      // Find intersections between the hull edge and the image edges
+      for (const auto & edge : image_boundary_lines) {
+        try {
+          const auto edge_intersection = common::geometry::intersection_2d(
+            pt, hull_edge_direction, edge.anchor, edge.direction);
+          Interval image_edge_x_interval{
+            std::min(edge.anchor.x(), edge.anchor.x() + edge.direction.x()),
+            std::max(edge.anchor.x(), edge.anchor.x() + edge.direction.x())};
+
+          Interval hull_edge_x_interval{
+            std::min(pt.x(), next_pt.x()),
+            std::max(pt.x(), next_pt.x())};
+
+          if (on_image(edge_intersection) &&
+            Interval::contains(image_edge_x_interval, edge_intersection.x()) &&
+            Interval::contains(hull_edge_x_interval, edge_intersection.x()))
+          {
+            points2d.push_front(edge_intersection);
+          }
+        } catch (const std::runtime_error & e) {
+          // No intersection could be found because lines are parallel.
+          continue;
+        }
+      }
+      // Remove the point from the hull
+      points2d.erase(hull_it);
+    }
+    hull_it = next_it;
+  }
+  common::geometry::convex_hull(projection.shape);
+}
+
 /// \brief This model represents a camera in 3D space and can project 3D shapes into an image
 // frame.
 class TRACKING_PUBLIC CameraModel
@@ -57,6 +124,7 @@ public:
   using float64_t = common::types::float64_t;
   using float32_t = common::types::float32_t;
   using Interval = common::geometry::Interval<float32_t>;
+  using Point32 = geometry_msgs::msg::Point32;
 
   /// \brief Cnstructor
   /// \param intrinsics Camera intrinsics
@@ -79,6 +147,7 @@ private:
   Eigen::Transform<float32_t, 3, Eigen::Affine, Eigen::ColMajor> m_projector;
   Interval m_height_interval;
   Interval m_width_interval;
+  std::array<Line<Eigen::Vector3f>, 4U> m_image_boundary_lines;
 };
 
 }  // namespace tracking
