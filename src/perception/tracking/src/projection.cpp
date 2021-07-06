@@ -14,6 +14,7 @@
 
 #include <tracking/projection.hpp>
 #include <tf2_eigen/tf2_eigen.h>
+#include <algorithm>
 
 namespace autoware
 {
@@ -38,6 +39,18 @@ CameraModel::CameraModel(
   Eigen::Transform<float32_t, 3U, Eigen::Affine> eig_camera_to_ego_tf;
   eig_camera_to_ego_tf = tf2::transformToEigen(tf_ego_to_camera).cast<float32_t>();
   m_projector = intrinsic_matrix * eig_camera_to_ego_tf;
+
+  std::array<Eigen::Vector3f, 4U> corners{
+    Eigen::Vector3f{Interval::min(m_width_interval), Interval::max(m_height_interval), 0.0F},
+    Eigen::Vector3f{Interval::max(m_width_interval), Interval::max(m_height_interval), 0.0F},
+    Eigen::Vector3f{Interval::max(m_width_interval), Interval::min(m_height_interval), 0.0F},
+    Eigen::Vector3f{Interval::min(m_width_interval), Interval::min(m_height_interval), 0.0F}
+  };
+
+  for (auto i = 0U; i < corners.size(); ++i) {
+    const auto next_idx = (i == corners.size() - 1U) ? 0U : i + 1U;
+    m_image_boundary_lines[i] = {corners[i], (corners[next_idx] - corners[i])};
+  }
 }
 
 Projection CameraModel::project(const autoware_auto_msgs::msg::Shape & shape)
@@ -55,9 +68,6 @@ Projection CameraModel::project(const autoware_auto_msgs::msg::Shape & shape)
       pt_2d = pt_2d / depth;
       // Only accept points are in front of the camera
       if (depth > 0.0F) {
-        // Clamp points outside of the image plane
-        pt_2d.x() = Interval::clamp_to(m_width_interval, pt_2d.x());
-        pt_2d.y() = Interval::clamp_to(m_height_interval, pt_2d.y());
         points2d.emplace_back(pt_2d);
       }
     }
@@ -66,6 +76,10 @@ Projection CameraModel::project(const autoware_auto_msgs::msg::Shape & shape)
   const auto & end_of_shape_it = common::geometry::convex_hull(points2d);
   // Discard the internal points of the shape
   points2d.resize(static_cast<uint32_t>(std::distance(points2d.cbegin(), end_of_shape_it)));
+
+  filter_outer_points_and_clamp(
+    result, m_width_interval, m_height_interval,
+    m_image_boundary_lines);
   return result;
 }
 

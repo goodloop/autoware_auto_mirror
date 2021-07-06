@@ -102,7 +102,6 @@ void compare_shapes(
 
     const auto projected_pt_it =
       projected_pts.find(Eigen::Vector3f{expected_projected_x, expected_projected_y, 0.0F});
-    std::cout << expected_projected_x << ", " << expected_projected_y << std::endl;
     EXPECT_NE(projected_pt_it, projected_pts.end());
   }
 }
@@ -227,7 +226,7 @@ TEST_F(PrismProjectionTest, out_of_plane_test) {
         static_cast<float32_t>(intrinsics.width) / 2.0F, pt.x(),
         std::numeric_limits<float32_t>::epsilon());
     });
-  EXPECT_NE(res_it, projection.shape.end());
+  ASSERT_NE(res_it, projection.shape.end());
   // Compare rest of the points.
   projection.shape.erase(res_it);
   rectangular_prism.polygon.points.erase(rectangular_prism.polygon.points.begin());
