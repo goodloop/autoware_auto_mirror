@@ -33,11 +33,11 @@ namespace trajectory_follower
 class TRAJECTORY_FOLLOWER_PUBLIC VehicleModelInterface
 {
 protected:
-  const int dim_x_;   //!< @brief dimension of state x
-  const int dim_u_;   //!< @brief dimension of input u
-  const int dim_y_;   //!< @brief dimension of output y
-  double velocity_;   //!< @brief vehicle velocity
-  double curvature_;  //!< @brief curvature on the linearized point on path
+  const int m_dim_x;   //!< @brief dimension of state x
+  const int m_dim_u;   //!< @brief dimension of input u
+  const int m_dim_y;   //!< @brief dimension of output y
+  double m_velocity;   //!< @brief vehicle velocity
+  double m_curvature;  //!< @brief curvature on the linearized point on path
 
 public:
   /**

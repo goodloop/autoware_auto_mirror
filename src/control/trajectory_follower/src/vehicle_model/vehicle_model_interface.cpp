@@ -23,14 +23,14 @@ namespace control
 namespace trajectory_follower
 {
 VehicleModelInterface::VehicleModelInterface(int dim_x, int dim_u, int dim_y)
-: dim_x_(dim_x), dim_u_(dim_u), dim_y_(dim_y)
+: m_dim_x(dim_x), m_dim_u(dim_u), m_dim_y(dim_y)
 {
 }
-int VehicleModelInterface::getDimX() {return dim_x_;}
-int VehicleModelInterface::getDimU() {return dim_u_;}
-int VehicleModelInterface::getDimY() {return dim_y_;}
-void VehicleModelInterface::setVelocity(const double & velocity) {velocity_ = velocity;}
-void VehicleModelInterface::setCurvature(const double & curvature) {curvature_ = curvature;}
+int VehicleModelInterface::getDimX() {return m_dim_x;}
+int VehicleModelInterface::getDimU() {return m_dim_u;}
+int VehicleModelInterface::getDimY() {return m_dim_y;}
+void VehicleModelInterface::setVelocity(const double & velocity) {m_velocity = velocity;}
+void VehicleModelInterface::setCurvature(const double & curvature) {m_curvature = curvature;}
 }  // namespace trajectory_follower
 }  // namespace control
 }  // namespace motion

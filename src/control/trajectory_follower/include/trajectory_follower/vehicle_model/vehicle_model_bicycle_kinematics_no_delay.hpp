@@ -90,8 +90,8 @@ public:
   void calculateReferenceInput(Eigen::MatrixXd & Uref) override;
 
 private:
-  double wheelbase_;  //!< @brief wheelbase length [m]
-  double steer_lim_;  //!< @brief steering angle limit [rad]
+  double m_wheelbase;  //!< @brief wheelbase length [m]
+  double m_steer_lim;  //!< @brief steering angle limit [rad]
 };
 }  // namespace trajectory_follower
 }  // namespace control

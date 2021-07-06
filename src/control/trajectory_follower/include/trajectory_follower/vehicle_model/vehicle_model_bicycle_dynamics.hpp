@@ -105,13 +105,13 @@ public:
   void calculateReferenceInput(Eigen::MatrixXd & Uref) override;
 
 private:
-  double wheelbase_;  //!< @brief wheelbase length [m]
-  double lf_;         //!< @brief length from center of mass to front wheel [m]
-  double lr_;         //!< @brief length from center of mass to rear wheel [m]
-  double mass_;       //!< @brief total mass of vehicle [kg]
-  double iz_;         //!< @brief moment of inertia [kg * m2]
-  double cf_;         //!< @brief front cornering power [N/rad]
-  double cr_;         //!< @brief rear cornering power [N/rad]
+  double m_wheelbase;  //!< @brief wheelbase length [m]
+  double m_lf;         //!< @brief length from center of mass to front wheel [m]
+  double m_lr;         //!< @brief length from center of mass to rear wheel [m]
+  double m_mass;       //!< @brief total mass of vehicle [kg]
+  double m_iz;         //!< @brief moment of inertia [kg * m2]
+  double m_cf;         //!< @brief front cornering power [N/rad]
+  double m_cr;         //!< @brief rear cornering power [N/rad]
 };
 }  // namespace trajectory_follower
 }  // namespace control

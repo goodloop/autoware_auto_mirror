@@ -30,17 +30,17 @@ DynamicsBicycleModel::DynamicsBicycleModel(
   const double & cf, const double & cr)
 : VehicleModelInterface(/* dim_x */ 4, /* dim_u */ 1, /* dim_y */ 2)
 {
-  wheelbase_ = wheelbase;
+  m_wheelbase = wheelbase;
 
   const double mass_front = mass_fl + mass_fr;
   const double mass_rear = mass_rl + mass_rr;
 
-  mass_ = mass_front + mass_rear;
-  lf_ = wheelbase_ * (1.0 - mass_front / mass_);
-  lr_ = wheelbase_ * (1.0 - mass_rear / mass_);
-  iz_ = lf_ * lf_ * mass_front + lr_ * lr_ * mass_rear;
-  cf_ = cf;
-  cr_ = cr;
+  m_mass = mass_front + mass_rear;
+  m_lf = m_wheelbase * (1.0 - mass_front / m_mass);
+  m_lr = m_wheelbase * (1.0 - mass_rear / m_mass);
+  m_iz = m_lf * m_lf * mass_front + m_lr * m_lr * mass_rear;
+  m_cf = cf;
+  m_cr = cr;
 }
 
 void DynamicsBicycleModel::calculateDiscreteMatrix(
@@ -51,48 +51,49 @@ void DynamicsBicycleModel::calculateDiscreteMatrix(
    * x[k+1] = Ad*x[k] + Bd*u + Wd
    */
 
-  const double vel = std::max(velocity_, 0.01);
+  const double vel = std::max(m_velocity, 0.01);
 
-  Ad = Eigen::MatrixXd::Zero(dim_x_, dim_x_);
+  Ad = Eigen::MatrixXd::Zero(m_dim_x, m_dim_x);
   Ad(0, 1) = 1.0;
-  Ad(1, 1) = -(cf_ + cr_) / (mass_ * vel);
-  Ad(1, 2) = (cf_ + cr_) / mass_;
-  Ad(1, 3) = (lr_ * cr_ - lf_ * cf_) / (mass_ * vel);
+  Ad(1, 1) = -(m_cf + m_cr) / (m_mass * vel);
+  Ad(1, 2) = (m_cf + m_cr) / m_mass;
+  Ad(1, 3) = (m_lr * m_cr - m_lf * m_cf) / (m_mass * vel);
   Ad(2, 3) = 1.0;
-  Ad(3, 1) = (lr_ * cr_ - lf_ * cf_) / (iz_ * vel);
-  Ad(3, 2) = (lf_ * cf_ - lr_ * cr_) / iz_;
-  Ad(3, 3) = -(lf_ * lf_ * cf_ + lr_ * lr_ * cr_) / (iz_ * vel);
+  Ad(3, 1) = (m_lr * m_cr - m_lf * m_cf) / (m_iz * vel);
+  Ad(3, 2) = (m_lf * m_cf - m_lr * m_cr) / m_iz;
+  Ad(3, 3) = -(m_lf * m_lf * m_cf + m_lr * m_lr * m_cr) / (m_iz * vel);
 
-  Eigen::MatrixXd I = Eigen::MatrixXd::Identity(dim_x_, dim_x_);
+  Eigen::MatrixXd I = Eigen::MatrixXd::Identity(m_dim_x, m_dim_x);
   Eigen::MatrixXd Ad_inverse = (I - dt * 0.5 * Ad).inverse();
 
   Ad = Ad_inverse * (I + dt * 0.5 * Ad);  // bilinear discretization
 
-  Bd = Eigen::MatrixXd::Zero(dim_x_, dim_u_);
+  Bd = Eigen::MatrixXd::Zero(m_dim_x, m_dim_u);
   Bd(0, 0) = 0.0;
-  Bd(1, 0) = cf_ / mass_;
+  Bd(1, 0) = m_cf / m_mass;
   Bd(2, 0) = 0.0;
-  Bd(3, 0) = lf_ * cf_ / iz_;
+  Bd(3, 0) = m_lf * m_cf / m_iz;
 
-  Wd = Eigen::MatrixXd::Zero(dim_x_, 1);
+  Wd = Eigen::MatrixXd::Zero(m_dim_x, 1);
   Wd(0, 0) = 0.0;
-  Wd(1, 0) = (lr_ * cr_ - lf_ * cf_) / (mass_ * vel) - vel;
+  Wd(1, 0) = (m_lr * m_cr - m_lf * m_cf) / (m_mass * vel) - vel;
   Wd(2, 0) = 0.0;
-  Wd(3, 0) = -(lf_ * lf_ * cf_ + lr_ * lr_ * cr_) / (iz_ * vel);
+  Wd(3, 0) = -(m_lf * m_lf * m_cf + m_lr * m_lr * m_cr) / (m_iz * vel);
 
   Bd = (Ad_inverse * dt) * Bd;
-  Wd = (Ad_inverse * dt * curvature_ * vel) * Wd;
+  Wd = (Ad_inverse * dt * m_curvature * vel) * Wd;
 
-  Cd = Eigen::MatrixXd::Zero(dim_y_, dim_x_);
+  Cd = Eigen::MatrixXd::Zero(m_dim_y, m_dim_x);
   Cd(0, 0) = 1.0;
   Cd(1, 2) = 1.0;
 }
 
 void DynamicsBicycleModel::calculateReferenceInput(Eigen::MatrixXd & Uref)
 {
-  const double vel = std::max(velocity_, 0.01);
-  const double Kv = lr_ * mass_ / (2 * cf_ * wheelbase_) - lf_ * mass_ / (2 * cr_ * wheelbase_);
-  Uref(0, 0) = wheelbase_ * curvature_ + Kv * vel * vel * curvature_;
+  const double vel = std::max(m_velocity, 0.01);
+  const double Kv = m_lr * m_mass / (2 * m_cf * m_wheelbase) - m_lf * m_mass /
+    (2 * m_cr * m_wheelbase);
+  Uref(0, 0) = m_wheelbase * m_curvature + Kv * vel * vel * m_curvature;
 }
 }  // namespace trajectory_follower
 }  // namespace control
