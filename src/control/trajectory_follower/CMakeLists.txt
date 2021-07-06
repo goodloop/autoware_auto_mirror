@@ -27,6 +27,7 @@ set(LATERAL_CONTROLLER_LIB lateral_controller_lib)
 set(LATERAL_CONTROLLER_LIB_SRC
   src/interpolate.cpp
   src/lowpass_filter.cpp
+  src/mpc.cpp
   src/mpc_trajectory.cpp
   src/mpc_utils.cpp
   src/qp_solver/qp_solver_osqp.cpp
@@ -41,6 +42,7 @@ set(LATERAL_CONTROLLER_LIB_HEADERS
   include/trajectory_follower/visibility_control.hpp
   include/trajectory_follower/interpolate.hpp
   include/trajectory_follower/lowpass_filter.hpp
+  include/trajectory_follower/mpc.hpp
   include/trajectory_follower/mpc_trajectory.hpp
   include/trajectory_follower/mpc_utils.hpp
   include/trajectory_follower/qp_solver/qp_solver_interface.hpp

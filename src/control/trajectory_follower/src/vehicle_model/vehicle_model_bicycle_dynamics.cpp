@@ -25,8 +25,9 @@ namespace control
 namespace trajectory_follower
 {
 DynamicsBicycleModel::DynamicsBicycleModel(
-  double & wheelbase, double & mass_fl, double & mass_fr, double & mass_rl, double & mass_rr,
-  double & cf, double & cr)
+  const double & wheelbase, const double & mass_fl, const double & mass_fr, const double & mass_rl,
+  const double & mass_rr,
+  const double & cf, const double & cr)
 : VehicleModelInterface(/* dim_x */ 4, /* dim_u */ 1, /* dim_y */ 2)
 {
   wheelbase_ = wheelbase;
