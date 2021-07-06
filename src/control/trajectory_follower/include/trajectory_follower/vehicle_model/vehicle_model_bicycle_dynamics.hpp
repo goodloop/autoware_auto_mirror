@@ -51,6 +51,8 @@
 #include "eigen3/Eigen/Core"
 #include "eigen3/Eigen/LU"
 
+namespace autoware
+{
 namespace motion
 {
 namespace control
@@ -113,4 +115,5 @@ private:
 }  // namespace trajectory_follower
 }  // namespace control
 }  // namespace motion
+}  // namespace autoware
 #endif  // TRAJECTORY_FOLLOWER__VEHICLE_MODEL__VEHICLE_MODEL_BICYCLE_DYNAMICS_HPP_

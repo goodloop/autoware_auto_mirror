@@ -14,6 +14,8 @@
 
 #include "trajectory_follower/vehicle_model/vehicle_model_bicycle_kinematics_no_delay.hpp"
 
+namespace autoware
+{
 namespace motion
 {
 namespace control
@@ -59,3 +61,4 @@ void KinematicsBicycleModelNoDelay::calculateReferenceInput(Eigen::MatrixXd & Ur
 }  // namespace trajectory_follower
 }  // namespace control
 }  // namespace motion
+}  // namespace autoware

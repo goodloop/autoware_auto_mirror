@@ -14,6 +14,8 @@
 
 #include "trajectory_follower/mpc_trajectory.hpp"
 
+namespace autoware
+{
 namespace motion
 {
 namespace control
@@ -62,3 +64,4 @@ size_t MPCTrajectory::size() const
 }  // namespace trajectory_follower
 }  // namespace control
 }  // namespace motion
+}  // namespace autoware

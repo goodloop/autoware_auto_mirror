@@ -16,6 +16,8 @@
 
 #include <vector>
 
+namespace autoware
+{
 namespace motion
 {
 namespace control
@@ -137,3 +139,4 @@ bool MoveAverageFilter::filt_vector(const int num, std::vector<double> & u)
 }  // namespace trajectory_follower
 }  // namespace control
 }  // namespace motion
+}  // namespace autoware

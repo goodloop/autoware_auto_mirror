@@ -18,7 +18,7 @@
 #include "trajectory_follower/mpc_trajectory.hpp"
 
 TEST(test_mpc_trajectory, nominal) {
-  using motion::control::trajectory_follower::MPCTrajectory;
+  using autoware::motion::control::trajectory_follower::MPCTrajectory;
 
   MPCTrajectory traj;
   EXPECT_EQ(traj.size(), size_t(0));

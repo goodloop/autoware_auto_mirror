@@ -14,6 +14,8 @@
 
 #include "trajectory_follower/qp_solver/qp_solver_unconstr_fast.hpp"
 
+namespace autoware
+{
 namespace motion
 {
 namespace control
@@ -35,3 +37,4 @@ bool QPSolverEigenLeastSquareLLT::solve(
 }  // namespace trajectory_follower
 }  // namespace control
 }  // namespace motion
+}  // namespace autoware

@@ -17,6 +17,8 @@
 #include <string>
 #include <vector>
 
+namespace autoware
+{
 namespace motion
 {
 namespace control
@@ -78,3 +80,4 @@ bool QPSolverOSQP::solve(
 }  // namespace trajectory_follower
 }  // namespace control
 }  // namespace motion
+}  // namespace autoware

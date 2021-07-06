@@ -18,7 +18,7 @@
 #include "trajectory_follower/interpolate.hpp"
 
 TEST(test_interpolate, nominal) {
-  using motion::control::trajectory_follower::linearInterpolate;
+  using autoware::motion::control::trajectory_follower::linearInterpolate;
 
   // Simple case
   {
@@ -54,7 +54,7 @@ TEST(test_interpolate, nominal) {
   }
 }
 TEST(test_interpolate, failure) {
-  using motion::control::trajectory_follower::linearInterpolate;
+  using autoware::motion::control::trajectory_follower::linearInterpolate;
 
   std::vector<double> target_values;
 

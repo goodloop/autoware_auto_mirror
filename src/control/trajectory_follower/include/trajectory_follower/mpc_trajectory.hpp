@@ -20,6 +20,8 @@
 
 #include "trajectory_follower/visibility_control.hpp"
 
+namespace autoware
+{
 namespace motion
 {
 namespace control
@@ -62,4 +64,5 @@ public:
 }  // namespace trajectory_follower
 }  // namespace control
 }  // namespace motion
+}  // namespace autoware
 #endif  // TRAJECTORY_FOLLOWER__MPC_TRAJECTORY_HPP_

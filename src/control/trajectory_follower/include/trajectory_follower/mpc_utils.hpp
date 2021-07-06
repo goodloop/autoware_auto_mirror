@@ -37,6 +37,8 @@
 #include "eigen3/Eigen/Core"
 
 
+namespace autoware
+{
 namespace motion
 {
 namespace control
@@ -158,4 +160,5 @@ TRAJECTORY_FOLLOWER_PUBLIC visualization_msgs::msg::MarkerArray convertTrajToMar
 }  // namespace trajectory_follower
 }  // namespace control
 }  // namespace motion
+}  // namespace autoware
 #endif  // TRAJECTORY_FOLLOWER__MPC_UTILS_HPP_

@@ -19,6 +19,8 @@
 #include <string>
 #include <vector>
 
+namespace autoware
+{
 namespace motion
 {
 namespace control
@@ -310,7 +312,7 @@ bool convertToMPCTrajectory(
     const double x = p.x;
     const double y = p.y;
     const double z = 0.0;
-    const double yaw = motion::motion_common::to_angle(p.heading);
+    const double yaw = ::motion::motion_common::to_angle(p.heading);
     const double vx = p.longitudinal_velocity_mps;
     const double k = 0.0;
     const double t = 0.0;
@@ -333,7 +335,7 @@ bool convertToAutowareTrajectory(
     p.x = static_cast<float>(input.x.at(i));
     p.y = static_cast<float>(input.y.at(i));
     // p.z = 0.0 // TrajectoryPoint does not contain z information
-    p.heading = motion::motion_common::from_angle(input.yaw.at(i));
+    p.heading = ::motion::motion_common::from_angle(input.yaw.at(i));
     p.longitudinal_velocity_mps = static_cast<float>(input.vx.at(i));
     output->points.push_back(p);
   }
@@ -424,7 +426,7 @@ int calcNearestIndex(
     const double dist_squared = dx * dx + dy * dy;
 
     /* ignore when yaw error is large, for crossing path */
-    const double traj_yaw = motion::motion_common::to_angle(traj.points.at(i).heading);
+    const double traj_yaw = ::motion::motion_common::to_angle(traj.points.at(i).heading);
     const double err_yaw = normalizeRadian(my_yaw - traj_yaw);
     if (std::fabs(err_yaw) > (M_PI / 3.0)) {
       continue;
@@ -567,3 +569,4 @@ visualization_msgs::msg::MarkerArray convertTrajToMarker(
 }  // namespace trajectory_follower
 }  // namespace control
 }  // namespace motion
+}  // namespace autoware

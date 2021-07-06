@@ -22,6 +22,8 @@
  * linear interpolation
  */
 
+namespace autoware
+{
 namespace motion
 {
 namespace control
@@ -254,3 +256,4 @@ bool SplineInterpolate::interpolate(
 }  // namespace trajectory_follower
 }  // namespace control
 }  // namespace motion
+}  // namespace autoware

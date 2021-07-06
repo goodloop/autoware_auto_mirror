@@ -14,6 +14,8 @@
 
 #include "trajectory_follower/vehicle_model/vehicle_model_interface.hpp"
 
+namespace autoware
+{
 namespace motion
 {
 namespace control
@@ -32,3 +34,4 @@ void VehicleModelInterface::setCurvature(const double & curvature) {curvature_ =
 }  // namespace trajectory_follower
 }  // namespace control
 }  // namespace motion
+}  // namespace autoware
