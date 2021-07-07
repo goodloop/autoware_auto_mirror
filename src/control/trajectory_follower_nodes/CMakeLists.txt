@@ -64,7 +64,10 @@ if(BUILD_TESTING)
 
   add_ros_test(
     test/test_latlon_muxer_node_launch.py
-    # test/test_lateral_controller_node_launch.py
+    TIMEOUT "30"
+  )
+  add_ros_test(
+    test/test_lateral_controller_node_launch.py
     TIMEOUT "30"
   )
 
