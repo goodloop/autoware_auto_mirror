@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// Co-developed by Tier IV, Inc. and Apex.AI, Inc.
+
 #include <gtest/gtest.h>
 #include <tracking/projection.hpp>
 #include <autoware_auto_msgs/msg/shape.hpp>
@@ -63,46 +65,28 @@ public:
   Shape rectangular_prism;
 };
 
-
-class CantorHashCompare
-{
-public:
-  template<class PointT>
-  float32_t operator()(const PointT & pt1, const PointT & pt2) const
-  {
-    return autoware::common::helper_functions::comparisons::abs_lt(
-      cantor_hash(pt1), cantor_hash(pt2), std::numeric_limits<float32_t>::epsilon());
-  }
-
-private:
-  template<class PointT>
-  float32_t cantor_hash(const PointT & pt) const
-  {
-    return 0.5F * (x_(pt) + y_(pt)) * (x_(pt) + y_(pt) + 1.0F) + y_(pt);
-  }
-};
-
 void compare_shapes(
   const geometry_msgs::msg::Polygon & prism_face,
   const autoware::perception::tracking::Projection & projection,
   const CameraIntrinsics & intrinsics)
 {
-  std::set<Eigen::Vector3f, CantorHashCompare> projected_pts;
-
-  std::copy(
-    projection.shape.begin(), projection.shape.end(),
-    std::inserter(projected_pts, projected_pts.begin()));
-
-  for (auto i = 0U; i < projection.shape.size(); ++i) {
+  for (auto i = 0U; i < prism_face.points.size(); ++i) {
     const auto & pt_3d = prism_face.points[i];
     const auto expected_projected_x =
       (pt_3d.x * intrinsics.fx + pt_3d.y * intrinsics.skew + pt_3d.z * intrinsics.ox) / pt_3d.z;
     const auto expected_projected_y =
       (pt_3d.y * intrinsics.fy + pt_3d.z * intrinsics.oy) / pt_3d.z;
 
-    const auto projected_pt_it =
-      projected_pts.find(Eigen::Vector3f{expected_projected_x, expected_projected_y, 0.0F});
-    EXPECT_NE(projected_pt_it, projected_pts.end());
+    const auto projected_pt_it = std::find_if(
+      projection.shape.begin(), projection.shape.end(),
+      [expected_projected_x, expected_projected_y](const auto & pt) {
+        constexpr auto eps = std::numeric_limits<float32_t>::epsilon();
+        return autoware::common::helper_functions::comparisons::abs_eq(
+          (x_(pt) - expected_projected_x), 0.0F, eps) &&
+        autoware::common::helper_functions::comparisons::abs_eq(
+          (y_(pt) - expected_projected_y), 0.0F, eps);
+      });
+    EXPECT_NE(projected_pt_it, projection.shape.end());
   }
 }
 
@@ -155,21 +139,21 @@ TEST_F(PrismProjectionTest, camera_frame_projection_test) {
 TEST_F(PrismProjectionTest, transformed_camera_frame_test) {
   CameraIntrinsics intrinsics{100, 100, 0.6F, 1.5F, 0.01F, 0.01F, 0.005F};
   // Define where the camera is with respect to the origin
-  Eigen::Transform<float32_t, 3U, Eigen::Affine> camera_to_ego_transform;
-  camera_to_ego_transform.setIdentity();
+  Eigen::Transform<float32_t, 3U, Eigen::Affine> tf_ego_from_camera;
+  tf_ego_from_camera.setIdentity();
   // Translate the camera to view the prism from the side. It's placed to align with the center
   // of the prism
-  camera_to_ego_transform.translate(
+  tf_ego_from_camera.translate(
     Eigen::Vector3f{
     distance_from_origin, 0.0F, distance_from_origin + height / 2.F});
   // The Z axis is looking up, the camera should be rotated over the Y axis to view the prism.
-  camera_to_ego_transform.rotate(
+  tf_ego_from_camera.rotate(
     Eigen::AngleAxisf(autoware::common::types::PI / 2.0F, -Eigen::Vector3f::UnitY()));
   // Invert the transform as the camera model requires ego->camera transform to bring points into
   // the camera frame before projecting.
-  const auto ego_to_camera_transform = camera_to_ego_transform.inverse();
+  const auto tf_camera_from_ego = tf_ego_from_camera.inverse();
   const auto transform =
-    tf2::eigenToTransform(ego_to_camera_transform.cast<float64_t>()).transform;
+    tf2::eigenToTransform(tf_camera_from_ego.cast<float64_t>()).transform;
 
   CameraModel model{intrinsics, transform};
   auto projection = model.project(rectangular_prism);
@@ -212,23 +196,35 @@ TEST_F(PrismProjectionTest, out_of_plane_test) {
   geometry_msgs::msg::Transform identity{};
   identity.rotation.set__w(1.0);
   CameraModel model{intrinsics, identity};
-  // Pull one of the corners of the rectangle to outside of the camera's FoV
+  // Pull two of the corners of the rectangle to outside of the camera's FoV
   rectangular_prism.polygon.points[0U].x +=
+    static_cast<float32_t>(intrinsics.width) * distance_from_origin * 1000.0F;
+  rectangular_prism.polygon.points[1U].x +=
     static_cast<float32_t>(intrinsics.width) * distance_from_origin * 1000.0F;
   // Set the height to 0 to simplify the problem and not handle the rear corners of the prism.
   rectangular_prism.height = 0.0F;
   auto projection = model.project(rectangular_prism);
+
+  const auto check_pt = [&projection](auto x, auto y) {
+      const auto res_it = std::find_if(
+        projection.shape.begin(), projection.shape.end(),
+        [x, y](const auto & pt) {
+          return autoware::common::helper_functions::comparisons::abs_eq(
+            (x - pt.x()), 0.0F, std::numeric_limits<decltype(x)>::epsilon()) &&
+          autoware::common::helper_functions::comparisons::abs_eq(
+            (y - pt.y()), 0.0F, std::numeric_limits<decltype(y)>::epsilon());
+        });
+      ASSERT_NE(res_it, projection.shape.end());
+      projection.shape.erase(res_it);
+    };
   // Check that one of the projected points is clamped to the edge of the image plane as expected
-  const auto res_it = std::find_if(
-    projection.shape.begin(), projection.shape.end(),
-    [&intrinsics](const auto & pt) {
-      return autoware::common::helper_functions::comparisons::abs_eq(
-        static_cast<float32_t>(intrinsics.width) / 2.0F, pt.x(),
-        std::numeric_limits<float32_t>::epsilon());
-    });
-  ASSERT_NE(res_it, projection.shape.end());
-  // Compare rest of the points.
-  projection.shape.erase(res_it);
-  rectangular_prism.polygon.points.erase(rectangular_prism.polygon.points.begin());
+  const auto depth = rectangular_prism.polygon.points.front().z;
+  const auto y2d = (half_length * intrinsics.fy + depth * intrinsics.oy) / depth;
+  check_pt(static_cast<float32_t>(intrinsics.width) / 2.0F, y2d);
+  check_pt(static_cast<float32_t>(intrinsics.width) / 2.0F, -y2d);
+  rectangular_prism.polygon.points.erase(
+    rectangular_prism.polygon.points.begin(),
+    rectangular_prism.polygon.points.begin() + 2U);
+
   compare_shapes(rectangular_prism.polygon, projection, intrinsics);
 }
