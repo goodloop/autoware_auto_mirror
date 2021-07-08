@@ -134,9 +134,7 @@ MPCFollower::MPCFollower(const rclcpp::NodeOptions & node_options)
   {
     const double steering_lpf_cutoff_hz = declare_parameter("steering_lpf_cutoff_hz", 3.0);
     const double error_deriv_lpf_cutoff_hz = declare_parameter("error_deriv_lpf_cutoff_hz", 5.0);
-    m_mpc.m_lpf_steering_cmd.initialize(m_mpc.m_ctrl_period, steering_lpf_cutoff_hz);
-    m_mpc.m_lpf_lateral_error.initialize(m_mpc.m_ctrl_period, error_deriv_lpf_cutoff_hz);
-    m_mpc.m_lpf_yaw_error.initialize(m_mpc.m_ctrl_period, error_deriv_lpf_cutoff_hz);
+    m_mpc.initializeLowPassFilters(steering_lpf_cutoff_hz, error_deriv_lpf_cutoff_hz);
   }
 
   /* set up ros system */
@@ -263,71 +261,9 @@ void MPCFollower::onTrajectory(const autoware_auto_msgs::msg::Trajectory::Shared
     return;
   }
 
-  trajectory_follower::MPCTrajectory mpc_traj_raw;        // received raw trajectory
-  trajectory_follower::MPCTrajectory mpc_traj_resampled;  // resampled trajectory
-  trajectory_follower::MPCTrajectory mpc_traj_smoothed;   // smooth filtered trajectory
-
-  /* resampling */
-  trajectory_follower::MPCUtils::convertToMPCTrajectory(*m_current_trajectory_ptr, &mpc_traj_raw);
-  if (!trajectory_follower::MPCUtils::resampleMPCTrajectoryByDistance(
-      mpc_traj_raw, m_traj_resample_dist, &mpc_traj_resampled))
-  {
-    RCLCPP_WARN(get_logger(), "spline error!!!!!!");
-    return;
-  }
-
-  /* path smoothing */
-  mpc_traj_smoothed = mpc_traj_resampled;
-  int mpc_traj_resampled_size = static_cast<int>(mpc_traj_resampled.size());
-  if (m_enable_path_smoothing && mpc_traj_resampled_size > 2 * m_path_filter_moving_ave_num) {
-    if (
-      !trajectory_follower::MoveAverageFilter::filt_vector(
-        m_path_filter_moving_ave_num,
-        mpc_traj_smoothed.x) ||
-      !trajectory_follower::MoveAverageFilter::filt_vector(
-        m_path_filter_moving_ave_num,
-        mpc_traj_smoothed.y) ||
-      !trajectory_follower::MoveAverageFilter::filt_vector(
-        m_path_filter_moving_ave_num,
-        mpc_traj_smoothed.yaw) ||
-      !trajectory_follower::MoveAverageFilter::filt_vector(
-        m_path_filter_moving_ave_num,
-        mpc_traj_smoothed.vx))
-    {
-      RCLCPP_DEBUG(get_logger(), "path callback: filtering error. stop filtering.");
-      mpc_traj_smoothed = mpc_traj_resampled;
-    }
-  }
-
-  /* calculate yaw angle */
-  if (m_enable_yaw_recalculation) {
-    trajectory_follower::MPCUtils::calcTrajectoryYawFromXY(&mpc_traj_smoothed);
-    trajectory_follower::MPCUtils::convertEulerAngleToMonotonic(&mpc_traj_smoothed.yaw);
-  }
-
-  /* calculate curvature */
-  trajectory_follower::MPCUtils::calcTrajectoryCurvature(
-    static_cast<size_t>(
-      m_curvature_smoothing_num), &mpc_traj_smoothed);
-
-  /* add end point with vel=0 on traj for mpc prediction */
-  {
-    auto & t = mpc_traj_smoothed;
-    const double t_ext = 100.0;  // extra time to prevent mpc calculation failure due to short time
-    const double t_end = t.relative_time.back() + m_mpc.getPredictionTime() + t_ext;
-    const double v_end = 0.0;
-    t.vx.back() = v_end;  // set for end point
-    t.push_back(
-      t.x.back(), t.y.back(), t.z.back(), t.yaw.back(), v_end, t.k.back(), t.smooth_k.back(),
-      t_end);
-  }
-
-  if (!mpc_traj_smoothed.size()) {
-    RCLCPP_DEBUG(get_logger(), "path callback: trajectory size is undesired.");
-    return;
-  }
-
-  m_mpc.m_ref_traj = mpc_traj_smoothed;
+  m_mpc.setReferenceTrajectory(
+    *msg, m_traj_resample_dist, m_enable_path_smoothing, m_path_filter_moving_ave_num,
+    m_enable_yaw_recalculation, m_curvature_smoothing_num);
 }
 
 void MPCFollower::updateCurrentPose()
