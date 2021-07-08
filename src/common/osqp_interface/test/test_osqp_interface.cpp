@@ -35,7 +35,7 @@ TEST(test_osqp_interface, basic_qp) {
     };
 
   {
-    // Define problem after initialization
+    // Define problem during optimization
     autoware::common::osqp::OSQPInterface osqp;
     Eigen::MatrixXd P(2, 2);
     P << 4, 1, 1, 2;
@@ -66,12 +66,12 @@ TEST(test_osqp_interface, basic_qp) {
     // Dummy initial problem
     Eigen::MatrixXd P = Eigen::MatrixXd::Zero(2, 2);
     Eigen::MatrixXd A = Eigen::MatrixXd::Zero(2, 4);
-    std::vector<double> q(2);
-    std::vector<double> l(4);
-    std::vector<double> u(4);
+    std::vector<double> q(2, 0.0);
+    std::vector<double> l(4, 0.0);
+    std::vector<double> u(4, 0.0);
     autoware::common::osqp::OSQPInterface osqp(P, A, q, l, u, 1e-6);
     osqp.optimize();
-    // Redefine problem
+    // Redefine problem before optimization
     Eigen::MatrixXd P_new(2, 2);
     P_new << 4, 1, 1, 2;
     Eigen::MatrixXd A_new(2, 4);
@@ -79,35 +79,8 @@ TEST(test_osqp_interface, basic_qp) {
     std::vector<double> q_new = {1.0, 1.0};
     std::vector<double> l_new = {1.0, 0.0, 0.0, -autoware::common::osqp::INF};
     std::vector<double> u_new = {1.0, 0.7, 0.7, autoware::common::osqp::INF};
-    osqp.updateP(P_new);
-    osqp.updateA(A_new);
-    osqp.updateQ(q_new);
-    osqp.updateBounds(l_new, u_new);
-    result = osqp.optimize();
-    // TODO(Maxime CLEMENT): wrong result after individually updating the parameters
-    // check_result(result);
     osqp.initializeProblem(P_new, A_new, q_new, l_new, u_new);
     result = osqp.optimize();
     check_result(result);
   }
-}
-
-TEST(test_osqp_interface_update, smoke_test)
-{
-  Eigen::MatrixXd P = Eigen::MatrixXd::Zero(2, 2);
-  Eigen::MatrixXd A = Eigen::MatrixXd::Zero(2, 4);
-  std::vector<double> q(2);
-  std::vector<double> l(4);
-  std::vector<double> u(4);
-  autoware::common::osqp::OSQPInterface osqp(P, A, q, l, u, 1e-6);
-  osqp.updateL({-2.0, -2.0, -2.0, -2.0});
-  osqp.updateU({2.0, 2.0, 2.0, 2.0});
-  // lower bound higher than the upper bound generates an error message
-  osqp.updateL({3.0, 3.0, 3.0, 3.0});
-  osqp.updateEpsAbs(0.5);
-  osqp.updateEpsRel(0.1);
-  osqp.updateMaxIter(100);
-  osqp.updateRhoInterval(1);
-  osqp.updateVerbose(true);
-  osqp.updateVerbose(false);
 }

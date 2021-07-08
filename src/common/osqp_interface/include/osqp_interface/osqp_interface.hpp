@@ -126,45 +126,23 @@ public:
     const Eigen::MatrixXd & P, const Eigen::MatrixXd & A, const std::vector<double> & q,
     const std::vector<double> & l, const std::vector<double> & u);
 
-  /// \param P_new (n,n) matrix defining relations between parameters
-  void updateP(const Eigen::MatrixXd & P_new);
-  /// \param A_new (m,n) matrix defining parameter constraints relative to the lower and upper bound
-  void updateA(const Eigen::MatrixXd & A_new);
-  /// \param q_new (n) vector defining the linear cost of the problem
-  void updateQ(const std::vector<double> & q_new);
-  /// \param l_new (m) vector defining the lower bound problem constraint (must be <= to the upper bound)
-  void updateL(const std::vector<double> & l_new);
-  /// \param u_new (m) vector defining the upper bound problem constraint (must be >= to the lower bound)
-  void updateU(const std::vector<double> & u_new);
-  /// \brief Update the lower and upper bounds of the problem
-  /// \param l_new (m) vector defining the lower bound problem constraint (must be <= to the upper bound)
-  /// \param u_new (m) vector defining the upper bound problem constraint (must be >= to the lower bound)
-  void updateBounds(const std::vector<double> & l_new, const std::vector<double> & u_new);
-  /// \brief Update the absolute epsilon value
-  void updateEpsAbs(const double eps_abs);
-  /// \brief Update the relative epsilon value
-  void updateEpsRel(const double eps_rel);
-  /// \brief Update the maximum number of iteration
-  void updateMaxIter(const int iter);
-  /// \brief Update the verbosity
-  void updateVerbose(const bool verbose);
-  /// \brief Update the rho interval
-  void updateRhoInterval(const int rho_interval);
-
   /// \brief Get the number of iteration taken to solve the problem
-  int getTakenIter() const {return static_cast<int>(m_latest_work_info.iter);}
+  inline int getTakenIter() const {return static_cast<int>(m_latest_work_info.iter);}
   /// \brief Get the status message for the latest problem solved
-  std::string getStatusMessage() const {return static_cast<std::string>(m_latest_work_info.status);}
+  inline std::string getStatusMessage() const
+  {
+    return static_cast<std::string>(m_latest_work_info.status);
+  }
   /// \brief Get the status value for the latest problem solved
-  int getStatus() const {return static_cast<int>(m_latest_work_info.status_val);}
+  inline int getStatus() const {return static_cast<int>(m_latest_work_info.status_val);}
   /// \brief Get the status polish for the latest problem solved
-  int getStatusPolish() const {return static_cast<int>(m_latest_work_info.status_polish);}
+  inline int getStatusPolish() const {return static_cast<int>(m_latest_work_info.status_polish);}
   /// \brief Get the runtime of the latest problem solved
-  double getRunTime() const {return m_latest_work_info.run_time;}
+  inline double getRunTime() const {return m_latest_work_info.run_time;}
   /// \brief Get the objective value the latest problem solved
-  double getObjVal() const {return m_latest_work_info.obj_val;}
+  inline double getObjVal() const {return m_latest_work_info.obj_val;}
   /// \brief Returns flag asserting interface condition (Healthy condition: 0).
-  c_int getExitFlag() const {return m_exitflag;}
+  inline c_int getExitFlag() const {return m_exitflag;}
 };
 
 }  // namespace osqp
