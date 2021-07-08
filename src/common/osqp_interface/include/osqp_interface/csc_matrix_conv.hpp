@@ -42,7 +42,7 @@ struct OSQP_INTERFACE_PUBLIC CSC_Matrix
 OSQP_INTERFACE_PUBLIC CSC_Matrix calCSCMatrix(const Eigen::MatrixXd & mat);
 /// \brief Calculate upper trapezoidal CSC matrix from square Eigen matrix
 OSQP_INTERFACE_PUBLIC CSC_Matrix calCSCMatrixTrapezoidal(const Eigen::MatrixXd & mat);
-
+/// \brief Print the given CSC matrix to the standard output
 OSQP_INTERFACE_PUBLIC void printCSCMatrix(const CSC_Matrix & csc_mat);
 
 }  // namespace osqp
