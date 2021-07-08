@@ -107,6 +107,82 @@ bool MPC::calculateMPC(
   return true;
 }
 
+void MPC::setReferenceTrajectory(
+  const autoware_auto_msgs::msg::Trajectory & trajectory_msg,
+  const double traj_resample_dist,
+  const bool enable_path_smoothing,
+  const int path_filter_moving_ave_num,
+  const bool enable_yaw_recalculation,
+  const int curvature_smoothing_num)
+{
+  trajectory_follower::MPCTrajectory mpc_traj_raw;        // received raw trajectory
+  trajectory_follower::MPCTrajectory mpc_traj_resampled;  // resampled trajectory
+  trajectory_follower::MPCTrajectory mpc_traj_smoothed;   // smooth filtered trajectory
+
+  /* resampling */
+  trajectory_follower::MPCUtils::convertToMPCTrajectory(trajectory_msg, &mpc_traj_raw);
+  if (!trajectory_follower::MPCUtils::resampleMPCTrajectoryByDistance(
+      mpc_traj_raw, traj_resample_dist, &mpc_traj_resampled))
+  {
+    RCLCPP_WARN(m_logger, "[setReferenceTrajectory] spline error when resampling by distance");
+    return;
+  }
+
+  /* path smoothing */
+  mpc_traj_smoothed = mpc_traj_resampled;
+  const int mpc_traj_resampled_size = static_cast<int>(mpc_traj_resampled.size());
+  if (enable_path_smoothing && mpc_traj_resampled_size > 2 * path_filter_moving_ave_num) {
+    if (
+      !trajectory_follower::MoveAverageFilter::filt_vector(
+        path_filter_moving_ave_num,
+        mpc_traj_smoothed.x) ||
+      !trajectory_follower::MoveAverageFilter::filt_vector(
+        path_filter_moving_ave_num,
+        mpc_traj_smoothed.y) ||
+      !trajectory_follower::MoveAverageFilter::filt_vector(
+        path_filter_moving_ave_num,
+        mpc_traj_smoothed.yaw) ||
+      !trajectory_follower::MoveAverageFilter::filt_vector(
+        path_filter_moving_ave_num,
+        mpc_traj_smoothed.vx))
+    {
+      RCLCPP_DEBUG(m_logger, "path callback: filtering error. stop filtering.");
+      mpc_traj_smoothed = mpc_traj_resampled;
+    }
+  }
+
+  /* calculate yaw angle */
+  if (enable_yaw_recalculation) {
+    trajectory_follower::MPCUtils::calcTrajectoryYawFromXY(&mpc_traj_smoothed);
+    trajectory_follower::MPCUtils::convertEulerAngleToMonotonic(&mpc_traj_smoothed.yaw);
+  }
+
+  /* calculate curvature */
+  trajectory_follower::MPCUtils::calcTrajectoryCurvature(
+    static_cast<size_t>(
+      curvature_smoothing_num),
+    &mpc_traj_smoothed);
+
+  /* add end point with vel=0 on traj for mpc prediction */
+  {
+    auto & t = mpc_traj_smoothed;
+    const double t_ext = 100.0;  // extra time to prevent mpc calculation failure due to short time
+    const double t_end = t.relative_time.back() + getPredictionTime() + t_ext;
+    const double v_end = 0.0;
+    t.vx.back() = v_end;  // set for end point
+    t.push_back(
+      t.x.back(), t.y.back(), t.z.back(), t.yaw.back(), v_end, t.k.back(), t.smooth_k.back(),
+      t_end);
+  }
+
+  if (!mpc_traj_smoothed.size()) {
+    RCLCPP_DEBUG(m_logger, "path callback: trajectory size is undesired.");
+    return;
+  }
+
+  m_ref_traj = mpc_traj_smoothed;
+}
+
 bool MPC::getData(
   const trajectory_follower::MPCTrajectory & traj,
   const autoware_auto_msgs::msg::VehicleKinematicState & current_steer,
