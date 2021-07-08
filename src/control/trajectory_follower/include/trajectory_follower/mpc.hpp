@@ -40,10 +40,7 @@
 #include "autoware_auto_msgs/msg/trajectory.hpp"
 #include "autoware_auto_msgs/msg/vehicle_kinematic_state.hpp"
 #include "osqp_interface/osqp_interface.hpp"
-
 #include "geometry_msgs/msg/pose.hpp"
-#include "geometry_msgs/msg/pose_stamped.hpp"
-#include "geometry_msgs/msg/twist_stamped.hpp"
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp_components/register_node_macro.hpp"
 
@@ -150,7 +147,7 @@ private:
   //!< @brief ROS logger used for debug logging
   rclcpp::Logger m_logger = rclcpp::get_logger("mpc_logger");
   //!< @brief ROS clock
-  rclcpp::Clock::SharedPtr m_clock = std::make_shared<rclcpp::Clock>();
+  rclcpp::Clock::SharedPtr m_clock = std::make_shared<rclcpp::Clock>(RCL_ROS_TIME);
 
   //!< @brief vehicle model type for MPC
   std::string m_vehicle_model_type;

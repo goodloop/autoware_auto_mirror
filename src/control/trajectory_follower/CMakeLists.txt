@@ -69,6 +69,7 @@ if(BUILD_TESTING)
 
   # Unit tests
   set(TEST_SOURCES
+    test/test_mpc.cpp
     test/test_mpc_trajectory.cpp
     test/test_interpolate.cpp
   )

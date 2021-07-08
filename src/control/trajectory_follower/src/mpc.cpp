@@ -35,7 +35,6 @@ namespace trajectory_follower
 {
 using namespace std::chrono_literals;
 
-// TODO(Frederik.Beaujean) This method is too long, could be refactored into many smaller units
 bool MPC::calculateMPC(
   const autoware_auto_msgs::msg::VehicleKinematicState & current_steer,
   const double current_velocity,
@@ -737,6 +736,7 @@ bool MPC::isValid(const MPCMatrix & m) const
   return true;
 }
 
+// TODO(Maxime CLEMENT): move to utils
 double MPC::calcStopDistance(
   const autoware_auto_msgs::msg::Trajectory & current_trajectory,
   const int origin) const
