@@ -18,11 +18,6 @@ This packages provides a C++ interface for the [OSQP library](https://osqp.org/d
 The class `OSQPInterface` takes a problem formulation as Eigen matrices and vectors, converts these objects into
 C-style Compressed-Column-Sparse matrices and dynamic arrays, loads the data into the OSQP workspace dataholder, and runs the optimizer.
 
-## Assumptions / Known limits
-<!-- Required -->
-Updating individual parameters of the problem (`updateP`, `updateA`, `updateQ`, etc) does not work.
-Please use `osqp.initializeProblem(P_new, A_new, q_new, l_new, u_new)` to update all parameters at once instead.
-
 ## Inputs / Outputs / API
 <!-- Required -->
 <!-- Things to consider:
