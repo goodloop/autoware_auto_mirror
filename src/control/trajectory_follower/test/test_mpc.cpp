@@ -363,6 +363,42 @@ TEST_F(MPCTest, dynamic_calculate) {
   EXPECT_EQ(ctrl_cmd.steering_tire_rotation_rate, 0.0f);
 }
 
+TEST_F(MPCTest, multi_solve_with_buffer) {
+  trajectory_follower::MPC mpc;
+  const std::string vehicle_model_type = "kinematics";
+  std::shared_ptr<trajectory_follower::VehicleModelInterface> vehicle_model_ptr =
+    std::make_shared<trajectory_follower::KinematicsBicycleModel>(
+    wheelbase, steer_limit,
+    steer_tau);
+  mpc.setVehicleModel(vehicle_model_ptr, vehicle_model_type);
+  std::shared_ptr<trajectory_follower::QPSolverInterface> qpsolver_ptr =
+    std::make_shared<trajectory_follower::QPSolverEigenLeastSquareLLT>();
+  mpc.setQPSolver(qpsolver_ptr);
+
+  // Init parameters and reference trajectory
+  initializeMPC(mpc);
+
+  mpc.m_input_buffer = {0.0, 0.0, 0.0};
+  // Calculate MPC
+  AckermannLateralCommand ctrl_cmd;
+  ASSERT_TRUE(mpc.calculateMPC(neutral_steer, default_velocity, pose_zero, ctrl_cmd));
+  EXPECT_EQ(ctrl_cmd.steering_tire_angle, 0.0f);
+  EXPECT_EQ(ctrl_cmd.steering_tire_rotation_rate, 0.0f);
+  EXPECT_EQ(mpc.m_input_buffer.size(), size_t(3));
+  ASSERT_TRUE(mpc.calculateMPC(neutral_steer, default_velocity, pose_zero, ctrl_cmd));
+  EXPECT_EQ(ctrl_cmd.steering_tire_angle, 0.0f);
+  EXPECT_EQ(ctrl_cmd.steering_tire_rotation_rate, 0.0f);
+  EXPECT_EQ(mpc.m_input_buffer.size(), size_t(3));
+  ASSERT_TRUE(mpc.calculateMPC(neutral_steer, default_velocity, pose_zero, ctrl_cmd));
+  EXPECT_EQ(ctrl_cmd.steering_tire_angle, 0.0f);
+  EXPECT_EQ(ctrl_cmd.steering_tire_rotation_rate, 0.0f);
+  EXPECT_EQ(mpc.m_input_buffer.size(), size_t(3));
+  ASSERT_TRUE(mpc.calculateMPC(neutral_steer, default_velocity, pose_zero, ctrl_cmd));
+  EXPECT_EQ(ctrl_cmd.steering_tire_angle, 0.0f);
+  EXPECT_EQ(ctrl_cmd.steering_tire_rotation_rate, 0.0f);
+  EXPECT_EQ(mpc.m_input_buffer.size(), size_t(3));
+}
+
 TEST(test_mpc, calcStopDistance) {
   using autoware::motion::control::trajectory_follower::MPC;
   using autoware_auto_msgs::msg::Trajectory;
