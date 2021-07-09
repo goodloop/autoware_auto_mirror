@@ -71,6 +71,7 @@ if(BUILD_TESTING)
   set(TEST_SOURCES
     test/test_mpc.cpp
     test/test_mpc_trajectory.cpp
+    test/test_mpc_utils.cpp
     test/test_interpolate.cpp
   )
   set(TEST_LATERAL_CONTROLLER_EXE test_trajectory_follower)

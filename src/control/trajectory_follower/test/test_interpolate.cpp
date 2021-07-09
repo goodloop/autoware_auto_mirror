@@ -52,6 +52,19 @@ TEST(test_interpolate, nominal) {
     EXPECT_EQ(target_values[1], 3.0);
     EXPECT_EQ(target_values[2], 3.5);
   }
+  // Single index query
+  {
+    std::vector<double> original_indexes = {1.0, 1.5, 3.0};
+    std::vector<double> original_values = {1.0, 2.0, 3.5};
+    double target_index = 1.25;
+    double target_value;
+
+    ASSERT_TRUE(
+      linearInterpolate(
+        original_indexes, original_values, target_index,
+        target_value));
+    EXPECT_EQ(target_value, 1.5);
+  }
 }
 TEST(test_interpolate, failure) {
   using autoware::motion::control::trajectory_follower::linearInterpolate;
@@ -82,11 +95,11 @@ TEST(test_interpolate, failure) {
   ASSERT_FALSE(
     linearInterpolate(
       {1.0, 2.0, 2.5, 3.0}, {1.0, 2.0, 3.0},
-      {1.0, 3.5}, target_values));
+      {1.0, 1.5}, target_values));
   ASSERT_FALSE(
     linearInterpolate(
       {1.0, 2.0, 3.0}, {1.0, 2.0, 3.0, 4.0},
-      {1.0, 3.5}, target_values));
+      {1.0, 1.5}, target_values));
 
   // Input size 0
   ASSERT_FALSE(linearInterpolate({}, {}, {1.0, 3.5}, target_values));
