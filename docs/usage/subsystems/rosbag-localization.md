@@ -28,3 +28,10 @@ Localization Demo using rosbag {#rosbag-localization-howto}
    ```{bash}
    > ros2 launch -s autoware_demos localization_rosbag.launch.py
    ```
+
+5. Using the Rviz tool "2D Pose Estimate" provide an initial pose estimate for localization:
+
+@image html images/localization-rosbag-initialization-location.png "Rosbag Initialization Point" width=800px
+
+Once localized, the vehicle should drive to the parking spot and then proceed to park. Once parked,
+the vehicle should exit the parking spot then proceed back towards the start point.
