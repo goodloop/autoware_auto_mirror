@@ -73,6 +73,7 @@ if(BUILD_TESTING)
     test/test_mpc_trajectory.cpp
     test/test_mpc_utils.cpp
     test/test_interpolate.cpp
+    test/test_lowpass_filter.cpp
   )
   set(TEST_LATERAL_CONTROLLER_EXE test_trajectory_follower)
   ament_add_gtest(${TEST_LATERAL_CONTROLLER_EXE} ${TEST_SOURCES})

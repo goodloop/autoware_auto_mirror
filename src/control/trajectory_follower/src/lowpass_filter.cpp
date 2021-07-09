@@ -33,43 +33,44 @@ Butterworth2dFilter::~Butterworth2dFilter() {}
 
 void Butterworth2dFilter::initialize(const double & dt, const double & f_cutoff_hz)
 {
-  y1_ = 0.0;
-  y2_ = 0.0;
-  u2_ = 0.0;
-  u1_ = 0.0;
+  m_y1 = 0.0;
+  m_y2 = 0.0;
+  m_u2 = 0.0;
+  m_u1 = 0.0;
 
   /* 2d butterworth lowpass filter with bi-linear transformation */
   double wc = 2.0 * M_PI * f_cutoff_hz;
   double n = 2 / dt;
-  a0_ = n * n + sqrt(2) * wc * n + wc * wc;
-  a1_ = 2 * wc * wc - 2 * n * n;
-  a2_ = n * n - sqrt(2) * wc * n + wc * wc;
-  b0_ = wc * wc;
-  b1_ = 2 * b0_;
-  b2_ = b0_;
+  m_a0 = n * n + sqrt(2) * wc * n + wc * wc;
+  m_a1 = 2 * wc * wc - 2 * n * n;
+  m_a2 = n * n - sqrt(2) * wc * n + wc * wc;
+  m_b0 = wc * wc;
+  m_b1 = 2 * m_b0;
+  m_b2 = m_b0;
 }
 
 double Butterworth2dFilter::filter(const double & u0)
 {
-  double y0 = (b2_ * u2_ + b1_ * u1_ + b0_ * u0 - a2_ * y2_ - a1_ * y1_) / a0_;
-  y2_ = y1_;
-  y1_ = y0;
-  u2_ = u1_;
-  u1_ = u0;
+  double y0 = (m_b2 * m_u2 + m_b1 * m_u1 + m_b0 * u0 - m_a2 * m_y2 - m_a1 * m_y1) / m_a0;
+  m_y2 = m_y1;
+  m_y1 = y0;
+  m_u2 = m_u1;
+  m_u1 = u0;
   return y0;
 }
 
-void Butterworth2dFilter::filt_vector(const std::vector<double> & /* t */, std::vector<double> & u)
+void Butterworth2dFilter::filt_vector(const std::vector<double> & t, std::vector<double> & u) const
 {
-  double y1 = u.at(0);
-  double y2 = u.at(0);
-  double u2 = u.at(0);
-  double u1 = u.at(0);
+  u.resize(t.size());
+  double y1 = t.at(0);
+  double y2 = t.at(0);
+  double u2 = t.at(0);
+  double u1 = t.at(0);
   double y0 = 0.0;
   double u0 = 0.0;
-  for (unsigned int i = 0; i < u.size(); ++i) {
-    u0 = u.at(i);
-    y0 = (b2_ * u2 + b1_ * u1 + b0_ * u0 - a2_ * y2 - a1_ * y1) / a0_;
+  for (unsigned int i = 0; i < t.size(); ++i) {
+    u0 = t.at(i);
+    y0 = (m_b2 * u2 + m_b1 * u1 + m_b0 * u0 - m_a2 * y2 - m_a1 * y1) / m_a0;
     y2 = y1;
     y1 = y0;
     u2 = u1;
@@ -79,39 +80,44 @@ void Butterworth2dFilter::filt_vector(const std::vector<double> & /* t */, std::
 }
 
 // filtering forward and backward direction
-void Butterworth2dFilter::filtfilt_vector(const std::vector<double> & t, std::vector<double> & u)
+void Butterworth2dFilter::filtfilt_vector(
+  const std::vector<double> & t,
+  std::vector<double> & u) const
 {
-  std::vector<double> u_rev(u);
+  std::vector<double> t_fwd(t);
+  std::vector<double> t_rev(t);
 
   // forward filtering
-  filt_vector(t, u);
+  filt_vector(t, t_fwd);
 
   // backward filtering
-  std::reverse(u_rev.begin(), u_rev.end());
-  filt_vector(t, u_rev);
-  std::reverse(u_rev.begin(), u_rev.end());
+  std::reverse(t_rev.begin(), t_rev.end());
+  filt_vector(t, t_rev);
+  std::reverse(t_rev.begin(), t_rev.end());
 
   // merge
-  for (unsigned int i = 0; i < u.size(); ++i) {
-    u[i] = (u[i] + u_rev[i]) * 0.5;
+  u.clear();
+  for (size_t i = 0; i < t.size(); ++i) {
+    u.push_back((t_fwd[i] + t_rev[i]) * 0.5);
   }
 }
 
-void Butterworth2dFilter::getCoefficients(std::vector<double> & coeffs)
+void Butterworth2dFilter::getCoefficients(std::vector<double> & coeffs) const
 {
   coeffs.clear();
-  coeffs.push_back(a0_);
-  coeffs.push_back(a1_);
-  coeffs.push_back(a2_);
-  coeffs.push_back(b0_);
-  coeffs.push_back(b1_);
-  coeffs.push_back(b2_);
+  coeffs.push_back(m_a0);
+  coeffs.push_back(m_a1);
+  coeffs.push_back(m_a2);
+  coeffs.push_back(m_b0);
+  coeffs.push_back(m_b1);
+  coeffs.push_back(m_b2);
 }
 
-bool MoveAverageFilter::filt_vector(const int num, std::vector<double> & u)
+namespace MoveAverageFilter
+{
+bool filt_vector(const int num, std::vector<double> & u)
 {
   if (static_cast<int>(u.size()) < num) {
-    // std::cout << "[MovingAverageFilter] vector size is lower than moving average number" << std::endl;  // NOLINT
     return false;
   }
   std::vector<double> filtered_u(u);
@@ -136,6 +142,7 @@ bool MoveAverageFilter::filt_vector(const int num, std::vector<double> & u)
   u = filtered_u;
   return true;
 }
+}  // namespace MoveAverageFilter
 }  // namespace trajectory_follower
 }  // namespace control
 }  // namespace motion
