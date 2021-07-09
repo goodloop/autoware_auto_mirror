@@ -201,11 +201,12 @@ private:
   void storeSteerCmd(const double steer);
   /**
    * @brief set initial condition for mpc
-   * @param [in] mpc data
+   * @param [in] data mpc data
    */
   Eigen::VectorXd getInitialState(const MPCData & data);
   /**
    * @brief update status for delay compensation
+   * @param [in] traj MPCTrajectory to follow
    * @param [in] start_time start time for update
    * @param [out] x updated state at delayed_time
    */
@@ -219,6 +220,8 @@ private:
   MPCMatrix generateMPCMatrix(const trajectory_follower::MPCTrajectory & reference_trajectory);
   /**
    * @brief generate MPC matrix with trajectory and vehicle model
+   * @param [in] mpc_matrix parameters matrix to use for optimization
+   * @param [in] x0 initial state vector
    * @param [out] Uex optimized input vector
    */
   bool executeOptimization(
@@ -326,7 +329,10 @@ public:
   MPC() = default;
   /**
    * @brief calculate control command by MPC algorithm
-   * @param [out] cmd calculated control command with mpc algorithm
+   * @param [in] current_steer current steering of the vehicle
+   * @param [in] current_velocity current velocity of the vehicle [m/s]
+   * @param [in] current_pose current pose of the vehicle
+   * @param [out] ctrl_cmd control command calculated with mpc algorithm
    */
   bool calculateMPC(
     const autoware_auto_msgs::msg::VehicleKinematicState & current_steer,
