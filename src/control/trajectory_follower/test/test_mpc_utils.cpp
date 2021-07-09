@@ -69,31 +69,4 @@ TEST(test_mpc_utils, calculate_distance) {
   EXPECT_EQ(MPCUtils::calcDist3d(p1.pose.position, p2.pose.position), std::sqrt(200.0));
 }
 
-/* cppcheck-suppress syntaxError */
-TEST(test_mpc_utils, splineInterpMPCTrajectory) {
-  std::vector<double> in_index = {0.0, 1.0, 2.0};
-  std::vector<double> out_index = {0.5, 1.5};
-  MPCTrajectory traj;
-  traj.push_back(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
-  traj.push_back(1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0);
-  traj.push_back(2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0);
-  MPCTrajectory out_traj;
-  MPCUtils::splineInterpMPCTrajectory(in_index, traj, out_index, &out_traj);
-  ASSERT_EQ(out_traj.size(), out_index.size());
-  // NOTE: only the relative_time value is not interpolated
-  EXPECT_EQ(out_traj.x[0], 0.5);
-  EXPECT_EQ(out_traj.y[0], 0.5);
-  EXPECT_EQ(out_traj.z[0], 0.5);
-  EXPECT_EQ(out_traj.yaw[0], 0.5);
-  EXPECT_EQ(out_traj.vx[0], 0.5);
-  EXPECT_EQ(out_traj.k[0], 0.5);
-  EXPECT_EQ(out_traj.smooth_k[0], 0.5);
-  EXPECT_EQ(out_traj.x[1], 1.5);
-  EXPECT_EQ(out_traj.y[1], 1.5);
-  EXPECT_EQ(out_traj.z[1], 1.5);
-  EXPECT_EQ(out_traj.yaw[1], 1.5);
-  EXPECT_EQ(out_traj.vx[1], 1.5);
-  EXPECT_EQ(out_traj.k[1], 1.5);
-  EXPECT_EQ(out_traj.smooth_k[1], 1.5);
-}
 }  // namespace

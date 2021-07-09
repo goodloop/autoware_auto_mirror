@@ -96,9 +96,6 @@ TRAJECTORY_FOLLOWER_PUBLIC bool resampleMPCTrajectoryByDistance(
 TRAJECTORY_FOLLOWER_PUBLIC bool linearInterpMPCTrajectory(
   const std::vector<double> & in_index, const MPCTrajectory & in_traj,
   const std::vector<double> & out_index, MPCTrajectory * out_traj);
-TRAJECTORY_FOLLOWER_PUBLIC bool splineInterpMPCTrajectory(
-  const std::vector<double> & in_index, const MPCTrajectory & in_traj,
-  const std::vector<double> & out_index, MPCTrajectory * out_traj);
 TRAJECTORY_FOLLOWER_PUBLIC bool calcMPCTrajectoryTime(MPCTrajectory * traj);
 TRAJECTORY_FOLLOWER_PUBLIC void dynamicSmoothingVelocity(
   const size_t start_idx, const double start_vel, const double acc_lim, const double tau,
