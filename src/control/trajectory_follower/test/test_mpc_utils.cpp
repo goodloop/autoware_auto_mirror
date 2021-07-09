@@ -28,7 +28,6 @@
 namespace
 {
 namespace MPCUtils = ::autoware::motion::control::trajectory_follower::MPCUtils;
-typedef autoware::motion::control::trajectory_follower::MPCTrajectory MPCTrajectory;
 typedef autoware_auto_msgs::msg::Trajectory Trajectory;
 typedef autoware_auto_msgs::msg::TrajectoryPoint TrajectoryPoint;
 typedef geometry_msgs::msg::Pose Pose;
@@ -69,4 +68,25 @@ TEST(test_mpc_utils, calculate_distance) {
   EXPECT_EQ(MPCUtils::calcDist3d(p1.pose.position, p2.pose.position), std::sqrt(200.0));
 }
 
+/* cppcheck-suppress syntaxError */
+TEST(test_mpc_utils, calcNearestIndex) {
+  Pose pose;
+  pose.position.x = 0.0;
+  pose.position.y = 0.0;
+  Trajectory trajectory;
+  TrajectoryPoint p;
+  p.x = -2.0;
+  p.y = 1.0;
+  trajectory.points.push_back(p);
+  p.x = -1.0;
+  p.y = 1.0;
+  trajectory.points.push_back(p);
+  p.x = 0.0;
+  p.y = 1.0;
+  trajectory.points.push_back(p);
+  p.x = 1.0;
+  p.y = 1.0;
+  trajectory.points.push_back(p);
+  EXPECT_EQ(MPCUtils::calcNearestIndex(trajectory, pose), 2);
+}
 }  // namespace

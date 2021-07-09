@@ -279,26 +279,6 @@ bool convertToMPCTrajectory(
   return true;
 }
 
-bool convertToAutowareTrajectory(
-  const MPCTrajectory & input, autoware_auto_msgs::msg::Trajectory * output)
-{
-  if (!output) {
-    return false;
-  }
-
-  output->points.clear();
-  for (size_t i = 0; i < input.size(); ++i) {
-    autoware_auto_msgs::msg::TrajectoryPoint p;
-    p.x = static_cast<float>(input.x.at(i));
-    p.y = static_cast<float>(input.y.at(i));
-    // p.z = 0.0 // TrajectoryPoint does not contain z information
-    p.heading = ::motion::motion_common::from_angle(input.yaw.at(i));
-    p.longitudinal_velocity_mps = static_cast<float>(input.vx.at(i));
-    output->points.push_back(p);
-  }
-  return true;
-}
-
 bool calcMPCTrajectoryTime(MPCTrajectory * traj)
 {
   if (!traj) {
@@ -465,62 +445,6 @@ bool calcNearestPoseInterp(
   *nearest_time = alpha * traj.relative_time[*nearest_index] +
     (1 - alpha) * traj.relative_time[second_nearest_index];
   return true;
-}
-
-visualization_msgs::msg::MarkerArray convertTrajToMarker(
-  const MPCTrajectory & traj, std::string ns, float r, float g, float b, float z,
-  const std::string & frame_id, const builtin_interfaces::msg::Time & stamp)
-{
-  visualization_msgs::msg::MarkerArray markers;
-
-  // generate line
-  visualization_msgs::msg::Marker marker;
-  marker.header.frame_id = frame_id;
-  marker.header.stamp = stamp;
-  marker.ns = ns + "/line";
-  marker.id = 0;
-  marker.type = visualization_msgs::msg::Marker::LINE_STRIP;
-  marker.action = visualization_msgs::msg::Marker::ADD;
-  marker.scale.x = 0.15f;
-  marker.color.a = 0.9f;
-  marker.color.r = r;
-  marker.color.g = g;
-  marker.color.b = b;
-  marker.pose.orientation.w = 1.0f;
-  for (size_t i = 0; i < traj.x.size(); ++i) {
-    geometry_msgs::msg::Point p;
-    p.x = traj.x.at(i);
-    p.y = traj.y.at(i);
-    p.z = static_cast<float>(traj.z.at(i)) + z;
-    marker.points.push_back(p);
-  }
-  markers.markers.push_back(marker);
-
-  // generate poses
-  visualization_msgs::msg::Marker marker_poses;
-  marker_poses.header.frame_id = frame_id;
-  marker_poses.header.stamp = stamp;
-  marker_poses.ns = ns + "/poses";
-  marker_poses.lifetime = rclcpp::Duration::from_seconds(0.5);
-  marker_poses.type = visualization_msgs::msg::Marker::ARROW;
-  marker_poses.action = visualization_msgs::msg::Marker::ADD;
-  marker_poses.scale.x = 0.2f;
-  marker_poses.scale.y = 0.1f;
-  marker_poses.scale.z = 0.2f;
-  marker_poses.color.a = 0.99f;
-  marker_poses.color.r = r;
-  marker_poses.color.g = g;
-  marker_poses.color.b = b;
-  for (size_t i = 0; i < traj.size(); ++i) {
-    marker_poses.id = static_cast<int>(i);
-    marker_poses.pose.position.x = traj.x.at(i);
-    marker_poses.pose.position.y = traj.y.at(i);
-    marker_poses.pose.position.z = traj.z.at(i);
-    marker_poses.pose.orientation = getQuaternionFromYaw(traj.yaw.at(i));
-    markers.markers.push_back(marker_poses);
-  }
-
-  return markers;
 }
 }  // namespace MPCUtils
 }  // namespace trajectory_follower

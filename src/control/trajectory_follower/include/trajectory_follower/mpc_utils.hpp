@@ -29,7 +29,6 @@
 #include "geometry_msgs/msg/pose_stamped.hpp"
 #include "geometry_msgs/msg/twist_stamped.hpp"
 #include "rclcpp/rclcpp.hpp"
-#include "visualization_msgs/msg/marker_array.hpp"
 #include "autoware_auto_msgs/msg/trajectory.hpp"
 #include "autoware_auto_msgs/msg/trajectory_point.hpp"
 #include "motion_common/motion_common.hpp"
@@ -86,8 +85,6 @@ TRAJECTORY_FOLLOWER_PUBLIC double calcLateralError(
 
 TRAJECTORY_FOLLOWER_PUBLIC bool convertToMPCTrajectory(
   const autoware_auto_msgs::msg::Trajectory & input, MPCTrajectory * output);
-TRAJECTORY_FOLLOWER_PUBLIC bool convertToAutowareTrajectory(
-  const MPCTrajectory & input, autoware_auto_msgs::msg::Trajectory * output);
 TRAJECTORY_FOLLOWER_PUBLIC void calcMPCTrajectoryArclength(
   const MPCTrajectory & trajectory,
   std::vector<double> * arclength);
@@ -146,13 +143,6 @@ TRAJECTORY_FOLLOWER_PUBLIC int calcNearestIndex(
   const geometry_msgs::msg::Pose & self_pose);
 TRAJECTORY_FOLLOWER_PUBLIC int calcNearestIndex(
   const autoware_auto_msgs::msg::Trajectory & traj, const geometry_msgs::msg::Pose & self_pose);
-/**
- * @brief convert MPCTraj to visualization marker for visualization
- */
-TRAJECTORY_FOLLOWER_PUBLIC visualization_msgs::msg::MarkerArray convertTrajToMarker(
-  const MPCTrajectory & traj, std::string ns, float r, float g, float b, float z,
-  const std::string & frame_id, const builtin_interfaces::msg::Time & stamp);
-
 }  // namespace MPCUtils
 }  // namespace trajectory_follower
 }  // namespace control
