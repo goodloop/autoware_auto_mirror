@@ -47,8 +47,10 @@ autoware_set_compile_options(${PROJECT_NAME})
 target_compile_options(${PROJECT_NAME} PRIVATE -Wno-error=old-style-cast -Wno-error=useless-cast)
 
 target_include_directories(osqp_interface PUBLIC "${OSQP_INCLUDE_DIR}")
-ament_target_dependencies(osqp_interface Eigen3)
-ament_target_dependencies(osqp_interface osqp_vendor)
+ament_target_dependencies(osqp_interface
+  Eigen3
+  osqp_vendor
+)
 
 # crucial so downstream package builds because osqp_interface exposes osqp.hpp
 ament_export_include_directories("${OSQP_INCLUDE_DIR}")
