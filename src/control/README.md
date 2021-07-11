@@ -23,7 +23,7 @@ regarding the controller may also be packages under this directory.
   - @subpage pure-pursuit
   - @subpage pure-pursuit-nodes
 
-- @subpage trajectory-follower-package-design
+- @subpage trajectory_follower_nodes-package-design
   - @subpage latlon-muxer-design
   - Longitudinal Controller (Not yet implemented)
   - Lateral Controller (Not yet implemented)
