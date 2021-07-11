@@ -30,7 +30,7 @@ namespace common
 {
 namespace osqp
 {
-OSQPInterface::OSQPInterface(const c_float eps_abs, const bool polish)
+OSQPInterface::OSQPInterface(const c_float eps_abs, const bool8_t polish)
 {
   m_settings = std::make_unique<OSQPSettings>();
   m_data = std::make_unique<OSQPData>();

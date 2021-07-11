@@ -36,6 +36,7 @@ namespace osqp
 {
 constexpr c_float INF = OSQP_INFTY;
 typedef autoware::common::types::float64_t float64_t;
+typedef autoware::common::types::bool8_t bool8_t;
 
 /**
  * Implementation of a native C++ interface for the OSQP solver.
@@ -52,7 +53,7 @@ private:
   // Number of parameters to optimize
   c_int m_param_n;
   // Flag to check if the current work exists
-  bool m_work_initialized = false;
+  bool8_t m_work_initialized = false;
   // Exitflag
   c_int m_exitflag;
 
@@ -62,7 +63,7 @@ private:
 public:
   /// \brief Constructor without problem formulation
   explicit OSQPInterface(
-    const c_float eps_abs = std::numeric_limits<c_float>::epsilon(), const bool polish = true);
+    const c_float eps_abs = std::numeric_limits<c_float>::epsilon(), const bool8_t polish = true);
   /// \brief Constructor with problem setup
   /// \param P: (n,n) matrix defining relations between parameters.
   /// \param A: (m,n) matrix defining parameter constraints relative to the lower and upper bound.
