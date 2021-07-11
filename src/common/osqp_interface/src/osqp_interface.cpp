@@ -51,16 +51,16 @@ OSQPInterface::OSQPInterface(const c_float eps_abs, const bool polish)
 }
 
 OSQPInterface::OSQPInterface(
-  const Eigen::MatrixXd & P, const Eigen::MatrixXd & A, const std::vector<double> & q,
-  const std::vector<double> & l, const std::vector<double> & u, const c_float eps_abs)
+  const Eigen::MatrixXd & P, const Eigen::MatrixXd & A, const std::vector<float64_t> & q,
+  const std::vector<float64_t> & l, const std::vector<float64_t> & u, const c_float eps_abs)
 : OSQPInterface(eps_abs)
 {
   initializeProblem(P, A, q, l, u);
 }
 
 c_int OSQPInterface::initializeProblem(
-  const Eigen::MatrixXd & P, const Eigen::MatrixXd & A, const std::vector<double> & q,
-  const std::vector<double> & l, const std::vector<double> & u)
+  const Eigen::MatrixXd & P, const Eigen::MatrixXd & A, const std::vector<float64_t> & q,
+  const std::vector<float64_t> & l, const std::vector<float64_t> & u)
 {
   /*******************
    * SET UP MATRICES
@@ -68,12 +68,12 @@ c_int OSQPInterface::initializeProblem(
   CSC_Matrix P_csc = calCSCMatrixTrapezoidal(P);
   CSC_Matrix A_csc = calCSCMatrix(A);
   // Dynamic float arrays
-  std::vector<double> q_tmp(q.begin(), q.end());
-  std::vector<double> l_tmp(l.begin(), l.end());
-  std::vector<double> u_tmp(u.begin(), u.end());
-  double * q_dyn = q_tmp.data();
-  double * l_dyn = l_tmp.data();
-  double * u_dyn = u_tmp.data();
+  std::vector<float64_t> q_tmp(q.begin(), q.end());
+  std::vector<float64_t> l_tmp(l.begin(), l.end());
+  std::vector<float64_t> u_tmp(u.begin(), u.end());
+  float64_t * q_dyn = q_tmp.data();
+  float64_t * l_dyn = l_tmp.data();
+  float64_t * u_dyn = u_tmp.data();
 
   /**********************
    * OBJECTIVE FUNCTION
@@ -115,7 +115,7 @@ OSQPInterface::~OSQPInterface()
   }
 }
 
-std::tuple<std::vector<double>, std::vector<double>, int, int> OSQPInterface::solve()
+std::tuple<std::vector<float64_t>, std::vector<float64_t>, int, int> OSQPInterface::solve()
 {
   // Solve Problem
   osqp_solve(m_work);
@@ -123,16 +123,16 @@ std::tuple<std::vector<double>, std::vector<double>, int, int> OSQPInterface::so
   /********************
    * EXTRACT SOLUTION
    ********************/
-  double * sol_x = m_work->solution->x;
-  double * sol_y = m_work->solution->y;
-  std::vector<double> sol_primal(sol_x, sol_x + static_cast<int>(m_param_n));
-  std::vector<double> sol_lagrange_multiplier(sol_y, sol_y + static_cast<int>(m_param_n));
+  float64_t * sol_x = m_work->solution->x;
+  float64_t * sol_y = m_work->solution->y;
+  std::vector<float64_t> sol_primal(sol_x, sol_x + static_cast<int>(m_param_n));
+  std::vector<float64_t> sol_lagrange_multiplier(sol_y, sol_y + static_cast<int>(m_param_n));
   // Solver polish status
   c_int status_polish = m_work->info->status_polish;
   // Solver solution status
   c_int status_solution = m_work->info->status_val;
   // Result tuple
-  std::tuple<std::vector<double>, std::vector<double>, int, int> result =
+  std::tuple<std::vector<float64_t>, std::vector<float64_t>, int, int> result =
     std::make_tuple(sol_primal, sol_lagrange_multiplier, status_polish, status_solution);
 
   m_latest_work_info = *(m_work->info);
@@ -140,22 +140,22 @@ std::tuple<std::vector<double>, std::vector<double>, int, int> OSQPInterface::so
   return result;
 }
 
-std::tuple<std::vector<double>, std::vector<double>, int, int> OSQPInterface::optimize()
+std::tuple<std::vector<float64_t>, std::vector<float64_t>, int, int> OSQPInterface::optimize()
 {
   // Run the solver on the stored problem representation.
-  std::tuple<std::vector<double>, std::vector<double>, int, int> result = solve();
+  std::tuple<std::vector<float64_t>, std::vector<float64_t>, int, int> result = solve();
   return result;
 }
 
-std::tuple<std::vector<double>, std::vector<double>, int, int> OSQPInterface::optimize(
-  const Eigen::MatrixXd & P, const Eigen::MatrixXd & A, const std::vector<double> & q,
-  const std::vector<double> & l, const std::vector<double> & u)
+std::tuple<std::vector<float64_t>, std::vector<float64_t>, int, int> OSQPInterface::optimize(
+  const Eigen::MatrixXd & P, const Eigen::MatrixXd & A, const std::vector<float64_t> & q,
+  const std::vector<float64_t> & l, const std::vector<float64_t> & u)
 {
   // Allocate memory for problem
   initializeProblem(P, A, q, l, u);
 
   // Run the solver on the stored problem representation.
-  std::tuple<std::vector<double>, std::vector<double>, int, int> result = solve();
+  std::tuple<std::vector<float64_t>, std::vector<float64_t>, int, int> result = solve();
 
   return result;
 }

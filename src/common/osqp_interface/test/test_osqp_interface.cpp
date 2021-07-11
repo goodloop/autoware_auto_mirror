@@ -20,10 +20,14 @@
 #include "osqp_interface/osqp_interface.hpp"
 
 
+namespace
+{
+using autoware::common::osqp::float64_t;
 /// Problem taken from https://github.com/osqp/osqp/blob/master/tests/basic_qp/generate_problem.py
+// cppcheck-suppress syntaxError
 TEST(test_osqp_interface, basic_qp) {
   auto check_result =
-    [](const std::tuple<std::vector<double>, std::vector<double>, int, int> & result) {
+    [](const std::tuple<std::vector<float64_t>, std::vector<float64_t>, int, int> & result) {
       EXPECT_EQ(std::get<2>(result), 1);
       EXPECT_EQ(std::get<3>(result), 1);
       ASSERT_EQ(std::get<0>(result).size(), size_t(2));
@@ -41,10 +45,10 @@ TEST(test_osqp_interface, basic_qp) {
     P << 4, 1, 1, 2;
     Eigen::MatrixXd A(2, 4);
     A << 1, 1, 1, 0, 0, 1, 0, 1;
-    std::vector<double> q = {1.0, 1.0};
-    std::vector<double> l = {1.0, 0.0, 0.0, -autoware::common::osqp::INF};
-    std::vector<double> u = {1.0, 0.7, 0.7, autoware::common::osqp::INF};
-    std::tuple<std::vector<double>, std::vector<double>, int, int> result = osqp.optimize(
+    std::vector<float64_t> q = {1.0, 1.0};
+    std::vector<float64_t> l = {1.0, 0.0, 0.0, -autoware::common::osqp::INF};
+    std::vector<float64_t> u = {1.0, 0.7, 0.7, autoware::common::osqp::INF};
+    std::tuple<std::vector<float64_t>, std::vector<float64_t>, int, int> result = osqp.optimize(
       P, A, q, l, u);
     check_result(result);
   }
@@ -54,21 +58,21 @@ TEST(test_osqp_interface, basic_qp) {
     P << 4, 1, 1, 2;
     Eigen::MatrixXd A(2, 4);
     A << 1, 1, 1, 0, 0, 1, 0, 1;
-    std::vector<double> q = {1.0, 1.0};
-    std::vector<double> l = {1.0, 0.0, 0.0, -autoware::common::osqp::INF};
-    std::vector<double> u = {1.0, 0.7, 0.7, autoware::common::osqp::INF};
+    std::vector<float64_t> q = {1.0, 1.0};
+    std::vector<float64_t> l = {1.0, 0.0, 0.0, -autoware::common::osqp::INF};
+    std::vector<float64_t> u = {1.0, 0.7, 0.7, autoware::common::osqp::INF};
     autoware::common::osqp::OSQPInterface osqp(P, A, q, l, u, 1e-6);
-    std::tuple<std::vector<double>, std::vector<double>, int, int> result = osqp.optimize();
+    std::tuple<std::vector<float64_t>, std::vector<float64_t>, int, int> result = osqp.optimize();
     check_result(result);
   }
   {
-    std::tuple<std::vector<double>, std::vector<double>, int, int> result;
+    std::tuple<std::vector<float64_t>, std::vector<float64_t>, int, int> result;
     // Dummy initial problem
     Eigen::MatrixXd P = Eigen::MatrixXd::Zero(2, 2);
     Eigen::MatrixXd A = Eigen::MatrixXd::Zero(2, 4);
-    std::vector<double> q(2, 0.0);
-    std::vector<double> l(4, 0.0);
-    std::vector<double> u(4, 0.0);
+    std::vector<float64_t> q(2, 0.0);
+    std::vector<float64_t> l(4, 0.0);
+    std::vector<float64_t> u(4, 0.0);
     autoware::common::osqp::OSQPInterface osqp(P, A, q, l, u, 1e-6);
     osqp.optimize();
     // Redefine problem before optimization
@@ -76,11 +80,12 @@ TEST(test_osqp_interface, basic_qp) {
     P_new << 4, 1, 1, 2;
     Eigen::MatrixXd A_new(2, 4);
     A_new << 1, 1, 1, 0, 0, 1, 0, 1;
-    std::vector<double> q_new = {1.0, 1.0};
-    std::vector<double> l_new = {1.0, 0.0, 0.0, -autoware::common::osqp::INF};
-    std::vector<double> u_new = {1.0, 0.7, 0.7, autoware::common::osqp::INF};
+    std::vector<float64_t> q_new = {1.0, 1.0};
+    std::vector<float64_t> l_new = {1.0, 0.0, 0.0, -autoware::common::osqp::INF};
+    std::vector<float64_t> u_new = {1.0, 0.7, 0.7, autoware::common::osqp::INF};
     osqp.initializeProblem(P_new, A_new, q_new, l_new, u_new);
     result = osqp.optimize();
     check_result(result);
   }
 }
+}  // namespace

@@ -21,6 +21,7 @@
 #include <tuple>
 #include <vector>
 
+#include "common/types.hpp"
 #include "eigen3/Eigen/Core"
 #include "osqp/osqp.h"
 #include "osqp_interface/visibility_control.hpp"
@@ -34,6 +35,7 @@ namespace common
 namespace osqp
 {
 constexpr c_float INF = OSQP_INFTY;
+typedef autoware::common::types::float64_t float64_t;
 
 /**
  * Implementation of a native C++ interface for the OSQP solver.
@@ -55,7 +57,7 @@ private:
   c_int m_exitflag;
 
   // Runs the solver on the stored problem.
-  std::tuple<std::vector<double>, std::vector<double>, int, int> solve();
+  std::tuple<std::vector<float64_t>, std::vector<float64_t>, int, int> solve();
 
 public:
   /// \brief Constructor without problem formulation
@@ -69,8 +71,8 @@ public:
   /// \param u: (m) vector defining the upper bound problem constraint.
   /// \param eps_abs: Absolute convergence tolerance.
   OSQPInterface(
-    const Eigen::MatrixXd & P, const Eigen::MatrixXd & A, const std::vector<double> & q,
-    const std::vector<double> & l, const std::vector<double> & u, const c_float eps_abs);
+    const Eigen::MatrixXd & P, const Eigen::MatrixXd & A, const std::vector<float64_t> & q,
+    const std::vector<float64_t> & l, const std::vector<float64_t> & u, const c_float eps_abs);
   ~OSQPInterface();
 
   /****************
@@ -88,13 +90,13 @@ public:
   /// \details   2. Initialize the interface and set up the problem.
   /// \details        osqp_interface = OSQPInterface(P, A, q, l, u, 1e-6);
   /// \details   3. Call the optimization function.
-  /// \details        std::tuple<std::vector<double>, std::vector<double>> result;
+  /// \details        std::tuple<std::vector<float64_t>, std::vector<float64_t>> result;
   /// \details        result = osqp_interface.optimize();
   /// \details   4. Access the optimized parameters.
   /// \details        std::vector<float> param = std::get<0>(result);
-  /// \details        double x_0 = param[0];
-  /// \details        double x_1 = param[1];
-  std::tuple<std::vector<double>, std::vector<double>, int, int> optimize();
+  /// \details        float64_t x_0 = param[0];
+  /// \details        float64_t x_1 = param[1];
+  std::tuple<std::vector<float64_t>, std::vector<float64_t>, int, int> optimize();
 
   /// \brief Solves convex quadratic programs (QPs) using the OSQP solver.
   /// \return The function returns a tuple containing the solution as two float vectors.
@@ -106,15 +108,15 @@ public:
   /// \details   2. Initialize the interface.
   /// \details        osqp_interface = OSQPInterface(1e-6);
   /// \details   3. Call the optimization function with the problem formulation.
-  /// \details        std::tuple<std::vector<double>, std::vector<double>> result;
+  /// \details        std::tuple<std::vector<float64_t>, std::vector<float64_t>> result;
   /// \details        result = osqp_interface.optimize(P, A, q, l, u, 1e-6);
   /// \details   4. Access the optimized parameters.
   /// \details        std::vector<float> param = std::get<0>(result);
-  /// \details        double x_0 = param[0];
-  /// \details        double x_1 = param[1];
-  std::tuple<std::vector<double>, std::vector<double>, int, int> optimize(
-    const Eigen::MatrixXd & P, const Eigen::MatrixXd & A, const std::vector<double> & q,
-    const std::vector<double> & l, const std::vector<double> & u);
+  /// \details        float64_t x_0 = param[0];
+  /// \details        float64_t x_1 = param[1];
+  std::tuple<std::vector<float64_t>, std::vector<float64_t>, int, int> optimize(
+    const Eigen::MatrixXd & P, const Eigen::MatrixXd & A, const std::vector<float64_t> & q,
+    const std::vector<float64_t> & l, const std::vector<float64_t> & u);
 
   /// \brief Converts the input data and sets up the workspace object.
   /// \param P (n,n) matrix defining relations between parameters.
@@ -123,8 +125,8 @@ public:
   /// \param l (m) vector defining the lower bound problem constraint.
   /// \param u (m) vector defining the upper bound problem constraint.
   c_int initializeProblem(
-    const Eigen::MatrixXd & P, const Eigen::MatrixXd & A, const std::vector<double> & q,
-    const std::vector<double> & l, const std::vector<double> & u);
+    const Eigen::MatrixXd & P, const Eigen::MatrixXd & A, const std::vector<float64_t> & q,
+    const std::vector<float64_t> & l, const std::vector<float64_t> & u);
 
   /// \brief Get the number of iteration taken to solve the problem
   inline int getTakenIter() const {return static_cast<int>(m_latest_work_info.iter);}
@@ -138,9 +140,9 @@ public:
   /// \brief Get the status polish for the latest problem solved
   inline int getStatusPolish() const {return static_cast<int>(m_latest_work_info.status_polish);}
   /// \brief Get the runtime of the latest problem solved
-  inline double getRunTime() const {return m_latest_work_info.run_time;}
+  inline float64_t getRunTime() const {return m_latest_work_info.run_time;}
   /// \brief Get the objective value the latest problem solved
-  inline double getObjVal() const {return m_latest_work_info.obj_val;}
+  inline float64_t getObjVal() const {return m_latest_work_info.obj_val;}
   /// \brief Returns flag asserting interface condition (Healthy condition: 0).
   inline c_int getExitFlag() const {return m_exitflag;}
 };
