@@ -15,10 +15,10 @@
 #ifndef OSQP_INTERFACE__CSC_MATRIX_CONV_HPP_
 #define OSQP_INTERFACE__CSC_MATRIX_CONV_HPP_
 
-#include <types.h>  // for 'c_int' type ('long' or 'long long')
 #include <vector>
 
 #include "eigen3/Eigen/Core"
+#include "osqp/glob_opts.h"  // for 'c_int' type ('long' or 'long long')
 #include "osqp_interface/visibility_control.hpp"
 
 namespace autoware
