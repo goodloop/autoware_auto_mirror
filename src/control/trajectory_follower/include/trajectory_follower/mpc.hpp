@@ -196,7 +196,7 @@ private:
    */
   float64_t getSteerCmdSum(
     const rclcpp::Time & t_start, const rclcpp::Time & t_end,
-    const float64_t time_constant);
+    const float64_t time_constant) const;
   /**
    * @brief set the reference trajectory to follow
    */
@@ -239,7 +239,7 @@ private:
    */
   trajectory_follower::MPCTrajectory applyVelocityDynamicsFilter(
     const trajectory_follower::MPCTrajectory & trajectory,
-    const geometry_msgs::msg::Pose & current_pose, const float64_t v0);
+    const geometry_msgs::msg::Pose & current_pose, const float64_t v0) const;
   /**
    * @brief get total prediction time of mpc
    */
@@ -342,12 +342,6 @@ public:
     const geometry_msgs::msg::Pose & current_pose,
     autoware_auto_msgs::msg::AckermannLateralCommand & ctrl_cmd
   );
-  /**
-   * @brief calculate distance to stop point
-   */
-  float64_t calcStopDistance(
-    const autoware_auto_msgs::msg::Trajectory & current_trajectory,
-    const int64_t origin) const;
   /**
    * @brief set the reference trajectory to follow
    */

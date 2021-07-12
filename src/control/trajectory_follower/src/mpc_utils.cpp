@@ -449,6 +449,43 @@ bool8_t calcNearestPoseInterp(
     (1 - alpha) * traj.relative_time[second_nearest_index];
   return true;
 }
+
+float64_t calcStopDistance(
+  const autoware_auto_msgs::msg::Trajectory & current_trajectory,
+  const int64_t origin)
+{
+  constexpr float zero_velocity = std::numeric_limits<float>::epsilon();
+  const float origin_velocity =
+    current_trajectory.points.at(static_cast<size_t>(origin)).longitudinal_velocity_mps;
+  float64_t stop_dist = 0.0;
+
+  // search forward
+  if (std::fabs(origin_velocity) > zero_velocity) {
+    for (int64_t i = origin + 1; i < static_cast<int64_t>(current_trajectory.points.size()) - 1;
+      ++i)
+    {
+      const auto & p0 = current_trajectory.points.at(static_cast<size_t>(i));
+      const auto & p1 = current_trajectory.points.at(static_cast<size_t>(i - 1));
+      stop_dist += trajectory_follower::MPCUtils::calcDist2d(p0, p1);
+      if (std::fabs(p0.longitudinal_velocity_mps) < zero_velocity) {
+        break;
+      }
+    }
+    return stop_dist;
+  }
+
+  // search backward
+  for (int64_t i = origin - 1; 0 < i; --i) {
+    const auto & p0 = current_trajectory.points.at(static_cast<size_t>(i));
+    const auto & p1 = current_trajectory.points.at(static_cast<size_t>(i + 1));
+    if (std::fabs(p0.longitudinal_velocity_mps) > zero_velocity) {
+      break;
+    }
+    stop_dist -= trajectory_follower::MPCUtils::calcDist2d(p0, p1);
+  }
+  return stop_dist;
+}
+
 }  // namespace MPCUtils
 }  // namespace trajectory_follower
 }  // namespace control

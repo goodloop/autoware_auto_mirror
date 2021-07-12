@@ -145,6 +145,12 @@ TRAJECTORY_FOLLOWER_PUBLIC int64_t calcNearestIndex(
   const geometry_msgs::msg::Pose & self_pose);
 TRAJECTORY_FOLLOWER_PUBLIC int64_t calcNearestIndex(
   const autoware_auto_msgs::msg::Trajectory & traj, const geometry_msgs::msg::Pose & self_pose);
+/**
+ * @brief calculate distance to stopped point
+ */
+TRAJECTORY_FOLLOWER_PUBLIC float64_t calcStopDistance(
+  const autoware_auto_msgs::msg::Trajectory & current_trajectory,
+  const int64_t origin);
 }  // namespace MPCUtils
 }  // namespace trajectory_follower
 }  // namespace control

@@ -265,7 +265,7 @@ float64_t MPC::calcSteerPrediction()
 }
 
 float64_t MPC::getSteerCmdSum(
-  const rclcpp::Time & t_start, const rclcpp::Time & t_end, const float64_t time_constant)
+  const rclcpp::Time & t_start, const rclcpp::Time & t_end, const float64_t time_constant) const
 {
   if (m_ctrl_cmd_vec.size() <= 2) {return 0.0;}
 
@@ -419,7 +419,7 @@ bool8_t MPC::updateStateForDelayCompensation(
 trajectory_follower::MPCTrajectory MPC::applyVelocityDynamicsFilter(
   const trajectory_follower::MPCTrajectory & input,
   const geometry_msgs::msg::Pose & current_pose,
-  const float64_t v0)
+  const float64_t v0) const
 {
   int64_t nearest_idx =
     trajectory_follower::MPCUtils::calcNearestIndex(input, current_pose);
@@ -738,45 +738,6 @@ bool8_t MPC::isValid(const MPCMatrix & m) const
 
   return true;
 }
-
-// TODO(Maxime CLEMENT): move to utils
-float64_t MPC::calcStopDistance(
-  const autoware_auto_msgs::msg::Trajectory & current_trajectory,
-  const int64_t origin) const
-{
-  constexpr float zero_velocity = std::numeric_limits<float>::epsilon();
-  const float origin_velocity =
-    current_trajectory.points.at(static_cast<size_t>(origin)).longitudinal_velocity_mps;
-  float64_t stop_dist = 0.0;
-
-  // search forward
-  if (std::fabs(origin_velocity) > zero_velocity) {
-    for (int64_t i = origin + 1; i < static_cast<int64_t>(current_trajectory.points.size()) - 1;
-      ++i)
-    {
-      const auto & p0 = current_trajectory.points.at(static_cast<size_t>(i));
-      const auto & p1 = current_trajectory.points.at(static_cast<size_t>(i - 1));
-      stop_dist += trajectory_follower::MPCUtils::calcDist2d(p0, p1);
-      if (std::fabs(p0.longitudinal_velocity_mps) < zero_velocity) {
-        break;
-      }
-    }
-    return stop_dist;
-  }
-
-  // search backward
-  for (int64_t i = origin - 1; 0 < i; --i) {
-    const auto & p0 = current_trajectory.points.at(static_cast<size_t>(i));
-    const auto & p1 = current_trajectory.points.at(static_cast<size_t>(i + 1));
-    if (std::fabs(p0.longitudinal_velocity_mps) > zero_velocity) {
-      break;
-    }
-    stop_dist -= trajectory_follower::MPCUtils::calcDist2d(p0, p1);
-  }
-  return stop_dist;
-}
-
-
 }  // namespace trajectory_follower
 }  // namespace control
 }  // namespace motion
