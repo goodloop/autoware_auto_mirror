@@ -35,8 +35,8 @@ namespace common
 namespace osqp
 {
 constexpr c_float INF = OSQP_INFTY;
-typedef autoware::common::types::float64_t float64_t;
-typedef autoware::common::types::bool8_t bool8_t;
+using autoware::common::types::float64_t;
+using autoware::common::types::bool8_t;
 
 /**
  * Implementation of a native C++ interface for the OSQP solver.
