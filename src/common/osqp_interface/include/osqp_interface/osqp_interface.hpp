@@ -51,14 +51,14 @@ private:
   // store last work info since work is cleaned up at every execution to prevent memory leak.
   OSQPInfo m_latest_work_info;
   // Number of parameters to optimize
-  c_int m_param_n;
+  int64_t m_param_n;
   // Flag to check if the current work exists
   bool8_t m_work_initialized = false;
   // Exitflag
-  c_int m_exitflag;
+  int64_t m_exitflag;
 
   // Runs the solver on the stored problem.
-  std::tuple<std::vector<float64_t>, std::vector<float64_t>, int, int> solve();
+  std::tuple<std::vector<float64_t>, std::vector<float64_t>, int64_t, int64_t> solve();
 
 public:
   /// \brief Constructor without problem formulation
@@ -97,7 +97,7 @@ public:
   /// \details        std::vector<float> param = std::get<0>(result);
   /// \details        float64_t x_0 = param[0];
   /// \details        float64_t x_1 = param[1];
-  std::tuple<std::vector<float64_t>, std::vector<float64_t>, int, int> optimize();
+  std::tuple<std::vector<float64_t>, std::vector<float64_t>, int64_t, int64_t> optimize();
 
   /// \brief Solves convex quadratic programs (QPs) using the OSQP solver.
   /// \return The function returns a tuple containing the solution as two float vectors.
@@ -115,7 +115,7 @@ public:
   /// \details        std::vector<float> param = std::get<0>(result);
   /// \details        float64_t x_0 = param[0];
   /// \details        float64_t x_1 = param[1];
-  std::tuple<std::vector<float64_t>, std::vector<float64_t>, int, int> optimize(
+  std::tuple<std::vector<float64_t>, std::vector<float64_t>, int64_t, int64_t> optimize(
     const Eigen::MatrixXd & P, const Eigen::MatrixXd & A, const std::vector<float64_t> & q,
     const std::vector<float64_t> & l, const std::vector<float64_t> & u);
 
@@ -125,27 +125,30 @@ public:
   /// \param q (n) vector defining the linear cost of the problem.
   /// \param l (m) vector defining the lower bound problem constraint.
   /// \param u (m) vector defining the upper bound problem constraint.
-  c_int initializeProblem(
+  int64_t initializeProblem(
     const Eigen::MatrixXd & P, const Eigen::MatrixXd & A, const std::vector<float64_t> & q,
     const std::vector<float64_t> & l, const std::vector<float64_t> & u);
 
   /// \brief Get the number of iteration taken to solve the problem
-  inline int getTakenIter() const {return static_cast<int>(m_latest_work_info.iter);}
+  inline int64_t getTakenIter() const {return static_cast<int64_t>(m_latest_work_info.iter);}
   /// \brief Get the status message for the latest problem solved
   inline std::string getStatusMessage() const
   {
     return static_cast<std::string>(m_latest_work_info.status);
   }
   /// \brief Get the status value for the latest problem solved
-  inline int getStatus() const {return static_cast<int>(m_latest_work_info.status_val);}
+  inline int64_t getStatus() const {return static_cast<int64_t>(m_latest_work_info.status_val);}
   /// \brief Get the status polish for the latest problem solved
-  inline int getStatusPolish() const {return static_cast<int>(m_latest_work_info.status_polish);}
+  inline int64_t getStatusPolish() const
+  {
+    return static_cast<int64_t>(m_latest_work_info.status_polish);
+  }
   /// \brief Get the runtime of the latest problem solved
   inline float64_t getRunTime() const {return m_latest_work_info.run_time;}
   /// \brief Get the objective value the latest problem solved
   inline float64_t getObjVal() const {return m_latest_work_info.obj_val;}
   /// \brief Returns flag asserting interface condition (Healthy condition: 0).
-  inline c_int getExitFlag() const {return m_exitflag;}
+  inline int64_t getExitFlag() const {return m_exitflag;}
 };
 
 }  // namespace osqp

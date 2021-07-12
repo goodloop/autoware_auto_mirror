@@ -58,7 +58,7 @@ OSQPInterface::OSQPInterface(
   initializeProblem(P, A, q, l, u);
 }
 
-c_int OSQPInterface::initializeProblem(
+int64_t OSQPInterface::initializeProblem(
   const Eigen::MatrixXd & P, const Eigen::MatrixXd & A, const std::vector<float64_t> & q,
   const std::vector<float64_t> & l, const std::vector<float64_t> & u)
 {
@@ -115,7 +115,7 @@ OSQPInterface::~OSQPInterface()
   }
 }
 
-std::tuple<std::vector<float64_t>, std::vector<float64_t>, int, int> OSQPInterface::solve()
+std::tuple<std::vector<float64_t>, std::vector<float64_t>, int64_t, int64_t> OSQPInterface::solve()
 {
   // Solve Problem
   osqp_solve(m_work);
@@ -125,14 +125,14 @@ std::tuple<std::vector<float64_t>, std::vector<float64_t>, int, int> OSQPInterfa
    ********************/
   float64_t * sol_x = m_work->solution->x;
   float64_t * sol_y = m_work->solution->y;
-  std::vector<float64_t> sol_primal(sol_x, sol_x + static_cast<int>(m_param_n));
-  std::vector<float64_t> sol_lagrange_multiplier(sol_y, sol_y + static_cast<int>(m_param_n));
+  std::vector<float64_t> sol_primal(sol_x, sol_x + m_param_n);
+  std::vector<float64_t> sol_lagrange_multiplier(sol_y, sol_y + m_param_n);
   // Solver polish status
-  c_int status_polish = m_work->info->status_polish;
+  int64_t status_polish = m_work->info->status_polish;
   // Solver solution status
-  c_int status_solution = m_work->info->status_val;
+  int64_t status_solution = m_work->info->status_val;
   // Result tuple
-  std::tuple<std::vector<float64_t>, std::vector<float64_t>, int, int> result =
+  std::tuple<std::vector<float64_t>, std::vector<float64_t>, int64_t, int64_t> result =
     std::make_tuple(sol_primal, sol_lagrange_multiplier, status_polish, status_solution);
 
   m_latest_work_info = *(m_work->info);
@@ -140,14 +140,16 @@ std::tuple<std::vector<float64_t>, std::vector<float64_t>, int, int> OSQPInterfa
   return result;
 }
 
-std::tuple<std::vector<float64_t>, std::vector<float64_t>, int, int> OSQPInterface::optimize()
+std::tuple<std::vector<float64_t>, std::vector<float64_t>, int64_t,
+  int64_t> OSQPInterface::optimize()
 {
   // Run the solver on the stored problem representation.
-  std::tuple<std::vector<float64_t>, std::vector<float64_t>, int, int> result = solve();
+  std::tuple<std::vector<float64_t>, std::vector<float64_t>, int64_t, int64_t> result = solve();
   return result;
 }
 
-std::tuple<std::vector<float64_t>, std::vector<float64_t>, int, int> OSQPInterface::optimize(
+std::tuple<std::vector<float64_t>, std::vector<float64_t>, int64_t,
+  int64_t> OSQPInterface::optimize(
   const Eigen::MatrixXd & P, const Eigen::MatrixXd & A, const std::vector<float64_t> & q,
   const std::vector<float64_t> & l, const std::vector<float64_t> & u)
 {
@@ -155,7 +157,7 @@ std::tuple<std::vector<float64_t>, std::vector<float64_t>, int, int> OSQPInterfa
   initializeProblem(P, A, q, l, u);
 
   // Run the solver on the stored problem representation.
-  std::tuple<std::vector<float64_t>, std::vector<float64_t>, int, int> result = solve();
+  std::tuple<std::vector<float64_t>, std::vector<float64_t>, int64_t, int64_t> result = solve();
 
   return result;
 }
