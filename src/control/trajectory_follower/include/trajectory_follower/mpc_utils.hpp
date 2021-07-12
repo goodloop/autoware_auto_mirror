@@ -54,58 +54,127 @@ using autoware::common::types::bool8_t;
  */
 TRAJECTORY_FOLLOWER_PUBLIC geometry_msgs::msg::Quaternion getQuaternionFromYaw(
   const float64_t & yaw);
-
 /**
  * @brief normalize angle into [-pi to pi]
  * @param [in] angle input angle
  * @return normalized angle
  */
 TRAJECTORY_FOLLOWER_PUBLIC float64_t normalizeRadian(const float64_t angle);
-
 /**
  * @brief convert Euler angle vector including +-2pi to 0 jump to continuous series data
  * @param [out] a input angle vector
  */
 TRAJECTORY_FOLLOWER_PUBLIC void convertEulerAngleToMonotonic(std::vector<float64_t> * a);
+/**
+ * @brief calculate the 2d distance between the two given PoseStamped
+ * @param [in] p0 input PoseStamped message
+ * @param [in] p1 input PoseStamped message
+ * @return distance between the two pose
+ */
 TRAJECTORY_FOLLOWER_PUBLIC float64_t calcDist2d(
   const geometry_msgs::msg::PoseStamped & p0, const geometry_msgs::msg::PoseStamped & p1);
+/**
+ * @brief calculate the 2d distance between the two given Pose
+ * @param [in] p0 input Pose message
+ * @param [in] p1 input Pose message
+ * @return distance between the two pose
+ */
 TRAJECTORY_FOLLOWER_PUBLIC float64_t calcDist2d(
   const geometry_msgs::msg::Pose & p0,
   const geometry_msgs::msg::Pose & p1);
+/**
+ * @brief calculate the 2d distance between the given points
+ * @tparam T0 a point type with .x and .y members
+ * @tparam T1 a point type with .x and .y members
+ * @param [in] p0 input point
+ * @param [in] p1 input point
+ * @return distance between the two points
+ */
 template<typename T0, typename T1>
 TRAJECTORY_FOLLOWER_PUBLIC float64_t calcDist2d(const T0 & p0, const T1 & p1)
 {
   return std::hypot(p0.x - p1.x, p0.y - p1.y);
 }
+/**
+ * @brief calculate the 3d distance between the two given Point
+ * @param [in] p0 input Point message
+ * @param [in] p1 input Point message
+ * @return distance between the two points
+ */
 TRAJECTORY_FOLLOWER_PUBLIC float64_t calcDist3d(
   const geometry_msgs::msg::Point & p0,
   const geometry_msgs::msg::Point & p1);
+/**
+ * @brief calculate the squared 2d distance between the two given Point
+ * @param [in] p0 input Point message
+ * @param [in] p1 input Point message
+ * @return distance between the two points
+ */
 TRAJECTORY_FOLLOWER_PUBLIC float64_t calcSquaredDist2d(
   const geometry_msgs::msg::Point & p0, const geometry_msgs::msg::Point & p1);
+/**
+ * @brief calculate the lateral error of the given pose relative to the given reference pose
+ * @param [in] ego_pose pose to check for error
+ * @param [in] ref_pose reference pose
+ * @return lateral distance between the two poses
+ */
 TRAJECTORY_FOLLOWER_PUBLIC float64_t calcLateralError(
   const geometry_msgs::msg::Pose & ego_pose, const geometry_msgs::msg::Pose & ref_pose);
-
+/**
+ * @brief convert the given Trajectory to a MPCTrajectory object
+ * @param [in] input trajectory to convert
+ * @param [out] output resulting MPCTrajectory
+ * @return true if the conversion was successful
+ */
 TRAJECTORY_FOLLOWER_PUBLIC bool8_t convertToMPCTrajectory(
   const autoware_auto_msgs::msg::Trajectory & input, MPCTrajectory * output);
+/**
+ * @brief calculate the arc length at each point of the given trajectory
+ * @param [in] trajectory trajectory for which to calculate the arc length
+ * @param [out] arclength the cummulative arc length at each point of the trajectory
+ */
 TRAJECTORY_FOLLOWER_PUBLIC void calcMPCTrajectoryArclength(
-  const MPCTrajectory & trajectory,
-  std::vector<float64_t> * arclength);
+  const MPCTrajectory & trajectory, std::vector<float64_t> * arclength);
+/**
+ * @brief resample the given trajectory with the given fixed interval
+ * @param [in] input trajectory to resample
+ * @param [in] resample_interval_dist the desired distance between two successive trajectory points
+ * @param [out] output the resampled trajectory
+ */
 TRAJECTORY_FOLLOWER_PUBLIC bool8_t resampleMPCTrajectoryByDistance(
   const MPCTrajectory & input, const float64_t resample_interval_dist, MPCTrajectory * output);
+/**
+ * @brief linearly interpolate the given trajectory assuming a base indexing and a new desired indexing
+ * @param [in] in_index indexes for each trajectory point
+ * @param [in] in_traj MPCTrajectory to interpolate
+ * @param [in] out_index desired interpolated indexes
+ * @param [out] out_traj resulting interpolated MPCTrajectory
+ */
 TRAJECTORY_FOLLOWER_PUBLIC bool8_t linearInterpMPCTrajectory(
   const std::vector<float64_t> & in_index, const MPCTrajectory & in_traj,
   const std::vector<float64_t> & out_index, MPCTrajectory * out_traj);
+/**
+ * @brief fill the relative_time field of the given MPCTrajectory
+ * @param [in] traj MPCTrajectory for which to fill in the relative_time
+ * @return true if the calculation was successful
+ */
 TRAJECTORY_FOLLOWER_PUBLIC bool8_t calcMPCTrajectoryTime(MPCTrajectory * traj);
+/**
+ * @brief recalculate the velocity field (vx) of the MPCTrajectory with dynamic smoothing
+ * @param [in] start_idx index of the trajectory point from which to start smoothing
+ * @param [in] start_vel initial velocity to set at the start_idx
+ * @param [in] acc_lim limit on the acceleration
+ * @param [in] tau constant to control the smoothing (high-value = very smooth)
+ * @param [inout] traj MPCTrajectory for which to calculate the smoothed velocity
+ */
 TRAJECTORY_FOLLOWER_PUBLIC void dynamicSmoothingVelocity(
   const size_t start_idx, const float64_t start_vel, const float64_t acc_lim, const float64_t tau,
   MPCTrajectory * traj);
-
 /**
  * @brief calculate yaw angle in MPCTrajectory from xy vector
  * @param [inout] traj object trajectory
  */
 TRAJECTORY_FOLLOWER_PUBLIC void calcTrajectoryYawFromXY(MPCTrajectory * traj);
-
 /**
  * @brief Calculate path curvature by 3-points circle fitting with smoothing num (use nearest 3 points when num = 1)
  * @param [in] curvature_smoothing_num index distance for 3 points for curvature calculation
@@ -114,7 +183,6 @@ TRAJECTORY_FOLLOWER_PUBLIC void calcTrajectoryYawFromXY(MPCTrajectory * traj);
 TRAJECTORY_FOLLOWER_PUBLIC bool8_t calcTrajectoryCurvature(
   const size_t curvature_smoothing_num,
   MPCTrajectory * traj);
-
 /**
  * @brief Calculate path curvature by 3-points circle fitting with smoothing num (use nearest 3 points when num = 1)
  * @param [in] curvature_smoothing_num index distance for 3 points for curvature calculation
@@ -123,7 +191,6 @@ TRAJECTORY_FOLLOWER_PUBLIC bool8_t calcTrajectoryCurvature(
  */
 TRAJECTORY_FOLLOWER_PUBLIC std::vector<float64_t> calcTrajectoryCurvature(
   const size_t curvature_smoothing_num, const MPCTrajectory & traj);
-
 /**
  * @brief calculate nearest pose on MPCTrajectory with linear interpolation
  * @param [in] traj reference trajectory
@@ -139,10 +206,21 @@ TRAJECTORY_FOLLOWER_PUBLIC bool8_t calcNearestPoseInterp(
   const MPCTrajectory & traj, const geometry_msgs::msg::Pose & self_pose,
   geometry_msgs::msg::Pose * nearest_pose, size_t * nearest_index, float64_t * nearest_time,
   rclcpp::Logger logger, rclcpp::Clock & clock);
-
+/**
+ * @brief calculate the index of the trajectory point nearest to the given pose
+ * @param [in] traj trajectory to search for the point nearest to the pose
+ * @param [in] self_pose pose for which to search the nearest trajectory point
+ * @return index of the input trajectory nearest to the pose
+ */
 TRAJECTORY_FOLLOWER_PUBLIC int64_t calcNearestIndex(
   const MPCTrajectory & traj,
   const geometry_msgs::msg::Pose & self_pose);
+/**
+ * @brief calculate the index of the trajectory point nearest to the given pose
+ * @param [in] traj trajectory to search for the point nearest to the pose
+ * @param [in] self_pose pose for which to search the nearest trajectory point
+ * @return index of the input trajectory nearest to the pose
+ */
 TRAJECTORY_FOLLOWER_PUBLIC int64_t calcNearestIndex(
   const autoware_auto_msgs::msg::Trajectory & traj, const geometry_msgs::msg::Pose & self_pose);
 /**

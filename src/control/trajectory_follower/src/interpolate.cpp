@@ -137,46 +137,47 @@ bool8_t linearInterpolate(
  * spline interpolation
  */
 
-SplineInterpolate::SplineInterpolate() {}
-SplineInterpolate::SplineInterpolate(const std::vector<float64_t> & x) {generateSpline(x);}
-SplineInterpolate::~SplineInterpolate() {}
+SplineInterpolate::SplineInterpolate(const std::vector<float64_t> & x)
+{
+  generateSpline(x);
+}
 void SplineInterpolate::generateSpline(const std::vector<float64_t> & x)
 {
   const size_t N = x.size();
 
-  a_.clear();
-  b_.clear();
-  c_.clear();
-  d_.clear();
+  m_a.clear();
+  m_b.clear();
+  m_c.clear();
+  m_d.clear();
 
-  a_ = x;
+  m_a = x;
 
-  c_.push_back(0.0);
+  m_c.push_back(0.0);
   for (size_t i = 1; i < N - 1; i++) {
-    c_.push_back(3.0 * (a_.at(i - 1) - 2.0 * a_.at(i) + a_.at(i + 1)));
+    m_c.push_back(3.0 * (m_a.at(i - 1) - 2.0 * m_a.at(i) + m_a.at(i + 1)));
   }
-  c_.push_back(0.0);
+  m_c.push_back(0.0);
 
-  std::vector<float64_t> w_;
-  w_.push_back(0.0);
+  std::vector<float64_t> m_w;
+  m_w.push_back(0.0);
 
   float64_t tmp;
   for (size_t i = 1; i < N - 1; i++) {
-    tmp = 1.0 / (4.0 - w_.at(i - 1));
-    c_.at(i) = (c_.at(i) - c_.at(i - 1)) * tmp;
-    w_.push_back(tmp);
+    tmp = 1.0 / (4.0 - m_w.at(i - 1));
+    m_c.at(i) = (m_c.at(i) - m_c.at(i - 1)) * tmp;
+    m_w.push_back(tmp);
   }
 
   for (size_t i = N - 2; i > 0; i--) {
-    c_.at(i) = c_.at(i) - c_.at(i + 1) * w_.at(i);
+    m_c.at(i) = m_c.at(i) - m_c.at(i + 1) * m_w.at(i);
   }
 
   for (size_t i = 0; i < N - 1; i++) {
-    d_.push_back((c_.at(i + 1) - c_.at(i)) / 3.0);
-    b_.push_back(a_.at(i + 1) - a_.at(i) - c_.at(i) - d_.at(i));
+    m_d.push_back((m_c.at(i + 1) - m_c.at(i)) / 3.0);
+    m_b.push_back(m_a.at(i + 1) - m_a.at(i) - m_c.at(i) - m_d.at(i));
   }
-  d_.push_back(0.0);
-  b_.push_back(0.0);
+  m_d.push_back(0.0);
+  m_b.push_back(0.0);
 
   initialized_ = true;
 }
@@ -185,9 +186,9 @@ float64_t SplineInterpolate::getValue(const float64_t & s)
 {
   if (!initialized_) {return 0.0;}
 
-  size_t j = std::max(std::min(static_cast<size_t>(std::floor(s)), a_.size() - 1), size_t(0));
+  size_t j = std::max(std::min(static_cast<size_t>(std::floor(s)), m_a.size() - 1), size_t(0));
   const float64_t ds = s - static_cast<float64_t>(j);
-  return a_.at(j) + (b_.at(j) + (c_.at(j) + d_.at(j) * ds) * ds) * ds;
+  return m_a.at(j) + (m_b.at(j) + (m_c.at(j) + m_d.at(j) * ds) * ds) * ds;
 }
 
 void SplineInterpolate::getValueVector(
@@ -236,9 +237,9 @@ bool8_t SplineInterpolate::interpolate(
     const float64_t dist_base_idx = base_index.at(i) - base_index.at(i - 1);
     const float64_t dist_to_forward = base_index.at(i) - idx;
     const float64_t dist_to_backward = idx - base_index.at(i - 1);
-    const float64_t i_float64_t = static_cast<float64_t>(i);
+    const float64_t i_float = static_cast<float64_t>(i);
     const float64_t value =
-      (dist_to_backward * i_float64_t + dist_to_forward * (i_float64_t - 1)) / std::max(
+      (dist_to_backward * i_float + dist_to_forward * (i_float - 1)) / std::max(
       dist_base_idx,
       std::numeric_limits<float64_t>::epsilon());
     normalized_idx.push_back(value);

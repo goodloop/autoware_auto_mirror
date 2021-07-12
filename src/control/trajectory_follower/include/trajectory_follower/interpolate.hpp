@@ -32,27 +32,66 @@ namespace trajectory_follower
 {
 using autoware::common::types::float64_t;
 using autoware::common::types::bool8_t;
+/**
+ * @brief linearly interpolate the given values assuming a base indexing and a new desired indexing
+ * @param [in] base_index indexes for each base value
+ * @param [in] base_value values for each base index
+ * @param [in] return_index desired interpolated indexes
+ * @param [out] return_value resulting interpolated values
+ */
 TRAJECTORY_FOLLOWER_PUBLIC bool8_t linearInterpolate(
   const std::vector<float64_t> & base_index, const std::vector<float64_t> & base_value,
   const std::vector<float64_t> & return_index, std::vector<float64_t> & return_value);
+/**
+ * @brief linearly interpolate the given values assuming a base indexing and a new desired index
+ * @param [in] base_index indexes for each base value
+ * @param [in] base_value values for each base index
+ * @param [in] return_index desired interpolated index
+ * @param [out] return_value resulting interpolated value
+ */
 TRAJECTORY_FOLLOWER_PUBLIC bool8_t linearInterpolate(
   const std::vector<float64_t> & base_index, const std::vector<float64_t> & base_value,
   const float64_t & return_index, float64_t & return_value);
 
+/**
+ * @brief Class for spline interpolation
+ */
 class TRAJECTORY_FOLLOWER_PUBLIC SplineInterpolate
 {
   bool8_t initialized_;
-  std::vector<float64_t> a_;  //!< @brief temporal vector for calculation
-  std::vector<float64_t> b_;  //!< @brief temporal vector for calculation
-  std::vector<float64_t> c_;  //!< @brief temporal vector for calculation
-  std::vector<float64_t> d_;  //!< @brief temporal vector for calculation
+  std::vector<float64_t> m_a;  //!< @brief temporal vector for calculation
+  std::vector<float64_t> m_b;  //!< @brief temporal vector for calculation
+  std::vector<float64_t> m_c;  //!< @brief temporal vector for calculation
+  std::vector<float64_t> m_d;  //!< @brief temporal vector for calculation
 
 public:
-  SplineInterpolate();
+  /**
+   * @brief default constructor
+   */
+  SplineInterpolate() = default;
+  /**
+   * @brief constructor from a vector of values
+   * @param [in] x vector of values
+   */
   explicit SplineInterpolate(const std::vector<float64_t> & x);
-  ~SplineInterpolate();
+  /**
+   * @brief initialize the spline for the given vector of values
+   * @param [in] x vector of values
+   */
   void generateSpline(const std::vector<float64_t> & x);
+  /**
+   * @brief linearly interpolate the given values assuming a base indexing and a new desired indexing
+   * @param [in] s desired index
+   * @return corresponding value
+   */
   float64_t getValue(const float64_t & s);
+  /**
+   * @brief linearly interpolate the given values assuming a base indexing and a new desired indexing
+   * @param [in] base_index indexes for each base value
+   * @param [in] base_value values for each base index
+   * @param [in] return_index desired interpolated indexes
+   * @param [out] return_value resulting interpolated values
+   */
   bool8_t interpolate(
     const std::vector<float64_t> & base_index, const std::vector<float64_t> & base_value,
     const std::vector<float64_t> & return_index, std::vector<float64_t> & return_value);

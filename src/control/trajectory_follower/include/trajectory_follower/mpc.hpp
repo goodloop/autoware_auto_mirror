@@ -256,45 +256,72 @@ private:
    * @brief check if the matrix has invalid value
    */
   bool8_t isValid(const MPCMatrix & m) const;
+  /**
+   * @brief return true if the given curvature is considered low
+   */
   inline bool8_t isLowCurvature(const float64_t curvature)
   {
     return std::fabs(curvature) < m_param.low_curvature_thresh_curvature;
   }
+  /**
+   * @brief return the weight of the lateral error for the given curvature
+   */
   inline float64_t getWeightLatError(const float64_t curvature)
   {
     return isLowCurvature(curvature) ? m_param.low_curvature_weight_lat_error :
            m_param.weight_lat_error;
   }
+  /**
+   * @brief return the weight of the heading error for the given curvature
+   */
   inline float64_t getWeightHeadingError(const float64_t curvature)
   {
     return isLowCurvature(curvature) ? m_param.low_curvature_weight_heading_error :
            m_param.weight_heading_error;
   }
+  /**
+   * @brief return the squared velocity weight of the heading error for the given curvature
+   */
   inline float64_t getWeightHeadingErrorSqVel(const float64_t curvature)
   {
     return isLowCurvature(curvature) ? m_param.low_curvature_weight_heading_error_squared_vel :
            m_param.weight_heading_error_squared_vel;
   }
+  /**
+   * @brief return the weight of the steer input for the given curvature
+   */
   inline float64_t getWeightSteerInput(const float64_t curvature)
   {
     return isLowCurvature(curvature) ? m_param.low_curvature_weight_steering_input :
            m_param.weight_steering_input;
   }
+  /**
+   * @brief return the squared velocity weight of the steer input for the given curvature
+   */
   inline float64_t getWeightSteerInputSqVel(const float64_t curvature)
   {
     return isLowCurvature(curvature) ? m_param.low_curvature_weight_steering_input_squared_vel :
            m_param.weight_steering_input_squared_vel;
   }
+  /**
+   * @brief return the weight of the lateral jerk for the given curvature
+   */
   inline float64_t getWeightLatJerk(const float64_t curvature)
   {
     return isLowCurvature(curvature) ? m_param.low_curvature_weight_lat_jerk :
            m_param.weight_lat_jerk;
   }
+  /**
+   * @brief return the weight of the steering rate for the given curvature
+   */
   inline float64_t getWeightSteerRate(const float64_t curvature)
   {
     return isLowCurvature(curvature) ? m_param.low_curvature_weight_steer_rate :
            m_param.weight_steer_rate;
   }
+  /**
+   * @brief return the weight of the steering acceleration for the given curvature
+   */
   inline float64_t getWeightSteerAcc(const float64_t curvature)
   {
     return isLowCurvature(curvature) ? m_param.low_curvature_weight_steer_acc :
