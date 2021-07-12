@@ -15,15 +15,15 @@ Every developer is encouraged to be familiar with our [contributor guidelines](h
    1. [ ] If the source branch is on a fork, MR is configured to *allow commits from developers with access to push to the target branch*
    1. [ ] Sensible notes for the reviewer added to the section above to facilitate review
    1. [ ] Target branch set correctly. Default: `master`
-   1. [ ] MR assigned to a capable reviewer. If in doubt, pick from this [list](https://gitlab.com/groups/autowarefoundation/autoware.auto/-/wikis/Autoware.Auto-Common-Resources#work-breakdown-structure)
+   1. [ ] MR assigned to a capable reviewer. If in doubt, pick from this [list](https://docs.google.com/spreadsheets/d/1j0SeCbPr3Kh1dY1n0P96QFP-CJLfZcBFTEp1g9nXE2c/edit#gid=0)
    1. [ ] Splitting the MR into smaller, easier-to-review merge requests was considered
 1. Code and tests
    1. [ ] Code is properly [formatted](https://autowarefoundation.gitlab.io/autoware.auto/AutowareAuto/contributor-guidelines.html#contributors-guidelines-formatting)
-   1. [ ] [Tests](https://autowarefoundation.gitlab.io/autoware.auto/AutowareAuto/contributor-guidelines.html#contributors-guidelines-run-tests) affected by new code pass locally
+   1. [ ] [Tests](https://autowarefoundation.gitlab.io/autoware.auto/AutowareAuto/unit-testing.html#unit-testing-run-test) affected by new code pass locally
    1. [ ] Reasonable [coverage with unit tests](https://autowarefoundation.gitlab.io/autoware.auto/AutowareAuto/contributor-guidelines.html#contributors-guidelines-coverage) of 90+%; else create a follow-up ticket
    1. [ ] Review any `// TODO` item added in the MR that can be addressed without the reviewer's help
 1. Documentation
-   1. [ ] Any new and modified code has accurate [doxygen documentation](https://autowarefoundation.gitlab.io/autoware.auto/AutowareAuto/documentation.html#documentation-source-code)
+   1. [ ] Any new and modified code has accurate [doxygen documentation](https://autowarefoundation.gitlab.io/autoware.auto/AutowareAuto/writing-documentation.html#documentation-source-code)
    1. [ ] Any diagrams are committed
 
 ## Checklist for the reviewer
@@ -56,7 +56,7 @@ Mark all the items that are done.
 1. Documentation
    1. [ ] New classes, methods, functions in headers are documented with doxygen-style comments
    1. [ ] If implementation (of a function...) is modified, the doxygen documentation is updated accordingly
-   1. [ ] The [design article](https://autowarefoundation.gitlab.io/autoware.auto/AutowareAuto/documentation.html#documentation-package) is updated with the implementation
+   1. [ ] The [design article](https://autowarefoundation.gitlab.io/autoware.auto/AutowareAuto/writing-documentation.html#documentation-package) is updated with the implementation
    1. [ ] Drawings are created when needed and committed to `git`
    1. [ ] Modified files have a license that is [compatible](https://gitlab.com/autowarefoundation/autoware.auto/AutowareAuto/-/blob/master/CONTRIBUTING.md) with AutowareAuto
 1. Testing
