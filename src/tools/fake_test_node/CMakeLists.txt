@@ -30,7 +30,6 @@ if(BUILD_TESTING)
   find_package(ament_cmake_gtest REQUIRED)
   ament_add_gtest(test_fake_test_node
     test/test_fake_test_node.cpp
-    test/test_fake_test_node_duplicate.cpp
   )
   autoware_set_compile_options(test_fake_test_node)
   add_dependencies(test_fake_test_node fake_test_node)
