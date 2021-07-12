@@ -32,6 +32,7 @@ namespace control
 namespace trajectory_follower
 {
 using autoware::common::types::float64_t;
+using autoware::common::types::bool8_t;
 /**
  * @brief 2nd-order Butterworth Filter
  * reference : S. Butterworth, "On the Theory of Filter Amplifier", Experimental wireless, 1930.
@@ -111,7 +112,7 @@ namespace MoveAverageFilter
  * @param [in] num index distance for moving average filter
  * @param [out] u object vector
  */
-TRAJECTORY_FOLLOWER_PUBLIC bool filt_vector(const int num, std::vector<float64_t> & u);
+TRAJECTORY_FOLLOWER_PUBLIC bool8_t filt_vector(const int num, std::vector<float64_t> & u);
 }  // namespace MoveAverageFilter
 }  // namespace trajectory_follower
 }  // namespace control

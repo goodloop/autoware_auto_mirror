@@ -53,6 +53,7 @@ namespace control
 namespace trajectory_follower
 {
 using autoware::common::types::float64_t;
+using autoware::common::types::bool8_t;
 struct MPCParam
 {
 //!< @brief prediction horizon step
@@ -181,7 +182,7 @@ private:
   /**
    * @brief get variables for mpc calculation
    */
-  bool getData(
+  bool8_t getData(
     const trajectory_follower::MPCTrajectory & traj,
     const autoware_auto_msgs::msg::VehicleKinematicState & current_steer,
     const geometry_msgs::msg::Pose & current_pose,
@@ -211,7 +212,7 @@ private:
    * @param [in] start_time start time for update
    * @param [out] x updated state at delayed_time
    */
-  bool updateStateForDelayCompensation(
+  bool8_t updateStateForDelayCompensation(
     const trajectory_follower::MPCTrajectory & traj, const float64_t & start_time,
     Eigen::VectorXd * x);
   /**
@@ -225,12 +226,12 @@ private:
    * @param [in] x0 initial state vector
    * @param [out] Uex optimized input vector
    */
-  bool executeOptimization(
+  bool8_t executeOptimization(
     const MPCMatrix & mpc_matrix, const Eigen::VectorXd & x0, Eigen::VectorXd * Uex);
   /**
    * @brief resample trajectory with mpc resampling time
    */
-  bool resampleMPCTrajectoryByTime(
+  bool8_t resampleMPCTrajectoryByTime(
     float64_t start_time, const trajectory_follower::MPCTrajectory & input,
     trajectory_follower::MPCTrajectory * output) const;
   /**
@@ -254,8 +255,8 @@ private:
   /**
    * @brief check if the matrix has invalid value
    */
-  bool isValid(const MPCMatrix & m) const;
-  inline bool isLowCurvature(const float64_t curvature)
+  bool8_t isValid(const MPCMatrix & m) const;
+  inline bool8_t isLowCurvature(const float64_t curvature)
   {
     return std::fabs(curvature) < m_param.low_curvature_thresh_curvature;
   }
@@ -322,7 +323,7 @@ public:
   float64_t m_ctrl_period;
   /* parameters for path smoothing */
   //!< @brief flag to use predicted steer, not measured steer.
-  bool m_use_steer_prediction;
+  bool8_t m_use_steer_prediction;
 
   /**
    * @brief constructor
@@ -335,7 +336,7 @@ public:
    * @param [in] current_pose current pose of the vehicle
    * @param [out] ctrl_cmd control command calculated with mpc algorithm
    */
-  bool calculateMPC(
+  bool8_t calculateMPC(
     const autoware_auto_msgs::msg::VehicleKinematicState & current_steer,
     const float64_t current_velocity,
     const geometry_msgs::msg::Pose & current_pose,
@@ -353,9 +354,9 @@ public:
   void setReferenceTrajectory(
     const autoware_auto_msgs::msg::Trajectory & trajectory_msg,
     const float64_t traj_resample_dist,
-    const bool enable_path_smoothing,
+    const bool8_t enable_path_smoothing,
     const int path_filter_moving_ave_num,
-    const bool enable_yaw_recalculation,
+    const bool8_t enable_yaw_recalculation,
     const int curvature_smoothing_num);
   /**
    * @brief set the vehicle model of this MPC
@@ -388,14 +389,14 @@ public:
   /**
    * @brief return true if the vehicle model of this MPC is set
    */
-  inline bool hasVehicleModel() const
+  inline bool8_t hasVehicleModel() const
   {
     return m_vehicle_model_ptr != nullptr;
   }
   /**
    * @brief return true if the QP solver of this MPC is set
    */
-  inline bool hasQPSolver() const
+  inline bool8_t hasQPSolver() const
   {
     return m_qpsolver_ptr != nullptr;
   }

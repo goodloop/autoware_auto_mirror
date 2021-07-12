@@ -33,6 +33,7 @@
 namespace
 {
 using autoware::common::types::float64_t;
+using autoware::common::types::bool8_t;
 namespace trajectory_follower = ::autoware::motion::control::trajectory_follower;
 typedef autoware_auto_msgs::msg::Trajectory Trajectory;
 typedef autoware_auto_msgs::msg::TrajectoryPoint TrajectoryPoint;
@@ -73,9 +74,9 @@ protected:
   float64_t traj_resample_dist = 0.1;
   int path_filter_moving_ave_num = 35;
   int curvature_smoothing_num = 35;
-  bool enable_path_smoothing = true;
-  bool use_steer_prediction = true;
-  bool enable_yaw_recalculation = true;
+  bool8_t enable_path_smoothing = true;
+  bool8_t use_steer_prediction = true;
+  bool8_t enable_yaw_recalculation = true;
 
   void SetUp() override
   {

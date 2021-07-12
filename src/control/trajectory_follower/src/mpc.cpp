@@ -35,7 +35,7 @@ namespace trajectory_follower
 {
 using namespace std::chrono_literals;
 
-bool MPC::calculateMPC(
+bool8_t MPC::calculateMPC(
   const autoware_auto_msgs::msg::VehicleKinematicState & current_steer,
   const float64_t current_velocity,
   const geometry_msgs::msg::Pose & current_pose,
@@ -109,9 +109,9 @@ bool MPC::calculateMPC(
 void MPC::setReferenceTrajectory(
   const autoware_auto_msgs::msg::Trajectory & trajectory_msg,
   const float64_t traj_resample_dist,
-  const bool enable_path_smoothing,
+  const bool8_t enable_path_smoothing,
   const int path_filter_moving_ave_num,
-  const bool enable_yaw_recalculation,
+  const bool8_t enable_yaw_recalculation,
   const int curvature_smoothing_num)
 {
   trajectory_follower::MPCTrajectory mpc_traj_raw;        // received raw trajectory
@@ -182,7 +182,7 @@ void MPC::setReferenceTrajectory(
   m_ref_traj = mpc_traj_smoothed;
 }
 
-bool MPC::getData(
+bool8_t MPC::getData(
   const trajectory_follower::MPCTrajectory & traj,
   const autoware_auto_msgs::msg::VehicleKinematicState & current_steer,
   const geometry_msgs::msg::Pose & current_pose,
@@ -321,7 +321,7 @@ void MPC::storeSteerCmd(const float64_t steer)
   }
 }
 
-bool MPC::resampleMPCTrajectoryByTime(
+bool8_t MPC::resampleMPCTrajectoryByTime(
   float64_t ts, const trajectory_follower::MPCTrajectory & input,
   trajectory_follower::MPCTrajectory * output) const
 {
@@ -371,7 +371,7 @@ Eigen::VectorXd MPC::getInitialState(const MPCData & data)
   return x0;
 }
 
-bool MPC::updateStateForDelayCompensation(
+bool8_t MPC::updateStateForDelayCompensation(
   const trajectory_follower::MPCTrajectory & traj, const float64_t & start_time,
   Eigen::VectorXd * x)
 {
@@ -581,7 +581,7 @@ MPCMatrix MPC::generateMPCMatrix(
  *                            ~~~
  * [    -au_lim * dt    ] < [uN-uN-1] < [     au_lim * dt    ] (*N... DIM_U)
  */
-bool MPC::executeOptimization(
+bool8_t MPC::executeOptimization(
   const MPCMatrix & m, const Eigen::VectorXd & x0, Eigen::VectorXd * Uex)
 {
   using Eigen::MatrixXd;
@@ -619,7 +619,7 @@ bool MPC::executeOptimization(
   ubA(0, 0) = m_raw_steer_cmd_prev + m_steer_rate_lim * m_ctrl_period;
 
   auto t_start = std::chrono::system_clock::now();
-  bool solve_result = m_qpsolver_ptr->solve(H, f.transpose(), A, lb, ub, lbA, ubA, *Uex);
+  bool8_t solve_result = m_qpsolver_ptr->solve(H, f.transpose(), A, lb, ub, lbA, ubA, *Uex);
   auto t_end = std::chrono::system_clock::now();
   if (!solve_result) {
     RCLCPP_WARN_SKIPFIRST_THROTTLE(m_logger, *m_clock, 1000 /*ms*/, "qp solver error");
@@ -718,7 +718,7 @@ float64_t MPC::getPredictionTime() const
          m_ctrl_period;
 }
 
-bool MPC::isValid(const MPCMatrix & m) const
+bool8_t MPC::isValid(const MPCMatrix & m) const
 {
   if (
     m.Aex.array().isNaN().any() || m.Bex.array().isNaN().any() || m.Cex.array().isNaN().any() ||

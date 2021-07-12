@@ -31,16 +31,17 @@ namespace control
 namespace trajectory_follower
 {
 using autoware::common::types::float64_t;
-TRAJECTORY_FOLLOWER_PUBLIC bool linearInterpolate(
+using autoware::common::types::bool8_t;
+TRAJECTORY_FOLLOWER_PUBLIC bool8_t linearInterpolate(
   const std::vector<float64_t> & base_index, const std::vector<float64_t> & base_value,
   const std::vector<float64_t> & return_index, std::vector<float64_t> & return_value);
-TRAJECTORY_FOLLOWER_PUBLIC bool linearInterpolate(
+TRAJECTORY_FOLLOWER_PUBLIC bool8_t linearInterpolate(
   const std::vector<float64_t> & base_index, const std::vector<float64_t> & base_value,
   const float64_t & return_index, float64_t & return_value);
 
 class TRAJECTORY_FOLLOWER_PUBLIC SplineInterpolate
 {
-  bool initialized_;
+  bool8_t initialized_;
   std::vector<float64_t> a_;  //!< @brief temporal vector for calculation
   std::vector<float64_t> b_;  //!< @brief temporal vector for calculation
   std::vector<float64_t> c_;  //!< @brief temporal vector for calculation
@@ -52,7 +53,7 @@ public:
   ~SplineInterpolate();
   void generateSpline(const std::vector<float64_t> & x);
   float64_t getValue(const float64_t & s);
-  bool interpolate(
+  bool8_t interpolate(
     const std::vector<float64_t> & base_index, const std::vector<float64_t> & base_value,
     const std::vector<float64_t> & return_index, std::vector<float64_t> & return_value);
   void getValueVector(const std::vector<float64_t> & s_v, std::vector<float64_t> & value_v);

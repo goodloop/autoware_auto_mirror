@@ -107,7 +107,7 @@ void calcMPCTrajectoryArclength(
   }
 }
 
-bool resampleMPCTrajectoryByDistance(
+bool8_t resampleMPCTrajectoryByDistance(
   const MPCTrajectory & input, const float64_t resample_interval_dist, MPCTrajectory * output)
 {
   if (!output) {
@@ -152,7 +152,7 @@ bool resampleMPCTrajectoryByDistance(
   return true;
 }
 
-bool linearInterpMPCTrajectory(
+bool8_t linearInterpMPCTrajectory(
   const std::vector<float64_t> & in_index, const MPCTrajectory & in_traj,
   const std::vector<float64_t> & out_index, MPCTrajectory * out_traj)
 {
@@ -206,7 +206,7 @@ void calcTrajectoryYawFromXY(MPCTrajectory * traj)
   }
 }
 
-bool calcTrajectoryCurvature(const size_t curvature_smoothing_num, MPCTrajectory * traj)
+bool8_t calcTrajectoryCurvature(const size_t curvature_smoothing_num, MPCTrajectory * traj)
 {
   if (!traj) {
     return false;
@@ -257,7 +257,7 @@ std::vector<float64_t> calcTrajectoryCurvature(
   return curvature_vec;
 }
 
-bool convertToMPCTrajectory(
+bool8_t convertToMPCTrajectory(
   const autoware_auto_msgs::msg::Trajectory & input, MPCTrajectory * output)
 {
   if (!output) {
@@ -279,7 +279,7 @@ bool convertToMPCTrajectory(
   return true;
 }
 
-bool calcMPCTrajectoryTime(MPCTrajectory * traj)
+bool8_t calcMPCTrajectoryTime(MPCTrajectory * traj)
 {
   if (!traj) {
     return false;
@@ -377,7 +377,7 @@ int calcNearestIndex(
   return nearest_idx;
 }
 
-bool calcNearestPoseInterp(
+bool8_t calcNearestPoseInterp(
   const MPCTrajectory & traj, const geometry_msgs::msg::Pose & self_pose,
   geometry_msgs::msg::Pose * nearest_pose, size_t * nearest_index, float64_t * nearest_time,
   rclcpp::Logger logger, rclcpp::Clock & clock)

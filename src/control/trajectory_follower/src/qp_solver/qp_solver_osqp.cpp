@@ -27,7 +27,7 @@ namespace trajectory_follower
 {
 QPSolverOSQP::QPSolverOSQP(const rclcpp::Logger & logger)
 : logger_{logger} {}
-bool QPSolverOSQP::solve(
+bool8_t QPSolverOSQP::solve(
   const Eigen::MatrixXd & Hmat, const Eigen::MatrixXd & fvec, const Eigen::MatrixXd & A,
   const Eigen::VectorXd & lb, const Eigen::VectorXd & ub, const Eigen::VectorXd & lbA,
   const Eigen::VectorXd & ubA, Eigen::VectorXd & U)

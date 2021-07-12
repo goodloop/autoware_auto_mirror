@@ -117,7 +117,7 @@ void Butterworth2dFilter::getCoefficients(std::vector<float64_t> & coeffs) const
 
 namespace MoveAverageFilter
 {
-bool filt_vector(const int num, std::vector<float64_t> & u)
+bool8_t filt_vector(const int num, std::vector<float64_t> & u)
 {
   if (static_cast<int>(u.size()) < num) {
     return false;

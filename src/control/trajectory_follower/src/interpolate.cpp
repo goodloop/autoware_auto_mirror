@@ -32,7 +32,7 @@ namespace trajectory_follower
 {
 namespace
 {
-bool isIncrease(const std::vector<float64_t> & x)
+bool8_t isIncrease(const std::vector<float64_t> & x)
 {
   for (size_t i = 0; i < x.size() - 1; ++i) {
     if (x.at(i) > x.at(i + 1)) {return false;}
@@ -40,7 +40,7 @@ bool isIncrease(const std::vector<float64_t> & x)
   return true;
 }
 
-bool isValidInput(
+bool8_t isValidInput(
   const std::vector<float64_t> & base_index, const std::vector<float64_t> & base_value,
   const std::vector<float64_t> & return_index)
 {
@@ -77,7 +77,7 @@ bool isValidInput(
 }
 }  // namespace
 
-bool linearInterpolate(
+bool8_t linearInterpolate(
   const std::vector<float64_t> & base_index, const std::vector<float64_t> & base_value,
   const std::vector<float64_t> & return_index, std::vector<float64_t> & return_value)
 {
@@ -119,7 +119,7 @@ bool linearInterpolate(
   return true;
 }
 
-bool linearInterpolate(
+bool8_t linearInterpolate(
   const std::vector<float64_t> & base_index, const std::vector<float64_t> & base_value,
   const float64_t & return_index, float64_t & return_value)
 {
@@ -200,7 +200,7 @@ void SplineInterpolate::getValueVector(
   }
 }
 
-bool SplineInterpolate::interpolate(
+bool8_t SplineInterpolate::interpolate(
   const std::vector<float64_t> & base_index, const std::vector<float64_t> & base_value,
   const std::vector<float64_t> & return_index, std::vector<float64_t> & return_value)
 {
