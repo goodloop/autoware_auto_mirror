@@ -69,7 +69,9 @@ void FakeTestNode::SetUp()
 }
 
 void FakeTestNode::TearDown()
-{tear_down();}
+{
+  tear_down();
+}
 
 
 }  // namespace testing
