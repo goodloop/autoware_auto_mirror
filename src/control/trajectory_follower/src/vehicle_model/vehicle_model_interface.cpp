@@ -29,8 +29,8 @@ VehicleModelInterface::VehicleModelInterface(int dim_x, int dim_u, int dim_y)
 int VehicleModelInterface::getDimX() {return m_dim_x;}
 int VehicleModelInterface::getDimU() {return m_dim_u;}
 int VehicleModelInterface::getDimY() {return m_dim_y;}
-void VehicleModelInterface::setVelocity(const double & velocity) {m_velocity = velocity;}
-void VehicleModelInterface::setCurvature(const double & curvature) {m_curvature = curvature;}
+void VehicleModelInterface::setVelocity(const float64_t & velocity) {m_velocity = velocity;}
+void VehicleModelInterface::setCurvature(const float64_t & curvature) {m_curvature = curvature;}
 }  // namespace trajectory_follower
 }  // namespace control
 }  // namespace motion

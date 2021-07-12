@@ -14,9 +14,11 @@
 
 #include <vector>
 
+#include "common/types.hpp"
 #include "gtest/gtest.h"
 #include "trajectory_follower/mpc_trajectory.hpp"
 
+using autoware::common::types::float64_t;
 TEST(test_mpc_trajectory, nominal) {
   typedef autoware::motion::control::trajectory_follower::MPCTrajectory MPCTrajectory;
 
@@ -36,12 +38,12 @@ TEST(test_mpc_trajectory, nominal) {
   EXPECT_EQ(traj.smooth_k[0], 6.0);
   EXPECT_EQ(traj.relative_time[0], 7.0);
 
-  for (double i = 1; i < 11.0; ++i) {
+  for (float64_t i = 1; i < 11.0; ++i) {
     traj.push_back(i + 0.0, i + 1.0, i + 2.0, i + 3.0, i + 4.0, i + 5.0, i + 6.0, i + 7.0);
   }
   ASSERT_EQ(traj.size(), size_t(11));
   for (size_t i = 0; i < size_t(11); ++i) {
-    const double j = static_cast<double>(i);
+    const float64_t j = static_cast<float64_t>(i);
     EXPECT_EQ(traj.x[i], j);
     EXPECT_EQ(traj.y[i], j + 1.0);
     EXPECT_EQ(traj.z[i], j + 2.0);

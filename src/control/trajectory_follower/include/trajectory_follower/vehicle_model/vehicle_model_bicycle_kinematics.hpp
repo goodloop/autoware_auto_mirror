@@ -45,6 +45,7 @@
 
 #include "trajectory_follower/visibility_control.hpp"
 
+#include "common/types.hpp"
 #include "eigen3/Eigen/Core"
 #include "eigen3/Eigen/LU"
 
@@ -56,6 +57,7 @@ namespace control
 {
 namespace trajectory_follower
 {
+using autoware::common::types::float64_t;
 /**
  * Vehicle model class of bicycle kinematics
  * @brief calculate model-related values
@@ -70,7 +72,7 @@ public:
    * @param [in] steer_tau steering time constant for 1d-model
    */
   KinematicsBicycleModel(
-    const double & wheelbase, const double & steer_lim, const double & steer_tau);
+    const float64_t & wheelbase, const float64_t & steer_lim, const float64_t & steer_tau);
 
   /**
    * @brief destructor
@@ -87,7 +89,7 @@ public:
    */
   void calculateDiscreteMatrix(
     Eigen::MatrixXd & Ad, Eigen::MatrixXd & Bd, Eigen::MatrixXd & Cd, Eigen::MatrixXd & Wd,
-    const double & dt) override;
+    const float64_t & dt) override;
 
   /**
    * @brief calculate reference input
@@ -96,9 +98,9 @@ public:
   void calculateReferenceInput(Eigen::MatrixXd & Uref) override;
 
 private:
-  double m_wheelbase;  //!< @brief wheelbase length [m]
-  double m_steer_lim;  //!< @brief steering angle limit [rad]
-  double m_steer_tau;  //!< @brief steering time constant for 1d-model
+  float64_t m_wheelbase;  //!< @brief wheelbase length [m]
+  float64_t m_steer_lim;  //!< @brief steering angle limit [rad]
+  float64_t m_steer_tau;  //!< @brief steering time constant for 1d-model
 };
 }  // namespace trajectory_follower
 }  // namespace control

@@ -29,86 +29,86 @@ namespace trajectory_follower
 {
 namespace MPCUtils
 {
-geometry_msgs::msg::Quaternion getQuaternionFromYaw(const double & yaw)
+geometry_msgs::msg::Quaternion getQuaternionFromYaw(const float64_t & yaw)
 {
   tf2::Quaternion q;
   q.setRPY(0, 0, yaw);
   return tf2::toMsg(q);
 }
 
-void convertEulerAngleToMonotonic(std::vector<double> * a)
+void convertEulerAngleToMonotonic(std::vector<float64_t> * a)
 {
   if (!a) {
     return;
   }
   for (unsigned int i = 1; i < a->size(); ++i) {
-    const double da = a->at(i) - a->at(i - 1);
+    const float64_t da = a->at(i) - a->at(i - 1);
     a->at(i) = a->at(i - 1) + normalizeRadian(da);
   }
 }
 
-double normalizeRadian(const double angle)
+float64_t normalizeRadian(const float64_t angle)
 {
-  double n_angle = std::fmod(angle, 2 * M_PI);
+  float64_t n_angle = std::fmod(angle, 2 * M_PI);
   n_angle = n_angle > M_PI ? n_angle - 2 * M_PI : n_angle < -M_PI ? 2 * M_PI + n_angle : n_angle;
   return n_angle;
 }
 
-double calcDist2d(
+float64_t calcDist2d(
   const geometry_msgs::msg::PoseStamped & p0, const geometry_msgs::msg::PoseStamped & p1)
 {
   return calcDist2d(p0.pose.position, p1.pose.position);
 }
 
-double calcDist2d(
+float64_t calcDist2d(
   const geometry_msgs::msg::Pose & p0, const geometry_msgs::msg::Pose & p1)
 {
   return calcDist2d(p0.position, p1.position);
 }
 
-double calcSquaredDist2d(
+float64_t calcSquaredDist2d(
   const geometry_msgs::msg::Point & p0, const geometry_msgs::msg::Point & p1)
 {
-  double dx = p1.x - p0.x;
-  double dy = p1.y - p0.y;
+  float64_t dx = p1.x - p0.x;
+  float64_t dy = p1.y - p0.y;
   return dx * dx + dy * dy;
 }
 
-double calcDist3d(
+float64_t calcDist3d(
   const geometry_msgs::msg::Point & p0, const geometry_msgs::msg::Point & p1)
 {
-  double dx = p1.x - p0.x;
-  double dy = p1.y - p0.y;
-  double dz = p1.z - p0.z;
+  float64_t dx = p1.x - p0.x;
+  float64_t dy = p1.y - p0.y;
+  float64_t dz = p1.z - p0.z;
   return std::sqrt(dx * dx + dy * dy + dz * dz);
 }
 
-double calcLateralError(
+float64_t calcLateralError(
   const geometry_msgs::msg::Pose & ego_pose, const geometry_msgs::msg::Pose & ref_pose)
 {
-  const double err_x = ego_pose.position.x - ref_pose.position.x;
-  const double err_y = ego_pose.position.y - ref_pose.position.y;
-  const double ref_yaw = tf2::getYaw(ref_pose.orientation);
-  const double lat_err = -std::sin(ref_yaw) * err_x + std::cos(ref_yaw) * err_y;
+  const float64_t err_x = ego_pose.position.x - ref_pose.position.x;
+  const float64_t err_y = ego_pose.position.y - ref_pose.position.y;
+  const float64_t ref_yaw = tf2::getYaw(ref_pose.orientation);
+  const float64_t lat_err = -std::sin(ref_yaw) * err_x + std::cos(ref_yaw) * err_y;
   return lat_err;
 }
 
 void calcMPCTrajectoryArclength(
-  const MPCTrajectory & trajectory, std::vector<double> * arclength)
+  const MPCTrajectory & trajectory, std::vector<float64_t> * arclength)
 {
-  double dist = 0.0;
+  float64_t dist = 0.0;
   arclength->clear();
   arclength->push_back(dist);
   for (unsigned int i = 1; i < trajectory.size(); ++i) {
-    double dx = trajectory.x.at(i) - trajectory.x.at(i - 1);
-    double dy = trajectory.y.at(i) - trajectory.y.at(i - 1);
+    float64_t dx = trajectory.x.at(i) - trajectory.x.at(i - 1);
+    float64_t dy = trajectory.y.at(i) - trajectory.y.at(i - 1);
     dist += std::sqrt(dx * dx + dy * dy);
     arclength->push_back(dist);
   }
 }
 
 bool resampleMPCTrajectoryByDistance(
-  const MPCTrajectory & input, const double resample_interval_dist, MPCTrajectory * output)
+  const MPCTrajectory & input, const float64_t resample_interval_dist, MPCTrajectory * output)
 {
   if (!output) {
     return false;
@@ -117,19 +117,19 @@ bool resampleMPCTrajectoryByDistance(
     *output = input;
     return true;
   }
-  std::vector<double> input_arclength;
+  std::vector<float64_t> input_arclength;
   calcMPCTrajectoryArclength(input, &input_arclength);
 
   if (input_arclength.size() == 0) {
     return false;
   }
 
-  std::vector<double> output_arclength;
-  for (double s = 0; s < input_arclength.back(); s += resample_interval_dist) {
+  std::vector<float64_t> output_arclength;
+  for (float64_t s = 0; s < input_arclength.back(); s += resample_interval_dist) {
     output_arclength.push_back(s);
   }
 
-  std::vector<double> input_yaw = input.yaw;
+  std::vector<float64_t> input_yaw = input.yaw;
   convertEulerAngleToMonotonic(&input_yaw);
 
   SplineInterpolate spline_interp;
@@ -153,8 +153,8 @@ bool resampleMPCTrajectoryByDistance(
 }
 
 bool linearInterpMPCTrajectory(
-  const std::vector<double> & in_index, const MPCTrajectory & in_traj,
-  const std::vector<double> & out_index, MPCTrajectory * out_traj)
+  const std::vector<float64_t> & in_index, const MPCTrajectory & in_traj,
+  const std::vector<float64_t> & out_index, MPCTrajectory * out_traj)
 {
   if (!out_traj) {
     return false;
@@ -165,7 +165,7 @@ bool linearInterpMPCTrajectory(
     return true;
   }
 
-  std::vector<double> in_traj_yaw = in_traj.yaw;
+  std::vector<float64_t> in_traj_yaw = in_traj.yaw;
   convertEulerAngleToMonotonic(&in_traj_yaw);
 
   if (
@@ -196,8 +196,8 @@ void calcTrajectoryYawFromXY(MPCTrajectory * traj)
   if (traj->yaw.size() == 0) {return;}
 
   for (unsigned int i = 1; i < traj->yaw.size() - 1; ++i) {
-    const double dx = traj->x[i + 1] - traj->x[i - 1];
-    const double dy = traj->y[i + 1] - traj->y[i - 1];
+    const float64_t dx = traj->x[i + 1] - traj->x[i - 1];
+    const float64_t dy = traj->y[i + 1] - traj->y[i - 1];
     traj->yaw[i] = std::atan2(dy, dx);
   }
   if (traj->yaw.size() > 1) {
@@ -217,11 +217,11 @@ bool calcTrajectoryCurvature(const size_t curvature_smoothing_num, MPCTrajectory
   return true;
 }
 
-std::vector<double> calcTrajectoryCurvature(
+std::vector<float64_t> calcTrajectoryCurvature(
   const size_t curvature_smoothing_num, const MPCTrajectory & traj)
 {
   const int traj_size = static_cast<int>(traj.x.size());
-  std::vector<double> curvature_vec(traj.x.size());
+  std::vector<float64_t> curvature_vec(traj.x.size());
 
   /* calculate curvature by circle fitting from three points */
   geometry_msgs::msg::Point p1, p2, p3;
@@ -237,12 +237,12 @@ std::vector<double> calcTrajectoryCurvature(
     p1.y = traj.y[prev_idx];
     p2.y = traj.y[curr_idx];
     p3.y = traj.y[next_idx];
-    double den = std::max(
+    float64_t den = std::max(
       calcDist2d(p1, p2) * calcDist2d(p2, p3) * calcDist2d(
         p3,
         p1),
-      std::numeric_limits<double>::epsilon());
-    const double curvature =
+      std::numeric_limits<float64_t>::epsilon());
+    const float64_t curvature =
       2.0 * ((p2.x - p1.x) * (p3.y - p1.y) - (p2.y - p1.y) * (p3.x - p1.x)) / den;
     curvature_vec.at(curr_idx) = curvature;
   }
@@ -266,13 +266,13 @@ bool convertToMPCTrajectory(
 
   output->clear();
   for (const autoware_auto_msgs::msg::TrajectoryPoint & p : input.points) {
-    const double x = p.x;
-    const double y = p.y;
-    const double z = 0.0;
-    const double yaw = ::motion::motion_common::to_angle(p.heading);
-    const double vx = p.longitudinal_velocity_mps;
-    const double k = 0.0;
-    const double t = 0.0;
+    const float64_t x = p.x;
+    const float64_t y = p.y;
+    const float64_t z = 0.0;
+    const float64_t yaw = ::motion::motion_common::to_angle(p.heading);
+    const float64_t vx = p.longitudinal_velocity_mps;
+    const float64_t k = 0.0;
+    const float64_t t = 0.0;
     output->push_back(x, y, z, yaw, vx, k, k, t);
   }
   calcMPCTrajectoryTime(output);
@@ -284,15 +284,15 @@ bool calcMPCTrajectoryTime(MPCTrajectory * traj)
   if (!traj) {
     return false;
   }
-  double t = 0.0;
+  float64_t t = 0.0;
   traj->relative_time.clear();
   traj->relative_time.push_back(t);
   for (size_t i = 0; i < traj->x.size() - 1; ++i) {
-    double dx = traj->x.at(i + 1) - traj->x.at(i);
-    double dy = traj->y.at(i + 1) - traj->y.at(i);
-    double dz = traj->z.at(i + 1) - traj->z.at(i);
-    const double dist = std::sqrt(dx * dx + dy * dy + dz * dz);
-    double v = std::max(std::fabs(traj->vx.at(i)), 0.1);
+    float64_t dx = traj->x.at(i + 1) - traj->x.at(i);
+    float64_t dy = traj->y.at(i + 1) - traj->y.at(i);
+    float64_t dz = traj->z.at(i + 1) - traj->z.at(i);
+    const float64_t dist = std::sqrt(dx * dx + dy * dy + dz * dz);
+    float64_t v = std::max(std::fabs(traj->vx.at(i)), 0.1);
     t += (dist / v);
     traj->relative_time.push_back(t);
   }
@@ -300,21 +300,22 @@ bool calcMPCTrajectoryTime(MPCTrajectory * traj)
 }
 
 void dynamicSmoothingVelocity(
-  const size_t start_idx, const double start_vel, const double acc_lim, const double tau,
+  const size_t start_idx, const float64_t start_vel, const float64_t acc_lim, const float64_t tau,
   MPCTrajectory * traj)
 {
-  double curr_v = start_vel;
-  std::vector<double> smoothed_vel;
+  float64_t curr_v = start_vel;
+  std::vector<float64_t> smoothed_vel;
   MPCTrajectory tmp = *traj;
   traj->vx.at(start_idx) = start_vel;
 
   for (size_t i = start_idx + 1; i < traj->size(); ++i) {
-    const double ds =
+    const float64_t ds =
       std::hypot(traj->x.at(i) - traj->x.at(i - 1), traj->y.at(i) - traj->y.at(i - 1));
-    const double dt = ds / std::max(std::fabs(curr_v), std::numeric_limits<double>::epsilon());
-    const double a = tau / std::max(tau + dt, std::numeric_limits<double>::epsilon());
-    const double updated_v = a * curr_v + (1.0 - a) * traj->vx.at(i);
-    const double dv = std::max(-acc_lim * dt, std::min(acc_lim * dt, updated_v - curr_v));
+    const float64_t dt = ds /
+      std::max(std::fabs(curr_v), std::numeric_limits<float64_t>::epsilon());
+    const float64_t a = tau / std::max(tau + dt, std::numeric_limits<float64_t>::epsilon());
+    const float64_t updated_v = a * curr_v + (1.0 - a) * traj->vx.at(i);
+    const float64_t dv = std::max(-acc_lim * dt, std::min(acc_lim * dt, updated_v - curr_v));
     curr_v = curr_v + dv;
     traj->vx.at(i) = curr_v;
   }
@@ -327,16 +328,16 @@ int calcNearestIndex(
   if (traj.size() == 0) {
     return -1;
   }
-  const double my_yaw = tf2::getYaw(self_pose.orientation);
+  const float64_t my_yaw = tf2::getYaw(self_pose.orientation);
   int nearest_idx = -1;
-  double min_dist_squared = std::numeric_limits<double>::max();
+  float64_t min_dist_squared = std::numeric_limits<float64_t>::max();
   for (size_t i = 0; i < traj.size(); ++i) {
-    const double dx = self_pose.position.x - traj.x[i];
-    const double dy = self_pose.position.y - traj.y[i];
-    const double dist_squared = dx * dx + dy * dy;
+    const float64_t dx = self_pose.position.x - traj.x[i];
+    const float64_t dy = self_pose.position.y - traj.y[i];
+    const float64_t dist_squared = dx * dx + dy * dy;
 
     /* ignore when yaw error is large, for crossing path */
-    const double err_yaw = normalizeRadian(my_yaw - traj.yaw[i]);
+    const float64_t err_yaw = normalizeRadian(my_yaw - traj.yaw[i]);
     if (std::fabs(err_yaw) > (M_PI / 3.0)) {
       continue;
     }
@@ -354,17 +355,17 @@ int calcNearestIndex(
   if (traj.points.size() == 0) {
     return -1;
   }
-  const double my_yaw = tf2::getYaw(self_pose.orientation);
+  const float64_t my_yaw = tf2::getYaw(self_pose.orientation);
   int nearest_idx = -1;
-  double min_dist_squared = std::numeric_limits<double>::max();
+  float64_t min_dist_squared = std::numeric_limits<float64_t>::max();
   for (size_t i = 0; i < traj.points.size(); ++i) {
-    const double dx = self_pose.position.x - static_cast<double>(traj.points.at(i).x);
-    const double dy = self_pose.position.y - static_cast<double>(traj.points.at(i).y);
-    const double dist_squared = dx * dx + dy * dy;
+    const float64_t dx = self_pose.position.x - static_cast<float64_t>(traj.points.at(i).x);
+    const float64_t dy = self_pose.position.y - static_cast<float64_t>(traj.points.at(i).y);
+    const float64_t dist_squared = dx * dx + dy * dy;
 
     /* ignore when yaw error is large, for crossing path */
-    const double traj_yaw = ::motion::motion_common::to_angle(traj.points.at(i).heading);
-    const double err_yaw = normalizeRadian(my_yaw - traj_yaw);
+    const float64_t traj_yaw = ::motion::motion_common::to_angle(traj.points.at(i).heading);
+    const float64_t err_yaw = normalizeRadian(my_yaw - traj_yaw);
     if (std::fabs(err_yaw) > (M_PI / 3.0)) {
       continue;
     }
@@ -378,7 +379,7 @@ int calcNearestIndex(
 
 bool calcNearestPoseInterp(
   const MPCTrajectory & traj, const geometry_msgs::msg::Pose & self_pose,
-  geometry_msgs::msg::Pose * nearest_pose, size_t * nearest_index, double * nearest_time,
+  geometry_msgs::msg::Pose * nearest_pose, size_t * nearest_index, float64_t * nearest_time,
   rclcpp::Logger logger, rclcpp::Clock & clock)
 {
   if (traj.size() == 0 || !nearest_pose || !nearest_index || !nearest_time) {
@@ -406,23 +407,23 @@ bool calcNearestPoseInterp(
 
   auto calcSquaredDist =
     [](const geometry_msgs::msg::Pose & p, const MPCTrajectory & t, const size_t idx) {
-      const double dx = p.position.x - t.x[idx];
-      const double dy = p.position.y - t.y[idx];
+      const float64_t dx = p.position.x - t.x[idx];
+      const float64_t dy = p.position.y - t.y[idx];
       return dx * dx + dy * dy;
     };
 
   /* get second nearest index = next to nearest_index */
   const size_t next = static_cast<size_t>(std::min(nearest_idx + 1, traj_size - 1));
   const size_t prev = static_cast<size_t>(std::max(nearest_idx - 1, 0));
-  const double dist_to_next = calcSquaredDist(self_pose, traj, next);
-  const double dist_to_prev = calcSquaredDist(self_pose, traj, prev);
+  const float64_t dist_to_next = calcSquaredDist(self_pose, traj, next);
+  const float64_t dist_to_prev = calcSquaredDist(self_pose, traj, prev);
   const size_t second_nearest_index = (dist_to_next < dist_to_prev) ? next : prev;
 
-  const double a_sq = calcSquaredDist(self_pose, traj, *nearest_index);
-  const double b_sq = calcSquaredDist(self_pose, traj, second_nearest_index);
-  const double dx3 = traj.x[*nearest_index] - traj.x[second_nearest_index];
-  const double dy3 = traj.y[*nearest_index] - traj.y[second_nearest_index];
-  const double c_sq = dx3 * dx3 + dy3 * dy3;
+  const float64_t a_sq = calcSquaredDist(self_pose, traj, *nearest_index);
+  const float64_t b_sq = calcSquaredDist(self_pose, traj, second_nearest_index);
+  const float64_t dx3 = traj.x[*nearest_index] - traj.x[second_nearest_index];
+  const float64_t dy3 = traj.y[*nearest_index] - traj.y[second_nearest_index];
+  const float64_t c_sq = dx3 * dx3 + dy3 * dy3;
 
   /* if distance between two points are too close */
   if (c_sq < 1.0E-5) {
@@ -434,13 +435,15 @@ bool calcNearestPoseInterp(
   }
 
   /* linear interpolation */
-  const double alpha = std::max(std::min(0.5 * (c_sq - a_sq + b_sq) / c_sq, 1.0), 0.0);
+  const float64_t alpha = std::max(std::min(0.5 * (c_sq - a_sq + b_sq) / c_sq, 1.0), 0.0);
   nearest_pose->position.x =
     alpha * traj.x[*nearest_index] + (1 - alpha) * traj.x[second_nearest_index];
   nearest_pose->position.y =
     alpha * traj.y[*nearest_index] + (1 - alpha) * traj.y[second_nearest_index];
-  double tmp_yaw_err = normalizeRadian(traj.yaw[*nearest_index] - traj.yaw[second_nearest_index]);
-  const double nearest_yaw = normalizeRadian(traj.yaw[second_nearest_index] + alpha * tmp_yaw_err);
+  float64_t tmp_yaw_err =
+    normalizeRadian(traj.yaw[*nearest_index] - traj.yaw[second_nearest_index]);
+  const float64_t nearest_yaw =
+    normalizeRadian(traj.yaw[second_nearest_index] + alpha * tmp_yaw_err);
   nearest_pose->orientation = getQuaternionFromYaw(nearest_yaw);
   *nearest_time = alpha * traj.relative_time[*nearest_index] +
     (1 - alpha) * traj.relative_time[second_nearest_index];

@@ -35,14 +35,15 @@
  *
  */
 
-#ifndef TRAJECTORY_FOLLOWER__VEHICLE_MODEL__VEHICLE_MODEL_BICYCLE_KINEMATICS_NO_DELAY_HPP_  // NOLINT
-#define TRAJECTORY_FOLLOWER__VEHICLE_MODEL__VEHICLE_MODEL_BICYCLE_KINEMATICS_NO_DELAY_HPP_  // NOLINT
+#ifndef TRAJECTORY_FOLLOWER__VEHICLE_MODEL__VEHICLE_MODEL_BICYCLE_KINEMATICS_NO_DELAY_HPP_
+#define TRAJECTORY_FOLLOWER__VEHICLE_MODEL__VEHICLE_MODEL_BICYCLE_KINEMATICS_NO_DELAY_HPP_
 
 #include "trajectory_follower/vehicle_model/vehicle_model_interface.hpp"
-#include "trajectory_follower/visibility_control.hpp"
 
+#include "common/types.hpp"
 #include "eigen3/Eigen/Core"
 #include "eigen3/Eigen/LU"
+#include "trajectory_follower/visibility_control.hpp"
 
 namespace autoware
 {
@@ -52,6 +53,7 @@ namespace control
 {
 namespace trajectory_follower
 {
+using autoware::common::types::float64_t;
 /**
  * Vehicle model class of bicycle kinematics without steering delay
  * @brief calculate model-related values
@@ -64,7 +66,7 @@ public:
    * @param [in] wheelbase wheelbase length [m]
    * @param [in] steer_lim steering angle limit [rad]
    */
-  KinematicsBicycleModelNoDelay(const double & wheelbase, const double & steer_lim);
+  KinematicsBicycleModelNoDelay(const float64_t & wheelbase, const float64_t & steer_lim);
 
   /**
    * @brief destructor
@@ -81,7 +83,7 @@ public:
    */
   void calculateDiscreteMatrix(
     Eigen::MatrixXd & Ad, Eigen::MatrixXd & Bd, Eigen::MatrixXd & Cd, Eigen::MatrixXd & Wd,
-    const double & dt) override;
+    const float64_t & dt) override;
 
   /**
    * @brief calculate reference input
@@ -90,8 +92,8 @@ public:
   void calculateReferenceInput(Eigen::MatrixXd & Uref) override;
 
 private:
-  double m_wheelbase;  //!< @brief wheelbase length [m]
-  double m_steer_lim;  //!< @brief steering angle limit [rad]
+  float64_t m_wheelbase;  //!< @brief wheelbase length [m]
+  float64_t m_steer_lim;  //!< @brief steering angle limit [rad]
 };
 }  // namespace trajectory_follower
 }  // namespace control

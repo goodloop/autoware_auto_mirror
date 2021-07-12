@@ -23,7 +23,7 @@ namespace control
 namespace trajectory_follower
 {
 KinematicsBicycleModelNoDelay::KinematicsBicycleModelNoDelay(
-  const double & wheelbase, const double & steer_lim)
+  const float64_t & wheelbase, const float64_t & steer_lim)
 : VehicleModelInterface(/* dim_x */ 2, /* dim_u */ 1, /* dim_y */ 2)
 {
   m_wheelbase = wheelbase;
@@ -32,14 +32,14 @@ KinematicsBicycleModelNoDelay::KinematicsBicycleModelNoDelay(
 
 void KinematicsBicycleModelNoDelay::calculateDiscreteMatrix(
   Eigen::MatrixXd & Ad, Eigen::MatrixXd & Bd, Eigen::MatrixXd & Cd, Eigen::MatrixXd & Wd,
-  const double & dt)
+  const float64_t & dt)
 {
-  auto sign = [](double x) {return (x > 0.0) - (x < 0.0);};
+  auto sign = [](float64_t x) {return (x > 0.0) - (x < 0.0);};
 
   /* Linearize delta around delta_r (reference delta) */
-  double delta_r = atan(m_wheelbase * m_curvature);
-  if (abs(delta_r) >= m_steer_lim) {delta_r = m_steer_lim * static_cast<double>(sign(delta_r));}
-  double cos_delta_r_squared_inv = 1 / (cos(delta_r) * cos(delta_r));
+  float64_t delta_r = atan(m_wheelbase * m_curvature);
+  if (abs(delta_r) >= m_steer_lim) {delta_r = m_steer_lim * static_cast<float64_t>(sign(delta_r));}
+  float64_t cos_delta_r_squared_inv = 1 / (cos(delta_r) * cos(delta_r));
 
   Ad << 0.0, m_velocity, 0.0, 0.0;
   Eigen::MatrixXd I = Eigen::MatrixXd::Identity(m_dim_x, m_dim_x);

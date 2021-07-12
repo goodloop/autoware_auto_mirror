@@ -14,18 +14,20 @@
 
 #include <vector>
 
+#include "common/types.hpp"
 #include "gtest/gtest.h"
 #include "trajectory_follower/interpolate.hpp"
 
+using autoware::common::types::float64_t;
 TEST(test_interpolate, nominal) {
   using autoware::motion::control::trajectory_follower::linearInterpolate;
 
   // Simple case
   {
-    std::vector<double> original_indexes = {1.0, 2.0, 3.0};
-    std::vector<double> original_values = {1.0, 2.0, 3.0};
-    std::vector<double> target_indexes = {1.5, 2.5};
-    std::vector<double> target_values;
+    std::vector<float64_t> original_indexes = {1.0, 2.0, 3.0};
+    std::vector<float64_t> original_values = {1.0, 2.0, 3.0};
+    std::vector<float64_t> target_indexes = {1.5, 2.5};
+    std::vector<float64_t> target_values;
 
     ASSERT_TRUE(
       linearInterpolate(
@@ -38,10 +40,10 @@ TEST(test_interpolate, nominal) {
   }
   // Non regular indexes
   {
-    std::vector<double> original_indexes = {1.0, 1.5, 3.0};
-    std::vector<double> original_values = {1.0, 2.0, 3.5};
-    std::vector<double> target_indexes = {1.25, 2.5, 3.0};
-    std::vector<double> target_values;
+    std::vector<float64_t> original_indexes = {1.0, 1.5, 3.0};
+    std::vector<float64_t> original_values = {1.0, 2.0, 3.5};
+    std::vector<float64_t> target_indexes = {1.25, 2.5, 3.0};
+    std::vector<float64_t> target_values;
 
     ASSERT_TRUE(
       linearInterpolate(
@@ -54,10 +56,10 @@ TEST(test_interpolate, nominal) {
   }
   // Single index query
   {
-    std::vector<double> original_indexes = {1.0, 1.5, 3.0};
-    std::vector<double> original_values = {1.0, 2.0, 3.5};
-    double target_index = 1.25;
-    double target_value;
+    std::vector<float64_t> original_indexes = {1.0, 1.5, 3.0};
+    std::vector<float64_t> original_values = {1.0, 2.0, 3.5};
+    float64_t target_index = 1.25;
+    float64_t target_value;
 
     ASSERT_TRUE(
       linearInterpolate(
@@ -69,7 +71,7 @@ TEST(test_interpolate, nominal) {
 TEST(test_interpolate, failure) {
   using autoware::motion::control::trajectory_follower::linearInterpolate;
 
-  std::vector<double> target_values;
+  std::vector<float64_t> target_values;
 
   // Non increasing indexes
   ASSERT_FALSE(

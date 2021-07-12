@@ -25,15 +25,15 @@ namespace control
 namespace trajectory_follower
 {
 DynamicsBicycleModel::DynamicsBicycleModel(
-  const double & wheelbase, const double & mass_fl, const double & mass_fr, const double & mass_rl,
-  const double & mass_rr,
-  const double & cf, const double & cr)
+  const float64_t & wheelbase, const float64_t & mass_fl,
+  const float64_t & mass_fr, const float64_t & mass_rl,
+  const float64_t & mass_rr, const float64_t & cf, const float64_t & cr)
 : VehicleModelInterface(/* dim_x */ 4, /* dim_u */ 1, /* dim_y */ 2)
 {
   m_wheelbase = wheelbase;
 
-  const double mass_front = mass_fl + mass_fr;
-  const double mass_rear = mass_rl + mass_rr;
+  const float64_t mass_front = mass_fl + mass_fr;
+  const float64_t mass_rear = mass_rl + mass_rr;
 
   m_mass = mass_front + mass_rear;
   m_lf = m_wheelbase * (1.0 - mass_front / m_mass);
@@ -45,13 +45,13 @@ DynamicsBicycleModel::DynamicsBicycleModel(
 
 void DynamicsBicycleModel::calculateDiscreteMatrix(
   Eigen::MatrixXd & Ad, Eigen::MatrixXd & Bd, Eigen::MatrixXd & Cd, Eigen::MatrixXd & Wd,
-  const double & dt)
+  const float64_t & dt)
 {
   /*
    * x[k+1] = Ad*x[k] + Bd*u + Wd
    */
 
-  const double vel = std::max(m_velocity, 0.01);
+  const float64_t vel = std::max(m_velocity, 0.01);
 
   Ad = Eigen::MatrixXd::Zero(m_dim_x, m_dim_x);
   Ad(0, 1) = 1.0;
@@ -90,8 +90,8 @@ void DynamicsBicycleModel::calculateDiscreteMatrix(
 
 void DynamicsBicycleModel::calculateReferenceInput(Eigen::MatrixXd & Uref)
 {
-  const double vel = std::max(m_velocity, 0.01);
-  const double Kv = m_lr * m_mass / (2 * m_cf * m_wheelbase) - m_lf * m_mass /
+  const float64_t vel = std::max(m_velocity, 0.01);
+  const float64_t Kv = m_lr * m_mass / (2 * m_cf * m_wheelbase) - m_lf * m_mass /
     (2 * m_cr * m_wheelbase);
   Uref(0, 0) = m_wheelbase * m_curvature + Kv * vel * vel * m_curvature;
 }

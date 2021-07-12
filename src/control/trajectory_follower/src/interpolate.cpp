@@ -32,7 +32,7 @@ namespace trajectory_follower
 {
 namespace
 {
-bool isIncrease(const std::vector<double> & x)
+bool isIncrease(const std::vector<float64_t> & x)
 {
   for (size_t i = 0; i < x.size() - 1; ++i) {
     if (x.at(i) > x.at(i + 1)) {return false;}
@@ -41,8 +41,8 @@ bool isIncrease(const std::vector<double> & x)
 }
 
 bool isValidInput(
-  const std::vector<double> & base_index, const std::vector<double> & base_value,
-  const std::vector<double> & return_index)
+  const std::vector<float64_t> & base_index, const std::vector<float64_t> & base_value,
+  const std::vector<float64_t> & return_index)
 {
   if (base_index.empty() || base_value.empty() || return_index.empty()) {
     std::cerr << "mpc bad index : some vector is empty. base_index: " << base_index.size() <<
@@ -78,8 +78,8 @@ bool isValidInput(
 }  // namespace
 
 bool linearInterpolate(
-  const std::vector<double> & base_index, const std::vector<double> & base_value,
-  const std::vector<double> & return_index, std::vector<double> & return_value)
+  const std::vector<float64_t> & base_index, const std::vector<float64_t> & base_value,
+  const std::vector<float64_t> & return_index, std::vector<float64_t> & return_value)
 {
   // check if inputs are valid
   if (!isValidInput(base_index, base_value, return_index)) {
@@ -107,11 +107,11 @@ bool linearInterpolate(
       continue;
     }
 
-    const double dist_base_idx = base_index.at(i) - base_index.at(i - 1);
-    const double dist_to_forward = base_index.at(i) - idx;
-    const double dist_to_backward = idx - base_index.at(i - 1);
+    const float64_t dist_base_idx = base_index.at(i) - base_index.at(i - 1);
+    const float64_t dist_to_forward = base_index.at(i) - idx;
+    const float64_t dist_to_backward = idx - base_index.at(i - 1);
 
-    const double value =
+    const float64_t value =
       (dist_to_backward * base_value.at(i) + dist_to_forward * base_value.at(i - 1)) /
       dist_base_idx;
     return_value.push_back(value);
@@ -120,13 +120,13 @@ bool linearInterpolate(
 }
 
 bool linearInterpolate(
-  const std::vector<double> & base_index, const std::vector<double> & base_value,
-  const double & return_index, double & return_value)
+  const std::vector<float64_t> & base_index, const std::vector<float64_t> & base_value,
+  const float64_t & return_index, float64_t & return_value)
 {
-  std::vector<double> return_index_v;
+  std::vector<float64_t> return_index_v;
   return_index_v.push_back(return_index);
 
-  std::vector<double> return_value_v;
+  std::vector<float64_t> return_value_v;
   if (!linearInterpolate(base_index, base_value, return_index_v, return_value_v)) {
     return false;
   }
@@ -138,9 +138,9 @@ bool linearInterpolate(
  */
 
 SplineInterpolate::SplineInterpolate() {}
-SplineInterpolate::SplineInterpolate(const std::vector<double> & x) {generateSpline(x);}
+SplineInterpolate::SplineInterpolate(const std::vector<float64_t> & x) {generateSpline(x);}
 SplineInterpolate::~SplineInterpolate() {}
-void SplineInterpolate::generateSpline(const std::vector<double> & x)
+void SplineInterpolate::generateSpline(const std::vector<float64_t> & x)
 {
   const size_t N = x.size();
 
@@ -157,10 +157,10 @@ void SplineInterpolate::generateSpline(const std::vector<double> & x)
   }
   c_.push_back(0.0);
 
-  std::vector<double> w_;
+  std::vector<float64_t> w_;
   w_.push_back(0.0);
 
-  double tmp;
+  float64_t tmp;
   for (size_t i = 1; i < N - 1; i++) {
     tmp = 1.0 / (4.0 - w_.at(i - 1));
     c_.at(i) = (c_.at(i) - c_.at(i - 1)) * tmp;
@@ -181,17 +181,17 @@ void SplineInterpolate::generateSpline(const std::vector<double> & x)
   initialized_ = true;
 }
 
-double SplineInterpolate::getValue(const double & s)
+float64_t SplineInterpolate::getValue(const float64_t & s)
 {
   if (!initialized_) {return 0.0;}
 
   size_t j = std::max(std::min(static_cast<size_t>(std::floor(s)), a_.size() - 1), size_t(0));
-  const double ds = s - static_cast<double>(j);
+  const float64_t ds = s - static_cast<float64_t>(j);
   return a_.at(j) + (b_.at(j) + (c_.at(j) + d_.at(j) * ds) * ds) * ds;
 }
 
 void SplineInterpolate::getValueVector(
-  const std::vector<double> & s_v, std::vector<double> & value_v)
+  const std::vector<float64_t> & s_v, std::vector<float64_t> & value_v)
 {
   if (!initialized_) {return;}
   value_v.clear();
@@ -201,8 +201,8 @@ void SplineInterpolate::getValueVector(
 }
 
 bool SplineInterpolate::interpolate(
-  const std::vector<double> & base_index, const std::vector<double> & base_value,
-  const std::vector<double> & return_index, std::vector<double> & return_value)
+  const std::vector<float64_t> & base_index, const std::vector<float64_t> & base_value,
+  const std::vector<float64_t> & return_index, std::vector<float64_t> & return_value)
 {
   // check if inputs are valid
   if (!isValidInput(base_index, base_value, return_index)) {
@@ -210,7 +210,7 @@ bool SplineInterpolate::interpolate(
     return false;
   }
 
-  std::vector<double> normalized_idx;
+  std::vector<float64_t> normalized_idx;
 
   // calculate normalized index
   size_t i = 0;
@@ -218,7 +218,7 @@ bool SplineInterpolate::interpolate(
 
   for (const auto idx : return_index) {
     if (base_index.at(i) == idx) {
-      normalized_idx.push_back(static_cast<double>(i));
+      normalized_idx.push_back(static_cast<float64_t>(i));
       continue;
     }
     while (base_index.at(i) < idx) {
@@ -233,14 +233,14 @@ bool SplineInterpolate::interpolate(
       continue;
     }
 
-    const double dist_base_idx = base_index.at(i) - base_index.at(i - 1);
-    const double dist_to_forward = base_index.at(i) - idx;
-    const double dist_to_backward = idx - base_index.at(i - 1);
-    const double i_double = static_cast<double>(i);
-    const double value =
-      (dist_to_backward * i_double + dist_to_forward * (i_double - 1)) / std::max(
+    const float64_t dist_base_idx = base_index.at(i) - base_index.at(i - 1);
+    const float64_t dist_to_forward = base_index.at(i) - idx;
+    const float64_t dist_to_backward = idx - base_index.at(i - 1);
+    const float64_t i_float64_t = static_cast<float64_t>(i);
+    const float64_t value =
+      (dist_to_backward * i_float64_t + dist_to_forward * (i_float64_t - 1)) / std::max(
       dist_base_idx,
-      std::numeric_limits<double>::epsilon());
+      std::numeric_limits<float64_t>::epsilon());
     normalized_idx.push_back(value);
   }
 

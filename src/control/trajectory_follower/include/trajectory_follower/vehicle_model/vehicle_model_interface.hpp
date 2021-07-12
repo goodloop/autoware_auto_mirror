@@ -15,6 +15,7 @@
 #ifndef TRAJECTORY_FOLLOWER__VEHICLE_MODEL__VEHICLE_MODEL_INTERFACE_HPP_
 #define TRAJECTORY_FOLLOWER__VEHICLE_MODEL__VEHICLE_MODEL_INTERFACE_HPP_
 
+#include "common/types.hpp"
 #include "eigen3/Eigen/Core"
 #include "trajectory_follower/visibility_control.hpp"
 
@@ -26,6 +27,7 @@ namespace control
 {
 namespace trajectory_follower
 {
+using autoware::common::types::float64_t;
 /**
  * Vehicle model class
  * @brief calculate model-related values
@@ -36,8 +38,8 @@ protected:
   const int m_dim_x;   //!< @brief dimension of state x
   const int m_dim_u;   //!< @brief dimension of input u
   const int m_dim_y;   //!< @brief dimension of output y
-  double m_velocity;   //!< @brief vehicle velocity
-  double m_curvature;  //!< @brief curvature on the linearized point on path
+  float64_t m_velocity;   //!< @brief vehicle velocity
+  float64_t m_curvature;  //!< @brief curvature on the linearized point on path
 
 public:
   /**
@@ -75,13 +77,13 @@ public:
    * @brief set velocity
    * @param [in] velocity vehicle velocity
    */
-  void setVelocity(const double & velocity);
+  void setVelocity(const float64_t & velocity);
 
   /**
    * @brief set curvature
    * @param [in] curvature curvature on the linearized point on path
    */
-  void setCurvature(const double & curvature);
+  void setCurvature(const float64_t & curvature);
 
   /**
    * @brief calculate discrete model matrix of x_k+1 = Ad * xk + Bd * uk + Wd, yk = Cd * xk
@@ -93,7 +95,7 @@ public:
    */
   virtual void calculateDiscreteMatrix(
     Eigen::MatrixXd & Ad, Eigen::MatrixXd & Bd, Eigen::MatrixXd & Cd, Eigen::MatrixXd & Wd,
-    const double & dt) = 0;
+    const float64_t & dt) = 0;
 
   /**
    * @brief calculate reference input

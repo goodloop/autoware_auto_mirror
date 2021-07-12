@@ -17,6 +17,7 @@
 
 #include "trajectory_follower/qp_solver/qp_solver_interface.hpp"
 
+#include "common/types.hpp"
 #include "eigen3/Eigen/Dense"
 #include "osqp_interface/osqp_interface.hpp"
 #include "rclcpp/rclcpp.hpp"
@@ -30,6 +31,7 @@ namespace control
 {
 namespace trajectory_follower
 {
+using autoware::common::types::float64_t;
 class TRAJECTORY_FOLLOWER_PUBLIC QPSolverOSQP : public QPSolverInterface
 {
 public:

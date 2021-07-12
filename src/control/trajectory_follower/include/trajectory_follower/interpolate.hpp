@@ -19,6 +19,7 @@
 #include <iostream>
 #include <vector>
 
+#include "common/types.hpp"
 #include "trajectory_follower/visibility_control.hpp"
 
 namespace autoware
@@ -29,31 +30,32 @@ namespace control
 {
 namespace trajectory_follower
 {
+using autoware::common::types::float64_t;
 TRAJECTORY_FOLLOWER_PUBLIC bool linearInterpolate(
-  const std::vector<double> & base_index, const std::vector<double> & base_value,
-  const std::vector<double> & return_index, std::vector<double> & return_value);
+  const std::vector<float64_t> & base_index, const std::vector<float64_t> & base_value,
+  const std::vector<float64_t> & return_index, std::vector<float64_t> & return_value);
 TRAJECTORY_FOLLOWER_PUBLIC bool linearInterpolate(
-  const std::vector<double> & base_index, const std::vector<double> & base_value,
-  const double & return_index, double & return_value);
+  const std::vector<float64_t> & base_index, const std::vector<float64_t> & base_value,
+  const float64_t & return_index, float64_t & return_value);
 
 class TRAJECTORY_FOLLOWER_PUBLIC SplineInterpolate
 {
   bool initialized_;
-  std::vector<double> a_;  //!< @brief temporal vector for calculation
-  std::vector<double> b_;  //!< @brief temporal vector for calculation
-  std::vector<double> c_;  //!< @brief temporal vector for calculation
-  std::vector<double> d_;  //!< @brief temporal vector for calculation
+  std::vector<float64_t> a_;  //!< @brief temporal vector for calculation
+  std::vector<float64_t> b_;  //!< @brief temporal vector for calculation
+  std::vector<float64_t> c_;  //!< @brief temporal vector for calculation
+  std::vector<float64_t> d_;  //!< @brief temporal vector for calculation
 
 public:
   SplineInterpolate();
-  explicit SplineInterpolate(const std::vector<double> & x);
+  explicit SplineInterpolate(const std::vector<float64_t> & x);
   ~SplineInterpolate();
-  void generateSpline(const std::vector<double> & x);
-  double getValue(const double & s);
+  void generateSpline(const std::vector<float64_t> & x);
+  float64_t getValue(const float64_t & s);
   bool interpolate(
-    const std::vector<double> & base_index, const std::vector<double> & base_value,
-    const std::vector<double> & return_index, std::vector<double> & return_value);
-  void getValueVector(const std::vector<double> & s_v, std::vector<double> & value_v);
+    const std::vector<float64_t> & base_index, const std::vector<float64_t> & base_value,
+    const std::vector<float64_t> & return_index, std::vector<float64_t> & return_value);
+  void getValueVector(const std::vector<float64_t> & s_v, std::vector<float64_t> & value_v);
 };
 }  // namespace trajectory_follower
 }  // namespace control

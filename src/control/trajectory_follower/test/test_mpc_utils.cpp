@@ -19,11 +19,11 @@
 #include "trajectory_follower/mpc_utils.hpp"
 #include "trajectory_follower/mpc_trajectory.hpp"
 
-#include "gtest/gtest.h"
 #include "autoware_auto_msgs/msg/trajectory.hpp"
 #include "autoware_auto_msgs/msg/trajectory_point.hpp"
 #include "geometry_msgs/msg/pose_stamped.hpp"
 #include "geometry_msgs/msg/pose.hpp"
+#include "gtest/gtest.h"
 
 namespace
 {

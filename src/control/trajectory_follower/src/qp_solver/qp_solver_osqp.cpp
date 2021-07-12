@@ -38,10 +38,10 @@ bool QPSolverOSQP::solve(
   Eigen::MatrixXd I = Eigen::MatrixXd::Identity(DIM_U, DIM_U);
 
   // convert matrix to vector for osqpsolver
-  std::vector<double> f(&fvec(0), fvec.data() + fvec.cols() * fvec.rows());
+  std::vector<float64_t> f(&fvec(0), fvec.data() + fvec.cols() * fvec.rows());
 
-  std::vector<double> lower_bound;
-  std::vector<double> upper_bound;
+  std::vector<float64_t> lower_bound;
+  std::vector<float64_t> upper_bound;
 
   for (int i = 0; i < DIM_U; ++i) {
     lower_bound.push_back(lb(i));
@@ -59,14 +59,14 @@ bool QPSolverOSQP::solve(
   /* execute optimization */
   auto result = osqpsolver_.optimize(Hmat, osqpA, f, lower_bound, upper_bound);
 
-  std::vector<double> U_osqp = std::get<0>(result);
+  std::vector<float64_t> U_osqp = std::get<0>(result);
   U =
-    Eigen::Map<Eigen::Matrix<double, Eigen::Dynamic, 1>>(
+    Eigen::Map<Eigen::Matrix<float64_t, Eigen::Dynamic, 1>>(
     &U_osqp[0],
     static_cast<Eigen::Index>(U_osqp.size()), 1);
 
   // polish status: successful (1), unperformed (0), (-1) unsuccessful
-  int status_polish = std::get<2>(result);
+  int64_t status_polish = std::get<2>(result);
   if (status_polish == -1) {
     RCLCPP_WARN(logger_, "osqp status_polish = %d (unsuccessful)", status_polish);
     return false;

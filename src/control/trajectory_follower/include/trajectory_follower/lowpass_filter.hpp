@@ -20,6 +20,7 @@
 #include <iostream>
 #include <vector>
 
+#include "common/types.hpp"
 #include "trajectory_follower/visibility_control.hpp"
 
 namespace autoware
@@ -30,6 +31,7 @@ namespace control
 {
 namespace trajectory_follower
 {
+using autoware::common::types::float64_t;
 /**
  * @brief 2nd-order Butterworth Filter
  * reference : S. Butterworth, "On the Theory of Filter Amplifier", Experimental wireless, 1930.
@@ -38,16 +40,16 @@ namespace trajectory_follower
 class TRAJECTORY_FOLLOWER_PUBLIC Butterworth2dFilter
 {
 private:
-  double m_y1;  //!< @brief filter coefficient calculated with cutoff frequency and sampling time
-  double m_y2;  //!< @brief filter coefficient calculated with cutoff frequency and sampling time
-  double m_u1;  //!< @brief filter coefficient calculated with cutoff frequency and sampling time
-  double m_u2;  //!< @brief filter coefficient calculated with cutoff frequency and sampling time
-  double m_a0;  //!< @brief filter coefficient calculated with cutoff frequency and sampling time
-  double m_a1;  //!< @brief filter coefficient calculated with cutoff frequency and sampling time
-  double m_a2;  //!< @brief filter coefficient calculated with cutoff frequency and sampling time
-  double m_b0;  //!< @brief filter coefficient calculated with cutoff frequency and sampling time
-  double m_b1;  //!< @brief filter coefficient calculated with cutoff frequency and sampling time
-  double m_b2;  //!< @brief filter coefficient calculated with cutoff frequency and sampling time
+  float64_t m_y1;  //!< @brief filter coefficient calculated with cutoff frequency and sampling time
+  float64_t m_y2;  //!< @brief filter coefficient calculated with cutoff frequency and sampling time
+  float64_t m_u1;  //!< @brief filter coefficient calculated with cutoff frequency and sampling time
+  float64_t m_u2;  //!< @brief filter coefficient calculated with cutoff frequency and sampling time
+  float64_t m_a0;  //!< @brief filter coefficient calculated with cutoff frequency and sampling time
+  float64_t m_a1;  //!< @brief filter coefficient calculated with cutoff frequency and sampling time
+  float64_t m_a2;  //!< @brief filter coefficient calculated with cutoff frequency and sampling time
+  float64_t m_b0;  //!< @brief filter coefficient calculated with cutoff frequency and sampling time
+  float64_t m_b1;  //!< @brief filter coefficient calculated with cutoff frequency and sampling time
+  float64_t m_b2;  //!< @brief filter coefficient calculated with cutoff frequency and sampling time
 
 public:
   /**
@@ -55,7 +57,7 @@ public:
    * @param [in] dt sampling time
    * @param [in] f_cutoff_hz cutoff frequency [Hz]
    */
-  explicit Butterworth2dFilter(double dt = 0.01, double f_cutoff_hz = 5.0);
+  explicit Butterworth2dFilter(float64_t dt = 0.01, float64_t f_cutoff_hz = 5.0);
 
   /**
    * @brief destructor
@@ -67,21 +69,21 @@ public:
    * @param [in] dt sampling time
    * @param [in] f_cutoff_hz cutoff frequency [Hz]
    */
-  void initialize(const double & dt, const double & f_cutoff_hz);
+  void initialize(const float64_t & dt, const float64_t & f_cutoff_hz);
 
   /**
    * @brief filtering (call this function at each sampling time with input)
    * @param [in] u scalar input for filter
    * @return filtered scalar value
    */
-  double filter(const double & u);
+  float64_t filter(const float64_t & u);
 
   /**
    * @brief filtering for time-series data
    * @param [in] t time-series data for input vector
    * @param [out] u object vector
    */
-  void filt_vector(const std::vector<double> & t, std::vector<double> & u) const;
+  void filt_vector(const std::vector<float64_t> & t, std::vector<float64_t> & u) const;
 
   /**
    * @brief filtering for time-series data from both forward-backward direction for zero phase delay
@@ -89,14 +91,14 @@ public:
    * @param [out] u object vector
    */
   void filtfilt_vector(
-    const std::vector<double> & t,
-    std::vector<double> & u) const;  // filtering forward and backward direction
+    const std::vector<float64_t> & t,
+    std::vector<float64_t> & u) const;  // filtering forward and backward direction
 
   /**
    * @brief get filter coefficients
    * @param [out] coeffs coefficients of filter [a0, a1, a2, b0, b1, b2].
    */
-  void getCoefficients(std::vector<double> & coeffs) const;
+  void getCoefficients(std::vector<float64_t> & coeffs) const;
 };
 
 /**
@@ -109,7 +111,7 @@ namespace MoveAverageFilter
  * @param [in] num index distance for moving average filter
  * @param [out] u object vector
  */
-TRAJECTORY_FOLLOWER_PUBLIC bool filt_vector(const int num, std::vector<double> & u);
+TRAJECTORY_FOLLOWER_PUBLIC bool filt_vector(const int num, std::vector<float64_t> & u);
 }  // namespace MoveAverageFilter
 }  // namespace trajectory_follower
 }  // namespace control
