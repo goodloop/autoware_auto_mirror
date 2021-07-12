@@ -43,12 +43,12 @@ bool8_t QPSolverOSQP::solve(
   std::vector<float64_t> lower_bound;
   std::vector<float64_t> upper_bound;
 
-  for (int i = 0; i < DIM_U; ++i) {
+  for (int64_t i = 0; i < DIM_U; ++i) {
     lower_bound.push_back(lb(i));
     upper_bound.push_back(ub(i));
   }
 
-  for (int i = 0; i < col_a; ++i) {
+  for (int64_t i = 0; i < col_a; ++i) {
     lower_bound.push_back(lbA(i));
     upper_bound.push_back(ubA(i));
   }

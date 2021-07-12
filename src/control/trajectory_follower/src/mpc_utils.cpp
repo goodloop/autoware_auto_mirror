@@ -41,7 +41,7 @@ void convertEulerAngleToMonotonic(std::vector<float64_t> * a)
   if (!a) {
     return;
   }
-  for (unsigned int i = 1; i < a->size(); ++i) {
+  for (uint64_t i = 1; i < a->size(); ++i) {
     const float64_t da = a->at(i) - a->at(i - 1);
     a->at(i) = a->at(i - 1) + normalizeRadian(da);
   }
@@ -99,7 +99,7 @@ void calcMPCTrajectoryArclength(
   float64_t dist = 0.0;
   arclength->clear();
   arclength->push_back(dist);
-  for (unsigned int i = 1; i < trajectory.size(); ++i) {
+  for (uint64_t i = 1; i < trajectory.size(); ++i) {
     float64_t dx = trajectory.x.at(i) - trajectory.x.at(i - 1);
     float64_t dy = trajectory.y.at(i) - trajectory.y.at(i - 1);
     dist += std::sqrt(dx * dx + dy * dy);
@@ -195,7 +195,7 @@ void calcTrajectoryYawFromXY(MPCTrajectory * traj)
 {
   if (traj->yaw.size() == 0) {return;}
 
-  for (unsigned int i = 1; i < traj->yaw.size() - 1; ++i) {
+  for (uint64_t i = 1; i < traj->yaw.size() - 1; ++i) {
     const float64_t dx = traj->x[i + 1] - traj->x[i - 1];
     const float64_t dy = traj->y[i + 1] - traj->y[i - 1];
     traj->yaw[i] = std::atan2(dy, dx);
@@ -220,12 +220,12 @@ bool8_t calcTrajectoryCurvature(const size_t curvature_smoothing_num, MPCTraject
 std::vector<float64_t> calcTrajectoryCurvature(
   const size_t curvature_smoothing_num, const MPCTrajectory & traj)
 {
-  const int traj_size = static_cast<int>(traj.x.size());
   std::vector<float64_t> curvature_vec(traj.x.size());
 
   /* calculate curvature by circle fitting from three points */
   geometry_msgs::msg::Point p1, p2, p3;
-  const size_t max_smoothing_num = static_cast<size_t>(std::floor(0.5 * (traj_size - 1)));
+  const size_t max_smoothing_num = static_cast<size_t>(
+    std::floor(0.5 * (static_cast<float64_t>(traj.x.size() - 1))));
   const size_t L = std::min(curvature_smoothing_num, max_smoothing_num);
   for (size_t i = L; i < traj.x.size() - L; ++i) {
     const size_t curr_idx = i;
@@ -322,14 +322,14 @@ void dynamicSmoothingVelocity(
   calcMPCTrajectoryTime(traj);
 }
 
-int calcNearestIndex(
+int64_t calcNearestIndex(
   const MPCTrajectory & traj, const geometry_msgs::msg::Pose & self_pose)
 {
   if (traj.size() == 0) {
     return -1;
   }
   const float64_t my_yaw = tf2::getYaw(self_pose.orientation);
-  int nearest_idx = -1;
+  int64_t nearest_idx = -1;
   float64_t min_dist_squared = std::numeric_limits<float64_t>::max();
   for (size_t i = 0; i < traj.size(); ++i) {
     const float64_t dx = self_pose.position.x - traj.x[i];
@@ -343,20 +343,20 @@ int calcNearestIndex(
     }
     if (dist_squared < min_dist_squared) {
       min_dist_squared = dist_squared;
-      nearest_idx = static_cast<int>(i);
+      nearest_idx = static_cast<int64_t>(i);
     }
   }
   return nearest_idx;
 }
 
-int calcNearestIndex(
+int64_t calcNearestIndex(
   const autoware_auto_msgs::msg::Trajectory & traj, const geometry_msgs::msg::Pose & self_pose)
 {
   if (traj.points.size() == 0) {
     return -1;
   }
   const float64_t my_yaw = tf2::getYaw(self_pose.orientation);
-  int nearest_idx = -1;
+  int64_t nearest_idx = -1;
   float64_t min_dist_squared = std::numeric_limits<float64_t>::max();
   for (size_t i = 0; i < traj.points.size(); ++i) {
     const float64_t dx = self_pose.position.x - static_cast<float64_t>(traj.points.at(i).x);
@@ -371,7 +371,7 @@ int calcNearestIndex(
     }
     if (dist_squared < min_dist_squared) {
       min_dist_squared = dist_squared;
-      nearest_idx = static_cast<int>(i);
+      nearest_idx = static_cast<int64_t>(i);
     }
   }
   return nearest_idx;
@@ -385,7 +385,7 @@ bool8_t calcNearestPoseInterp(
   if (traj.size() == 0 || !nearest_pose || !nearest_index || !nearest_time) {
     return false;
   }
-  int nearest_idx = calcNearestIndex(traj, self_pose);
+  int64_t nearest_idx = calcNearestIndex(traj, self_pose);
   if (nearest_idx == -1) {
     RCLCPP_WARN_SKIPFIRST_THROTTLE(
       logger, clock, 3.0, "[calcNearestPoseInterp] fail to get nearest. traj.size = %ul",
@@ -393,7 +393,7 @@ bool8_t calcNearestPoseInterp(
     return false;
   }
 
-  const int traj_size = static_cast<int>(traj.size());
+  const int64_t traj_size = static_cast<int64_t>(traj.size());
 
   *nearest_index = static_cast<size_t>(nearest_idx);
 
@@ -414,7 +414,7 @@ bool8_t calcNearestPoseInterp(
 
   /* get second nearest index = next to nearest_index */
   const size_t next = static_cast<size_t>(std::min(nearest_idx + 1, traj_size - 1));
-  const size_t prev = static_cast<size_t>(std::max(nearest_idx - 1, 0));
+  const size_t prev = static_cast<size_t>(std::max(nearest_idx - 1, int64_t(0)));
   const float64_t dist_to_next = calcSquaredDist(self_pose, traj, next);
   const float64_t dist_to_prev = calcSquaredDist(self_pose, traj, prev);
   const size_t second_nearest_index = (dist_to_next < dist_to_prev) ? next : prev;

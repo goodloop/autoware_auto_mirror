@@ -70,7 +70,7 @@ void Butterworth2dFilter::filt_vector(
   float64_t u1 = t.at(0);
   float64_t y0 = 0.0;
   float64_t u0 = 0.0;
-  for (unsigned int i = 0; i < t.size(); ++i) {
+  for (size_t i = 0; i < t.size(); ++i) {
     u0 = t.at(i);
     y0 = (m_b2 * u2 + m_b1 * u1 + m_b0 * u0 - m_a2 * y2 - m_a1 * y1) / m_a0;
     y2 = y1;
@@ -117,25 +117,25 @@ void Butterworth2dFilter::getCoefficients(std::vector<float64_t> & coeffs) const
 
 namespace MoveAverageFilter
 {
-bool8_t filt_vector(const int num, std::vector<float64_t> & u)
+bool8_t filt_vector(const int64_t num, std::vector<float64_t> & u)
 {
-  if (static_cast<int>(u.size()) < num) {
+  if (static_cast<int64_t>(u.size()) < num) {
     return false;
   }
   std::vector<float64_t> filtered_u(u);
-  for (int i = 0; i < static_cast<int>(u.size()); ++i) {
+  for (int64_t i = 0; i < static_cast<int64_t>(u.size()); ++i) {
     float64_t tmp = 0.0;
-    int num_tmp = 0;
-    int count = 0;
+    int64_t num_tmp = 0;
+    float64_t count = 0;
     if (i - num < 0) {
       num_tmp = i;
-    } else if (i + num > static_cast<int>(u.size()) - 1) {
-      num_tmp = static_cast<int>(u.size()) - i - 1;
+    } else if (i + num > static_cast<int64_t>(u.size()) - 1) {
+      num_tmp = static_cast<int64_t>(u.size()) - i - 1;
     } else {
       num_tmp = num;
     }
 
-    for (int j = -num_tmp; j <= num_tmp; ++j) {
+    for (int64_t j = -num_tmp; j <= num_tmp; ++j) {
       tmp += u[static_cast<size_t>(i + j)];
       ++count;
     }

@@ -72,8 +72,8 @@ protected:
   float64_t steer_rate_lim = 2.61799;  // 150 degrees
   float64_t ctrl_period = 0.03;
   float64_t traj_resample_dist = 0.1;
-  int path_filter_moving_ave_num = 35;
-  int curvature_smoothing_num = 35;
+  int64_t path_filter_moving_ave_num = 35;
+  int64_t curvature_smoothing_num = 35;
   bool8_t enable_path_smoothing = true;
   bool8_t use_steer_prediction = true;
   bool8_t enable_yaw_recalculation = true;

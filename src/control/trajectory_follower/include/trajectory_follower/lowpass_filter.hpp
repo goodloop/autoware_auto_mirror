@@ -112,7 +112,7 @@ namespace MoveAverageFilter
  * @param [in] num index distance for moving average filter
  * @param [out] u object vector
  */
-TRAJECTORY_FOLLOWER_PUBLIC bool8_t filt_vector(const int num, std::vector<float64_t> & u);
+TRAJECTORY_FOLLOWER_PUBLIC bool8_t filt_vector(const int64_t num, std::vector<float64_t> & u);
 }  // namespace MoveAverageFilter
 }  // namespace trajectory_follower
 }  // namespace control

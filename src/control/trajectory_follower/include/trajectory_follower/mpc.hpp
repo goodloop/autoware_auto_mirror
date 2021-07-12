@@ -57,7 +57,7 @@ using autoware::common::types::bool8_t;
 struct MPCParam
 {
 //!< @brief prediction horizon step
-  int prediction_horizon;
+  int64_t prediction_horizon;
 //!< @brief prediction horizon sampling time
   float64_t prediction_dt;
 //!< @brief threshold that feed-forward angle becomes zero
@@ -116,7 +116,7 @@ struct MPCParam
  */
 struct MPCData
 {
-  int nearest_idx;
+  int64_t nearest_idx;
   float64_t nearest_time;
   geometry_msgs::msg::Pose nearest_pose;
   float64_t steer;
@@ -347,7 +347,7 @@ public:
    */
   float64_t calcStopDistance(
     const autoware_auto_msgs::msg::Trajectory & current_trajectory,
-    const int origin) const;
+    const int64_t origin) const;
   /**
    * @brief set the reference trajectory to follow
    */
@@ -355,9 +355,9 @@ public:
     const autoware_auto_msgs::msg::Trajectory & trajectory_msg,
     const float64_t traj_resample_dist,
     const bool8_t enable_path_smoothing,
-    const int path_filter_moving_ave_num,
+    const int64_t path_filter_moving_ave_num,
     const bool8_t enable_yaw_recalculation,
-    const int curvature_smoothing_num);
+    const int64_t curvature_smoothing_num);
   /**
    * @brief set the vehicle model of this MPC
    */

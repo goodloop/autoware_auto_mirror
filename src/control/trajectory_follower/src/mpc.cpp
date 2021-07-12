@@ -110,9 +110,9 @@ void MPC::setReferenceTrajectory(
   const autoware_auto_msgs::msg::Trajectory & trajectory_msg,
   const float64_t traj_resample_dist,
   const bool8_t enable_path_smoothing,
-  const int path_filter_moving_ave_num,
+  const int64_t path_filter_moving_ave_num,
   const bool8_t enable_yaw_recalculation,
-  const int curvature_smoothing_num)
+  const int64_t curvature_smoothing_num)
 {
   trajectory_follower::MPCTrajectory mpc_traj_raw;        // received raw trajectory
   trajectory_follower::MPCTrajectory mpc_traj_resampled;  // resampled trajectory
@@ -129,7 +129,7 @@ void MPC::setReferenceTrajectory(
 
   /* path smoothing */
   mpc_traj_smoothed = mpc_traj_resampled;
-  const int mpc_traj_resampled_size = static_cast<int>(mpc_traj_resampled.size());
+  const int64_t mpc_traj_resampled_size = static_cast<int64_t>(mpc_traj_resampled.size());
   if (enable_path_smoothing && mpc_traj_resampled_size > 2 * path_filter_moving_ave_num) {
     if (
       !trajectory_follower::MoveAverageFilter::filt_vector(
@@ -201,7 +201,7 @@ bool8_t MPC::getData(
   }
 
   /* get data */
-  data->nearest_idx = static_cast<int>(nearest_idx);
+  data->nearest_idx = static_cast<int64_t>(nearest_idx);
   data->steer = static_cast<float64_t>(current_steer.state.front_wheel_angle_rad);
   data->lateral_err = trajectory_follower::MPCUtils::calcLateralError(
     current_pose,
@@ -326,7 +326,7 @@ bool8_t MPC::resampleMPCTrajectoryByTime(
   trajectory_follower::MPCTrajectory * output) const
 {
   std::vector<float64_t> mpc_time_v;
-  for (int i = 0; i < m_param.prediction_horizon; ++i) {
+  for (float64_t i = 0; i < static_cast<float64_t>(m_param.prediction_horizon); ++i) {
     mpc_time_v.push_back(ts + i * m_param.prediction_dt);
   }
   if (!trajectory_follower::MPCUtils::linearInterpMPCTrajectory(
@@ -344,7 +344,7 @@ bool8_t MPC::resampleMPCTrajectoryByTime(
 
 Eigen::VectorXd MPC::getInitialState(const MPCData & data)
 {
-  const int DIM_X = m_vehicle_model_ptr->getDimX();
+  const int64_t DIM_X = m_vehicle_model_ptr->getDimX();
   Eigen::VectorXd x0 = Eigen::VectorXd::Zero(DIM_X);
 
   const auto & lat_err = data.lateral_err;
@@ -375,9 +375,9 @@ bool8_t MPC::updateStateForDelayCompensation(
   const trajectory_follower::MPCTrajectory & traj, const float64_t & start_time,
   Eigen::VectorXd * x)
 {
-  const int DIM_X = m_vehicle_model_ptr->getDimX();
-  const int DIM_U = m_vehicle_model_ptr->getDimU();
-  const int DIM_Y = m_vehicle_model_ptr->getDimY();
+  const int64_t DIM_X = m_vehicle_model_ptr->getDimX();
+  const int64_t DIM_U = m_vehicle_model_ptr->getDimU();
+  const int64_t DIM_Y = m_vehicle_model_ptr->getDimY();
 
   Eigen::MatrixXd Ad(DIM_X, DIM_X);
   Eigen::MatrixXd Bd(DIM_X, DIM_U);
@@ -386,7 +386,7 @@ bool8_t MPC::updateStateForDelayCompensation(
 
   Eigen::MatrixXd x_curr = *x;
   float64_t mpc_curr_time = start_time;
-  for (unsigned int i = 0; i < m_input_buffer.size(); ++i) {
+  for (uint64_t i = 0; i < m_input_buffer.size(); ++i) {
     float64_t k = 0.0;
     float64_t v = 0.0;
     if (
@@ -421,7 +421,7 @@ trajectory_follower::MPCTrajectory MPC::applyVelocityDynamicsFilter(
   const geometry_msgs::msg::Pose & current_pose,
   const float64_t v0)
 {
-  int nearest_idx =
+  int64_t nearest_idx =
     trajectory_follower::MPCUtils::calcNearestIndex(input, current_pose);
   if (nearest_idx < 0) {return input;}
 
@@ -452,11 +452,11 @@ MPCMatrix MPC::generateMPCMatrix(
 {
   using Eigen::MatrixXd;
 
-  const int N = m_param.prediction_horizon;
+  const int64_t N = m_param.prediction_horizon;
   const float64_t DT = m_param.prediction_dt;
-  const int DIM_X = m_vehicle_model_ptr->getDimX();
-  const int DIM_U = m_vehicle_model_ptr->getDimU();
-  const int DIM_Y = m_vehicle_model_ptr->getDimY();
+  const int64_t DIM_X = m_vehicle_model_ptr->getDimX();
+  const int64_t DIM_U = m_vehicle_model_ptr->getDimU();
+  const int64_t DIM_Y = m_vehicle_model_ptr->getDimY();
 
   MPCMatrix m;
   m.Aex = MatrixXd::Zero(DIM_X * N, DIM_X);
@@ -483,7 +483,7 @@ MPCMatrix MPC::generateMPCMatrix(
   constexpr float64_t ep = 1.0e-3;  // large enough to ignore velocity noise
 
   /* predict dynamics for N times */
-  for (int i = 0; i < N; ++i) {
+  for (int64_t i = 0; i < N; ++i) {
     const float64_t ref_vx = reference_trajectory.vx[static_cast<size_t>(i)];
     const float64_t ref_vx_squared = ref_vx * ref_vx;
 
@@ -513,18 +513,18 @@ MPCMatrix MPC::generateMPCMatrix(
     R_adaptive(0, 0) += ref_vx_squared * getWeightSteerInputSqVel(ref_k);
 
     /* update mpc matrix */
-    int idx_x_i = i * DIM_X;
-    int idx_x_i_prev = (i - 1) * DIM_X;
-    int idx_u_i = i * DIM_U;
-    int idx_y_i = i * DIM_Y;
+    int64_t idx_x_i = i * DIM_X;
+    int64_t idx_x_i_prev = (i - 1) * DIM_X;
+    int64_t idx_u_i = i * DIM_U;
+    int64_t idx_y_i = i * DIM_Y;
     if (i == 0) {
       m.Aex.block(0, 0, DIM_X, DIM_X) = Ad;
       m.Bex.block(0, 0, DIM_X, DIM_U) = Bd;
       m.Wex.block(0, 0, DIM_X, 1) = Wd;
     } else {
       m.Aex.block(idx_x_i, 0, DIM_X, DIM_X) = Ad * m.Aex.block(idx_x_i_prev, 0, DIM_X, DIM_X);
-      for (int j = 0; j < i; ++j) {
-        int idx_u_j = j * DIM_U;
+      for (int64_t j = 0; j < i; ++j) {
+        int64_t idx_u_j = j * DIM_U;
         m.Bex.block(idx_x_i, idx_u_j, DIM_X, DIM_U) =
           Ad * m.Bex.block(idx_x_i_prev, idx_u_j, DIM_X, DIM_U);
       }
@@ -545,7 +545,7 @@ MPCMatrix MPC::generateMPCMatrix(
   }
 
   /* add lateral jerk : weight for (v * {u(i) - u(i-1)} )^2 */
-  for (int i = 0; i < N - 1; ++i) {
+  for (int64_t i = 0; i < N - 1; ++i) {
     const float64_t ref_vx = reference_trajectory.vx[static_cast<size_t>(i)];
     m_sign_vx = ref_vx > ep ? 1 : (ref_vx < -ep ? -1 : m_sign_vx);
     const float64_t ref_k = reference_trajectory.k[static_cast<size_t>(i)] * m_sign_vx;
@@ -593,7 +593,7 @@ bool8_t MPC::executeOptimization(
     return false;
   }
 
-  const int DIM_U_N = m_param.prediction_horizon * m_vehicle_model_ptr->getDimU();
+  const int64_t DIM_U_N = m_param.prediction_horizon * m_vehicle_model_ptr->getDimU();
 
   // cost function: 1/2 * Uex' * H * Uex + f' * Uex,  H = B' * C' * Q * C * B + R
   const MatrixXd CB = m.Cex * m.Bex;
@@ -607,7 +607,7 @@ bool8_t MPC::executeOptimization(
   addSteerWeightF(&f);
 
   MatrixXd A = MatrixXd::Identity(DIM_U_N, DIM_U_N);
-  for (int i = 1; i < DIM_U_N; i++) {
+  for (int64_t i = 1; i < DIM_U_N; i++) {
     A(i, i - 1) = -1.0;
   }
 
@@ -642,7 +642,7 @@ bool8_t MPC::executeOptimization(
 
 void MPC::addSteerWeightR(Eigen::MatrixXd * R_ptr) const
 {
-  const int N = m_param.prediction_horizon;
+  const int64_t N = m_param.prediction_horizon;
   const float64_t DT = m_param.prediction_dt;
 
   auto & R = *R_ptr;
@@ -651,7 +651,7 @@ void MPC::addSteerWeightR(Eigen::MatrixXd * R_ptr) const
   {
     const float64_t steer_rate_r = m_param.weight_steer_rate / (DT * DT);
     const Eigen::Matrix2d D = steer_rate_r * (Eigen::Matrix2d() << 1.0, -1.0, -1.0, 1.0).finished();
-    for (int i = 0; i < N - 1; ++i) {
+    for (int64_t i = 0; i < N - 1; ++i) {
       R.block(i, i, 2, 2) += D;
     }
     if (N > 1) {
@@ -670,7 +670,7 @@ void MPC::addSteerWeightR(Eigen::MatrixXd * R_ptr) const
     const Eigen::Matrix3d D =
       steer_acc_r *
       (Eigen::Matrix3d() << 1.0, -2.0, 1.0, -2.0, 4.0, -2.0, 1.0, -2.0, 1.0).finished();
-    for (int i = 1; i < N - 1; ++i) {
+    for (int64_t i = 1; i < N - 1; ++i) {
       R.block(i - 1, i - 1, 3, 3) += D;
     }
     if (N > 1) {
@@ -713,7 +713,7 @@ void MPC::addSteerWeightF(Eigen::MatrixXd * f_ptr) const
 
 float64_t MPC::getPredictionTime() const
 {
-  return (m_param.prediction_horizon - 1) * m_param.prediction_dt +
+  return static_cast<float64_t>(m_param.prediction_horizon - 1) * m_param.prediction_dt +
          m_param.input_delay +
          m_ctrl_period;
 }
@@ -742,7 +742,7 @@ bool8_t MPC::isValid(const MPCMatrix & m) const
 // TODO(Maxime CLEMENT): move to utils
 float64_t MPC::calcStopDistance(
   const autoware_auto_msgs::msg::Trajectory & current_trajectory,
-  const int origin) const
+  const int64_t origin) const
 {
   constexpr float zero_velocity = std::numeric_limits<float>::epsilon();
   const float origin_velocity =
@@ -751,7 +751,7 @@ float64_t MPC::calcStopDistance(
 
   // search forward
   if (std::fabs(origin_velocity) > zero_velocity) {
-    for (int i = origin + 1; i < static_cast<int>(current_trajectory.points.size()) - 1;
+    for (int64_t i = origin + 1; i < static_cast<int64_t>(current_trajectory.points.size()) - 1;
       ++i)
     {
       const auto & p0 = current_trajectory.points.at(static_cast<size_t>(i));
@@ -765,7 +765,7 @@ float64_t MPC::calcStopDistance(
   }
 
   // search backward
-  for (int i = origin - 1; 0 < i; --i) {
+  for (int64_t i = origin - 1; 0 < i; --i) {
     const auto & p0 = current_trajectory.points.at(static_cast<size_t>(i));
     const auto & p1 = current_trajectory.points.at(static_cast<size_t>(i + 1));
     if (std::fabs(p0.longitudinal_velocity_mps) > zero_velocity) {

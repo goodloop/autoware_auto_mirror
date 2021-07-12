@@ -23,12 +23,12 @@ TEST(test_lowpass_filter, MoveAverageFilter) {
   namespace MoveAverageFilter = autoware::motion::control::trajectory_follower::MoveAverageFilter;
 
   {  // Fail case: window size higher than the vector size
-    const int window_size = 5;
+    const int64_t window_size = 5;
     std::vector<float64_t> vec = {1.0, 2.0, 3.0, 4.0};
     EXPECT_FALSE(MoveAverageFilter::filt_vector(window_size, vec));
   }
   {
-    const int window_size = 0;
+    const int64_t window_size = 0;
     const std::vector<float64_t> original_vec = {1.0, 3.0, 4.0, 6.0};
     std::vector<float64_t> filtered_vec = original_vec;
     EXPECT_TRUE(MoveAverageFilter::filt_vector(window_size, filtered_vec));
@@ -38,7 +38,7 @@ TEST(test_lowpass_filter, MoveAverageFilter) {
     }
   }
   {
-    const int window_size = 1;
+    const int64_t window_size = 1;
     const std::vector<float64_t> original_vec = {1.0, 3.0, 4.0, 6.0};
     std::vector<float64_t> filtered_vec = original_vec;
     EXPECT_TRUE(MoveAverageFilter::filt_vector(window_size, filtered_vec));
@@ -49,7 +49,7 @@ TEST(test_lowpass_filter, MoveAverageFilter) {
     EXPECT_EQ(filtered_vec[3], original_vec[3]);
   }
   {
-    const int window_size = 2;
+    const int64_t window_size = 2;
     const std::vector<float64_t> original_vec = {1.0, 3.0, 4.0, 6.0, 7.0, 10.0};
     std::vector<float64_t> filtered_vec = original_vec;
     EXPECT_TRUE(MoveAverageFilter::filt_vector(window_size, filtered_vec));

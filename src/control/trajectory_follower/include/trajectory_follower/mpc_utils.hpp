@@ -140,10 +140,10 @@ TRAJECTORY_FOLLOWER_PUBLIC bool8_t calcNearestPoseInterp(
   geometry_msgs::msg::Pose * nearest_pose, size_t * nearest_index, float64_t * nearest_time,
   rclcpp::Logger logger, rclcpp::Clock & clock);
 
-TRAJECTORY_FOLLOWER_PUBLIC int calcNearestIndex(
+TRAJECTORY_FOLLOWER_PUBLIC int64_t calcNearestIndex(
   const MPCTrajectory & traj,
   const geometry_msgs::msg::Pose & self_pose);
-TRAJECTORY_FOLLOWER_PUBLIC int calcNearestIndex(
+TRAJECTORY_FOLLOWER_PUBLIC int64_t calcNearestIndex(
   const autoware_auto_msgs::msg::Trajectory & traj, const geometry_msgs::msg::Pose & self_pose);
 }  // namespace MPCUtils
 }  // namespace trajectory_follower

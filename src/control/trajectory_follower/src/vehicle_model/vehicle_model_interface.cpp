@@ -22,13 +22,13 @@ namespace control
 {
 namespace trajectory_follower
 {
-VehicleModelInterface::VehicleModelInterface(int dim_x, int dim_u, int dim_y)
+VehicleModelInterface::VehicleModelInterface(int64_t dim_x, int64_t dim_u, int64_t dim_y)
 : m_dim_x(dim_x), m_dim_u(dim_u), m_dim_y(dim_y)
 {
 }
-int VehicleModelInterface::getDimX() {return m_dim_x;}
-int VehicleModelInterface::getDimU() {return m_dim_u;}
-int VehicleModelInterface::getDimY() {return m_dim_y;}
+int64_t VehicleModelInterface::getDimX() {return m_dim_x;}
+int64_t VehicleModelInterface::getDimU() {return m_dim_u;}
+int64_t VehicleModelInterface::getDimY() {return m_dim_y;}
 void VehicleModelInterface::setVelocity(const float64_t & velocity) {m_velocity = velocity;}
 void VehicleModelInterface::setCurvature(const float64_t & curvature) {m_curvature = curvature;}
 }  // namespace trajectory_follower
