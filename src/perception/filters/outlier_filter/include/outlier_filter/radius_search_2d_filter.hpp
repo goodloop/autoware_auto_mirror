@@ -36,23 +36,23 @@ namespace filters
 {
 namespace outlier_filter
 {
-/* Namespace for the RadiusSearch2DFilter library */
+/** \brief Namespace for the RadiusSearch2DFilter library */
 namespace radius_search_2d_filter
 {
 
-/* \class RadiusSearch2DFilter
+/** \class RadiusSearch2DFilter
  * \brief Library for using a radius based 2D filtering algorithm on a PCL pointcloud
  */
 class OUTLIER_FILTER_PUBLIC RadiusSearch2DFilter
 {
 public:
-  /* \brief Constructor for the RadiusSearch2DFilter class
+  /** \brief Constructor for the RadiusSearch2DFilter class
    * \param search_radius Radius bounding a point's neighbors
    * \param min_neighbors Minimum number of surrounding neighbors for a point
    */
   OUTLIER_FILTER_PUBLIC RadiusSearch2DFilter(double search_radius, int min_neighbors);
 
-  /* \brief Filter function that runs the radius search algorithm.
+  /** \brief Filter function that runs the radius search algorithm.
    * \param input The input point cloud for filtering
    * \param output The output point cloud
    */
@@ -60,7 +60,7 @@ public:
     const pcl::PointCloud<pcl::PointXYZ> & input,
     pcl::PointCloud<pcl::PointXYZ> & output);
 
-  /* \brief Update dynamically configurable parameters
+  /** \brief Update dynamically configurable parameters
    * \param search_radius Parameter that updates the search_radius_ member variable
    * \param min_neighbors Parameter that updates the min_neighbors_ member variable
    */
@@ -71,13 +71,13 @@ public:
   }
 
 private:
-  /* Radius bounding a point's neighbors */
+  /** \brief Radius bounding a point's neighbors */
   double search_radius_;
 
-  /* Minimum number of surrounding neighbors for a point to not be considered an outlier */
+  /** \brief Minimum number of surrounding neighbors for a point to not be considered an outlier */
   int min_neighbors_;
 
-  /* PCL Search object used to perform the radial search */
+  /** \brief PCL Search object used to perform the radial search */
   std::shared_ptr<pcl::search::Search<pcl::PointXY>> kd_tree_;
 };
 }  // namespace radius_search_2d_filter

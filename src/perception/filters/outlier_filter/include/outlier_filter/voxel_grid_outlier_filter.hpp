@@ -36,17 +36,17 @@ namespace filters
 {
 namespace outlier_filter
 {
-/* Namespace for the VoxelGridOutlierFilter library */
+/** \brief Namespace for the VoxelGridOutlierFilter library */
 namespace voxel_grid_outlier_filter
 {
 
-/* \class VoxelGridOutlierFilter
+/** \class VoxelGridOutlierFilter
  * \brief Library for applying voxel-based filtering on a PCL pointcloud
  */
 class OUTLIER_FILTER_PUBLIC VoxelGridOutlierFilter
 {
 public:
-  /* \brief Constructor for the VoxelGridOutlierFilter class
+  /** \brief Constructor for the VoxelGridOutlierFilter class
    * \param voxel_size_x Voxel leaf size of side X
    * \param voxel_size_y Voxel leaf size of side Y
    * \param voxel_size_z Voxel leaf size of side Z
@@ -56,7 +56,7 @@ public:
     float voxel_size_x, float voxel_size_y,
     float voxel_size_z, uint32_t voxel_points_threshold);
 
-  /* \brief Filter function that runs the radius search algorithm.
+  /** \brief Filter function that runs the radius search algorithm.
    * \param input The input point cloud for filtering
    * \param output The output point cloud
    */
@@ -64,7 +64,7 @@ public:
     const pcl::PointCloud<pcl::PointXYZ> & input,
     pcl::PointCloud<pcl::PointXYZ> & output);
 
-  /* \brief Update dynamically configurable parameters
+  /** \brief Update dynamically configurable parameters
    * \param voxel_size_x Parameter that updates the voxel_size_x_ member variable
    * \param voxel_size_y Parameter that updates the voxel_size_y_ member variable
    * \param voxel_size_z Parameter that updates the voxel_size_z_ member variable
@@ -82,19 +82,19 @@ public:
   }
 
 private:
-  /* Voxel leaf size of side X */
+  /** \brief Voxel leaf size of side X */
   float voxel_size_x_;
 
-  /* Voxel leaf size of side Y */
+  /** \brief Voxel leaf size of side Y */
   float voxel_size_y_;
 
-  /* Voxel leaf size of side Z */
+  /** \brief Voxel leaf size of side Z */
   float voxel_size_z_;
 
-  /* Minimum number of points per voxel */
+  /** \brief Minimum number of points per voxel */
   uint32_t voxel_points_threshold_;
 
-  /* Assembles a 3D grid over the pointcloud for filtering */
+  /** \brief Assembles a 3D grid over the pointcloud for filtering */
   std::shared_ptr<pcl::VoxelGrid<pcl::PointXYZ>> voxel_filter_;
 };
 
