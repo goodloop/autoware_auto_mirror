@@ -62,6 +62,12 @@ public:
    * @return size, or 0 if the size for each components are inconsistent
    */
   size_t size() const;
+  /**
+   * @return true if the compensents sizes are all 0 or are inconsistent
+   */
+  inline bool empty() const {
+    return size() == 0;
+  }
 };
 }  // namespace trajectory_follower
 }  // namespace control

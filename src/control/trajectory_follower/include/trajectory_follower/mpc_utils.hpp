@@ -205,7 +205,7 @@ TRAJECTORY_FOLLOWER_PUBLIC std::vector<float64_t> calcTrajectoryCurvature(
 TRAJECTORY_FOLLOWER_PUBLIC bool8_t calcNearestPoseInterp(
   const MPCTrajectory & traj, const geometry_msgs::msg::Pose & self_pose,
   geometry_msgs::msg::Pose * nearest_pose, size_t * nearest_index, float64_t * nearest_time,
-  rclcpp::Logger logger, rclcpp::Clock & clock);
+  const rclcpp::Logger & logger, rclcpp::Clock & clock);
 /**
  * @brief calculate the index of the trajectory point nearest to the given pose
  * @param [in] traj trajectory to search for the point nearest to the pose
