@@ -65,7 +65,8 @@ public:
   /**
    * @return true if the compensents sizes are all 0 or are inconsistent
    */
-  inline bool empty() const {
+  inline bool empty() const
+  {
     return size() == 0;
   }
 };
