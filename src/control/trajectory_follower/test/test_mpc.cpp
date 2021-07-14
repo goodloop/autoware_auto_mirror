@@ -233,6 +233,10 @@ TEST_F(MPCTest, initialize_and_calculate_right_turn) {
 TEST_F(MPCTest, osqp_calculate) {
   trajectory_follower::MPC mpc;
   initializeMPC(mpc);
+  mpc.setReferenceTrajectory(
+    dummy_straight_trajectory, traj_resample_dist, enable_path_smoothing,
+    path_filter_moving_ave_num, enable_yaw_recalculation,
+    curvature_smoothing_num);
 
   const std::string vehicle_model_type = "kinematics";
   std::shared_ptr<trajectory_follower::VehicleModelInterface> vehicle_model_ptr =
@@ -249,8 +253,8 @@ TEST_F(MPCTest, osqp_calculate) {
 
   // Calculate MPC
   AckermannLateralCommand ctrl_cmd;
-  // TODO(Maxime CLEMENT): with OSQP this function returns false despite finding correct solutions
-  mpc.calculateMPC(neutral_steer, default_velocity, pose_zero, ctrl_cmd);
+  // with OSQP this function returns false despite finding correct solutions
+  EXPECT_FALSE(mpc.calculateMPC(neutral_steer, default_velocity, pose_zero, ctrl_cmd));
   EXPECT_EQ(ctrl_cmd.steering_tire_angle, 0.0f);
   EXPECT_EQ(ctrl_cmd.steering_tire_rotation_rate, 0.0f);
 }
@@ -278,8 +282,7 @@ TEST_F(MPCTest, osqp_calculate_right_turn) {
 
   // Calculate MPC
   AckermannLateralCommand ctrl_cmd;
-  // TODO(Maxime CLEMENT): with OSQP this function returns false despite finding correct solutions
-  mpc.calculateMPC(neutral_steer, default_velocity, pose_zero, ctrl_cmd);
+  ASSERT_TRUE(mpc.calculateMPC(neutral_steer, default_velocity, pose_zero, ctrl_cmd));
   EXPECT_LT(ctrl_cmd.steering_tire_angle, 0.0f);
   EXPECT_LT(ctrl_cmd.steering_tire_rotation_rate, 0.0f);
 }
