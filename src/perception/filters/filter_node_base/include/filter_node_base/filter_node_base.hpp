@@ -143,7 +143,7 @@ protected:
    * parameters used by this node have been declared. Therefore this method needs to be called at
    * the end of the constructor in child classes inheriting from FilterNodeBase.
    */
-  void set_param_callback();
+  FILTER_NODE_BASE_PUBLIC void set_param_callback();
 
 private:
   /** \brief Callback handler for parameter services */

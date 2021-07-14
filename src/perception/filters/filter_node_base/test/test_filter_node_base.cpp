@@ -24,7 +24,8 @@
 #include "sensor_msgs/point_cloud2_iterator.hpp"
 #include "lidar_utils/point_cloud_utils.hpp"
 
-
+namespace
+{
 using float32_t = autoware::common::types::float32_t;
 using FilterNodeBase = autoware::perception::filters::filter_node_base::FilterNodeBase;
 using PointCloud2 = sensor_msgs::msg::PointCloud2;
@@ -144,6 +145,7 @@ void create_dummy_cloud(sensor_msgs::msg::PointCloud2 & cloud)
   }
 }
 
+// cppcheck-suppress syntaxError
 TEST_F(TestFilterNodeBase, DISABLED_test_filter) {
   // Create dummy point cloud
   sensor_msgs::msg::PointCloud2 cloud;
@@ -162,10 +164,8 @@ TEST_F(TestFilterNodeBase, DISABLED_test_filter) {
 
 TEST_F(TestFilterNodeBase, test_parameters) {
   // Check that upon set up the parameters are set correctly
-  // ASSERT_EQ(mock_filter_node_base->test_param_1_, 0.5);
   EXPECT_THAT(mock_filter_node_base->test_param_1_, Eq(0.5));
   EXPECT_THAT(mock_filter_node_base->test_param_2_, Eq("frame_2"));
-  // ASSERT_EQ(mock_filter_node_base->test_param_2_, "frame_2");
 
   // Set up parameter client
   auto client = std::make_shared<rclcpp::SyncParametersClient>(mock_filter_node_base);
@@ -194,3 +194,4 @@ TEST_F(TestFilterNodeBase, test_parameters) {
   EXPECT_THAT(mock_filter_node_base->test_param_1_, Eq(1.5));
   EXPECT_THAT(mock_filter_node_base->test_param_2_, Eq("new_frame_2"));
 }
+}  // namespace
