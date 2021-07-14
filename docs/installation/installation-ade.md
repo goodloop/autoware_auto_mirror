@@ -74,8 +74,9 @@ to their regular location. For instance,
 
 ```{bash}
 $ cd ~
-$ mv ~/.bashrc ~/ade-home/.bashrc
-$ ln -s ~/ade-home/.bashrc
+$ cp ~/.bashrc ~/.bashrc.bak
+$ mv ~/.bashrc ~/adehome/.bashrc
+$ ln -s ~/adehome/.bashrc
 ```
 
 It will then appear as `~/.bashrc` to the host system and to ADE.
