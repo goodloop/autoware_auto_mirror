@@ -47,7 +47,7 @@ using RadiusSearch2DFilter =
 /// \class RadiusSearch2DFilterNode
 /// \brief Node inheriting from FilterNodeBase and is the ROS2 node interface for the
 //   RadiusSearch2DFilter library
-class OUTLIER_FILTER_NODES_PUBLIC RadiusSearch2DFilterNode : public FilterNodeBase
+class OUTLIER_FILTER_NODES_PUBLIC RadiusSearch2DFilterNode final : public FilterNodeBase
 {
 public:
   /** \brief The default constructor for the RadiusSearch2DFilterNode class
