@@ -65,15 +65,19 @@ if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
   ament_lint_auto_find_test_dependencies()
 
-  # Unit tests
-  set(TEST_SOURCES test/test_outlier_filter_nodes.cpp)
-  set(TEST_OUTLIER_FILTER_NODES_EXE test_outlier_filter_nodes)
-  ament_add_gtest(${TEST_OUTLIER_FILTER_NODES_EXE} ${TEST_SOURCES})
-  autoware_set_compile_options(${TEST_OUTLIER_FILTER_NODES_EXE})
-  target_link_libraries(${TEST_OUTLIER_FILTER_NODES_EXE} ${PROJECT_NAME})
+  add_ros_test(
+    test/radius_search_2d_filter_node_launch.test.py
+    TIMEOUT "40"
+  )
+
+  add_ros_test(
+    test/voxel_grid_outlier_filter_node_launch.test.py
+    TIMEOUT "50"
+  )
 endif()
 
 # ament package generation and installing
 ament_auto_package(INSTALL_TO_SHARE
   launch
+  param
 )
