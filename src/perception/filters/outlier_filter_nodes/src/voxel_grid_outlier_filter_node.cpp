@@ -45,6 +45,8 @@ VoxelGridOutlierFilterNode::VoxelGridOutlierFilterNode(const rclcpp::NodeOptions
     voxel_size_y_,
     voxel_size_z_,
     voxel_points_threshold_);
+
+  set_param_callback();
 }
 
 void VoxelGridOutlierFilterNode::filter(

@@ -42,6 +42,8 @@ RadiusSearch2DFilterNode::RadiusSearch2DFilterNode(const rclcpp::NodeOptions & o
     search_radius_,
     min_neighbors_
   );
+
+  set_param_callback();
 }
 
 void RadiusSearch2DFilterNode::filter(
