@@ -46,7 +46,7 @@ using VoxelGridOutlierFilter =
 /// \class VoxelGridOutlierFilterNode
 /// \brief Node inheriting from FilterNodeBase and is the ROS2 node interface for the
 //   VoxelGridOutlierFilter library
-class OUTLIER_FILTER_NODES_PUBLIC VoxelGridOutlierFilterNode : public FilterNodeBase
+class OUTLIER_FILTER_NODES_PUBLIC VoxelGridOutlierFilterNode final : public FilterNodeBase
 {
 public:
   /** \brief The default constructor for the VoxelGridOutlierFilterNode class
