@@ -53,6 +53,6 @@ class TestProcessOutput(unittest.TestCase):
         # Check that process exits with code -15 code: termination request, sent to the program
         launch_testing.asserts.assertExitCodes(
             proc_info,
-            [-15],
+            [-15, -2],
             process=voxel_grid_outlier_filter_node
         )
