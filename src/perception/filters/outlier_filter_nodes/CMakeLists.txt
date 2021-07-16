@@ -67,12 +67,12 @@ if(BUILD_TESTING)
 
   add_ros_test(
     test/radius_search_2d_filter_node_launch.test.py
-    TIMEOUT "40"
+    TIMEOUT "30"
   )
 
   add_ros_test(
     test/voxel_grid_outlier_filter_node_launch.test.py
-    TIMEOUT "50"
+    TIMEOUT "30"
   )
 endif()
 

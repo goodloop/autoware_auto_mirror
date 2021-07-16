@@ -52,6 +52,6 @@ class TestProcessOutput(unittest.TestCase):
     def test_exit_code(self, proc_output, proc_info, radius_search_2d_filter_node):
         launch_testing.asserts.assertExitCodes(
             proc_info,
-            [-15],
+            [-15, -2],
             process=radius_search_2d_filter_node
         )
