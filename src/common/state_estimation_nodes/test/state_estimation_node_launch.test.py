@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-# Co-developed by Tier IV, Inc. and Apex.AI, Inc.
+# Co-developed by Tier IV, Inc., Robotec.ai, and Apex.AI, Inc.
 
 from ament_index_python import get_package_share_directory
 from launch import LaunchDescription
