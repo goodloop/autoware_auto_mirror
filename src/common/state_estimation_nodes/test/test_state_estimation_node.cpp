@@ -43,11 +43,35 @@ rclcpp::Time to_ros_time(const std::chrono::system_clock::time_point & time_poin
   return rclcpp::Time{duration_cast<nanoseconds>(time_point.time_since_epoch()).count()};
 }
 
-tf2::TimePoint to_tf_time_point(nav_msgs::msg::Odometry::_header_type::_stamp_type & stamp)
+tf2::TimePoint to_tf_time_point(const nav_msgs::msg::Odometry::_header_type::_stamp_type & stamp)
 {
   using std::chrono::seconds;
   using std::chrono::nanoseconds;
   return tf2::TimePoint{seconds{stamp.sec} + nanoseconds{stamp.nanosec}};
+}
+
+template<typename TfBufferT, typename MsgT>
+void wait_for_tf(
+  TfBufferT & buffer,
+  const MsgT & msg,
+  const std_msgs::msg::Header::_frame_id_type & target_frame,
+  const std_msgs::msg::Header::_frame_id_type & source_frame,
+  const std::chrono::milliseconds & max_wait_time,
+  const std::chrono::milliseconds & dt)
+{
+  std::chrono::milliseconds wait_for_tf_time{};
+  while (
+    !buffer.canTransform(
+      target_frame, source_frame,
+      to_tf_time_point(msg.header.stamp)) &&
+    (wait_for_tf_time < max_wait_time))
+  {
+    std::this_thread::sleep_for(dt / 10);
+    wait_for_tf_time += dt / 10;
+  }
+  if (wait_for_tf_time >= max_wait_time) {
+    FAIL() << "Could not get tf in time.";
+  }
 }
 
 PoseWithCovarianceStamped create_empty_pose(const std::string & frame_id)
@@ -152,8 +176,7 @@ TEST_P(StateEstimationNodeTest, PublishAndReceivePoseMessage) {
     }
   }
   if (GetParam().publish_tf) {
-    EXPECT_TRUE(
-      get_tf_buffer().canTransform("map", "base_link", to_tf_time_point(msg.header.stamp)));
+    wait_for_tf(get_tf_buffer(), msg, "map", "base_link", max_wait_time, dt);
     const auto transform{
       get_tf_buffer().lookupTransform("map", "base_link", to_tf_time_point(msg.header.stamp))};
     EXPECT_EQ(transform.header.frame_id, "map");
@@ -242,9 +265,7 @@ TEST_P(StateEstimationNodeTest, TrackObjectStraightLine) {
   }
   if (GetParam().publish_tf) {
     auto & msg = *received_msgs.back();
-    EXPECT_TRUE(
-      get_tf_buffer().canTransform(
-        "map", expected_child_frame_id, to_tf_time_point(msg.header.stamp)));
+    wait_for_tf(get_tf_buffer(), msg, "map", expected_child_frame_id, max_wait_time, dt);
     const auto transform{get_tf_buffer().lookupTransform(
         "map", expected_child_frame_id, to_tf_time_point(msg.header.stamp))};
     EXPECT_EQ(transform.header.frame_id, "map");
