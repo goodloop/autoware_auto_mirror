@@ -122,6 +122,45 @@ public:
   }
 
   ///
+  /// @brief      Create a publisher with a custom sensor topic and sensor message type.
+  ///
+  /// @details    This does not do much more than create the relevant publisher and check that there
+  ///             is a subscription with the relevant topic being requested.
+  ///
+  /// @param[in]  topic         The topic
+  /// @param[in]  timeout       The timeout for matching to a subscription
+  /// @param[in]  history_size  The history size
+  ///
+  /// @tparam     MsgT          Type of messages to publish.
+  ///
+  /// @throws     runtime_error If no matching subscriber for `topic` found within `timeout`
+  ///
+  /// @return     A publisher pointer;
+  ///
+  template<typename MsgT>
+  typename rclcpp::Publisher<MsgT>::SharedPtr create_sensor_publisher(
+    const std::string & topic,
+    const std::chrono::milliseconds & timeout = std::chrono::seconds{10LL},
+    const std::size_t history_size = 10)
+  {
+    typename rclcpp::Publisher<MsgT>::SharedPtr publisher =
+      m_fake_node->create_publisher<MsgT>(topic, rclcpp::SensorDataQoS().keep_last(history_size));
+
+    std::chrono::milliseconds spent_time{0LL};
+    std::chrono::milliseconds dt{100LL};
+    while (m_fake_node->count_subscribers(topic) < 1) {
+      spent_time += dt;
+      if (spent_time > timeout) {
+        throw std::runtime_error(
+                std::string(
+                  "No matching subscriber to the mock topic '") + topic + "' that we publish");
+      }
+      std::this_thread::sleep_for(dt);
+    }
+    return publisher;
+  }
+
+  ///
   /// @brief      Creates a subscription to a certain message type for a given node.
   ///
   /// @param[in]  topic            The topic to subscribe to
@@ -146,6 +185,47 @@ public:
     const std::chrono::milliseconds & timeout = std::chrono::seconds{10LL})
   {
     auto subscription = m_fake_node->create_subscription<MsgT>(topic, 10, callback);
+    std::chrono::milliseconds spent_time{0LL};
+    std::chrono::milliseconds dt{100LL};
+    while (publishing_node.count_publishers(topic) < 1) {
+      spent_time += dt;
+      if (spent_time > timeout) {
+        throw std::runtime_error(
+                std::string(
+                  "The node under test '") + publishing_node.get_name() +
+                "' is not publishing the topic '" + topic +
+                "' that we listen to.");
+      }
+      std::this_thread::sleep_for(dt);
+    }
+    return subscription;
+  }
+
+  ///
+  /// @brief      Creates a sensor subscription to a certain sensor message type for a given node.
+  ///
+  /// @param[in]  topic            The topic to subscribe to
+  /// @param[in]  publishing_node  The node that publishes the data that this subscription
+  ///                              subscribes to. This function will check that the newly created
+  ///                              subscription matches a publisher in this node.
+  /// @param[in]  callback         The callback to be called by the subscription
+  /// @param[in]  timeout          The timeout for matching to a publisher
+  ///
+  /// @tparam     MsgT             Message type to which this must subscribe
+  /// @tparam     NodeT            The type of the node under test
+  ///
+  /// @throws     runtime_error If no matching publisher for `topic` is found within `timeout`
+  ///
+  /// @return     Returns a subscription pointer.
+  ///
+  template<typename MsgT, typename NodeT>
+  typename rclcpp::Subscription<MsgT>::SharedPtr create_sensor_subscription(
+    const std::string & topic,
+    const NodeT & publishing_node,
+    std::function<void(const typename MsgT::SharedPtr msg)> callback,
+    const std::chrono::milliseconds & timeout = std::chrono::seconds{10LL})
+  {
+    auto subscription = m_fake_node->create_subscription<MsgT>(topic, rclcpp::SensorDataQoS().keep_last(10), callback);
     std::chrono::milliseconds spent_time{0LL};
     std::chrono::milliseconds dt{100LL};
     while (publishing_node.count_publishers(topic) < 1) {

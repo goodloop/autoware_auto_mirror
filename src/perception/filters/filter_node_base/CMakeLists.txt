@@ -47,7 +47,10 @@ if(BUILD_TESTING)
   ament_add_gmock(${TEST_FILTER_NODE_BASE_EXE} ${TEST_SOURCES})
   target_compile_options(${TEST_FILTER_NODE_BASE_EXE} PUBLIC "-Wno-pedantic")
   target_link_libraries(${TEST_FILTER_NODE_BASE_EXE} ${PROJECT_NAME})
-  ament_target_dependencies(${TEST_FILTER_NODE_BASE_EXE} "lidar_utils")
+  ament_target_dependencies(${TEST_FILTER_NODE_BASE_EXE}
+    "lidar_utils"
+    fake_test_node
+  )
 endif()
 
 # ament package generation and installing

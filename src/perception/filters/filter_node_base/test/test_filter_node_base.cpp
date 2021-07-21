@@ -17,6 +17,7 @@
 #include <string>
 #include <vector>
 
+#include "fake_test_node/fake_test_node.hpp"
 #include "filter_node_base/filter_node_base.hpp"
 
 #include "gmock/gmock.h"
@@ -27,6 +28,7 @@
 namespace
 {
 using float32_t = autoware::common::types::float32_t;
+using FakeNodeFixture = autoware::tools::testing::FakeTestNode;
 using FilterNodeBase = autoware::perception::filters::filter_node_base::FilterNodeBase;
 using PointCloud2 = sensor_msgs::msg::PointCloud2;
 
@@ -66,8 +68,11 @@ public:
     ON_CALL(*this, get_node_parameters(_))
     .WillByDefault(Invoke(this, &MockFilterNodeBase::mock_get_node_parameters));
 
-    ON_CALL(*this, filter(_))
-    .WillByDefault(Invoke(this, &MockFilterNodeBase::mock_filter));
+    ON_CALL(*this, filter)
+    .WillByDefault(
+      [this](const sensor_msgs::msg::PointCloud2 & input, sensor_msgs::msg::PointCloud2 & output) {
+        mock_filter(input, output);
+      });
   }
 
   // Parameters used by the class
@@ -94,8 +99,11 @@ private:
     return result;
   }
 
-  // Implement the filter method to just republish the cloud 
-  void mock_filter(const sensor_msgs::msg::PointCloud2 &input, sensor_msgs::msg::PointCloud2 &output) {
+  // Implement the filter method to just republish the cloud
+  void mock_filter(
+    const sensor_msgs::msg::PointCloud2 & input,
+    sensor_msgs::msg::PointCloud2 & output)
+  {
     // Pass through filter
     output = input;
   }
@@ -154,23 +162,8 @@ void create_dummy_cloud(sensor_msgs::msg::PointCloud2 & cloud)
   }
 }
 
+// Test using GMock
 // cppcheck-suppress syntaxError
-TEST_F(TestFilterNodeBase, DISABLED_test_filter) {
-  // Create dummy point cloud
-  sensor_msgs::msg::PointCloud2 cloud;
-  create_dummy_cloud(cloud);
-
-  auto cloud_pub = mock_filter_node_base->create_publisher<sensor_msgs::msg::PointCloud2>(
-    "input",
-    rclcpp::QoS(10));
-
-  // Check that the filter method in the MockFilterNodeBase class has been called at least once
-  EXPECT_CALL(*mock_filter_node_base, filter(_, _)).Times(AtLeast(1));
-  // Publish cloud
-  cloud_pub->publish(cloud);
-  rclcpp::spin_some(mock_filter_node_base);
-}
-
 TEST_F(TestFilterNodeBase, test_parameters) {
   // Check that upon set up the parameters are set correctly
   EXPECT_THAT(mock_filter_node_base->test_param_1_, Eq(0.5));
@@ -202,5 +195,53 @@ TEST_F(TestFilterNodeBase, test_parameters) {
   // Check that upon update the parameters are set correctly
   EXPECT_THAT(mock_filter_node_base->test_param_1_, Eq(1.5));
   EXPECT_THAT(mock_filter_node_base->test_param_2_, Eq("new_frame_2"));
+}
+
+// Test using the fake_test_node library
+TEST_F(FakeNodeFixture, test_filter) {
+  // Generate parameters
+  std::vector<rclcpp::Parameter> params;
+  params.emplace_back("max_queue_size", 5);
+  params.emplace_back("test_param_1", 0.5);
+  params.emplace_back("test_param_2", "frame_2");
+
+  rclcpp::NodeOptions node_options;
+  node_options.parameter_overrides(params);
+
+  // Create instance of the TestFilter child class
+  const auto node = std::make_shared<MockFilterNodeBase>(node_options);
+  // Enables the fake for delegation.
+  node->DelegateToFake();
+
+  // Expect call to the filter method
+  EXPECT_CALL(*node, filter).Times(AtLeast(1));
+
+  // Set up message client and dummy point cloud
+  sensor_msgs::msg::PointCloud2::SharedPtr last_received_msg{};
+  sensor_msgs::msg::PointCloud2 msg;
+  create_dummy_cloud(msg);
+  auto fake_cloud_pub = create_sensor_publisher<sensor_msgs::msg::PointCloud2>(
+    "input");
+  auto result_cloud_subscription = create_sensor_subscription<sensor_msgs::msg::PointCloud2>(
+    "output", *node,
+    [&last_received_msg](const sensor_msgs::msg::PointCloud2::SharedPtr msg) {
+      last_received_msg = msg;
+    });
+
+  const auto dt{std::chrono::milliseconds{100LL}};
+  const auto max_wait_time{std::chrono::seconds{10LL}};
+  auto time_passed{std::chrono::milliseconds{0LL}};
+  while (!last_received_msg) {
+    fake_cloud_pub->publish(msg);
+    rclcpp::spin_some(node);
+    rclcpp::spin_some(get_fake_node());
+    std::this_thread::sleep_for(dt);
+    time_passed += dt;
+    if (time_passed > max_wait_time) {
+      FAIL() << "Did not receive a message soon enough.";
+    }
+  }
+
+  SUCCEED();
 }
 }  // namespace
