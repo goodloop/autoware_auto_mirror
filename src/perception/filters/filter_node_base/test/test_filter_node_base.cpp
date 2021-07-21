@@ -65,6 +65,9 @@ public:
   {
     ON_CALL(*this, get_node_parameters(_))
     .WillByDefault(Invoke(this, &MockFilterNodeBase::mock_get_node_parameters));
+
+    ON_CALL(*this, filter(_))
+    .WillByDefault(Invoke(this, &MockFilterNodeBase::mock_filter));
   }
 
   // Parameters used by the class
@@ -89,6 +92,12 @@ private:
     }
 
     return result;
+  }
+
+  // Implement the filter method to just republish the cloud 
+  void mock_filter(const sensor_msgs::msg::PointCloud2 &input, sensor_msgs::msg::PointCloud2 &output) {
+    // Pass through filter
+    output = input;
   }
 };
 
