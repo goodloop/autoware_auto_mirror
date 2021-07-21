@@ -124,8 +124,9 @@ public:
   ///
   /// @brief      Create a publisher with a custom sensor topic and sensor message type.
   ///
-  /// @details    This does not do much more than create the relevant publisher and check that there
-  ///             is a subscription with the relevant topic being requested.
+  /// @details    This does not do much more than create the relevant publisher with the
+  ///             SensorDataQoS and check that there is a subscription with the relevant topic being
+  ///             requested.
   ///
   /// @param[in]  topic         The topic
   /// @param[in]  timeout       The timeout for matching to a subscription
@@ -225,7 +226,9 @@ public:
     std::function<void(const typename MsgT::SharedPtr msg)> callback,
     const std::chrono::milliseconds & timeout = std::chrono::seconds{10LL})
   {
-    auto subscription = m_fake_node->create_subscription<MsgT>(topic, rclcpp::SensorDataQoS().keep_last(10), callback);
+    auto subscription = m_fake_node->create_subscription<MsgT>(
+      topic,
+      rclcpp::SensorDataQoS().keep_last(10), callback);
     std::chrono::milliseconds spent_time{0LL};
     std::chrono::milliseconds dt{100LL};
     while (publishing_node.count_publishers(topic) < 1) {
