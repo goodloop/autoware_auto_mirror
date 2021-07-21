@@ -39,9 +39,6 @@ configuration YAML file path for each launched node.
 
 ## Error detection and handling
 <!-- Required -->
-Each launch file should launch and shut down without error. This should be tested by an
-integration test for each launch file.
-
 
 # Security considerations
 <!-- Required -->
