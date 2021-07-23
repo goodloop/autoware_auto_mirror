@@ -36,20 +36,30 @@ const autoware_auto_msgs::msg::VehicleOdometry & PlatformInterface::get_odometry
 
 autoware_auto_msgs::msg::VehicleStateReport & PlatformInterface::state_report() noexcept
 {
-  //lint -e{1536} This is an active design choice to not make getters and setters pure virtual NOLINT
   return m_state_report;
+}
+
+const autoware_auto_msgs::msg::HeadlightsReport &
+PlatformInterface::get_headlights_report() const noexcept
+{
+  return m_headlights_report;
 }
 
 autoware_auto_msgs::msg::VehicleOdometry & PlatformInterface::odometry() noexcept
 {
-  //lint -e{1536} This is an active design choice to not make getters and setters pure virtual NOLINT
   return m_odometry;
 }
 
-
-void PlatformInterface::on_headlights_command(
-  const autoware_auto_msgs::msg::HeadlightsCommand &)
+autoware_auto_msgs::msg::HeadlightsReport & PlatformInterface::headlights_report() noexcept
 {
+  return m_headlights_report;
+}
+
+
+void PlatformInterface::send_headlights_command(
+  const autoware_auto_msgs::msg::HeadlightsCommand & msg)
+{
+  (void)msg;
   throw std::runtime_error("HeadlightsCommand not supported by this vehicle interface");
 }
 
