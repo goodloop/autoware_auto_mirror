@@ -18,6 +18,7 @@
 
 #include <memory>
 #include <string>
+#include <unordered_set>
 #include <vector>
 
 #include "lgsvl_interface/lgsvl_interface_node.hpp"
@@ -25,13 +26,18 @@
 
 using autoware::common::types::bool8_t;
 using autoware::common::types::float64_t;
+using autoware::drivers::vehicle_interface::ViFeature;
 
 namespace lgsvl_interface
 {
 
 LgsvlInterfaceNode::LgsvlInterfaceNode(
   const rclcpp::NodeOptions & options)
-: VehicleInterfaceNode{"lgsvl_interface", options}
+: VehicleInterfaceNode{
+    "lgsvl_interface",
+    std::unordered_set<ViFeature> {ViFeature::HEADLIGHTS},
+    options
+}
 {
   const auto sim_ctrl_cmd_topic = "vehicle_control_cmd";
   const auto sim_state_cmd_topic = "vehicle_state_cmd";
@@ -58,14 +64,6 @@ LgsvlInterfaceNode::LgsvlInterfaceNode(
   const bool pub_tf = rclcpp::ParameterType::PARAMETER_NOT_SET == pub_tf_param.get_type() ?
     NO_PUBLISH : pub_tf_param.get<bool>();
 
-  m_headlights_report_pub = create_publisher<autoware_auto_msgs::msg::HeadlightsReport>(
-    "/vehicle/headlights_report", rclcpp::QoS{10U});
-
-  m_headlights_report_sub = create_subscription<autoware_auto_msgs::msg::HeadlightsReport>(
-    "/lgsvl/headlights_report", rclcpp::QoS{10U},
-    [this](autoware_auto_msgs::msg::HeadlightsReport::SharedPtr msg)
-    {m_headlights_report_pub->publish(*msg);});
-
   // Set up interface
   set_interface(
     std::make_unique<LgsvlInterface>(
@@ -80,7 +78,6 @@ LgsvlInterfaceNode::LgsvlInterfaceNode(
       table("throttle"),
       table("brake"),
       table("steer"),
-      m_headlights_report_pub,
       pub_tf,
       pub_pose
   ));
