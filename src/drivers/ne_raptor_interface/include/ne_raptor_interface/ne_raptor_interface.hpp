@@ -161,7 +161,8 @@ public:
     float32_t deceleration_negative_jerk_limit,
     uint32_t pub_period
   );
-/// \brief Default destructor
+
+  /// \brief Default destructor
   ~NERaptorInterface() noexcept override = default;
 
   /// \brief Try to receive data from the vehicle platform, and update StateReport and Odometry.
@@ -200,6 +201,10 @@ public:
   /// \param[in] request The requested autonomy mode
   /// \return false only if enabling the DBW system actually failed, true otherwise
   bool8_t handle_mode_change_request(ModeChangeRequest::SharedPtr request) override;
+
+  /// \brief Send a headlights command to the vehicle platform.
+  /// \param[in] msg The headlights command to send to the vehicle
+  void send_headlights_command(const HeadlightsCommand & msg) override;
 
   /// \brief Update vehicle's position & heading relative from time = 0
   ///        based on time difference, current speed, & current tire angle.
