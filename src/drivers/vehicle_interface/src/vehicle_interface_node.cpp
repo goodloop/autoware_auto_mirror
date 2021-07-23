@@ -96,23 +96,24 @@ VehicleInterfaceNode::VehicleInterfaceNode(
       return FilterConfig{type.template get<std::string>(), cutoff};
     };
   // Check for enabled features
-  const auto feature_list_string =
-    declare_parameter("features").template get<std::vector<std::string>>();
+  const auto feature_list_string = declare_parameter("features");
 
-  for (const auto & feature : feature_list_string) {
-    const auto found_feature = m_avail_features.find(feature);
+  if (feature_list_string.get_type() != rclcpp::PARAMETER_NOT_SET) {
+    for (const auto & feature : feature_list_string.template get<std::vector<std::string>>()) {
+      const auto found_feature = m_avail_features.find(feature);
 
-    if (found_feature == m_avail_features.end()) {
-      throw std::domain_error{"Provided feature not found in list of available features"};
+      if (found_feature == m_avail_features.end()) {
+        throw std::domain_error{"Provided feature not found in list of available features"};
+      }
+
+      const auto supported_feature = features.find(found_feature->second);
+
+      if (supported_feature == features.end()) {
+        throw std::domain_error{"Provided feature not found in list of supported features"};
+      }
+
+      m_enabled_features.insert(*supported_feature);
     }
-
-    const auto supported_feature = features.find(found_feature->second);
-
-    if (supported_feature == features.end()) {
-      throw std::domain_error{"Provided feature not found in list of supported features"};
-    }
-
-    m_enabled_features.insert(*supported_feature);
   }
 
   // Actually init
