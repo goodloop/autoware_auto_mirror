@@ -244,8 +244,7 @@ private:
   rclcpp::Clock m_clock;
   rclcpp::TimerBase::SharedPtr m_timer;
 
-  /* Vehicle Odometry, Vehicle State, &
-   * Vehicle Kinematic State is stored
+  /* Vehicle Kinematic State is stored
    * because it needs data from multiple reports.
    *
    * All commands are stored because they need
