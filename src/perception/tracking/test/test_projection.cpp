@@ -214,6 +214,14 @@ TEST_F(PrismProjectionTest, out_of_plane_test) {
           autoware::common::helper_functions::comparisons::abs_eq(
             (y - pt.y()), 0.0F, std::numeric_limits<decltype(y)>::epsilon());
         });
+      if (res_it == projection.shape.end()) {
+        std::stringstream projected_pts{};
+        for (const auto & pt: projection.shape) {
+          projected_pts << "(" << pt.x() << ", " << pt.y() << ") ";
+        }
+        FAIL() << "Point (" << x << ", " << y << ") is not found in projections:" << std::endl <<
+          projected_pts.str();
+      }
       ASSERT_NE(res_it, projection.shape.end());
       projection.shape.erase(res_it);
     };
