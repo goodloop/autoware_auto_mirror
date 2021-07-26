@@ -23,31 +23,16 @@ def generate_launch_description():
     Launch the system modules.
 
      * autoware_state_monitor
-     * autoware_error_monitor
-     * diagnostic aggregator
      * emergency_handler
     """
     # Packages
     autoware_state_monitor_pkg_prefix = get_package_share_directory('autoware_state_monitor')
-    autoware_error_monitor_pkg_prefix = get_package_share_directory('autoware_error_monitor')
     emergency_handler_pkg_prefix = get_package_share_directory('emergency_handler')
 
     # Launch
     autoware_state_monitor_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             [autoware_state_monitor_pkg_prefix, '/launch/autoware_state_monitor.launch.py']),
-        launch_arguments={}.items()
-    )
-
-    autoware_error_monitor_launch = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(
-            [autoware_error_monitor_pkg_prefix, '/launch/autoware_error_monitor.launch.py']),
-        launch_arguments={}.items()
-    )
-
-    diagnostic_aggregator_launch = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(
-            [autoware_error_monitor_pkg_prefix, '/launch/diagnostic_aggregator.launch.py']),
         launch_arguments={}.items()
     )
 
@@ -60,6 +45,4 @@ def generate_launch_description():
     return LaunchDescription([
         autoware_state_monitor_launch,
         emergency_handler_launch,
-        diagnostic_aggregator_launch,
-        autoware_error_monitor_launch
     ])
