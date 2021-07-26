@@ -310,7 +310,8 @@ bool Interval<T>::is_subset_eq(const Interval & i1, const Interval & i2)
 template<typename T>
 bool Interval<T>::contains(const Interval & i, const T & value)
 {
-  return (value >= Interval::min(i)) && (value <= Interval::max(i));
+  constexpr auto eps = std::numeric_limits<T>::epsilon();
+  return (value >= (Interval::min(i) - eps)) && (value <= (Interval::max(i) + eps));
 }
 
 //------------------------------------------------------------------------------
