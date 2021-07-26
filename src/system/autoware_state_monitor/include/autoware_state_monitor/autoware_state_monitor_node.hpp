@@ -52,8 +52,6 @@ public:
 private:
   // Parameter
   double update_rate_;
-  bool disengage_on_route_;
-  bool disengage_on_goal_;
 
   std::vector<ParamConfig> param_configs_;
   std::vector<TfConfig> tf_configs_;
@@ -89,18 +87,16 @@ private:
     const std::shared_ptr<rmw_request_id_t> request_header,
     const std::shared_ptr<std_srvs::srv::Trigger::Request> request,
     std::shared_ptr<std_srvs::srv::Trigger::Response> response);
+
   bool onResetRouteService(
     const std::shared_ptr<rmw_request_id_t> request_header,
     const std::shared_ptr<std_srvs::srv::Trigger::Request> request,
     std::shared_ptr<std_srvs::srv::Trigger::Response> response);
 
-
   // Publisher
   rclcpp::Publisher<autoware_auto_msgs::msg::AutowareState>::SharedPtr pub_autoware_state_;
-  rclcpp::Publisher<autoware_auto_msgs::msg::Engage>::SharedPtr pub_engage_;
 
   bool isEngaged();
-  void setDisengage();
 
   // Timer
   void onTimer();

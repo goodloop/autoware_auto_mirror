@@ -5,8 +5,6 @@
     th_arrived_distance_m: 2.0
     th_stopped_time_sec: 1.0
     th_stopped_velocity_mps: 0.01
-    disengage_on_route: True
-    disengage_on_goal: True
 
     # modules_names: string array
     module_names: [

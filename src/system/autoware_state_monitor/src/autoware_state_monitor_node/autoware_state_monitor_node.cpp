@@ -131,11 +131,6 @@ void AutowareStateMonitorNode::onRoute(
     *p = msg->goal_point;
     state_input_.goal_pose = autoware_auto_msgs::msg::RoutePoint::ConstSharedPtr(p);
   }
-
-  if (disengage_on_route_ && isEngaged()) {
-    RCLCPP_INFO(this->get_logger(), "new route received and disengage Autoware");
-    setDisengage();
-  }
 }
 
 void AutowareStateMonitorNode::onOdometry(
@@ -247,12 +242,6 @@ void AutowareStateMonitorNode::onTimer()
       toString(autoware_state).c_str());
   }
 
-  // Disengage on event
-  if (disengage_on_goal_ && isEngaged() && autoware_state == AutowareState::ArrivedGoal) {
-    RCLCPP_INFO(this->get_logger(), "arrived goal and disengage Autoware");
-    setDisengage();
-  }
-
   // Publish state message
   {
     autoware_auto_msgs::msg::AutowareState autoware_state_msg;
@@ -332,14 +321,6 @@ bool AutowareStateMonitorNode::isEngaged()
   return state_input_.engage->engage;
 }
 
-void AutowareStateMonitorNode::setDisengage()
-{
-  autoware_auto_msgs::msg::Engage msg;
-  msg.stamp = this->now();
-  msg.engage = false;
-  pub_engage_->publish(msg);
-}
-
 AutowareStateMonitorNode::AutowareStateMonitorNode()
 : Node("autoware_state_monitor"),
   tf_buffer_(this->get_clock()),
@@ -351,8 +332,6 @@ AutowareStateMonitorNode::AutowareStateMonitorNode()
   using std::placeholders::_3;
   // Parameter
   update_rate_ = this->declare_parameter("update_rate", 10.0);
-  disengage_on_route_ = this->declare_parameter("disengage_on_route", true);
-  disengage_on_goal_ = this->declare_parameter("disengage_on_goal", true);
 
   // Parameter for StateMachine
   state_param_.th_arrived_distance_m = this->declare_parameter("th_arrived_distance_m", 1.0);
@@ -404,14 +383,9 @@ AutowareStateMonitorNode::AutowareStateMonitorNode()
   // Publisher
   pub_autoware_state_ =
     this->create_publisher<autoware_auto_msgs::msg::AutowareState>("output/autoware_state", 1);
-  pub_engage_ =
-    this->create_publisher<autoware_auto_msgs::msg::Engage>("output/engage", 1);
 
   // Diagnostic Updater
   setupDiagnosticUpdater();
-
-  // Wait for first topics
-  // std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
   // Timer
   auto timer_callback = std::bind(&AutowareStateMonitorNode::onTimer, this);
