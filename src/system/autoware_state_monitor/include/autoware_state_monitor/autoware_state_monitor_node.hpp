@@ -55,7 +55,6 @@ private:
   bool disengage_on_route_;
   bool disengage_on_goal_;
 
-  std::vector<TopicConfig> topic_configs_;
   std::vector<ParamConfig> param_configs_;
   std::vector<TfConfig> tf_configs_;
 
@@ -81,16 +80,6 @@ private:
   void onIsEmergency(const autoware_auto_msgs::msg::EmergencyMode::ConstSharedPtr msg);
   void onRoute(const autoware_auto_msgs::msg::HADMapRoute::ConstSharedPtr msg);
   void onOdometry(const autoware_auto_msgs::msg::VehicleOdometry::ConstSharedPtr msg);
-
-  // Topic Buffer
-  void onTopic(
-    const std::shared_ptr<rclcpp::SerializedMessage> msg, const std::string & topic_name);
-  void registerTopicCallback(
-    const std::string & topic_name, const std::string & topic_type,
-    const bool transient_local, const bool best_effort);
-
-  std::map<std::string, rclcpp_generic::GenericSubscription::SharedPtr> sub_topic_map_;
-  std::map<std::string, std::deque<rclcpp::Time>> topic_received_time_buffer_;
 
   // Service
   rclcpp::Service<std_srvs::srv::Trigger>::SharedPtr srv_shutdown_;
@@ -118,7 +107,6 @@ private:
   rclcpp::TimerBase::SharedPtr timer_;
 
   // Stats
-  TopicStats getTopicStats() const;
   ParamStats getParamStats() const;
   TfStats getTfStats() const;
 

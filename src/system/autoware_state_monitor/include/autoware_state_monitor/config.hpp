@@ -22,34 +22,6 @@
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp/time.hpp"
 
-struct TopicConfig
-{
-  explicit TopicConfig(
-    rclcpp::node_interfaces::NodeParametersInterface::SharedPtr interface,
-    const std::string & namespace_prefix, const std::string & name)
-  : module(interface->declare_parameter(namespace_prefix + ".module").get<std::string>()),
-    name(name),
-    type(interface->declare_parameter(namespace_prefix + ".type").get<std::string>()),
-    transient_local(
-      interface->declare_parameter(namespace_prefix + ".transient_local",
-      static_cast<rclcpp::ParameterValue>(false)).get<bool>()),
-    best_effort(
-      interface->declare_parameter(namespace_prefix + ".best_effort",
-      static_cast<rclcpp::ParameterValue>(false)).get<bool>()),
-    timeout(interface->declare_parameter(namespace_prefix + ".timeout").get<double>()),
-    warn_rate(interface->declare_parameter(namespace_prefix + ".warn_rate").get<double>())
-  {
-  }
-
-  std::string module;
-  std::string name;
-  std::string type;
-  bool transient_local;
-  bool best_effort;
-  double timeout;
-  double warn_rate;
-};
-
 struct ParamConfig
 {
   explicit ParamConfig(
@@ -80,15 +52,6 @@ struct TfConfig
   std::string from;
   std::string to;
   double timeout;
-};
-
-struct TopicStats
-{
-  rclcpp::Time checked_time;
-  std::vector<TopicConfig> ok_list;
-  std::vector<TopicConfig> non_received_list;
-  std::vector<std::pair<TopicConfig, rclcpp::Time>> timeout_list;  // pair<TfConfig, last_received>
-  std::vector<std::pair<TopicConfig, double>> slow_rate_list;      // pair<TfConfig, rate>
 };
 
 struct ParamStats

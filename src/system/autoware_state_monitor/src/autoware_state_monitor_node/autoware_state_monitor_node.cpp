@@ -43,16 +43,6 @@ std::vector<Config> getConfigs(
   return configs;
 }
 
-double calcTopicRate(const std::deque<rclcpp::Time> & topic_received_time_buffer)
-{
-  assert(topic_received_time_buffer.size() >= 2);
-
-  const auto & buf = topic_received_time_buffer;
-  const auto time_diff = buf.back() - buf.front();
-
-  return static_cast<double>(buf.size() - 1) / time_diff.seconds();
-}
-
 geometry_msgs::msg::PoseStamped::SharedPtr getCurrentPose(const tf2_ros::Buffer & tf_buffer)
 {
   geometry_msgs::msg::TransformStamped tf_current_pose;
@@ -243,7 +233,6 @@ void AutowareStateMonitorNode::onTimer()
   // Prepare state input
   state_input_.current_pose = getCurrentPose(tf_buffer_);
 
-  state_input_.topic_stats = getTopicStats();
   state_input_.param_stats = getParamStats();
   state_input_.tf_stats = getTfStats();
   state_input_.current_time = this->now();
@@ -285,84 +274,6 @@ void AutowareStateMonitorNode::onTimer()
 
   // Publish diag message
   updater_.force_update();
-}
-
-// TODO(jilaada): Use generic subscription base
-void AutowareStateMonitorNode::onTopic(
-  const std::shared_ptr<rclcpp::SerializedMessage> msg, const std::string & topic_name)
-{
-  const auto now = this->now();
-
-  auto & buf = topic_received_time_buffer_.at(topic_name);
-  buf.push_back(now);
-
-  constexpr size_t topic_received_time_buffer_size = 10;
-  if (buf.size() > topic_received_time_buffer_size) {
-    buf.pop_front();
-  }
-}
-
-void AutowareStateMonitorNode::registerTopicCallback(
-  const std::string & topic_name, const std::string & topic_type,
-  const bool transient_local, const bool best_effort)
-{
-  // Initialize buffer
-  topic_received_time_buffer_[topic_name] = {};
-
-  // Register callback
-  using Callback = std::function<void (const std::shared_ptr<rclcpp::SerializedMessage>)>;
-  const auto callback = static_cast<Callback>(
-    std::bind(&AutowareStateMonitorNode::onTopic, this, std::placeholders::_1, topic_name));
-  auto qos = rclcpp::QoS{1};
-  if (transient_local) {
-    qos.transient_local();
-  }
-  if (best_effort) {
-    qos.best_effort();
-  }
-  sub_topic_map_[topic_name] = rclcpp_generic::GenericSubscription::create(
-    this->get_node_topics_interface(), topic_name, topic_type, qos, callback,
-    callback_group_subscribers_);
-}
-
-TopicStats AutowareStateMonitorNode::getTopicStats() const
-{
-  TopicStats topic_stats;
-  topic_stats.checked_time = this->now();
-
-  for (const auto & topic_config : topic_configs_) {
-    // Alias
-    const auto & buf = topic_received_time_buffer_.at(topic_config.name);
-
-    // Check at least once received
-    if (buf.empty()) {
-      topic_stats.non_received_list.push_back(topic_config);
-      continue;
-    }
-
-    // Check timeout
-    const auto last_received_time = buf.back();
-    const auto time_diff = (topic_stats.checked_time - last_received_time).seconds();
-    const auto is_timeout = (topic_config.timeout != 0) && (time_diff > topic_config.timeout);
-    if (is_timeout) {
-      topic_stats.timeout_list.emplace_back(topic_config, last_received_time);
-      continue;
-    }
-
-    // Check topic rate
-    if (!is_timeout && buf.size() >= 2) {
-      const auto topic_rate = calcTopicRate(buf);
-      if (topic_config.warn_rate != 0 && topic_rate < topic_config.warn_rate) {
-        topic_stats.slow_rate_list.emplace_back(topic_config, topic_rate);
-        continue;
-      }
-    }
-
-    // No error
-    topic_stats.ok_list.push_back(topic_config);
-  }
-
-  return topic_stats;
 }
 
 ParamStats AutowareStateMonitorNode::getParamStats() const
@@ -452,7 +363,6 @@ AutowareStateMonitorNode::AutowareStateMonitorNode()
   state_machine_ = std::make_shared<StateMachine>(state_param_);
 
   // Config
-  topic_configs_ = getConfigs<TopicConfig>(this->get_node_parameters_interface(), "topic_configs");
   tf_configs_ = getConfigs<TfConfig>(this->get_node_parameters_interface(), "tf_configs");
 
   // Callback Groups
@@ -462,13 +372,6 @@ AutowareStateMonitorNode::AutowareStateMonitorNode()
     rclcpp::CallbackGroupType::MutuallyExclusive);
   auto subscriber_option = rclcpp::SubscriptionOptions();
   subscriber_option.callback_group = callback_group_subscribers_;
-
-  // Topic Callback
-  for (const auto & topic_config : topic_configs_) {
-    registerTopicCallback(
-      topic_config.name, topic_config.type,
-      topic_config.transient_local, topic_config.best_effort);
-  }
 
   // Subscriber
   sub_engage_ = this->create_subscription<autoware_auto_msgs::msg::Engage>(
@@ -508,7 +411,7 @@ AutowareStateMonitorNode::AutowareStateMonitorNode()
   setupDiagnosticUpdater();
 
   // Wait for first topics
-  std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+  // std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
   // Timer
   auto timer_callback = std::bind(&AutowareStateMonitorNode::onTimer, this);

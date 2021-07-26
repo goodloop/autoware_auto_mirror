@@ -39,7 +39,6 @@
 
 struct StateInput
 {
-  TopicStats topic_stats;
   ParamStats param_stats;
   TfStats tf_stats;
 

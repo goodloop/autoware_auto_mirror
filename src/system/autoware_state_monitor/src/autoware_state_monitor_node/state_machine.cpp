@@ -65,20 +65,13 @@ std::vector<T> filterConfigByModuleName(const std::vector<T> & configs, const ch
 
 bool StateMachine::isModuleInitialized(const char * module_name) const
 {
-  const auto non_received_topics =
-    filterConfigByModuleName(state_input_.topic_stats.non_received_list, module_name);
   const auto non_set_params =
     filterConfigByModuleName(state_input_.param_stats.non_set_list, module_name);
   const auto non_received_tfs =
     filterConfigByModuleName(state_input_.tf_stats.non_received_list, module_name);
 
-  if (non_received_topics.empty() && non_set_params.empty() && non_received_tfs.empty()) {
+  if (non_set_params.empty() && non_received_tfs.empty()) {
     return true;
-  }
-
-  for (const auto & topic_config : non_received_topics) {
-    const auto msg = fmt::format("topic `{}` is not received yet", topic_config.name);
-    msgs_.push_back(msg);
   }
 
   for (const auto & param_config : non_set_params) {
@@ -121,8 +114,6 @@ bool StateMachine::isVehicleInitialized() const
   if (!isModuleInitialized(ModuleName::perception)) {
     return false;
   }
-
-  // TODO(Kenji Miyake): Check if the vehicle is on a lane?
 
   return true;
 }
