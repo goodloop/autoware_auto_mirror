@@ -64,7 +64,7 @@ Once your new package has been created, you will need to clean up the specifics 
 To obtain more details on the command-line usage, call:
 
 ```
-ade$ ros run autoware_auto_create_pkg main.py --help
+ade$ ros2 run autoware_auto_create_pkg main.py --help
 ```
 
 Once the package has been created with for example `--pkg-name foo`, build and test it.
