@@ -32,38 +32,23 @@ namespace
 using autoware::common::types::float32_t;
 using autoware::common::types::float64_t;
 
+
 constexpr auto kCovarianceMatrixRows = 6U;
 constexpr auto kCovarianceMatrixRowsRelativePos = 3U;
 constexpr auto kAngleOffset = 3U * kCovarianceMatrixRows + kCovarianceMatrixRows / 2U;
-constexpr auto kIndexX = 0U;
-constexpr auto kIndexXY = kIndexX + 1U;
-constexpr auto kIndexXZ = kIndexX + 2U;
-constexpr auto kIndexY = kCovarianceMatrixRows + 1U;
-constexpr auto kIndexYX = kIndexY - 1U;
-constexpr auto kIndexYZ = kIndexY + 1U;
-constexpr auto kIndexZ = 2U * kCovarianceMatrixRows + 2U;
-constexpr auto kIndexZX = kIndexZ - 2U;
-constexpr auto kIndexZY = kIndexZ - 1U;
-constexpr auto kIndexXRelativePos = 0U;
-constexpr auto kIndexXYRelativePos = 1U;
-constexpr auto kIndexXZRelativePos = 2U;
-constexpr auto kIndexYRelativePos = kCovarianceMatrixRowsRelativePos + 1U;
-constexpr auto kIndexYXRelativePos = kIndexYRelativePos - 1U;
-constexpr auto kIndexYZRelativePos = kIndexYRelativePos + 1U;
-constexpr auto kIndexZRelativePos = 2U * kCovarianceMatrixRowsRelativePos + 2U;
-constexpr auto kIndexZXRelativePos = kIndexZRelativePos - 2U;
-constexpr auto kIndexZYRelativePos = kIndexZRelativePos - 1U;
 constexpr auto kCovarianceMatrixRowsSquared = kCovarianceMatrixRows * kCovarianceMatrixRows;
 constexpr auto kCovarianceMatrixRowsRelativePosSquared =
   kCovarianceMatrixRowsRelativePos * kCovarianceMatrixRowsRelativePos;
 static_assert(
   std::tuple_size<
     geometry_msgs::msg::PoseWithCovariance::_covariance_type>::value ==
-  kCovarianceMatrixRowsSquared, "We expect the covariance matrix to have 36 entries.");
+  kCovarianceMatrixRowsSquared,
+  "We expect the PoseWithCovariance covariance matrix to have 36 entries.");
 static_assert(
   std::tuple_size<
     autoware_auto_msgs::msg::RelativePositionWithCovarianceStamped::_covariance_type>::value ==
-  kCovarianceMatrixRowsRelativePosSquared, "We expect the covariance matrix to have 9 entries.");
+  kCovarianceMatrixRowsRelativePosSquared,
+  "We expect the RelativePositionWithCovarianceStamped covariance matrix to have 9 entries.");
 }  // namespace
 
 namespace autoware
@@ -78,7 +63,7 @@ MeasurementXYZRPYPos64 convert_to<MeasurementXYZRPYPos64>::from(
 {
   using Vector6d = Eigen::Matrix<float64_t, 6, 1>;
   using Matrix6d = Eigen::Matrix<float64_t, 6, 6>;
-  double roll, pitch, yaw;
+  float64_t roll{}, pitch{}, yaw{};
   tf2::Quaternion quaternion;
   tf2::fromMsg(msg.pose.orientation, quaternion);
   tf2::Matrix3x3{quaternion}.getRPY(roll, pitch, yaw);
@@ -86,17 +71,14 @@ MeasurementXYZRPYPos64 convert_to<MeasurementXYZRPYPos64>::from(
     msg.pose.position.x, msg.pose.position.y, msg.pose.position.z, roll, pitch, yaw).finished();
   Matrix6d covariance = Matrix6d::Zero();
   const auto & cov = msg.covariance;
-  covariance.topLeftCorner(3, 3) <<
-    cov[kIndexX], cov[kIndexXY], cov[kIndexXZ],
-    cov[kIndexYX], cov[kIndexY], cov[kIndexYZ],
-    cov[kIndexZX], cov[kIndexZY], cov[kIndexZ];
-  covariance.bottomRightCorner(3, 3) <<
-    cov[kAngleOffset + kIndexX], cov[kAngleOffset + kIndexXY], cov[kAngleOffset + kIndexXZ],
-    cov[kAngleOffset + kIndexYX], cov[kAngleOffset + kIndexY], cov[kAngleOffset + kIndexYZ],
-    cov[kAngleOffset + kIndexZX], cov[kAngleOffset + kIndexZY], cov[kAngleOffset + kIndexZ];
-  return MeasurementXYZRPYPos64{
-    mean,
-    covariance};
+  const auto stride = kCovarianceMatrixRows;
+  const auto position_start_idx = 0;
+  covariance.topLeftCorner<3, 3>() =
+    array_to_matrix<3, 3>(cov, position_start_idx, stride, InputStorageOrder::kRowMajor);
+  const auto rotation_start_idx{kAngleOffset};
+  covariance.bottomRightCorner<3, 3>() =
+    array_to_matrix<3, 3>(cov, rotation_start_idx, stride, InputStorageOrder::kRowMajor);
+  return MeasurementXYZRPYPos64{mean, covariance};
 }
 
 MeasurementXYZPos64 convert_to<MeasurementXYZPos64>::from(
@@ -104,13 +86,11 @@ MeasurementXYZPos64 convert_to<MeasurementXYZPos64>::from(
 {
   const Eigen::Vector3d mean{msg.position.x, msg.position.y, msg.position.z};
   const auto & cov = msg.covariance;
-  const Eigen::Matrix3d covariance = (Eigen::Matrix3d{} <<
-    cov[kIndexXRelativePos], cov[kIndexXYRelativePos], cov[kIndexXZRelativePos],
-    cov[kIndexYXRelativePos], cov[kIndexYRelativePos], cov[kIndexYZRelativePos],
-    cov[kIndexZXRelativePos], cov[kIndexZYRelativePos], cov[kIndexZRelativePos]).finished();
-  return MeasurementXYZPos64{
-    mean,
-    covariance};
+  const auto start_idx = 0;
+  const auto stride = kCovarianceMatrixRowsRelativePos;
+  const Eigen::Matrix3d covariance =
+    array_to_matrix<3, 3>(cov, start_idx, stride, InputStorageOrder::kRowMajor);
+  return MeasurementXYZPos64{mean, covariance};
 }
 
 }  // namespace state_estimation
