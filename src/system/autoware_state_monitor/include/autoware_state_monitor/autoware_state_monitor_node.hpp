@@ -28,7 +28,6 @@
 #include "tf2_ros/buffer.h"
 #include "tf2_ros/transform_listener.h"
 #include "diagnostic_updater/diagnostic_updater.hpp"
-#include "rclcpp_generic/generic_subscription.hpp"
 #include "rclcpp/rclcpp.hpp"
 
 // Autoware
