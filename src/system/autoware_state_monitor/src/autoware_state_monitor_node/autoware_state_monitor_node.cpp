@@ -91,10 +91,6 @@ std::string getStateMessage(const AutowareState & state)
     return "Autonomous driving has completed. Thank you!";
   }
 
-  if (state == AutowareState::Emergency) {
-    return "Emergency! Please recover the system.";
-  }
-
   if (state == AutowareState::Finalizing) {
     return "Finalizing Autoware...";
   }
@@ -118,7 +114,6 @@ void AutowareStateMonitorNode::onVehicleStateReport(
 void AutowareStateMonitorNode::onIsEmergency(
   const autoware_auto_msgs::msg::EmergencyMode::ConstSharedPtr msg)
 {
-  state_input_.emergency_mode = msg;
 }
 
 void AutowareStateMonitorNode::onRoute(
@@ -164,6 +159,7 @@ bool AutowareStateMonitorNode::onShutdownService(
 
   const auto t_start = this->get_clock()->now();
   constexpr double timeout = 3.0;
+
   while (rclcpp::ok()) {
     if (state_machine_->getCurrentState() == AutowareState::Finalizing) {
       response->success = true;
