@@ -29,6 +29,7 @@
 #include "eigen3/Eigen/Core"
 #include "geometry_msgs/msg/pose_stamped.hpp"
 #include "geometry_msgs/msg/twist_stamped.hpp"
+#include "helper_functions/angle_utils.hpp"
 #include "motion_common/motion_common.hpp"
 #include "rclcpp/rclcpp.hpp"
 #include "tf2/utils.h"
@@ -55,14 +56,8 @@ using autoware::common::types::bool8_t;
 TRAJECTORY_FOLLOWER_PUBLIC geometry_msgs::msg::Quaternion getQuaternionFromYaw(
   const float64_t & yaw);
 /**
- * @brief normalize angle into [-pi to pi]
- * @param [in] angle input angle
- * @return normalized angle
- */
-TRAJECTORY_FOLLOWER_PUBLIC float64_t normalizeRadian(const float64_t angle);
-/**
  * @brief convert Euler angle vector including +-2pi to 0 jump to continuous series data
- * @param [out] a input angle vector
+ * @param [inout] a input angle vector
  */
 TRAJECTORY_FOLLOWER_PUBLIC void convertEulerAngleToMonotonic(std::vector<float64_t> * a);
 /**

@@ -43,15 +43,8 @@ void convertEulerAngleToMonotonic(std::vector<float64_t> * a)
   }
   for (uint64_t i = 1; i < a->size(); ++i) {
     const float64_t da = a->at(i) - a->at(i - 1);
-    a->at(i) = a->at(i - 1) + normalizeRadian(da);
+    a->at(i) = a->at(i - 1) + autoware::common::helper_functions::wrap_angle(da);
   }
-}
-
-float64_t normalizeRadian(const float64_t angle)
-{
-  float64_t n_angle = std::fmod(angle, 2 * M_PI);
-  n_angle = n_angle > M_PI ? n_angle - 2 * M_PI : n_angle < -M_PI ? 2 * M_PI + n_angle : n_angle;
-  return n_angle;
 }
 
 float64_t calcDist2d(
@@ -336,7 +329,7 @@ int64_t calcNearestIndex(
     const float64_t dist_squared = dx * dx + dy * dy;
 
     /* ignore when yaw error is large, for crossing path */
-    const float64_t err_yaw = normalizeRadian(my_yaw - traj.yaw[i]);
+    const float64_t err_yaw = autoware::common::helper_functions::wrap_angle(my_yaw - traj.yaw[i]);
     if (std::fabs(err_yaw) > (M_PI / 3.0)) {
       continue;
     }
@@ -364,7 +357,7 @@ int64_t calcNearestIndex(
 
     /* ignore when yaw error is large, for crossing path */
     const float64_t traj_yaw = ::motion::motion_common::to_angle(traj.points.at(i).heading);
-    const float64_t err_yaw = normalizeRadian(my_yaw - traj_yaw);
+    const float64_t err_yaw = autoware::common::helper_functions::wrap_angle(my_yaw - traj_yaw);
     if (std::fabs(err_yaw) > (M_PI / 3.0)) {
       continue;
     }
@@ -440,9 +433,12 @@ bool8_t calcNearestPoseInterp(
   nearest_pose->position.y =
     alpha * traj.y[*nearest_index] + (1 - alpha) * traj.y[second_nearest_index];
   const float64_t tmp_yaw_err =
-    normalizeRadian(traj.yaw[*nearest_index] - traj.yaw[second_nearest_index]);
+    autoware::common::helper_functions::wrap_angle(
+    traj.yaw[*nearest_index] -
+    traj.yaw[second_nearest_index]);
   const float64_t nearest_yaw =
-    normalizeRadian(traj.yaw[second_nearest_index] + alpha * tmp_yaw_err);
+    autoware::common::helper_functions::wrap_angle(
+    traj.yaw[second_nearest_index] + alpha * tmp_yaw_err);
   nearest_pose->orientation = getQuaternionFromYaw(nearest_yaw);
   *nearest_time = alpha * traj.relative_time[*nearest_index] +
     (1 - alpha) * traj.relative_time[second_nearest_index];

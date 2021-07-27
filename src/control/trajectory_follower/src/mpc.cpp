@@ -206,7 +206,7 @@ bool8_t MPC::getData(
   data->lateral_err = trajectory_follower::MPCUtils::calcLateralError(
     current_pose,
     data->nearest_pose);
-  data->yaw_err = trajectory_follower::MPCUtils::normalizeRadian(
+  data->yaw_err = autoware::common::helper_functions::wrap_angle(
     tf2::getYaw(current_pose.orientation) -
     tf2::getYaw(data->nearest_pose.orientation));
 
