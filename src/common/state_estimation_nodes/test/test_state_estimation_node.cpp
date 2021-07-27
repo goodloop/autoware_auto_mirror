@@ -145,9 +145,6 @@ INSTANTIATE_TEST_CASE_P(
 /// @test Test that if we publish one message, it generates a state estimate which is sent out.
 TEST_P(StateEstimationNodeTest, PublishAndReceivePoseMessage) {
   auto msg = create_empty_pose("map");
-  msg.header.stamp.sec = 5;
-  msg.header.stamp.nanosec = 12345U;
-
   const bool8_t data_driven = true;
   rclcpp::NodeOptions node_options = get_default_options(data_driven, GetParam().publish_tf);
   const auto node{std::make_shared<StateEstimationNode>(node_options)};
