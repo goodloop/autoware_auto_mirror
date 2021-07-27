@@ -10,7 +10,6 @@
   <buildtool_depend>ament_cmake_auto</buildtool_depend>
 
   <depend>rclcpp</depend>
-  <depend>rclcpp_generic</depend>
   <depend>autoware_auto_msgs</depend>
   <depend>diagnostic_updater</depend>
   <depend>fmt</depend>

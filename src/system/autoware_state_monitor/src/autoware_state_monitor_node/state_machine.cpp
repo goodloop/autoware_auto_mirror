@@ -1,3 +1,4 @@
+// Copyright 2021 Robotec.ai
 // Copyright 2020 Tier IV, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,6 +23,7 @@
 
 namespace
 {
+
 double calcDistance2d(const geometry_msgs::msg::Point & p1, const geometry_msgs::msg::Point & p2)
 {
   return std::hypot(p1.x - p2.x, p1.y - p2.y);
