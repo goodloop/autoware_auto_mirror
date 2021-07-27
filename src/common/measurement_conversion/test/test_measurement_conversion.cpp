@@ -88,12 +88,12 @@ autoware_auto_msgs::msg::RelativePositionWithCovarianceStamped create_relative_p
 TEST(MeasurementConversionTest, RelativePose) {
   const auto msg = create_relative_pos_msg();
   const auto measurement = convert_to<Stamped<MeasurementXYZPos64>>::from(msg);
-  EXPECT_DOUBLE_EQ(measurement.measurement.state().at<X>(), 42.0);
-  EXPECT_DOUBLE_EQ(measurement.measurement.state().at<Y>(), 23.0);
-  EXPECT_DOUBLE_EQ(measurement.measurement.state().at<Z>(), 1.0);
-  EXPECT_DOUBLE_EQ(measurement.measurement.covariance()(0, 0), 1.0);
-  EXPECT_DOUBLE_EQ(measurement.measurement.covariance()(1, 1), 2.0);
-  EXPECT_DOUBLE_EQ(measurement.measurement.covariance()(2, 2), 3.0);
+  EXPECT_DOUBLE_EQ(measurement.measurement.state().at<X>(), msg.position.x);
+  EXPECT_DOUBLE_EQ(measurement.measurement.state().at<Y>(), msg.position.y);
+  EXPECT_DOUBLE_EQ(measurement.measurement.state().at<Z>(), msg.position.z);
+  EXPECT_DOUBLE_EQ(measurement.measurement.covariance()(0, 0), msg.covariance[0]);
+  EXPECT_DOUBLE_EQ(measurement.measurement.covariance()(1, 1), msg.covariance[4]);
+  EXPECT_DOUBLE_EQ(measurement.measurement.covariance()(2, 2), msg.covariance[8]);
   EXPECT_EQ(
     measurement.timestamp.time_since_epoch(),
     std::chrono::seconds{42LL});
@@ -103,9 +103,9 @@ TEST(MeasurementConversionTest, RelativePose) {
 TEST(MeasurementConversionTest, Pose) {
   const auto msg = create_pose_msg();
   const auto measurement = convert_to<Stamped<MeasurementXYZRPYPos64>>::from(msg);
-  EXPECT_DOUBLE_EQ(measurement.measurement.state().at<X>(), 42.0);
-  EXPECT_DOUBLE_EQ(measurement.measurement.state().at<Y>(), 23.0);
-  EXPECT_DOUBLE_EQ(measurement.measurement.state().at<Z>(), 1.0);
+  EXPECT_DOUBLE_EQ(measurement.measurement.state().at<X>(), msg.pose.pose.position.x);
+  EXPECT_DOUBLE_EQ(measurement.measurement.state().at<Y>(), msg.pose.pose.position.y);
+  EXPECT_DOUBLE_EQ(measurement.measurement.state().at<Z>(), msg.pose.pose.position.z);
   EXPECT_DOUBLE_EQ(measurement.measurement.state().at<ROLL>(), 0.0);
   EXPECT_DOUBLE_EQ(measurement.measurement.state().at<PITCH>(), 0.0);
   EXPECT_DOUBLE_EQ(measurement.measurement.state().at<YAW>(), M_PI_2);
@@ -115,12 +115,18 @@ TEST(MeasurementConversionTest, Pose) {
   const auto roll_idx = measurement.measurement.state().index_of<ROLL>();
   const auto pitch_idx = measurement.measurement.state().index_of<PITCH>();
   const auto yaw_idx = measurement.measurement.state().index_of<YAW>();
-  EXPECT_DOUBLE_EQ(measurement.measurement.covariance()(x_idx, x_idx), 1.0);
-  EXPECT_DOUBLE_EQ(measurement.measurement.covariance()(y_idx, y_idx), 2.0);
-  EXPECT_DOUBLE_EQ(measurement.measurement.covariance()(z_idx, z_idx), 3.0);
-  EXPECT_DOUBLE_EQ(measurement.measurement.covariance()(roll_idx, roll_idx), 4.0);
-  EXPECT_DOUBLE_EQ(measurement.measurement.covariance()(pitch_idx, pitch_idx), 5.0);
-  EXPECT_DOUBLE_EQ(measurement.measurement.covariance()(yaw_idx, yaw_idx), 6.0);
+  EXPECT_DOUBLE_EQ(measurement.measurement.covariance()(x_idx, x_idx), msg.pose.covariance[0]);
+  EXPECT_DOUBLE_EQ(measurement.measurement.covariance()(y_idx, y_idx), msg.pose.covariance[7]);
+  EXPECT_DOUBLE_EQ(measurement.measurement.covariance()(z_idx, z_idx), msg.pose.covariance[14]);
+  EXPECT_DOUBLE_EQ(
+    measurement.measurement.covariance()(roll_idx, roll_idx),
+    msg.pose.covariance[21]);
+  EXPECT_DOUBLE_EQ(
+    measurement.measurement.covariance()(pitch_idx, pitch_idx),
+    msg.pose.covariance[28]);
+  EXPECT_DOUBLE_EQ(
+    measurement.measurement.covariance()(yaw_idx, yaw_idx),
+    msg.pose.covariance[35]);
   EXPECT_EQ(
     measurement.timestamp.time_since_epoch(),
     std::chrono::seconds{42LL});
