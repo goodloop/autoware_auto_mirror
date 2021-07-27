@@ -42,7 +42,6 @@
 // Local
 #include "autoware_state_monitor/state_machine.hpp"
 #include "autoware_state_monitor/autoware_state.hpp"
-#include "autoware_state_monitor/config.hpp"
 
 class AutowareStateMonitorNode : public rclcpp::Node
 {
@@ -52,9 +51,6 @@ public:
 private:
   // Parameter
   double update_rate_;
-
-  std::vector<ParamConfig> param_configs_;
-  std::vector<TfConfig> tf_configs_;
 
   // TF
   tf2_ros::Buffer tf_buffer_;
@@ -96,10 +92,6 @@ private:
   void onTimer();
   rclcpp::TimerBase::SharedPtr timer_;
 
-  // Stats
-  ParamStats getParamStats() const;
-  TfStats getTfStats() const;
-
   // State Machine
   std::shared_ptr<StateMachine> state_machine_;
   StateInput state_input_;
@@ -109,10 +101,6 @@ private:
   diagnostic_updater::Updater updater_;
 
   void setupDiagnosticUpdater();
-  void checkTopicStatus(
-    diagnostic_updater::DiagnosticStatusWrapper & stat, const std::string & module_name);
-  void checkTFStatus(
-    diagnostic_updater::DiagnosticStatusWrapper & stat, const std::string & module_name);
 };
 
 #endif  // AUTOWARE_STATE_MONITOR__AUTOWARE_STATE_MONITOR_NODE_HPP_

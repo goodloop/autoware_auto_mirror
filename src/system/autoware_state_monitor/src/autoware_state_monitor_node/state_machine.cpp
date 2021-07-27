@@ -49,74 +49,10 @@ bool isStopped(
   return true;
 }
 
-template<class T>
-std::vector<T> filterConfigByModuleName(const std::vector<T> & configs, const char * module_name)
-{
-  std::vector<T> filtered;
-
-  for (const auto & config : configs) {
-    if (config.module == module_name) {
-      filtered.push_back(config);
-    }
-  }
-
-  return filtered;
-}
-
 }  // namespace
-
-bool StateMachine::isModuleInitialized(const char * module_name) const
-{
-  const auto non_set_params =
-    filterConfigByModuleName(state_input_.param_stats.non_set_list, module_name);
-  const auto non_received_tfs =
-    filterConfigByModuleName(state_input_.tf_stats.non_received_list, module_name);
-
-  if (non_set_params.empty() && non_received_tfs.empty()) {
-    return true;
-  }
-
-  for (const auto & param_config : non_set_params) {
-    const auto msg = fmt::format("param `{}` is not set", param_config.name);
-    msgs_.push_back(msg);
-  }
-
-  for (const auto & tf_config : non_received_tfs) {
-    const auto msg =
-      fmt::format("tf from `{}` to `{}` is not received yet", tf_config.from, tf_config.to);
-    msgs_.push_back(msg);
-  }
-
-  {
-    const auto msg = fmt::format("module `{}` is not initialized", module_name);
-    msgs_.push_back(msg);
-  }
-
-  return false;
-}
 
 bool StateMachine::isVehicleInitialized() const
 {
-  if (!isModuleInitialized(ModuleName::map)) {
-    return false;
-  }
-
-  if (!isModuleInitialized(ModuleName::vehicle)) {
-    return false;
-  }
-
-  if (!isModuleInitialized(ModuleName::sensing)) {
-    return false;
-  }
-
-  if (!isModuleInitialized(ModuleName::localization)) {
-    return false;
-  }
-
-  if (!isModuleInitialized(ModuleName::perception)) {
-    return false;
-  }
-
   return true;
 }
 
@@ -126,14 +62,6 @@ bool StateMachine::isRouteReceived() const {return state_input_.route != executi
 
 bool StateMachine::isPlanningCompleted() const
 {
-  if (!isModuleInitialized(ModuleName::planning)) {
-    return false;
-  }
-
-  if (!isModuleInitialized(ModuleName::control)) {
-    return false;
-  }
-
   return true;
 }
 

@@ -35,14 +35,9 @@
 
 // Local
 #include "autoware_state_monitor/autoware_state.hpp"
-#include "autoware_state_monitor/config.hpp"
-#include "autoware_state_monitor/module_name.hpp"
 
 struct StateInput
 {
-  ParamStats param_stats;
-  TfStats tf_stats;
-
   rclcpp::Time current_time;
 
   geometry_msgs::msg::PoseStamped::ConstSharedPtr current_pose;

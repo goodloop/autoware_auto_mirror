@@ -20,7 +20,6 @@ ament_auto_find_build_dependencies()
 set(AUTOWARE_STATE_MONITOR_SRC
   src/autoware_state_monitor_node/autoware_state_monitor_node.cpp
   src/autoware_state_monitor_node/state_machine.cpp
-  src/autoware_state_monitor_node/diagnostics.cpp
 )
 
 ## Add executables

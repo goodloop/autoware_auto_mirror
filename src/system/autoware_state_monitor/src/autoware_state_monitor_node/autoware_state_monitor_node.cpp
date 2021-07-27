@@ -165,8 +165,6 @@ bool AutowareStateMonitorNode::onShutdownService(
   const auto t_start = this->get_clock()->now();
   constexpr double timeout = 3.0;
   while (rclcpp::ok()) {
-    // rclcpp::spin_some(this->get_node_base_interface());
-
     if (state_machine_->getCurrentState() == AutowareState::Finalizing) {
       response->success = true;
       response->message = "Shutdown Autoware.";
@@ -191,9 +189,6 @@ void AutowareStateMonitorNode::onTimer()
 {
   // Prepare state input
   state_input_.current_pose = getCurrentPose(tf_buffer_);
-
-  state_input_.param_stats = getParamStats();
-  state_input_.tf_stats = getTfStats();
   state_input_.current_time = this->now();
 
   // Update state
@@ -229,53 +224,6 @@ void AutowareStateMonitorNode::onTimer()
   updater_.force_update();
 }
 
-ParamStats AutowareStateMonitorNode::getParamStats() const
-{
-  ParamStats param_stats;
-  param_stats.checked_time = this->now();
-
-  for (const auto & param_config : param_configs_) {
-    const bool result = this->has_parameter("param_configs.configs." + param_config.name);
-    if (!result) {
-      param_stats.non_set_list.push_back(param_config);
-      continue;
-    }
-
-    // No error
-    param_stats.ok_list.push_back(param_config);
-  }
-
-  return param_stats;
-}
-
-TfStats AutowareStateMonitorNode::getTfStats() const
-{
-  TfStats tf_stats;
-  tf_stats.checked_time = this->now();
-
-  for (const auto & tf_config : tf_configs_) {
-    try {
-      const auto transform =
-        tf_buffer_.lookupTransform(tf_config.from, tf_config.to, tf2::TimePointZero);
-
-      const auto last_received_time = transform.header.stamp;
-      const auto time_diff = (tf_stats.checked_time - last_received_time).seconds();
-      if (time_diff > tf_config.timeout) {
-        tf_stats.timeout_list.emplace_back(tf_config, last_received_time);
-        continue;
-      }
-    } catch (tf2::TransformException & ex) {
-      tf_stats.non_received_list.push_back(tf_config);
-      continue;
-    }
-
-    // No error
-    tf_stats.ok_list.push_back(tf_config);
-  }
-
-  return tf_stats;
-}
-
 bool AutowareStateMonitorNode::isEngaged()
 {
   if (!state_input_.engage) {
@@ -304,9 +252,6 @@ AutowareStateMonitorNode::AutowareStateMonitorNode()
 
   // State Machine
   state_machine_ = std::make_shared<StateMachine>(state_param_);
-
-  // Config
-  tf_configs_ = getConfigs<TfConfig>(this->get_node_parameters_interface(), "tf_configs");
 
   // Callback Groups
   callback_group_subscribers_ = this->create_callback_group(
@@ -343,9 +288,6 @@ AutowareStateMonitorNode::AutowareStateMonitorNode()
   // Publisher
   pub_autoware_state_ =
     this->create_publisher<autoware_auto_msgs::msg::AutowareState>("output/autoware_state", 1);
-
-  // Diagnostic Updater
-  setupDiagnosticUpdater();
 
   // Timer
   auto timer_callback = std::bind(&AutowareStateMonitorNode::onTimer, this);
