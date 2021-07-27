@@ -27,6 +27,7 @@
 #include <measurement_conversion/visibility_control.hpp>
 #include <nav_msgs/msg/odometry.hpp>
 #include <rclcpp/time.hpp>
+#include <time_utils/time_utils.hpp>
 
 #include <Eigen/Geometry>
 
@@ -39,10 +40,6 @@ namespace state_estimation
 
 namespace detail
 {
-inline std::chrono::system_clock::time_point to_time_point(const rclcpp::Time & time)
-{
-  return std::chrono::system_clock::time_point{std::chrono::nanoseconds{time.nanoseconds()}};
-}
 inline geometry_msgs::msg::PoseWithCovariance unstamp(
   const geometry_msgs::msg::PoseWithCovarianceStamped & msg)
 {
@@ -81,6 +78,9 @@ struct MEASUREMENT_CONVERSION_PUBLIC convert_to<Stamped<MeasurementT>>
   /// @details    This function forwards the call to the conversion function that produces a
   ///             non-stamped version of the measurement and wraps it into the `Stamped` struct.
   ///
+  /// @note       detail::unstamp function must exist for every input MsgT in order for this
+  ///             function to compile.
+  ///
   /// @param[in]  msg   The message to be converted to a stamped measurement.
   ///
   /// @tparam     MsgT  A message type that must have a header.
@@ -91,7 +91,7 @@ struct MEASUREMENT_CONVERSION_PUBLIC convert_to<Stamped<MeasurementT>>
   static Stamped<MeasurementT> from(const MsgT & msg)
   {
     return Stamped<MeasurementT>{
-      detail::to_time_point(msg.header.stamp),
+      time_utils::from_message(msg.header.stamp),
       convert_to<MeasurementT>::from(detail::unstamp(msg))
     };
   }
