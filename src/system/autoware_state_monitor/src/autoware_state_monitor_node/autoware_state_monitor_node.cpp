@@ -105,15 +105,11 @@ void AutowareStateMonitorNode::onAutowareEngage(
 {
   state_input_.engage = msg;
 }
+
 void AutowareStateMonitorNode::onVehicleStateReport(
   const autoware_auto_msgs::msg::VehicleStateReport::ConstSharedPtr msg)
 {
   state_input_.vehicle_state_report = msg;
-}
-
-void AutowareStateMonitorNode::onIsEmergency(
-  const autoware_auto_msgs::msg::EmergencyMode::ConstSharedPtr msg)
-{
 }
 
 void AutowareStateMonitorNode::onRoute(
@@ -133,7 +129,6 @@ void AutowareStateMonitorNode::onOdometry(
   const autoware_auto_msgs::msg::VehicleOdometry::ConstSharedPtr msg)
 {
   state_input_.odometry = msg;
-
   state_input_.odometry_buffer.push_back(msg);
 
   // Delete old data in buffer
@@ -265,9 +260,6 @@ AutowareStateMonitorNode::AutowareStateMonitorNode()
     this->create_subscription<autoware_auto_msgs::msg::VehicleStateReport>(
     "input/vehicle_state_report", 1,
     std::bind(&AutowareStateMonitorNode::onVehicleStateReport, this, _1), subscriber_option);
-  sub_is_emergency_ = this->create_subscription<autoware_auto_msgs::msg::EmergencyMode>(
-    "input/is_emergency", 1,
-    std::bind(&AutowareStateMonitorNode::onIsEmergency, this, _1), subscriber_option);
   sub_route_ = this->create_subscription<autoware_auto_msgs::msg::HADMapRoute>(
     "input/route", 1,
     std::bind(&AutowareStateMonitorNode::onRoute, this, _1), subscriber_option);

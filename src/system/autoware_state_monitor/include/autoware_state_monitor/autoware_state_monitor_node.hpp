@@ -65,13 +65,11 @@ private:
   rclcpp::Subscription<autoware_auto_msgs::msg::Engage>::SharedPtr sub_engage_;
   rclcpp::Subscription<autoware_auto_msgs::msg::VehicleStateReport>::SharedPtr
     sub_vehicle_state_report_;
-  rclcpp::Subscription<autoware_auto_msgs::msg::EmergencyMode>::SharedPtr sub_is_emergency_;
   rclcpp::Subscription<autoware_auto_msgs::msg::HADMapRoute>::SharedPtr sub_route_;
   rclcpp::Subscription<autoware_auto_msgs::msg::VehicleOdometry>::SharedPtr sub_odometry_;
 
   void onAutowareEngage(const autoware_auto_msgs::msg::Engage::ConstSharedPtr msg);
   void onVehicleStateReport(const autoware_auto_msgs::msg::VehicleStateReport::ConstSharedPtr msg);
-  void onIsEmergency(const autoware_auto_msgs::msg::EmergencyMode::ConstSharedPtr msg);
   void onRoute(const autoware_auto_msgs::msg::HADMapRoute::ConstSharedPtr msg);
   void onOdometry(const autoware_auto_msgs::msg::VehicleOdometry::ConstSharedPtr msg);
 

@@ -27,7 +27,6 @@
 
 // Autoware
 #include "autoware_auto_msgs/msg/autoware_state.hpp"
-#include "autoware_auto_msgs/msg/emergency_mode.hpp"
 #include "autoware_auto_msgs/msg/engage.hpp"
 #include "autoware_auto_msgs/msg/had_map_route.hpp"
 #include "autoware_auto_msgs/msg/vehicle_odometry.hpp"
@@ -45,7 +44,6 @@ struct StateInput
 
   autoware_auto_msgs::msg::Engage::ConstSharedPtr engage;
   autoware_auto_msgs::msg::VehicleStateReport::ConstSharedPtr vehicle_state_report;
-  autoware_auto_msgs::msg::EmergencyMode::ConstSharedPtr emergency_mode;
   bool is_finalizing = false;
   bool is_route_reset_required = false;
   autoware_auto_msgs::msg::HADMapRoute::ConstSharedPtr route;
