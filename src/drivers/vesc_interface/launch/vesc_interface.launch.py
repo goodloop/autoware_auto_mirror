@@ -20,64 +20,25 @@ Example launch file for a new package.
 Note: Does not work in ROS2 dashing!
 """
 
-from launch import LaunchDescription
-from launch.substitutions import LaunchConfiguration
-from launch.actions import DeclareLaunchArgument
-from launch_ros.actions import Node
+import launch
+from launch_ros.actions import ComposableNodeContainer
+from launch_ros.descriptions import ComposableNode
 
-from ament_index_python import get_package_share_directory
-from os import path as osp
-import errno
-import os
-
-def get_share_file(package_name, file_name):
-    """
-    Find the path to a given package name, and uppend with a file_name
-    :param package_name: The name of the package
-    :param file_name: relative location of the file wrt to package
-    :returns string: The appended file name
-    """
-    return osp.join(get_package_share_directory(package_name=package_name), file_name)
 
 def generate_launch_description():
-    """
-    Launch VESC_driver node and VESC_interface node for interfacing autoware.auto
-    with f1tenth car.
-    """
-    # Launch VESC_driver node
-    vesc_driver = Node(
-        package='vesc_driver',
-        executable='vesc_driver_node',
-        namespace='vehicle',
-        output='screen',
-        parameters=[get_share_file('vesc_driver', 'params/vesc_config.yaml')]
+    """Generate launch description with a single component."""
+    container = ComposableNodeContainer(
+            name='vesc_interface_container',
+            namespace='',
+            package='rclcpp_components',
+            executable='component_container',
+            composable_node_descriptions=[
+                ComposableNode(
+                    package='vesc_interface',
+                    plugin='autoware::vesc_interface::VescInterfaceNode',
+                    name='vesc_interface_node'),
+            ],
+            output='screen',
     )
 
-    # Launch VESC_interface'
-    # Default VESC_interface params
-    vesc_interface_params = DeclareLaunchArgument(
-        'vesc_interface_param',
-        default_value=[
-            get_share_file('vesc_interface', 'param/vesc_config.param.yaml')
-        ],
-        description="Path to config file for vesc interface"
-    )
-    paramFile = osp.join(get_package_share_directory('vesc_interface'), '/param/vesc_config.param.yaml')
-
-    vesc_interface = Node(
-        package='vesc_interface',
-        executable='vesc_interface_node_exe',
-        namespace='vehicle',
-        output='screen',
-        parameters=[
-            LaunchConfiguration('vesc_interface_param')
-            # paramFile
-        ]
-    )
-
-    ld = LaunchDescription([
-        vesc_driver,
-        vesc_interface_params,
-        vesc_interface
-    ])
-    return ld
+    return launch.LaunchDescription([container])

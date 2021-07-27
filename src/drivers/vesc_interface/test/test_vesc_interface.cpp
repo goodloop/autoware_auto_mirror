@@ -17,6 +17,6 @@
 #include "gtest/gtest.h"
 #include "vesc_interface/vesc_interface.hpp"
 
-// TEST(test_vesc_interface, test_hello) {
-//   EXPECT_EQ(autoware::vesc_interface::print_hello(), 0);
-// }
+TEST(test_vesc_interface, test_hello) {
+  EXPECT_EQ(autoware::vesc_interface::print_hello(), 0);
+}

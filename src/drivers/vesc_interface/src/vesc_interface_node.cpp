@@ -21,19 +21,16 @@ namespace autoware
 namespace vesc_interface
 {
 
-VESCInterfaceNode::VESCInterfaceNode(const rclcpp::NodeOptions & options)
-:  VehicleInterfaceNode{"vesc_interface", options}
+VescInterfaceNode::VescInterfaceNode(const rclcpp::NodeOptions & options)
+:  Node("vesc_interface", options),
+  verbose(true)
 {
-  // Set up interface
-  set_interface(
-    std::make_unique<VESCInterface>(
-      *this,
-      declare_parameter("vesc.speed_to_erpm_gain").get<double>(),
-      declare_parameter("vesc.speed_to_erpm_offset").get<double>(),
-      declare_parameter("vesc.steering_angle_to_servo_gain").get<double>(),
-      declare_parameter("vesc.steering_angle_to_servo_offset").get<double>()
-    )
-  );
+  print_hello();
+}
+
+int32_t VescInterfaceNode::print_hello() const
+{
+  return vesc_interface::print_hello();
 }
 
 }  // namespace vesc_interface
@@ -43,4 +40,4 @@ VESCInterfaceNode::VESCInterfaceNode(const rclcpp::NodeOptions & options)
 
 // This acts as an entry point, allowing the component to be
 // discoverable when its library is being loaded into a running process
-RCLCPP_COMPONENTS_REGISTER_NODE(autoware::vesc_interface::VESCInterfaceNode)
+RCLCPP_COMPONENTS_REGISTER_NODE(autoware::vesc_interface::VescInterfaceNode)
