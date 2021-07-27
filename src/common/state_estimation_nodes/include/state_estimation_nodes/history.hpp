@@ -203,7 +203,7 @@ public:
   {
     m_stored_covariance = covariance;
   }
-  /// @brief      Get the stored covariance in the form of its left covariance.
+  /// @brief      Get the stored covariance.
   const typename FilterT::State::Matrix & stored_covariance() const noexcept
   {
     return m_stored_covariance;
