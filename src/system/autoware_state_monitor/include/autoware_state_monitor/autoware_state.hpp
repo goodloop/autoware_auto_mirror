@@ -20,43 +20,26 @@
 
 #include "autoware_auto_msgs/msg/autoware_state.hpp"
 
-enum class AutowareState : int8_t
+enum class AutowareState : uint8_t
 {
-  InitializingVehicle,
-  WaitingForRoute,
-  Planning,
-  WaitingForEngage,
-  Driving,
-  ArrivedGoal,
-  Finalizing,
+  InitializingVehicle = 1,
+  WaitingForRoute = 2,
+  Planning = 3,
+  WaitingForEngage = 4,
+  Driving = 5,
+  ArrivedGoal = 6,
+  Finalizing = 7,
 };
 
-inline AutowareState fromString(const std::string & state)
+inline std::string toString(const AutowareState& state)
 {
-  using StateMessage = autoware_auto_msgs::msg::AutowareState;
-
-  if (state == StateMessage::INITIALIZING_VEHICLE) {return AutowareState::InitializingVehicle;}
-  if (state == StateMessage::WAITING_FOR_ROUTE) {return AutowareState::WaitingForRoute;}
-  if (state == StateMessage::PLANNING) {return AutowareState::Planning;}
-  if (state == StateMessage::WAITING_FOR_ENGAGE) {return AutowareState::WaitingForEngage;}
-  if (state == StateMessage::DRIVING) {return AutowareState::Driving;}
-  if (state == StateMessage::ARRIVED_GOAL) {return AutowareState::ArrivedGoal;}
-  if (state == StateMessage::FINALIZING) {return AutowareState::Finalizing;}
-
-  throw std::runtime_error("invalid state");
-}
-
-inline std::string toString(const AutowareState & state)
-{
-  using StateMessage = autoware_auto_msgs::msg::AutowareState;
-
-  if (state == AutowareState::InitializingVehicle) {return StateMessage::INITIALIZING_VEHICLE;}
-  if (state == AutowareState::WaitingForRoute) {return StateMessage::WAITING_FOR_ROUTE;}
-  if (state == AutowareState::Planning) {return StateMessage::PLANNING;}
-  if (state == AutowareState::WaitingForEngage) {return StateMessage::WAITING_FOR_ENGAGE;}
-  if (state == AutowareState::Driving) {return StateMessage::DRIVING;}
-  if (state == AutowareState::ArrivedGoal) {return StateMessage::ARRIVED_GOAL;}
-  if (state == AutowareState::Finalizing) {return StateMessage::FINALIZING;}
+  if (state == AutowareState::InitializingVehicle) { return "InitializingVehicle"; }
+  if (state == AutowareState::WaitingForRoute) { return "WaitingForRoute"; }
+  if (state == AutowareState::Planning) { return "Planning"; }
+  if (state == AutowareState::WaitingForEngage) { return "WaitingForEngage"; }
+  if (state == AutowareState::Driving) { return "Driving"; }
+  if (state == AutowareState::ArrivedGoal) { return "ArrivedGoal"; }
+  if (state == AutowareState::Finalizing) { return "Finalizing"; }
 
   throw std::runtime_error("invalid state");
 }

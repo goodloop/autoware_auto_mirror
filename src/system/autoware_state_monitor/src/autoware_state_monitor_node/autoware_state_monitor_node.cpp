@@ -65,40 +65,6 @@ geometry_msgs::msg::PoseStamped::SharedPtr getCurrentPose(const tf2_ros::Buffer 
   return p;
 }
 
-std::string getStateMessage(const AutowareState & state)
-{
-  if (state == AutowareState::InitializingVehicle) {
-    return "Please wait for a while. If the current pose is not estimated automatically, please "
-           "set it manually.";
-  }
-
-  if (state == AutowareState::WaitingForRoute) {
-    return "Please send a route.";
-  }
-
-  if (state == AutowareState::Planning) {
-    return "Please wait for a while.";
-  }
-
-  if (state == AutowareState::WaitingForEngage) {
-    return "Please set engage.";
-  }
-
-  if (state == AutowareState::Driving) {
-    return "Under autonomous driving. Have fun!";
-  }
-
-  if (state == AutowareState::ArrivedGoal) {
-    return "Autonomous driving has completed. Thank you!";
-  }
-
-  if (state == AutowareState::Finalizing) {
-    return "Finalizing Autoware...";
-  }
-
-  throw std::runtime_error("invalid state");
-}
-
 }  // namespace
 
 void AutowareStateMonitorNode::onAutowareEngage(
@@ -195,18 +161,9 @@ void AutowareStateMonitorNode::onTimer()
 
   // Publish state message
   autoware_auto_msgs::msg::AutowareState autoware_state_msg;
-  autoware_state_msg.state = toString(autoware_state);
-
-  // Add messages line by line
-  std::ostringstream oss;
-
-  oss << getStateMessage(autoware_state) << std::endl;
-
-  for (const auto & msg : state_machine_->getMessages()) {
-    oss << msg << std::endl;
-  }
-
-  autoware_state_msg.msg = oss.str();
+  
+  autoware_state_msg.state = static_cast<uint8_t>(autoware_state);
+  autoware_state_msg.stamp = get_clock()->now();
 
   pub_autoware_state_->publish(autoware_state_msg);
 }
