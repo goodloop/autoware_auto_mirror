@@ -60,6 +60,7 @@ if(BUILD_TESTING)
           test/test_byte_reader.cpp
           test/test_float_comparisons.cpp
           test/test_mahalanobis_distance.cpp
+          test/test_message_distance.cpp
           test/test_message_field_adapters.cpp
           test/test_template_utils.cpp
           test/test_angle_utils.cpp
