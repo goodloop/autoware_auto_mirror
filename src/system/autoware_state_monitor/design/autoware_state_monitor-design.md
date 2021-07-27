@@ -5,8 +5,8 @@ This is the design document for the `autoware_state_monitor` package.
 
 # Purpose / Use cases
 The purpose of the `autoware_state_monitor` is to provide a system state.
-It observes multiple sources like vehicle velocities, vehicle commands or paths
-and based on that generates the current state.
+The component observes multiple sources like vehicle velocities, vehicle commands,
+vehicle pose, planned path and based on that it generates the current state.
 
 # Design
 
