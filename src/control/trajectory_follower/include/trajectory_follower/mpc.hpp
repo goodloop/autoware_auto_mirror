@@ -40,6 +40,7 @@
 #include "autoware_auto_msgs/msg/vehicle_kinematic_state.hpp"
 #include "common/types.hpp"
 #include "osqp_interface/osqp_interface.hpp"
+#include "geometry/common_2d.hpp"
 #include "geometry_msgs/msg/pose.hpp"
 #include "helper_functions/angle_utils.hpp"
 #include "rclcpp/rclcpp.hpp"

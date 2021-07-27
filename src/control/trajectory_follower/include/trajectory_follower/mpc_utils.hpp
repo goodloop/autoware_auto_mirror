@@ -27,6 +27,7 @@
 #include "autoware_auto_msgs/msg/trajectory_point.hpp"
 #include "common/types.hpp"
 #include "eigen3/Eigen/Core"
+#include "geometry/common_2d.hpp"
 #include "geometry_msgs/msg/pose_stamped.hpp"
 #include "geometry_msgs/msg/twist_stamped.hpp"
 #include "helper_functions/angle_utils.hpp"
@@ -60,53 +61,6 @@ TRAJECTORY_FOLLOWER_PUBLIC geometry_msgs::msg::Quaternion getQuaternionFromYaw(
  * @param [inout] a input angle vector
  */
 TRAJECTORY_FOLLOWER_PUBLIC void convertEulerAngleToMonotonic(std::vector<float64_t> * a);
-/**
- * @brief calculate the 2d distance between the two given PoseStamped
- * @param [in] p0 input PoseStamped message
- * @param [in] p1 input PoseStamped message
- * @return distance between the two pose
- */
-TRAJECTORY_FOLLOWER_PUBLIC float64_t calcDist2d(
-  const geometry_msgs::msg::PoseStamped & p0, const geometry_msgs::msg::PoseStamped & p1);
-/**
- * @brief calculate the 2d distance between the two given Pose
- * @param [in] p0 input Pose message
- * @param [in] p1 input Pose message
- * @return distance between the two pose
- */
-TRAJECTORY_FOLLOWER_PUBLIC float64_t calcDist2d(
-  const geometry_msgs::msg::Pose & p0,
-  const geometry_msgs::msg::Pose & p1);
-/**
- * @brief calculate the 2d distance between the given points
- * @tparam T0 a point type with .x and .y members
- * @tparam T1 a point type with .x and .y members
- * @param [in] p0 input point
- * @param [in] p1 input point
- * @return distance between the two points
- */
-template<typename T0, typename T1>
-TRAJECTORY_FOLLOWER_PUBLIC float64_t calcDist2d(const T0 & p0, const T1 & p1)
-{
-  return std::hypot(p0.x - p1.x, p0.y - p1.y);
-}
-/**
- * @brief calculate the 3d distance between the two given Point
- * @param [in] p0 input Point message
- * @param [in] p1 input Point message
- * @return distance between the two points
- */
-TRAJECTORY_FOLLOWER_PUBLIC float64_t calcDist3d(
-  const geometry_msgs::msg::Point & p0,
-  const geometry_msgs::msg::Point & p1);
-/**
- * @brief calculate the squared 2d distance between the two given Point
- * @param [in] p0 input Point message
- * @param [in] p1 input Point message
- * @return distance between the two points
- */
-TRAJECTORY_FOLLOWER_PUBLIC float64_t calcSquaredDist2d(
-  const geometry_msgs::msg::Point & p0, const geometry_msgs::msg::Point & p1);
 /**
  * @brief calculate the lateral error of the given pose relative to the given reference pose
  * @param [in] ego_pose pose to check for error

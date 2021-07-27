@@ -29,6 +29,8 @@ namespace trajectory_follower
 {
 namespace MPCUtils
 {
+using autoware::common::geometry::distance_2d;
+
 geometry_msgs::msg::Quaternion getQuaternionFromYaw(const float64_t & yaw)
 {
   tf2::Quaternion q;
@@ -45,35 +47,6 @@ void convertEulerAngleToMonotonic(std::vector<float64_t> * a)
     const float64_t da = a->at(i) - a->at(i - 1);
     a->at(i) = a->at(i - 1) + autoware::common::helper_functions::wrap_angle(da);
   }
-}
-
-float64_t calcDist2d(
-  const geometry_msgs::msg::PoseStamped & p0, const geometry_msgs::msg::PoseStamped & p1)
-{
-  return calcDist2d(p0.pose.position, p1.pose.position);
-}
-
-float64_t calcDist2d(
-  const geometry_msgs::msg::Pose & p0, const geometry_msgs::msg::Pose & p1)
-{
-  return calcDist2d(p0.position, p1.position);
-}
-
-float64_t calcSquaredDist2d(
-  const geometry_msgs::msg::Point & p0, const geometry_msgs::msg::Point & p1)
-{
-  const float64_t dx = p1.x - p0.x;
-  const float64_t dy = p1.y - p0.y;
-  return dx * dx + dy * dy;
-}
-
-float64_t calcDist3d(
-  const geometry_msgs::msg::Point & p0, const geometry_msgs::msg::Point & p1)
-{
-  const float64_t dx = p1.x - p0.x;
-  const float64_t dy = p1.y - p0.y;
-  const float64_t dz = p1.z - p0.z;
-  return std::sqrt(dx * dx + dy * dy + dz * dz);
 }
 
 float64_t calcLateralError(
@@ -231,9 +204,9 @@ std::vector<float64_t> calcTrajectoryCurvature(
     p2.y = traj.y[curr_idx];
     p3.y = traj.y[next_idx];
     const float64_t den = std::max(
-      calcDist2d(p1, p2) * calcDist2d(p2, p3) * calcDist2d(
-        p3,
-        p1),
+      distance_2d<float64_t>(
+        p1,
+        p2) * distance_2d<float64_t>(p2, p3) * distance_2d<float64_t>(p3, p1),
       std::numeric_limits<float64_t>::epsilon());
     const float64_t curvature =
       2.0 * ((p2.x - p1.x) * (p3.y - p1.y) - (p2.y - p1.y) * (p3.x - p1.x)) / den;
@@ -461,7 +434,7 @@ float64_t calcStopDistance(
     {
       const auto & p0 = current_trajectory.points.at(static_cast<size_t>(i));
       const auto & p1 = current_trajectory.points.at(static_cast<size_t>(i - 1));
-      stop_dist += trajectory_follower::MPCUtils::calcDist2d(p0, p1);
+      stop_dist += distance_2d<float64_t>(p0, p1);
       if (std::fabs(p0.longitudinal_velocity_mps) < zero_velocity) {
         break;
       }
@@ -476,7 +449,7 @@ float64_t calcStopDistance(
     if (std::fabs(p0.longitudinal_velocity_mps) > zero_velocity) {
       break;
     }
-    stop_dist -= trajectory_follower::MPCUtils::calcDist2d(p0, p1);
+    stop_dist -= distance_2d<float64_t>(p0, p1);
   }
   return stop_dist;
 }

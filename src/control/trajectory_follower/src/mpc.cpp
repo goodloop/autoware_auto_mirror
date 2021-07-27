@@ -219,9 +219,9 @@ bool8_t MPC::getData(
   *m_steer_prediction_prev = data->predicted_steer;
 
   /* check error limit */
-  const float64_t dist_err = trajectory_follower::MPCUtils::calcDist2d(
-    current_pose,
-    data->nearest_pose);
+  const float64_t dist_err = autoware::common::geometry::distance_2d<float64_t>(
+    current_pose.position,
+    data->nearest_pose.position);
   if (dist_err > m_admissible_position_error) {
     RCLCPP_WARN_SKIPFIRST_THROTTLE(
       m_logger, *m_clock, duration, "position error is over limit. error = %fm, limit: %fm",

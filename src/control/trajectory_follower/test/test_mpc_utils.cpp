@@ -21,7 +21,6 @@
 
 #include "autoware_auto_msgs/msg/trajectory.hpp"
 #include "autoware_auto_msgs/msg/trajectory_point.hpp"
-#include "geometry_msgs/msg/pose_stamped.hpp"
 #include "geometry_msgs/msg/pose.hpp"
 #include "gtest/gtest.h"
 
@@ -31,44 +30,7 @@ namespace MPCUtils = ::autoware::motion::control::trajectory_follower::MPCUtils;
 typedef autoware_auto_msgs::msg::Trajectory Trajectory;
 typedef autoware_auto_msgs::msg::TrajectoryPoint TrajectoryPoint;
 typedef geometry_msgs::msg::Pose Pose;
-typedef geometry_msgs::msg::PoseStamped PoseStamped;
 
-TEST(test_mpc_utils, calculate_distance) {
-  PoseStamped p0;
-  p0.pose.position.x = 0.0;
-  p0.pose.position.y = 0.0;
-  p0.pose.position.z = 0.0;
-  PoseStamped p1;
-  p1.pose.position.x = 10.0;
-  p1.pose.position.y = 0.0;
-  p1.pose.position.z = 10.0;
-  PoseStamped p2;
-  p2.pose.position.x = 0.0;
-  p2.pose.position.y = 10.0;
-  p2.pose.position.z = 10.0;
-  // calcDist2d (PoseStamped)
-  EXPECT_EQ(MPCUtils::calcDist2d(p0, p0), 0.0);
-  EXPECT_EQ(MPCUtils::calcDist2d(p0, p1), 10.0);
-  EXPECT_EQ(MPCUtils::calcDist2d(p0, p2), 10.0);
-  EXPECT_EQ(MPCUtils::calcDist2d(p1, p2), std::sqrt(200.0));
-  // calcDist2d (Pose)
-  EXPECT_EQ(MPCUtils::calcDist2d(p0.pose, p0.pose), 0.0);
-  EXPECT_EQ(MPCUtils::calcDist2d(p0.pose, p1.pose), 10.0);
-  EXPECT_EQ(MPCUtils::calcDist2d(p0.pose, p2.pose), 10.0);
-  EXPECT_EQ(MPCUtils::calcDist2d(p1.pose, p2.pose), std::sqrt(200.0));
-  // calcSquaredDist2d (Point)
-  EXPECT_EQ(MPCUtils::calcSquaredDist2d(p0.pose.position, p0.pose.position), 0.0);
-  EXPECT_EQ(MPCUtils::calcSquaredDist2d(p0.pose.position, p1.pose.position), 100.0);
-  EXPECT_EQ(MPCUtils::calcSquaredDist2d(p0.pose.position, p2.pose.position), 100.0);
-  EXPECT_EQ(MPCUtils::calcSquaredDist2d(p1.pose.position, p2.pose.position), 200.0);
-  // calcDist3d (Point)
-  EXPECT_EQ(MPCUtils::calcDist3d(p0.pose.position, p0.pose.position), 0.0);
-  EXPECT_EQ(MPCUtils::calcDist3d(p0.pose.position, p1.pose.position), std::sqrt(200.0));
-  EXPECT_EQ(MPCUtils::calcDist3d(p0.pose.position, p2.pose.position), std::sqrt(200.0));
-  EXPECT_EQ(MPCUtils::calcDist3d(p1.pose.position, p2.pose.position), std::sqrt(200.0));
-}
-
-/* cppcheck-suppress syntaxError */
 TEST(test_mpc_utils, calcNearestIndex) {
   Pose pose;
   pose.position.x = 0.0;
@@ -90,6 +52,7 @@ TEST(test_mpc_utils, calcNearestIndex) {
   EXPECT_EQ(MPCUtils::calcNearestIndex(trajectory, pose), 2);
 }
 
+/* cppcheck-suppress syntaxError */
 TEST(test_mpc, calcStopDistance) {
   using autoware_auto_msgs::msg::Trajectory;
   using autoware_auto_msgs::msg::TrajectoryPoint;
