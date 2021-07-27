@@ -15,11 +15,8 @@
 
 #include "autoware_state_monitor/state_machine.hpp"
 
-#define FMT_HEADER_ONLY
-#include <fmt/format.h>
-
+#include <cmath>
 #include <deque>
-#include <vector>
 
 namespace
 {

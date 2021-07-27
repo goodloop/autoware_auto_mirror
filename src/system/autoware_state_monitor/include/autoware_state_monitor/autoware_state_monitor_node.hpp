@@ -16,19 +16,13 @@
 #ifndef AUTOWARE_STATE_MONITOR__AUTOWARE_STATE_MONITOR_NODE_HPP_
 #define AUTOWARE_STATE_MONITOR__AUTOWARE_STATE_MONITOR_NODE_HPP_
 
-// Core
-#include <deque>
-#include <map>
 #include <memory>
-#include <string>
-#include <vector>
 
 // ROS
 #include "geometry_msgs/msg/pose_stamped.hpp"
 #include "std_srvs/srv/trigger.hpp"
 #include "tf2_ros/buffer.h"
 #include "tf2_ros/transform_listener.h"
-#include "diagnostic_updater/diagnostic_updater.hpp"
 #include "rclcpp/rclcpp.hpp"
 
 // Autoware
@@ -94,11 +88,6 @@ private:
   std::shared_ptr<StateMachine> state_machine_;
   StateInput state_input_;
   StateParam state_param_;
-
-  // Diagnostic Updater
-  diagnostic_updater::Updater updater_;
-
-  void setupDiagnosticUpdater();
 };
 
 #endif  // AUTOWARE_STATE_MONITOR__AUTOWARE_STATE_MONITOR_NODE_HPP_

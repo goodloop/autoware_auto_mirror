@@ -25,6 +25,7 @@
 
 namespace
 {
+
 template<class Config>
 std::vector<Config> getConfigs(
   rclcpp::node_interfaces::NodeParametersInterface::SharedPtr interface,
@@ -193,26 +194,21 @@ void AutowareStateMonitorNode::onTimer()
   }
 
   // Publish state message
-  {
-    autoware_auto_msgs::msg::AutowareState autoware_state_msg;
-    autoware_state_msg.state = toString(autoware_state);
+  autoware_auto_msgs::msg::AutowareState autoware_state_msg;
+  autoware_state_msg.state = toString(autoware_state);
 
-    // Add messages line by line
-    std::ostringstream oss;
+  // Add messages line by line
+  std::ostringstream oss;
 
-    oss << getStateMessage(autoware_state) << std::endl;
+  oss << getStateMessage(autoware_state) << std::endl;
 
-    for (const auto & msg : state_machine_->getMessages()) {
-      oss << msg << std::endl;
-    }
-
-    autoware_state_msg.msg = oss.str();
-
-    pub_autoware_state_->publish(autoware_state_msg);
+  for (const auto & msg : state_machine_->getMessages()) {
+    oss << msg << std::endl;
   }
 
-  // Publish diag message
-  updater_.force_update();
+  autoware_state_msg.msg = oss.str();
+
+  pub_autoware_state_->publish(autoware_state_msg);
 }
 
 bool AutowareStateMonitorNode::isEngaged()
@@ -227,8 +223,7 @@ bool AutowareStateMonitorNode::isEngaged()
 AutowareStateMonitorNode::AutowareStateMonitorNode()
 : Node("autoware_state_monitor"),
   tf_buffer_(this->get_clock()),
-  tf_listener_(tf_buffer_),
-  updater_(this)
+  tf_listener_(tf_buffer_)
 {
   using std::placeholders::_1;
   using std::placeholders::_2;
