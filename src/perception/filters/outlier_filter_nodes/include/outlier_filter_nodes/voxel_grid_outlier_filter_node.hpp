@@ -81,22 +81,22 @@ protected:
     const std::vector<rclcpp::Parameter> & p);
 
 private:
-  /* Class object containing the VoxelGridOutlierFilter library functionality */
+  /** \brief Class object containing the VoxelGridOutlierFilter library functionality */
   std::shared_ptr<VoxelGridOutlierFilter> voxel_grid_outlier_filter_;
 
-  /* Variable containing the value of the voxel x dimension (passed into
+  /** \brief Variable containing the value of the voxel x dimension (passed into
      voxel_grid_outlier_filter_) */
   double voxel_size_x_;
 
-  /* Variable containing the value of the voxel y dimension (passed into
+  /** \brief Variable containing the value of the voxel y dimension (passed into
      voxel_grid_outlier_filter_) */
   double voxel_size_y_;
 
-  /* Variable containing the value of the voxel z dimension (passed into
+  /** \brief Variable containing the value of the voxel z dimension (passed into
      voxel_grid_outlier_filter_) */
   double voxel_size_z_;
 
-  /* Variable containing the points threshold (passed into voxel_grid_outlier_filter_) */
+  /** \brief Variable containing the points threshold (passed into voxel_grid_outlier_filter_) */
   int64_t voxel_points_threshold_;
 };
 }  // namespace outlier_filter_nodes
