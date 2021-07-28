@@ -20,6 +20,9 @@
 
 #include "autoware_auto_msgs/msg/autoware_state.hpp"
 
+namespace autoware {
+namespace state_monitor {
+
 enum class AutowareState : uint8_t
 {
   InitializingVehicle = 1,
@@ -33,15 +36,27 @@ enum class AutowareState : uint8_t
 
 inline std::string toString(const AutowareState& state)
 {
-  if (state == AutowareState::InitializingVehicle) { return "InitializingVehicle"; }
-  if (state == AutowareState::WaitingForRoute) { return "WaitingForRoute"; }
-  if (state == AutowareState::Planning) { return "Planning"; }
-  if (state == AutowareState::WaitingForEngage) { return "WaitingForEngage"; }
-  if (state == AutowareState::Driving) { return "Driving"; }
-  if (state == AutowareState::ArrivedGoal) { return "ArrivedGoal"; }
-  if (state == AutowareState::Finalizing) { return "Finalizing"; }
-
-  throw std::runtime_error("invalid state");
+  switch (state) {
+    case AutowareState::InitializingVehicle:
+      return "InitializingVehicle";
+    case AutowareState::WaitingForRoute:
+      return "WaitingForRoute";
+    case AutowareState::Planning:
+      return "Planning";
+    case AutowareState::WaitingForEngage:
+      return "WaitingForEngage";
+    case AutowareState::Driving:
+      return "Driving";
+    case AutowareState::ArrivedGoal:
+      return "ArrivedGoal";
+    case AutowareState::Finalizing:
+      return "Finalizing";
+    default:
+      throw std::runtime_error("invalid state");
+  }
 }
+
+} // namespace state_monitor
+} // namespace autoware
 
 #endif  // AUTOWARE_STATE_MONITOR__AUTOWARE_STATE_HPP_

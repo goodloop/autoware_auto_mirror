@@ -23,8 +23,8 @@
 
 #include "tf2_geometry_msgs/tf2_geometry_msgs.h"
 
-namespace
-{
+namespace autoware {
+namespace state_monitor {
 
 template<class Config>
 std::vector<Config> getConfigs(
@@ -64,8 +64,6 @@ geometry_msgs::msg::PoseStamped::SharedPtr getCurrentPose(const tf2_ros::Buffer 
 
   return p;
 }
-
-}  // namespace
 
 void AutowareStateMonitorNode::onAutowareEngage(
   const autoware_auto_msgs::msg::Engage::ConstSharedPtr msg)
@@ -239,3 +237,6 @@ AutowareStateMonitorNode::AutowareStateMonitorNode()
     this->get_node_base_interface()->get_context());
   this->get_node_timers_interface()->add_timer(timer_, callback_group_subscribers_);
 }
+
+} // namespace state_monitor
+} // namespace autoware

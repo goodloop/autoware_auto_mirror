@@ -35,6 +35,9 @@
 // Local
 #include "autoware_state_monitor/autoware_state.hpp"
 
+namespace autoware {
+namespace state_monitor {
+
 struct StateInput
 {
   rclcpp::Time current_time;
@@ -104,5 +107,8 @@ private:
   bool isFinalizing() const;
   bool isRouteResetRequired() const;
 };
+
+} // namespace state_monitor
+} // namespace autoware
 
 #endif  // AUTOWARE_STATE_MONITOR__STATE_MACHINE_HPP_

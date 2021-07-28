@@ -18,8 +18,8 @@
 #include <cmath>
 #include <deque>
 
-namespace
-{
+namespace autoware {
+namespace state_monitor {
 
 double calcDistance2d(const geometry_msgs::msg::Point & p1, const geometry_msgs::msg::Point & p2)
 {
@@ -45,8 +45,6 @@ bool isStopped(
   }
   return true;
 }
-
-}  // namespace
 
 bool StateMachine::isVehicleInitialized() const
 {
@@ -232,3 +230,6 @@ AutowareState StateMachine::judgeAutowareState() const
   // continue previous state when break
   return autoware_state_;
 }
+
+} // namespace state_monitor
+} // namespace autoware

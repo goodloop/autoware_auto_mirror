@@ -37,6 +37,9 @@
 #include "autoware_state_monitor/state_machine.hpp"
 #include "autoware_state_monitor/autoware_state.hpp"
 
+namespace autoware {
+namespace state_monitor {
+
 class AutowareStateMonitorNode : public rclcpp::Node
 {
 public:
@@ -89,5 +92,8 @@ private:
   StateInput state_input_;
   StateParam state_param_;
 };
+
+} // namespace state_monitor
+} // namespace autoware
 
 #endif  // AUTOWARE_STATE_MONITOR__AUTOWARE_STATE_MONITOR_NODE_HPP_
