@@ -54,7 +54,9 @@ COMMON_PUBLIC inline float64_t calcSquaredDist2d(
 template<typename T0, typename T1>
 COMMON_PUBLIC inline float64_t calcDist2d(const T0 & p0, const T1 & p1)
 {
-  return std::hypot(p0.x - p1.x, p0.y - p1.y);
+  return std::hypot(
+    static_cast<float64_t>(p0.x) - static_cast<float64_t>(p1.x),
+    static_cast<float64_t>(p0.y) - static_cast<float64_t>(p1.y));
 }
 /**
  * @brief calculate the 3d distance between the two given Point
