@@ -18,25 +18,24 @@ Example launch file for a new package.
 Note: Does not work in ROS2 dashing!
 """
 
+import os
 import launch
-from launch_ros.actions import ComposableNodeContainer
-from launch_ros.descriptions import ComposableNode
+
+from ament_index_python import get_package_share_directory
+from launch_ros.actions import Node
 
 
 def generate_launch_description():
     """Generate launch description with a single component."""
-    container = ComposableNodeContainer(
-            name='outlier_filter_nodes_container',
-            namespace='',
-            package='rclcpp_components',
-            executable='component_container',
-            composable_node_descriptions=[
-                ComposableNode(
-                    package='outlier_filter_nodes',
-                    plugin='autoware::outlier_filter_nodes::OutlierFilterNodesNode',
-                    name='outlier_filter_nodes_node'),
-            ],
-            output='screen',
+    container = Node(
+        package='outlier_filter_nodes',
+        executable='voxel_grid_outlier_filter_node_exe',
+        namespace='test',
+        parameters=[os.path.join(
+            get_package_share_directory('outlier_filter_nodes'),
+            'param/voxel_grid_outlier_filter_node_test.param.yaml'
+        )],
+        output='screen',
     )
 
     return launch.LaunchDescription([container])
