@@ -23,7 +23,12 @@ autoware_set_compile_options(${PROJECT_NAME}_exe)
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
   ament_lint_auto_find_test_dependencies()
+  find_package(ament_cmake_gtest REQUIRED)
 
+  ament_add_gtest(${PROJECT_NAME}_test
+    test/state_machine_test.cpp
+  )
+  target_link_libraries(${PROJECT_NAME}_test ${PROJECT_NAME})
 endif()
 
 ament_auto_package(INSTALL_TO_SHARE
