@@ -84,7 +84,6 @@ public:
 
   AutowareState getCurrentState() const {return autoware_state_;}
   AutowareState updateState(const StateInput & state_input);
-  std::vector<std::string> getMessages() const {return msgs_;}
 
 private:
   AutowareState autoware_state_ = AutowareState::InitializingVehicle;
