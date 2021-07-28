@@ -41,6 +41,10 @@ typedef std::vector<Point> Points;
 using autoware::common::types::float64_t;
 typedef Eigen::Matrix<float64_t, 3, 1> Vector3f;
 
+/**
+ * @brief throws an exception if the given list of points is empty
+ * @param [in] points list of points to check
+ */
 void validateNonEmpty(const Points & points)
 {
   if (points.empty()) {
@@ -48,12 +52,26 @@ void validateNonEmpty(const Points & points)
   }
 }
 
+/**
+ * @brief calculate the yaw deviation between two angles
+ * @param [in] base_yaw base yaw angle [radians]
+ * @param [in] target_yaw target yaw angle [radians]
+ * @return normalized angle from the base to the target [radians]
+ */
 inline float64_t calcYawDeviation(const float64_t & base_yaw, const float64_t & target_yaw)
 {
   return autoware::common::helper_functions::wrap_angle(target_yaw - base_yaw);
 }
 
 
+/**
+ * @brief search first index with a velocity of zero in the given range of points
+ * @param [in] points list of points to check
+ * @param [in] src_idx starting search index
+ * @param [in] dst_idx ending (excluded) search index
+ * @param [in] epsilon optional value to use to determine zero velocities
+ * @return index of the first zero velocity point found
+ */
 std::experimental::optional<size_t> searchZeroVelocityIndex(
   const Points & points, const size_t src_idx, const size_t dst_idx, const float64_t epsilon = 1e-3)
 {
@@ -68,11 +86,21 @@ std::experimental::optional<size_t> searchZeroVelocityIndex(
   return {};
 }
 
+/**
+ * @brief search first index with a velocity of zero in the given points
+ * @param [in] points list of points to check
+ */
 std::experimental::optional<size_t> searchZeroVelocityIndex(const Points & points)
 {
   return searchZeroVelocityIndex(points, 0, points.size());
 }
 
+/**
+ * @brief search the index of the point nearest to the given target
+ * @param [in] points list of points to search
+ * @param [in] point target point
+ * @return index of the point nearest to the target
+ */
 size_t findNearestIndex(const Points & points, const geometry_msgs::msg::Point & point)
 {
   validateNonEmpty(points);
@@ -90,6 +118,12 @@ size_t findNearestIndex(const Points & points, const geometry_msgs::msg::Point &
   return min_idx;
 }
 
+/**
+ * @brief search the index of the point nearest to the given target with limits on the distance and yaw deviation
+ * @param [in] points list of points to search
+ * @param [in] pose target point
+ * @return index of the point nearest to the target
+ */
 std::experimental::optional<size_t> findNearestIndex(
   const Points & points, const geometry_msgs::msg::Pose & pose,
   const float64_t max_dist = std::numeric_limits<float64_t>::max(),
@@ -101,6 +135,7 @@ std::experimental::optional<size_t> findNearestIndex(
   bool is_nearest_found = false;
   size_t min_idx = 0;
 
+  const auto target_yaw = tf2::getYaw(pose.orientation);
   for (size_t i = 0; i < points.size(); ++i) {
     const auto dist = autoware::common::helper_functions::calcDist2d(points.at(i), pose.position);
     if (dist > max_dist) {
@@ -108,7 +143,6 @@ std::experimental::optional<size_t> findNearestIndex(
     }
 
     const auto base_yaw = ::motion::motion_common::to_angle(points.at(i).heading);
-    const auto target_yaw = tf2::getYaw(pose.orientation);
     const auto yaw = calcYawDeviation(base_yaw, target_yaw);
     if (std::fabs(yaw) > max_yaw) {
       continue;
@@ -129,7 +163,7 @@ std::experimental::optional<size_t> findNearestIndex(
 /**
   * @brief calculate length along trajectory from seg_idx point to nearest point to p_target on trajectory
   *        If seg_idx point is after that nearest point, length is negative
-  * @param points points of trajectory, path, ...
+  * @param points trajectory points
   * @param seg_idx segment index of point at beginning of length
   * @param p_target target point at end of length
   * @return signed length
@@ -185,7 +219,11 @@ size_t findNearestSegmentIndex(const Points & points, const geometry_msgs::msg::
 }
 
 /**
-  * @brief calcSignedArcLength from index to index
+  * @brief calculate arc length along points
+  * @param [in] points input points
+  * @param [in] src_point source point
+  * @param [in] dst_idx destination index
+  * @return arc length distance from source to destination along the input points
   */
 float64_t calcSignedArcLength(const Points & points, const size_t src_idx, const size_t dst_idx)
 {
@@ -203,7 +241,11 @@ float64_t calcSignedArcLength(const Points & points, const size_t src_idx, const
 }
 
 /**
-  * @brief calcSignedArcLength from point to index
+  * @brief calculate arc length along points
+  * @param [in] points input points
+  * @param [in] src_point source point
+  * @param [in] dst_idx destination index
+  * @return arc length distance from source to destination along the input points
   */
 float64_t calcSignedArcLength(
   const Points & points, const geometry_msgs::msg::Point & src_point, const size_t & dst_idx)
@@ -220,7 +262,11 @@ float64_t calcSignedArcLength(
 }
 
 /**
-  * @brief calcSignedArcLength from point to point
+  * @brief calculate arc length along points
+  * @param [in] points input points
+  * @param [in] src_point source point
+  * @param [in] dst_point destination point
+  * @return arc length distance from source to destination along the input points
   */
 float64_t calcSignedArcLength(
   const Points & points, const geometry_msgs::msg::Point & src_point,
@@ -240,6 +286,12 @@ float64_t calcSignedArcLength(
   return signed_length_on_traj - signed_length_src_offset + signed_length_dst_offset;
 }
 
+/**
+  * @brief calculate longitudinal deviation of a point relative to a pose
+  * @param [in] base_pose base from which to calculate the deviation
+  * @param [in] target_point point for which to calculate the deviation
+  * @return longitudinal distance between the base and the target
+  */
 inline float64_t calcLongitudinalDeviation(
   const geometry_msgs::msg::Pose & base_pose, const geometry_msgs::msg::Point & target_point)
 {
