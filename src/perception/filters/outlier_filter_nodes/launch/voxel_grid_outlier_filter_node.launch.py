@@ -13,7 +13,7 @@
 # limitations under the License.
 
 """
-Example launch file for a new package.
+Example launch file for the VoxelGridOutlierFilterNode executable
 
 Note: Does not work in ROS2 dashing!
 """
