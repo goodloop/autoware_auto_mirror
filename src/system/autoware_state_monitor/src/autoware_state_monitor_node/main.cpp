@@ -19,7 +19,7 @@
 
 int main(int argc, char * argv[])
 {
-  using AutowareStateMonitorNode = autoware::state_monitor::AutowareStateMonitorNode;
+  using autoware::state_monitor::AutowareStateMonitorNode;
 
   rclcpp::init(argc, argv);
   auto node = std::make_shared<AutowareStateMonitorNode>();

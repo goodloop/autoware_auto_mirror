@@ -38,7 +38,7 @@ def generate_launch_description():
     # Nodes
     autoware_state_monitor = Node(
         package='autoware_state_monitor',
-        executable='autoware_state_monitor',
+        executable='autoware_state_monitor_exe',
         namespace='system',
         parameters=[LaunchConfiguration('autoware_state_monitor_param_file')],
         remappings=[

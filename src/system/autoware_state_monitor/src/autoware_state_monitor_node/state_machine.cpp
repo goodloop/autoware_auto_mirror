@@ -39,7 +39,7 @@ bool isStopped(
   const double th_stopped_velocity_mps)
 {
   for (const auto & odometry : odometry_buffer) {
-    if (std::abs(odometry->velocity_mps) > th_stopped_velocity_mps) {
+    if (std::abs(static_cast<double>(odometry->velocity_mps)) > th_stopped_velocity_mps) {
       return false;
     }
   }

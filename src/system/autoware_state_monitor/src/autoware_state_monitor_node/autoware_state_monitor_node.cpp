@@ -115,6 +115,7 @@ bool AutowareStateMonitorNode::onShutdownService(
   const std::shared_ptr<std_srvs::srv::Trigger::Response> response)
 {
   (void)request_header;
+  (void)request;
   state_input_.is_finalizing = true;
 
   const auto t_start = this->get_clock()->now();
