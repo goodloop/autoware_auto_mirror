@@ -18,8 +18,10 @@
 #include <cmath>
 #include <deque>
 
-namespace autoware {
-namespace state_monitor {
+namespace autoware
+{
+namespace state_monitor
+{
 
 double calcDistance2d(const geometry_msgs::msg::Point & p1, const geometry_msgs::msg::Point & p2)
 {
@@ -231,5 +233,5 @@ AutowareState StateMachine::judgeAutowareState() const
   return autoware_state_;
 }
 
-} // namespace state_monitor
-} // namespace autoware
+}  // namespace state_monitor
+}  // namespace autoware

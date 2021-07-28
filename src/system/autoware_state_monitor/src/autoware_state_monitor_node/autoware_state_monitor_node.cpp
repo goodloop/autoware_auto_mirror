@@ -23,8 +23,10 @@
 
 #include "tf2_geometry_msgs/tf2_geometry_msgs.h"
 
-namespace autoware {
-namespace state_monitor {
+namespace autoware
+{
+namespace state_monitor
+{
 
 template<class Config>
 std::vector<Config> getConfigs(
@@ -160,7 +162,7 @@ void AutowareStateMonitorNode::onTimer()
 
   // Publish state message
   autoware_auto_msgs::msg::AutowareState autoware_state_msg;
-  
+
   autoware_state_msg.state = static_cast<uint8_t>(autoware_state);
   autoware_state_msg.stamp = get_clock()->now();
 
@@ -239,5 +241,5 @@ AutowareStateMonitorNode::AutowareStateMonitorNode()
   this->get_node_timers_interface()->add_timer(timer_, callback_group_subscribers_);
 }
 
-} // namespace state_monitor
-} // namespace autoware
+}  // namespace state_monitor
+}  // namespace autoware

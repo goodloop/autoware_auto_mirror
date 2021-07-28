@@ -20,8 +20,10 @@
 
 #include "autoware_auto_msgs/msg/autoware_state.hpp"
 
-namespace autoware {
-namespace state_monitor {
+namespace autoware
+{
+namespace state_monitor
+{
 
 enum class AutowareState : uint8_t
 {
@@ -34,7 +36,7 @@ enum class AutowareState : uint8_t
   Finalizing = 7,
 };
 
-inline std::string toString(const AutowareState& state)
+inline std::string toString(const AutowareState & state)
 {
   switch (state) {
     case AutowareState::InitializingVehicle:
@@ -56,7 +58,7 @@ inline std::string toString(const AutowareState& state)
   }
 }
 
-} // namespace state_monitor
-} // namespace autoware
+}  // namespace state_monitor
+}  // namespace autoware
 
 #endif  // AUTOWARE_STATE_MONITOR__AUTOWARE_STATE_HPP_

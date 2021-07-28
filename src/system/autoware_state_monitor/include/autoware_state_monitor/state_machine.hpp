@@ -35,8 +35,10 @@
 // Local
 #include "autoware_state_monitor/autoware_state.hpp"
 
-namespace autoware {
-namespace state_monitor {
+namespace autoware
+{
+namespace state_monitor
+{
 
 struct StateInput
 {
@@ -78,11 +80,11 @@ class StateMachine
 {
 public:
   explicit StateMachine(const StateParam & state_param)
-    : state_param_(state_param) {}
+  : state_param_(state_param) {}
 
-  AutowareState getCurrentState() const { return autoware_state_; }
+  AutowareState getCurrentState() const {return autoware_state_;}
   AutowareState updateState(const StateInput & state_input);
-  std::vector<std::string> getMessages() const { return msgs_; }
+  std::vector<std::string> getMessages() const {return msgs_;}
 
 private:
   AutowareState autoware_state_ = AutowareState::InitializingVehicle;
@@ -108,7 +110,7 @@ private:
   bool isRouteResetRequired() const;
 };
 
-} // namespace state_monitor
-} // namespace autoware
+}  // namespace state_monitor
+}  // namespace autoware
 
 #endif  // AUTOWARE_STATE_MONITOR__STATE_MACHINE_HPP_

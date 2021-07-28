@@ -14,16 +14,18 @@
 
 #include "autoware_state_monitor/state_machine.hpp"
 
-
 #include <memory>
-#include <gtest/gtest.h>
 
-using namespace autoware::state_monitor;
+#include "gtest/gtest.h"
+
+using autoware::state_monitor::StateMachine;
+using autoware::state_monitor::StateParam;
 
 class StateMachineTest : public ::testing::Test
 {
 public:
-  StateMachineTest() {
+  StateMachineTest()
+  {
     StateParam params;
     params.th_arrived_distance_m = 1.0;
     params.th_stopped_time_sec = 2.0;
@@ -36,6 +38,7 @@ protected:
   std::shared_ptr<StateMachine> state_machine;
 };
 
-TEST_F(StateMachineTest, create_destroy) {
+TEST_F(StateMachineTest, create_destroy)
+{
   state_machine.reset();
 }
