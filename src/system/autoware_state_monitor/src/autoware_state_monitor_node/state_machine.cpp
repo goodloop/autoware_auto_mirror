@@ -53,9 +53,15 @@ bool StateMachine::isVehicleInitialized() const
   return true;
 }
 
-bool StateMachine::hasRoute() const {return state_input_.route != nullptr;}
+bool StateMachine::hasRoute() const
+{
+  return state_input_.route != nullptr;
+}
 
-bool StateMachine::isRouteReceived() const {return state_input_.route != executing_route_;}
+bool StateMachine::isRouteReceived() const
+{
+  return state_input_.route != executing_route_;
+}
 
 bool StateMachine::isPlanningCompleted() const
 {
@@ -104,8 +110,18 @@ bool StateMachine::hasArrivedGoal() const
   return false;
 }
 
-bool StateMachine::isFinalizing() const {return state_input_.is_finalizing;}
+bool StateMachine::isFinalizing() const
+{
+  return state_input_.is_finalizing;
+}
 
+__attribute__ ((visibility("default")))
+AutowareState StateMachine::getCurrentState() const
+{
+  return autoware_state_;
+}
+
+__attribute__ ((visibility("default")))
 AutowareState StateMachine::updateState(const StateInput & state_input)
 {
   msgs_ = {};
@@ -121,7 +137,7 @@ AutowareState StateMachine::judgeAutowareState() const
   }
 
   switch (autoware_state_) {
-    case (AutowareState::InitializingVehicle): {
+    case AutowareState::InitializingVehicle: {
         if (isVehicleInitialized()) {
           if (!flags_.waiting_after_initializing) {
             flags_.waiting_after_initializing = true;
@@ -142,7 +158,7 @@ AutowareState StateMachine::judgeAutowareState() const
         break;
       }
 
-    case (AutowareState::WaitingForRoute): {
+    case AutowareState::WaitingForRoute: {
         if (isRouteReceived()) {
           return AutowareState::Planning;
         }
@@ -154,7 +170,7 @@ AutowareState StateMachine::judgeAutowareState() const
         break;
       }
 
-    case (AutowareState::Planning): {
+    case AutowareState::Planning: {
         executing_route_ = state_input_.route;
 
         if (isPlanningCompleted()) {
@@ -176,7 +192,7 @@ AutowareState StateMachine::judgeAutowareState() const
         break;
       }
 
-    case (AutowareState::WaitingForEngage): {
+    case AutowareState::WaitingForEngage: {
         if (isRouteReceived()) {
           return AutowareState::Planning;
         }
@@ -193,7 +209,7 @@ AutowareState StateMachine::judgeAutowareState() const
         break;
       }
 
-    case (AutowareState::Driving): {
+    case AutowareState::Driving: {
         if (isRouteReceived()) {
           return AutowareState::Planning;
         }
@@ -210,7 +226,7 @@ AutowareState StateMachine::judgeAutowareState() const
         break;
       }
 
-    case (AutowareState::ArrivedGoal): {
+    case AutowareState::ArrivedGoal: {
         constexpr double wait_time_after_arrived_goal = 2.0;
         const auto time_from_arrived_goal = state_input_.current_time - times_.arrived_goal;
         if (time_from_arrived_goal.seconds() > wait_time_after_arrived_goal) {
@@ -220,7 +236,7 @@ AutowareState StateMachine::judgeAutowareState() const
         break;
       }
 
-    case (AutowareState::Finalizing): {
+    case AutowareState::Finalizing: {
         break;
       }
 

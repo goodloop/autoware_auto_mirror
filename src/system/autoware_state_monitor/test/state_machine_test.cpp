@@ -20,6 +20,8 @@
 
 using autoware::state_monitor::StateMachine;
 using autoware::state_monitor::StateParam;
+using autoware::state_monitor::StateInput;
+using autoware::state_monitor::AutowareState;
 
 class StateMachineTest : public ::testing::Test
 {
@@ -41,4 +43,11 @@ protected:
 TEST_F(StateMachineTest, create_destroy)
 {
   state_machine.reset();
+}
+
+TEST_F(StateMachineTest, basic_states_sequence)
+{
+  StateInput input;
+  EXPECT_EQ(state_machine->getCurrentState(), AutowareState::InitializingVehicle);
+  EXPECT_EQ(state_machine->updateState(input), AutowareState::WaitingForRoute);
 }

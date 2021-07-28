@@ -82,8 +82,8 @@ public:
   explicit StateMachine(const StateParam & state_param)
   : state_param_(state_param) {}
 
-  AutowareState getCurrentState() const {return autoware_state_;}
-  AutowareState updateState(const StateInput & state_input);
+   AutowareState getCurrentState() const;
+   AutowareState updateState(const StateInput & state_input);
 
 private:
   AutowareState autoware_state_ = AutowareState::InitializingVehicle;

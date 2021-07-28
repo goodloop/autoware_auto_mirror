@@ -45,7 +45,7 @@ namespace state_monitor
 class AutowareStateMonitorNode : public rclcpp::Node
 {
 public:
-  __attribute__ ((visibility("default"))) AutowareStateMonitorNode();
+  AutowareStateMonitorNode();
 
 private:
   // Parameter
