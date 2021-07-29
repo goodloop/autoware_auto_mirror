@@ -12,6 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#ifndef TEST_UTILS_HPP_
+#define TEST_UTILS_HPP_
+
+#include <cmath>
+#include <memory>
+
 #include "geometry_msgs/msg/pose_stamped.hpp"
 
 #include "autoware_auto_msgs/msg/complex32.hpp"
@@ -29,27 +35,36 @@ using geometry_msgs::msg::Point;
 using geometry_msgs::msg::PoseStamped;
 using geometry_msgs::msg::Quaternion;
 
-Engage::SharedPtr prepareEngageMsg(bool engage, rclcpp::Time stamp = {0, 0})
+inline double distance(
+  const geometry_msgs::msg::Point & p1,
+  const geometry_msgs::msg::Point & p2)
+{
+  const auto dx = p1.x - p2.x;
+  const auto dy = p1.y - p2.y;
+  const auto dz = p1.z - p2.z;
+  return std::sqrt(dx * dx + dy * dy + dz * dz);
+}
+
+inline Engage::SharedPtr prepareEngageMsg(bool engage, rclcpp::Time stamp = {0, 0})
 {
   auto msg = std::make_shared<Engage>();
-  msg->engage = true;
+  msg->engage = engage;
   msg->stamp = stamp;
   return msg;
 }
 
-VehicleStateReport::SharedPtr prepareVehicleStateReportMsg(bool autonomous_mode)
+inline VehicleStateReport::SharedPtr prepareVehicleStateReportMsg(bool autonomous_mode)
 {
   auto msg = std::make_shared<VehicleStateReport>();
   if (autonomous_mode) {
     msg->mode = VehicleStateReport::MODE_AUTONOMOUS;
-  }
-  else {
+  } else {
     msg->mode = VehicleStateReport::MODE_MANUAL;
   }
   return msg;
 }
 
-Point getPoint(float x = 0, float y = 0, float z = 0)
+inline Point getPoint(float x = 0, float y = 0, float z = 0)
 {
   Point pt;
   pt.x = x;
@@ -58,7 +73,7 @@ Point getPoint(float x = 0, float y = 0, float z = 0)
   return pt;
 }
 
-PoseStamped::SharedPtr preparePoseStampedMsg(
+inline PoseStamped::SharedPtr preparePoseStampedMsg(
   const Point & position, const Quaternion & orientation = Quaternion())
 {
   auto msg = std::make_shared<PoseStamped>();
@@ -67,7 +82,7 @@ PoseStamped::SharedPtr preparePoseStampedMsg(
   return msg;
 }
 
-RoutePoint::SharedPtr prepareRoutePointMsg(
+inline RoutePoint::SharedPtr prepareRoutePointMsg(
   const Point & position, const Complex32 & heading = Complex32())
 {
   auto msg = std::make_shared<RoutePoint>();
@@ -76,7 +91,7 @@ RoutePoint::SharedPtr prepareRoutePointMsg(
   return msg;
 }
 
-VehicleOdometry::SharedPtr prepareVehicleOdometryMsg(
+inline VehicleOdometry::SharedPtr prepareVehicleOdometryMsg(
   const float velocity_mps = 0, const float front_wheel_angle_rad = 0,
   const float rear_wheel_angle_rad = 0)
 {
@@ -86,3 +101,5 @@ VehicleOdometry::SharedPtr prepareVehicleOdometryMsg(
   msg->rear_wheel_angle_rad = rear_wheel_angle_rad;
   return msg;
 }
+
+#endif  // TEST_UTILS_HPP_
