@@ -18,12 +18,12 @@
 #include <experimental/optional>
 #include <cmath>
 
-#include "autoware_auto_msgs/msg/complex32.hpp"
 #include "common/types.hpp"
 #include "gtest/gtest.h"
 #include "helper_functions/angle_utils.hpp"
 #include "motion_common/trajectory_common.hpp"
-#include "tf2_geometry_msgs/tf2_geometry_msgs.h"
+#include "tf2/LinearMath/Quaternion.h"
+
 
 using autoware::common::types::float64_t;
 
@@ -162,10 +162,50 @@ TEST(trajectory_common_tests, findNearestSegmentIndex) {
   using autoware::motion::motion_common::findNearestSegmentIndex;
   using autoware::motion::motion_common::Point;
   using autoware::motion::motion_common::Points;
-  using geometry_msgs::msg::Pose;
 
-  // TODO
-  // size_t findNearestSegmentIndex(const Points & points, const geometry_msgs::msg::Point & point)
+  Points points;
+  // Making a trajectory with positions [(0,0) (1,1) (2,2) (2,4) (4,4)]
+  Point p;
+  p.x = 0.0;
+  p.y = 0.0;
+  points.push_back(p);
+  p.x = 1.0;
+  p.y = 1.0;
+  points.push_back(p);
+  p.x = 2.0;
+  p.y = 2.0;
+  points.push_back(p);
+  p.x = 2.0;
+  p.y = 4.0;
+  points.push_back(p);
+  p.x = 4.0;
+  p.y = 4.0;
+  points.push_back(p);
+
+  geometry_msgs::msg::Point target;
+  target.x = 0.0;
+  target.y = 0.0;
+  EXPECT_EQ(findNearestSegmentIndex(points, target), size_t(0));
+
+  target.x = 0.9;
+  target.y = 0.9;
+  EXPECT_EQ(findNearestSegmentIndex(points, target), size_t(0));
+
+  target.x = 1.9;
+  target.y = 1.9;
+  EXPECT_EQ(findNearestSegmentIndex(points, target), size_t(1));
+
+  target.x = 3.0;
+  target.y = 3.0;
+  EXPECT_EQ(findNearestSegmentIndex(points, target), size_t(2));
+
+  target.x = 2.5;
+  target.y = 4.5;
+  EXPECT_EQ(findNearestSegmentIndex(points, target), size_t(3));
+
+  target.x = 5.0;
+  target.y = 5.0;
+  EXPECT_EQ(findNearestSegmentIndex(points, target), size_t(3));
 }
 
 TEST(trajectory_common_tests, calcLongitudinalOffsetToSegment) {
@@ -173,22 +213,193 @@ TEST(trajectory_common_tests, calcLongitudinalOffsetToSegment) {
   using autoware::motion::motion_common::Point;
   using autoware::motion::motion_common::Points;
 
-  // TODO
-  // size_t findNearestSegmentIndex(const Points & points, const geometry_msgs::msg::Point & point)
+  Points points;
+  geometry_msgs::msg::Point target;
+  EXPECT_THROW(calcLongitudinalOffsetToSegment(points, 0, target), std::invalid_argument);
+
+  Point p;
+  p.x = 0.0;
+  p.y = 0.0;
+  points.push_back(p);
+  points.push_back(p);
+  EXPECT_THROW(calcLongitudinalOffsetToSegment(points, 0, target), std::runtime_error);
+
+  // Making a trajectory with positions [(0,0) (1,0) (2,0) (2,1) (3,1)] ___|‾
+  points.clear();
+  p.x = 0.0;
+  p.y = 0.0;
+  points.push_back(p);
+  p.x = 1.0;
+  p.y = 0.0;
+  points.push_back(p);
+  p.x = 2.0;
+  p.y = 0.0;
+  points.push_back(p);
+  p.x = 2.0;
+  p.y = 1.0;
+  points.push_back(p);
+  p.x = 3.0;
+  p.y = 1.0;
+  points.push_back(p);
+
+  target.x = 0.0;
+  target.y = 0.0;
+  EXPECT_EQ(calcLongitudinalOffsetToSegment(points, 0, target), 0.0);
+  EXPECT_EQ(calcLongitudinalOffsetToSegment(points, 1, target), -1.0);
+  EXPECT_EQ(calcLongitudinalOffsetToSegment(points, 2, target), 0.0);
+  EXPECT_EQ(calcLongitudinalOffsetToSegment(points, 3, target), -2.0);
 }
 
-TEST(trajectory_common_tests, calcSignedArcLength) {
+TEST(trajectory_common_tests, calcSignedArcLength_index_to_index) {
   using autoware::motion::motion_common::calcSignedArcLength;
   using autoware::motion::motion_common::Point;
   using autoware::motion::motion_common::Points;
 
-  // TODO
+  Points points;
+  EXPECT_THROW(calcSignedArcLength(points, 0, 0), std::invalid_argument);
+
+  // Making a trajectory with positions [(0,0) (1,0) (2,0) (2,1) (3,1)] ___|‾
+  Point p;
+  p.x = 0.0;
+  p.y = 0.0;
+  points.push_back(p);
+  p.x = 1.0;
+  p.y = 0.0;
+  points.push_back(p);
+  p.x = 2.0;
+  p.y = 0.0;
+  points.push_back(p);
+  p.x = 2.0;
+  p.y = 1.0;
+  points.push_back(p);
+  p.x = 3.0;
+  p.y = 1.0;
+  points.push_back(p);
+
+  // Out of range
+  EXPECT_THROW(calcSignedArcLength(points, 0, points.size() + 1), std::out_of_range);
+
+  // Same point
+  EXPECT_EQ(calcSignedArcLength(points, 3, 3), 0.0);
+
+  // Forward
+  EXPECT_EQ(calcSignedArcLength(points, 0, 3), 3.0);
+
+  // Backward
+  EXPECT_EQ(calcSignedArcLength(points, 4, 2), -2.0);
 }
 
-TEST(trajectory_common_tests, calcLongitudinalOffsetToSegment) {
-  using autoware::motion::motion_common::calcLongitudinalOffsetToSegment;
-  using geometry_msgs::msg::Point;
-  using geometry_msgs::msg::Pose;
+TEST(trajectory, calcSignedArcLength_point_to_index)
+{
+  using autoware::motion::motion_common::calcSignedArcLength;
+  using autoware::motion::motion_common::Point;
+  using autoware::motion::motion_common::Points;
 
-  // TODO
+  Points points;
+  geometry_msgs::msg::Point src;
+  EXPECT_THROW(calcSignedArcLength(points, src, 0), std::invalid_argument);
+
+  // Making a trajectory with positions [(0,0) (1,0) (2,0) (2,1) (3,1)] ___|‾
+  Point p;
+  p.x = 0.0;
+  p.y = 0.0;
+  points.push_back(p);
+  p.x = 1.0;
+  p.y = 0.0;
+  points.push_back(p);
+  p.x = 2.0;
+  p.y = 0.0;
+  points.push_back(p);
+  p.x = 2.0;
+  p.y = 1.0;
+  points.push_back(p);
+  p.x = 3.0;
+  p.y = 1.0;
+  points.push_back(p);
+
+  // Same point
+  src.x = 2.0;
+  src.y = 1.0;
+  EXPECT_EQ(calcSignedArcLength(points, src, 3), 0.0);
+
+  // Forward
+  EXPECT_EQ(calcSignedArcLength(points, src, 4), 1.0);
+
+  // Backward
+  EXPECT_EQ(calcSignedArcLength(points, src, 0), -3.0);
+
+  // Point before start point
+  src.x = -1.0;
+  src.y = 0.0;
+  EXPECT_EQ(calcSignedArcLength(points, src, 2), 3.0);
+
+  // Point after end point but without longitudinal offset
+  src.x = 3.0;
+  src.y = 2.0;
+  EXPECT_EQ(calcSignedArcLength(points, src, 0), -4.0);
+
+  // Point after end point with longitudinal offset
+  src.x = 4.0;
+  src.y = 2.0;
+  EXPECT_EQ(calcSignedArcLength(points, src, 0), -5.0);
+}
+
+TEST(trajectory, calcSignedArcLength_point_to_point)
+{
+  using autoware::motion::motion_common::calcSignedArcLength;
+  using autoware::motion::motion_common::Point;
+  using autoware::motion::motion_common::Points;
+
+  Points points;
+  geometry_msgs::msg::Point src;
+  geometry_msgs::msg::Point dest;
+  EXPECT_THROW(calcSignedArcLength(points, src, dest), std::invalid_argument);
+
+  // Making a trajectory with positions [(0,0) (1,0) (2,0) (2,1) (3,1)] ___|‾
+  Point p;
+  p.x = 0.0;
+  p.y = 0.0;
+  points.push_back(p);
+  p.x = 1.0;
+  p.y = 0.0;
+  points.push_back(p);
+  p.x = 2.0;
+  p.y = 0.0;
+  points.push_back(p);
+  p.x = 2.0;
+  p.y = 1.0;
+  points.push_back(p);
+  p.x = 3.0;
+  p.y = 1.0;
+  points.push_back(p);
+
+  // Same point
+  src.x = 1.0;
+  src.y = 0.0;
+  dest.x = src.x;
+  dest.y = src.y;
+  EXPECT_EQ(calcSignedArcLength(points, src, dest), 0.0);
+
+  // Forward
+  dest.x = 2.0;
+  dest.y = 1.0;
+  EXPECT_EQ(calcSignedArcLength(points, src, dest), 2.0);
+
+  // Backward
+  EXPECT_EQ(calcSignedArcLength(points, dest, src), -2.0);
+
+  // Point before start point
+  src.x = -1.0;
+  src.y = 0.0;
+  EXPECT_EQ(calcSignedArcLength(points, src, dest), 4.0);
+
+  // Point before start point and after end point
+  dest.x = 4.0;
+  dest.y = 1.0;
+  EXPECT_EQ(calcSignedArcLength(points, src, dest), 6.0);
+
+  // Point after end point
+  src.x = 0.0;
+  src.y = 0.0;
+  EXPECT_EQ(calcSignedArcLength(points, src, dest), 5.0);
 }
