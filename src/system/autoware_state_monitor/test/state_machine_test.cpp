@@ -203,37 +203,51 @@ TEST_F(StateMachineTest, disengaged_during_driving)
   EXPECT_EQ(state_machine->updateState(input), AutowareState::WaitingForEngage);
 }
 
-TEST_F(StateMachineTest, goal_unreached_vehicle_is_close_but_moving_pos_velocity)
+TEST_F(StateMachineTest, goal_unreached_vehicle_not_stopped_pos_velocity)
 {
   auto input = initializeWithState(AutowareState::Driving);
-  input.current_pose = preparePoseStampedMsg(getPoint(1.0, 1.0));
-  input.goal_pose = prepareRoutePointMsg(getPoint(1.0, 1.0));
+  const auto point = getPoint(1.0, 1.0);
+  input.current_pose = preparePoseStampedMsg(point);
+  input.goal_pose = prepareRoutePointMsg(point);
   input.odometry_buffer.push_back(prepareVehicleOdometryMsg(1.0, 0.0));
 
   EXPECT_EQ(state_machine->updateState(input), AutowareState::Driving);
 }
 
-TEST_F(StateMachineTest, goal_unreached_vehicle_is_close_but_moving_neg_velocity)
+TEST_F(StateMachineTest, goal_unreached_vehicle_not_stopped_neg_velocity)
 {
   auto input = initializeWithState(AutowareState::Driving);
-  input.current_pose = preparePoseStampedMsg(getPoint(1.0, 1.0));
-  input.goal_pose = prepareRoutePointMsg(getPoint(1.0, 1.0));
+  const auto point = getPoint(1.0, 1.0);
+  input.current_pose = preparePoseStampedMsg(point);
+  input.goal_pose = prepareRoutePointMsg(point);
   input.odometry_buffer.push_back(prepareVehicleOdometryMsg(-1.0, 0.0));
 
   EXPECT_EQ(state_machine->updateState(input), AutowareState::Driving);
 }
 
-TEST_F(StateMachineTest, goal_unreached_vehicle_is_close_but_moving_multiple_odom)
+TEST_F(StateMachineTest, goal_unreached_vehicle_not_stopped_multiple_odom_in_buffer)
 {
   auto input = initializeWithState(AutowareState::Driving);
-  input.current_pose = preparePoseStampedMsg(getPoint(1.0, 1.0));
-  input.goal_pose = prepareRoutePointMsg(getPoint(1.0, 1.0));
+  const auto point = getPoint(1.0, 1.0);
+  input.current_pose = preparePoseStampedMsg(point);
+  input.goal_pose = prepareRoutePointMsg(point);
 
   input.odometry_buffer.push_back(prepareVehicleOdometryMsg(0.0, 0.0));
   input.odometry_buffer.push_back(prepareVehicleOdometryMsg(1.0, 0.0));
   input.odometry_buffer.push_back(prepareVehicleOdometryMsg(-1.0, 0.0));
 
   EXPECT_EQ(state_machine->updateState(input), AutowareState::Driving);
+}
+
+TEST_F(StateMachineTest, goal_reached_vehicle_stopped_velocity_zero)
+{
+  auto input = initializeWithState(AutowareState::Driving);
+  const auto point = getPoint(1.0, 1.0);
+  input.current_pose = preparePoseStampedMsg(point);
+  input.goal_pose = prepareRoutePointMsg(point);
+  input.odometry_buffer.push_back(prepareVehicleOdometryMsg(0.0, 0.0));
+
+  EXPECT_EQ(state_machine->updateState(input), AutowareState::ArrivedGoal);
 }
 
 TEST_F(StateMachineTest, goal_reached_velocity_non_zero_but_below_threshold)
@@ -243,10 +257,26 @@ TEST_F(StateMachineTest, goal_reached_velocity_non_zero_but_below_threshold)
   params.th_stopped_velocity_mps = 0.5;
 
   auto input = initializeWithStateAndParams(AutowareState::Driving, params);
-  input.current_pose = preparePoseStampedMsg(getPoint(1.0, 1.0));
-  input.goal_pose = prepareRoutePointMsg(getPoint(1.0, 1.0));
+  const auto point = getPoint(1.0, 1.0);
+  input.current_pose = preparePoseStampedMsg(point);
+  input.goal_pose = prepareRoutePointMsg(point);
   input.odometry_buffer.push_back(prepareVehicleOdometryMsg(0.05));
 
+  EXPECT_EQ(state_machine->updateState(input), AutowareState::ArrivedGoal);
+}
+
+TEST_F(StateMachineTest, goal_reached_zero_distance)
+{
+  const auto current_point = getPoint(-1.0, 1.0);
+  const auto goal_point = getPoint(-1.0, 1.0);
+
+  auto input = initializeWithState(AutowareState::Driving);
+  input.odometry_buffer.push_back(prepareVehicleOdometryMsg(0.0));
+  input.current_pose = preparePoseStampedMsg(current_point);
+  input.goal_pose = prepareRoutePointMsg(goal_point);
+
+  const auto dist = distance(current_point, goal_point);
+  EXPECT_FLOAT_EQ(dist, 0);
   EXPECT_EQ(state_machine->updateState(input), AutowareState::ArrivedGoal);
 }
 
@@ -286,6 +316,25 @@ TEST_F(StateMachineTest, goal_unreached_distance_above_threshold)
 
   const auto dist = distance(current_point, goal_point);
   EXPECT_GE(dist, params.th_arrived_distance_m);
+  EXPECT_EQ(state_machine->updateState(input), AutowareState::Driving);
+}
+
+TEST_F(StateMachineTest, goal_unreached_distance_equal_to_threshold)
+{
+  StateParam params;
+  params.th_arrived_distance_m = 1.0;
+  params.th_stopped_velocity_mps = 0.5;
+
+  const auto current_point = getPoint(1.0, 0.0);
+  const auto goal_point = getPoint(0.0, 0.0);
+
+  auto input = initializeWithStateAndParams(AutowareState::Driving, params);
+  input.odometry_buffer.push_back(prepareVehicleOdometryMsg(0.0));
+  input.current_pose = preparePoseStampedMsg(current_point);
+  input.goal_pose = prepareRoutePointMsg(goal_point);
+
+  const auto dist = distance(current_point, goal_point);
+  EXPECT_FLOAT_EQ(dist, params.th_arrived_distance_m);
   EXPECT_EQ(state_machine->updateState(input), AutowareState::Driving);
 }
 
