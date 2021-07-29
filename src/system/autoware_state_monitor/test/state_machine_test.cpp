@@ -368,3 +368,35 @@ TEST_F(StateMachineTest, waiting_for_engage_not_in_autonomous_mode)
 
   EXPECT_EQ(state_machine->updateState(input), AutowareState::WaitingForEngage);
 }
+
+TEST_F(StateMachineTest, waiting_after_initializing_vehicle)
+{
+  auto input = initializeWithState(AutowareState::InitializingVehicle);
+  const float start_time = input.current_time.seconds();
+  input.current_time = rclcpp::Time(start_time + 0.5, 0);
+  EXPECT_EQ(state_machine->updateState(input), AutowareState::InitializingVehicle);
+  input.current_time = rclcpp::Time(start_time + 1.0, 0);
+  EXPECT_EQ(state_machine->updateState(input), AutowareState::WaitingForRoute);
+}
+
+TEST_F(StateMachineTest, waiting_after_planning)
+{
+  auto input = initializeWithState(AutowareState::Planning);
+  EXPECT_EQ(state_machine->updateState(input), AutowareState::Planning);
+  const float start_time = input.current_time.seconds();
+  input.current_time = rclcpp::Time(start_time + 2.0, 0);
+  EXPECT_EQ(state_machine->updateState(input), AutowareState::Planning);
+  input.current_time = rclcpp::Time(start_time + 3.0, 0);
+  EXPECT_EQ(state_machine->updateState(input), AutowareState::WaitingForEngage);
+}
+
+TEST_F(StateMachineTest, waiting_after_arrived_goal)
+{
+  auto input = initializeWithState(AutowareState::ArrivedGoal);
+  EXPECT_EQ(state_machine->updateState(input), AutowareState::ArrivedGoal);
+  const float start_time = input.current_time.seconds();
+  input.current_time = rclcpp::Time(start_time + 1.0, 0);
+  EXPECT_EQ(state_machine->updateState(input), AutowareState::ArrivedGoal);
+  input.current_time = rclcpp::Time(start_time + 2.0, 0);
+  EXPECT_EQ(state_machine->updateState(input), AutowareState::WaitingForRoute);
+}
