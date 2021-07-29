@@ -55,11 +55,6 @@ bool StateMachine::isVehicleInitialized() const
   return true;
 }
 
-bool StateMachine::hasRoute() const
-{
-  return state_input_.route != nullptr;
-}
-
 bool StateMachine::isRouteReceived() const
 {
   return state_input_.route != executing_route_;
@@ -169,10 +164,6 @@ AutowareState StateMachine::judgeAutowareState() const
     case AutowareState::WaitingForRoute: {
         if (isRouteReceived()) {
           return AutowareState::Planning;
-        }
-
-        if (hasRoute() && isEngaged() && !hasArrivedGoal()) {
-          return AutowareState::Driving;
         }
 
         break;
