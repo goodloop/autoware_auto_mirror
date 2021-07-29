@@ -13,7 +13,7 @@
 # limitations under the License.
 
 """
-Example launch file for the RadiusSearch2DFilterNode executable
+Example launch file for the RadiusSearch2DFilterNode executable.
 
 Note: Does not work in ROS2 dashing!
 """
