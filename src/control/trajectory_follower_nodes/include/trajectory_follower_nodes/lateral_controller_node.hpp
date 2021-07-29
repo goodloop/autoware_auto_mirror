@@ -21,11 +21,6 @@
 #include <vector>
 
 #include "trajectory_follower_nodes/visibility_control.hpp"
-
-#include "tf2/utils.h"
-#include "tf2_ros/buffer.h"
-#include "tf2_ros/transform_listener.h"
-
 #include "trajectory_follower/interpolate.hpp"
 #include "trajectory_follower/lowpass_filter.hpp"
 #include "trajectory_follower/mpc.hpp"
@@ -40,13 +35,17 @@
 #include "autoware_auto_msgs/msg/ackermann_lateral_command.hpp"
 #include "autoware_auto_msgs/msg/trajectory.hpp"
 #include "autoware_auto_msgs/msg/vehicle_kinematic_state.hpp"
-#include "osqp_interface/osqp_interface.hpp"
-
+#include "common/types.hpp"
 #include "geometry_msgs/msg/pose.hpp"
 #include "geometry_msgs/msg/pose_stamped.hpp"
 #include "geometry_msgs/msg/twist_stamped.hpp"
+#include "osqp_interface/osqp_interface.hpp"
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp_components/register_node_macro.hpp"
+#include "tf2/utils.h"
+#include "tf2_ros/buffer.h"
+#include "tf2_ros/transform_listener.h"
+
 
 namespace autoware
 {
@@ -56,6 +55,8 @@ namespace control
 {
 namespace trajectory_follower_nodes
 {
+using autoware::common::types::float64_t;
+using autoware::common::types::bool8_t;
 namespace trajectory_follower = ::autoware::motion::control::trajectory_follower;
 
 class TRAJECTORY_FOLLOWER_PUBLIC MPCFollower : public rclcpp::Node
@@ -92,20 +93,20 @@ private:
 
   /* parameters for path smoothing */
   //!< @brief flag for path smoothing
-  bool m_enable_path_smoothing;
+  bool8_t m_enable_path_smoothing;
   //!< @brief flag for recalculation of yaw angle after resampling
-  bool m_enable_yaw_recalculation;
+  bool8_t m_enable_yaw_recalculation;
   //!< @brief param of moving average filter for path smoothing
-  int m_path_filter_moving_ave_num;
+  int64_t m_path_filter_moving_ave_num;
   //!< @brief point-to-point index distance for curvature calculation
-  int m_curvature_smoothing_num;
+  int64_t m_curvature_smoothing_num;
   //!< @brief path resampling interval [m]
-  double m_traj_resample_dist;
+  float64_t m_traj_resample_dist;
 
   /* parameters for stop state */
-  double m_stop_state_entry_ego_speed;
-  double m_stop_state_entry_target_speed;
-  double m_stop_state_keep_stopping_dist;
+  float64_t m_stop_state_entry_ego_speed;
+  float64_t m_stop_state_entry_target_speed;
+  float64_t m_stop_state_keep_stopping_dist;
 
   // for mpc design parameter
   trajectory_follower::MPC m_mpc;
@@ -121,10 +122,10 @@ private:
     m_current_trajectory_ptr;
 
   //!< @brief mpc filtered output in previous period
-  double m_steer_cmd_prev = 0.0;
+  float64_t m_steer_cmd_prev = 0.0;
 
   //!< @brief flag of m_ctrl_cmd_prev initialization
-  bool m_is_ctrl_cmd_prev_initialized = false;
+  bool8_t m_is_ctrl_cmd_prev_initialized = false;
   //!< @brief previous control command
   autoware_auto_msgs::msg::AckermannLateralCommand m_ctrl_cmd_prev;
 
@@ -133,7 +134,7 @@ private:
   tf2_ros::TransformListener m_tf_listener;
 
   //!< initialize timer to work in real, simulation, and replay
-  void initTimer(double period_s);
+  void initTimer(float64_t period_s);
   /**
    * @brief compute and publish control command for path follow with a constant control period
    */
@@ -152,7 +153,7 @@ private:
   /**
    * @brief check if the received data is valid.
    */
-  bool checkData();
+  bool8_t checkData();
 
   /**
    * @brief set current_steer with received message
@@ -183,12 +184,12 @@ private:
   /**
    * @brief check ego car is in stopped state
    */
-  bool isStoppedState() const;
+  bool8_t isStoppedState() const;
 
   /**
    * @brief check if the trajectory has valid value
    */
-  bool isValidTrajectory(const autoware_auto_msgs::msg::Trajectory & traj) const;
+  bool8_t isValidTrajectory(const autoware_auto_msgs::msg::Trajectory & traj) const;
 
   OnSetParametersCallbackHandle::SharedPtr m_set_param_res;
 
