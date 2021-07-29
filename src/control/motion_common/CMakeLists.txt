@@ -11,6 +11,7 @@ ament_auto_find_build_dependencies()
 ament_auto_add_library(${PROJECT_NAME} SHARED
   src/motion_common/config.cpp
   src/motion_common/motion_common.cpp
+  src/motion_common/trajectory_common.cpp
 )
 autoware_set_compile_options(${PROJECT_NAME})
 
