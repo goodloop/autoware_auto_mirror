@@ -156,16 +156,15 @@ void AutowareStateMonitorNode::onTimer()
 
   if (autoware_state != prev_autoware_state) {
     RCLCPP_INFO(
-      this->get_logger(), "state changed: %s -> %s", toString(prev_autoware_state).c_str(),
+      this->get_logger(), "state changed: %s -> %s",
+      toString(prev_autoware_state).c_str(),
       toString(autoware_state).c_str());
   }
 
   // Publish state message
   autoware_auto_msgs::msg::AutowareState autoware_state_msg;
-
-  autoware_state_msg.state = static_cast<uint8_t>(autoware_state);
   autoware_state_msg.stamp = get_clock()->now();
-
+  autoware_state_msg.state = static_cast<uint8_t>(autoware_state);
   pub_autoware_state_->publish(autoware_state_msg);
 }
 

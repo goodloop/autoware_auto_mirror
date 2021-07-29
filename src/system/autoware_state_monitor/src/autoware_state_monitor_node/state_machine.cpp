@@ -23,7 +23,9 @@ namespace autoware
 namespace state_monitor
 {
 
-double calcDistance2d(const geometry_msgs::msg::Point & p1, const geometry_msgs::msg::Point & p2)
+double calcDistance2d(
+  const geometry_msgs::msg::Point & p1,
+  const geometry_msgs::msg::Point & p2)
 {
   return std::hypot(p1.x - p2.x, p1.y - p2.y);
 }
@@ -98,13 +100,14 @@ bool StateMachine::isOverridden() const
 
 bool StateMachine::hasArrivedGoal() const
 {
-  if (!state_input_.current_pose || !state_input_.goal_pose)
+  if (!state_input_.current_pose || !state_input_.goal_pose) {
     return false;
+  }
 
   const auto is_near_goal = isNearGoal(
     state_input_.current_pose->pose, *state_input_.goal_pose, state_param_.th_arrived_distance_m);
-  const auto is_stopped =
-    isStopped(state_input_.odometry_buffer, state_param_.th_stopped_velocity_mps);
+  const auto is_stopped = isStopped(
+    state_input_.odometry_buffer, state_param_.th_stopped_velocity_mps);
 
   if (is_near_goal && is_stopped) {
     return true;
@@ -129,7 +132,9 @@ AutowareState StateMachine::updateState(const StateInput & state_input)
 {
   msgs_ = {};
   state_input_ = state_input;
+
   autoware_state_ = judgeAutowareState();
+
   return autoware_state_;
 }
 
@@ -152,7 +157,7 @@ AutowareState StateMachine::judgeAutowareState() const
           constexpr double wait_time_after_initializing = 1.0;
           const auto time_from_initializing =
             state_input_.current_time - times_.initializing_completed;
-          if (time_from_initializing.seconds() > wait_time_after_initializing) {
+          if (time_from_initializing.seconds() >= wait_time_after_initializing) {
             flags_.waiting_after_initializing = false;
             return AutowareState::WaitingForRoute;
           }
@@ -175,7 +180,6 @@ AutowareState StateMachine::judgeAutowareState() const
 
     case AutowareState::Planning: {
         executing_route_ = state_input_.route;
-
         if (isPlanningCompleted()) {
           if (!flags_.waiting_after_planning) {
             flags_.waiting_after_planning = true;
@@ -186,7 +190,7 @@ AutowareState StateMachine::judgeAutowareState() const
           // Wait after planning completed to avoid sync error
           constexpr double wait_time_after_planning = 3.0;
           const auto time_from_planning = state_input_.current_time - times_.planning_completed;
-          if (time_from_planning.seconds() > wait_time_after_planning) {
+          if (time_from_planning.seconds() >= wait_time_after_planning) {
             flags_.waiting_after_planning = false;
             return AutowareState::WaitingForEngage;
           }
@@ -232,7 +236,7 @@ AutowareState StateMachine::judgeAutowareState() const
     case AutowareState::ArrivedGoal: {
         constexpr double wait_time_after_arrived_goal = 2.0;
         const auto time_from_arrived_goal = state_input_.current_time - times_.arrived_goal;
-        if (time_from_arrived_goal.seconds() > wait_time_after_arrived_goal) {
+        if (time_from_arrived_goal.seconds() >= wait_time_after_arrived_goal) {
           return AutowareState::WaitingForRoute;
         }
 
