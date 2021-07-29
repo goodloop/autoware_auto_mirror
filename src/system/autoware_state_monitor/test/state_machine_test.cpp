@@ -402,3 +402,10 @@ TEST_F(StateMachineTest, waiting_after_arrived_goal)
   input.current_time = rclcpp::Time(start_time + 2.0, 0);
   EXPECT_EQ(state_machine->updateState(input), AutowareState::WaitingForRoute);
 }
+
+TEST_F(StateMachineTest, finalizing_during_driving)
+{
+  auto input = initializeWithState(AutowareState::Driving);
+  input.is_finalizing = true;
+  EXPECT_EQ(state_machine->updateState(input), AutowareState::Finalizing);
+}
