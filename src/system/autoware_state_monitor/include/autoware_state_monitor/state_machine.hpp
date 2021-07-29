@@ -16,23 +16,17 @@
 #ifndef AUTOWARE_STATE_MONITOR__STATE_MACHINE_HPP_
 #define AUTOWARE_STATE_MONITOR__STATE_MACHINE_HPP_
 
-// Core
 #include <deque>
-#include <string>
-#include <vector>
 
-// ROS
 #include "geometry_msgs/msg/pose_stamped.hpp"
 #include "rclcpp/time.hpp"
 
-// Autoware
 #include "autoware_auto_msgs/msg/autoware_state.hpp"
 #include "autoware_auto_msgs/msg/engage.hpp"
 #include "autoware_auto_msgs/msg/had_map_route.hpp"
 #include "autoware_auto_msgs/msg/vehicle_odometry.hpp"
 #include "autoware_auto_msgs/msg/vehicle_state_report.hpp"
 
-// Local
 #include "autoware_state_monitor/autoware_state.hpp"
 
 namespace autoware
@@ -40,6 +34,7 @@ namespace autoware
 namespace state_monitor
 {
 
+/// \brief Input state of the state machine.
 struct StateInput
 {
   rclcpp::Time current_time;
@@ -50,63 +45,79 @@ struct StateInput
   autoware_auto_msgs::msg::Engage::ConstSharedPtr engage;
   autoware_auto_msgs::msg::VehicleStateReport::ConstSharedPtr vehicle_state_report;
   bool is_finalizing = false;
-  bool is_route_reset_required = false;
   autoware_auto_msgs::msg::HADMapRoute::ConstSharedPtr route;
-  autoware_auto_msgs::msg::VehicleOdometry::ConstSharedPtr odometry;
-  std::deque<autoware_auto_msgs::msg::VehicleOdometry::ConstSharedPtr> odometry_buffer;
+
+  using VehicleOdometry = autoware_auto_msgs::msg::VehicleOdometry;
+  using OdometryBuffer = std::deque<VehicleOdometry::ConstSharedPtr>;
+  OdometryBuffer odometry_buffer;
 };
 
+/// \brief Parameters used by the state machine
 struct StateParam
 {
+  /// Distance threshold between a current position and a goal position.
   double th_arrived_distance_m;
   double th_stopped_time_sec;
+  /// Velocity threshold for determining if vehicle is stopped.
   double th_stopped_velocity_mps;
+  /// Delay after initialization and before transition to a next state
+  double wait_time_after_initializing = 1.0;
+  /// Delay after planning and before transition to a next state
+  double wait_time_after_planning = 3.0;
+  /// Delay after arrived goal and before transition to a next state
+  double wait_time_after_arrived_goal = 2.0;
 };
 
-struct Times
-{
-  rclcpp::Time arrived_goal;
-  rclcpp::Time initializing_completed;
-  rclcpp::Time planning_completed;
-};
-
-struct Flags
-{
-  bool waiting_after_initializing = false;
-  bool waiting_after_planning = false;
-};
-
+/// \brief State machine for determining a state of the Autoware system.
 class StateMachine
 {
 public:
+  /// \brief Construct the state machine.
+  /// \param The set of parameters used by state machine.
   explicit StateMachine(const StateParam & state_param)
   : state_param_(state_param) {}
 
+  /// \brief Get the current state of the state machine.
+  /// \return The current state.
   AutowareState getCurrentState() const;
+
+  /// \brief Update the state machine.
+  /// \param Input values used during the determination of the new state.
+  /// \return A state after the state machine update.
   AutowareState updateState(const StateInput & state_input);
 
 private:
+  struct Times
+  {
+    rclcpp::Time arrived_goal;
+    rclcpp::Time initializing_completed;
+    rclcpp::Time planning_completed;
+  };
+
+  struct Flags
+  {
+    bool waiting_after_initializing = false;
+    bool waiting_after_planning = false;
+  };
+
   AutowareState autoware_state_ = AutowareState::InitializingVehicle;
   StateInput state_input_;
   const StateParam state_param_;
 
-  mutable std::vector<std::string> msgs_;
   mutable Times times_;
   mutable Flags flags_;
   mutable autoware_auto_msgs::msg::HADMapRoute::ConstSharedPtr executing_route_ = nullptr;
 
   AutowareState judgeAutowareState() const;
 
-  bool isModuleInitialized(const char * module_name) const;
   bool isVehicleInitialized() const;
-  bool hasRoute() const;
   bool isRouteReceived() const;
   bool isPlanningCompleted() const;
+  bool isAutonomousMode() const;
   bool isEngaged() const;
   bool isOverridden() const;
   bool hasArrivedGoal() const;
   bool isFinalizing() const;
-  bool isRouteResetRequired() const;
 };
 
 }  // namespace state_monitor

@@ -95,7 +95,6 @@ void AutowareStateMonitorNode::onRoute(
 void AutowareStateMonitorNode::onOdometry(
   const autoware_auto_msgs::msg::VehicleOdometry::ConstSharedPtr msg)
 {
-  state_input_.odometry = msg;
   state_input_.odometry_buffer.push_back(msg);
 
   // Delete old data in buffer

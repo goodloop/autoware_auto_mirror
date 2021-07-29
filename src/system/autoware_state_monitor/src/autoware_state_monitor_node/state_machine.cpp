@@ -23,7 +23,7 @@ namespace autoware
 namespace state_monitor
 {
 
-double calcDistance2d(
+double distance2d(
   const geometry_msgs::msg::Point & p1,
   const geometry_msgs::msg::Point & p2)
 {
@@ -35,7 +35,7 @@ bool isNearGoal(
   const autoware_auto_msgs::msg::RoutePoint & goal_pose,
   const double th_dist)
 {
-  return calcDistance2d(current_pose.position, goal_pose.position) < th_dist;
+  return distance2d(current_pose.position, goal_pose.position) < th_dist;
 }
 
 bool isStopped(
@@ -65,10 +65,22 @@ bool StateMachine::isPlanningCompleted() const
   return true;
 }
 
-bool StateMachine::isEngaged() const
+bool StateMachine::isAutonomousMode() const
 {
   using autoware_auto_msgs::msg::VehicleStateReport;
+  if (!state_input_.vehicle_state_report) {
+    return false;
+  }
 
+  if (state_input_.vehicle_state_report->mode != VehicleStateReport::MODE_AUTONOMOUS) {
+    return false;
+  }
+
+  return true;
+}
+
+bool StateMachine::isEngaged() const
+{
   if (!state_input_.engage) {
     return false;
   }
@@ -77,20 +89,12 @@ bool StateMachine::isEngaged() const
     return false;
   }
 
-  if (!state_input_.vehicle_state_report) {
-    return false;
-  }
-
-  if (state_input_.vehicle_state_report->mode == VehicleStateReport::MODE_MANUAL) {
-    return false;
-  }
-
   return true;
 }
 
 bool StateMachine::isOverridden() const
 {
-  return !isEngaged();
+  return !isEngaged() || !isAutonomousMode();
 }
 
 bool StateMachine::hasArrivedGoal() const
@@ -101,6 +105,7 @@ bool StateMachine::hasArrivedGoal() const
 
   const auto is_near_goal = isNearGoal(
     state_input_.current_pose->pose, *state_input_.goal_pose, state_param_.th_arrived_distance_m);
+
   const auto is_stopped = isStopped(
     state_input_.odometry_buffer, state_param_.th_stopped_velocity_mps);
 
@@ -125,7 +130,6 @@ AutowareState StateMachine::getCurrentState() const
 __attribute__ ((visibility("default")))
 AutowareState StateMachine::updateState(const StateInput & state_input)
 {
-  msgs_ = {};
   state_input_ = state_input;
 
   autoware_state_ = judgeAutowareState();
@@ -149,10 +153,9 @@ AutowareState StateMachine::judgeAutowareState() const
           }
 
           // Wait after initialize completed to avoid sync error
-          constexpr double wait_time_after_initializing = 1.0;
           const auto time_from_initializing =
             state_input_.current_time - times_.initializing_completed;
-          if (time_from_initializing.seconds() >= wait_time_after_initializing) {
+          if (time_from_initializing.seconds() >= state_param_.wait_time_after_initializing) {
             flags_.waiting_after_initializing = false;
             return AutowareState::WaitingForRoute;
           }
@@ -179,9 +182,8 @@ AutowareState StateMachine::judgeAutowareState() const
           }
 
           // Wait after planning completed to avoid sync error
-          constexpr double wait_time_after_planning = 3.0;
           const auto time_from_planning = state_input_.current_time - times_.planning_completed;
-          if (time_from_planning.seconds() >= wait_time_after_planning) {
+          if (time_from_planning.seconds() >= state_param_.wait_time_after_planning) {
             flags_.waiting_after_planning = false;
             return AutowareState::WaitingForEngage;
           }
@@ -195,7 +197,7 @@ AutowareState StateMachine::judgeAutowareState() const
           return AutowareState::Planning;
         }
 
-        if (isEngaged()) {
+        if (isEngaged() && isAutonomousMode()) {
           return AutowareState::Driving;
         }
 
@@ -225,9 +227,8 @@ AutowareState StateMachine::judgeAutowareState() const
       }
 
     case AutowareState::ArrivedGoal: {
-        constexpr double wait_time_after_arrived_goal = 2.0;
         const auto time_from_arrived_goal = state_input_.current_time - times_.arrived_goal;
-        if (time_from_arrived_goal.seconds() >= wait_time_after_arrived_goal) {
+        if (time_from_arrived_goal.seconds() >= state_param_.wait_time_after_arrived_goal) {
           return AutowareState::WaitingForRoute;
         }
 

@@ -41,6 +41,9 @@ public:
   {
     default_params.th_arrived_distance_m = 1.0;
     default_params.th_stopped_velocity_mps = 0.1;
+    default_params.wait_time_after_initializing = 1.0;
+    default_params.wait_time_after_planning = 3.0;
+    default_params.wait_time_after_arrived_goal = 2.0;
 
     state_machine.reset(new StateMachine(default_params));
   }
@@ -393,7 +396,6 @@ TEST_F(StateMachineTest, waiting_after_planning)
 TEST_F(StateMachineTest, waiting_after_arrived_goal)
 {
   auto input = initializeWithState(AutowareState::ArrivedGoal);
-  EXPECT_EQ(state_machine->updateState(input), AutowareState::ArrivedGoal);
   const float start_time = input.current_time.seconds();
   input.current_time = rclcpp::Time(start_time + 1.0, 0);
   EXPECT_EQ(state_machine->updateState(input), AutowareState::ArrivedGoal);
