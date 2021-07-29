@@ -18,10 +18,23 @@
 
 #include "gtest/gtest.h"
 
+#include "test_utils.hpp"
+
+using autoware::state_monitor::AutowareState;
+using autoware::state_monitor::StateInput;
 using autoware::state_monitor::StateMachine;
 using autoware::state_monitor::StateParam;
-using autoware::state_monitor::StateInput;
-using autoware::state_monitor::AutowareState;
+
+using autoware_auto_msgs::msg::Complex32;
+using autoware_auto_msgs::msg::Engage;
+using autoware_auto_msgs::msg::HADMapRoute;
+using autoware_auto_msgs::msg::RoutePoint;
+using autoware_auto_msgs::msg::VehicleOdometry;
+using autoware_auto_msgs::msg::VehicleStateReport;
+
+using geometry_msgs::msg::Point;
+using geometry_msgs::msg::PoseStamped;
+using geometry_msgs::msg::Quaternion;
 
 class StateMachineTest : public ::testing::Test
 {
@@ -45,9 +58,53 @@ TEST_F(StateMachineTest, create_destroy)
   state_machine.reset();
 }
 
-TEST_F(StateMachineTest, basic_states_sequence)
+TEST_F(StateMachineTest, init_states_sequence)
 {
   StateInput input;
-  EXPECT_EQ(state_machine->getCurrentState(), AutowareState::InitializingVehicle);
+  // time: 0s, start initialization
+  input.current_time = rclcpp::Time(0, 0);
+  EXPECT_EQ(state_machine->updateState(input), AutowareState::InitializingVehicle);
+
+  // time: 0s, after initialization SM waits 1s
+  EXPECT_EQ(state_machine->updateState(input), AutowareState::InitializingVehicle);
+
+  // time: 2s, initialization state should be changed after 2s
+  input.current_time = rclcpp::Time(2, 0);
   EXPECT_EQ(state_machine->updateState(input), AutowareState::WaitingForRoute);
+}
+
+TEST_F(StateMachineTest, basic_full_states_sequence)
+{
+  // sequence: InitializingVehicle -> WaitingForRoute -> Planning
+  //           -> WaitingForEngage -> Driving -> ArrivedGoal
+  StateInput input;
+  // time: 0s, start initialization
+  input.current_time = rclcpp::Time(0, 0);
+  EXPECT_EQ(state_machine->updateState(input), AutowareState::InitializingVehicle);
+
+  // time: 2s, initialization state should be changed after 2s
+  input.current_time = rclcpp::Time(2, 0);
+  EXPECT_EQ(state_machine->updateState(input), AutowareState::WaitingForRoute);
+
+  // time: 2s, when new route is received then system starts planning
+  input.route = std::make_shared<HADMapRoute>();
+  EXPECT_EQ(state_machine->updateState(input), AutowareState::Planning);
+
+  // time: 3s, if planning completed, the system waits 3s before state transition
+  input.current_time = rclcpp::Time(3, 0);
+  EXPECT_EQ(state_machine->updateState(input), AutowareState::Planning);
+
+  // time: 7s
+  input.current_time = rclcpp::Time(7, 0);
+  EXPECT_EQ(state_machine->updateState(input), AutowareState::WaitingForEngage);
+
+  // time 7s, engage set to true and start driving
+  input.engage = prepareEngageMsg(true);
+  input.vehicle_state_report = prepareVehicleStateReportMsg(true);
+  EXPECT_EQ(state_machine->updateState(input), AutowareState::Driving);
+
+  // time 7s, current pose equal to goal pose -> vehicle arrived goal
+  input.current_pose = preparePoseStampedMsg(getPoint(1,1,0));
+  input.goal_pose = prepareRoutePointMsg(getPoint(1,1,0));
+  EXPECT_EQ(state_machine->updateState(input), AutowareState::ArrivedGoal);
 }
