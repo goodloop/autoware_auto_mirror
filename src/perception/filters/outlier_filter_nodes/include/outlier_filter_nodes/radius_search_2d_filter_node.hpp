@@ -85,7 +85,8 @@ private:
   /** \brief Class object containing the RadiusSearch2DFilter library functionality */
   std::shared_ptr<RadiusSearch2DFilter> radius_search_2d_filter_;
 
-  /** \brief Variable containing the value of the search radius (passed into radius_search_2d_filter_) */
+  /** \brief Variable containing the value of the search radius (passed into
+       radius_search_2d_filter_) */
   double search_radius_;
 
   /** \brief Variable containing the value of the minimum neighbors for points (passed into
