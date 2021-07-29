@@ -98,6 +98,9 @@ bool StateMachine::isOverridden() const
 
 bool StateMachine::hasArrivedGoal() const
 {
+  if (!state_input_.current_pose || !state_input_.goal_pose)
+    return false;
+
   const auto is_near_goal = isNearGoal(
     state_input_.current_pose->pose, *state_input_.goal_pose, state_param_.th_arrived_distance_m);
   const auto is_stopped =
