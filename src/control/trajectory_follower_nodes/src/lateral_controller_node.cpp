@@ -64,9 +64,8 @@ MPCFollower::MPCFollower(const rclcpp::NodeOptions & node_options)
   m_mpc.m_ctrl_period = declare_parameter("ctrl_period", 0.03);
   m_enable_path_smoothing = declare_parameter("enable_path_smoothing", true);
   m_enable_yaw_recalculation = declare_parameter("enable_yaw_recalculation", false);
-  m_path_filter_moving_ave_num =
-    static_cast<int>(declare_parameter("path_filter_moving_ave_num", 35));
-  m_curvature_smoothing_num = static_cast<int>(declare_parameter("curvature_smoothing_num", 35));
+  m_path_filter_moving_ave_num = declare_parameter("path_filter_moving_ave_num", 35);
+  m_curvature_smoothing_num = declare_parameter("curvature_smoothing_num", 35);
   m_traj_resample_dist = declare_parameter("traj_resample_dist", 0.1);  // [m]
   m_mpc.m_admissible_position_error = declare_parameter("admissible_position_error", 5.0);
   m_mpc.m_admissible_yaw_error_rad = declare_parameter("admissible_yaw_error_rad", M_PI_2);
@@ -79,11 +78,11 @@ MPCFollower::MPCFollower(const rclcpp::NodeOptions & node_options)
   m_stop_state_keep_stopping_dist = declare_parameter("stop_state_keep_stopping_dist", 0.5);  // [m]
 
   /* mpc parameters */
-  const double steer_lim_deg = declare_parameter("steer_lim_deg", 35.0);
-  const double steer_rate_lim_degs = declare_parameter("steer_rate_lim_degs", 150.0);
+  const float64_t steer_lim_deg = declare_parameter("steer_lim_deg", 35.0);
+  const float64_t steer_rate_lim_degs = declare_parameter("steer_rate_lim_degs", 150.0);
   m_mpc.m_steer_lim = steer_lim_deg * DEG2RAD;
   m_mpc.m_steer_rate_lim = steer_rate_lim_degs * DEG2RAD;
-  const double wheelbase = declare_parameter("wheel_base", 2.7);
+  const float64_t wheelbase = declare_parameter("wheel_base", 2.7);
 
   /* vehicle model setup */
   const std::string vehicle_model_type = declare_parameter("vehicle_model_type", "kinematics");
@@ -97,12 +96,12 @@ MPCFollower::MPCFollower(const rclcpp::NodeOptions & node_options)
     vehicle_model_ptr = std::make_shared<trajectory_follower::KinematicsBicycleModelNoDelay>(
       wheelbase, m_mpc.m_steer_lim);
   } else if (vehicle_model_type == "dynamics") {
-    const double mass_fl = declare_parameter("mass_fl", 600.0);
-    const double mass_fr = declare_parameter("mass_fr", 600.0);
-    const double mass_rl = declare_parameter("mass_rl", 600.0);
-    const double mass_rr = declare_parameter("mass_rr", 600.0);
-    const double cf = declare_parameter("cf", 155494.663);
-    const double cr = declare_parameter("cr", 155494.663);
+    const float64_t mass_fl = declare_parameter("mass_fl", 600.0);
+    const float64_t mass_fr = declare_parameter("mass_fr", 600.0);
+    const float64_t mass_rl = declare_parameter("mass_rl", 600.0);
+    const float64_t mass_rr = declare_parameter("mass_rr", 600.0);
+    const float64_t cf = declare_parameter("cf", 155494.663);
+    const float64_t cr = declare_parameter("cr", 155494.663);
 
     // vehicle_model_ptr is only assigned in ctor, so parameter value have to be passed at init time  // NOLINT
     vehicle_model_ptr = std::make_shared<trajectory_follower::DynamicsBicycleModel>(
@@ -124,16 +123,16 @@ MPCFollower::MPCFollower(const rclcpp::NodeOptions & node_options)
 
   /* delay compensation */
   {
-    const double delay_tmp = declare_parameter("input_delay", 0.0);
-    const double delay_step = std::round(delay_tmp / m_mpc.m_ctrl_period);
+    const float64_t delay_tmp = declare_parameter("input_delay", 0.0);
+    const float64_t delay_step = std::round(delay_tmp / m_mpc.m_ctrl_period);
     m_mpc.m_param.input_delay = delay_step * m_mpc.m_ctrl_period;
-    m_mpc.m_input_buffer = std::deque<double>(static_cast<size_t>(delay_step), 0.0);
+    m_mpc.m_input_buffer = std::deque<float64_t>(static_cast<size_t>(delay_step), 0.0);
   }
 
   /* initialize lowpass filter */
   {
-    const double steering_lpf_cutoff_hz = declare_parameter("steering_lpf_cutoff_hz", 3.0);
-    const double error_deriv_lpf_cutoff_hz = declare_parameter("error_deriv_lpf_cutoff_hz", 5.0);
+    const float64_t steering_lpf_cutoff_hz = declare_parameter("steering_lpf_cutoff_hz", 3.0);
+    const float64_t error_deriv_lpf_cutoff_hz = declare_parameter("error_deriv_lpf_cutoff_hz", 5.0);
     m_mpc.initializeLowPassFilters(steering_lpf_cutoff_hz, error_deriv_lpf_cutoff_hz);
   }
 
@@ -190,7 +189,7 @@ void MPCFollower::onTimer()
     m_is_ctrl_cmd_prev_initialized = true;
   }
 
-  const bool is_mpc_solved = m_mpc.calculateMPC(
+  const bool8_t is_mpc_solved = m_mpc.calculateMPC(
     *m_current_steer_ptr,
     m_current_velocity_ptr->twist.linear.x,
     m_current_pose_ptr->pose, ctrl_cmd);
@@ -218,7 +217,7 @@ void MPCFollower::onTimer()
   publishCtrlCmd(ctrl_cmd);
 }
 
-bool MPCFollower::checkData()
+bool8_t MPCFollower::checkData()
 {
   if (!m_mpc.hasVehicleModel()) {
     RCLCPP_DEBUG(
@@ -300,8 +299,8 @@ void MPCFollower::onVelocity(geometry_msgs::msg::TwistStamped::SharedPtr msg)
 autoware_auto_msgs::msg::AckermannLateralCommand MPCFollower::getStopControlCommand() const
 {
   autoware_auto_msgs::msg::AckermannLateralCommand cmd;
-  cmd.steering_tire_angle = static_cast<float>(m_steer_cmd_prev);
-  cmd.steering_tire_rotation_rate = 0.0f;
+  cmd.steering_tire_angle = static_cast<decltype(cmd.steering_tire_angle)>(m_steer_cmd_prev);
+  cmd.steering_tire_rotation_rate = 0.0;
   return cmd;
 }
 
@@ -309,18 +308,20 @@ autoware_auto_msgs::msg::AckermannLateralCommand MPCFollower::getInitialControlC
 {
   autoware_auto_msgs::msg::AckermannLateralCommand cmd;
   cmd.steering_tire_angle = m_current_steer_ptr->state.front_wheel_angle_rad;
-  cmd.steering_tire_rotation_rate = 0.0f;
+  cmd.steering_tire_rotation_rate = 0.0;
   return cmd;
 }
 
-bool MPCFollower::isStoppedState() const
+bool8_t MPCFollower::isStoppedState() const
 {
-  const int nearest = trajectory_follower::MPCUtils::calcNearestIndex(
+  const int64_t nearest = trajectory_follower::MPCUtils::calcNearestIndex(
     *m_current_trajectory_ptr,
     m_current_pose_ptr->pose);
   // If the nearest index is not found, return false
   if (nearest < 0) {return false;}
-  const double dist = m_mpc.calcStopDistance(*m_current_trajectory_ptr, nearest);
+  const float64_t dist = trajectory_follower::MPCUtils::calcStopDistance(
+    *m_current_trajectory_ptr,
+    nearest);
   if (dist < m_stop_state_keep_stopping_dist) {
     RCLCPP_DEBUG(
       get_logger(),
@@ -330,8 +331,8 @@ bool MPCFollower::isStoppedState() const
   }
   RCLCPP_DEBUG(get_logger(), "stop_dist = %f release stopping.", dist);
 
-  const double current_vel = m_current_velocity_ptr->twist.linear.x;
-  const double target_vel =
+  const float64_t current_vel = m_current_velocity_ptr->twist.linear.x;
+  const float64_t target_vel =
     m_current_trajectory_ptr->points.at(static_cast<size_t>(nearest)).longitudinal_velocity_mps;
   if (
     std::fabs(current_vel) < m_stop_state_entry_ego_speed &&
@@ -350,11 +351,12 @@ void MPCFollower::publishCtrlCmd(autoware_auto_msgs::msg::AckermannLateralComman
   m_steer_cmd_prev = ctrl_cmd.steering_tire_angle;
 }
 
-void MPCFollower::initTimer(double period_s)
+void MPCFollower::initTimer(float64_t period_s)
 {
   auto timer_callback = std::bind(&MPCFollower::onTimer, this);
-  const auto period_ns =
-    std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::duration<double>(period_s));
+  const auto period_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(
+    std::chrono::duration<float64_t>(
+      period_s));
   m_timer = std::make_shared<rclcpp::GenericTimer<decltype(timer_callback)>>(
     this->get_clock(), period_ns, std::move(timer_callback),
     this->get_node_base_interface()->get_context());
@@ -363,8 +365,7 @@ void MPCFollower::initTimer(double period_s)
 
 void MPCFollower::declareMPCparameters()
 {
-  m_mpc.m_param.prediction_horizon =
-    static_cast<int>(declare_parameter("mpc_prediction_horizon", 50));
+  m_mpc.m_param.prediction_horizon = declare_parameter("mpc_prediction_horizon", 50);
   m_mpc.m_param.prediction_dt = declare_parameter("mpc_prediction_dt", 0.1);
   m_mpc.m_param.weight_lat_error = declare_parameter("mpc_weight_lat_error", 0.1);
   m_mpc.m_param.weight_heading_error = declare_parameter("mpc_weight_heading_error", 0.0);
@@ -441,11 +442,11 @@ rcl_interfaces::msg::SetParametersResult MPCFollower::paramCallback(
 
     // initialize input buffer
     update_param(parameters, "input_delay", param.input_delay);
-    const int delay_step = static_cast<int>(std::round(param.input_delay / m_mpc.m_ctrl_period));
-    const double delay = delay_step * m_mpc.m_ctrl_period;
+    const float64_t delay_step = std::round(param.input_delay / m_mpc.m_ctrl_period);
+    const float64_t delay = delay_step * m_mpc.m_ctrl_period;
     if (param.input_delay != delay) {
       param.input_delay = delay;
-      m_mpc.m_input_buffer = std::deque<double>(static_cast<size_t>(delay_step), 0.0);
+      m_mpc.m_input_buffer = std::deque<float64_t>(static_cast<size_t>(delay_step), 0.0);
     }
 
     // transaction succeeds, now assign values
@@ -458,7 +459,7 @@ rcl_interfaces::msg::SetParametersResult MPCFollower::paramCallback(
   return result;
 }
 
-bool MPCFollower::isValidTrajectory(const autoware_auto_msgs::msg::Trajectory & traj) const
+bool8_t MPCFollower::isValidTrajectory(const autoware_auto_msgs::msg::Trajectory & traj) const
 {
   for (const auto & p : traj.points) {
     if (
