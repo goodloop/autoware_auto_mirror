@@ -84,6 +84,8 @@ MOTION_COMMON_PUBLIC size_t findNearestIndex(const Points & points, const geomet
  * @brief search the index of the point nearest to the given target with limits on the distance and yaw deviation
  * @param [in] points list of points to search
  * @param [in] pose target point
+ * @param [in] max_dist optional maximum distance from the pose when searching for the nearest index
+ * @param [in] max_yaw optional maximum deviation from the pose when searching for the nearest index
  * @return index of the point nearest to the target
  */
 MOTION_COMMON_PUBLIC std::experimental::optional<size_t> findNearestIndex(
@@ -115,7 +117,7 @@ MOTION_COMMON_PUBLIC size_t findNearestSegmentIndex(const Points & points, const
 /**
   * @brief calculate arc length along points
   * @param [in] points input points
-  * @param [in] src_point source point
+  * @param [in] src_idx source index
   * @param [in] dst_idx destination index
   * @return arc length distance from source to destination along the input points
   */
