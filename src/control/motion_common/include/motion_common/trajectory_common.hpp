@@ -53,7 +53,9 @@ MOTION_COMMON_PUBLIC void validateNonEmpty(const Points & points);
  * @param [in] target_yaw target yaw angle [radians]
  * @return normalized angle from the base to the target [radians]
  */
-MOTION_COMMON_PUBLIC float64_t calcYawDeviation(const float64_t & base_yaw, const float64_t & target_yaw);
+MOTION_COMMON_PUBLIC float64_t calcYawDeviation(
+  const float64_t & base_yaw,
+  const float64_t & target_yaw);
 
 /**
  * @brief search first index with a velocity of zero in the given range of points
@@ -64,13 +66,15 @@ MOTION_COMMON_PUBLIC float64_t calcYawDeviation(const float64_t & base_yaw, cons
  * @return index of the first zero velocity point found
  */
 MOTION_COMMON_PUBLIC std::experimental::optional<size_t> searchZeroVelocityIndex(
-  const Points & points, const size_t src_idx, const size_t dst_idx, const float64_t epsilon = 1e-3);
+  const Points & points, const size_t src_idx, const size_t dst_idx,
+  const float64_t epsilon = 1e-3);
 
 /**
  * @brief search first index with a velocity of zero in the given points
  * @param [in] points list of points to check
  */
-MOTION_COMMON_PUBLIC std::experimental::optional<size_t> searchZeroVelocityIndex(const Points & points);
+MOTION_COMMON_PUBLIC std::experimental::optional<size_t> searchZeroVelocityIndex(
+  const Points & points);
 
 /**
  * @brief search the index of the point nearest to the given target
@@ -78,7 +82,9 @@ MOTION_COMMON_PUBLIC std::experimental::optional<size_t> searchZeroVelocityIndex
  * @param [in] point target point
  * @return index of the point nearest to the target
  */
-MOTION_COMMON_PUBLIC size_t findNearestIndex(const Points & points, const geometry_msgs::msg::Point & point);
+MOTION_COMMON_PUBLIC size_t findNearestIndex(
+  const Points & points,
+  const geometry_msgs::msg::Point & point);
 
 /**
  * @brief search the index of the point nearest to the given target with limits on the distance and yaw deviation
@@ -112,7 +118,9 @@ MOTION_COMMON_PUBLIC float64_t calcLongitudinalOffsetToSegment(
   * @param point point to which to find nearest segment index
   * @return nearest index
   */
-MOTION_COMMON_PUBLIC size_t findNearestSegmentIndex(const Points & points, const geometry_msgs::msg::Point & point);
+MOTION_COMMON_PUBLIC size_t findNearestSegmentIndex(
+  const Points & points,
+  const geometry_msgs::msg::Point & point);
 
 /**
   * @brief calculate arc length along points
@@ -121,7 +129,9 @@ MOTION_COMMON_PUBLIC size_t findNearestSegmentIndex(const Points & points, const
   * @param [in] dst_idx destination index
   * @return arc length distance from source to destination along the input points
   */
-MOTION_COMMON_PUBLIC float64_t calcSignedArcLength(const Points & points, const size_t src_idx, const size_t dst_idx);
+MOTION_COMMON_PUBLIC float64_t calcSignedArcLength(
+  const Points & points, const size_t src_idx,
+  const size_t dst_idx);
 
 /**
   * @brief calculate arc length along points
