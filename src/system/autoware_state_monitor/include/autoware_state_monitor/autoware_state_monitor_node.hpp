@@ -106,7 +106,6 @@ private:
 
   geometry_msgs::msg::PoseStamped::SharedPtr getCurrentPose(
     const tf2_ros::Buffer & tf_buffer);
-  bool isEngaged();
 
   std::shared_ptr<OdometryUpdater> odometry_updater_;
 };

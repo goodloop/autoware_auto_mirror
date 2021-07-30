@@ -162,15 +162,6 @@ void AutowareStateMonitorNode::publishAutowareState(const AutowareState & state)
   pub_autoware_state_->publish(autoware_state_msg);
 }
 
-bool AutowareStateMonitorNode::isEngaged()
-{
-  if (!state_input_.engage) {
-    return false;
-  }
-
-  return state_input_.engage->engage;
-}
-
 AutowareStateMonitorNode::AutowareStateMonitorNode()
 : Node("autoware_state_monitor"),
   tf_buffer_(this->get_clock()),
