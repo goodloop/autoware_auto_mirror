@@ -20,8 +20,16 @@
 #include "common/types.hpp"
 #include "trajectory_follower/visibility_control.hpp"
 
-/// Debug Values used for debugging or controller tuning
+namespace autoware
+{
+namespace motion
+{
+namespace control
+{
+namespace trajectory_follower
+{
 using autoware::common::types::float64_t;
+/// Debug Values used for debugging or controller tuning
 class TRAJECTORY_FOLLOWER_PUBLIC DebugValues
 {
 public:
@@ -90,5 +98,9 @@ public:
 private:
   std::array<float64_t, static_cast<size_t>(TYPE::SIZE)> values_;
 };
+}  // namespace trajectory_follower
+}  // namespace control
+}  // namespace motion
+}  // namespace autoware
 
 #endif  // TRAJECTORY_FOLLOWER__DEBUG_VALUES_HPP_

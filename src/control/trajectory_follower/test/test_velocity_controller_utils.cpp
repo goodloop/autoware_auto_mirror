@@ -24,19 +24,19 @@
 #include "tf2/LinearMath/Quaternion.h"
 #include "tf2_geometry_msgs/tf2_geometry_msgs.h"
 
-namespace vcu = velocity_controller_utils;
+namespace longitudinal_utils = ::autoware::motion::control::trajectory_follower::longitudinal_utils;
 
 TEST(test_velocity_controller_utils, isValidTrajectory) {
   using autoware_auto_msgs::msg::Trajectory;
   using autoware_auto_msgs::msg::TrajectoryPoint;
   Trajectory traj;
   TrajectoryPoint point;
-  EXPECT_FALSE(vcu::isValidTrajectory(traj));
+  EXPECT_FALSE(longitudinal_utils::isValidTrajectory(traj));
   traj.points.push_back(point);
-  EXPECT_TRUE(vcu::isValidTrajectory(traj));
+  EXPECT_TRUE(longitudinal_utils::isValidTrajectory(traj));
   point.x = std::numeric_limits<decltype(TrajectoryPoint::x)>::infinity();
   traj.points.push_back(point);
-  EXPECT_FALSE(vcu::isValidTrajectory(traj));
+  EXPECT_FALSE(longitudinal_utils::isValidTrajectory(traj));
 }
 
 TEST(test_velocity_controller_utils, calcStopDistance) {
@@ -48,14 +48,14 @@ TEST(test_velocity_controller_utils, calcStopDistance) {
   current_pos.y = 0.0;
   Trajectory traj;
   // empty trajectory : exception
-  EXPECT_THROW(vcu::calcStopDistance(current_pos, traj), std::invalid_argument);
+  EXPECT_THROW(longitudinal_utils::calcStopDistance(current_pos, traj), std::invalid_argument);
   // one point trajectory : exception
   TrajectoryPoint point;
   point.x = 0.0;
   point.y = 0.0;
   point.longitudinal_velocity_mps = 0.0;
   traj.points.push_back(point);
-  EXPECT_THROW(vcu::calcStopDistance(current_pos, traj), std::out_of_range);
+  EXPECT_THROW(longitudinal_utils::calcStopDistance(current_pos, traj), std::out_of_range);
   traj.points.clear();
   // non stopping trajectory: stop distance = trajectory length
   point.x = 0.0;
@@ -70,7 +70,7 @@ TEST(test_velocity_controller_utils, calcStopDistance) {
   point.y = 0.0;
   point.longitudinal_velocity_mps = 1.0;
   traj.points.push_back(point);
-  EXPECT_EQ(vcu::calcStopDistance(current_pos, traj), 2.0);
+  EXPECT_EQ(longitudinal_utils::calcStopDistance(current_pos, traj), 2.0);
   // stopping trajectory: stop distance = length until stopping point
   point.x = 3.0;
   point.y = 0.0;
@@ -84,15 +84,15 @@ TEST(test_velocity_controller_utils, calcStopDistance) {
   point.y = 0.0;
   point.longitudinal_velocity_mps = 0.0;
   traj.points.push_back(point);
-  EXPECT_EQ(vcu::calcStopDistance(current_pos, traj), 3.0);
+  EXPECT_EQ(longitudinal_utils::calcStopDistance(current_pos, traj), 3.0);
 }
 
 TEST(test_velocity_controller_utils, getPitchByPose) {
   tf2::Quaternion quaternion_tf;
   quaternion_tf.setRPY(0.0, 0.0, 0.0);
-  EXPECT_EQ(vcu::getPitchByPose(tf2::toMsg(quaternion_tf)), 0.0);
+  EXPECT_EQ(longitudinal_utils::getPitchByPose(tf2::toMsg(quaternion_tf)), 0.0);
   quaternion_tf.setRPY(0.0, 1.0, 0.0);
-  EXPECT_EQ(vcu::getPitchByPose(tf2::toMsg(quaternion_tf)), 1.0);
+  EXPECT_EQ(longitudinal_utils::getPitchByPose(tf2::toMsg(quaternion_tf)), 1.0);
 }
 
 // TODO(Maxime CLEMENT): update when z is added to the trajectory points
@@ -127,16 +127,24 @@ TEST(test_velocity_controller_utils, getPitchByTraj) {
   // point.z = 0.5;
   traj.points.push_back(point);
   size_t closest_idx = 0;
-  EXPECT_DOUBLE_EQ(std::abs(vcu::getPitchByTraj(traj, closest_idx, wheel_base)), /*M_PI_4*/ 0.0);
+  EXPECT_DOUBLE_EQ(
+    std::abs(
+      longitudinal_utils::getPitchByTraj(
+        traj, closest_idx,
+        wheel_base)), /*M_PI_4*/ 0.0);
   closest_idx = 1;
-  EXPECT_DOUBLE_EQ(std::abs(vcu::getPitchByTraj(traj, closest_idx, wheel_base)), /*M_PI_4*/ 0.0);
+  EXPECT_DOUBLE_EQ(
+    std::abs(
+      longitudinal_utils::getPitchByTraj(
+        traj, closest_idx,
+        wheel_base)), /*M_PI_4*/ 0.0);
   closest_idx = 2;
   EXPECT_DOUBLE_EQ(
-    std::abs(vcu::getPitchByTraj(traj, closest_idx, wheel_base)),
+    std::abs(longitudinal_utils::getPitchByTraj(traj, closest_idx, wheel_base)),
     /*std::atan2(0.5, 1)*/ 0.0);
   closest_idx = 3;
   EXPECT_DOUBLE_EQ(
-    std::abs(vcu::getPitchByTraj(traj, closest_idx, wheel_base)),
+    std::abs(longitudinal_utils::getPitchByTraj(traj, closest_idx, wheel_base)),
     /*std::atan2(0.5, 1)*/ 0.0);
 }
 
@@ -148,23 +156,23 @@ TEST(test_velocity_controller_utils, calcElevationAngle) {
   TrajectoryPoint p_to;
   p_to.x = 1.0;
   p_to.y = 0.0;
-  EXPECT_DOUBLE_EQ(vcu::calcElevationAngle(p_from, p_to), 0.0);
+  EXPECT_DOUBLE_EQ(longitudinal_utils::calcElevationAngle(p_from, p_to), 0.0);
   p_to.x = 1.0;
   /* TODO(Maxime CLEMENT): uncomment when z is added to trajectory points
   p_to.z = 1.0;
-  EXPECT_DOUBLE_EQ(vcu::calcElevationAngle(p_from, p_to), -M_PI_4);
+  EXPECT_DOUBLE_EQ(longitudinal_utils::calcElevationAngle(p_from, p_to), -M_PI_4);
   p_to.x = -1.0;
   p_to.z = 1.0;
-  EXPECT_DOUBLE_EQ(vcu::calcElevationAngle(p_from, p_to), -M_PI_4);
+  EXPECT_DOUBLE_EQ(longitudinal_utils::calcElevationAngle(p_from, p_to), -M_PI_4);
   p_to.x = 0.0;
   p_to.z = 1.0;
-  EXPECT_DOUBLE_EQ(vcu::calcElevationAngle(p_from, p_to), -M_PI_2);
+  EXPECT_DOUBLE_EQ(longitudinal_utils::calcElevationAngle(p_from, p_to), -M_PI_2);
   p_to.x = 1.0;
   p_to.z = -1.0;
-  EXPECT_DOUBLE_EQ(vcu::calcElevationAngle(p_from, p_to), M_PI_4);
+  EXPECT_DOUBLE_EQ(longitudinal_utils::calcElevationAngle(p_from, p_to), M_PI_4);
   p_to.x = -1.0;
   p_to.z = -1.0;
-  EXPECT_DOUBLE_EQ(vcu::calcElevationAngle(p_from, p_to), M_PI_4);
+  EXPECT_DOUBLE_EQ(longitudinal_utils::calcElevationAngle(p_from, p_to), M_PI_4);
   */
 }
 
@@ -182,21 +190,23 @@ TEST(test_velocity_controller_utils, calcPoseAfterTimeDelay) {
   // With a delay and/or a velocity of 0.0 there is no change of position
   double delay_time = 0.0;
   double current_vel = 0.0;
-  Pose delayed_pose = vcu::calcPoseAfterTimeDelay(current_pose, delay_time, current_vel);
+  Pose delayed_pose = longitudinal_utils::calcPoseAfterTimeDelay(
+    current_pose, delay_time,
+    current_vel);
   EXPECT_NEAR(delayed_pose.position.x, current_pose.position.x, abs_err);
   EXPECT_NEAR(delayed_pose.position.y, current_pose.position.y, abs_err);
   EXPECT_NEAR(delayed_pose.position.z, current_pose.position.z, abs_err);
 
   delay_time = 1.0;
   current_vel = 0.0;
-  delayed_pose = vcu::calcPoseAfterTimeDelay(current_pose, delay_time, current_vel);
+  delayed_pose = longitudinal_utils::calcPoseAfterTimeDelay(current_pose, delay_time, current_vel);
   EXPECT_NEAR(delayed_pose.position.x, current_pose.position.x, abs_err);
   EXPECT_NEAR(delayed_pose.position.y, current_pose.position.y, abs_err);
   EXPECT_NEAR(delayed_pose.position.z, current_pose.position.z, abs_err);
 
   delay_time = 0.0;
   current_vel = 1.0;
-  delayed_pose = vcu::calcPoseAfterTimeDelay(current_pose, delay_time, current_vel);
+  delayed_pose = longitudinal_utils::calcPoseAfterTimeDelay(current_pose, delay_time, current_vel);
   EXPECT_NEAR(delayed_pose.position.x, current_pose.position.x, abs_err);
   EXPECT_NEAR(delayed_pose.position.y, current_pose.position.y, abs_err);
   EXPECT_NEAR(delayed_pose.position.z, current_pose.position.z, abs_err);
@@ -204,7 +214,7 @@ TEST(test_velocity_controller_utils, calcPoseAfterTimeDelay) {
   // With both delay and velocity: change of position
   delay_time = 1.0;
   current_vel = 1.0;
-  delayed_pose = vcu::calcPoseAfterTimeDelay(current_pose, delay_time, current_vel);
+  delayed_pose = longitudinal_utils::calcPoseAfterTimeDelay(current_pose, delay_time, current_vel);
   EXPECT_NEAR(delayed_pose.position.x, current_pose.position.x + current_vel * delay_time, abs_err);
   EXPECT_NEAR(delayed_pose.position.y, current_pose.position.y, abs_err);
   EXPECT_NEAR(delayed_pose.position.z, current_pose.position.z, abs_err);
@@ -212,21 +222,21 @@ TEST(test_velocity_controller_utils, calcPoseAfterTimeDelay) {
   // Vary the yaw
   quaternion_tf.setRPY(0.0, 0.0, M_PI);
   current_pose.orientation = tf2::toMsg(quaternion_tf);
-  delayed_pose = vcu::calcPoseAfterTimeDelay(current_pose, delay_time, current_vel);
+  delayed_pose = longitudinal_utils::calcPoseAfterTimeDelay(current_pose, delay_time, current_vel);
   EXPECT_NEAR(delayed_pose.position.x, current_pose.position.x - current_vel * delay_time, abs_err);
   EXPECT_NEAR(delayed_pose.position.y, current_pose.position.y, abs_err);
   EXPECT_NEAR(delayed_pose.position.z, current_pose.position.z, abs_err);
 
   quaternion_tf.setRPY(0.0, 0.0, M_PI_2);
   current_pose.orientation = tf2::toMsg(quaternion_tf);
-  delayed_pose = vcu::calcPoseAfterTimeDelay(current_pose, delay_time, current_vel);
+  delayed_pose = longitudinal_utils::calcPoseAfterTimeDelay(current_pose, delay_time, current_vel);
   EXPECT_NEAR(delayed_pose.position.x, current_pose.position.x, abs_err);
   EXPECT_NEAR(delayed_pose.position.y, current_pose.position.y + current_vel * delay_time, abs_err);
   EXPECT_NEAR(delayed_pose.position.z, current_pose.position.z, abs_err);
 
   quaternion_tf.setRPY(0.0, 0.0, -M_PI_2);
   current_pose.orientation = tf2::toMsg(quaternion_tf);
-  delayed_pose = vcu::calcPoseAfterTimeDelay(current_pose, delay_time, current_vel);
+  delayed_pose = longitudinal_utils::calcPoseAfterTimeDelay(current_pose, delay_time, current_vel);
   EXPECT_NEAR(delayed_pose.position.x, current_pose.position.x, abs_err);
   EXPECT_NEAR(delayed_pose.position.y, current_pose.position.y - current_vel * delay_time, abs_err);
   EXPECT_NEAR(delayed_pose.position.z, current_pose.position.z, abs_err);
@@ -234,7 +244,7 @@ TEST(test_velocity_controller_utils, calcPoseAfterTimeDelay) {
   // Vary the pitch : no effect /!\ NOTE: bug with roll of +-PI/2 which rotates the yaw by PI
   quaternion_tf.setRPY(0.0, M_PI_4, 0.0);
   current_pose.orientation = tf2::toMsg(quaternion_tf);
-  delayed_pose = vcu::calcPoseAfterTimeDelay(current_pose, delay_time, current_vel);
+  delayed_pose = longitudinal_utils::calcPoseAfterTimeDelay(current_pose, delay_time, current_vel);
   EXPECT_NEAR(delayed_pose.position.x, current_pose.position.x + current_vel * delay_time, abs_err);
   EXPECT_NEAR(delayed_pose.position.y, current_pose.position.y, abs_err);
   EXPECT_NEAR(delayed_pose.position.z, current_pose.position.z, abs_err);
@@ -242,7 +252,7 @@ TEST(test_velocity_controller_utils, calcPoseAfterTimeDelay) {
   // Vary the roll : no effect
   quaternion_tf.setRPY(M_PI_2, 0.0, 0.0);
   current_pose.orientation = tf2::toMsg(quaternion_tf);
-  delayed_pose = vcu::calcPoseAfterTimeDelay(current_pose, delay_time, current_vel);
+  delayed_pose = longitudinal_utils::calcPoseAfterTimeDelay(current_pose, delay_time, current_vel);
   EXPECT_NEAR(delayed_pose.position.x, current_pose.position.x + current_vel * delay_time, abs_err);
   EXPECT_NEAR(delayed_pose.position.y, current_pose.position.y, abs_err);
   EXPECT_NEAR(delayed_pose.position.z, current_pose.position.z, abs_err);
@@ -262,7 +272,7 @@ TEST(test_velocity_controller_utils, lerpOrientation) {
   o_to.setRPY(M_PI_4, M_PI_4, M_PI_4);
 
   ratio = 0.0;
-  result = vcu::lerpOrientation(tf2::toMsg(o_from), tf2::toMsg(o_to), ratio);
+  result = longitudinal_utils::lerpOrientation(tf2::toMsg(o_from), tf2::toMsg(o_to), ratio);
   tf2::convert(result, o_result);
   tf2::Matrix3x3(o_result).getRPY(roll, pitch, yaw);
   EXPECT_DOUBLE_EQ(roll, 0.0);
@@ -270,7 +280,7 @@ TEST(test_velocity_controller_utils, lerpOrientation) {
   EXPECT_DOUBLE_EQ(yaw, 0.0);
 
   ratio = 1.0;
-  result = vcu::lerpOrientation(tf2::toMsg(o_from), tf2::toMsg(o_to), ratio);
+  result = longitudinal_utils::lerpOrientation(tf2::toMsg(o_from), tf2::toMsg(o_to), ratio);
   tf2::convert(result, o_result);
   tf2::Matrix3x3(o_result).getRPY(roll, pitch, yaw);
   EXPECT_DOUBLE_EQ(roll, M_PI_4);
@@ -279,7 +289,7 @@ TEST(test_velocity_controller_utils, lerpOrientation) {
 
   ratio = 0.5;
   o_to.setRPY(M_PI_4, 0.0, 0.0);
-  result = vcu::lerpOrientation(tf2::toMsg(o_from), tf2::toMsg(o_to), ratio);
+  result = longitudinal_utils::lerpOrientation(tf2::toMsg(o_from), tf2::toMsg(o_to), ratio);
   tf2::convert(result, o_result);
   tf2::Matrix3x3(o_result).getRPY(roll, pitch, yaw);
   EXPECT_DOUBLE_EQ(roll, M_PI_4 / 2);
@@ -287,7 +297,7 @@ TEST(test_velocity_controller_utils, lerpOrientation) {
   EXPECT_DOUBLE_EQ(yaw, 0.0);
 
   o_to.setRPY(0.0, M_PI_4, 0.0);
-  result = vcu::lerpOrientation(tf2::toMsg(o_from), tf2::toMsg(o_to), ratio);
+  result = longitudinal_utils::lerpOrientation(tf2::toMsg(o_from), tf2::toMsg(o_to), ratio);
   tf2::convert(result, o_result);
   tf2::Matrix3x3(o_result).getRPY(roll, pitch, yaw);
   EXPECT_DOUBLE_EQ(roll, 0.0);
@@ -295,7 +305,7 @@ TEST(test_velocity_controller_utils, lerpOrientation) {
   EXPECT_DOUBLE_EQ(yaw, 0.0);
 
   o_to.setRPY(0.0, 0.0, M_PI_4);
-  result = vcu::lerpOrientation(tf2::toMsg(o_from), tf2::toMsg(o_to), ratio);
+  result = longitudinal_utils::lerpOrientation(tf2::toMsg(o_from), tf2::toMsg(o_to), ratio);
   tf2::convert(result, o_result);
   tf2::Matrix3x3(o_result).getRPY(roll, pitch, yaw);
   EXPECT_DOUBLE_EQ(roll, 0.0);
@@ -335,7 +345,7 @@ TEST(test_velocity_controller_utils, lerpTrajectoryPoint) {
   // Points on the trajectory gives back the original trajectory points values
   point.x = 0.0;
   point.y = 0.0;
-  result = vcu::lerpTrajectoryPoint(points, point);
+  result = longitudinal_utils::lerpTrajectoryPoint(points, point);
   EXPECT_NEAR(result.x, point.x, abs_err);
   EXPECT_NEAR(result.y, point.y, abs_err);
   EXPECT_NEAR(result.longitudinal_velocity_mps, 10.0, abs_err);
@@ -343,7 +353,7 @@ TEST(test_velocity_controller_utils, lerpTrajectoryPoint) {
 
   point.x = 1.0;
   point.y = 0.0;
-  result = vcu::lerpTrajectoryPoint(points, point);
+  result = longitudinal_utils::lerpTrajectoryPoint(points, point);
   EXPECT_NEAR(result.x, point.x, abs_err);
   EXPECT_NEAR(result.y, point.y, abs_err);
   EXPECT_NEAR(result.longitudinal_velocity_mps, 20.0, abs_err);
@@ -351,7 +361,7 @@ TEST(test_velocity_controller_utils, lerpTrajectoryPoint) {
 
   point.x = 1.0;
   point.y = 1.0;
-  result = vcu::lerpTrajectoryPoint(points, point);
+  result = longitudinal_utils::lerpTrajectoryPoint(points, point);
   EXPECT_NEAR(result.x, point.x, abs_err);
   EXPECT_NEAR(result.y, point.y, abs_err);
   EXPECT_NEAR(result.longitudinal_velocity_mps, 30.0, abs_err);
@@ -359,7 +369,7 @@ TEST(test_velocity_controller_utils, lerpTrajectoryPoint) {
 
   point.x = 2.0;
   point.y = 1.0;
-  result = vcu::lerpTrajectoryPoint(points, point);
+  result = longitudinal_utils::lerpTrajectoryPoint(points, point);
   EXPECT_NEAR(result.x, point.x, abs_err);
   EXPECT_NEAR(result.y, point.y, abs_err);
   EXPECT_NEAR(result.longitudinal_velocity_mps, 40.0, abs_err);
@@ -368,14 +378,14 @@ TEST(test_velocity_controller_utils, lerpTrajectoryPoint) {
   // Interpolate between trajectory points
   point.x = 0.5;
   point.y = 0.0;
-  result = vcu::lerpTrajectoryPoint(points, point);
+  result = longitudinal_utils::lerpTrajectoryPoint(points, point);
   EXPECT_NEAR(result.x, point.x, abs_err);
   EXPECT_NEAR(result.y, point.y, abs_err);
   EXPECT_NEAR(result.longitudinal_velocity_mps, 15.0, abs_err);
   EXPECT_NEAR(result.acceleration_mps2, 15.0, abs_err);
   point.x = 0.75;
   point.y = 0.0;
-  result = vcu::lerpTrajectoryPoint(points, point);
+  result = longitudinal_utils::lerpTrajectoryPoint(points, point);
 
   EXPECT_NEAR(result.x, point.x, abs_err);
   EXPECT_NEAR(result.y, point.y, abs_err);
@@ -385,7 +395,7 @@ TEST(test_velocity_controller_utils, lerpTrajectoryPoint) {
   // Interpolate away from the trajectory (interpolated point is projected)
   point.x = 0.5;
   point.y = -1.0;
-  result = vcu::lerpTrajectoryPoint(points, point);
+  result = longitudinal_utils::lerpTrajectoryPoint(points, point);
   EXPECT_NEAR(result.x, point.x, abs_err);
   EXPECT_NEAR(result.y, 0.0, abs_err);
   EXPECT_NEAR(result.longitudinal_velocity_mps, 15.0, abs_err);
@@ -394,7 +404,7 @@ TEST(test_velocity_controller_utils, lerpTrajectoryPoint) {
   // Ambiguous projections: possibility with the lowest index is used
   point.x = 0.5;
   point.y = 0.5;
-  result = vcu::lerpTrajectoryPoint(points, point);
+  result = longitudinal_utils::lerpTrajectoryPoint(points, point);
   EXPECT_NEAR(result.x, point.x, abs_err);
   EXPECT_NEAR(result.y, 0.0, abs_err);
   EXPECT_NEAR(result.longitudinal_velocity_mps, 15.0, abs_err);
@@ -408,27 +418,47 @@ TEST(test_velocity_controller, applyDiffLimitFilter) {
   double prev_val = 0.0;
 
   double input_val = 10.0;
-  EXPECT_DOUBLE_EQ(vcu::applyDiffLimitFilter(input_val, prev_val, dt, max_val, min_val), 0.0);
+  EXPECT_DOUBLE_EQ(
+    longitudinal_utils::applyDiffLimitFilter(
+      input_val, prev_val, dt, max_val,
+      min_val), 0.0);
 
   max_val = 1.0;  // can only increase by up to 1.0 at a time
-  EXPECT_DOUBLE_EQ(vcu::applyDiffLimitFilter(input_val, prev_val, dt, max_val, min_val), 1.0);
+  EXPECT_DOUBLE_EQ(
+    longitudinal_utils::applyDiffLimitFilter(
+      input_val, prev_val, dt, max_val,
+      min_val), 1.0);
 
   input_val = -10.0;
-  EXPECT_DOUBLE_EQ(vcu::applyDiffLimitFilter(input_val, prev_val, dt, max_val, min_val), 0.0);
+  EXPECT_DOUBLE_EQ(
+    longitudinal_utils::applyDiffLimitFilter(
+      input_val, prev_val, dt, max_val,
+      min_val), 0.0);
 
   min_val = -1.0;  // can decrease by up to -1.0 at a time
-  EXPECT_DOUBLE_EQ(vcu::applyDiffLimitFilter(input_val, prev_val, dt, max_val, min_val), -1.0);
+  EXPECT_DOUBLE_EQ(
+    longitudinal_utils::applyDiffLimitFilter(
+      input_val, prev_val, dt, max_val,
+      min_val), -1.0);
 
   dt = 5.0;  // can now increase/decrease 5 times more
   input_val = 10.0;
-  EXPECT_DOUBLE_EQ(vcu::applyDiffLimitFilter(input_val, prev_val, dt, max_val, min_val), 5.0);
+  EXPECT_DOUBLE_EQ(
+    longitudinal_utils::applyDiffLimitFilter(
+      input_val, prev_val, dt, max_val,
+      min_val), 5.0);
   input_val = -10.0;
-  EXPECT_DOUBLE_EQ(vcu::applyDiffLimitFilter(input_val, prev_val, dt, max_val, min_val), -5.0);
+  EXPECT_DOUBLE_EQ(
+    longitudinal_utils::applyDiffLimitFilter(
+      input_val, prev_val, dt, max_val,
+      min_val), -5.0);
 
   dt = 1.0;
   input_val = 100.0;
   for (double prev = 0.0; prev < 100.0; ++prev) {
-    const double new_val = vcu::applyDiffLimitFilter(input_val, prev, dt, max_val, min_val);
+    const double new_val = longitudinal_utils::applyDiffLimitFilter(
+      input_val, prev, dt, max_val,
+      min_val);
     EXPECT_DOUBLE_EQ(new_val, prev + max_val);
     prev = new_val;
   }

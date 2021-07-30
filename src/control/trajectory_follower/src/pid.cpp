@@ -19,6 +19,14 @@
 
 #include "trajectory_follower/pid.hpp"
 
+namespace autoware
+{
+namespace motion
+{
+namespace control
+{
+namespace trajectory_follower
+{
 PIDController::PIDController()
 : error_integral_(0.0), prev_error_(0.0), is_first_time_(true) {}
 
@@ -87,3 +95,7 @@ void PIDController::reset()
   prev_error_ = 0.0;
   is_first_time_ = true;
 }
+}  // namespace trajectory_follower
+}  // namespace control
+}  // namespace motion
+}  // namespace autoware

@@ -18,7 +18,15 @@
 
 #include "trajectory_follower/velocity_controller_utils.hpp"
 
-namespace velocity_controller_utils
+namespace autoware
+{
+namespace motion
+{
+namespace control
+{
+namespace trajectory_follower
+{
+namespace longitudinal_utils
 {
 bool isValidTrajectory(const Trajectory & traj)
 {
@@ -78,7 +86,7 @@ double getPitchByTraj(
       helper_functions::calcDist2d(trajectory.points.at(nearest_idx), trajectory.points.at(i));
     if (dist > wheel_base) {
       // calculate pitch from trajectory between rear wheel (nearest) and front center (i)
-      return velocity_controller_utils::calcElevationAngle(
+      return calcElevationAngle(
         trajectory.points.at(nearest_idx), trajectory.points.at(i));
     }
   }
@@ -91,7 +99,7 @@ double getPitchByTraj(
     if (dist > wheel_base) {
       // calculate pitch from trajectory
       // between wheelbase behind the end of trajectory (i) and the end of trajectory (back)
-      return velocity_controller_utils::calcElevationAngle(
+      return calcElevationAngle(
         trajectory.points.at(i), trajectory.points.back());
     }
   }
@@ -163,5 +171,8 @@ double applyDiffLimitFilter(
   const double min_val = -max_val;
   return applyDiffLimitFilter(input_val, prev_val, dt, max_val, min_val);
 }
-
-}  // namespace velocity_controller_utils
+}  // namespace longitudinal_utils
+}  // namespace trajectory_follower
+}  // namespace control
+}  // namespace motion
+}  // namespace autoware
