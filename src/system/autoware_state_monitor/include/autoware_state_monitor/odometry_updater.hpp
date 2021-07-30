@@ -30,6 +30,7 @@ class AUTOWARE_STATE_MONITOR_PUBLIC OdometryUpdater
 public:
   /// \brief Create odometry updater
   /// \param odometry_buffer stores odometry values
+  /// \param buffer_length_sec length of the buffer in seconds
   OdometryUpdater(OdometryBuffer & odometry_buffer, double buffer_length_sec);
 
   /// \brief Add new odometry message to buffer
