@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef VELOCITY_CONTROLLER__PID_HPP_
-#define VELOCITY_CONTROLLER__PID_HPP_
+#ifndef TRAJECTORY_FOLLOWER__PID_HPP_
+#define TRAJECTORY_FOLLOWER__PID_HPP_
 
 #include <vector>
 
@@ -86,4 +86,4 @@ private:
   bool is_first_time_;
 };
 
-#endif  // VELOCITY_CONTROLLER__PID_HPP_
+#endif  // TRAJECTORY_FOLLOWER__PID_HPP_
