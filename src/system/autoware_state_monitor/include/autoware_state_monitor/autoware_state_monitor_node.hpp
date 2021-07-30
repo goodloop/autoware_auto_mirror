@@ -17,6 +17,7 @@
 #define AUTOWARE_STATE_MONITOR__AUTOWARE_STATE_MONITOR_NODE_HPP_
 
 #include <memory>
+#include <string>
 
 // ROS
 #include "geometry_msgs/msg/pose_stamped.hpp"
@@ -27,7 +28,6 @@
 
 // Autoware
 #include "autoware_auto_msgs/msg/autoware_state.hpp"
-#include "autoware_auto_msgs/msg/emergency_mode.hpp"
 #include "autoware_auto_msgs/msg/engage.hpp"
 #include "autoware_auto_msgs/msg/had_map_route.hpp"
 #include "autoware_auto_msgs/msg/vehicle_odometry.hpp"
@@ -42,35 +42,41 @@ namespace autoware
 namespace state_monitor
 {
 
+/// \brief A node for monitoring the state of Autoware system
 class AutowareStateMonitorNode : public rclcpp::Node
 {
 public:
   AutowareStateMonitorNode();
 
 private:
-  // Parameter
+  using VehicleStateReport = autoware_auto_msgs::msg::VehicleStateReport;
+  using VehicleOdometry = autoware_auto_msgs::msg::VehicleOdometry;
+  using HADMapRoute = autoware_auto_msgs::msg::HADMapRoute;
+  using Engage = autoware_auto_msgs::msg::Engage;
+
+  // Parameters
   double update_rate_;
+  std::string local_frame_;
+  std::string global_frame_;
 
   // TF
   tf2_ros::Buffer tf_buffer_;
   tf2_ros::TransformListener tf_listener_;
-  geometry_msgs::msg::PoseStamped::ConstSharedPtr current_pose_;
 
   // CallbackGroups
   rclcpp::CallbackGroup::SharedPtr callback_group_subscribers_;
   rclcpp::CallbackGroup::SharedPtr callback_group_services_;
 
   // Subscriber
-  rclcpp::Subscription<autoware_auto_msgs::msg::Engage>::SharedPtr sub_engage_;
-  rclcpp::Subscription<autoware_auto_msgs::msg::VehicleStateReport>::SharedPtr
-    sub_vehicle_state_report_;
-  rclcpp::Subscription<autoware_auto_msgs::msg::HADMapRoute>::SharedPtr sub_route_;
-  rclcpp::Subscription<autoware_auto_msgs::msg::VehicleOdometry>::SharedPtr sub_odometry_;
+  rclcpp::Subscription<Engage>::SharedPtr sub_engage_;
+  rclcpp::Subscription<VehicleStateReport>::SharedPtr sub_vehicle_state_report_;
+  rclcpp::Subscription<HADMapRoute>::SharedPtr sub_route_;
+  rclcpp::Subscription<VehicleOdometry>::SharedPtr sub_odometry_;
 
-  void onAutowareEngage(const autoware_auto_msgs::msg::Engage::ConstSharedPtr msg);
-  void onVehicleStateReport(const autoware_auto_msgs::msg::VehicleStateReport::ConstSharedPtr msg);
-  void onRoute(const autoware_auto_msgs::msg::HADMapRoute::ConstSharedPtr msg);
-  void onOdometry(const autoware_auto_msgs::msg::VehicleOdometry::ConstSharedPtr msg);
+  void onAutowareEngage(const Engage::ConstSharedPtr msg);
+  void onVehicleStateReport(const VehicleStateReport::ConstSharedPtr msg);
+  void onRoute(const HADMapRoute::ConstSharedPtr msg);
+  void onVehicleOdometry(const VehicleOdometry::ConstSharedPtr msg);
 
   // Service
   rclcpp::Service<std_srvs::srv::Trigger>::SharedPtr srv_shutdown_;
@@ -83,7 +89,11 @@ private:
   // Publisher
   rclcpp::Publisher<autoware_auto_msgs::msg::AutowareState>::SharedPtr pub_autoware_state_;
 
+  geometry_msgs::msg::PoseStamped::SharedPtr getCurrentPose(
+    const tf2_ros::Buffer & tf_buffer);
   bool isEngaged();
+  AutowareState updateState();
+  void publishAutowareState(const AutowareState & state);
 
   // Timer
   void onTimer();

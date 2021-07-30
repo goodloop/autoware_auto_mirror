@@ -25,6 +25,7 @@ namespace autoware
 namespace state_monitor
 {
 
+/// \brief Defines all possible states of the Autoware system
 enum class AutowareState : uint8_t
 {
   InitializingVehicle = 1,
