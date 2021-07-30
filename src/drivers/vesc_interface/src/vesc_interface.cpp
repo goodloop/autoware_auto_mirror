@@ -25,14 +25,20 @@ namespace vesc_interface
   VESCInterface::VESCInterface(
     rclcpp::Node &node
   )
+  : m_logger{node.get_logger()}
   {
     /// \todo : Write up the initializer.
   }
 
   bool8_t VESCInterface::update(std::chrono::nanoseconds timeout)
-{
+  {
     return true;
-}
+  }
 
+  bool8_t VESCInterface::send_control_command(const RawControlCommand &msg)
+  {
+    /// \todo: Log Error, Not Implemented.
+    RCLCPP_WARN(m_logger, "Cannot control the VESC using RawControlCommand");
+  }
 }  // namespace vesc_interface
 }  // namespace autoware
