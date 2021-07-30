@@ -13,12 +13,11 @@
 // limitations under the License.
 
 #include <limits>
-#include <vector>
 
 #include "gtest/gtest.h"
-#include "velocity_controller/velocity_controller_utils.hpp"
-#include "autoware_planning_msgs/msg/trajectory.hpp"
-#include "autoware_planning_msgs/msg/trajectory_point.hpp"
+#include "trajectory_follower/velocity_controller_utils.hpp"
+#include "autoware_auto_msgs/msg/trajectory.hpp"
+#include "autoware_auto_msgs/msg/trajectory_point.hpp"
 #include "geometry_msgs/msg/point.hpp"
 #include "geometry_msgs/msg/pose.hpp"
 #include "geometry_msgs/msg/quaternion.hpp"
@@ -28,21 +27,21 @@
 namespace vcu = velocity_controller_utils;
 
 TEST(test_velocity_controller_utils, isValidTrajectory) {
-  using autoware_planning_msgs::msg::Trajectory;
-  using autoware_planning_msgs::msg::TrajectoryPoint;
+  using autoware_auto_msgs::msg::Trajectory;
+  using autoware_auto_msgs::msg::TrajectoryPoint;
   Trajectory traj;
   TrajectoryPoint point;
   EXPECT_FALSE(vcu::isValidTrajectory(traj));
   traj.points.push_back(point);
   EXPECT_TRUE(vcu::isValidTrajectory(traj));
-  point.pose.position.x = std::numeric_limits<double>::infinity();
+  point.x = std::numeric_limits<decltype(TrajectoryPoint::x)>::infinity();
   traj.points.push_back(point);
   EXPECT_FALSE(vcu::isValidTrajectory(traj));
 }
 
 TEST(test_velocity_controller_utils, calcStopDistance) {
-  using autoware_planning_msgs::msg::Trajectory;
-  using autoware_planning_msgs::msg::TrajectoryPoint;
+  using autoware_auto_msgs::msg::Trajectory;
+  using autoware_auto_msgs::msg::TrajectoryPoint;
   using geometry_msgs::msg::Point;
   Point current_pos;
   current_pos.x = 0.0;
@@ -52,38 +51,38 @@ TEST(test_velocity_controller_utils, calcStopDistance) {
   EXPECT_THROW(vcu::calcStopDistance(current_pos, traj), std::invalid_argument);
   // one point trajectory : exception
   TrajectoryPoint point;
-  point.pose.position.x = 0.0;
-  point.pose.position.y = 0.0;
-  point.twist.linear.x = 0.0;
+  point.x = 0.0;
+  point.y = 0.0;
+  point.longitudinal_velocity_mps = 0.0;
   traj.points.push_back(point);
   EXPECT_THROW(vcu::calcStopDistance(current_pos, traj), std::out_of_range);
   traj.points.clear();
   // non stopping trajectory: stop distance = trajectory length
-  point.pose.position.x = 0.0;
-  point.pose.position.y = 0.0;
-  point.twist.linear.x = 1.0;
+  point.x = 0.0;
+  point.y = 0.0;
+  point.longitudinal_velocity_mps = 1.0;
   traj.points.push_back(point);
-  point.pose.position.x = 1.0;
-  point.pose.position.y = 0.0;
-  point.twist.linear.x = 1.0;
+  point.x = 1.0;
+  point.y = 0.0;
+  point.longitudinal_velocity_mps = 1.0;
   traj.points.push_back(point);
-  point.pose.position.x = 2.0;
-  point.pose.position.y = 0.0;
-  point.twist.linear.x = 1.0;
+  point.x = 2.0;
+  point.y = 0.0;
+  point.longitudinal_velocity_mps = 1.0;
   traj.points.push_back(point);
   EXPECT_EQ(vcu::calcStopDistance(current_pos, traj), 2.0);
   // stopping trajectory: stop distance = length until stopping point
-  point.pose.position.x = 3.0;
-  point.pose.position.y = 0.0;
-  point.twist.linear.x = 0.0;
+  point.x = 3.0;
+  point.y = 0.0;
+  point.longitudinal_velocity_mps = 0.0;
   traj.points.push_back(point);
-  point.pose.position.x = 4.0;
-  point.pose.position.y = 0.0;
-  point.twist.linear.x = 1.0;
+  point.x = 4.0;
+  point.y = 0.0;
+  point.longitudinal_velocity_mps = 1.0;
   traj.points.push_back(point);
-  point.pose.position.x = 5.0;
-  point.pose.position.y = 0.0;
-  point.twist.linear.x = 0.0;
+  point.x = 5.0;
+  point.y = 0.0;
+  point.longitudinal_velocity_mps = 0.0;
   traj.points.push_back(point);
   EXPECT_EQ(vcu::calcStopDistance(current_pos, traj), 3.0);
 }
@@ -96,9 +95,10 @@ TEST(test_velocity_controller_utils, getPitchByPose) {
   EXPECT_EQ(vcu::getPitchByPose(tf2::toMsg(quaternion_tf)), 1.0);
 }
 
+// TODO(Maxime CLEMENT): update when z is added to the trajectory points
 TEST(test_velocity_controller_utils, getPitchByTraj) {
-  using autoware_planning_msgs::msg::Trajectory;
-  using autoware_planning_msgs::msg::TrajectoryPoint;
+  using autoware_auto_msgs::msg::Trajectory;
+  using autoware_auto_msgs::msg::TrajectoryPoint;
   const double wheel_base = 0.9;
   /**
    * Trajectory:
@@ -109,49 +109,48 @@ TEST(test_velocity_controller_utils, getPitchByTraj) {
    */
   Trajectory traj;
   TrajectoryPoint point;
-  point.pose.position.x = 0.0;
-  point.pose.position.y = 0.0;
-  point.pose.position.z = 0.0;
+  point.x = 0.0;
+  point.y = 0.0;
+  // point.z = 0.0;
   traj.points.push_back(point);
   // non stopping trajectory: stop distance = trajectory length
-  point.pose.position.x = 1.0;
-  point.pose.position.y = 0.0;
-  point.pose.position.z = 1.0;
+  point.x = 1.0;
+  point.y = 0.0;
+  // point.z = 1.0;
   traj.points.push_back(point);
-  point.pose.position.x = 2.0;
-  point.pose.position.y = 0.0;
-  point.pose.position.z = 0.0;
+  point.x = 2.0;
+  point.y = 0.0;
+  // point.z = 0.0;
   traj.points.push_back(point);
-  point.pose.position.x = 3.0;
-  point.pose.position.y = 0.0;
-  point.pose.position.z = 0.5;
+  point.x = 3.0;
+  point.y = 0.0;
+  // point.z = 0.5;
   traj.points.push_back(point);
   size_t closest_idx = 0;
-  EXPECT_DOUBLE_EQ(std::abs(vcu::getPitchByTraj(traj, closest_idx, wheel_base)), M_PI_4);
+  EXPECT_DOUBLE_EQ(std::abs(vcu::getPitchByTraj(traj, closest_idx, wheel_base)), /*M_PI_4*/ 0.0);
   closest_idx = 1;
-  EXPECT_DOUBLE_EQ(std::abs(vcu::getPitchByTraj(traj, closest_idx, wheel_base)), M_PI_4);
+  EXPECT_DOUBLE_EQ(std::abs(vcu::getPitchByTraj(traj, closest_idx, wheel_base)), /*M_PI_4*/ 0.0);
   closest_idx = 2;
   EXPECT_DOUBLE_EQ(
     std::abs(vcu::getPitchByTraj(traj, closest_idx, wheel_base)),
-    std::atan2(0.5, 1));
+    /*std::atan2(0.5, 1)*/ 0.0);
   closest_idx = 3;
   EXPECT_DOUBLE_EQ(
     std::abs(vcu::getPitchByTraj(traj, closest_idx, wheel_base)),
-    std::atan2(0.5, 1));
+    /*std::atan2(0.5, 1)*/ 0.0);
 }
 
 TEST(test_velocity_controller_utils, calcElevationAngle) {
-  using geometry_msgs::msg::Point;
-  Point p_from;
+  using autoware_auto_msgs::msg::TrajectoryPoint;
+  TrajectoryPoint p_from;
   p_from.x = 0.0;
   p_from.y = 0.0;
-  p_from.z = 0.0;
-  Point p_to;
+  TrajectoryPoint p_to;
   p_to.x = 1.0;
   p_to.y = 0.0;
-  p_to.z = 0.0;
   EXPECT_DOUBLE_EQ(vcu::calcElevationAngle(p_from, p_to), 0.0);
   p_to.x = 1.0;
+  /* TODO(Maxime CLEMENT): uncomment when z is added to trajectory points
   p_to.z = 1.0;
   EXPECT_DOUBLE_EQ(vcu::calcElevationAngle(p_from, p_to), -M_PI_4);
   p_to.x = -1.0;
@@ -166,6 +165,7 @@ TEST(test_velocity_controller_utils, calcElevationAngle) {
   p_to.x = -1.0;
   p_to.z = -1.0;
   EXPECT_DOUBLE_EQ(vcu::calcElevationAngle(p_from, p_to), M_PI_4);
+  */
 }
 
 TEST(test_velocity_controller_utils, calcPoseAfterTimeDelay) {
@@ -248,17 +248,6 @@ TEST(test_velocity_controller_utils, calcPoseAfterTimeDelay) {
   EXPECT_NEAR(delayed_pose.position.z, current_pose.position.z, abs_err);
 }
 
-TEST(test_velocity_controller_utils, lerp) {
-  EXPECT_EQ(vcu::lerp(0.0, 1.0, 0.5), 0.5);
-  EXPECT_EQ(vcu::lerp(0.0, 1.0, 0.0), 0.0);
-  EXPECT_EQ(vcu::lerp(0.0, 1.0, 1.0), 1.0);
-  EXPECT_EQ(vcu::lerp(0.0, 1.0, 4.5), 4.5);
-  EXPECT_EQ(vcu::lerp(1.0, 2.0, 0.5), 1.5);
-  EXPECT_EQ(vcu::lerp(1.0, 2.0, 0.75), 1.75);
-  EXPECT_EQ(vcu::lerp(0.0, -2.0, 0.75), -1.5);
-  EXPECT_EQ(vcu::lerp(-10.0, -5.0, 0.5), -7.5);
-}
-
 TEST(test_velocity_controller_utils, lerpOrientation) {
   geometry_msgs::msg::Quaternion result;
   tf2::Quaternion o_from;
@@ -315,30 +304,30 @@ TEST(test_velocity_controller_utils, lerpOrientation) {
 }
 
 TEST(test_velocity_controller_utils, lerpTrajectoryPoint) {
-  using autoware_planning_msgs::msg::TrajectoryPoint;
+  using autoware_auto_msgs::msg::TrajectoryPoint;
   using geometry_msgs::msg::Point;
   const double abs_err = 1e-15;
-  std::vector<TrajectoryPoint> points;
+  decltype(autoware_auto_msgs::msg::Trajectory::points) points;
   TrajectoryPoint p;
-  p.pose.position.x = 0.0;
-  p.pose.position.y = 0.0;
-  p.twist.linear.x = 10.0;
-  p.accel.linear.x = 10.0;
+  p.x = 0.0;
+  p.y = 0.0;
+  p.longitudinal_velocity_mps = 10.0;
+  p.acceleration_mps2 = 10.0;
   points.push_back(p);
-  p.pose.position.x = 1.0;
-  p.pose.position.y = 0.0;
-  p.twist.linear.x = 20.0;
-  p.accel.linear.x = 20.0;
+  p.x = 1.0;
+  p.y = 0.0;
+  p.longitudinal_velocity_mps = 20.0;
+  p.acceleration_mps2 = 20.0;
   points.push_back(p);
-  p.pose.position.x = 1.0;
-  p.pose.position.y = 1.0;
-  p.twist.linear.x = 30.0;
-  p.accel.linear.x = 30.0;
+  p.x = 1.0;
+  p.y = 1.0;
+  p.longitudinal_velocity_mps = 30.0;
+  p.acceleration_mps2 = 30.0;
   points.push_back(p);
-  p.pose.position.x = 2.0;
-  p.pose.position.y = 1.0;
-  p.twist.linear.x = 40.0;
-  p.accel.linear.x = 40.0;
+  p.x = 2.0;
+  p.y = 1.0;
+  p.longitudinal_velocity_mps = 40.0;
+  p.acceleration_mps2 = 40.0;
   points.push_back(p);
   TrajectoryPoint result;
   Point point;
@@ -347,69 +336,69 @@ TEST(test_velocity_controller_utils, lerpTrajectoryPoint) {
   point.x = 0.0;
   point.y = 0.0;
   result = vcu::lerpTrajectoryPoint(points, point);
-  EXPECT_NEAR(result.pose.position.x, point.x, abs_err);
-  EXPECT_NEAR(result.pose.position.y, point.y, abs_err);
-  EXPECT_NEAR(result.twist.linear.x, 10.0, abs_err);
-  EXPECT_NEAR(result.accel.linear.x, 10.0, abs_err);
+  EXPECT_NEAR(result.x, point.x, abs_err);
+  EXPECT_NEAR(result.y, point.y, abs_err);
+  EXPECT_NEAR(result.longitudinal_velocity_mps, 10.0, abs_err);
+  EXPECT_NEAR(result.acceleration_mps2, 10.0, abs_err);
 
   point.x = 1.0;
   point.y = 0.0;
   result = vcu::lerpTrajectoryPoint(points, point);
-  EXPECT_NEAR(result.pose.position.x, point.x, abs_err);
-  EXPECT_NEAR(result.pose.position.y, point.y, abs_err);
-  EXPECT_NEAR(result.twist.linear.x, 20.0, abs_err);
-  EXPECT_NEAR(result.accel.linear.x, 20.0, abs_err);
+  EXPECT_NEAR(result.x, point.x, abs_err);
+  EXPECT_NEAR(result.y, point.y, abs_err);
+  EXPECT_NEAR(result.longitudinal_velocity_mps, 20.0, abs_err);
+  EXPECT_NEAR(result.acceleration_mps2, 20.0, abs_err);
 
   point.x = 1.0;
   point.y = 1.0;
   result = vcu::lerpTrajectoryPoint(points, point);
-  EXPECT_NEAR(result.pose.position.x, point.x, abs_err);
-  EXPECT_NEAR(result.pose.position.y, point.y, abs_err);
-  EXPECT_NEAR(result.twist.linear.x, 30.0, abs_err);
-  EXPECT_NEAR(result.accel.linear.x, 30.0, abs_err);
+  EXPECT_NEAR(result.x, point.x, abs_err);
+  EXPECT_NEAR(result.y, point.y, abs_err);
+  EXPECT_NEAR(result.longitudinal_velocity_mps, 30.0, abs_err);
+  EXPECT_NEAR(result.acceleration_mps2, 30.0, abs_err);
 
   point.x = 2.0;
   point.y = 1.0;
   result = vcu::lerpTrajectoryPoint(points, point);
-  EXPECT_NEAR(result.pose.position.x, point.x, abs_err);
-  EXPECT_NEAR(result.pose.position.y, point.y, abs_err);
-  EXPECT_NEAR(result.twist.linear.x, 40.0, abs_err);
-  EXPECT_NEAR(result.accel.linear.x, 40.0, abs_err);
+  EXPECT_NEAR(result.x, point.x, abs_err);
+  EXPECT_NEAR(result.y, point.y, abs_err);
+  EXPECT_NEAR(result.longitudinal_velocity_mps, 40.0, abs_err);
+  EXPECT_NEAR(result.acceleration_mps2, 40.0, abs_err);
 
   // Interpolate between trajectory points
   point.x = 0.5;
   point.y = 0.0;
   result = vcu::lerpTrajectoryPoint(points, point);
-  EXPECT_NEAR(result.pose.position.x, point.x, abs_err);
-  EXPECT_NEAR(result.pose.position.y, point.y, abs_err);
-  EXPECT_NEAR(result.twist.linear.x, 15.0, abs_err);
-  EXPECT_NEAR(result.accel.linear.x, 15.0, abs_err);
+  EXPECT_NEAR(result.x, point.x, abs_err);
+  EXPECT_NEAR(result.y, point.y, abs_err);
+  EXPECT_NEAR(result.longitudinal_velocity_mps, 15.0, abs_err);
+  EXPECT_NEAR(result.acceleration_mps2, 15.0, abs_err);
   point.x = 0.75;
   point.y = 0.0;
   result = vcu::lerpTrajectoryPoint(points, point);
 
-  EXPECT_NEAR(result.pose.position.x, point.x, abs_err);
-  EXPECT_NEAR(result.pose.position.y, point.y, abs_err);
-  EXPECT_NEAR(result.twist.linear.x, 17.5, abs_err);
-  EXPECT_NEAR(result.accel.linear.x, 17.5, abs_err);
+  EXPECT_NEAR(result.x, point.x, abs_err);
+  EXPECT_NEAR(result.y, point.y, abs_err);
+  EXPECT_NEAR(result.longitudinal_velocity_mps, 17.5, abs_err);
+  EXPECT_NEAR(result.acceleration_mps2, 17.5, abs_err);
 
   // Interpolate away from the trajectory (interpolated point is projected)
   point.x = 0.5;
   point.y = -1.0;
   result = vcu::lerpTrajectoryPoint(points, point);
-  EXPECT_NEAR(result.pose.position.x, point.x, abs_err);
-  EXPECT_NEAR(result.pose.position.y, 0.0, abs_err);
-  EXPECT_NEAR(result.twist.linear.x, 15.0, abs_err);
-  EXPECT_NEAR(result.accel.linear.x, 15.0, abs_err);
+  EXPECT_NEAR(result.x, point.x, abs_err);
+  EXPECT_NEAR(result.y, 0.0, abs_err);
+  EXPECT_NEAR(result.longitudinal_velocity_mps, 15.0, abs_err);
+  EXPECT_NEAR(result.acceleration_mps2, 15.0, abs_err);
 
   // Ambiguous projections: possibility with the lowest index is used
   point.x = 0.5;
   point.y = 0.5;
   result = vcu::lerpTrajectoryPoint(points, point);
-  EXPECT_NEAR(result.pose.position.x, point.x, abs_err);
-  EXPECT_NEAR(result.pose.position.y, 0.0, abs_err);
-  EXPECT_NEAR(result.twist.linear.x, 15.0, abs_err);
-  EXPECT_NEAR(result.accel.linear.x, 15.0, abs_err);
+  EXPECT_NEAR(result.x, point.x, abs_err);
+  EXPECT_NEAR(result.y, 0.0, abs_err);
+  EXPECT_NEAR(result.longitudinal_velocity_mps, 15.0, abs_err);
+  EXPECT_NEAR(result.acceleration_mps2, 15.0, abs_err);
 }
 
 TEST(test_velocity_controller, applyDiffLimitFilter) {

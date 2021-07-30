@@ -13,23 +13,21 @@
 // limitations under the License.
 
 #include <algorithm>
+#include <experimental/optional>
 #include <limits>
 
-#include "velocity_controller/velocity_controller_utils.hpp"
+#include "trajectory_follower/velocity_controller_utils.hpp"
 
 namespace velocity_controller_utils
 {
 bool isValidTrajectory(const Trajectory & traj)
 {
-  for (const auto & points : traj.points) {
-    const auto & p = points.pose.position;
-    const auto & o = points.pose.orientation;
-    const auto & t = points.twist.linear;
-    const auto & a = points.accel.linear;
+  for (const auto & p : traj.points) {
     if (
-      !isfinite(p.x) || !isfinite(p.y) || !isfinite(p.z) || !isfinite(o.x) || !isfinite(o.y) ||
-      !isfinite(o.z) || !isfinite(o.w) || !isfinite(t.x) || !isfinite(t.y) || !isfinite(t.z) ||
-      !isfinite(a.x) || !isfinite(a.y) || !isfinite(a.z))
+      !isfinite(p.x) || !isfinite(p.y) || /* !isfinite(p.z) || */
+      !isfinite(p.heading.real) || !isfinite(p.heading.imag) ||
+      !isfinite(p.longitudinal_velocity_mps) || !isfinite(p.lateral_velocity_mps) ||
+      !isfinite(p.acceleration_mps2) || !isfinite(p.heading_rate_rps))
     {
       return false;
     }
@@ -46,14 +44,15 @@ bool isValidTrajectory(const Trajectory & traj)
 double calcStopDistance(
   const Point & current_pos, const Trajectory & traj)
 {
-  const boost::optional<size_t> stop_idx_opt = autoware_utils::searchZeroVelocityIndex(traj.points);
+  const std::experimental::optional<size_t> stop_idx_opt =
+    trajectory_common::searchZeroVelocityIndex(traj.points);
 
   // If no zero velocity point, return the length between current_pose to the end of trajectory.
   if (!stop_idx_opt) {
-    return autoware_utils::calcSignedArcLength(traj.points, current_pos, traj.points.size() - 1);
+    return trajectory_common::calcSignedArcLength(traj.points, current_pos, traj.points.size() - 1);
   }
 
-  return autoware_utils::calcSignedArcLength(traj.points, current_pos, *stop_idx_opt);
+  return trajectory_common::calcSignedArcLength(traj.points, current_pos, *stop_idx_opt);
 }
 
 double getPitchByPose(const Quaternion & quaternion)
@@ -68,6 +67,7 @@ double getPitchByPose(const Quaternion & quaternion)
 double getPitchByTraj(
   const Trajectory & trajectory, const size_t nearest_idx, const double wheel_base)
 {
+  namespace helper_functions = ::autoware::common::helper_functions;
   // cannot calculate pitch
   if (trajectory.points.size() <= 1) {
     return 0.0;
@@ -75,40 +75,39 @@ double getPitchByTraj(
 
   for (size_t i = nearest_idx + 1; i < trajectory.points.size(); ++i) {
     const double dist =
-      autoware_utils::calcDistance2d(
-      trajectory.points.at(nearest_idx).pose, trajectory.points.at(
-        i).pose);
+      helper_functions::calcDist2d(trajectory.points.at(nearest_idx), trajectory.points.at(i));
     if (dist > wheel_base) {
       // calculate pitch from trajectory between rear wheel (nearest) and front center (i)
       return velocity_controller_utils::calcElevationAngle(
-        trajectory.points.at(nearest_idx).pose.position, trajectory.points.at(i).pose.position);
+        trajectory.points.at(nearest_idx), trajectory.points.at(i));
     }
   }
 
   // close to goal
-  for (int i = trajectory.points.size() - 1; i > 0; --i) {
+  for (size_t i = trajectory.points.size() - 1; i > 0; --i) {
     const double dist =
-      autoware_utils::calcDistance2d(trajectory.points.back().pose, trajectory.points.at(i).pose);
+      helper_functions::calcDist2d(trajectory.points.back(), trajectory.points.at(i));
 
     if (dist > wheel_base) {
       // calculate pitch from trajectory
       // between wheelbase behind the end of trajectory (i) and the end of trajectory (back)
       return velocity_controller_utils::calcElevationAngle(
-        trajectory.points.at(i).pose.position, trajectory.points.back().pose.position);
+        trajectory.points.at(i), trajectory.points.back());
     }
   }
 
   // calculate pitch from trajectory between the beginning and end of trajectory
   return calcElevationAngle(
-    trajectory.points.at(0).pose.position,
-    trajectory.points.back().pose.position);
+    trajectory.points.at(0),
+    trajectory.points.back());
 }
 
-double calcElevationAngle(const Point & p_from, const Point & p_to)
+double calcElevationAngle(const TrajectoryPoint & p_from, const TrajectoryPoint & p_to)
 {
   const double dx = p_from.x - p_to.x;
   const double dy = p_from.y - p_to.y;
-  const double dz = p_from.z - p_to.z;
+  // TODO(Maxime CLEMENT): update once z information is added to trajectory points
+  const double dz = /* p_from.z - p_to.z */ 0.0;
 
   const double dxy = std::max(std::hypot(dx, dy), std::numeric_limits<double>::epsilon());
   const double pitch = std::atan2(dz, dxy);
