@@ -32,6 +32,10 @@ OdometryUpdater::OdometryUpdater(
 void OdometryUpdater::update(
   const autoware_auto_msgs::msg::VehicleOdometry::ConstSharedPtr msg)
 {
+  if (!msg) {
+    return;
+  }
+
   odometry_buffer_.push_back(msg);
 
   // Delete old data in buffer
@@ -39,7 +43,7 @@ void OdometryUpdater::update(
     const auto time_diff = rclcpp::Time(msg->stamp) -
       rclcpp::Time(odometry_buffer_.front()->stamp);
 
-    if (time_diff.seconds() < buffer_length_sec_) {
+    if (time_diff.seconds() <= buffer_length_sec_) {
       break;
     }
 

@@ -27,6 +27,7 @@ if(BUILD_TESTING)
   find_package(ament_cmake_gtest REQUIRED)
 
   ament_add_gtest(${PROJECT_NAME}_test
+    test/odometry_updater_test.cpp
     test/state_machine_test.cpp
   )
   target_link_libraries(${PROJECT_NAME}_test ${PROJECT_NAME})

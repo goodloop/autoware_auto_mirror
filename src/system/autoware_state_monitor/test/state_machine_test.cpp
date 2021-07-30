@@ -47,6 +47,7 @@ public:
 
     state_machine.reset(new StateMachine(default_params));
   }
+  ~StateMachineTest() = default;
 
 protected:
   StateInput initializeWithStateAndParams(
@@ -110,7 +111,6 @@ protected:
 
 TEST_F(StateMachineTest, create_destroy)
 {
-  state_machine.reset();
 }
 
 TEST_F(StateMachineTest, initialization_sequence)

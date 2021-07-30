@@ -19,9 +19,11 @@
 #include <memory>
 
 #include "geometry_msgs/msg/pose_stamped.hpp"
+#include "rclcpp/time.hpp"
 
 #include "autoware_auto_msgs/msg/complex32.hpp"
 #include "autoware_auto_msgs/msg/engage.hpp"
+#include "autoware_auto_msgs/msg/had_map_route.hpp"
 #include "autoware_auto_msgs/msg/vehicle_odometry.hpp"
 #include "autoware_auto_msgs/msg/vehicle_state_report.hpp"
 
@@ -43,6 +45,16 @@ inline double distance(
   const auto dy = p1.y - p2.y;
   const auto dz = p1.z - p2.z;
   return std::sqrt(dx * dx + dy * dy + dz * dz);
+}
+
+inline int64_t nanosec(double sec)
+{
+  return static_cast<int64_t>(sec * 1'000'000'000.0);
+}
+
+inline rclcpp::Time toTime(double sec)
+{
+  return rclcpp::Time(nanosec(sec));
 }
 
 inline Engage::SharedPtr prepareEngageMsg(bool engage, rclcpp::Time stamp = {0, 0})
@@ -93,12 +105,14 @@ inline RoutePoint::SharedPtr prepareRoutePointMsg(
 
 inline VehicleOdometry::SharedPtr prepareVehicleOdometryMsg(
   const float velocity_mps = 0, const float front_wheel_angle_rad = 0,
-  const float rear_wheel_angle_rad = 0)
+  const float rear_wheel_angle_rad = 0,
+  const rclcpp::Time & stamp = {0, 0})
 {
   auto msg = std::make_shared<VehicleOdometry>();
   msg->velocity_mps = velocity_mps;
   msg->front_wheel_angle_rad = front_wheel_angle_rad;
   msg->rear_wheel_angle_rad = rear_wheel_angle_rad;
+  msg->stamp = stamp;
   return msg;
 }
 
