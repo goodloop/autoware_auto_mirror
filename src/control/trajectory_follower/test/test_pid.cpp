@@ -15,7 +15,7 @@
 #include <vector>
 
 #include "gtest/gtest.h"
-#include "velocity_controller/pid.hpp"
+#include "trajectory_follower/pid.hpp"
 
 TEST(test_pid, calculate_pid_output) {
   const double dt = 1.0;

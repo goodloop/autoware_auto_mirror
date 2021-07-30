@@ -17,7 +17,7 @@
 
 #include "gtest/gtest.h"
 #include "rclcpp/rclcpp.hpp"
-#include "velocity_controller/smooth_stop.hpp"
+#include "trajectory_follower/smooth_stop.hpp"
 
 TEST(test_smooth_stop, calculate_stopping_acceleration) {
   using rclcpp::Time;

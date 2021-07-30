@@ -16,19 +16,23 @@
 #define VELOCITY_CONTROLLER__SMOOTH_STOP_HPP_
 
 #include <algorithm>
+#include <experimental/optional>
 #include <cmath>
 #include <limits>
 #include <utility>
 #include <vector>
 
-#include "boost/optional.hpp"
+#include "common/types.hpp"
 #include "rclcpp/rclcpp.hpp"
+#include "trajectory_follower/visibility_control.hpp"
 
 
+using autoware::common::types::float64_t;
+using autoware::common::types::bool8_t;
 /**
  * @brief Smooth stop class to implement vehicle specific deceleration profiles
  */
-class SmoothStop
+class TRAJECTORY_FOLLOWER_PUBLIC SmoothStop
 {
 public:
   /**
@@ -36,12 +40,12 @@ public:
    * @param [in] pred_vel_in_target predicted ego velocity when the stop command will be executed
    * @param [in] pred_stop_dist predicted stop distance when the stop command will be executed
    */
-  void init(const double pred_vel_in_target, const double pred_stop_dist)
+  void init(const float64_t pred_vel_in_target, const float64_t pred_stop_dist)
   {
     weak_acc_time_ = rclcpp::Clock{RCL_ROS_TIME}.now();
 
     // when distance to stopline is near the car
-    if (pred_stop_dist < std::numeric_limits<double>::epsilon()) {
+    if (pred_stop_dist < std::numeric_limits<float64_t>::epsilon()) {
       strong_acc_ = params_.min_strong_acc;
       return;
     }
@@ -65,9 +69,10 @@ public:
    * @param [in] strong_stop_dist distance to the stop point bellow which a strong accel is applied [m]
    */
   void setParams(
-    double max_strong_acc, double min_strong_acc, double weak_acc, double weak_stop_acc,
-    double strong_stop_acc, double min_fast_vel, double min_running_vel, double min_running_acc,
-    double weak_stop_time, double weak_stop_dist, double strong_stop_dist)
+    float64_t max_strong_acc, float64_t min_strong_acc, float64_t weak_acc, float64_t weak_stop_acc,
+    float64_t strong_stop_acc, float64_t min_fast_vel, float64_t min_running_vel,
+    float64_t min_running_acc,
+    float64_t weak_stop_time, float64_t weak_stop_dist, float64_t strong_stop_dist)
   {
     params_.max_strong_acc = max_strong_acc;
     params_.min_strong_acc = min_strong_acc;
@@ -87,26 +92,26 @@ public:
   /**
    * @brief predict time when car stops by fitting some latest observed velocity history
    *        with linear function (v = at + b)
-   * @param [in] vel_hist history of previous ego velocities as (rclcpp::Time, double[m/s]) pairs
+   * @param [in] vel_hist history of previous ego velocities as (rclcpp::Time, float64_t[m/s]) pairs
    */
-  boost::optional<double> calcTimeToStop(
-    const std::vector<std::pair<rclcpp::Time, double>> & vel_hist) const
+  std::experimental::optional<float64_t> calcTimeToStop(
+    const std::vector<std::pair<rclcpp::Time, float64_t>> & vel_hist) const
   {
     // return when vel_hist is empty
-    const size_t vel_hist_size = vel_hist.size();
-    if (vel_hist_size == 0) {
+    const float64_t vel_hist_size = static_cast<float64_t>(vel_hist.size());
+    if (vel_hist_size == 0.0) {
       return {};
     }
 
     // calculate some variables for fitting
     const rclcpp::Time current_ros_time = rclcpp::Clock{RCL_ROS_TIME}.now();
-    double mean_t = 0.0;
-    double mean_v = 0.0;
-    double sum_tv = 0.0;
-    double sum_tt = 0.0;
+    float64_t mean_t = 0.0;
+    float64_t mean_v = 0.0;
+    float64_t sum_tv = 0.0;
+    float64_t sum_tt = 0.0;
     for (const auto & vel : vel_hist) {
-      const double t = (vel.first - current_ros_time).seconds();
-      const double v = vel.second;
+      const float64_t t = (vel.first - current_ros_time).seconds();
+      const float64_t v = vel.second;
 
       mean_t += t / vel_hist_size;
       mean_v += v / vel_hist_size;
@@ -117,23 +122,23 @@ public:
     // return when gradient a (of v = at + b) cannot be calculated.
     // See the following calculation of a
     if (std::abs(vel_hist_size * mean_t * mean_t - sum_tt) <
-      std::numeric_limits<double>::epsilon())
+      std::numeric_limits<float64_t>::epsilon())
     {
       return {};
     }
 
     // calculate coefficients of linear function (v = at + b)
-    const double a =
+    const float64_t a =
       (vel_hist_size * mean_t * mean_v - sum_tv) / (vel_hist_size * mean_t * mean_t - sum_tt);
-    const double b = mean_v - a * mean_t;
+    const float64_t b = mean_v - a * mean_t;
 
     // return when v is independent of time (v = b)
-    if (std::abs(a) < std::numeric_limits<double>::epsilon()) {
+    if (std::abs(a) < std::numeric_limits<float64_t>::epsilon()) {
       return {};
     }
 
     // calculate time to stop by substituting v = 0 for v = at + b
-    const double time_to_stop = -b / a;
+    const float64_t time_to_stop = -b / a;
     if (time_to_stop > 0) {
       return time_to_stop;
     }
@@ -150,19 +155,19 @@ public:
    * @param [in] stop_dist distance left to travel before stopping [m]
    * @param [in] current_vel current velocity of ego [m/s]
    * @param [in] current_acc current acceleration of ego [m/s²]
-   * @param [in] vel_hist history of previous ego velocities as (rclcpp::Time, double[m/s]) pairs
+   * @param [in] vel_hist history of previous ego velocities as (rclcpp::Time, float64_t[m/s]) pairs
    * @param [in] delay_time assumed time delay when the stop command will actually be executed
    */
-  double calculate(
-    const double stop_dist, const double current_vel, const double current_acc,
-    const std::vector<std::pair<rclcpp::Time, double>> & vel_hist, const double delay_time)
+  float64_t calculate(
+    const float64_t stop_dist, const float64_t current_vel, const float64_t current_acc,
+    const std::vector<std::pair<rclcpp::Time, float64_t>> & vel_hist, const float64_t delay_time)
   {
     // predict time to stop
     const auto time_to_stop = calcTimeToStop(vel_hist);
 
     // calculate some flags
-    const bool is_fast_vel = std::abs(current_vel) > params_.min_fast_vel;
-    const bool is_running = std::abs(current_vel) > params_.min_running_vel ||
+    const bool8_t is_fast_vel = std::abs(current_vel) > params_.min_fast_vel;
+    const bool8_t is_running = std::abs(current_vel) > params_.min_running_vel ||
       std::abs(current_acc) > params_.min_running_acc;
 
     // when exceeding the stopline (stop_dist is negative in these cases.)
@@ -197,23 +202,23 @@ public:
 private:
   struct Params
   {
-    double max_strong_acc;
-    double min_strong_acc;
-    double weak_acc;
-    double weak_stop_acc;
-    double strong_stop_acc;
+    float64_t max_strong_acc;
+    float64_t min_strong_acc;
+    float64_t weak_acc;
+    float64_t weak_stop_acc;
+    float64_t strong_stop_acc;
 
-    double min_fast_vel;
-    double min_running_vel;
-    double min_running_acc;
-    double weak_stop_time;
+    float64_t min_fast_vel;
+    float64_t min_running_vel;
+    float64_t min_running_acc;
+    float64_t weak_stop_time;
 
-    double weak_stop_dist;
-    double strong_stop_dist;
+    float64_t weak_stop_dist;
+    float64_t strong_stop_dist;
   };
   Params params_;
 
-  double strong_acc_;
+  float64_t strong_acc_;
   rclcpp::Time weak_acc_time_;
 };
 
