@@ -44,11 +44,9 @@ def generate_launch_description():
         remappings=[
             ('input/autoware_engage', '/vehicle/engage'),
             ('input/vehicle_state_report', '/vehicle/state_report'),
-            ('input/is_emergency', '/vehicle/emergency/is_emergency'),
             ('input/odometry', '/vehicle/odometry'),
             ('input/route', '/planning/global_path'),
             ('output/autoware_state', '/autoware/state'),
-            ('output/autoware_engage', '/vehicle/engage')
         ]
     )
 
