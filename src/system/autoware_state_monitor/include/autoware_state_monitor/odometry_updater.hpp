@@ -19,6 +19,7 @@
 
 #include "autoware_auto_msgs/msg/vehicle_odometry.hpp"
 #include "autoware_auto_msgs/msg/autoware_state.hpp"
+#include "autoware_state_monitor/visibility_control.hpp"
 
 namespace autoware
 {
@@ -26,19 +27,17 @@ namespace state_monitor
 {
 
 /// \brief Updates odometry buffer by adding new values and removing old to preserve length
-class OdometryUpdater
+class AUTOWARE_STATE_MONITOR_PUBLIC OdometryUpdater
 {
 public:
   using OdometryBuffer = std::deque<autoware_auto_msgs::msg::VehicleOdometry::ConstSharedPtr>;
 
   /// \brief Create odometry updater
   /// \param odometry_buffer stores odometry values
-  __attribute__ ((visibility("default")))
   OdometryUpdater(OdometryBuffer & odometry_buffer, double buffer_length_sec);
 
   /// \brief Add new odometry message to buffer
   /// \param msg vehicle odometry message
-  __attribute__ ((visibility("default")))
   void update(const autoware_auto_msgs::msg::VehicleOdometry::ConstSharedPtr msg);
 
 private:

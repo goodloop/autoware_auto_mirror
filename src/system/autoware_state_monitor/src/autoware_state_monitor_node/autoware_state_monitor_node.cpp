@@ -171,7 +171,6 @@ bool AutowareStateMonitorNode::isEngaged()
   return state_input_.engage->engage;
 }
 
-__attribute__ ((visibility("default")))
 AutowareStateMonitorNode::AutowareStateMonitorNode()
 : Node("autoware_state_monitor"),
   tf_buffer_(this->get_clock()),

@@ -121,13 +121,11 @@ bool StateMachine::isFinalizing() const
   return state_input_.is_finalizing;
 }
 
-__attribute__ ((visibility("default")))
 AutowareState StateMachine::getCurrentState() const
 {
   return autoware_state_;
 }
 
-__attribute__ ((visibility("default")))
 AutowareState StateMachine::updateState(const StateInput & state_input)
 {
   state_input_ = state_input;

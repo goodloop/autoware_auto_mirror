@@ -28,6 +28,7 @@
 #include "autoware_auto_msgs/msg/vehicle_state_report.hpp"
 
 #include "autoware_state_monitor/autoware_state.hpp"
+#include "autoware_state_monitor/visibility_control.hpp"
 
 namespace autoware
 {
@@ -71,7 +72,7 @@ struct StateParam
 };
 
 /// \brief State machine for determining a state of the Autoware system.
-class StateMachine
+class AUTOWARE_STATE_MONITOR_PUBLIC StateMachine
 {
 public:
   /// \brief Construct the state machine.

@@ -47,7 +47,7 @@ TEST_F(OdometryUpdaterTest, add_new_samples)
   EXPECT_EQ(buffer.size(), 1);
   EXPECT_EQ(buffer.front()->velocity_mps, 1.0);
   EXPECT_EQ(buffer.back()->velocity_mps, 1.0);
- 
+
   updater->update(prepareVehicleOdometryMsg(-1.0, 0.0));
   EXPECT_EQ(buffer.size(), 2);
   EXPECT_EQ(buffer.front()->velocity_mps, 1.0);

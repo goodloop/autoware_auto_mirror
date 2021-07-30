@@ -37,6 +37,7 @@
 #include "autoware_state_monitor/autoware_state.hpp"
 #include "autoware_state_monitor/odometry_updater.hpp"
 #include "autoware_state_monitor/state_machine.hpp"
+#include "autoware_state_monitor/visibility_control.hpp"
 
 namespace autoware
 {
@@ -44,7 +45,7 @@ namespace state_monitor
 {
 
 /// \brief A node for monitoring the state of Autoware system
-class AutowareStateMonitorNode : public rclcpp::Node
+class AUTOWARE_STATE_MONITOR_PUBLIC AutowareStateMonitorNode : public rclcpp::Node
 {
 public:
   AutowareStateMonitorNode();
