@@ -20,11 +20,19 @@
 
 namespace autoware
 {
-
-int32_t vesc_interface::print_hello()
+namespace vesc_interface
 {
-  std::cout << "Hello World" << std::endl;
-  return 0;
+  VESCInterface::VESCInterface(
+    rclcpp::Node &node
+  )
+  {
+    /// \todo : Write up the initializer.
+  }
+
+  bool8_t VESCInterface::update(std::chrono::nanoseconds timeout)
+{
+    return true;
 }
 
+}  // namespace vesc_interface
 }  // namespace autoware
