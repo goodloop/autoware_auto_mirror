@@ -16,84 +16,72 @@
 #define VELOCITY_CONTROLLER__VELOCITY_CONTROLLER_UTILS_HPP_
 
 #include <cmath>
+#include <experimental/optional>
 #include <limits>
 
-#include "boost/optional.hpp"
 #include "eigen3/Eigen/Core"
 #include "eigen3/Eigen/Geometry"
 
-#include "autoware_planning_msgs/msg/trajectory.hpp"
-#include "autoware_utils/autoware_utils.hpp"
+#include "autoware_auto_msgs/msg/trajectory.hpp"
 #include "geometry_msgs/msg/pose.hpp"
+#include "helper_functions/message_distance.hpp"
+#include "motion_common/motion_common.hpp"
+#include "motion_common/trajectory_common.hpp"
 #include "tf2/utils.h"
+#include "trajectory_follower/visibility_control.hpp"
 
 namespace velocity_controller_utils
 {
-using autoware_planning_msgs::msg::Trajectory;
-using autoware_planning_msgs::msg::TrajectoryPoint;
+using autoware::common::types::float64_t;
+using autoware::common::types::bool8_t;
+using autoware_auto_msgs::msg::Trajectory;
+using autoware_auto_msgs::msg::TrajectoryPoint;
 using geometry_msgs::msg::Point;
 using geometry_msgs::msg::Pose;
 using geometry_msgs::msg::Quaternion;
+namespace motion_common = ::motion::motion_common;
+namespace trajectory_common = ::autoware::motion::motion_common;
 
 /**
  * @brief check if trajectory is invalid or not
  */
-bool isValidTrajectory(const Trajectory & traj);
+TRAJECTORY_FOLLOWER_PUBLIC bool8_t isValidTrajectory(const Trajectory & traj);
 
 /**
  * @brief calculate distance to stopline from current vehicle position where velocity is 0
  */
-double calcStopDistance(const Point & current_pos, const Trajectory & traj);
+TRAJECTORY_FOLLOWER_PUBLIC float64_t calcStopDistance(
+  const Point & current_pos,
+  const Trajectory & traj);
 
 /**
  * @brief calculate pitch angle from estimated current pose
  */
-double getPitchByPose(const Quaternion & quaternion);
+TRAJECTORY_FOLLOWER_PUBLIC float64_t getPitchByPose(const Quaternion & quaternion);
 
 /**
  * @brief calculate pitch angle from trajectory on map
+ * NOTE: there is currently no z information so this always returns 0.0
  * @param [in] trajectory input trajectory
  * @param [in] closest_idx nearest index to current vehicle position
  * @param [in] wheel_base length of wheel base
  */
-double getPitchByTraj(
+TRAJECTORY_FOLLOWER_PUBLIC float64_t getPitchByTraj(
   const Trajectory & trajectory, const size_t closest_idx,
-  const double wheel_base);
+  const float64_t wheel_base);
 
 /**
  * @brief calculate elevation angle
  */
-double calcElevationAngle(const Point & p_from, const Point & p_to);
+TRAJECTORY_FOLLOWER_PUBLIC float64_t calcElevationAngle(
+  const TrajectoryPoint & p_from,
+  const TrajectoryPoint & p_to);
 
 /**
  * @brief calculate vehicle pose after time delay by moving the vehicle at current velocity for delayed time
  */
-Pose calcPoseAfterTimeDelay(
-  const Pose & current_pose, const double delay_time, const double current_vel);
-
-/**
- * @brief apply linear interpolation
- * @param [in] v_from first value
- * @param [in] v_to second value
- * @param [in] ratio ratio between o_from and o_to for interpolation
- */
-double lerp(const double v_from, const double v_to, const double ratio);
-
-/**
- * @brief apply linear interpolation to position
- * @param [in] p_from first position
- * @param [in] p_to second position
- * @param [in] ratio ratio between o_from and o_to for interpolation
- */
-template<class T>
-T lerpXYZ(const T & p_from, const T & p_to, const double ratio)
-{
-  T point;
-  point.x = lerp(p_from.x, p_to.x, ratio);
-  point.y = lerp(p_from.y, p_to.y, ratio);
-  point.z = lerp(p_from.z, p_to.z, ratio);
-  return point;
-}
+TRAJECTORY_FOLLOWER_PUBLIC Pose calcPoseAfterTimeDelay(
+  const Pose & current_pose, const float64_t delay_time, const float64_t current_vel);
 
 /**
  * @brief apply linear interpolation to orientation
@@ -101,7 +89,10 @@ T lerpXYZ(const T & p_from, const T & p_to, const double ratio)
  * @param [in] o_to second orientation
  * @param [in] ratio ratio between o_from and o_to for interpolation
  */
-Quaternion lerpOrientation(const Quaternion & o_from, const Quaternion & o_to, const double ratio);
+TRAJECTORY_FOLLOWER_PUBLIC Quaternion lerpOrientation(
+  const Quaternion & o_from,
+  const Quaternion & o_to,
+  const float64_t ratio);
 
 /**
  * @brief apply linear interpolation to trajectory point that is nearest to a certain point
@@ -109,33 +100,48 @@ Quaternion lerpOrientation(const Quaternion & o_from, const Quaternion & o_to, c
  * @param [in] point Interpolated point is nearest to this point.
  */
 template<class T>
+TRAJECTORY_FOLLOWER_PUBLIC
 TrajectoryPoint lerpTrajectoryPoint(const T & points, const Point & point)
 {
   TrajectoryPoint interpolated_point;
 
-  const size_t nearest_seg_idx = autoware_utils::findNearestSegmentIndex(points, point);
+  const size_t nearest_seg_idx = trajectory_common::findNearestSegmentIndex(points, point);
 
-  const double len_to_interpolated =
-    autoware_utils::calcLongitudinalOffsetToSegment(points, nearest_seg_idx, point);
-  const double len_segment =
-    autoware_utils::calcSignedArcLength(points, nearest_seg_idx, nearest_seg_idx + 1);
-  const double interpolate_ratio = len_to_interpolated / len_segment;
+  const float64_t len_to_interpolated =
+    trajectory_common::calcLongitudinalOffsetToSegment(points, nearest_seg_idx, point);
+  const float64_t len_segment =
+    trajectory_common::calcSignedArcLength(points, nearest_seg_idx, nearest_seg_idx + 1);
+  const float64_t interpolate_ratio = len_to_interpolated / len_segment;
 
   {
     const size_t i = nearest_seg_idx;
 
-    interpolated_point.pose.position =
-      lerpXYZ(points.at(i).pose.position, points.at(i + 1).pose.position, interpolate_ratio);
-    interpolated_point.pose.orientation = lerpOrientation(
-      points.at(i).pose.orientation, points.at(i + 1).pose.orientation, interpolate_ratio);
-    interpolated_point.twist.linear =
-      lerpXYZ(points.at(i).twist.linear, points.at(i + 1).twist.linear, interpolate_ratio);
-    interpolated_point.twist.angular =
-      lerpXYZ(points.at(i).twist.angular, points.at(i + 1).twist.angular, interpolate_ratio);
-    interpolated_point.accel.linear =
-      lerpXYZ(points.at(i).accel.linear, points.at(i + 1).accel.linear, interpolate_ratio);
-    interpolated_point.accel.angular =
-      lerpXYZ(points.at(i).accel.angular, points.at(i + 1).accel.angular, interpolate_ratio);
+    interpolated_point.x = motion_common::interpolate(
+      points.at(i).x, points.at(
+        i + 1).x, interpolate_ratio);
+    interpolated_point.y = motion_common::interpolate(
+      points.at(i).y, points.at(
+        i + 1).y, interpolate_ratio);
+    interpolated_point.heading = motion_common::from_quat(
+      lerpOrientation(
+        motion_common::to_quat<Quaternion>(points.at(i).heading),
+        motion_common::to_quat<Quaternion>(points.at(i + 1).heading), interpolate_ratio));
+    interpolated_point.longitudinal_velocity_mps =
+      motion_common::interpolate(
+      points.at(i).longitudinal_velocity_mps, points.at(
+        i + 1).longitudinal_velocity_mps, interpolate_ratio);
+    interpolated_point.lateral_velocity_mps =
+      motion_common::interpolate(
+      points.at(i).lateral_velocity_mps, points.at(
+        i + 1).lateral_velocity_mps, interpolate_ratio);
+    interpolated_point.acceleration_mps2 =
+      motion_common::interpolate(
+      points.at(i).acceleration_mps2, points.at(
+        i + 1).acceleration_mps2, interpolate_ratio);
+    interpolated_point.heading_rate_rps =
+      motion_common::interpolate(
+      points.at(i).heading_rate_rps, points.at(
+        i + 1).heading_rate_rps, interpolate_ratio);
   }
 
   return interpolated_point;
@@ -148,8 +154,8 @@ TrajectoryPoint lerpTrajectoryPoint(const T & points, const Point & point)
  * @param [in] dt time between current and previous one
  * @param [in] lim_val limitation value for differential
  */
-double applyDiffLimitFilter(
-  const double input_val, const double prev_val, const double dt, const double lim_val);
+TRAJECTORY_FOLLOWER_PUBLIC float64_t applyDiffLimitFilter(
+  const float64_t input_val, const float64_t prev_val, const float64_t dt, const float64_t lim_val);
 
 /**
  * @brief limit variable whose differential is within a certain value
@@ -159,9 +165,9 @@ double applyDiffLimitFilter(
  * @param [in] max_val maximum value for differential
  * @param [in] min_val minimum value for differential
  */
-double applyDiffLimitFilter(
-  const double input_val, const double prev_val, const double dt, const double max_val,
-  const double min_val);
+TRAJECTORY_FOLLOWER_PUBLIC float64_t applyDiffLimitFilter(
+  const float64_t input_val, const float64_t prev_val, const float64_t dt, const float64_t max_val,
+  const float64_t min_val);
 }  // namespace velocity_controller_utils
 
 #endif  // VELOCITY_CONTROLLER__VELOCITY_CONTROLLER_UTILS_HPP_

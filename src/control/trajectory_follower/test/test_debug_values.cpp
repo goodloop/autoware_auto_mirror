@@ -13,7 +13,7 @@
 // limitations under the License.
 
 #include "gtest/gtest.h"
-#include "velocity_controller/debug_values.hpp"
+#include "trajectory_follower/debug_values.hpp"
 
 TEST(test_debug_values, assign_and_get) {
   DebugValues debug;

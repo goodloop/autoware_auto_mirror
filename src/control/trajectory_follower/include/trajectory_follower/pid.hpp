@@ -17,8 +17,10 @@
 
 #include <vector>
 
+#include "trajectory_follower/visibility_control.hpp"
+
 /// @brief implementation of a PID controller
-class PIDController
+class TRAJECTORY_FOLLOWER_PUBLIC PIDController
 {
 public:
   PIDController();

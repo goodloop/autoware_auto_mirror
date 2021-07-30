@@ -17,7 +17,7 @@
 #include <utility>
 #include <vector>
 
-#include "velocity_controller/pid.hpp"
+#include "trajectory_follower/pid.hpp"
 
 PIDController::PIDController()
 : error_integral_(0.0), prev_error_(0.0), is_first_time_(true) {}
