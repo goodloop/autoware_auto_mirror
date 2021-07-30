@@ -58,13 +58,13 @@ protected:
     }
 
     StateInput input;
-    input.current_time = rclcpp::Time(0, 0);
+    input.current_time = toTime(0.0);
     state_machine->updateState(input);
     if (state == AutowareState::InitializingVehicle) {
       return input;
     }
 
-    input.current_time = rclcpp::Time(2, 0);
+    input.current_time = toTime(2.0);
     state_machine->updateState(input);
     if (state == AutowareState::WaitingForRoute) {
       return input;
@@ -77,7 +77,7 @@ protected:
     }
 
     state_machine->updateState(input);
-    input.current_time = rclcpp::Time(7, 0);
+    input.current_time = toTime(7.0);
     state_machine->updateState(input);
     if (state == AutowareState::WaitingForEngage) {
       return input;
@@ -117,14 +117,14 @@ TEST_F(StateMachineTest, initialization_sequence)
 {
   StateInput input;
   // time: 0s, start initialization
-  input.current_time = rclcpp::Time(0, 0);
+  input.current_time = toTime(0.0);
   EXPECT_EQ(state_machine->updateState(input), AutowareState::InitializingVehicle);
 
   // time: 0s, after initialization SM waits 1s
   EXPECT_EQ(state_machine->updateState(input), AutowareState::InitializingVehicle);
 
   // time: 2s, initialization state should be changed after 2s
-  input.current_time = rclcpp::Time(2, 0);
+  input.current_time = toTime(2.0);
   EXPECT_EQ(state_machine->updateState(input), AutowareState::WaitingForRoute);
 }
 
@@ -134,11 +134,11 @@ TEST_F(StateMachineTest, default_full_sequence)
   //           -> WaitingForEngage -> Driving -> ArrivedGoal --> WaitingForRoute ...
   StateInput input;
   // time: 0s, start initialization
-  input.current_time = rclcpp::Time(0, 0);
+  input.current_time = toTime(0.0);
   EXPECT_EQ(state_machine->updateState(input), AutowareState::InitializingVehicle);
 
   // time: 2s, initialization state should be changed after 2s
-  input.current_time = rclcpp::Time(2, 0);
+  input.current_time = toTime(2.0);
   EXPECT_EQ(state_machine->updateState(input), AutowareState::WaitingForRoute);
 
   // time: 2s, when new route is received then system starts planning
@@ -146,11 +146,11 @@ TEST_F(StateMachineTest, default_full_sequence)
   EXPECT_EQ(state_machine->updateState(input), AutowareState::Planning);
 
   // time: 3s, if planning completed, the system waits 3s before state transition
-  input.current_time = rclcpp::Time(3, 0);
+  input.current_time = toTime(3.0);
   EXPECT_EQ(state_machine->updateState(input), AutowareState::Planning);
 
   // time: 7s
-  input.current_time = rclcpp::Time(7, 0);
+  input.current_time = toTime(7.0);
   EXPECT_EQ(state_machine->updateState(input), AutowareState::WaitingForEngage);
 
   // time 7s, engage set to true and start driving
@@ -167,7 +167,7 @@ TEST_F(StateMachineTest, default_full_sequence)
   EXPECT_EQ(state_machine->updateState(input), AutowareState::ArrivedGoal);
 
   // time 10s, the system waits 2s after goal is reached, then back to WaitingForRoute
-  input.current_time = rclcpp::Time(10, 0);
+  input.current_time = toTime(10.0);
   EXPECT_EQ(state_machine->updateState(input), AutowareState::WaitingForRoute);
 }
 
@@ -376,9 +376,9 @@ TEST_F(StateMachineTest, waiting_after_initializing_vehicle)
 {
   auto input = initializeWithState(AutowareState::InitializingVehicle);
   const float start_time = input.current_time.seconds();
-  input.current_time = rclcpp::Time(start_time + 0.5, 0);
+  input.current_time = toTime(start_time + 0.5);
   EXPECT_EQ(state_machine->updateState(input), AutowareState::InitializingVehicle);
-  input.current_time = rclcpp::Time(start_time + 1.0, 0);
+  input.current_time = toTime(start_time + 1.0);
   EXPECT_EQ(state_machine->updateState(input), AutowareState::WaitingForRoute);
 }
 
@@ -387,9 +387,9 @@ TEST_F(StateMachineTest, waiting_after_planning)
   auto input = initializeWithState(AutowareState::Planning);
   EXPECT_EQ(state_machine->updateState(input), AutowareState::Planning);
   const float start_time = input.current_time.seconds();
-  input.current_time = rclcpp::Time(start_time + 2.0, 0);
+  input.current_time = toTime(start_time + 2.0);
   EXPECT_EQ(state_machine->updateState(input), AutowareState::Planning);
-  input.current_time = rclcpp::Time(start_time + 3.0, 0);
+  input.current_time = toTime(start_time + 3.0);
   EXPECT_EQ(state_machine->updateState(input), AutowareState::WaitingForEngage);
 }
 
@@ -397,9 +397,9 @@ TEST_F(StateMachineTest, waiting_after_arrived_goal)
 {
   auto input = initializeWithState(AutowareState::ArrivedGoal);
   const float start_time = input.current_time.seconds();
-  input.current_time = rclcpp::Time(start_time + 1.0, 0);
+  input.current_time = toTime(start_time + 1.0);
   EXPECT_EQ(state_machine->updateState(input), AutowareState::ArrivedGoal);
-  input.current_time = rclcpp::Time(start_time + 2.0, 0);
+  input.current_time = toTime(start_time + 2.0);
   EXPECT_EQ(state_machine->updateState(input), AutowareState::WaitingForRoute);
 }
 

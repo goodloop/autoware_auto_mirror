@@ -149,7 +149,7 @@ AutowareState StateMachine::judgeAutowareState() const
             break;
           }
 
-          // Wait after initialize completed to avoid sync error
+          // Wait after initialize completed
           const auto time_from_initializing =
             state_input_.current_time - times_.initializing_completed;
           if (time_from_initializing.seconds() >= state_param_.wait_time_after_initializing) {
@@ -178,7 +178,7 @@ AutowareState StateMachine::judgeAutowareState() const
             break;
           }
 
-          // Wait after planning completed to avoid sync error
+          // Wait after planning completed
           const auto time_from_planning = state_input_.current_time - times_.planning_completed;
           if (time_from_planning.seconds() >= state_param_.wait_time_after_planning) {
             flags_.waiting_after_planning = false;
