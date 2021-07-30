@@ -94,19 +94,7 @@ void AutowareStateMonitorNode::onRoute(const HADMapRoute::ConstSharedPtr msg)
 void AutowareStateMonitorNode::onVehicleOdometry(
   const VehicleOdometry::ConstSharedPtr msg)
 {
-  state_input_.odometry_buffer.push_back(msg);
-
-  // Delete old data in buffer
-  while (true) {
-    const auto time_diff = rclcpp::Time(msg->stamp) -
-      rclcpp::Time(state_input_.odometry_buffer.front()->stamp);
-
-    if (time_diff.seconds() < state_param_.th_stopped_time_sec) {
-      break;
-    }
-
-    state_input_.odometry_buffer.pop_front();
-  }
+  odometry_updater_->update(msg);
 }
 
 bool AutowareStateMonitorNode::onShutdownService(
@@ -211,6 +199,10 @@ AutowareStateMonitorNode::AutowareStateMonitorNode()
 
   // State Machine
   state_machine_ = std::make_shared<StateMachine>(state_param_);
+
+  // Odometry Updater
+  odometry_updater_ = std::make_shared<OdometryUpdater>(
+    state_input_.odometry_buffer, state_param_.th_stopped_time_sec);
 
   // Callback Groups
   callback_group_subscribers_ = this->create_callback_group(

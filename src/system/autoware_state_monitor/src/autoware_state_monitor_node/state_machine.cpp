@@ -50,6 +50,32 @@ bool isStopped(
   return true;
 }
 
+OdometryUpdater::OdometryUpdater(
+  OdometryBuffer & odometry_buffer,
+  double buffer_length_sec)
+: odometry_buffer_(odometry_buffer),
+  buffer_length_sec_(buffer_length_sec)
+{}
+
+void OdometryUpdater::update(
+  const autoware_auto_msgs::msg::VehicleOdometry::ConstSharedPtr msg)
+{
+  odometry_buffer_.push_back(msg);
+
+  // Delete old data in buffer
+  while (true) {
+    const auto time_diff = rclcpp::Time(msg->stamp) -
+      rclcpp::Time(odometry_buffer_.front()->stamp);
+
+    if (time_diff.seconds() < buffer_length_sec_) {
+      break;
+    }
+
+    odometry_buffer_.pop_front();
+  }
+}
+
+
 bool StateMachine::isVehicleInitialized() const
 {
   return true;

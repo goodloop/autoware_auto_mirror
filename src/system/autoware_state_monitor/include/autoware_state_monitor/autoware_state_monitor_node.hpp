@@ -61,8 +61,6 @@ private:
   /// Global (parent) frame used during the vehicle pose estimation
   std::string global_frame_;
 
-  double th_stopped_time_sec;
-
   // TF
   tf2_ros::Buffer tf_buffer_;
   tf2_ros::TransformListener tf_listener_;
@@ -93,20 +91,22 @@ private:
   // Publisher
   rclcpp::Publisher<autoware_auto_msgs::msg::AutowareState>::SharedPtr pub_autoware_state_;
 
-  geometry_msgs::msg::PoseStamped::SharedPtr getCurrentPose(
-    const tf2_ros::Buffer & tf_buffer);
-  bool isEngaged();
-  AutowareState updateState();
-  void publishAutowareState(const AutowareState & state);
-
   // Timer
   void onTimer();
   rclcpp::TimerBase::SharedPtr timer_;
 
   // State Machine
+  AutowareState updateState();
+  void publishAutowareState(const AutowareState & state);
   std::shared_ptr<StateMachine> state_machine_;
   StateInput state_input_;
   StateParam state_param_;
+
+  geometry_msgs::msg::PoseStamped::SharedPtr getCurrentPose(
+    const tf2_ros::Buffer & tf_buffer);
+  bool isEngaged();
+
+  std::shared_ptr<OdometryUpdater> odometry_updater_;
 };
 
 }  // namespace state_monitor

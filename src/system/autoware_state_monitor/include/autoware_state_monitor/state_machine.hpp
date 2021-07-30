@@ -34,6 +34,8 @@ namespace autoware
 namespace state_monitor
 {
 
+using OdometryBuffer = std::deque<autoware_auto_msgs::msg::VehicleOdometry::ConstSharedPtr>;
+
 /// \brief Input state of the state machine.
 struct StateInput
 {
@@ -46,8 +48,6 @@ struct StateInput
   autoware_auto_msgs::msg::VehicleStateReport::ConstSharedPtr vehicle_state_report;
   autoware_auto_msgs::msg::HADMapRoute::ConstSharedPtr route;
 
-  using VehicleOdometry = autoware_auto_msgs::msg::VehicleOdometry;
-  using OdometryBuffer = std::deque<VehicleOdometry::ConstSharedPtr>;
   OdometryBuffer odometry_buffer;
 
   bool is_finalizing = false;
@@ -70,12 +70,29 @@ struct StateParam
   double wait_time_after_arrived_goal = 2.0;
 };
 
+/// \brief Updates odometry buffer by adding new values and removing old to preserve length
+class OdometryUpdater
+{
+public:
+  /// \brief Create odometry updater
+  /// \param odometry_buffer stores odometry values
+  OdometryUpdater(OdometryBuffer & odometry_buffer, double buffer_length_sec);
+
+  /// \brief Add new odometry message to buffer
+  /// \param msg vehicle odometry message
+  void update(const autoware_auto_msgs::msg::VehicleOdometry::ConstSharedPtr msg);
+
+private:
+  OdometryBuffer & odometry_buffer_;
+  double buffer_length_sec_;
+};
+
 /// \brief State machine for determining a state of the Autoware system.
 class StateMachine
 {
 public:
   /// \brief Construct the state machine.
-  /// \param The set of parameters used by state machine.
+  /// \param state_param The set of parameters used by state machine.
   explicit StateMachine(const StateParam & state_param)
   : state_param_(state_param) {}
 
@@ -84,7 +101,7 @@ public:
   AutowareState getCurrentState() const;
 
   /// \brief Update the state machine.
-  /// \param Input values used during the determination of the new state.
+  /// \param state_input Input values used during the determination of the new state.
   /// \return A state after the state machine update.
   AutowareState updateState(const StateInput & state_input);
 
