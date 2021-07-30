@@ -12,36 +12,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef AUTOWARE_STATE_MONITOR__ODOMETRY_UPDATER_HPP_
-#define AUTOWARE_STATE_MONITOR__ODOMETRY_UPDATER_HPP_
+#ifndef AUTOWARE_STATE_MONITOR__ODOMETRY_BUFFER_HPP_
+#define AUTOWARE_STATE_MONITOR__ODOMETRY_BUFFER_HPP_
+
+#include <deque>
 
 #include "autoware_auto_msgs/msg/vehicle_odometry.hpp"
 #include "autoware_state_monitor/visibility_control.hpp"
-#include "autoware_state_monitor/odometry_buffer.hpp"
 
 namespace autoware
 {
 namespace state_monitor
 {
 
-/// \brief Updates odometry buffer by adding new values and removing old to preserve length
-class AUTOWARE_STATE_MONITOR_PUBLIC OdometryUpdater
-{
-public:
-  /// \brief Create odometry updater
-  /// \param odometry_buffer stores odometry values
-  OdometryUpdater(OdometryBuffer & odometry_buffer, double buffer_length_sec);
-
-  /// \brief Add new odometry message to buffer
-  /// \param msg vehicle odometry message
-  void update(const autoware_auto_msgs::msg::VehicleOdometry::ConstSharedPtr msg);
-
-private:
-  OdometryBuffer & odometry_buffer_;
-  double buffer_length_sec_;
-};
+/// \brief Buffer for odometry messages storage
+using OdometryBuffer = std::deque<autoware_auto_msgs::msg::VehicleOdometry::ConstSharedPtr>;
 
 }  // namespace state_monitor
 }  // namespace autoware
 
-#endif  // AUTOWARE_STATE_MONITOR__ODOMETRY_UPDATER_HPP_
+#endif  // AUTOWARE_STATE_MONITOR__ODOMETRY_BUFFER_HPP_

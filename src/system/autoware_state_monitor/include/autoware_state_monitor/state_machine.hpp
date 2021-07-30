@@ -16,18 +16,16 @@
 #ifndef AUTOWARE_STATE_MONITOR__STATE_MACHINE_HPP_
 #define AUTOWARE_STATE_MONITOR__STATE_MACHINE_HPP_
 
-#include <deque>
-
 #include "geometry_msgs/msg/pose_stamped.hpp"
 #include "rclcpp/time.hpp"
 
 #include "autoware_auto_msgs/msg/autoware_state.hpp"
 #include "autoware_auto_msgs/msg/engage.hpp"
 #include "autoware_auto_msgs/msg/had_map_route.hpp"
-#include "autoware_auto_msgs/msg/vehicle_odometry.hpp"
 #include "autoware_auto_msgs/msg/vehicle_state_report.hpp"
 
 #include "autoware_state_monitor/autoware_state.hpp"
+#include "autoware_state_monitor/odometry_buffer.hpp"
 #include "autoware_state_monitor/visibility_control.hpp"
 
 namespace autoware
@@ -38,8 +36,6 @@ namespace state_monitor
 /// \brief Input state of the state machine.
 struct StateInput
 {
-  using OdometryBuffer = std::deque<autoware_auto_msgs::msg::VehicleOdometry::ConstSharedPtr>;
-
   rclcpp::Time current_time;
 
   geometry_msgs::msg::PoseStamped::ConstSharedPtr current_pose;

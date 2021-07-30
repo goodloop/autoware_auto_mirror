@@ -18,8 +18,10 @@
 
 #include "gtest/gtest.h"
 
+#include "autoware_state_monitor/odometry_buffer.hpp"
 #include "test_utils.hpp"
 
+using autoware::state_monitor::OdometryBuffer;
 using autoware::state_monitor::OdometryUpdater;
 
 class OdometryUpdaterTest : public ::testing::Test
@@ -32,7 +34,7 @@ public:
   ~OdometryUpdaterTest() = default;
 
   double buffer_length_sec = 1.0;
-  OdometryUpdater::OdometryBuffer buffer;
+  OdometryBuffer buffer;
   std::shared_ptr<OdometryUpdater> updater;
 };
 

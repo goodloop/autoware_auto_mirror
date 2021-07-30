@@ -16,7 +16,6 @@
 #include "autoware_state_monitor/state_machine.hpp"
 
 #include <cmath>
-#include <deque>
 
 namespace autoware
 {
@@ -39,7 +38,7 @@ bool isNearGoal(
 }
 
 bool isStopped(
-  const std::deque<autoware_auto_msgs::msg::VehicleOdometry::ConstSharedPtr> & odometry_buffer,
+  const OdometryBuffer & odometry_buffer,
   const double th_stopped_velocity_mps)
 {
   for (const auto & odometry : odometry_buffer) {
