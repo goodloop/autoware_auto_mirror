@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef VELOCITY_CONTROLLER__VELOCITY_CONTROLLER_UTILS_HPP_
-#define VELOCITY_CONTROLLER__VELOCITY_CONTROLLER_UTILS_HPP_
+#ifndef TRAJECTORY_FOLLOWER__VELOCITY_CONTROLLER_UTILS_HPP_
+#define TRAJECTORY_FOLLOWER__VELOCITY_CONTROLLER_UTILS_HPP_
 
-#include <cmath>
 #include <experimental/optional>
+#include <cmath>
 #include <limits>
 
 #include "eigen3/Eigen/Core"
@@ -170,4 +170,4 @@ TRAJECTORY_FOLLOWER_PUBLIC float64_t applyDiffLimitFilter(
   const float64_t min_val);
 }  // namespace velocity_controller_utils
 
-#endif  // VELOCITY_CONTROLLER__VELOCITY_CONTROLLER_UTILS_HPP_
+#endif  // TRAJECTORY_FOLLOWER__VELOCITY_CONTROLLER_UTILS_HPP_

@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef VELOCITY_CONTROLLER__SMOOTH_STOP_HPP_
-#define VELOCITY_CONTROLLER__SMOOTH_STOP_HPP_
+#ifndef TRAJECTORY_FOLLOWER__SMOOTH_STOP_HPP_
+#define TRAJECTORY_FOLLOWER__SMOOTH_STOP_HPP_
 
-#include <algorithm>
 #include <experimental/optional>
+#include <algorithm>
 #include <cmath>
 #include <limits>
 #include <utility>
@@ -222,4 +222,4 @@ private:
   rclcpp::Time weak_acc_time_;
 };
 
-#endif  // VELOCITY_CONTROLLER__SMOOTH_STOP_HPP_
+#endif  // TRAJECTORY_FOLLOWER__SMOOTH_STOP_HPP_

@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <algorithm>
 #include <experimental/optional>
+#include <algorithm>
 #include <limits>
 
 #include "trajectory_follower/velocity_controller_utils.hpp"

@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef VELOCITY_CONTROLLER__DEBUG_VALUES_HPP_
-#define VELOCITY_CONTROLLER__DEBUG_VALUES_HPP_
+#ifndef TRAJECTORY_FOLLOWER__DEBUG_VALUES_HPP_
+#define TRAJECTORY_FOLLOWER__DEBUG_VALUES_HPP_
 
 #include <array>
 
@@ -91,4 +91,4 @@ private:
   std::array<float64_t, static_cast<size_t>(TYPE::SIZE)> values_;
 };
 
-#endif  // VELOCITY_CONTROLLER__DEBUG_VALUES_HPP_
+#endif  // TRAJECTORY_FOLLOWER__DEBUG_VALUES_HPP_
