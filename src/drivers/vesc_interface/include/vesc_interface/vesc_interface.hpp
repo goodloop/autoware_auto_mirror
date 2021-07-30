@@ -102,6 +102,8 @@ protected:
 
 private:
 
+    rclcpp::Logger m_logger;
+}; // class VESCInterface
 
 }  // namespace vesc_interface
 }  // namespace autoware
