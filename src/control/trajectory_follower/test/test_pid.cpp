@@ -18,6 +18,7 @@
 #include "trajectory_follower/pid.hpp"
 
 TEST(test_pid, calculate_pid_output) {
+  using ::autoware::motion::control::trajectory_follower::PIDController;
   const double dt = 1.0;
   double target = 10.0;
   double current = 0.0;
