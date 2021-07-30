@@ -56,8 +56,12 @@ private:
 
   // Parameters
   double update_rate_;
+  /// Local (child) frame used during the vehicle pose estimation
   std::string local_frame_;
+  /// Global (parent) frame used during the vehicle pose estimation
   std::string global_frame_;
+
+  double th_stopped_time_sec;
 
   // TF
   tf2_ros::Buffer tf_buffer_;
@@ -67,7 +71,7 @@ private:
   rclcpp::CallbackGroup::SharedPtr callback_group_subscribers_;
   rclcpp::CallbackGroup::SharedPtr callback_group_services_;
 
-  // Subscriber
+  // Subscribers
   rclcpp::Subscription<Engage>::SharedPtr sub_engage_;
   rclcpp::Subscription<VehicleStateReport>::SharedPtr sub_vehicle_state_report_;
   rclcpp::Subscription<HADMapRoute>::SharedPtr sub_route_;

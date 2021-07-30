@@ -44,12 +44,13 @@ struct StateInput
 
   autoware_auto_msgs::msg::Engage::ConstSharedPtr engage;
   autoware_auto_msgs::msg::VehicleStateReport::ConstSharedPtr vehicle_state_report;
-  bool is_finalizing = false;
   autoware_auto_msgs::msg::HADMapRoute::ConstSharedPtr route;
 
   using VehicleOdometry = autoware_auto_msgs::msg::VehicleOdometry;
   using OdometryBuffer = std::deque<VehicleOdometry::ConstSharedPtr>;
   OdometryBuffer odometry_buffer;
+
+  bool is_finalizing = false;
 };
 
 /// \brief Parameters used by the state machine
@@ -57,6 +58,7 @@ struct StateParam
 {
   /// Distance threshold between a current position and a goal position.
   double th_arrived_distance_m;
+  /// Length of the odometry buffer used in checking if vehicle is stopped
   double th_stopped_time_sec;
   /// Velocity threshold for determining if vehicle is stopped.
   double th_stopped_velocity_mps;

@@ -37,6 +37,7 @@ enum class AutowareState : uint8_t
   Finalizing = 7,
 };
 
+/// \brief Converts AutowareState to string
 inline std::string toString(const AutowareState & state)
 {
   switch (state) {
