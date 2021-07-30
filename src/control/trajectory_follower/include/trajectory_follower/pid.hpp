@@ -19,6 +19,14 @@
 
 #include "trajectory_follower/visibility_control.hpp"
 
+namespace autoware
+{
+namespace motion
+{
+namespace control
+{
+namespace trajectory_follower
+{
 /// @brief implementation of a PID controller
 class TRAJECTORY_FOLLOWER_PUBLIC PIDController
 {
@@ -85,5 +93,9 @@ private:
   double prev_error_;
   bool is_first_time_;
 };
+}  // namespace trajectory_follower
+}  // namespace control
+}  // namespace motion
+}  // namespace autoware
 
 #endif  // TRAJECTORY_FOLLOWER__PID_HPP_
