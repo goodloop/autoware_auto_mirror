@@ -34,11 +34,11 @@ namespace autoware
 namespace state_monitor
 {
 
-using OdometryBuffer = std::deque<autoware_auto_msgs::msg::VehicleOdometry::ConstSharedPtr>;
-
 /// \brief Input state of the state machine.
 struct StateInput
 {
+  using OdometryBuffer = std::deque<autoware_auto_msgs::msg::VehicleOdometry::ConstSharedPtr>;
+
   rclcpp::Time current_time;
 
   geometry_msgs::msg::PoseStamped::ConstSharedPtr current_pose;
@@ -68,23 +68,6 @@ struct StateParam
   double wait_time_after_planning = 3.0;
   /// Delay after arrived goal and before transition to a next state
   double wait_time_after_arrived_goal = 2.0;
-};
-
-/// \brief Updates odometry buffer by adding new values and removing old to preserve length
-class OdometryUpdater
-{
-public:
-  /// \brief Create odometry updater
-  /// \param odometry_buffer stores odometry values
-  OdometryUpdater(OdometryBuffer & odometry_buffer, double buffer_length_sec);
-
-  /// \brief Add new odometry message to buffer
-  /// \param msg vehicle odometry message
-  void update(const autoware_auto_msgs::msg::VehicleOdometry::ConstSharedPtr msg);
-
-private:
-  OdometryBuffer & odometry_buffer_;
-  double buffer_length_sec_;
 };
 
 /// \brief State machine for determining a state of the Autoware system.

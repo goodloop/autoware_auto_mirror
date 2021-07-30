@@ -8,6 +8,7 @@ ament_auto_find_build_dependencies()
 ### Build
 set(STATE_MONITOR_SRC
   src/autoware_state_monitor_node/autoware_state_monitor_node.cpp
+  src/autoware_state_monitor_node/odometry_updater.cpp
   src/autoware_state_monitor_node/state_machine.cpp
 )
 

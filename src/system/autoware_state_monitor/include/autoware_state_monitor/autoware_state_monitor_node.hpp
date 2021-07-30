@@ -34,8 +34,9 @@
 #include "autoware_auto_msgs/msg/vehicle_state_report.hpp"
 
 // Local
-#include "autoware_state_monitor/state_machine.hpp"
 #include "autoware_state_monitor/autoware_state.hpp"
+#include "autoware_state_monitor/odometry_updater.hpp"
+#include "autoware_state_monitor/state_machine.hpp"
 
 namespace autoware
 {
