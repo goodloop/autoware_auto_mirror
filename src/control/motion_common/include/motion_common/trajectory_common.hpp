@@ -37,7 +37,7 @@ namespace motion
 namespace motion_common
 {
 typedef autoware_auto_msgs::msg::TrajectoryPoint Point;
-typedef std::vector<Point> Points;
+typedef decltype (autoware_auto_msgs::msg::Trajectory::points) Points;
 using autoware::common::types::float64_t;
 typedef Eigen::Matrix<float64_t, 3, 1> Vector3f;
 
