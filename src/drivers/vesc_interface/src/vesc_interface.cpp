@@ -40,6 +40,13 @@ namespace vesc_interface
     servo_pub_ = node.create_publisher<Float64>("commands/servo/position", 10);
   }
 
+  /// \todo
+  bool8_t VESCInterface::send_state_command(const VehicleStateCommand &msg)
+  {
+    (void)msg;
+    return true;
+  }
+
   bool8_t VESCInterface::send_control_command(const VehicleControlCommand &msg)
   {
     // calc vesc electric RPM (speed)
