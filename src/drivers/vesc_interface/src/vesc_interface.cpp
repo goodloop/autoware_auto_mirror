@@ -40,6 +40,12 @@ namespace vesc_interface
     servo_pub_ = node.create_publisher<Float64>("commands/servo/position", 10);
   }
 
+  bool8_t VESCInterface::update(std::chrono::nanoseconds timeout)
+  {
+    (void)timeout;
+    return true;
+  }
+
   /// \todo
   bool8_t VESCInterface::send_state_command(const VehicleStateCommand &msg)
   {
@@ -66,15 +72,12 @@ namespace vesc_interface
     return false;
   }
 
-  bool8_t VESCInterface::update(std::chrono::nanoseconds timeout)
-  {
-    return true;
-  }
-
   bool8_t VESCInterface::send_control_command(const RawControlCommand &msg)
   {
-    /// \todo: Log Error, Not Implemented.
+    (void)msg;
+    // Log Error, Not Implemented.
     RCLCPP_WARN(m_logger, "Cannot control the VESC using RawControlCommand");
+    return true;
   }
 }  // namespace vesc_interface
 }  // namespace autoware
