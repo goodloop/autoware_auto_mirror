@@ -77,7 +77,7 @@ public:
 
     // send_state_command() - Most for gears, trasmit the gear to VESC driver
     // Gear equivalent of reverse/ forward 
-    bool8_t send_state_command(const VehicleControlCommand &msg);
+    bool8_t send_state_command(const VehicleStateCommand &msg);
 
     // send_control_command() - desired speed and desired tire angle
     // Convert those to motorRPM, servo positions
