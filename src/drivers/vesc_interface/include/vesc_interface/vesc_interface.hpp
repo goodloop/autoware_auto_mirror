@@ -109,6 +109,11 @@ private:
     // conversion and gain offsets
     double speed_to_erpm_gain_, speed_to_erpm_offset_;
     double steering_to_servo_gain_, steering_to_servo_offset_;
+
+    // Direction:
+    //      1: Forward
+    //     -1: Reverse
+    int direction{1};
     
     // ROS services
     rclcpp::Publisher<Float64>::SharedPtr erpm_pub_;
