@@ -22,6 +22,7 @@ namespace autoware
 {
 namespace vesc_interface
 {
+  using VSC = autoware_auto_msgs::msg::VehicleStateCommand;
   VESCInterface::VESCInterface(
     rclcpp::Node &node
   )
@@ -46,10 +47,19 @@ namespace vesc_interface
     return true;
   }
 
-  /// \todo
   bool8_t VESCInterface::send_state_command(const VehicleStateCommand &msg)
   {
-    (void)msg;
+    // If the GEAR is in reverse, set direction to -1
+    if (msg.gear == VSC::GEAR_REVERSE)
+    {
+      direction = -1;
+    }
+
+    if (msg.gear == VSC::GEAR_DRIVE || msg.gear == VSC::GEAR_LOW)
+    {
+      direction = 1;
+    }
+
     return true;
   }
 
@@ -57,11 +67,11 @@ namespace vesc_interface
   {
     // calc vesc electric RPM (speed)
     Float64 erpm_msg;
-    erpm_msg.data = speed_to_erpm_gain_ * static_cast<double>(msg.velocity_mps) + speed_to_erpm_offset_;
+    erpm_msg.data = direction*speed_to_erpm_gain_ * static_cast<double>(msg.velocity_mps) + speed_to_erpm_offset_;
 
     // calc steering angle (servo)
     Float64 servo_msg;
-    servo_msg.data = steering_to_servo_gain_ * static_cast<double>(msg.front_wheel_angle_rad) + steering_to_servo_offset_;
+    servo_msg.data = direction*steering_to_servo_gain_ * static_cast<double>(msg.front_wheel_angle_rad) + steering_to_servo_offset_;
 
     if (rclcpp::ok())
     {
