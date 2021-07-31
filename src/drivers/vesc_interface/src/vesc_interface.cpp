@@ -28,6 +28,35 @@ namespace vesc_interface
   : m_logger{node.get_logger()}
   {
     /// \todo : Write up the initializer.
+
+    // get conversion parameters
+    speed_to_erpm_gain_ = node.declare_parameter("speed_to_erpm_gain").get<double>();
+    speed_to_erpm_offset_ = node.declare_parameter("speed_to_erpm_offset").get<double>();
+    steering_to_servo_gain_ = node.declare_parameter("steering_angle_to_servo_gain").get<double>();
+    steering_to_servo_offset_ = node.declare_parameter("steering_angle_to_servo_offset").get<double>();
+
+    // create publishers to vesc electric-RPM (speed) and servo commands
+    erpm_pub_ = node.create_publisher<Float64>("commands/motor/speed", 10);
+    servo_pub_ = node.create_publisher<Float64>("commands/servo/position", 10);
+  }
+
+  bool8_t VESCInterface::send_control_command(const VehicleControlCommand &msg)
+  {
+    // calc vesc electric RPM (speed)
+    Float64 erpm_msg;
+    erpm_msg.data = speed_to_erpm_gain_ * msg.velocity_mps + speed_to_erpm_offset_;
+
+    // calc steering angle (servo)
+    Float64 servo_msg;
+    servo_msg.data = steering_to_servo_gain_ * msg.front_wheel_angle_rad + steering_to_servo_offset_;
+
+    if (rclcpp::ok())
+    {
+      erpm_pub_->publish(erpm_msg);
+      servo_pub_->publish(servo_msg);
+      return true;
+    }
+    return false;
   }
 
   bool8_t VESCInterface::update(std::chrono::nanoseconds timeout)
