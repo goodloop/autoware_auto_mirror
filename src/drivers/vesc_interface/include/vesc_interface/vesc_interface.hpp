@@ -38,6 +38,7 @@
 #include <autoware_auto_msgs/srv/autonomy_mode_change.hpp>
 
 #include <rclcpp/rclcpp.hpp>
+#include <std_msgs/msg/float64.hpp>
 
 #include <chrono>
 #include <cstdint>
@@ -47,6 +48,8 @@ using autoware_auto_msgs::msg::VehicleControlCommand;
 using autoware_auto_msgs::msg::VehicleStateCommand;
 using autoware_auto_msgs::msg::VehicleStateReport;
 using autoware_auto_msgs::msg::VehicleOdometry;
+
+using std_msgs::msg::Float64;
 
 namespace autoware
 {
@@ -102,6 +105,14 @@ protected:
 
 private:
 
+    // ROS parameters
+    // conversion and gain offsets
+    double speed_to_erpm_gain_, speed_to_erpm_offset_;
+    double steering_to_servo_gain_, steering_to_servo_offset_;
+    
+    // ROS services
+    rclcpp::Publisher<Float64>::SharedPtr erpm_pub_;
+    rclcpp::Publisher<Float64>::SharedPtr servo_pub_;
     rclcpp::Logger m_logger;
 }; // class VESCInterface
 
