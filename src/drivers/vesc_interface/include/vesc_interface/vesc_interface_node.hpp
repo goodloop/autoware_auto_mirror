@@ -23,6 +23,8 @@
 
 #include <vesc_interface/vesc_interface.hpp>
 
+#include <vehicle_interface/vehicle_interface_node.hpp>
+
 #include <rclcpp/rclcpp.hpp>
 
 namespace autoware
@@ -32,14 +34,15 @@ namespace vesc_interface
 // TODO: Inherits from vehicle_interface::VehicleInterfaceNode
 // have all the publishers/Subsrcibers for VESC specific topics.
 
-/// \class VescInterfaceNode
+/// \class VESCInterfaceNode
 /// \brief ROS 2 Node for hello world.
-class VESC_INTERFACE_PUBLIC VescInterfaceNode : public rclcpp::Node
+class VESC_INTERFACE_PUBLIC VESCInterfaceNode 
+  : public ::autoware::drivers::vehicle_interface::VehicleInterfaceNode
 {
 public:
   /// \brief default constructor, starts driver
   /// \throw runtime error if failed to start threads or configure driver
-  explicit VescInterfaceNode(const rclcpp::NodeOptions & options);
+  explicit VESCInterfaceNode(const rclcpp::NodeOptions & options);
 
   /// \brief print hello
   /// return 0 if successful.
