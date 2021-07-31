@@ -75,32 +75,32 @@ public:
     /// \brief Sends True message
     bool8_t update(std::chrono::nanoseconds timeout);
 
-// send_state_command() - Most for gears, trasmit the gear to VESC driver
-// Gear equivalent of reverse/ forward 
+    // send_state_command() - Most for gears, trasmit the gear to VESC driver
+    // Gear equivalent of reverse/ forward 
     bool8_t send_state_command(const VehicleControlCommand &msg);
 
-// send_control_command() - desired speed and desired tire angle
-// Convert those to motorRPM, servo positions
-// RawControlCommand - Log NotSupported!!
-// IF mannual mode - send zeros.
+    // send_control_command() - desired speed and desired tire angle
+    // Convert those to motorRPM, servo positions
+    // RawControlCommand - Log NotSupported!!
+    // IF mannual mode - send zeros.
     bool8_t send_control_command(const VehicleControlCommand &msg);
 
-// handle_mode_change_request()
-// Switch between autonomous, and manual mode
-// maintain interal state, and only send commands when autonomous mode is active
-// IF mannual mode - send zeros. 
+    // handle_mode_change_request()
+    // Switch between autonomous, and manual mode
+    // maintain interal state, and only send commands when autonomous mode is active
+    // IF mannual mode - send zeros. 
 
     /// \brief Send raw control commands, currently not implemented, hence logs error.
     bool8_t send_control_command(const RawControlCommand &msg);
 
 protected:
 
-// state_report() -> Set the gear (forward/backward)
+    // state_report() -> Set the gear (forward/backward)
     VehicleStateReport & state_report();
 
-// odometry() -> velocity_mps meters/s
-//               front_wheel_angle_rad (radians, positive-to the left)
-// https://gitlab.com/autowarefoundation/autoware.auto/autoware_auto_msgs/-/blob/master/autoware_auto_msgs/msg/VehicleOdometry.idl
+    // odometry() -> velocity_mps meters/s
+    //               front_wheel_angle_rad (radians, positive-to the left)
+    // https://gitlab.com/autowarefoundation/autoware.auto/autoware_auto_msgs/-/blob/master/autoware_auto_msgs/msg/VehicleOdometry.idl
     VehicleOdometry & get_odometry();
 
 private:
