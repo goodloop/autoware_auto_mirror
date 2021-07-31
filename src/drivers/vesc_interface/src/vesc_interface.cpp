@@ -57,11 +57,11 @@ namespace vesc_interface
   {
     // calc vesc electric RPM (speed)
     Float64 erpm_msg;
-    erpm_msg.data = speed_to_erpm_gain_ * msg.velocity_mps + speed_to_erpm_offset_;
+    erpm_msg.data = speed_to_erpm_gain_ * static_cast<double>(msg.velocity_mps) + speed_to_erpm_offset_;
 
     // calc steering angle (servo)
     Float64 servo_msg;
-    servo_msg.data = steering_to_servo_gain_ * msg.front_wheel_angle_rad + steering_to_servo_offset_;
+    servo_msg.data = steering_to_servo_gain_ * static_cast<double>(msg.front_wheel_angle_rad) + steering_to_servo_offset_;
 
     if (rclcpp::ok())
     {
