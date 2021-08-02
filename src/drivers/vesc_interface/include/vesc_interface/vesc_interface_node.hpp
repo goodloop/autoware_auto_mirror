@@ -43,13 +43,6 @@ public:
   /// \brief default constructor, starts driver
   /// \throw runtime error if failed to start threads or configure driver
   explicit VESCInterfaceNode(const rclcpp::NodeOptions & options);
-
-  /// \brief print hello
-  /// return 0 if successful.
-  int32_t print_hello() const;
-
-private:
-  bool verbose;  ///< whether to use verbose output or not.
 };
 }  // namespace vesc_interface
 }  // namespace autoware
