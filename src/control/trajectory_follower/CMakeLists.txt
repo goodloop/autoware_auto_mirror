@@ -67,14 +67,14 @@ target_compile_options(${LATERAL_CONTROLLER_LIB} PRIVATE -Wno-error=old-style-ca
 set(LONGITUDINAL_CONTROLLER_LIB longitudinal_controller_lib)
 set(LONGITUDINAL_CONTROLLER_LIB_SRC
   src/pid.cpp
-  src/velocity_controller_utils.cpp
+  src/longitudinal_controller_utils.cpp
 )
 
 set(LONGITUDINAL_CONTROLLER_LIB_HEADERS
   include/trajectory_follower/debug_values.hpp
   include/trajectory_follower/pid.hpp
   include/trajectory_follower/smooth_stop.hpp
-  include/trajectory_follower/velocity_controller_utils.hpp
+  include/trajectory_follower/longitudinal_controller_utils.hpp
 )
 
 # generate library
@@ -107,7 +107,7 @@ if(BUILD_TESTING)
     test/test_debug_values.cpp
     test/test_pid.cpp
     test/test_smooth_stop.cpp
-    test/test_velocity_controller_utils.cpp
+    test/test_longitudinal_controller_utils.cpp
   )
   set(TEST_LONGITUDINAL_CONTROLLER_EXE test_longitudinal_controller)
   ament_add_gtest(${TEST_LONGITUDINAL_CONTROLLER_EXE} ${TEST_LON_SOURCES})

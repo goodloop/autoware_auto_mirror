@@ -16,7 +16,7 @@
 #include <algorithm>
 #include <limits>
 
-#include "trajectory_follower/velocity_controller_utils.hpp"
+#include "trajectory_follower/longitudinal_controller_utils.hpp"
 
 namespace autoware
 {
