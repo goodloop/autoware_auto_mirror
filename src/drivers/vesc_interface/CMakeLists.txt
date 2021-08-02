@@ -54,7 +54,7 @@ ament_auto_add_library(${PROJECT_NAME}_node SHARED
 )
 autoware_set_compile_options(${PROJECT_NAME}_node)
 rclcpp_components_register_node(${PROJECT_NAME}_node
-  PLUGIN "autoware::vesc_interface::VescInterfaceNode"
+  PLUGIN "autoware::vesc_interface::VESCInterfaceNode"
   EXECUTABLE ${PROJECT_NAME}_node_exe
 )
 
