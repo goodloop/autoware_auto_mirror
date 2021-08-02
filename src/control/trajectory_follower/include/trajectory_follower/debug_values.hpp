@@ -84,16 +84,16 @@ public:
    * @param [in] type TYPE of the value
    * @param [in] value value to set
    */
-  void setValues(const TYPE type, const float64_t val)
+  void setValues(const TYPE type, const float64_t value)
   {
-    m_values.at(static_cast<size_t>(type)) = val;
+    m_values.at(static_cast<size_t>(type)) = value;
   }
   /**
    * @brief set the given type to the given value
    * @param [in] type index of the type
    * @param [in] value value to set
    */
-  void setValues(const size_t type, const float64_t val) {m_values.at(type) = val;}
+  void setValues(const size_t type, const float64_t value) {m_values.at(type) = value;}
 
 private:
   std::array<float64_t, static_cast<size_t>(TYPE::SIZE)> m_values;
