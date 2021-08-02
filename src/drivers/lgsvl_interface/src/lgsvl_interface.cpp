@@ -81,13 +81,9 @@ LgsvlInterface::LgsvlInterface(
   Table1D && throttle_table,
   Table1D && brake_table,
   Table1D && steer_table,
-  rclcpp::Publisher<HeadlightsReport>::SharedPtr headlights_report_pub,
-  rclcpp::Publisher<WipersReport>::SharedPtr wipers_report_pub,
   bool publish_tf,
   bool publish_pose)
-: m_headlights_report_pub{headlights_report_pub},
-  m_wipers_report_pub{wipers_report_pub},
-  m_throttle_table{throttle_table},
+: m_throttle_table{throttle_table},
   m_brake_table{brake_table},
   m_steer_table{steer_table},
   m_logger{node.get_logger()}
@@ -185,13 +181,12 @@ LgsvlInterface::LgsvlInterface(
         headlights_report().report = HeadlightsReport::DISABLE;
       }
 
-      WipersReport wipers_report;
       if (msg->wipers_active) {
         state_report.set__wiper(autoware_auto_msgs::msg::VehicleStateReport::WIPER_LOW);
-        wipers_report.report = WipersReport::ENABLE_LOW;
+        wipers_report().report = WipersReport::ENABLE_LOW;
       } else {
         state_report.set__wiper(autoware_auto_msgs::msg::VehicleStateReport::WIPER_OFF);
-        wipers_report.report = WipersReport::DISABLE;
+        wipers_report().report = WipersReport::DISABLE;
       }
 
       state_report.set__gear(static_cast<uint8_t>(msg->selected_gear));
@@ -301,7 +296,6 @@ bool8_t LgsvlInterface::send_state_command(const autoware_auto_msgs::msg::Vehicl
 
   m_lgsvl_state.header.set__stamp(msg_corrected.stamp);
   m_lgsvl_state.set__blinker_state(msg_corrected.blinker);
-  m_lgsvl_state.set__wiper_state(msg_corrected.wiper);
   m_lgsvl_state.set__current_gear(msg_corrected.gear);
   m_lgsvl_state.set__vehicle_mode(msg_corrected.mode);
   m_lgsvl_state.set__hand_brake_active(msg_corrected.hand_brake);
@@ -311,10 +305,6 @@ bool8_t LgsvlInterface::send_state_command(const autoware_auto_msgs::msg::Vehicl
     VSD::VEHICLE_MODE_COMPLETE_AUTO_DRIVE ? true : false);
 
   m_state_pub->publish(m_lgsvl_state);
-
-  WipersReport wipers_report;
-  wipers_report.report = msg_corrected.wiper;
-  m_wipers_report_pub->publish(wipers_report);
 
   return true;
 }
@@ -381,6 +371,19 @@ void LgsvlInterface::send_headlights_command(const autoware_auto_msgs::msg::Head
   }
 
   m_lgsvl_state.set__headlight_state(shifted_command);
+}
+
+void LgsvlInterface::send_wipers_command(const autoware_auto_msgs::msg::WipersCommand & msg)
+{
+  /// lgsvl_msgs values are shifted down one from autoware_auto_msgs values
+  /// However, lgsvl_msgs values have no "NO_COMMAND" option so 0 is ignored
+  auto shifted_command = msg.command;
+
+  if (shifted_command > 0U) {
+    shifted_command--;
+  }
+
+  m_lgsvl_state.set__wipers_state(shifted_command);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
