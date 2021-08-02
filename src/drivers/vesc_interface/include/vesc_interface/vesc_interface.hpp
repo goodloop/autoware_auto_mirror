@@ -67,10 +67,12 @@ public:
     /// \brief Default Constructor.
     /// \todo 
     VESCInterface(
-        rclcpp::Node &node
+        rclcpp::Node &node,
+        double speed_to_erpm_gain,
+        double speed_to_erpm_offset,
+        double steering_to_servo_gain,
+        double steering_to_servo_offset
     );
-    /// \brief Default Destructor
-    ~VESCInterface() noexcept override = default;
 
     /// \brief Sends True message
     bool8_t update(std::chrono::nanoseconds timeout);
