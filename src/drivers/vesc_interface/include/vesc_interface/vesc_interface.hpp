@@ -89,6 +89,7 @@ public:
     // Switch between autonomous, and manual mode
     // maintain interal state, and only send commands when autonomous mode is active
     // IF mannual mode - send zeros. 
+    bool8_t handle_mode_change_request(autoware_auto_msgs::srv::AutonomyModeChange_Request::SharedPtr request);
 
     /// \brief Send raw control commands, currently not implemented, hence logs error.
     bool8_t send_control_command(const RawControlCommand &msg);
