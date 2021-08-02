@@ -109,6 +109,7 @@ protected:
 private:
 
     // ROS parameters
+    rclcpp::Logger m_logger;
     // conversion and gain offsets
     double speed_to_erpm_gain_, speed_to_erpm_offset_;
     double steering_to_servo_gain_, steering_to_servo_offset_;
@@ -121,7 +122,6 @@ private:
     // ROS services
     rclcpp::Publisher<Float64>::SharedPtr erpm_pub_;
     rclcpp::Publisher<Float64>::SharedPtr servo_pub_;
-    rclcpp::Logger m_logger;
 }; // class VESCInterface
 
 }  // namespace vesc_interface
