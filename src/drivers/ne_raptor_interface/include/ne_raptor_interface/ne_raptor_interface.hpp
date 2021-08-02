@@ -208,6 +208,10 @@ public:
   /// \param[in] msg The headlights command to send to the vehicle
   void send_headlights_command(const HeadlightsCommand & msg) override;
 
+  /// \brief Send a wipers command to the vehicle platform.
+  /// \param[in] msg The wipers command to send to the vehicle
+  void send_wipers_command(const WipersCommand & msg) override;
+
   /// \brief Update vehicle's position & heading relative from time = 0
   ///        based on time difference, current speed, & current tire angle.
   /// \param[in] dt delta-T - how much time since this was last called
