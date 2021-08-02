@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef TRAJECTORY_FOLLOWER__VELOCITY_CONTROLLER_UTILS_HPP_
-#define TRAJECTORY_FOLLOWER__VELOCITY_CONTROLLER_UTILS_HPP_
+#ifndef TRAJECTORY_FOLLOWER__LONGITUDINAL_CONTROLLER_UTILS_HPP_
+#define TRAJECTORY_FOLLOWER__LONGITUDINAL_CONTROLLER_UTILS_HPP_
 
 #include <experimental/optional>
 #include <cmath>
@@ -182,4 +182,4 @@ TRAJECTORY_FOLLOWER_PUBLIC float64_t applyDiffLimitFilter(
 }  // namespace motion
 }  // namespace autoware
 
-#endif  // TRAJECTORY_FOLLOWER__VELOCITY_CONTROLLER_UTILS_HPP_
+#endif  // TRAJECTORY_FOLLOWER__LONGITUDINAL_CONTROLLER_UTILS_HPP_

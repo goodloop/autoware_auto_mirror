@@ -59,7 +59,8 @@ public:
     }
 
     m_strong_acc = -std::pow(pred_vel_in_target, 2) / (2 * pred_stop_dist);
-    m_strong_acc = std::max(std::min(m_strong_acc, m_params.max_strong_acc), m_params.min_strong_acc);
+    m_strong_acc =
+      std::max(std::min(m_strong_acc, m_params.max_strong_acc), m_params.min_strong_acc);
   }
 
   /**
