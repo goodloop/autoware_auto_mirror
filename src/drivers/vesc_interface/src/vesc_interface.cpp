@@ -82,6 +82,13 @@ namespace vesc_interface
     return false;
   }
 
+  /// \todo
+  bool8_t VESCInterface::handle_mode_change_request(autoware_auto_msgs::srv::AutonomyModeChange_Request::SharedPtr request)
+  {
+    (void)request;
+    return true;
+  }
+
   bool8_t VESCInterface::send_control_command(const RawControlCommand &msg)
   {
     (void)msg;
