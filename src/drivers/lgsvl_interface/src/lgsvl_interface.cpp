@@ -383,7 +383,7 @@ void LgsvlInterface::send_wipers_command(const autoware_auto_msgs::msg::WipersCo
     shifted_command--;
   }
 
-  m_lgsvl_state.set__wipers_state(shifted_command);
+  m_lgsvl_state.set__wiper_state(shifted_command);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

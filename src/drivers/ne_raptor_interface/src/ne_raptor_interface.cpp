@@ -451,10 +451,6 @@ void NERaptorInterface::send_wipers_command(const WipersCommand & msg)
       m_misc_cmd.front_wiper_cmd.status = WiperFront::CONSTANT_HIGH;
       m_misc_cmd.rear_wiper_cmd.status = WiperRear::CONSTANT_HIGH;
       break;
-    case WipersCommand::ENABLE_HIGH:
-      m_misc_cmd.front_wiper_cmd.status = WiperFront::CONSTANT_HIGH;
-      m_misc_cmd.rear_wiper_cmd.status = WiperRear::CONSTANT_HIGH;
-      break;
     case WipersCommand::ENABLE_CLEAN:
       m_misc_cmd.front_wiper_cmd.status = WiperFront::WASH_BRIEF;
       m_misc_cmd.rear_wiper_cmd.status = WiperRear::WASH_BRIEF;
