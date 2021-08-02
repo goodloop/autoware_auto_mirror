@@ -22,15 +22,18 @@ namespace vesc_interface
 {
 
 VESCInterfaceNode::VESCInterfaceNode(const rclcpp::NodeOptions & options)
-:  VehicleInterfaceNode{"vesc_interface", options},
-  verbose(true)
+:  VehicleInterfaceNode{"vesc_interface", options}
 {
-  print_hello();
-}
-
-int32_t VESCInterfaceNode::print_hello() const
-{
-  return 0;
+  // Set up interface
+  set_interface(
+    std::make_unique<VESCInterface>(
+      *this,
+      declare_parameter("vesc.speed_to_erpm_gain").get<double>(),
+      declare_parameter("vesc.speed_to_erpm_offset").get<double>(),
+      declare_parameter("vesc.steering_angle_to_servo_gain").get<double>(),
+      declare_parameter("vesc.steering_angle_to_servo_offset").get<double>()
+    )
+  );
 }
 
 }  // namespace vesc_interface
