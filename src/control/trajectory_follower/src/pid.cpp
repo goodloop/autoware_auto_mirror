@@ -28,34 +28,34 @@ namespace control
 namespace trajectory_follower
 {
 PIDController::PIDController()
-: error_integral_(0.0), prev_error_(0.0), is_first_time_(true) {}
+: m_error_integral(0.0), m_prev_error(0.0), m_is_first_time(true) {}
 
 double PIDController::calculate(
   const double error, const double dt, const bool enable_integration,
   std::vector<double> & pid_contributions)
 {
-  const auto & p = params_;
+  const auto & p = m_params;
 
   double ret_p = p.kp * error;
   ret_p = std::min(std::max(ret_p, p.min_ret_p), p.max_ret_p);
 
   if (enable_integration) {
-    error_integral_ += error * dt;
-    error_integral_ = std::min(std::max(error_integral_, p.min_ret_i / p.ki), p.max_ret_i / p.ki);
+    m_error_integral += error * dt;
+    m_error_integral = std::min(std::max(m_error_integral, p.min_ret_i / p.ki), p.max_ret_i / p.ki);
   }
-  const double ret_i = p.ki * error_integral_;
+  const double ret_i = p.ki * m_error_integral;
 
   double error_differential;
-  if (is_first_time_) {
+  if (m_is_first_time) {
     error_differential = 0;
-    is_first_time_ = false;
+    m_is_first_time = false;
   } else {
-    error_differential = (error - prev_error_) / dt;
+    error_differential = (error - m_prev_error) / dt;
   }
   double ret_d = p.kd * error_differential;
   ret_d = std::min(std::max(ret_d, p.min_ret_d), p.max_ret_d);
 
-  prev_error_ = error;
+  m_prev_error = error;
 
   pid_contributions.resize(3);
   pid_contributions.at(0) = ret_p;
@@ -70,30 +70,30 @@ double PIDController::calculate(
 
 void PIDController::setGains(const double kp, const double ki, const double kd)
 {
-  params_.kp = kp;
-  params_.ki = ki;
-  params_.kd = kd;
+  m_params.kp = kp;
+  m_params.ki = ki;
+  m_params.kd = kd;
 }
 
 void PIDController::setLimits(
   const double max_ret, const double min_ret, const double max_ret_p, const double min_ret_p,
   const double max_ret_i, const double min_ret_i, const double max_ret_d, const double min_ret_d)
 {
-  params_.max_ret = max_ret;
-  params_.min_ret = min_ret;
-  params_.max_ret_p = max_ret_p;
-  params_.min_ret_p = min_ret_p;
-  params_.max_ret_d = max_ret_d;
-  params_.min_ret_d = min_ret_d;
-  params_.max_ret_i = max_ret_i;
-  params_.min_ret_i = min_ret_i;
+  m_params.max_ret = max_ret;
+  m_params.min_ret = min_ret;
+  m_params.max_ret_p = max_ret_p;
+  m_params.min_ret_p = min_ret_p;
+  m_params.max_ret_d = max_ret_d;
+  m_params.min_ret_d = min_ret_d;
+  m_params.max_ret_i = max_ret_i;
+  m_params.min_ret_i = min_ret_i;
 }
 
 void PIDController::reset()
 {
-  error_integral_ = 0.0;
-  prev_error_ = 0.0;
-  is_first_time_ = true;
+  m_error_integral = 0.0;
+  m_prev_error = 0.0;
+  m_is_first_time = true;
 }
 }  // namespace trajectory_follower
 }  // namespace control

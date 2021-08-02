@@ -50,16 +50,16 @@ public:
    */
   void init(const float64_t pred_vel_in_target, const float64_t pred_stop_dist)
   {
-    weak_acc_time_ = rclcpp::Clock{RCL_ROS_TIME}.now();
+    m_weak_acc_time = rclcpp::Clock{RCL_ROS_TIME}.now();
 
     // when distance to stopline is near the car
     if (pred_stop_dist < std::numeric_limits<float64_t>::epsilon()) {
-      strong_acc_ = params_.min_strong_acc;
+      m_strong_acc = m_params.min_strong_acc;
       return;
     }
 
-    strong_acc_ = -std::pow(pred_vel_in_target, 2) / (2 * pred_stop_dist);
-    strong_acc_ = std::max(std::min(strong_acc_, params_.max_strong_acc), params_.min_strong_acc);
+    m_strong_acc = -std::pow(pred_vel_in_target, 2) / (2 * pred_stop_dist);
+    m_strong_acc = std::max(std::min(m_strong_acc, m_params.max_strong_acc), m_params.min_strong_acc);
   }
 
   /**
@@ -82,19 +82,19 @@ public:
     float64_t min_running_acc,
     float64_t weak_stop_time, float64_t weak_stop_dist, float64_t strong_stop_dist)
   {
-    params_.max_strong_acc = max_strong_acc;
-    params_.min_strong_acc = min_strong_acc;
-    params_.weak_acc = weak_acc;
-    params_.weak_stop_acc = weak_stop_acc;
-    params_.strong_stop_acc = strong_stop_acc;
+    m_params.max_strong_acc = max_strong_acc;
+    m_params.min_strong_acc = min_strong_acc;
+    m_params.weak_acc = weak_acc;
+    m_params.weak_stop_acc = weak_stop_acc;
+    m_params.strong_stop_acc = strong_stop_acc;
 
-    params_.min_fast_vel = min_fast_vel;
-    params_.min_running_vel = min_running_vel;
-    params_.min_running_acc = min_running_acc;
-    params_.weak_stop_time = weak_stop_time;
+    m_params.min_fast_vel = min_fast_vel;
+    m_params.min_running_vel = min_running_vel;
+    m_params.min_running_acc = min_running_acc;
+    m_params.weak_stop_time = weak_stop_time;
 
-    params_.weak_stop_dist = weak_stop_dist;
-    params_.strong_stop_dist = strong_stop_dist;
+    m_params.weak_stop_dist = weak_stop_dist;
+    m_params.strong_stop_dist = strong_stop_dist;
   }
 
   /**
@@ -156,10 +156,10 @@ public:
 
   /**
    * @brief calculate accel command while stopping
-   *        Decrease velocity with strong_acc_,
-   *        then loose brake pedal with params_.weak_acc to stop smoothly
-   *        If the car is still running, input params_.weak_stop_acc
-   *        and then params_.strong_stop_acc in steps not to exceed stopline too much
+   *        Decrease velocity with m_strong_acc,
+   *        then loose brake pedal with m_params.weak_acc to stop smoothly
+   *        If the car is still running, input m_params.weak_stop_acc
+   *        and then m_params.strong_stop_acc in steps not to exceed stopline too much
    * @param [in] stop_dist distance left to travel before stopping [m]
    * @param [in] current_vel current velocity of ego [m/s]
    * @param [in] current_acc current acceleration of ego [m/s²]
@@ -174,37 +174,37 @@ public:
     const auto time_to_stop = calcTimeToStop(vel_hist);
 
     // calculate some flags
-    const bool8_t is_fast_vel = std::abs(current_vel) > params_.min_fast_vel;
-    const bool8_t is_running = std::abs(current_vel) > params_.min_running_vel ||
-      std::abs(current_acc) > params_.min_running_acc;
+    const bool8_t is_fast_vel = std::abs(current_vel) > m_params.min_fast_vel;
+    const bool8_t is_running = std::abs(current_vel) > m_params.min_running_vel ||
+      std::abs(current_acc) > m_params.min_running_acc;
 
     // when exceeding the stopline (stop_dist is negative in these cases.)
-    if (stop_dist < params_.strong_stop_dist) {  // when exceeding the stopline much
-      return params_.strong_stop_acc;
-    } else if (stop_dist < params_.weak_stop_dist) {  // when exceeding the stopline a bit
-      return params_.weak_stop_acc;
+    if (stop_dist < m_params.strong_stop_dist) {  // when exceeding the stopline much
+      return m_params.strong_stop_acc;
+    } else if (stop_dist < m_params.weak_stop_dist) {  // when exceeding the stopline a bit
+      return m_params.weak_stop_acc;
     }
 
     // when the car is running
     if (is_running) {
       // when the car will not stop in a certain time
-      if (time_to_stop && *time_to_stop > params_.weak_stop_time + delay_time) {
-        return strong_acc_;
+      if (time_to_stop && *time_to_stop > m_params.weak_stop_time + delay_time) {
+        return m_strong_acc;
       } else if (!time_to_stop && is_fast_vel) {
-        return strong_acc_;
+        return m_strong_acc;
       }
 
-      weak_acc_time_ = rclcpp::Clock{RCL_ROS_TIME}.now();
-      return params_.weak_acc;
+      m_weak_acc_time = rclcpp::Clock{RCL_ROS_TIME}.now();
+      return m_params.weak_acc;
     }
 
     // for 0.5 seconds after the car stopped
-    if ((rclcpp::Clock{RCL_ROS_TIME}.now() - weak_acc_time_).seconds() < 0.5) {
-      return params_.weak_acc;
+    if ((rclcpp::Clock{RCL_ROS_TIME}.now() - m_weak_acc_time).seconds() < 0.5) {
+      return m_params.weak_acc;
     }
 
     // when the car is not running
-    return params_.strong_stop_acc;
+    return m_params.strong_stop_acc;
   }
 
 private:
@@ -224,10 +224,10 @@ private:
     float64_t weak_stop_dist;
     float64_t strong_stop_dist;
   };
-  Params params_;
+  Params m_params;
 
-  float64_t strong_acc_;
-  rclcpp::Time weak_acc_time_;
+  float64_t m_strong_acc;
+  rclcpp::Time m_weak_acc_time;
 };
 }  // namespace trajectory_follower
 }  // namespace control

@@ -86,12 +86,12 @@ private:
     double max_ret;
     double min_ret;
   };
-  Params params_;
+  Params m_params;
 
   // state variables
-  double error_integral_;
-  double prev_error_;
-  bool is_first_time_;
+  double m_error_integral;
+  double m_prev_error;
+  bool m_is_first_time;
 };
 }  // namespace trajectory_follower
 }  // namespace control
