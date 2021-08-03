@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.6)
 project(autoware_state_monitor)
 
 ### Dependencies
@@ -34,5 +34,5 @@ endif()
 
 ament_auto_package(INSTALL_TO_SHARE
   launch
-  config
+  param
 )

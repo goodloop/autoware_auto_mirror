@@ -26,7 +26,7 @@ def generate_launch_description():
     autoware_state_monitor_pkg_prefix = get_package_share_directory('autoware_state_monitor')
 
     autoware_state_monitor_param_file = os.path.join(
-        autoware_state_monitor_pkg_prefix, 'config/autoware_state_monitor.param.yaml')
+        autoware_state_monitor_pkg_prefix, 'param/defaults.param.yaml')
 
     # Arguments
     autoware_state_monitor_param = DeclareLaunchArgument(
