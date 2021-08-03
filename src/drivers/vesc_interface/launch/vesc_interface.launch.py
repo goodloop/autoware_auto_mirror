@@ -44,7 +44,14 @@ def generate_launch_description():
     Launch VESC_driver node and VESC_interface node for interfacing autoware.auto
     with f1tenth car.
     """
-    # TODO: Launch VESC_driver node
+    # Launch VESC_driver node
+    vesc_driver = Node(
+        package='vesc_driver',
+        executable='vesc_driver_node',
+        namespace='vehicle',
+        output='screen',
+        parameters=[get_share_file('vesc_driver', 'params/vesc_config.yaml')]
+    )
 
     # Launch VESC_interface'
     # Default VESC_interface params
@@ -69,6 +76,7 @@ def generate_launch_description():
     )
 
     ld = LaunchDescription([
+        vesc_driver,
         vesc_interface_params,
         vesc_interface
     ])
