@@ -58,7 +58,7 @@ TRAJECTORY_FOLLOWER_PUBLIC bool8_t linearInterpolate(
  */
 class TRAJECTORY_FOLLOWER_PUBLIC SplineInterpolate
 {
-  bool8_t initialized_;
+  bool8_t initialized_ = false;
   std::vector<float64_t> m_a;  //!< @brief temporal vector for calculation
   std::vector<float64_t> m_b;  //!< @brief temporal vector for calculation
   std::vector<float64_t> m_c;  //!< @brief temporal vector for calculation

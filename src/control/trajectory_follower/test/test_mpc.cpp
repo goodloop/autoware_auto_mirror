@@ -29,6 +29,7 @@
 #include "common/types.hpp"
 #include "geometry_msgs/msg/pose.hpp"
 #include "gtest/gtest.h"
+#include "tf2_geometry_msgs/tf2_geometry_msgs.h"
 
 namespace
 {
@@ -145,6 +146,10 @@ protected:
     p.y = -2.0f;
     p.longitudinal_velocity_mps = 1.0f;
     dummy_right_turn_trajectory.points.push_back(p);
+
+    neutral_steer.state.front_wheel_angle_rad = 0.0;
+    pose_zero.position.x = 0.0;
+    pose_zero.position.y = 0.0;
   }
 
   void initializeMPC(trajectory_follower::MPC & mpc)
@@ -163,9 +168,6 @@ protected:
       dummy_straight_trajectory, traj_resample_dist, enable_path_smoothing,
       path_filter_moving_ave_num, enable_yaw_recalculation,
       curvature_smoothing_num);
-    neutral_steer.state.front_wheel_angle_rad = 0.0;
-    pose_zero.position.x = 0.0;
-    pose_zero.position.y = 0.0;
   }
 };  // class MPCTest
 
@@ -178,8 +180,7 @@ TEST_F(MPCTest, initialize_and_calculate) {
   const std::string vehicle_model_type = "kinematics";
   std::shared_ptr<trajectory_follower::VehicleModelInterface> vehicle_model_ptr =
     std::make_shared<trajectory_follower::KinematicsBicycleModel>(
-    wheelbase, steer_limit,
-    steer_tau);
+    wheelbase, steer_limit, steer_tau);
   mpc.setVehicleModel(vehicle_model_ptr, vehicle_model_type);
   ASSERT_TRUE(mpc.hasVehicleModel());
 
@@ -206,8 +207,7 @@ TEST_F(MPCTest, initialize_and_calculate_right_turn) {
   const std::string vehicle_model_type = "kinematics";
   std::shared_ptr<trajectory_follower::VehicleModelInterface> vehicle_model_ptr =
     std::make_shared<trajectory_follower::KinematicsBicycleModel>(
-    wheelbase, steer_limit,
-    steer_tau);
+    wheelbase, steer_limit, steer_tau);
   mpc.setVehicleModel(vehicle_model_ptr, vehicle_model_type);
   ASSERT_TRUE(mpc.hasVehicleModel());
 
@@ -241,8 +241,7 @@ TEST_F(MPCTest, osqp_calculate) {
   const std::string vehicle_model_type = "kinematics";
   std::shared_ptr<trajectory_follower::VehicleModelInterface> vehicle_model_ptr =
     std::make_shared<trajectory_follower::KinematicsBicycleModel>(
-    wheelbase, steer_limit,
-    steer_tau);
+    wheelbase, steer_limit, steer_tau);
   mpc.setVehicleModel(vehicle_model_ptr, vehicle_model_type);
   ASSERT_TRUE(mpc.hasVehicleModel());
 
@@ -270,8 +269,7 @@ TEST_F(MPCTest, osqp_calculate_right_turn) {
   const std::string vehicle_model_type = "kinematics";
   std::shared_ptr<trajectory_follower::VehicleModelInterface> vehicle_model_ptr =
     std::make_shared<trajectory_follower::KinematicsBicycleModel>(
-    wheelbase, steer_limit,
-    steer_tau);
+    wheelbase, steer_limit, steer_tau);
   mpc.setVehicleModel(vehicle_model_ptr, vehicle_model_type);
   ASSERT_TRUE(mpc.hasVehicleModel());
 
@@ -374,8 +372,7 @@ TEST_F(MPCTest, multi_solve_with_buffer) {
   const std::string vehicle_model_type = "kinematics";
   std::shared_ptr<trajectory_follower::VehicleModelInterface> vehicle_model_ptr =
     std::make_shared<trajectory_follower::KinematicsBicycleModel>(
-    wheelbase, steer_limit,
-    steer_tau);
+    wheelbase, steer_limit, steer_tau);
   mpc.setVehicleModel(vehicle_model_ptr, vehicle_model_type);
   std::shared_ptr<trajectory_follower::QPSolverInterface> qpsolver_ptr =
     std::make_shared<trajectory_follower::QPSolverEigenLeastSquareLLT>();
@@ -403,5 +400,37 @@ TEST_F(MPCTest, multi_solve_with_buffer) {
   EXPECT_EQ(ctrl_cmd.steering_tire_angle, 0.0f);
   EXPECT_EQ(ctrl_cmd.steering_tire_rotation_rate, 0.0f);
   EXPECT_EQ(mpc.m_input_buffer.size(), size_t(3));
+}
+
+TEST_F(MPCTest, failure_cases) {
+  trajectory_follower::MPC mpc;
+  const std::string vehicle_model_type = "kinematics";
+  std::shared_ptr<trajectory_follower::VehicleModelInterface> vehicle_model_ptr =
+    std::make_shared<trajectory_follower::KinematicsBicycleModel>(
+    wheelbase, steer_limit, steer_tau);
+  mpc.setVehicleModel(vehicle_model_ptr, vehicle_model_type);
+  std::shared_ptr<trajectory_follower::QPSolverInterface> qpsolver_ptr =
+    std::make_shared<trajectory_follower::QPSolverEigenLeastSquareLLT>();
+  mpc.setQPSolver(qpsolver_ptr);
+
+  // Init parameters and reference trajectory
+  initializeMPC(mpc);
+
+  // Calculate MPC with a pose too far from the trajectory
+  Pose pose_far;
+  pose_far.position.x = pose_zero.position.x - admissible_position_error - 1.0;
+  pose_far.position.y = pose_zero.position.y - admissible_position_error - 1.0;
+  AckermannLateralCommand ctrl_cmd;
+  EXPECT_FALSE(mpc.calculateMPC(neutral_steer, default_velocity, pose_far, ctrl_cmd));
+
+  // Calculate MPC with a fast velocity to make the prediction go further than the reference path
+  EXPECT_FALSE(mpc.calculateMPC(neutral_steer, default_velocity + 10.0, pose_far, ctrl_cmd));
+
+  // Set a wrong vehicle model (not a failure but generates an error message)
+  const std::string wrong_vehicle_model_type = "wrong_model";
+  vehicle_model_ptr = std::make_shared<trajectory_follower::KinematicsBicycleModel>(
+    wheelbase, steer_limit, steer_tau);
+  mpc.setVehicleModel(vehicle_model_ptr, wrong_vehicle_model_type);
+  EXPECT_TRUE(mpc.calculateMPC(neutral_steer, default_velocity, pose_zero, ctrl_cmd));
 }
 }  // namespace
