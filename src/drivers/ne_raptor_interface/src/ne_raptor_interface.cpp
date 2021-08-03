@@ -227,9 +227,6 @@ bool8_t NERaptorInterface::send_state_command(const VehicleStateCommand & msg)
       break;
   }
 
-  // Set misc command values
-  m_misc_cmd.horn_cmd = msg.horn;
-
   switch (msg.blinker) {
     case VehicleStateCommand::BLINKER_NO_COMMAND:
       // Keep previous
@@ -456,6 +453,12 @@ void NERaptorInterface::send_headlights_command(const HeadlightsCommand & msg)
         "Received command for invalid headlight state.");
       break;
   }
+}
+
+void NERaptorInterface::send_horn_command(const HornCommand & msg)
+{
+  // Set misc command values
+  m_misc_cmd.horn_cmd = msg.command;
 }
 
 void NERaptorInterface::on_brake_report(const BrakeReport::SharedPtr & msg)

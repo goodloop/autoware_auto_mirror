@@ -53,6 +53,8 @@ namespace vehicle_interface
 using Real = decltype(BasicControlCommand::long_accel_mps2);
 using autoware_auto_msgs::msg::HeadlightsCommand;
 using autoware_auto_msgs::msg::HeadlightsReport;
+using autoware_auto_msgs::msg::HornCommand;
+using autoware_auto_msgs::msg::HornReport;
 
 /// Convenience struct for construction
 struct TopicNumMatches
@@ -69,7 +71,8 @@ struct FilterConfig
 
 enum class ViFeature
 {
-  HEADLIGHTS
+  HEADLIGHTS,
+  HORN,
 };
 
 /// A node which receives commands and sends them to the vehicle platform, and publishes
@@ -166,6 +169,8 @@ private:
     m_state_sub{nullptr};
   rclcpp::Publisher<HeadlightsReport>::SharedPtr m_headlights_rpt_pub{nullptr};
   rclcpp::Subscription<HeadlightsCommand>::SharedPtr m_headlights_cmd_sub{nullptr};
+  rclcpp::Publisher<HornReport>::SharedPtr m_horn_rpt_pub{nullptr};
+  rclcpp::Subscription<HornCommand>::SharedPtr m_horn_cmd_sub{nullptr};
   rclcpp::Service<autoware_auto_msgs::srv::AutonomyModeChange>::SharedPtr m_mode_service{nullptr};
 
   using BasicSub = rclcpp::Subscription<BasicControlCommand>::SharedPtr;
@@ -185,7 +190,8 @@ private:
 
   std::map<std::string, ViFeature> m_avail_features =
   {
-    {"headlights", ViFeature::HEADLIGHTS}
+    {"headlights", ViFeature::HEADLIGHTS},
+    {"horn", ViFeature::HORN},
   };
   std::unordered_set<ViFeature> m_enabled_features{};
 };  // class VehicleInterfaceNode
