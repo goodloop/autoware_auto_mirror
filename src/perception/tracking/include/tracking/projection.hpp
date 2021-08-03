@@ -36,9 +36,11 @@ namespace perception
 {
 namespace tracking
 {
+using Polygon = std::list<Eigen::Vector3f>;
+
 struct TRACKING_PUBLIC Projection
 {
-  std::list<Eigen::Vector3f> shape;
+  Polygon shape;
 };
 
 /// \brief Camera intrinsic parameters
@@ -95,7 +97,7 @@ private:
   Eigen::Transform<float32_t, 3, Eigen::Affine, Eigen::ColMajor> m_projector;
   Interval m_height_interval;
   Interval m_width_interval;
-  std::list<Eigen::Vector3f> m_corners;
+  Polygon m_corners;
 };
 
 }  // namespace tracking

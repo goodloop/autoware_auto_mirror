@@ -35,6 +35,7 @@ set(TRACKING_LIB_SRC
   src/multi_object_tracker.cpp
   src/tracked_object.cpp
   src/projection.cpp
+  src/roi_association.cpp
 )
 
 set(TRACKING_LIB_HEADERS
@@ -43,6 +44,7 @@ set(TRACKING_LIB_HEADERS
   include/tracking/tracked_object.hpp
   include/tracking/tracker_types.hpp
   include/tracking/visibility_control.hpp
+  include/tracking/roi_association.hpp
 )
 
 # generate library
