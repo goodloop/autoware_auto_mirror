@@ -433,7 +433,7 @@ void NERaptorInterface::send_headlights_command(const HeadlightsCommand & msg)
 void NERaptorInterface::send_horn_command(const HornCommand & msg)
 {
   // Set misc command values
-  m_misc_cmd.horn_cmd = msg.command;
+  m_misc_cmd.horn_cmd = msg.active;
 }
 
 void NERaptorInterface::send_wipers_command(const WipersCommand & msg)
