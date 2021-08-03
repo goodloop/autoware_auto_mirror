@@ -19,7 +19,7 @@ The actual conversions would happen through specializing these classes and funct
 interface would always follow the lines:
 
 ```c++
-convert_to<Stamped<MeasurementXYZPos64>>::from(msg);
+convert_to<Stamped<PoseMeasurementXYZ64>>::from(msg);
 ```
 
 

@@ -49,17 +49,17 @@ struct Stamped
 };
 
 template<typename ScalarT>
-using MeasurementXYZPos = LinearMeasurement<state_vector::GenericState<ScalarT,
+using PoseMeasurementXYZ = LinearMeasurement<state_vector::GenericState<ScalarT,
     state_vector::variable::X, state_vector::variable::Y, state_vector::variable::Z>>;
-using MeasurementXYZPos32 = MeasurementXYZPos<common::types::float32_t>;
-using MeasurementXYZPos64 = MeasurementXYZPos<common::types::float64_t>;
+using PoseMeasurementXYZ32 = PoseMeasurementXYZ<common::types::float32_t>;
+using PoseMeasurementXYZ64 = PoseMeasurementXYZ<common::types::float64_t>;
 
 template<typename ScalarT>
-using MeasurementXYZRPYPos = LinearMeasurement<state_vector::GenericState<ScalarT,
+using PoseMeasurementXYZRPY = LinearMeasurement<state_vector::GenericState<ScalarT,
     state_vector::variable::X, state_vector::variable::Y, state_vector::variable::Z,
     state_vector::variable::ROLL, state_vector::variable::PITCH, state_vector::variable::YAW>>;
-using MeasurementXYZRPYPos32 = MeasurementXYZRPYPos<common::types::float32_t>;
-using MeasurementXYZRPYPos64 = MeasurementXYZRPYPos<common::types::float64_t>;
+using PoseMeasurementXYZRPY32 = PoseMeasurementXYZRPY<common::types::float32_t>;
+using PoseMeasurementXYZRPY64 = PoseMeasurementXYZRPY<common::types::float64_t>;
 
 
 }  // namespace state_estimation

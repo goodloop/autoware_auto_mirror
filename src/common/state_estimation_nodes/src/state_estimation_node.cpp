@@ -175,7 +175,7 @@ void StateEstimationNode::pose_callback(const PoseMsgT::SharedPtr msg)
     throw std::runtime_error("Pose message frames don't match the expected ones.");
   }
   const auto measurement =
-    convert_to<Stamped<MeasurementXYZRPYPos64>>::from(*msg).cast<float32_t>();
+    convert_to<Stamped<PoseMeasurementXYZRPY64>>::from(*msg).cast<float32_t>();
   if (m_ekf->is_initialized()) {
     if (!m_ekf->add_observation_to_history(measurement)) {
       throw std::runtime_error("Cannot add a pose observation to history.");
@@ -193,7 +193,7 @@ void StateEstimationNode::relative_pos_callback(const RelativePosMsgT::SharedPtr
   if ((msg->header.frame_id != m_frame_id) || (msg->child_frame_id != m_child_frame_id)) {
     throw std::runtime_error("RelativePosition message frames don't match the expected ones.");
   }
-  const auto measurement = convert_to<Stamped<MeasurementXYZPos64>>::from(*msg).cast<float32_t>();
+  const auto measurement = convert_to<Stamped<PoseMeasurementXYZ64>>::from(*msg).cast<float32_t>();
   if (m_ekf->is_initialized()) {
     if (!m_ekf->add_observation_to_history(measurement)) {
       throw std::runtime_error("Cannot add a relative pose observation to history.");

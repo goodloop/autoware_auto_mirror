@@ -41,7 +41,7 @@ using autoware::common::state_vector::variable::Y_VELOCITY;
 using autoware::common::state_vector::variable::X_ACCELERATION;
 using autoware::common::state_vector::variable::Y_ACCELERATION;
 
-using autoware::common::state_estimation::MeasurementXYZPos64;
+using autoware::common::state_estimation::PoseMeasurementXYZ64;
 using autoware::common::state_estimation::Stamped;
 using autoware::common::state_estimation::convert_to;
 
@@ -145,10 +145,10 @@ void TrackedObject::update(const DetectedObjectMsg & detection)
   position.position.z = detection.kinematics.centroid_position.z;
   position.covariance = detection.kinematics.position_covariance;
   auto pose_measurement =
-    convert_to<Stamped<MeasurementXYZPos64>>::from(position).measurement;
+    convert_to<Stamped<PoseMeasurementXYZ64>>::from(position).measurement;
   if (!detection.kinematics.has_position_covariance) {
     pose_measurement.covariance() = m_default_variance *
-      MeasurementXYZPos64::State::Matrix::Identity();
+      PoseMeasurementXYZ64::State::Matrix::Identity();
   }
   m_ekf.correct(pose_measurement);
 }

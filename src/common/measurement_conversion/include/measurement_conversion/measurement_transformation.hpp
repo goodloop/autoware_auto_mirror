@@ -76,16 +76,16 @@ MeasurementT message_to_transformed_measurement(
 /// @brief      Specialization of transform_measurement for pose measurement.
 ///
 template<>
-MEASUREMENT_CONVERSION_PUBLIC MeasurementXYZPos64 transform_measurement(
-  const MeasurementXYZPos64 & measurement,
+MEASUREMENT_CONVERSION_PUBLIC PoseMeasurementXYZ64 transform_measurement(
+  const PoseMeasurementXYZ64 & measurement,
   const Eigen::Isometry3d & tf__world__frame_id);
 
 ///
 /// @brief      Specialization of transform_measurement for stamped pose measurement.
 ///
 template<>
-MEASUREMENT_CONVERSION_PUBLIC Stamped<MeasurementXYZPos64> transform_measurement(
-  const Stamped<MeasurementXYZPos64> & measurement,
+MEASUREMENT_CONVERSION_PUBLIC Stamped<PoseMeasurementXYZ64> transform_measurement(
+  const Stamped<PoseMeasurementXYZ64> & measurement,
   const Eigen::Isometry3d & tf__world__frame_id);
 
 }  // namespace state_estimation

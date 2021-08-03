@@ -58,7 +58,7 @@ namespace common
 namespace state_estimation
 {
 
-MeasurementXYZRPYPos64 convert_to<MeasurementXYZRPYPos64>::from(
+PoseMeasurementXYZRPY64 convert_to<PoseMeasurementXYZRPY64>::from(
   const geometry_msgs::msg::PoseWithCovariance & msg)
 {
   using Vector6d = Eigen::Matrix<float64_t, 6, 1>;
@@ -78,10 +78,10 @@ MeasurementXYZRPYPos64 convert_to<MeasurementXYZRPYPos64>::from(
   const auto rotation_start_idx{kAngleOffset};
   covariance.bottomRightCorner<3, 3>() =
     array_to_matrix<3, 3>(cov, rotation_start_idx, stride, InputStorageOrder::kRowMajor);
-  return MeasurementXYZRPYPos64{mean, covariance};
+  return PoseMeasurementXYZRPY64{mean, covariance};
 }
 
-MeasurementXYZPos64 convert_to<MeasurementXYZPos64>::from(
+PoseMeasurementXYZ64 convert_to<PoseMeasurementXYZ64>::from(
   const autoware_auto_msgs::msg::RelativePositionWithCovarianceStamped & msg)
 {
   const Eigen::Vector3d mean{msg.position.x, msg.position.y, msg.position.z};
@@ -90,7 +90,7 @@ MeasurementXYZPos64 convert_to<MeasurementXYZPos64>::from(
   const auto stride = kCovarianceMatrixRowsRelativePos;
   const Eigen::Matrix3d covariance =
     array_to_matrix<3, 3>(cov, start_idx, stride, InputStorageOrder::kRowMajor);
-  return MeasurementXYZPos64{mean, covariance};
+  return PoseMeasurementXYZ64{mean, covariance};
 }
 
 }  // namespace state_estimation

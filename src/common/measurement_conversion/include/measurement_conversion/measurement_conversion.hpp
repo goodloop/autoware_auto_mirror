@@ -97,18 +97,18 @@ struct MEASUREMENT_CONVERSION_PUBLIC convert_to<Stamped<MeasurementT>>
   }
 };
 
-/// A specialization for MeasurementXYZRPYPos64.
+/// A specialization for PoseMeasurementXYZRPY64.
 template<>
-struct MEASUREMENT_CONVERSION_PUBLIC convert_to<MeasurementXYZRPYPos64>
+struct MEASUREMENT_CONVERSION_PUBLIC convert_to<PoseMeasurementXYZRPY64>
 {
-  static MeasurementXYZRPYPos64 from(const geometry_msgs::msg::PoseWithCovariance & msg);
+  static PoseMeasurementXYZRPY64 from(const geometry_msgs::msg::PoseWithCovariance & msg);
 };
 
-/// A specialization for MeasurementXYZPos64.
+/// A specialization for PoseMeasurementXYZ64.
 template<>
-struct MEASUREMENT_CONVERSION_PUBLIC convert_to<MeasurementXYZPos64>
+struct MEASUREMENT_CONVERSION_PUBLIC convert_to<PoseMeasurementXYZ64>
 {
-  static MeasurementXYZPos64 from(
+  static PoseMeasurementXYZ64 from(
     const autoware_auto_msgs::msg::RelativePositionWithCovarianceStamped & msg);
 };
 
