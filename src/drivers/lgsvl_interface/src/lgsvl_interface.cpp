@@ -85,13 +85,9 @@ LgsvlInterface::LgsvlInterface(
   Table1D && throttle_table,
   Table1D && brake_table,
   Table1D && steer_table,
-  rclcpp::Publisher<HeadlightsReport>::SharedPtr headlights_report_pub,
-  rclcpp::Publisher<HornReport>::SharedPtr horn_report_pub,
   bool publish_tf,
   bool publish_pose)
-: m_headlights_report_pub{headlights_report_pub},
-  m_horn_report_pub{horn_report_pub},
-  m_throttle_table{throttle_table},
+: m_throttle_table{throttle_table},
   m_brake_table{brake_table},
   m_steer_table{steer_table},
   m_logger{node.get_logger()}
@@ -307,16 +303,11 @@ bool8_t LgsvlInterface::send_state_command(const autoware_auto_msgs::msg::Vehicl
   m_lgsvl_state.set__current_gear(msg_corrected.gear);
   m_lgsvl_state.set__vehicle_mode(msg_corrected.mode);
   m_lgsvl_state.set__hand_brake_active(msg_corrected.hand_brake);
-  m_lgsvl_state.set__horn_active(msg_corrected.horn);
   m_lgsvl_state.set__autonomous_mode_active(
     msg_corrected.mode ==
     VSD::VEHICLE_MODE_COMPLETE_AUTO_DRIVE ? true : false);
 
   m_state_pub->publish(m_lgsvl_state);
-
-  HornReport horn_report;
-  horn_report.report = msg_corrected.horn;
-  m_horn_report_pub->publish(horn_report);
 
   return true;
 }
