@@ -49,6 +49,82 @@ geometry_msgs::msg::PoseStamped::SharedPtr AutowareStateMonitorNode::getCurrentP
   return pose;
 }
 
+AutowareStateMonitorNode::AutowareStateMonitorNode(const rclcpp::NodeOptions & node_options)
+: Node("autoware_state_monitor", node_options),
+  tf_buffer_(this->get_clock()),
+  tf_listener_(tf_buffer_)
+{
+  using std::placeholders::_1;
+  using std::placeholders::_2;
+  using std::placeholders::_3;
+
+  // Parameters
+  update_rate_ = this->declare_parameter("update_rate", 10.0);
+  local_frame_ = this->declare_parameter("local_frame", "base_link");
+  global_frame_ = this->declare_parameter("global_frame", "map");
+
+  // Parameters for StateMachine
+  state_param_.th_arrived_distance_m = this->declare_parameter("th_arrived_distance_m", 1.0);
+  state_param_.th_stopped_time_sec = this->declare_parameter("th_stopped_time_sec", 1.0);
+  state_param_.th_stopped_velocity_mps = this->declare_parameter("th_stopped_velocity_mps", 0.01);
+  state_param_.wait_time_after_initializing =
+    this->declare_parameter("wait_time_after_initializing", 1.0);
+  state_param_.wait_time_after_planning =
+    this->declare_parameter("wait_time_after_planning", 1.0);
+  state_param_.wait_time_after_arrived_goal =
+    this->declare_parameter("wait_time_after_arrived_goal", 2.0);
+
+  // State Machine
+  state_machine_ = std::make_shared<StateMachine>(state_param_);
+
+  // Odometry Updater
+  odometry_updater_ = std::make_shared<OdometryUpdater>(
+    state_input_.odometry_buffer, state_param_.th_stopped_time_sec);
+
+  // Callback Groups
+  callback_group_subscribers_ = this->create_callback_group(
+    rclcpp::CallbackGroupType::MutuallyExclusive);
+  callback_group_services_ = this->create_callback_group(
+    rclcpp::CallbackGroupType::MutuallyExclusive);
+  auto subscriber_option = rclcpp::SubscriptionOptions();
+  subscriber_option.callback_group = callback_group_subscribers_;
+
+  // Subscriber
+  sub_engage_ = this->create_subscription<Engage>(
+    "input/engage", 1,
+    std::bind(&AutowareStateMonitorNode::onAutowareEngage, this, _1), subscriber_option);
+  sub_vehicle_state_report_ =
+    this->create_subscription<VehicleStateReport>(
+    "input/vehicle_state_report", 1,
+    std::bind(&AutowareStateMonitorNode::onVehicleStateReport, this, _1), subscriber_option);
+  sub_route_ = this->create_subscription<HADMapRoute>(
+    "input/route", 1,
+    std::bind(&AutowareStateMonitorNode::onRoute, this, _1), subscriber_option);
+  sub_odometry_ = this->create_subscription<VehicleOdometry>(
+    "input/odometry", 100,
+    std::bind(&AutowareStateMonitorNode::onVehicleOdometry, this, _1), subscriber_option);
+
+  // Service
+  srv_shutdown_ = this->create_service<std_srvs::srv::Trigger>(
+    "service/shutdown",
+    std::bind(&AutowareStateMonitorNode::onShutdownService, this, _1, _2, _3),
+    rmw_qos_profile_services_default, callback_group_services_);
+
+  // Publisher
+  pub_autoware_state_ =
+    this->create_publisher<autoware_auto_msgs::msg::AutowareState>("output/autoware_state", 1);
+
+  // Timer
+  auto timer_callback = std::bind(&AutowareStateMonitorNode::onTimer, this);
+  auto period = std::chrono::duration_cast<std::chrono::nanoseconds>(
+    std::chrono::duration<double>(1.0 / update_rate_));
+
+  timer_ = std::make_shared<rclcpp::GenericTimer<decltype(timer_callback)>>(
+    this->get_clock(), period, std::move(timer_callback),
+    this->get_node_base_interface()->get_context());
+  this->get_node_timers_interface()->add_timer(timer_, callback_group_subscribers_);
+}
+
 void AutowareStateMonitorNode::onAutowareEngage(const Engage::ConstSharedPtr msg)
 {
   state_input_.engage = msg;
@@ -143,81 +219,10 @@ void AutowareStateMonitorNode::publishAutowareState(const AutowareState & state)
   pub_autoware_state_->publish(autoware_state_msg);
 }
 
-AutowareStateMonitorNode::AutowareStateMonitorNode()
-: Node("autoware_state_monitor"),
-  tf_buffer_(this->get_clock()),
-  tf_listener_(tf_buffer_)
-{
-  using std::placeholders::_1;
-  using std::placeholders::_2;
-  using std::placeholders::_3;
-
-  // Parameters
-  update_rate_ = this->declare_parameter("update_rate", 10.0);
-  local_frame_ = this->declare_parameter("local_frame", "base_link");
-  global_frame_ = this->declare_parameter("global_frame", "map");
-
-  // Parameters for StateMachine
-  state_param_.th_arrived_distance_m = this->declare_parameter("th_arrived_distance_m", 1.0);
-  state_param_.th_stopped_time_sec = this->declare_parameter("th_stopped_time_sec", 1.0);
-  state_param_.th_stopped_velocity_mps = this->declare_parameter("th_stopped_velocity_mps", 0.01);
-  state_param_.wait_time_after_initializing =
-    this->declare_parameter("wait_time_after_initializing", 1.0);
-  state_param_.wait_time_after_planning =
-    this->declare_parameter("wait_time_after_planning", 1.0);
-  state_param_.wait_time_after_arrived_goal =
-    this->declare_parameter("wait_time_after_arrived_goal", 2.0);
-
-  // State Machine
-  state_machine_ = std::make_shared<StateMachine>(state_param_);
-
-  // Odometry Updater
-  odometry_updater_ = std::make_shared<OdometryUpdater>(
-    state_input_.odometry_buffer, state_param_.th_stopped_time_sec);
-
-  // Callback Groups
-  callback_group_subscribers_ = this->create_callback_group(
-    rclcpp::CallbackGroupType::MutuallyExclusive);
-  callback_group_services_ = this->create_callback_group(
-    rclcpp::CallbackGroupType::MutuallyExclusive);
-  auto subscriber_option = rclcpp::SubscriptionOptions();
-  subscriber_option.callback_group = callback_group_subscribers_;
-
-  // Subscriber
-  sub_engage_ = this->create_subscription<Engage>(
-    "input/engage", 1,
-    std::bind(&AutowareStateMonitorNode::onAutowareEngage, this, _1), subscriber_option);
-  sub_vehicle_state_report_ =
-    this->create_subscription<VehicleStateReport>(
-    "input/vehicle_state_report", 1,
-    std::bind(&AutowareStateMonitorNode::onVehicleStateReport, this, _1), subscriber_option);
-  sub_route_ = this->create_subscription<HADMapRoute>(
-    "input/route", 1,
-    std::bind(&AutowareStateMonitorNode::onRoute, this, _1), subscriber_option);
-  sub_odometry_ = this->create_subscription<VehicleOdometry>(
-    "input/odometry", 100,
-    std::bind(&AutowareStateMonitorNode::onVehicleOdometry, this, _1), subscriber_option);
-
-  // Service
-  srv_shutdown_ = this->create_service<std_srvs::srv::Trigger>(
-    "service/shutdown",
-    std::bind(&AutowareStateMonitorNode::onShutdownService, this, _1, _2, _3),
-    rmw_qos_profile_services_default, callback_group_services_);
-
-  // Publisher
-  pub_autoware_state_ =
-    this->create_publisher<autoware_auto_msgs::msg::AutowareState>("output/autoware_state", 1);
-
-  // Timer
-  auto timer_callback = std::bind(&AutowareStateMonitorNode::onTimer, this);
-  auto period = std::chrono::duration_cast<std::chrono::nanoseconds>(
-    std::chrono::duration<double>(1.0 / update_rate_));
-
-  timer_ = std::make_shared<rclcpp::GenericTimer<decltype(timer_callback)>>(
-    this->get_clock(), period, std::move(timer_callback),
-    this->get_node_base_interface()->get_context());
-  this->get_node_timers_interface()->add_timer(timer_, callback_group_subscribers_);
-}
 
 }  // namespace state_monitor
 }  // namespace autoware
+
+#include "rclcpp_components/register_node_macro.hpp"  // NOLINT
+RCLCPP_COMPONENTS_REGISTER_NODE(
+  autoware::state_monitor::AutowareStateMonitorNode)

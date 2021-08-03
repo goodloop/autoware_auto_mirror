@@ -48,7 +48,9 @@ namespace state_monitor
 class AUTOWARE_STATE_MONITOR_PUBLIC AutowareStateMonitorNode : public rclcpp::Node
 {
 public:
-  AutowareStateMonitorNode();
+  /// \brief Constructor
+  /// \param[in] node_options Node options as rclcpp::NodeOptions
+  explicit AutowareStateMonitorNode(const rclcpp::NodeOptions & node_options);
 
 private:
   using VehicleStateReport = autoware_auto_msgs::msg::VehicleStateReport;

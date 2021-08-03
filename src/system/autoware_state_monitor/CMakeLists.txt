@@ -14,11 +14,10 @@ set(STATE_MONITOR_SRC
 
 ament_auto_add_library(${PROJECT_NAME} SHARED ${STATE_MONITOR_SRC})
 autoware_set_compile_options(${PROJECT_NAME})
-
-ament_auto_add_executable(${PROJECT_NAME}_exe
-  src/autoware_state_monitor_node/main.cpp
+rclcpp_components_register_node(${PROJECT_NAME}
+  PLUGIN "autoware::state_monitor::AutowareStateMonitorNode"
+  EXECUTABLE ${PROJECT_NAME}_exe
 )
-autoware_set_compile_options(${PROJECT_NAME}_exe)
 
 ### Test
 if(BUILD_TESTING)
