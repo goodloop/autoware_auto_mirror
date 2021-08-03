@@ -40,7 +40,7 @@ namespace state_estimation
 
 namespace detail
 {
-inline geometry_msgs::msg::PoseWithCovariance unstamp(
+inline const geometry_msgs::msg::PoseWithCovariance & unstamp(
   const geometry_msgs::msg::PoseWithCovarianceStamped & msg)
 {
   return msg.pose;
