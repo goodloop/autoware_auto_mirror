@@ -29,13 +29,15 @@ namespace filters
 namespace outlier_filter_nodes
 {
 
+using float64_t = autoware::common::types::float64_t;
+
 using RadiusSearch2DFilter =
   autoware::perception::filters::outlier_filter::radius_search_2d_filter::
   RadiusSearch2DFilter;
 
 RadiusSearch2DFilterNode::RadiusSearch2DFilterNode(const rclcpp::NodeOptions & options)
 :  FilterNodeBase("radius_search_2d_filter_node", options),
-  search_radius_(declare_parameter("search_radius").get<double>()),
+  search_radius_(declare_parameter("search_radius").get<float64_t>()),
   min_neighbors_(declare_parameter("min_neighbors").get<int>())
 {
   radius_search_2d_filter_ = std::make_shared<RadiusSearch2DFilter>(
@@ -70,12 +72,12 @@ rcl_interfaces::msg::SetParametersResult RadiusSearch2DFilterNode::get_node_para
   {
     using namespace autoware::perception::filters::filter_node_base; //NOLINT
 
-    if (get_param<double>(p, "search_radius", search_radius_)) {
+    if (get_param<float64_t>(p, "search_radius", search_radius_)) {
       result.successful = false;
       result.reason += "Failed to retrieve search_radius parameter. ";
       RCLCPP_DEBUG(get_logger(), "Setting new search radius to: %f.", search_radius_);
     }
-    if (get_param<int64_t>(p, "min_neighbors", min_neighbors_)) {
+    if (get_param<std::int64_t>(p, "min_neighbors", min_neighbors_)) {
       result.successful = false;
       result.reason += "Failed to retrieve min_neighbors parameter. ";
       RCLCPP_DEBUG(get_logger(), "Setting new min neighbors to: %d.", min_neighbors_);

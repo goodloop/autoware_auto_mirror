@@ -22,6 +22,7 @@
 #include <memory>
 #include <vector>
 
+#include "common/types.hpp"
 #include "outlier_filter_nodes/visibility_control.hpp"
 
 #include "filter_node_base/filter_node_base.hpp"
@@ -38,7 +39,8 @@ namespace filters
 namespace outlier_filter_nodes
 {
 
-using FilterNodeBase = autoware::perception::filters::filter_node_base::FilterNodeBase;
+using float64_t = autoware::common::types::float64_t;
+
 using VoxelGridOutlierFilter =
   autoware::perception::filters::outlier_filter::voxel_grid_outlier_filter::
   VoxelGridOutlierFilter;
@@ -46,7 +48,8 @@ using VoxelGridOutlierFilter =
 /// \class VoxelGridOutlierFilterNode
 /// \brief Node inheriting from FilterNodeBase and is the ROS2 node interface for the
 //   VoxelGridOutlierFilter library
-class OUTLIER_FILTER_NODES_PUBLIC VoxelGridOutlierFilterNode final : public FilterNodeBase
+class OUTLIER_FILTER_NODES_PUBLIC VoxelGridOutlierFilterNode final : public filter_node_base::
+  FilterNodeBase
 {
 public:
   /** \brief The default constructor for the VoxelGridOutlierFilterNode class
@@ -64,9 +67,9 @@ protected:
    * \param input The input point cloud dataset.
    * \param output The resultant filtered PointCloud2
    */
-  OUTLIER_FILTER_NODES_PUBLIC virtual void filter(
+  OUTLIER_FILTER_NODES_PUBLIC void filter(
     const sensor_msgs::msg::PointCloud2 & input,
-    sensor_msgs::msg::PointCloud2 & output);
+    sensor_msgs::msg::PointCloud2 & output) override;
 
   /** \brief Implementation of the FilterNodeBase class abstract get_node_parameters method
    *
@@ -77,8 +80,8 @@ protected:
    * \param p Vector of rclcpp::Parameters belonging to the node
    * \return rcl_interfaces::msg::SetParametersResult Result of retrieving the parameter
    */
-  OUTLIER_FILTER_NODES_PUBLIC virtual rcl_interfaces::msg::SetParametersResult get_node_parameters(
-    const std::vector<rclcpp::Parameter> & p);
+  OUTLIER_FILTER_NODES_PUBLIC rcl_interfaces::msg::SetParametersResult get_node_parameters(
+    const std::vector<rclcpp::Parameter> & p) override;
 
 private:
   /** \brief Class object containing the VoxelGridOutlierFilter library functionality */
@@ -86,18 +89,18 @@ private:
 
   /** \brief Variable containing the value of the voxel x dimension (passed into
      voxel_grid_outlier_filter_) */
-  double voxel_size_x_;
+  float64_t voxel_size_x_;
 
   /** \brief Variable containing the value of the voxel y dimension (passed into
      voxel_grid_outlier_filter_) */
-  double voxel_size_y_;
+  float64_t voxel_size_y_;
 
   /** \brief Variable containing the value of the voxel z dimension (passed into
      voxel_grid_outlier_filter_) */
-  double voxel_size_z_;
+  float64_t voxel_size_z_;
 
   /** \brief Variable containing the points threshold (passed into voxel_grid_outlier_filter_) */
-  int64_t voxel_points_threshold_;
+  std::int64_t voxel_points_threshold_;
 };
 }  // namespace outlier_filter_nodes
 }  // namespace filters
