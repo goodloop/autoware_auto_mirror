@@ -250,6 +250,43 @@ std::list<PointT> convex_polygon_intersection2d(
   return result;
 }
 
+
+/// \brief Compute the intersection over union of two 2d convex polygons.
+/// \tparam IterableT A container class that has stl style iterators defined.
+/// \tparam PointT Point type that have the adapters for the x and y fields.
+/// \param polygon1 A convex polygon
+/// \param polygon2 A convex polygon
+/// \return (Intersection / Union) between two given polygons.
+/// \throws std::domain_error If the union area of two polygons is zero.
+template<template<typename ...> class IterableT, typename PointT>
+common::types::float32_t convex_intersection_over_union_2d(
+  const IterableT<PointT> & polygon1,
+  const IterableT<PointT> & polygon2
+)
+{
+  constexpr auto eps = std::numeric_limits<float32_t>::epsilon();
+  const auto intersection = convex_polygon_intersection2d(polygon1, polygon2);
+
+  const auto intersection_area =
+    common::geometry::area_2d(intersection.begin(), intersection.end());
+
+  if (intersection_area < eps) {
+    return 0.0F;  // There's either no intersection or the points are collinear
+  }
+
+  const auto polygon1_area =
+    common::geometry::area_2d(polygon1.begin(), polygon1.end());
+  const auto polygon2_area =
+    common::geometry::area_2d(polygon2.begin(), polygon2.end());
+
+  const auto union_area = polygon1_area + polygon2_area - intersection_area;
+  if (union_area < eps) {
+    throw std::domain_error("IoU is undefined for polygons with a zero union area");
+  }
+
+  return intersection_area / union_area;
+}
+
 }  // namespace geometry
 }  // namespace common
 }  // namespace autoware
