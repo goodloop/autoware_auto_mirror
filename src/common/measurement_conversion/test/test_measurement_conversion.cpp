@@ -23,8 +23,8 @@
 #include <measurement_conversion/measurement_conversion.hpp>
 
 using autoware::common::state_estimation::Stamped;
-using autoware::common::state_estimation::MeasurementXYZPos64;
-using autoware::common::state_estimation::MeasurementXYZRPYPos64;
+using autoware::common::state_estimation::PoseMeasurementXYZ64;
+using autoware::common::state_estimation::PoseMeasurementXYZRPY64;
 using autoware::common::state_estimation::convert_to;
 using autoware::common::state_vector::variable::X;
 using autoware::common::state_vector::variable::Y;
@@ -87,7 +87,7 @@ autoware_auto_msgs::msg::RelativePositionWithCovarianceStamped create_relative_p
 /// \test Create a measurement from a relative pose.
 TEST(MeasurementConversionTest, RelativePose) {
   const auto msg = create_relative_pos_msg();
-  const auto measurement = convert_to<Stamped<MeasurementXYZPos64>>::from(msg);
+  const auto measurement = convert_to<Stamped<PoseMeasurementXYZ64>>::from(msg);
   EXPECT_DOUBLE_EQ(measurement.measurement.state().at<X>(), msg.position.x);
   EXPECT_DOUBLE_EQ(measurement.measurement.state().at<Y>(), msg.position.y);
   EXPECT_DOUBLE_EQ(measurement.measurement.state().at<Z>(), msg.position.z);
@@ -102,7 +102,7 @@ TEST(MeasurementConversionTest, RelativePose) {
 /// \test Create a measurement from pose.
 TEST(MeasurementConversionTest, Pose) {
   const auto msg = create_pose_msg();
-  const auto measurement = convert_to<Stamped<MeasurementXYZRPYPos64>>::from(msg);
+  const auto measurement = convert_to<Stamped<PoseMeasurementXYZRPY64>>::from(msg);
   EXPECT_DOUBLE_EQ(measurement.measurement.state().at<X>(), msg.pose.pose.position.x);
   EXPECT_DOUBLE_EQ(measurement.measurement.state().at<Y>(), msg.pose.pose.position.y);
   EXPECT_DOUBLE_EQ(measurement.measurement.state().at<Z>(), msg.pose.pose.position.z);

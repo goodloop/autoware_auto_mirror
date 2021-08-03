@@ -27,11 +27,11 @@ namespace state_estimation
 {
 
 template<>
-MeasurementXYZPos64 transform_measurement(
-  const MeasurementXYZPos64 & measurement,
+PoseMeasurementXYZ64 transform_measurement(
+  const PoseMeasurementXYZ64 & measurement,
   const Eigen::Isometry3d & tf__world__frame_id)
 {
-  return MeasurementXYZPos64{
+  return PoseMeasurementXYZ64{
     tf__world__frame_id * measurement.state().vector(),
       tf__world__frame_id.rotation() *
       measurement.covariance().matrix() *
@@ -40,11 +40,11 @@ MeasurementXYZPos64 transform_measurement(
 }
 
 template<>
-Stamped<MeasurementXYZPos64> transform_measurement(
-  const Stamped<MeasurementXYZPos64> & measurement,
+Stamped<PoseMeasurementXYZ64> transform_measurement(
+  const Stamped<PoseMeasurementXYZ64> & measurement,
   const Eigen::Isometry3d & tf__world__frame_id)
 {
-  return Stamped<MeasurementXYZPos64> {
+  return Stamped<PoseMeasurementXYZ64> {
     measurement.timestamp,
     transform_measurement(measurement.measurement, tf__world__frame_id)};
 }
