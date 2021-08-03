@@ -71,7 +71,7 @@ bool StateMachine::isAutonomousMode() const
     return false;
   }
 
-  // TODO: Enable mode checking after fix in lgsvl
+  // TODO(mdrwiega) Enable mode checking after fix in lgsvl interface
   // if (state_input_.vehicle_state_report->mode != VehicleStateReport::MODE_AUTONOMOUS) {
   //   return false;
   // }

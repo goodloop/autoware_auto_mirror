@@ -361,7 +361,8 @@ TEST_F(StateMachineTest, waiting_for_engage_missing_vehicle_mode_in_input)
   EXPECT_EQ(state_machine->updateState(input), AutowareState::WaitingForEngage);
 }
 
-TEST_F(StateMachineTest, waiting_for_engage_not_in_autonomous_mode)
+// TODO(mdrwiega): Enable test after enabling mode checking in state machine
+TEST_F(StateMachineTest, DISABLED_waiting_for_engage_not_in_autonomous_mode)
 {
   auto input = initializeWithState(AutowareState::WaitingForEngage);
   const bool engage = true;

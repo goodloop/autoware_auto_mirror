@@ -183,7 +183,7 @@ AutowareStateMonitorNode::AutowareStateMonitorNode()
   state_param_.wait_time_after_initializing =
     this->declare_parameter("wait_time_after_initializing", 1.0);
   state_param_.wait_time_after_planning =
-    this->declare_parameter("wait_time_after_planning", 3.0);
+    this->declare_parameter("wait_time_after_planning", 1.0);
   state_param_.wait_time_after_arrived_goal =
     this->declare_parameter("wait_time_after_arrived_goal", 2.0);
 
