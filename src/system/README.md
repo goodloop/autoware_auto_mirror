@@ -1,4 +1,4 @@
-Planning {#autoware-planning-design}
+Planning {#autoware-system-design}
 ========
 
 # Domain Description
@@ -9,4 +9,4 @@ a system monitoring and maintenance.
 # Subpages
 
 - Monitoring System
-  - @subpage autoware-state-monitor
+  - @subpage autoware_state_monitor
