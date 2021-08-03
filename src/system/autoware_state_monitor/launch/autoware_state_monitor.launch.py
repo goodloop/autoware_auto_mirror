@@ -42,7 +42,7 @@ def generate_launch_description():
         namespace='system',
         parameters=[LaunchConfiguration('autoware_state_monitor_param_file')],
         remappings=[
-            ('input/autoware_engage', '/vehicle/engage'),
+            ('input/engage', '/vehicle/engage'),
             ('input/vehicle_state_report', '/vehicle/state_report'),
             ('input/odometry', '/vehicle/odometry'),
             ('input/route', '/planning/global_path'),

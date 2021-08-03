@@ -71,9 +71,10 @@ bool StateMachine::isAutonomousMode() const
     return false;
   }
 
-  if (state_input_.vehicle_state_report->mode != VehicleStateReport::MODE_AUTONOMOUS) {
-    return false;
-  }
+  // TODO: Enable mode checking after fix in lgsvl
+  // if (state_input_.vehicle_state_report->mode != VehicleStateReport::MODE_AUTONOMOUS) {
+  //   return false;
+  // }
 
   return true;
 }
