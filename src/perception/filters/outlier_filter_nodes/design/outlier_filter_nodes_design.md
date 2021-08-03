@@ -7,9 +7,12 @@ outlier_filter_nodes {#outlier-filter-nodes-package-design}
 <!-- Things to consider:
     - Why did we implement this feature? -->
 
+The purpose of this package is to provide the ROS2 node interface for the outlier_filter library
+functions.
+
 The `outlier_filter_nodes` package contains the node executables for launching the:
- * radius_search_2d_filter_node
- * voxel_grid_outlier_filter_node 
+ * `radius_search_2d_filter_node`
+ * `voxel_grid_outlier_filter_node`
 
 
 # Design

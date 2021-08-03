@@ -22,6 +22,7 @@
 #include <vector>
 #include <memory>
 
+#include "common/types.hpp"
 #include "outlier_filter_nodes/visibility_control.hpp"
 
 #include "filter_node_base/filter_node_base.hpp"
@@ -39,7 +40,8 @@ namespace filters
 namespace outlier_filter_nodes
 {
 
-using FilterNodeBase = autoware::perception::filters::filter_node_base::FilterNodeBase;
+using float64_t = autoware::common::types::float64_t;
+
 using RadiusSearch2DFilter =
   autoware::perception::filters::outlier_filter::radius_search_2d_filter::
   RadiusSearch2DFilter;
@@ -47,7 +49,8 @@ using RadiusSearch2DFilter =
 /// \class RadiusSearch2DFilterNode
 /// \brief Node inheriting from FilterNodeBase and is the ROS2 node interface for the
 //   RadiusSearch2DFilter library
-class OUTLIER_FILTER_NODES_PUBLIC RadiusSearch2DFilterNode final : public FilterNodeBase
+class OUTLIER_FILTER_NODES_PUBLIC RadiusSearch2DFilterNode final : public filter_node_base::
+  FilterNodeBase
 {
 public:
   /** \brief The default constructor for the RadiusSearch2DFilterNode class
@@ -65,9 +68,9 @@ protected:
    * \param input The input point cloud dataset.
    * \param output The resultant filtered PointCloud2
    */
-  OUTLIER_FILTER_NODES_PUBLIC virtual void filter(
+  OUTLIER_FILTER_NODES_PUBLIC void filter(
     const sensor_msgs::msg::PointCloud2 & input,
-    sensor_msgs::msg::PointCloud2 & output);
+    sensor_msgs::msg::PointCloud2 & output) override;
 
   /** \brief Implementation of the FilterNodeBase class abstract get_node_parameters method
    *
@@ -78,8 +81,8 @@ protected:
    * \param p Vector of rclcpp::Parameters belonging to the node
    * \return rcl_interfaces::msg::SetParametersResult Result of retrieving the parameter
    */
-  OUTLIER_FILTER_NODES_PUBLIC virtual rcl_interfaces::msg::SetParametersResult get_node_parameters(
-    const std::vector<rclcpp::Parameter> & p);
+  OUTLIER_FILTER_NODES_PUBLIC rcl_interfaces::msg::SetParametersResult get_node_parameters(
+    const std::vector<rclcpp::Parameter> & p) override;
 
 private:
   /** \brief Class object containing the RadiusSearch2DFilter library functionality */
@@ -87,11 +90,11 @@ private:
 
   /** \brief Variable containing the value of the search radius (passed into
        radius_search_2d_filter_) */
-  double search_radius_;
+  float64_t search_radius_;
 
   /** \brief Variable containing the value of the minimum neighbors for points (passed into
      radius_search_2d_filter_) */
-  int64_t min_neighbors_;
+  std::int64_t min_neighbors_;
 };
 }  // namespace outlier_filter_nodes
 }  // namespace filters

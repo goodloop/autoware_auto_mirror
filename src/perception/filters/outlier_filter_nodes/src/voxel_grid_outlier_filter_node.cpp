@@ -29,6 +29,8 @@ namespace filters
 namespace outlier_filter_nodes
 {
 
+using float64_t = autoware::common::types::float64_t;
+
 using VoxelGridOutlierFilter =
   autoware::perception::filters::outlier_filter::voxel_grid_outlier_filter::
   VoxelGridOutlierFilter;
@@ -72,22 +74,22 @@ rcl_interfaces::msg::SetParametersResult VoxelGridOutlierFilterNode::get_node_pa
   {
     using namespace autoware::perception::filters::filter_node_base; //NOLINT
 
-    if (get_param<double>(p, "voxel_size_x", voxel_size_x_)) {
+    if (get_param<float64_t>(p, "voxel_size_x", voxel_size_x_)) {
       result.successful = false;
       result.reason += "Failed to retrieve voxel_size_x parameter. ";
       RCLCPP_DEBUG(get_logger(), "Setting new voxel leaf size (x) to: %f.", voxel_size_x_);
     }
-    if (get_param<double>(p, "voxel_size_y", voxel_size_y_)) {
+    if (get_param<float64_t>(p, "voxel_size_y", voxel_size_y_)) {
       result.successful = false;
       result.reason += "Failed to retrieve voxel_size_y parameter. ";
       RCLCPP_DEBUG(get_logger(), "Setting new voxel leaf size (y) to: %f.", voxel_size_y_);
     }
-    if (get_param<double>(p, "voxel_size_z", voxel_size_z_)) {
+    if (get_param<float64_t>(p, "voxel_size_z", voxel_size_z_)) {
       result.successful = false;
       result.reason += "Failed to retrieve voxel_size_z parameter. ";
       RCLCPP_DEBUG(get_logger(), "Setting new voxel leaf size (z) to: %f.", voxel_size_z_);
     }
-    if (get_param<int64_t>(p, "voxel_points_threshold", voxel_points_threshold_)) {
+    if (get_param<std::int64_t>(p, "voxel_points_threshold", voxel_points_threshold_)) {
       result.successful = false;
       result.reason += "Failed to retrieve voxel_points_threshold parameter. ";
       RCLCPP_DEBUG(
@@ -99,7 +101,7 @@ rcl_interfaces::msg::SetParametersResult VoxelGridOutlierFilterNode::get_node_pa
   voxel_grid_outlier_filter_->update_parameters(
     static_cast<float>(voxel_size_x_), static_cast<float>(voxel_size_y_),
     static_cast<float>(voxel_size_z_),
-    static_cast<uint32_t>(voxel_points_threshold_));
+    static_cast<std::uint32_t>(voxel_points_threshold_));
 
   return result;
 }
