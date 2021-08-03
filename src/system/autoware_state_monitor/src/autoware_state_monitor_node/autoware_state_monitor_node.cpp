@@ -27,25 +27,6 @@ namespace autoware
 namespace state_monitor
 {
 
-template<class Config>
-std::vector<Config> getConfigs(
-  rclcpp::node_interfaces::NodeParametersInterface::SharedPtr interface,
-  const std::string & config_namespace)
-{
-  std::string names_key = config_namespace + ".names";
-  interface->declare_parameter(names_key);
-  std::vector<std::string> config_names = interface->get_parameter(names_key).as_string_array();
-
-  std::vector<Config> configs;
-  configs.reserve(config_names.size());
-
-  for (auto config_name : config_names) {
-    configs.emplace_back(interface, config_namespace + ".configs." + config_name, config_name);
-  }
-
-  return configs;
-}
-
 geometry_msgs::msg::PoseStamped::SharedPtr AutowareStateMonitorNode::getCurrentPose(
   const tf2_ros::Buffer & tf_buffer)
 {
