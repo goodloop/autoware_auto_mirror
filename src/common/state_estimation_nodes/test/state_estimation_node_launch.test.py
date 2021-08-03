@@ -50,5 +50,5 @@ def generate_test_description():
 class TestProcessOutput(unittest.TestCase):
 
     def test_exit_code(self, proc_output, proc_info, state_estimation_node):
-        # Check that process exits with code -15 code: termination request, sent to the program
-        launch_testing.asserts.assertExitCodes(proc_info, [-15], process=state_estimation_node)
+        # Check that process exits with expected codes: either SIGINT or SIGTERM codes are fine
+        launch_testing.asserts.assertExitCodes(proc_info, [-2, -15], process=state_estimation_node)
