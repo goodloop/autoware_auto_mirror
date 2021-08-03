@@ -123,6 +123,8 @@ public:
     autoware_auto_msgs::srv::AutonomyModeChange_Request::SharedPtr request) override;
   /// Send headlights command data.
   void send_headlights_command(const autoware_auto_msgs::msg::HeadlightsCommand & msg) override;
+  /// Send horn command data.
+  void send_horn_command(const autoware_auto_msgs::msg::HornCommand & msg) override;
   /// Send wipers command data.
   void send_wipers_command(const autoware_auto_msgs::msg::WipersCommand & msg) override;
 

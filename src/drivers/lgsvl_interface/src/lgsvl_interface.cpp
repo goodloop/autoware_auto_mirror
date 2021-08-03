@@ -376,6 +376,11 @@ void LgsvlInterface::send_headlights_command(const autoware_auto_msgs::msg::Head
   m_lgsvl_state.set__headlight_state(shifted_command);
 }
 
+void LgsvlInterface::send_horn_command(const autoware_auto_msgs::msg::HornCommand & msg)
+{
+  m_lgsvl_state.set__horn_active(msg.active);
+}
+
 void LgsvlInterface::send_wipers_command(const autoware_auto_msgs::msg::WipersCommand & msg)
 {
   /// lgsvl_msgs values are shifted down one from autoware_auto_msgs values
