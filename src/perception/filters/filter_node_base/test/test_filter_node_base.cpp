@@ -28,7 +28,7 @@
 namespace
 {
 using float32_t = autoware::common::types::float32_t;
-using FakeNodeFixture = autoware::tools::testing::FakeTestNode;
+using FilterNodeTest = autoware::tools::testing::FakeTestNode;
 using FilterNodeBase = autoware::perception::filters::filter_node_base::FilterNodeBase;
 using PointCloud2 = sensor_msgs::msg::PointCloud2;
 
@@ -222,7 +222,7 @@ void check_pc(
 
 // Test using GMock
 // cppcheck-suppress syntaxError
-TEST_F(TestFilterNodeBase, test_parameters) {
+TEST_F(TestFilterNodeBase, TestParameters) {
   // Check that upon set up the parameters are set correctly
   EXPECT_THAT(mock_filter_node_base->test_param_1_, Eq(0.5));
   EXPECT_THAT(mock_filter_node_base->test_param_2_, Eq("frame_2"));
@@ -256,7 +256,7 @@ TEST_F(TestFilterNodeBase, test_parameters) {
 }
 
 // Test using the fake_test_node library
-TEST_F(FakeNodeFixture, test_filter) {
+TEST_F(FilterNodeTest, TestFilter) {
   // Generate parameters
   std::vector<rclcpp::Parameter> params;
   params.emplace_back("max_queue_size", 5);
