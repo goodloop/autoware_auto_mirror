@@ -236,10 +236,6 @@ AutowareState StateMachine::judgeAutowareState() const
     case AutowareState::Finalizing: {
         break;
       }
-
-    default: {
-        throw std::runtime_error("invalid state");
-      }
   }
 
   // continue previous state when break
