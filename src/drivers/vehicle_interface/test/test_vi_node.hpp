@@ -140,10 +140,10 @@ public:
     bool8_t fail = false)
   : VehicleInterfaceNode{
       node_name,
-      {
-        ViFeature::HEADLIGHTS,
-        ViFeature::WIPERS,
-      },
+    {
+      ViFeature::HEADLIGHTS,
+      ViFeature::WIPERS,
+    },
       rclcpp::NodeOptions(options)
       .append_parameter_override("cycle_time_ms", static_cast<int64_t>(30LL))
       .append_parameter_override("state_machine.gear_shift_velocity_threshold_mps", 0.5F)
