@@ -29,9 +29,6 @@ with two options are currently implemented:
 - `unconstraint` : use least square method to solve unconstraint QP with eigen.
 - `unconstraint_fast` : similar to unconstraint. This is faster, but lower accuracy for optimization.
 
-## Assumptions / Known limits
-<!-- Required -->
-
 ## Inputs / Outputs / API
 <!-- Required -->
 <!-- Things to consider:
@@ -41,34 +38,10 @@ Once a vehicle model, a QP solver, and the reference trajectory to follow have b
 (using `setVehicleModel()`, `setQPSolver()`, `setReferenceTrajectory()`), a lateral control command
 can be calculated by providing the current steer, velocity, and pose to function `calculateMPC()`.
 
-## Inner-workings / Algorithms
-<!-- If applicable -->
-
-
-## Error detection and handling
-<!-- Required -->
-
-
-# Security considerations
-<!-- Required -->
-<!-- Things to consider:
-- Spoofing (How do you check for and handle fake input?)
-- Tampering (How do you check for and handle tampered input?)
-- Repudiation (How are you affected by the actions of external actors?).
-- Information Disclosure (Can data leak?).
-- Denial of Service (How do you handle spamming?).
-- Elevation of Privilege (Do you need to change permission levels during execution?) -->
-
-
 # References / External links
 <!-- Optional -->
 - [1] Jarrod M. Snider, "Automatic Steering Methods for Autonomous Automobile Path Tracking",
 Robotics Institute, Carnegie Mellon University, February 2009.
-
-
-# Future extensions / Unimplemented parts
-<!-- Optional -->
-
 
 # Related issues
 <!-- Required -->
