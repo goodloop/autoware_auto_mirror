@@ -74,10 +74,10 @@ PoseMeasurementXYZRPY64 convert_to<PoseMeasurementXYZRPY64>::from(
   const auto stride = kCovarianceMatrixRows;
   const auto position_start_idx = 0;
   covariance.topLeftCorner<3, 3>() =
-    array_to_matrix<3, 3>(cov, position_start_idx, stride, InputStorageOrder::kRowMajor);
+    array_to_matrix<3, 3>(cov, position_start_idx, stride, DataStorageOrder::kRowMajor);
   const auto rotation_start_idx{kAngleOffset};
   covariance.bottomRightCorner<3, 3>() =
-    array_to_matrix<3, 3>(cov, rotation_start_idx, stride, InputStorageOrder::kRowMajor);
+    array_to_matrix<3, 3>(cov, rotation_start_idx, stride, DataStorageOrder::kRowMajor);
   return PoseMeasurementXYZRPY64{mean, covariance};
 }
 
@@ -89,7 +89,7 @@ PoseMeasurementXYZ64 convert_to<PoseMeasurementXYZ64>::from(
   const auto start_idx = 0;
   const auto stride = kCovarianceMatrixRowsRelativePos;
   const Eigen::Matrix3d covariance =
-    array_to_matrix<3, 3>(cov, start_idx, stride, InputStorageOrder::kRowMajor);
+    array_to_matrix<3, 3>(cov, start_idx, stride, DataStorageOrder::kRowMajor);
   return PoseMeasurementXYZ64{mean, covariance};
 }
 

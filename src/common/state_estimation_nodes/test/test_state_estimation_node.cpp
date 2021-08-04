@@ -196,6 +196,11 @@ TEST_P(StateEstimationNodeTest, TrackObjectStraightLine) {
   auto expected_child_frame_id = "base_link";
 
   auto pose_msg = create_empty_pose("map");
+  // Orient the pose along the {1, 1, 1} vector.
+  pose_msg.pose.pose.orientation.w = 0.854;
+  pose_msg.pose.pose.orientation.x = -0.354;
+  pose_msg.pose.pose.orientation.y = -0.354;
+  pose_msg.pose.pose.orientation.z = 0.146;
   auto relative_pose_msg = create_empty_relative_pose("map", "base_link");
 
   const bool8_t data_driven = true;

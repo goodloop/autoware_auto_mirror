@@ -281,12 +281,12 @@ TEST(KalmanFilterWrapperTest, track_static_object) {
           PoseMeasurementXYZ32{
             Eigen::Vector3f{42.0F, 42.0F, 0.0F},
             0.01F * Eigen::Matrix3f::Identity()}}));
-    auto odom_msg = filter.get_state();
-    EXPECT_NEAR(odom_msg.pose.pose.position.x, initial_state.pose.pose.position.x, kEpsilon);
-    EXPECT_NEAR(odom_msg.pose.pose.position.y, initial_state.pose.pose.position.y, kEpsilon);
+    const auto filtered_state = filter.get_state();
+    EXPECT_NEAR(filtered_state.pose.pose.position.x, initial_state.pose.pose.position.x, kEpsilon);
+    EXPECT_NEAR(filtered_state.pose.pose.position.y, initial_state.pose.pose.position.y, kEpsilon);
     // Check that the covariance of observed state is dropping.
-    EXPECT_LT(odom_msg.pose.covariance[0], 1.0 - kEpsilon);
-    EXPECT_LT(odom_msg.pose.covariance[7], 1.0 - kEpsilon);
+    EXPECT_LT(filtered_state.pose.covariance[0], 1.0 - kEpsilon);
+    EXPECT_LT(filtered_state.pose.covariance[7], 1.0 - kEpsilon);
   }
 }
 
