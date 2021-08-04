@@ -9,6 +9,21 @@ repositories:
     version: 1a2c386455067b00a9e67fb70cc711add38c3582
   src/external/transport_drivers:
     type: git
+<<<<<<< HEAD
+=======
+    url: https://gitlab.com/ApexAI/point_cloud_msg_wrapper
+    version: 1.0.7
+  src/external/new_eagle_raptor:
+    type: git
+    url: https://github.com/NewEagleRaptor/raptor-dbw-ros2.git
+    version: foxy-1.1.1
+  src/external/tvm_vendor:
+    type: git
+    url: https://github.com/autowarefoundation/tvm_vendor/
+    version: fef2b164240720b0452d8a9524aaa1e8316eaf91
+  src/external/transport_drivers:
+    type: git
+>>>>>>> 422af18d (added link to serial_driver)
     url: https://github.com/ros-drivers/transport_drivers.git
     version: 148ea523160913115bd82d1b61e2c820fab0fb91
   src/external/vesc:
