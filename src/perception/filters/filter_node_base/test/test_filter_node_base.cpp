@@ -241,13 +241,15 @@ TEST_F(FilterNodeTest, TestFilter) {
   sensor_msgs::msg::PointCloud2::SharedPtr last_received_msg{};
   sensor_msgs::msg::PointCloud2 msg;
   create_dummy_cloud(msg);
-  auto fake_cloud_pub = create_sensor_publisher<sensor_msgs::msg::PointCloud2>(
-    "input");
-  auto result_cloud_subscription = create_sensor_subscription<sensor_msgs::msg::PointCloud2>(
+  auto fake_cloud_pub = create_publisher<sensor_msgs::msg::PointCloud2>(
+    "input", std::chrono::seconds{10LL}, rclcpp::SensorDataQoS().keep_last(10));
+  auto result_cloud_subscription = create_subscription<sensor_msgs::msg::PointCloud2>(
     "output", *node,
     [&last_received_msg](const sensor_msgs::msg::PointCloud2::SharedPtr msg) {
       last_received_msg = msg;
-    });
+    },
+    std::chrono::seconds{10LL},
+    rclcpp::SensorDataQoS().keep_last(10));
 
   const auto dt{std::chrono::milliseconds{100LL}};
   const auto max_wait_time{std::chrono::seconds{10LL}};
