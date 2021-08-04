@@ -33,9 +33,9 @@ NERaptorInterfaceNode::NERaptorInterfaceNode(const rclcpp::NodeOptions & options
 : VehicleInterfaceNode{
     "ne_raptor_interface",
     std::unordered_set<ViFeature> {
-      ViFeature::HEADLIGHTS,
-      ViFeature::HORN,
-    },
+        ViFeature::HEADLIGHTS,
+        ViFeature::HORN,
+      },
     options
 }
 {
