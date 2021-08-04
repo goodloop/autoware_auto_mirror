@@ -19,3 +19,7 @@ repositories:
     type: git
     url: https://github.com/autowarefoundation/tvm_vendor/
     version: fef2b164240720b0452d8a9524aaa1e8316eaf91
+  src/external/vesc:
+    type: git
+    url: https://github.com/Triton-AI/vesc.git
+    version: a4dd716af6e757449ca3829a1faae35105713802
