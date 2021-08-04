@@ -50,6 +50,7 @@ if(BUILD_TESTING)
   ament_target_dependencies(${TEST_FILTER_NODE_BASE_EXE}
     lidar_utils
     fake_test_node
+    point_cloud_msg_wrapper
   )
 endif()
 

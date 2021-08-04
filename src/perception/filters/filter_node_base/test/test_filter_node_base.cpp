@@ -19,6 +19,7 @@
 
 #include "fake_test_node/fake_test_node.hpp"
 #include "filter_node_base/filter_node_base.hpp"
+#include "point_cloud_msg_wrapper/point_cloud_msg_wrapper.hpp"
 
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
@@ -167,57 +168,19 @@ void check_pc(
   sensor_msgs::msg::PointCloud2 & msg1,
   sensor_msgs::msg::PointCloud2 & msg2)
 {
-  EXPECT_EQ(msg1.width, msg2.width);
+  // Convert to using the wrapper
+  const point_cloud_msg_wrapper::PointCloud2View<autoware::common::types::PointXYZI> msg1_wrapper{
+    msg1};
+  const point_cloud_msg_wrapper::PointCloud2View<autoware::common::types::PointXYZI> msg2_wrapper{
+    msg2};
+
   EXPECT_EQ(msg1.header.frame_id, msg2.header.frame_id);
   EXPECT_EQ(msg1.header.stamp, msg2.header.stamp);
 
-
-  sensor_msgs::PointCloud2ConstIterator<float32_t> x_it_1(msg1, "x");
-  sensor_msgs::PointCloud2ConstIterator<float32_t> y_it_1(msg1, "y");
-  sensor_msgs::PointCloud2ConstIterator<float32_t> z_it_1(msg1, "z");
-  sensor_msgs::PointCloud2ConstIterator<float32_t> intensity_it_1(msg1, "intensity");
-
-  sensor_msgs::PointCloud2ConstIterator<float32_t> x_it_2(msg2, "x");
-  sensor_msgs::PointCloud2ConstIterator<float32_t> y_it_2(msg2, "y");
-  sensor_msgs::PointCloud2ConstIterator<float32_t> z_it_2(msg2, "z");
-  sensor_msgs::PointCloud2ConstIterator<float32_t> intensity_it_2(msg2, "intensity");
-
-  while (x_it_1 != x_it_1.end() &&
-    y_it_1 != y_it_1.end() &&
-    z_it_1 != z_it_1.end() &&
-    intensity_it_1 != intensity_it_1.end() &&
-    x_it_2 != x_it_2.end() &&
-    y_it_2 != y_it_2.end() &&
-    z_it_2 != z_it_2.end() &&
-    intensity_it_2 != intensity_it_2.end()
-  )
-  {
-    EXPECT_FLOAT_EQ(*x_it_1, *x_it_2);
-    EXPECT_FLOAT_EQ(*y_it_1, *y_it_2);
-    EXPECT_FLOAT_EQ(*z_it_1, *z_it_2);
-    EXPECT_FLOAT_EQ(*intensity_it_1, *intensity_it_2);
-
-    ++x_it_1;
-    ++y_it_1;
-    ++z_it_1;
-    ++intensity_it_1;
-
-    ++x_it_2;
-    ++y_it_2;
-    ++z_it_2;
-    ++intensity_it_2;
+  EXPECT_EQ(msg1_wrapper.size(), msg2_wrapper.size());
+  for (auto i = 0U; i < msg1_wrapper.size(); ++i) {
+    EXPECT_EQ(msg1_wrapper[i], msg2_wrapper[i]);
   }
-
-  // Operator== is not defined for some reason
-  EXPECT_FALSE(x_it_1 != x_it_1.end());
-  EXPECT_FALSE(y_it_1 != y_it_1.end());
-  EXPECT_FALSE(z_it_1 != z_it_1.end());
-  EXPECT_FALSE(intensity_it_1 != intensity_it_1.end());
-
-  EXPECT_FALSE(x_it_2 != x_it_2.end());
-  EXPECT_FALSE(y_it_2 != y_it_2.end());
-  EXPECT_FALSE(z_it_2 != z_it_2.end());
-  EXPECT_FALSE(intensity_it_2 != intensity_it_2.end());
 }
 
 // Test using GMock
