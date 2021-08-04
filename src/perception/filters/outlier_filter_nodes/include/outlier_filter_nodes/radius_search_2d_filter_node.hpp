@@ -40,8 +40,6 @@ namespace filters
 namespace outlier_filter_nodes
 {
 
-using float64_t = autoware::common::types::float64_t;
-
 using RadiusSearch2DFilter =
   autoware::perception::filters::outlier_filter::radius_search_2d_filter::
   RadiusSearch2DFilter;
@@ -86,11 +84,12 @@ protected:
 
 private:
   /** \brief Class object containing the RadiusSearch2DFilter library functionality */
-  std::shared_ptr<RadiusSearch2DFilter> radius_search_2d_filter_;
+  std::shared_ptr<perception::filters::outlier_filter::radius_search_2d_filter::
+    RadiusSearch2DFilter> radius_search_2d_filter_;
 
   /** \brief Variable containing the value of the search radius (passed into
        radius_search_2d_filter_) */
-  float64_t search_radius_;
+  common::types::float64_t search_radius_;
 
   /** \brief Variable containing the value of the minimum neighbors for points (passed into
      radius_search_2d_filter_) */

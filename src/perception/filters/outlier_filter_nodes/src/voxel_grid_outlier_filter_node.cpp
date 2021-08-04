@@ -30,6 +30,7 @@ namespace outlier_filter_nodes
 {
 
 using float64_t = autoware::common::types::float64_t;
+using float32_t = autoware::common::types::float32_t;
 
 using VoxelGridOutlierFilter =
   autoware::perception::filters::outlier_filter::voxel_grid_outlier_filter::
@@ -37,9 +38,9 @@ using VoxelGridOutlierFilter =
 
 VoxelGridOutlierFilterNode::VoxelGridOutlierFilterNode(const rclcpp::NodeOptions & options)
 : FilterNodeBase("voxel_grid_outlier_filter_node", options),
-  voxel_size_x_(declare_parameter("voxel_size_x").get<float>()),
-  voxel_size_y_(declare_parameter("voxel_size_y").get<float>()),
-  voxel_size_z_(declare_parameter("voxel_size_z").get<float>()),
+  voxel_size_x_(declare_parameter("voxel_size_x").get<float64_t>()),
+  voxel_size_y_(declare_parameter("voxel_size_y").get<float64_t>()),
+  voxel_size_z_(declare_parameter("voxel_size_z").get<float64_t>()),
   voxel_points_threshold_(declare_parameter("voxel_points_threshold").get<uint32_t>())
 {
   voxel_grid_outlier_filter_ = std::make_shared<VoxelGridOutlierFilter>(
@@ -99,8 +100,8 @@ rcl_interfaces::msg::SetParametersResult VoxelGridOutlierFilterNode::get_node_pa
 
   // Call update method in filter class object
   voxel_grid_outlier_filter_->update_parameters(
-    static_cast<float>(voxel_size_x_), static_cast<float>(voxel_size_y_),
-    static_cast<float>(voxel_size_z_),
+    static_cast<float32_t>(voxel_size_x_), static_cast<float32_t>(voxel_size_y_),
+    static_cast<float32_t>(voxel_size_z_),
     static_cast<std::uint32_t>(voxel_points_threshold_));
 
   return result;

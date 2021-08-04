@@ -39,12 +39,6 @@ namespace filters
 namespace outlier_filter_nodes
 {
 
-using float64_t = autoware::common::types::float64_t;
-
-using VoxelGridOutlierFilter =
-  autoware::perception::filters::outlier_filter::voxel_grid_outlier_filter::
-  VoxelGridOutlierFilter;
-
 /// \class VoxelGridOutlierFilterNode
 /// \brief Node inheriting from FilterNodeBase and is the ROS2 node interface for the
 //   VoxelGridOutlierFilter library
@@ -85,19 +79,20 @@ protected:
 
 private:
   /** \brief Class object containing the VoxelGridOutlierFilter library functionality */
-  std::shared_ptr<VoxelGridOutlierFilter> voxel_grid_outlier_filter_;
+  std::shared_ptr<perception::filters::outlier_filter::voxel_grid_outlier_filter::
+    VoxelGridOutlierFilter> voxel_grid_outlier_filter_;
 
   /** \brief Variable containing the value of the voxel x dimension (passed into
      voxel_grid_outlier_filter_) */
-  float64_t voxel_size_x_;
+  common::types::float64_t voxel_size_x_;
 
   /** \brief Variable containing the value of the voxel y dimension (passed into
      voxel_grid_outlier_filter_) */
-  float64_t voxel_size_y_;
+  common::types::float64_t voxel_size_y_;
 
   /** \brief Variable containing the value of the voxel z dimension (passed into
      voxel_grid_outlier_filter_) */
-  float64_t voxel_size_z_;
+  common::types::float64_t voxel_size_z_;
 
   /** \brief Variable containing the points threshold (passed into voxel_grid_outlier_filter_) */
   std::int64_t voxel_points_threshold_;
