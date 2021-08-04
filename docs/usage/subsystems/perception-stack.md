@@ -47,7 +47,7 @@ To run the perception stack, sensor data will need to be generated and publish a
 1. Download the PCAP file [Dual VLP-16 Hi-Res pcap file](https://autoware-auto.s3.us-east-2.amazonaws.com/route_small_loop_rw.pcap).
 2. Enter ADE using the default script with extra flags to properly run RViz
   ```{bash}
-  $ ade --rc .aderc start --update --enter -- --net=host --privileged
+  $ ade --rc .aderc start --update --enter
   ```
 3. Move the downloaded file into your `adehome` folder.
 4. Replay the file using `udpreplay`:
@@ -136,7 +136,19 @@ To simplify the process of launching these nodes there exists a convenience laun
   $ ade enter
   ade$ udpreplay -r -1 route_small_loop_rw.pcap
   ```
-2. Enter ADE and run the launch file
+2. Launch the [velodyne_node](https://gitlab.com/autowarefoundation/autoware.auto/AutowareAuto/tree/master/src/drivers/velodyne_nodes) for the front lidar in another terminal:
+  ```{bash}
+  $ ade enter
+  ade$ source /opt/AutowareAuto/setup.bash
+  ade$ ros2 run velodyne_nodes velodyne_cloud_node_exe --model vlp16 --ros-args --remap __ns:=/lidar_front --params-file /opt/AutowareAuto/share/velodyne_nodes/param/vlp16_test.param.yaml
+  ```
+3. Launch the [velodyne_node](https://gitlab.com/autowarefoundation/autoware.auto/AutowareAuto/tree/master/src/drivers/velodyne_nodes) for the rear lidar in another terminal:
+  ```{bash}
+  $ ade enter
+  ade$ source /opt/AutowareAuto/setup.bash
+  ade$ ros2 run velodyne_nodes velodyne_cloud_node_exe --model vlp16 --ros-args --remap __ns:=/lidar_rear --params-file /opt/AutowareAuto/share/velodyne_nodes/param/vlp16_test_rear.param.yaml
+  ```
+4. Enter ADE and run the launch file
   ```{bash}
   ade enter
   ade$ source /opt/AutowareAuto/setup.bash
