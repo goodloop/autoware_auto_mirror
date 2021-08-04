@@ -19,6 +19,10 @@ repositories:
     type: git
     url: https://github.com/autowarefoundation/tvm_vendor/
     version: fef2b164240720b0452d8a9524aaa1e8316eaf91
+  src/external/transport_drivers:
+    type: git
+    url: https://github.com/ros-drivers/transport_drivers.git
+    version: 148ea523160913115bd82d1b61e2c820fab0fb91
   src/external/vesc:
     type: git
     url: https://github.com/Triton-AI/vesc.git
