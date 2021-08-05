@@ -2,21 +2,25 @@
 <package format="3">
   <name>emergency_handler</name>
   <version>0.1.0</version>
-  <description>The emergency_handler ROS2 package</description>
+  <description>The emergency_handler package</description>
   <maintainer email="kenji.miyake@tier4.jp">Kenji Miyake</maintainer>
   <license>Apache License 2.0</license>
 
   <buildtool_depend>ament_cmake_auto</buildtool_depend>
 
   <depend>rclcpp</depend>
-  <depend>autoware_auto_msgs</depend>
+  <depend>rclcpp_components</depend>
   <depend>diagnostic_msgs</depend>
   <depend>geometry_msgs</depend>
   <depend>std_msgs</depend>
   <depend>std_srvs</depend>
+  <depend>autoware_auto_msgs</depend>
 
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>
+  <test_depend>ament_cmake_gtest</test_depend>
+  <test_depend>ament_index_python</test_depend>
+  <test_depend>ros_testing</test_depend>
 
   <export>
     <build_type>ament_cmake</build_type>
