@@ -50,9 +50,11 @@ tf2::TimePoint to_tf_time_point(const nav_msgs::msg::Odometry::_header_type::_st
   return tf2::TimePoint{seconds{stamp.sec} + nanoseconds{stamp.nanosec}};
 }
 
-template<typename TfBufferT, typename MsgT>
+template<typename TfBufferT, typename MsgT, typename NodeT, typename FakeNodeT>
 void wait_for_tf(
   TfBufferT & buffer,
+  const NodeT & node_under_test,
+  const FakeNodeT & fake_node,
   const MsgT & msg,
   const std_msgs::msg::Header::_frame_id_type & target_frame,
   const std_msgs::msg::Header::_frame_id_type & source_frame,
@@ -66,6 +68,8 @@ void wait_for_tf(
       to_tf_time_point(msg.header.stamp)) &&
     (wait_for_tf_time < max_wait_time))
   {
+    rclcpp::spin_some(node_under_test);
+    rclcpp::spin_some(fake_node);
     std::this_thread::sleep_for(dt / 10);
     wait_for_tf_time += dt / 10;
   }
@@ -173,7 +177,7 @@ TEST_P(StateEstimationNodeTest, PublishAndReceivePoseMessage) {
     }
   }
   if (GetParam().publish_tf) {
-    wait_for_tf(get_tf_buffer(), msg, "map", "base_link", max_wait_time, dt);
+    wait_for_tf(get_tf_buffer(), node, get_fake_node(), msg, "map", "base_link", max_wait_time, dt);
     const auto transform{
       get_tf_buffer().lookupTransform("map", "base_link", to_tf_time_point(msg.header.stamp))};
     EXPECT_EQ(transform.header.frame_id, "map");
@@ -267,7 +271,10 @@ TEST_P(StateEstimationNodeTest, TrackObjectStraightLine) {
   }
   if (GetParam().publish_tf) {
     auto & msg = *received_msgs.back();
-    wait_for_tf(get_tf_buffer(), msg, "map", expected_child_frame_id, max_wait_time, dt);
+    wait_for_tf(
+      get_tf_buffer(),
+      node, get_fake_node(),
+      msg, "map", expected_child_frame_id, max_wait_time, dt);
     const auto transform{get_tf_buffer().lookupTransform(
         "map", expected_child_frame_id, to_tf_time_point(msg.header.stamp))};
     EXPECT_EQ(transform.header.frame_id, "map");
