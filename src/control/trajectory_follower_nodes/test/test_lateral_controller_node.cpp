@@ -24,7 +24,6 @@
 #include "geometry_msgs/msg/pose.hpp"
 #include "geometry_msgs/msg/pose_stamped.hpp"
 #include "geometry_msgs/msg/transform_stamped.hpp"
-#include "geometry_msgs/msg/twist_stamped.hpp"
 #include "fake_test_node/fake_test_node.hpp"
 
 #include "rclcpp/rclcpp.hpp"
@@ -37,7 +36,6 @@ using LateralController = autoware::motion::control::trajectory_follower_nodes::
 using LateralCommand = autoware_auto_msgs::msg::AckermannLateralCommand;
 using Trajectory = autoware_auto_msgs::msg::Trajectory;
 using TrajectoryPoint = autoware_auto_msgs::msg::TrajectoryPoint;
-using TwistStamped = geometry_msgs::msg::TwistStamped;
 using VehicleKinematicState = autoware_auto_msgs::msg::VehicleKinematicState;
 
 using FakeNodeFixture = autoware::tools::testing::FakeTestNode;
@@ -56,9 +54,6 @@ TEST_F(FakeNodeFixture, no_input)
   rclcpp::Publisher<Trajectory>::SharedPtr traj_pub =
     this->create_publisher<Trajectory>(
     "input/reference_trajectory");
-  rclcpp::Publisher<TwistStamped>::SharedPtr twist_pub =
-    this->create_publisher<TwistStamped>(
-    "input/current_velocity");
   rclcpp::Publisher<VehicleKinematicState>::SharedPtr state_pub =
     this->create_publisher<VehicleKinematicState>(
     "input/current_kinematic_state");
@@ -95,9 +90,6 @@ TEST_F(FakeNodeFixture, empty_trajectory)
   rclcpp::Publisher<Trajectory>::SharedPtr traj_pub =
     this->create_publisher<Trajectory>(
     "input/reference_trajectory");
-  rclcpp::Publisher<TwistStamped>::SharedPtr twist_pub =
-    this->create_publisher<TwistStamped>(
-    "input/current_velocity");
   rclcpp::Publisher<VehicleKinematicState>::SharedPtr state_pub =
     this->create_publisher<VehicleKinematicState>(
     "input/current_kinematic_state");
@@ -121,15 +113,12 @@ TEST_F(FakeNodeFixture, empty_trajectory)
   br->sendTransform(transform);
   // Empty trajectory: expect a stopped command
   Trajectory traj_msg;
-  TwistStamped twist_msg;
   VehicleKinematicState state_msg;
   traj_msg.header.stamp = node->now();
-  twist_msg.twist.linear.x = 0.0;
-  twist_msg.header.stamp = node->now();
   state_msg.header.stamp = node->now();
+  state_msg.state.longitudinal_velocity_mps = 0.0;
   state_msg.state.front_wheel_angle_rad = 0.0;
   traj_pub->publish(traj_msg);
-  twist_pub->publish(twist_msg);
   state_pub->publish(state_msg);
 
   test_utils::waitForMessage(node, this, received_lateral_command);
@@ -151,9 +140,6 @@ TEST_F(FakeNodeFixture, straight_trajectory)
   rclcpp::Publisher<Trajectory>::SharedPtr traj_pub =
     this->create_publisher<Trajectory>(
     "input/reference_trajectory");
-  rclcpp::Publisher<TwistStamped>::SharedPtr twist_pub =
-    this->create_publisher<TwistStamped>(
-    "input/current_velocity");
   rclcpp::Publisher<VehicleKinematicState>::SharedPtr state_pub =
     this->create_publisher<VehicleKinematicState>(
     "input/current_kinematic_state");
@@ -178,7 +164,6 @@ TEST_F(FakeNodeFixture, straight_trajectory)
   // Straight trajectory: expect no steering
   received_lateral_command = false;
   Trajectory traj_msg;
-  TwistStamped twist_msg;
   VehicleKinematicState state_msg;
   TrajectoryPoint p;
   traj_msg.header.stamp = node->now();
@@ -199,10 +184,8 @@ TEST_F(FakeNodeFixture, straight_trajectory)
   p.longitudinal_velocity_mps = 1.0f;
   traj_msg.points.push_back(p);
   traj_pub->publish(traj_msg);
-  twist_msg.header.stamp = node->now();
-  twist_msg.twist.linear.x = 1.0;
-  twist_pub->publish(twist_msg);
   state_msg.header.stamp = node->now();
+  state_msg.state.longitudinal_velocity_mps = 1.0;
   state_msg.state.front_wheel_angle_rad = 0.0;
   state_pub->publish(state_msg);
 
@@ -225,9 +208,6 @@ TEST_F(FakeNodeFixture, right_turn)
   rclcpp::Publisher<Trajectory>::SharedPtr traj_pub =
     this->create_publisher<Trajectory>(
     "input/reference_trajectory");
-  rclcpp::Publisher<TwistStamped>::SharedPtr twist_pub =
-    this->create_publisher<TwistStamped>(
-    "input/current_velocity");
   rclcpp::Publisher<VehicleKinematicState>::SharedPtr state_pub =
     this->create_publisher<VehicleKinematicState>(
     "input/current_kinematic_state");
@@ -252,7 +232,6 @@ TEST_F(FakeNodeFixture, right_turn)
   // Right turning trajectory: expect right steering
   received_lateral_command = false;
   Trajectory traj_msg;
-  TwistStamped twist_msg;
   VehicleKinematicState state_msg;
   TrajectoryPoint p;
   traj_msg.points.clear();
@@ -273,10 +252,8 @@ TEST_F(FakeNodeFixture, right_turn)
   p.longitudinal_velocity_mps = 1.0f;
   traj_msg.points.push_back(p);
   traj_pub->publish(traj_msg);
-  twist_msg.header.stamp = node->now();
-  twist_msg.twist.linear.x = 1.0;
-  twist_pub->publish(twist_msg);
   state_msg.header.stamp = node->now();
+  state_msg.state.longitudinal_velocity_mps = 1.0;
   state_msg.state.front_wheel_angle_rad = 0.0;
   state_pub->publish(state_msg);
 
@@ -299,9 +276,6 @@ TEST_F(FakeNodeFixture, left_turn)
   rclcpp::Publisher<Trajectory>::SharedPtr traj_pub =
     this->create_publisher<Trajectory>(
     "input/reference_trajectory");
-  rclcpp::Publisher<TwistStamped>::SharedPtr twist_pub =
-    this->create_publisher<TwistStamped>(
-    "input/current_velocity");
   rclcpp::Publisher<VehicleKinematicState>::SharedPtr state_pub =
     this->create_publisher<VehicleKinematicState>(
     "input/current_kinematic_state");
@@ -326,7 +300,6 @@ TEST_F(FakeNodeFixture, left_turn)
   // Left turning trajectory: expect left steering
   received_lateral_command = false;
   Trajectory traj_msg;
-  TwistStamped twist_msg;
   VehicleKinematicState state_msg;
   TrajectoryPoint p;
   traj_msg.points.clear();
@@ -347,10 +320,8 @@ TEST_F(FakeNodeFixture, left_turn)
   p.longitudinal_velocity_mps = 1.0f;
   traj_msg.points.push_back(p);
   traj_pub->publish(traj_msg);
-  twist_msg.header.stamp = node->now();
-  twist_msg.twist.linear.x = 1.0;
-  twist_pub->publish(twist_msg);
   state_msg.header.stamp = node->now();
+  state_msg.state.longitudinal_velocity_mps = 1.0;
   state_msg.state.front_wheel_angle_rad = 0.0;
   state_pub->publish(state_msg);
 
