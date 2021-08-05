@@ -35,7 +35,6 @@ set(TRACKING_LIB_SRC
   src/multi_object_tracker.cpp
   src/tracked_object.cpp
   src/projection.cpp
-  src/roi_association.cpp
 )
 
 set(TRACKING_LIB_HEADERS

@@ -15,17 +15,7 @@
 #define TRACKING__ROI_ASSOCIATION_HPP_
 
 #include <tracking/visibility_control.hpp>
-#include <tracking/projection.hpp>
-
-//#include <autoware_auto_msgs/msg/detected_objects.hpp>
-//#include <hungarian_assigner/hungarian_assigner.hpp>
-//#include <tracking/tracker_types.hpp>
-//#include <tracking/tracked_object.hpp>
-//
-//#include <experimental/optional>
-//#include <limits>
-//#include <map>
-//#include <vector>
+#include <geometry/intersection.hpp>
 
 namespace autoware
 {
@@ -37,7 +27,21 @@ namespace tracking
 /// \brief Simple heuristic functor that returns the IoU between two shapes.
 class IOUHeuristic
 {
-  common::types::float32_t operator()(const Polygon & shape1, const Polygon & shape2);
+  /// \brief Get the match score of a projection and a roi
+  /// \tparam Iterable1T A container class that has stl style iterators defined.
+  /// \tparam Iterable2T A container class that has stl style iterators defined.
+  /// \tparam Point1T Point type that have the adapters for the x and y fields.
+  /// \tparam Point2T Point type that have the adapters for the x and y fields.
+  /// \param shape1 Polygon 1
+  /// \param shape2 Polygon 2
+  /// \return The  IOU between two given shapes.
+  template<template<typename ...> class Iterable1T,
+    template<typename ...> class Iterable2T, typename Point1T, typename Point2T>
+  common::types::float32_t operator()(
+    const Iterable1T<Point1T> & shape1, const Iterable2T<Point2T> & shape2)
+  {
+    return common::geometry::convex_intersection_over_union_2d(shape1, shape2);
+  }
 };
 
 }  // namespace tracking
