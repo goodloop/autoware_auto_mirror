@@ -148,10 +148,8 @@ MPCFollower::MPCFollower(const rclcpp::NodeOptions & node_options)
   m_sub_ref_path = create_subscription<autoware_auto_msgs::msg::Trajectory>(
     "input/reference_trajectory", rclcpp::QoS{1},
     std::bind(&MPCFollower::onTrajectory, this, _1));
-  m_sub_current_vel = create_subscription<geometry_msgs::msg::TwistStamped>(
-    "input/current_velocity", rclcpp::QoS{1}, std::bind(&MPCFollower::onVelocity, this, _1));
   m_sub_steering = create_subscription<autoware_auto_msgs::msg::VehicleKinematicState>(
-    "input/current_kinematic_state", rclcpp::QoS{1}, std::bind(&MPCFollower::onSteering, this, _1));
+    "input/current_kinematic_state", rclcpp::QoS{1}, std::bind(&MPCFollower::onState, this, _1));
 
   // TODO(Frederik.Beaujean) ctor is too long, should factor out parameter declarations
   declareMPCparameters();
@@ -190,8 +188,8 @@ void MPCFollower::onTimer()
   }
 
   const bool8_t is_mpc_solved = m_mpc.calculateMPC(
-    *m_current_steer_ptr,
-    m_current_velocity_ptr->twist.linear.x,
+    *m_current_state_ptr,
+    m_current_state_ptr->state.longitudinal_velocity_mps,
     m_current_pose_ptr->pose, ctrl_cmd);
 
   if (isStoppedState()) {
@@ -230,11 +228,10 @@ bool8_t MPCFollower::checkData()
     return false;
   }
 
-  if (!m_current_pose_ptr || !m_current_velocity_ptr || !m_current_steer_ptr) {
+  if (!m_current_pose_ptr || !m_current_state_ptr) {
     RCLCPP_DEBUG(
       get_logger(), "waiting data. pose = %d, velocity = %d,  steer = %d",
-      m_current_pose_ptr != nullptr, m_current_velocity_ptr != nullptr,
-      m_current_steer_ptr != nullptr);
+      m_current_pose_ptr != nullptr, m_current_state_ptr != nullptr);
     return false;
   }
 
@@ -286,14 +283,9 @@ void MPCFollower::updateCurrentPose()
   m_current_pose_ptr = std::make_shared<geometry_msgs::msg::PoseStamped>(ps);
 }
 
-void MPCFollower::onSteering(const autoware_auto_msgs::msg::VehicleKinematicState::SharedPtr msg)
+void MPCFollower::onState(const autoware_auto_msgs::msg::VehicleKinematicState::SharedPtr msg)
 {
-  m_current_steer_ptr = msg;
-}
-
-void MPCFollower::onVelocity(geometry_msgs::msg::TwistStamped::SharedPtr msg)
-{
-  m_current_velocity_ptr = msg;
+  m_current_state_ptr = msg;
 }
 
 autoware_auto_msgs::msg::AckermannLateralCommand MPCFollower::getStopControlCommand() const
@@ -307,7 +299,7 @@ autoware_auto_msgs::msg::AckermannLateralCommand MPCFollower::getStopControlComm
 autoware_auto_msgs::msg::AckermannLateralCommand MPCFollower::getInitialControlCommand() const
 {
   autoware_auto_msgs::msg::AckermannLateralCommand cmd;
-  cmd.steering_tire_angle = m_current_steer_ptr->state.front_wheel_angle_rad;
+  cmd.steering_tire_angle = m_current_state_ptr->state.front_wheel_angle_rad;
   cmd.steering_tire_rotation_rate = 0.0;
   return cmd;
 }
@@ -331,7 +323,7 @@ bool8_t MPCFollower::isStoppedState() const
   }
   RCLCPP_DEBUG(get_logger(), "stop_dist = %f release stopping.", dist);
 
-  const float64_t current_vel = m_current_velocity_ptr->twist.linear.x;
+  const float64_t current_vel = m_current_state_ptr->state.longitudinal_velocity_mps;
   const float64_t target_vel =
     m_current_trajectory_ptr->points.at(static_cast<size_t>(nearest)).longitudinal_velocity_mps;
   if (
