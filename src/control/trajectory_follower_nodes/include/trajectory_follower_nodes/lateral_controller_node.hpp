@@ -38,7 +38,6 @@
 #include "common/types.hpp"
 #include "geometry_msgs/msg/pose.hpp"
 #include "geometry_msgs/msg/pose_stamped.hpp"
-#include "geometry_msgs/msg/twist_stamped.hpp"
 #include "osqp_interface/osqp_interface.hpp"
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp_components/register_node_macro.hpp"
@@ -82,12 +81,9 @@ private:
   //!< @brief topic subscription for reference waypoints
   rclcpp::Subscription<autoware_auto_msgs::msg::Trajectory>::SharedPtr
     m_sub_ref_path;
-  //!< @brief subscription for current steering
+  //!< @brief subscription for current state
   rclcpp::Subscription<autoware_auto_msgs::msg::VehicleKinematicState>::SharedPtr
     m_sub_steering;
-  //!< @brief subscription for current velocity
-  rclcpp::Subscription<geometry_msgs::msg::TwistStamped>::SharedPtr
-    m_sub_current_vel;
   //!< @brief timer to update after a given interval
   rclcpp::TimerBase::SharedPtr m_timer;
 
@@ -113,10 +109,8 @@ private:
 
   //!< @brief measured pose
   geometry_msgs::msg::PoseStamped::SharedPtr m_current_pose_ptr;
-  //!< @brief measured velocity
-  geometry_msgs::msg::TwistStamped::SharedPtr m_current_velocity_ptr;
-  //!< @brief measured steering
-  autoware_auto_msgs::msg::VehicleKinematicState::SharedPtr m_current_steer_ptr;
+  //!< @brief measured state
+  autoware_auto_msgs::msg::VehicleKinematicState::SharedPtr m_current_state_ptr;
   //!< @brief reference trajectory
   autoware_auto_msgs::msg::Trajectory::SharedPtr
     m_current_trajectory_ptr;
@@ -156,14 +150,9 @@ private:
   bool8_t checkData();
 
   /**
-   * @brief set current_steer with received message
+   * @brief set current_state with received message
    */
-  void onSteering(const autoware_auto_msgs::msg::VehicleKinematicState::SharedPtr msg);
-
-  /**
-   * @brief set current_velocity with received message
-   */
-  void onVelocity(const geometry_msgs::msg::TwistStamped::SharedPtr msg);
+  void onState(const autoware_auto_msgs::msg::VehicleKinematicState::SharedPtr msg);
 
   /**
    * @brief publish control command as autoware_msgs/ControlCommand type
