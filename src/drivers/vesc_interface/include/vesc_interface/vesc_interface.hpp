@@ -124,9 +124,11 @@ private:
     rclcpp::Subscription<Float64>::SharedPtr servo_state_;
 
     /// \brief Recieves the vesc motor state and converts it to car velocity
+    /// \param[in] msg Message from the vesc for the motor status
     void on_motor_state_report(const VescStateStamped::SharedPtr & msg);
 
     /// \brief Recieves the servo position and converts it to front wheel angle
+    /// \param[in] msg Message from the vesc for the servo status
     void on_servo_state_report(const Float64::SharedPtr & msg);
 
 }; // class VESCInterface
