@@ -84,11 +84,12 @@ std::vector<Line> get_sorted_face_list(const Iter start, const Iter end)
 }
 
 /// \brief Append points of the polygon `internal` that are contained in the polygon `exernal`.
-template<template<typename ...> class IterableT, typename PointT>
+template<template<typename ...> class Iterable1T, template<typename ...> class Iterable2T,
+  typename Point1T, typename Point2T, typename ResultPointT>
 void append_contained_points(
-  const IterableT<PointT> & external,
-  const IterableT<PointT> & internal,
-  std::list<PointT> & result)
+  const Iterable1T<Point1T> & external,
+  const Iterable2T<Point2T> & internal,
+  std::list<ResultPointT> & result)
 {
   std::copy_if(
     internal.begin(), internal.end(), std::back_inserter(result),
@@ -98,11 +99,12 @@ void append_contained_points(
 }
 
 /// \brief Append the intersecting points between two polygons into the output list.
-template<template<typename ...> class IterableT, typename PointT>
+template<template<typename ...> class Iterable1T, template<typename ...> class Iterable2T,
+  typename Point1T, typename Point2T, typename ResultPointT>
 void append_intersection_points(
-  const IterableT<PointT> & polygon1,
-  const IterableT<PointT> & polygon2,
-  std::list<PointT> & result)
+  const Iterable1T<Point1T> & polygon1,
+  const Iterable2T<Point2T> & polygon2,
+  std::list<ResultPointT> & result)
 {
   auto get_edge = [](const auto & list, const auto & iterator) {
       const auto next_it = std::next(iterator);
@@ -231,17 +233,22 @@ bool intersect(const Iter begin1, const Iter end1, const Iter begin2, const Iter
 /// See https://www.osti.gov/servlets/purl/7309916/, chapter II - B
 /// TODO(yunus.caliskan): This is a naive implementation. We should scan for a more efficient
 ///  algorithm: #1230
-/// \tparam IterableT A container class that has stl style iterators defined.
-/// \tparam PointT Point type that have the adapters for the x and y fields.
+/// \tparam Iterable1T A container class that has stl style iterators defined.
+/// \tparam Iterable2T A container class that has stl style iterators defined.
+/// \tparam Point1T Point type that have the adapters for the x and y fields.
+/// \tparam Point2T Point type that have the adapters for the x and y fields.
+/// \tparam ResultPointT Point type that have the adapters for the x and y fields. By default
+/// set to `Point1T`
 /// \param polygon1 A convex polygon
 /// \param polygon2 A convex polygon
 /// \return The resulting conv
-template<template<typename ...> class IterableT, typename PointT>
-std::list<PointT> convex_polygon_intersection2d(
-  const IterableT<PointT> & polygon1,
-  const IterableT<PointT> & polygon2)
+template<template<typename ...> class Iterable1T, template<typename ...> class Iterable2T,
+  typename Point1T, typename Point2T, typename ResultPointT = Point1T>
+std::list<ResultPointT> convex_polygon_intersection2d(
+  const Iterable1T<Point1T> & polygon1,
+  const Iterable2T<Point2T> & polygon2)
 {
-  std::list<PointT> result;
+  std::list<ResultPointT> result;
   details::append_contained_points(polygon1, polygon2, result);
   details::append_contained_points(polygon2, polygon1, result);
   details::append_intersection_points(polygon1, polygon2, result);
@@ -251,17 +258,22 @@ std::list<PointT> convex_polygon_intersection2d(
 }
 
 
-/// \brief Compute the intersection over union of two 2d convex polygons.
-/// \tparam IterableT A container class that has stl style iterators defined.
-/// \tparam PointT Point type that have the adapters for the x and y fields.
+/// \brief Compute the intersection over union of two 2d convex polygons. If any of the polygons
+/// span a zero area, the result is 0.0.
+/// \tparam Iterable1T A container class that has stl style iterators defined.
+/// \tparam Iterable2T A container class that has stl style iterators defined.
+/// \tparam Point1T Point type that have the adapters for the x and y fields.
+/// \tparam Point2T Point type that have the adapters for the x and y fields.
 /// \param polygon1 A convex polygon
 /// \param polygon2 A convex polygon
 /// \return (Intersection / Union) between two given polygons.
-/// \throws std::domain_error If the union area of two polygons is zero.
-template<template<typename ...> class IterableT, typename PointT>
+/// \throws std::domain_error If there is any inconsistency on the undderlying geometrical
+/// computation.
+template<template<typename ...> class Iterable1T, template<typename ...> class Iterable2T,
+  typename Point1T, typename Point2T>
 common::types::float32_t convex_intersection_over_union_2d(
-  const IterableT<PointT> & polygon1,
-  const IterableT<PointT> & polygon2
+  const Iterable1T<Point1T> & polygon1,
+  const Iterable2T<Point2T> & polygon2
 )
 {
   constexpr auto eps = std::numeric_limits<float32_t>::epsilon();
