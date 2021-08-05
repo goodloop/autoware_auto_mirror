@@ -29,20 +29,25 @@ double distance2d(
   return std::hypot(p1.x - p2.x, p1.y - p2.y);
 }
 
-bool isNearGoal(
+StateMachine::StateMachine(const StateParam & state_param)
+: state_param_(state_param)
+{
+}
+
+bool StateMachine::isNearGoal(
   const geometry_msgs::msg::Pose & current_pose,
   const autoware_auto_msgs::msg::RoutePoint & goal_pose,
-  const double th_dist)
+  const double th_dist) const
 {
   return distance2d(current_pose.position, goal_pose.position) < th_dist;
 }
 
-bool isStopped(
+bool StateMachine::isStopped(
   const OdometryBuffer & odometry_buffer,
-  const double th_stopped_velocity_mps)
+  const double stopped_velocity_threshold_mps) const
 {
   for (const auto & odometry : odometry_buffer) {
-    if (std::abs(static_cast<double>(odometry->velocity_mps)) > th_stopped_velocity_mps) {
+    if (std::abs(static_cast<double>(odometry->velocity_mps)) > stopped_velocity_threshold_mps) {
       return false;
     }
   }
@@ -103,11 +108,13 @@ bool StateMachine::hasArrivedGoal() const
     return false;
   }
 
+  const auto & current_pose = state_input_.current_pose->pose;
+  const auto & goal_pose = *state_input_.goal_pose;
   const auto is_near_goal = isNearGoal(
-    state_input_.current_pose->pose, *state_input_.goal_pose, state_param_.th_arrived_distance_m);
+    current_pose, goal_pose, state_param_.arrived_distance_threshold);
 
   const auto is_stopped = isStopped(
-    state_input_.odometry_buffer, state_param_.th_stopped_velocity_mps);
+    state_input_.odometry_buffer, state_param_.stopped_velocity_threshold_mps);
 
   if (is_near_goal && is_stopped) {
     return true;
@@ -158,7 +165,6 @@ AutowareState StateMachine::judgeAutowareState() const
             return AutowareState::WaitingForRoute;
           }
         }
-
         break;
       }
 
@@ -166,7 +172,6 @@ AutowareState StateMachine::judgeAutowareState() const
         if (isRouteReceived()) {
           return AutowareState::Planning;
         }
-
         break;
       }
 
@@ -186,7 +191,6 @@ AutowareState StateMachine::judgeAutowareState() const
             return AutowareState::WaitingForEngage;
           }
         }
-
         break;
       }
 
@@ -203,7 +207,6 @@ AutowareState StateMachine::judgeAutowareState() const
           times_.arrived_goal = state_input_.current_time;
           return AutowareState::ArrivedGoal;
         }
-
         break;
       }
 
@@ -220,7 +223,6 @@ AutowareState StateMachine::judgeAutowareState() const
           times_.arrived_goal = state_input_.current_time;
           return AutowareState::ArrivedGoal;
         }
-
         break;
       }
 
@@ -229,7 +231,6 @@ AutowareState StateMachine::judgeAutowareState() const
         if (time_from_arrived_goal.seconds() >= state_param_.wait_time_after_arrived_goal) {
           return AutowareState::WaitingForRoute;
         }
-
         break;
       }
 

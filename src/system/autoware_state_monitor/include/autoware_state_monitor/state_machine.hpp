@@ -36,17 +36,21 @@ namespace state_monitor
 /// \brief Input state of the state machine.
 struct StateInput
 {
+  /// Current system time.
   rclcpp::Time current_time;
-
+  /// Current pose of the vehicle.
   geometry_msgs::msg::PoseStamped::ConstSharedPtr current_pose;
+  /// Goal pose of the vehicle.
   autoware_auto_msgs::msg::RoutePoint::ConstSharedPtr goal_pose;
-
+  /// Determines if the vehicle should be engaged or disengaged.
   autoware_auto_msgs::msg::Engage::ConstSharedPtr engage;
+  /// Report about the current state of the vehicle.
   autoware_auto_msgs::msg::VehicleStateReport::ConstSharedPtr vehicle_state_report;
+  /// Planned global route.
   autoware_auto_msgs::msg::HADMapRoute::ConstSharedPtr route;
-
+  /// Buffer that stores odometry messages.
   OdometryBuffer odometry_buffer;
-
+  /// Determines if the system should be finalized.
   bool is_finalizing = false;
 };
 
@@ -54,16 +58,16 @@ struct StateInput
 struct StateParam
 {
   /// Distance threshold between a current position and a goal position.
-  double th_arrived_distance_m;
-  /// Length of the odometry buffer used in checking if vehicle is stopped
-  double th_stopped_time_sec;
+  double arrived_distance_threshold;
+  /// Length of the odometry buffer used in checking if vehicle is stopped.
+  double stopped_time_threshold;
   /// Velocity threshold for determining if vehicle is stopped.
-  double th_stopped_velocity_mps;
-  /// Delay after initialization and before transition to a next state
+  double stopped_velocity_threshold_mps;
+  /// Delay after initialization and before transition to a next state.
   double wait_time_after_initializing = 1.0;
-  /// Delay after planning and before transition to a next state
+  /// Delay after planning and before transition to a next state.
   double wait_time_after_planning = 3.0;
-  /// Delay after arrived goal and before transition to a next state
+  /// Delay after arrived goal and before transition to a next state.
   double wait_time_after_arrived_goal = 2.0;
 };
 
@@ -73,8 +77,7 @@ class AUTOWARE_STATE_MONITOR_PUBLIC StateMachine
 public:
   /// \brief Construct the state machine.
   /// \param state_param The set of parameters used by state machine.
-  explicit StateMachine(const StateParam & state_param)
-  : state_param_(state_param) {}
+  explicit StateMachine(const StateParam & state_param);
 
   /// \brief Get the current state of the state machine.
   /// \return The current state.
@@ -99,16 +102,6 @@ private:
     bool waiting_after_planning = false;
   };
 
-  AutowareState autoware_state_ = AutowareState::InitializingVehicle;
-  StateInput state_input_;
-  const StateParam state_param_;
-
-  mutable Times times_;
-  mutable Flags flags_;
-  mutable autoware_auto_msgs::msg::HADMapRoute::ConstSharedPtr executing_route_ = nullptr;
-
-  AutowareState judgeAutowareState() const;
-
   bool isVehicleInitialized() const;
   bool isRouteReceived() const;
   bool isPlanningCompleted() const;
@@ -117,6 +110,25 @@ private:
   bool isOverridden() const;
   bool hasArrivedGoal() const;
   bool isFinalizing() const;
+
+  bool isNearGoal(
+    const geometry_msgs::msg::Pose & current_pose,
+    const autoware_auto_msgs::msg::RoutePoint & goal_pose,
+    const double th_dist) const;
+
+  bool isStopped(
+    const OdometryBuffer & odometry_buffer,
+    const double stopped_velocity_threshold_mps) const;
+
+  AutowareState judgeAutowareState() const;
+
+  AutowareState autoware_state_ = AutowareState::InitializingVehicle;
+  StateInput state_input_;
+  const StateParam state_param_;
+
+  mutable Times times_;
+  mutable Flags flags_;
+  mutable autoware_auto_msgs::msg::HADMapRoute::ConstSharedPtr executing_route_ = nullptr;
 };
 
 }  // namespace state_monitor

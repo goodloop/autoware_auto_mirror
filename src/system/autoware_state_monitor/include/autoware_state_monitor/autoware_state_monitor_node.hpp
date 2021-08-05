@@ -20,11 +20,11 @@
 #include <string>
 
 // ROS
+#include "rclcpp/rclcpp.hpp"
 #include "geometry_msgs/msg/pose_stamped.hpp"
 #include "std_srvs/srv/trigger.hpp"
 #include "tf2_ros/buffer.h"
 #include "tf2_ros/transform_listener.h"
-#include "rclcpp/rclcpp.hpp"
 
 // Autoware
 #include "autoware_auto_msgs/msg/autoware_state.hpp"
@@ -49,7 +49,7 @@ class AUTOWARE_STATE_MONITOR_PUBLIC AutowareStateMonitorNode : public rclcpp::No
 {
 public:
   /// \brief Constructor
-  /// \param[in] node_options Node options as rclcpp::NodeOptions
+  /// \param[in] node_options Node options
   explicit AutowareStateMonitorNode(const rclcpp::NodeOptions & node_options);
 
 private:
@@ -107,7 +107,7 @@ private:
   StateParam state_param_;
 
   geometry_msgs::msg::PoseStamped::SharedPtr getCurrentPose(
-    const tf2_ros::Buffer & tf_buffer);
+    const tf2_ros::Buffer & tf_buffer) const;
 
   std::shared_ptr<OdometryUpdater> odometry_updater_;
 };

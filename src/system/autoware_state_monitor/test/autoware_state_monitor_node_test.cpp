@@ -109,9 +109,9 @@ public:
   {
     rclcpp::NodeOptions node_options;
     node_options.append_parameter_override("update_rate", 10.0f);
-    node_options.append_parameter_override("th_arrived_distance_m", 1.0f);
-    node_options.append_parameter_override("th_stopped_time_sec", 1.0f);
-    node_options.append_parameter_override("th_stopped_velocity_mps", 0.1f);
+    node_options.append_parameter_override("arrived_distance_threshold", 1.0f);
+    node_options.append_parameter_override("stopped_time_threshold", 1.0f);
+    node_options.append_parameter_override("stopped_velocity_threshold_mps", 0.1f);
     node_options.append_parameter_override("wait_time_after_initializing", 0.0f);
     node_options.append_parameter_override("wait_time_after_planning", 0.0f);
     node_options.append_parameter_override("wait_time_after_arrived_goal", 0.0f);

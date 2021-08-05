@@ -27,28 +27,6 @@ namespace autoware
 namespace state_monitor
 {
 
-geometry_msgs::msg::PoseStamped::SharedPtr AutowareStateMonitorNode::getCurrentPose(
-  const tf2_ros::Buffer & tf_buffer)
-{
-  geometry_msgs::msg::TransformStamped tf_current_pose;
-
-  try {
-    tf_current_pose = tf_buffer.lookupTransform(
-      global_frame_, local_frame_, tf2::TimePointZero);
-  } catch (tf2::TransformException & ex) {
-    return nullptr;
-  }
-
-  auto pose = std::make_shared<geometry_msgs::msg::PoseStamped>();
-  pose->header = tf_current_pose.header;
-  pose->pose.orientation = tf_current_pose.transform.rotation;
-  pose->pose.position.x = tf_current_pose.transform.translation.x;
-  pose->pose.position.y = tf_current_pose.transform.translation.y;
-  pose->pose.position.z = tf_current_pose.transform.translation.z;
-
-  return pose;
-}
-
 AutowareStateMonitorNode::AutowareStateMonitorNode(const rclcpp::NodeOptions & node_options)
 : Node("autoware_state_monitor", node_options),
   tf_buffer_(this->get_clock()),
@@ -64,9 +42,12 @@ AutowareStateMonitorNode::AutowareStateMonitorNode(const rclcpp::NodeOptions & n
   global_frame_ = this->declare_parameter("global_frame", "map");
 
   // Parameters for StateMachine
-  state_param_.th_arrived_distance_m = this->declare_parameter("th_arrived_distance_m", 1.0);
-  state_param_.th_stopped_time_sec = this->declare_parameter("th_stopped_time_sec", 1.0);
-  state_param_.th_stopped_velocity_mps = this->declare_parameter("th_stopped_velocity_mps", 0.01);
+  state_param_.arrived_distance_threshold =
+    this->declare_parameter("arrived_distance_threshold", 1.0);
+  state_param_.stopped_time_threshold =
+    this->declare_parameter("stopped_time_threshold", 1.0);
+  state_param_.stopped_velocity_threshold_mps =
+    this->declare_parameter("stopped_velocity_threshold_mps", 0.01);
   state_param_.wait_time_after_initializing =
     this->declare_parameter("wait_time_after_initializing", 1.0);
   state_param_.wait_time_after_planning =
@@ -79,7 +60,7 @@ AutowareStateMonitorNode::AutowareStateMonitorNode(const rclcpp::NodeOptions & n
 
   // Odometry Updater
   odometry_updater_ = std::make_shared<OdometryUpdater>(
-    state_input_.odometry_buffer, state_param_.th_stopped_time_sec);
+    state_input_.odometry_buffer, state_param_.stopped_time_threshold);
 
   // Callback Groups
   callback_group_subscribers_ = this->create_callback_group(
@@ -219,6 +200,27 @@ void AutowareStateMonitorNode::publishAutowareState(const AutowareState & state)
   pub_autoware_state_->publish(autoware_state_msg);
 }
 
+geometry_msgs::msg::PoseStamped::SharedPtr AutowareStateMonitorNode::getCurrentPose(
+  const tf2_ros::Buffer & tf_buffer) const
+{
+  geometry_msgs::msg::TransformStamped tf_current_pose;
+
+  try {
+    tf_current_pose = tf_buffer.lookupTransform(
+      global_frame_, local_frame_, tf2::TimePointZero);
+  } catch (tf2::TransformException & ex) {
+    return nullptr;
+  }
+
+  auto pose = std::make_shared<geometry_msgs::msg::PoseStamped>();
+  pose->header = tf_current_pose.header;
+  pose->pose.orientation = tf_current_pose.transform.rotation;
+  pose->pose.position.x = tf_current_pose.transform.translation.x;
+  pose->pose.position.y = tf_current_pose.transform.translation.y;
+  pose->pose.position.z = tf_current_pose.transform.translation.z;
+
+  return pose;
+}
 
 }  // namespace state_monitor
 }  // namespace autoware

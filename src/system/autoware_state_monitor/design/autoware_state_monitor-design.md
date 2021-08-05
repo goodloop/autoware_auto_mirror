@@ -46,20 +46,16 @@ In each update of the state machine the inputs are checked and the new state is 
 For example, before transition to `ArrivedGoal` state, the component checks
 if the vehicle is close to the goal and if the vehicle is stopped.
 
-## Assumptions
-
-Assumptions:
-
 ## Inputs / Outputs / API
 
 Inputs
 * `autoware_auto_msgs/msg/Engage` is used to check if the vehicle has been engaged or not.
 * `autoware_auto_msgs/msg/HADMapRoute` is used to extract goal point and correct
   transitions between states.
-* `autoware_auto_msgs/msg/VehicleOdometry` is used to calculate current robot velocity.
+* `autoware_auto_msgs/msg/VehicleOdometry` is used to calculate a current vehicle velocity.
 * `autoware_auto_msgs/msg/VehicleStateReport` is used to determine if the vehicle
   is in manual or autonomous mode.
-* `tf/tfMessage` is used to determine robot pose in global frame.
+* `tf/tfMessage` is used to determine a vehicle pose in a global frame.
 
 Outputs
 * `autoware_auto_msgs/msg/AutowareState` contains the system state.

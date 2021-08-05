@@ -39,8 +39,8 @@ class StateMachineTest : public ::testing::Test
 public:
   StateMachineTest()
   {
-    default_params.th_arrived_distance_m = 1.0;
-    default_params.th_stopped_velocity_mps = 0.1;
+    default_params.arrived_distance_threshold = 1.0;
+    default_params.stopped_velocity_threshold_mps = 0.1;
     default_params.wait_time_after_initializing = 1.0;
     default_params.wait_time_after_planning = 3.0;
     default_params.wait_time_after_arrived_goal = 2.0;
@@ -256,8 +256,8 @@ TEST_F(StateMachineTest, goal_reached_vehicle_stopped_velocity_zero)
 TEST_F(StateMachineTest, goal_reached_velocity_non_zero_but_below_threshold)
 {
   StateParam params;
-  params.th_arrived_distance_m = 1.0;
-  params.th_stopped_velocity_mps = 0.5;
+  params.arrived_distance_threshold = 1.0;
+  params.stopped_velocity_threshold_mps = 0.5;
 
   auto input = initializeWithStateAndParams(AutowareState::Driving, params);
   const auto point = getPoint(1.0, 1.0);
@@ -286,8 +286,8 @@ TEST_F(StateMachineTest, goal_reached_zero_distance)
 TEST_F(StateMachineTest, goal_reached_non_zero_distance_below_threshold)
 {
   StateParam params;
-  params.th_arrived_distance_m = 1.0;
-  params.th_stopped_velocity_mps = 0.5;
+  params.arrived_distance_threshold = 1.0;
+  params.stopped_velocity_threshold_mps = 0.5;
 
   const auto current_point = getPoint(-0.1, 1.0);
   const auto goal_point = getPoint(0.5, 0.5);
@@ -299,15 +299,15 @@ TEST_F(StateMachineTest, goal_reached_non_zero_distance_below_threshold)
 
   const auto dist = distance(current_point, goal_point);
   EXPECT_GT(dist, 0);
-  EXPECT_LE(dist, params.th_arrived_distance_m);
+  EXPECT_LE(dist, params.arrived_distance_threshold);
   EXPECT_EQ(state_machine->updateState(input), AutowareState::ArrivedGoal);
 }
 
 TEST_F(StateMachineTest, goal_unreached_distance_above_threshold)
 {
   StateParam params;
-  params.th_arrived_distance_m = 1.0;
-  params.th_stopped_velocity_mps = 0.5;
+  params.arrived_distance_threshold = 1.0;
+  params.stopped_velocity_threshold_mps = 0.5;
 
   const auto current_point = getPoint(1.0, -1.0);
   const auto goal_point = getPoint(0.5, 0.5);
@@ -318,15 +318,15 @@ TEST_F(StateMachineTest, goal_unreached_distance_above_threshold)
   input.goal_pose = prepareRoutePointMsg(goal_point);
 
   const auto dist = distance(current_point, goal_point);
-  EXPECT_GE(dist, params.th_arrived_distance_m);
+  EXPECT_GE(dist, params.arrived_distance_threshold);
   EXPECT_EQ(state_machine->updateState(input), AutowareState::Driving);
 }
 
 TEST_F(StateMachineTest, goal_unreached_distance_equal_to_threshold)
 {
   StateParam params;
-  params.th_arrived_distance_m = 1.0;
-  params.th_stopped_velocity_mps = 0.5;
+  params.arrived_distance_threshold = 1.0;
+  params.stopped_velocity_threshold_mps = 0.5;
 
   const auto current_point = getPoint(1.0, 0.0);
   const auto goal_point = getPoint(0.0, 0.0);
@@ -337,7 +337,7 @@ TEST_F(StateMachineTest, goal_unreached_distance_equal_to_threshold)
   input.goal_pose = prepareRoutePointMsg(goal_point);
 
   const auto dist = distance(current_point, goal_point);
-  EXPECT_FLOAT_EQ(dist, params.th_arrived_distance_m);
+  EXPECT_FLOAT_EQ(dist, params.arrived_distance_threshold);
   EXPECT_EQ(state_machine->updateState(input), AutowareState::Driving);
 }
 
