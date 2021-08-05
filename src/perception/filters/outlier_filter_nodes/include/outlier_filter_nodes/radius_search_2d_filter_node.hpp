@@ -40,10 +40,6 @@ namespace filters
 namespace outlier_filter_nodes
 {
 
-using RadiusSearch2DFilter =
-  autoware::perception::filters::outlier_filter::radius_search_2d_filter::
-  RadiusSearch2DFilter;
-
 /// \class RadiusSearch2DFilterNode
 /// \brief Node inheriting from FilterNodeBase and is the ROS2 node interface for the
 //   RadiusSearch2DFilter library

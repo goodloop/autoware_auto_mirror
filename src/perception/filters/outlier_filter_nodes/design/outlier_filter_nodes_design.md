@@ -8,19 +8,22 @@ outlier_filter_nodes {#outlier-filter-nodes-package-design}
     - Why did we implement this feature? -->
 
 The purpose of this package is to provide the ROS2 node interface for the outlier_filter library
-functions.
+functions. The functions of this library together with the node interface allows the user to apply
+various outlier filter techniques on an input point cloud. 
 
 The `outlier_filter_nodes` package contains the node executables for launching the:
- * `radius_search_2d_filter_node`
- * `voxel_grid_outlier_filter_node`
+ * `radius_search_2d_filter_node` - filter outliers using a radial search method in 2D
+ * `voxel_grid_outlier_filter_node` - filter outliers using a voxel grid to remove points in
+   outlying voxels
 
+More information about the exact algorithm details can be found in @ref outlier-filter-algorithm.
 
 # Design
 <!-- Required -->
 <!-- Things to consider:
     - How does it work? -->
 
-This package utilises the `filter_node_base` and the `outlier_filter` libraries. Nodes extend from
+This package utilizes the `filter_node_base` and the `outlier_filter` libraries. Nodes extend from
 the FilterNodeBase class and provide an interface between the ROS2 inputs and the library functions
 from the `outlier_filter` package.
 
