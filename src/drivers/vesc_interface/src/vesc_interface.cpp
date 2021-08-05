@@ -39,6 +39,19 @@ namespace vesc_interface
     // create publishers to vesc electric-RPM (speed) and servo commands
     erpm_pub_ = node.create_publisher<Float64>("commands/motor/speed", 10);
     servo_pub_ = node.create_publisher<Float64>("commands/servo/position", 10);
+
+    // Subscribers to data from VESC
+    vesc_motor_state_ = node.create_subscription<VescStateStamped>(
+      "sensors/core", 
+      10,
+      [this](VescStateStamped::SharedPtr msg) {on_motor_state_report(msg);}
+      );
+
+    servo_state_ = node.create_subscription<Float64>(
+      "sensors/servo_position_command",
+      10,
+      [this](Float64::SharedPtr msg) {on_servo_state_report(msg);}
+    );
   }
 
   bool8_t VESCInterface::update(std::chrono::nanoseconds timeout)
@@ -49,15 +62,18 @@ namespace vesc_interface
 
   bool8_t VESCInterface::send_state_command(const VehicleStateCommand &msg)
   {
+    state_report().set__stamp(rclcpp::Clock().now());
     // If the GEAR is in reverse, set direction to -1
     if (msg.gear == VSC::GEAR_REVERSE)
     {
       direction = -1;
+      state_report().set__gear(VehicleStateReport::GEAR_REVERSE);
     }
 
     if (msg.gear == VSC::GEAR_DRIVE || msg.gear == VSC::GEAR_LOW)
     {
       direction = 1;
+      state_report().set__gear(VehicleStateReport::GEAR_DRIVE);
     }
 
     return true;
@@ -95,6 +111,24 @@ namespace vesc_interface
     // Log Error, Not Implemented.
     RCLCPP_WARN(m_logger, "Cannot control the VESC using RawControlCommand");
     return true;
+  }
+
+  void VESCInterface::on_motor_state_report(const VescStateStamped::SharedPtr &msg)
+  {
+    // The following is taken from https://github.com/Triton-AI/vesc/blob/ros2/vesc_ackermann/src/vesc_to_odom.cpp
+    double speed = (-msg->state.speed - speed_to_erpm_offset_) / speed_to_erpm_gain_;
+    if (std::fabs(speed)<0.05)
+    {
+      speed = 0.0;
+    }
+    odometry().set__velocity_mps(static_cast<float>(speed));
+    odometry().set__stamp(msg->header.stamp);
+  }
+
+  void VESCInterface::on_servo_state_report(const Float64::SharedPtr & msg)
+  {
+    double steering_angle_rad = (msg->data-steering_to_servo_offset_) / steering_to_servo_gain_;
+    odometry().set__front_wheel_angle_rad(static_cast<float>(steering_angle_rad));
   }
 }  // namespace vesc_interface
 }  // namespace autoware

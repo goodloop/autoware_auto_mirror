@@ -37,6 +37,8 @@
 
 #include <autoware_auto_msgs/srv/autonomy_mode_change.hpp>
 
+#include <vesc_msgs/msg/vesc_state_stamped.hpp>
+
 #include <rclcpp/rclcpp.hpp>
 #include <std_msgs/msg/float64.hpp>
 
@@ -48,6 +50,8 @@ using autoware_auto_msgs::msg::VehicleControlCommand;
 using autoware_auto_msgs::msg::VehicleStateCommand;
 using autoware_auto_msgs::msg::VehicleStateReport;
 using autoware_auto_msgs::msg::VehicleOdometry;
+
+using vesc_msgs::msg::VescStateStamped;
 
 using std_msgs::msg::Float64;
 
@@ -96,15 +100,11 @@ public:
     /// \brief Send raw control commands, currently not implemented, hence logs error.
     bool8_t send_control_command(const RawControlCommand &msg);
 
-protected:
-
     // state_report() -> Set the gear (forward/backward)
-    VehicleStateReport & state_report();
 
     // odometry() -> velocity_mps meters/s
     //               front_wheel_angle_rad (radians, positive-to the left)
     // https://gitlab.com/autowarefoundation/autoware.auto/autoware_auto_msgs/-/blob/master/autoware_auto_msgs/msg/VehicleOdometry.idl
-    VehicleOdometry & get_odometry();
 
 private:
 
@@ -122,6 +122,15 @@ private:
     // ROS services
     rclcpp::Publisher<Float64>::SharedPtr erpm_pub_;
     rclcpp::Publisher<Float64>::SharedPtr servo_pub_;
+    rclcpp::Subscription<VescStateStamped>::SharedPtr vesc_motor_state_;
+    rclcpp::Subscription<Float64>::SharedPtr servo_state_;
+
+    /// \brief Recieves the vesc motor state and converts it to car velocity
+    void on_motor_state_report(const VescStateStamped::SharedPtr & msg);
+
+    /// \brief Recieves the servo position and converts it to front wheel angle
+    void on_servo_state_report(const Float64::SharedPtr & msg);
+
 }; // class VESCInterface
 
 }  // namespace vesc_interface
