@@ -37,11 +37,7 @@
 
 #include <autoware_auto_msgs/srv/autonomy_mode_change.hpp>
 
-<<<<<<< HEAD
 #include <vesc_msgs/msg/vesc_state_stamped.hpp>
-
-=======
->>>>>>> 422af18d2e31c3f06c3db12e1713e83b398514a8
 #include <rclcpp/rclcpp.hpp>
 #include <std_msgs/msg/float64.hpp>
 
@@ -54,11 +50,8 @@ using autoware_auto_msgs::msg::VehicleStateCommand;
 using autoware_auto_msgs::msg::VehicleStateReport;
 using autoware_auto_msgs::msg::VehicleOdometry;
 
-<<<<<<< HEAD
 using vesc_msgs::msg::VescStateStamped;
 
-=======
->>>>>>> 422af18d2e31c3f06c3db12e1713e83b398514a8
 using std_msgs::msg::Float64;
 
 namespace autoware
@@ -106,23 +99,11 @@ public:
     /// \brief Send raw control commands, currently not implemented, hence logs error.
     bool8_t send_control_command(const RawControlCommand &msg);
 
-<<<<<<< HEAD
     // state_report() -> Set the gear (forward/backward)
-=======
-protected:
-
-    // state_report() -> Set the gear (forward/backward)
-    VehicleStateReport & state_report();
->>>>>>> 422af18d2e31c3f06c3db12e1713e83b398514a8
 
     // odometry() -> velocity_mps meters/s
     //               front_wheel_angle_rad (radians, positive-to the left)
     // https://gitlab.com/autowarefoundation/autoware.auto/autoware_auto_msgs/-/blob/master/autoware_auto_msgs/msg/VehicleOdometry.idl
-<<<<<<< HEAD
-=======
-    VehicleOdometry & get_odometry();
->>>>>>> 422af18d2e31c3f06c3db12e1713e83b398514a8
-
 private:
 
     // ROS parameters
@@ -139,7 +120,6 @@ private:
     // ROS services
     rclcpp::Publisher<Float64>::SharedPtr erpm_pub_;
     rclcpp::Publisher<Float64>::SharedPtr servo_pub_;
-<<<<<<< HEAD
     rclcpp::Subscription<VescStateStamped>::SharedPtr vesc_motor_state_;
     rclcpp::Subscription<Float64>::SharedPtr servo_state_;
 
@@ -149,8 +129,6 @@ private:
     /// \brief Recieves the servo position and converts it to front wheel angle
     void on_servo_state_report(const Float64::SharedPtr & msg);
 
-=======
->>>>>>> 422af18d2e31c3f06c3db12e1713e83b398514a8
 }; // class VESCInterface
 
 }  // namespace vesc_interface
