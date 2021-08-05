@@ -1,4 +1,4 @@
-Trajectory Follower Package {#trajectory_follower_nodes-package-design}
+Trajectory Follower Nodes {#trajectory_follower_nodes-package-design}
 =============================================
 
 # Purpose
