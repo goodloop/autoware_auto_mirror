@@ -1,4 +1,4 @@
-// Copyright 2020 Tier IV, Inc.
+// Copyright 2021 The Autoware Foundation
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// Co-developed by Tier IV, Inc. and Robotec.AI sp. z o.o.
 
 #ifndef EMERGENCY_HANDLER__EMERGENCY_HANDLER_NODE_HPP_
 #define EMERGENCY_HANDLER__EMERGENCY_HANDLER_NODE_HPP_

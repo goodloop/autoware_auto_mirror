@@ -1,4 +1,4 @@
-// Copyright 2020 Tier IV, Inc.
+// Copyright 2021 The Autoware Foundation
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// Co-developed by Tier IV, Inc. and Robotec.AI sp. z o.o.
 
 #include <memory>
 #include <string>
@@ -19,12 +21,12 @@
 #include "emergency_handler/emergency_handler_node.hpp"
 #include "emergency_handler/visibility_control.hpp"
 
-using namespace std::chrono_literals;
-
 namespace autoware
 {
 namespace emergency_handler
 {
+
+using namespace std::chrono_literals;
 
 diagnostic_msgs::msg::DiagnosticStatus createDiagnosticStatus(
   const int level, const std::string & name, const std::string & message)
@@ -310,7 +312,8 @@ bool EmergencyHandlerNode::isStopped()
   return false;
 }
 
-bool EmergencyHandlerNode::isEmergency(const autoware_auto_msgs::msg::HazardStatus & hazard_status)
+bool EmergencyHandlerNode::isEmergency(
+  const autoware_auto_msgs::msg::HazardStatus & hazard_status)
 {
   return hazard_status.level >= emergency_hazard_level_;
 }
