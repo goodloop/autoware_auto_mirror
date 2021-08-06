@@ -20,8 +20,11 @@
 
 using namespace std::chrono_literals;
 
-namespace
+namespace autoware
 {
+namespace emergency_handler
+{
+
 diagnostic_msgs::msg::DiagnosticStatus createDiagnosticStatus(
   const int level, const std::string & name, const std::string & message)
 {
@@ -66,7 +69,6 @@ diagnostic_msgs::msg::DiagnosticArray convertHazardStatusToDiagnosticArray(
 
   return diag_array;
 }
-}  // namespace
 
 EmergencyHandlerNode::EmergencyHandlerNode(const rclcpp::NodeOptions & node_options)
 : Node("emergency_handler", node_options),
@@ -385,5 +387,8 @@ autoware_auto_msgs::msg::VehicleControlCommand EmergencyHandlerNode::selectAlter
   }
 }
 
+}  // namespace emergency_handler
+}  // namespace autoware
+
 #include "rclcpp_components/register_node_macro.hpp"  // NOLINT
-RCLCPP_COMPONENTS_REGISTER_NODE(EmergencyHandlerNode)
+RCLCPP_COMPONENTS_REGISTER_NODE(autoware::emergency_handler::EmergencyHandlerNode)

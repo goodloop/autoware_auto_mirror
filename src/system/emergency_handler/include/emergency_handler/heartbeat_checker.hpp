@@ -19,6 +19,11 @@
 
 #include "rclcpp/rclcpp.hpp"
 
+namespace autoware
+{
+namespace emergency_handler
+{
+
 template<class HeartbeatMsg>
 class HeaderlessHeartbeatChecker
 {
@@ -57,5 +62,8 @@ private:
     last_heartbeat_time_ = clock_->now();
   }
 };
+
+}  // namespace emergency_handler
+}  // namespace autoware
 
 #endif  // EMERGENCY_HANDLER__UTIL__HEARTBEAT_CHECKER_HPP_

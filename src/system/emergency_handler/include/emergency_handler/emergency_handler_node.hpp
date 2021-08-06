@@ -38,6 +38,11 @@
 
 #include "emergency_handler/heartbeat_checker.hpp"
 
+namespace autoware
+{
+namespace emergency_handler
+{
+
 class EmergencyHandlerNode : public rclcpp::Node
 {
 public:
@@ -115,5 +120,8 @@ private:
   autoware_auto_msgs::msg::HazardStatus judgeHazardStatus();
   autoware_auto_msgs::msg::VehicleControlCommand selectAlternativeControlCommand();
 };
+
+}  // namespace emergency_handler
+}  // namespace autoware
 
 #endif  // EMERGENCY_HANDLER__EMERGENCY_HANDLER_CORE_HPP_
