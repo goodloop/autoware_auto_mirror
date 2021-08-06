@@ -72,8 +72,6 @@ private:
     const autoware_auto_msgs::msg::VehicleControlCommand::ConstSharedPtr msg);
   void onStateReport(const autoware_auto_msgs::msg::VehicleStateReport::ConstSharedPtr msg);
   void onOdometry(const autoware_auto_msgs::msg::VehicleOdometry::ConstSharedPtr msg);
-  // void onIsStateTimeout(
-  // const autoware_auto_msgs::msg::TimeoutNotification::ConstSharedPtr msg);
 
   // Service
   rclcpp::Service<std_srvs::srv::Trigger>::SharedPtr srv_clear_emergency_;
@@ -92,7 +90,7 @@ private:
   rclcpp::Publisher<diagnostic_msgs::msg::DiagnosticArray>::SharedPtr pub_diagnostics_err_;
 
   void publishHazardStatus(const autoware_auto_msgs::msg::HazardStatus & hazard_status);
-  void publishControlCommands();
+  void publishControlAndStateCommands();
 
   // Timer
   rclcpp::TimerBase::SharedPtr timer_;
@@ -101,9 +99,8 @@ private:
   double update_rate_;
   double data_ready_timeout_;
   double timeout_driving_capability_;
-  long int emergency_hazard_level_;
+  int64_t emergency_hazard_level_;
   bool use_emergency_hold_;
-  bool use_parking_after_stopped_;
 
   bool isDataReady();
   void onTimer();
@@ -120,7 +117,6 @@ private:
   bool isStopped();
   bool isEmergency(const autoware_auto_msgs::msg::HazardStatus & hazard_status);
   autoware_auto_msgs::msg::HazardStatus judgeHazardStatus();
-  autoware_auto_msgs::msg::VehicleControlCommand selectAlternativeControlCommand();
 };
 
 }  // namespace emergency_handler

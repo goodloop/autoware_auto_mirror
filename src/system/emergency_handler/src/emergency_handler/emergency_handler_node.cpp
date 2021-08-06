@@ -79,8 +79,7 @@ EmergencyHandlerNode::EmergencyHandlerNode(const rclcpp::NodeOptions & node_opti
   data_ready_timeout_(declare_parameter<double>("data_ready_timeout", 30.0)),
   timeout_driving_capability_(declare_parameter<double>("timeout_driving_capability", 0.5)),
   emergency_hazard_level_(declare_parameter<int>("emergency_hazard_level", 2)),
-  use_emergency_hold_(declare_parameter<bool>("use_emergency_hold", false)),
-  use_parking_after_stopped_(declare_parameter<bool>("use_parking_after_stopped", false))
+  use_emergency_hold_(declare_parameter<bool>("use_emergency_hold", false))
 {
   using std::placeholders::_1;
   using std::placeholders::_2;
@@ -179,7 +178,9 @@ bool EmergencyHandlerNode::onClearEmergencyService(
 {
   (void)request_header;
   (void)request;
+
   const auto hazard_status = judgeHazardStatus();
+
   if (!isEmergency(hazard_status)) {
     is_emergency_ = false;
     hazard_status_ = hazard_status;
@@ -213,15 +214,19 @@ void EmergencyHandlerNode::publishHazardStatus(
     convertHazardStatusToDiagnosticArray(this->get_clock(), hazard_status_stamped.status));
 }
 
-void EmergencyHandlerNode::publishControlCommands()
+void EmergencyHandlerNode::publishControlAndStateCommands()
 {
   // Create timestamp
   const auto stamp = this->now();
 
   // Publish ControlCommand
   {
-    auto msg = selectAlternativeControlCommand();
+    autoware_auto_msgs::msg::VehicleControlCommand msg;
     msg.stamp = stamp;
+    msg.front_wheel_angle_rad = prev_control_command_->front_wheel_angle_rad;
+    msg.velocity_mps = 0.0;
+    msg.long_accel_mps2 = -2.5;
+
     pub_control_command_->publish(msg);
   }
 
@@ -231,6 +236,7 @@ void EmergencyHandlerNode::publishControlCommands()
     msg.stamp = stamp;
     msg.blinker = autoware_auto_msgs::msg::VehicleStateCommand::BLINKER_HAZARD;
     msg.gear = autoware_auto_msgs::msg::VehicleStateCommand::GEAR_PARK;
+
     pub_state_command_->publish(msg);
   }
 }
@@ -267,7 +273,8 @@ void EmergencyHandlerNode::onTimer()
   if (!isDataReady()) {
     if ((this->now() - initialized_time_).seconds() > data_ready_timeout_) {
       // RCLCPP_WARN_THROTTLE(
-      //   this->get_logger(), *this->get_clock(), static_cast<int64_t>(1000), "input data is timeout");
+      //   this->get_logger(), *this->get_clock(),
+      //   static_cast<int64_t>(1000), "input data is timeout");
 
       autoware_auto_msgs::msg::HazardStatus hazard_status;
       hazard_status.level = autoware_auto_msgs::msg::HazardStatus::SINGLE_POINT_FAULT;
@@ -280,8 +287,6 @@ void EmergencyHandlerNode::onTimer()
 
       publishHazardStatus(hazard_status);
     }
-
-    return;
   }
 
   // Check if emergency
@@ -299,7 +304,7 @@ void EmergencyHandlerNode::onTimer()
 
   // Publish data
   publishHazardStatus(hazard_status_);
-  publishControlCommands();
+  publishControlAndStateCommands();
 }
 
 bool EmergencyHandlerNode::isStopped()
@@ -374,22 +379,6 @@ autoware_auto_msgs::msg::HazardStatus EmergencyHandlerNode::judgeHazardStatus()
   }
 
   return hazard_status;
-}
-
-autoware_auto_msgs::msg::VehicleControlCommand
-  EmergencyHandlerNode::selectAlternativeControlCommand()
-{
-  // TODO(jilaada): Add safe_stop planner
-
-  // Emergency Stop
-  {
-    autoware_auto_msgs::msg::VehicleControlCommand emergency_stop_cmd;
-    emergency_stop_cmd.front_wheel_angle_rad = prev_control_command_->front_wheel_angle_rad;
-    emergency_stop_cmd.velocity_mps = 0.0;
-    emergency_stop_cmd.long_accel_mps2 = -2.5;
-
-    return emergency_stop_cmd;
-  }
 }
 
 }  // namespace emergency_handler
