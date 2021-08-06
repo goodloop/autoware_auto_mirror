@@ -53,6 +53,7 @@ private:
 
   void onHeartbeat(const typename HeartbeatMsg::ConstSharedPtr msg)
   {
+    (void)msg;
     last_heartbeat_time_ = clock_->now();
   }
 };

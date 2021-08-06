@@ -30,7 +30,7 @@
 #include "autoware_auto_msgs/msg/driving_capability.hpp"
 #include "autoware_auto_msgs/msg/emergency_mode.hpp"
 #include "autoware_auto_msgs/msg/hazard_status_stamped.hpp"
-#include "autoware_auto_msgs/msg/timeout_notification.hpp"
+// #include "autoware_auto_msgs/msg/timeout_notification.hpp"
 #include "autoware_auto_msgs/msg/vehicle_odometry.hpp"
 #include "autoware_auto_msgs/msg/vehicle_control_command.hpp"
 #include "autoware_auto_msgs/msg/vehicle_state_report.hpp"
@@ -65,8 +65,8 @@ private:
     const autoware_auto_msgs::msg::VehicleControlCommand::ConstSharedPtr msg);
   void onStateReport(const autoware_auto_msgs::msg::VehicleStateReport::ConstSharedPtr msg);
   void onOdometry(const autoware_auto_msgs::msg::VehicleOdometry::ConstSharedPtr msg);
-  void onIsStateTimeout(
-    const autoware_auto_msgs::msg::TimeoutNotification::ConstSharedPtr msg);
+  // void onIsStateTimeout(
+    // const autoware_auto_msgs::msg::TimeoutNotification::ConstSharedPtr msg);
 
   // Service
   rclcpp::Service<std_srvs::srv::Trigger>::SharedPtr srv_clear_emergency_;
@@ -91,10 +91,10 @@ private:
   rclcpp::TimerBase::SharedPtr timer_;
 
   // Parameters
-  int update_rate_;
+  double update_rate_;
   double data_ready_timeout_;
   double timeout_driving_capability_;
-  int emergency_hazard_level_;
+  long int emergency_hazard_level_;
   bool use_emergency_hold_;
   bool use_parking_after_stopped_;
 

@@ -2,7 +2,7 @@
 ---
 /**:
   ros__parameters:
-    update_rate: 10
+    update_rate: 10.0
     timeout_driving_capability: 0.5
     data_ready_timeout: 30.0
     use_parking_after_stopped: false

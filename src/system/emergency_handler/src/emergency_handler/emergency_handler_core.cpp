@@ -18,6 +18,8 @@
 
 #include "emergency_handler/emergency_handler_core.hpp"
 
+using namespace std::chrono_literals;
+
 namespace
 {
 diagnostic_msgs::msg::DiagnosticStatus createDiagnosticStatus(
@@ -25,7 +27,7 @@ diagnostic_msgs::msg::DiagnosticStatus createDiagnosticStatus(
 {
   diagnostic_msgs::msg::DiagnosticStatus diag;
 
-  diag.level = level;
+  diag.level = static_cast<unsigned char>(level);
   diag.name = name;
   diag.message = message;
   diag.hardware_id = "emergency_handler";
@@ -68,7 +70,7 @@ diagnostic_msgs::msg::DiagnosticArray convertHazardStatusToDiagnosticArray(
 
 EmergencyHandler::EmergencyHandler()
 : Node("emergency_handler"),
-  update_rate_(declare_parameter<int>("update_rate", 10)),
+  update_rate_(declare_parameter<double>("update_rate", 10.0)),
   data_ready_timeout_(declare_parameter<double>("data_ready_timeout", 30.0)),
   timeout_driving_capability_(declare_parameter<double>("timeout_driving_capability", 0.5)),
   emergency_hazard_level_(declare_parameter<int>("emergency_hazard_level", 2)),
@@ -171,6 +173,7 @@ bool EmergencyHandler::onClearEmergencyService(
   std::shared_ptr<std_srvs::srv::Trigger::Response> response)
 {
   (void)request_header;
+  (void)request;
   const auto hazard_status = judgeHazardStatus();
   if (!isEmergency(hazard_status)) {
     is_emergency_ = false;
@@ -230,23 +233,23 @@ void EmergencyHandler::publishControlCommands()
 bool EmergencyHandler::isDataReady()
 {
   if (!autoware_state_) {
-    RCLCPP_INFO_THROTTLE(
-      this->get_logger(), *this->get_clock(), std::chrono::milliseconds(5000).count(),
-      "waiting for autoware_state msg...");
+    // RCLCPP_INFO_THROTTLE(
+    //   this->get_logger(), *this->get_clock(), 5000L,
+    //   "waiting for autoware_state msg...");
     return false;
   }
 
   if (!driving_capability_) {
-    RCLCPP_INFO_THROTTLE(
-      this->get_logger(), *this->get_clock(), std::chrono::milliseconds(5000).count(),
-      "waiting for driving_capability msg...");
+    // RCLCPP_INFO_THROTTLE(
+    //   this->get_logger(), *this->get_clock(), 5000L,
+    //   "waiting for driving_capability msg...");
     return false;
   }
 
   if (!state_report_) {
-    RCLCPP_INFO_THROTTLE(
-      this->get_logger(), *this->get_clock(), std::chrono::milliseconds(5000).count(),
-      "waiting for state_report msg...");
+    // RCLCPP_INFO_THROTTLE(
+    //   this->get_logger(), *this->get_clock(), 5000L,
+    //   "waiting for state_report msg...");
     return false;
   }
 
@@ -258,9 +261,8 @@ void EmergencyHandler::onTimer()
   // Wait for data ready
   if (!isDataReady()) {
     if ((this->now() - initialized_time_).seconds() > data_ready_timeout_) {
-      RCLCPP_WARN_THROTTLE(
-        this->get_logger(), *this->get_clock(), std::chrono::milliseconds(1000).count(),
-        "input data is timeout");
+      // RCLCPP_WARN_THROTTLE(
+      //   this->get_logger(), *this->get_clock(), static_cast<int64_t>(1000), "input data is timeout");
 
       autoware_auto_msgs::msg::HazardStatus hazard_status;
       hazard_status.level = autoware_auto_msgs::msg::HazardStatus::SINGLE_POINT_FAULT;
@@ -298,7 +300,7 @@ void EmergencyHandler::onTimer()
 bool EmergencyHandler::isStopped()
 {
   constexpr auto th_stopped_velocity = 0.001;
-  if (odometry_->velocity_mps < th_stopped_velocity) {
+  if (static_cast<double>(odometry_->velocity_mps) < th_stopped_velocity) {
     return true;
   }
 
@@ -354,9 +356,9 @@ autoware_auto_msgs::msg::HazardStatus EmergencyHandler::judgeHazardStatus()
       (autoware_state_->state == AutowareState::INITIALIZING_VEHICLE);
 
     if (!is_in_heartbeat_timeout_ignore_state && heartbeat_driving_capability_->isTimeout()) {
-      RCLCPP_WARN_THROTTLE(
-        this->get_logger(), *this->get_clock(), std::chrono::milliseconds(1000).count(),
-        "heartbeat_driving_capability is timeout");
+      // RCLCPP_WARN_THROTTLE(
+      //   this->get_logger(), *this->get_clock(), t,
+      //   "heartbeat_driving_capability is timeout");
       hazard_status.level = HazardStatus::SINGLE_POINT_FAULT;
       hazard_status.diag_single_point_fault.push_back(
         createDiagnosticStatus(
