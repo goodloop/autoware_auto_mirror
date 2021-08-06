@@ -36,12 +36,12 @@
 #include "autoware_auto_msgs/msg/vehicle_state_report.hpp"
 #include "autoware_auto_msgs/msg/vehicle_state_command.hpp"
 
-#include "emergency_handler/util/heartbeat_checker.hpp"
+#include "emergency_handler/heartbeat_checker.hpp"
 
-class EmergencyHandler : public rclcpp::Node
+class EmergencyHandlerNode : public rclcpp::Node
 {
 public:
-  EmergencyHandler();
+  explicit EmergencyHandlerNode(const rclcpp::NodeOptions & node_options);
 
 private:
   // Subscribers
