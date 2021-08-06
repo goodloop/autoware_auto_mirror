@@ -62,7 +62,7 @@ size_t findNearestIndex(const Points & points, const geometry_msgs::msg::Point &
   size_t min_idx = 0;
 
   for (size_t i = 0; i < points.size(); ++i) {
-    const auto dist = autoware::common::helper_functions::calcDist2d(points.at(i), point);
+    const auto dist = autoware::common::geometry::distance_2d<float64_t>(points.at(i), point);
     if (dist < min_dist) {
       min_dist = dist;
       min_idx = i;
@@ -84,7 +84,8 @@ std::experimental::optional<size_t> findNearestIndex(
 
   const auto target_yaw = tf2::getYaw(pose.orientation);
   for (size_t i = 0; i < points.size(); ++i) {
-    const auto dist = autoware::common::helper_functions::calcDist2d(points.at(i), pose.position);
+    const auto dist =
+      autoware::common::geometry::distance_2d<float64_t>(points.at(i), pose.position);
     if (dist > max_dist) {
       continue;
     }
@@ -159,7 +160,7 @@ float64_t calcSignedArcLength(const Points & points, const size_t src_idx, const
 
   float64_t dist_sum = 0.0;
   for (size_t i = src_idx; i < dst_idx; ++i) {
-    dist_sum += autoware::common::helper_functions::calcDist2d(points.at(i), points.at(i + 1));
+    dist_sum += autoware::common::geometry::distance_2d<float64_t>(points.at(i), points.at(i + 1));
   }
   return dist_sum;
 }
