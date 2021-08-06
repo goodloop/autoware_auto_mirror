@@ -23,10 +23,10 @@ if(BUILD_TESTING)
   ament_lint_auto_find_test_dependencies()
   find_package(ament_cmake_gtest REQUIRED)
 
-  # add_ros_test(
-  #   test/emergency_handler_node_launch.test.py
-  #   TIMEOUT "30"
-  # )
+  add_ros_test(
+    test/emergency_handler_launch.test.py
+    TIMEOUT "30"
+  )
 
   # ament_add_gtest(${PROJECT_NAME}_test
     # test/emergency_handler_test.cpp

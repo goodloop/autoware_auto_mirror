@@ -26,7 +26,7 @@ def generate_launch_description():
     emergency_handler_pkg_prefix = get_package_share_directory('emergency_handler')
 
     emergency_handler_param_file = os.path.join(
-        emergency_handler_pkg_prefix, 'param/emergency_handler.param.yaml')
+        emergency_handler_pkg_prefix, 'param/defaults.param.yaml')
 
     # Arguments
     emergency_handler_param = DeclareLaunchArgument(

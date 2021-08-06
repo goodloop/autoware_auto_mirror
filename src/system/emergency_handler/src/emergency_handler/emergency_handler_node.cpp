@@ -373,7 +373,8 @@ autoware_auto_msgs::msg::HazardStatus EmergencyHandlerNode::judgeHazardStatus()
   return hazard_status;
 }
 
-autoware_auto_msgs::msg::VehicleControlCommand EmergencyHandlerNode::selectAlternativeControlCommand()
+autoware_auto_msgs::msg::VehicleControlCommand
+  EmergencyHandlerNode::selectAlternativeControlCommand()
 {
   // TODO(jilaada): Add safe_stop planner
 

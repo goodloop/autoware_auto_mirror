@@ -12,14 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef EMERGENCY_HANDLER__UTIL__HEARTBEAT_CHECKER_HPP_
-#define EMERGENCY_HANDLER__UTIL__HEARTBEAT_CHECKER_HPP_
+#ifndef EMERGENCY_HANDLER__HEARTBEAT_CHECKER_HPP_
+#define EMERGENCY_HANDLER__HEARTBEAT_CHECKER_HPP_
 
 #include <string>
 
 #include "rclcpp/rclcpp.hpp"
 
-#include "visibility_control.hpp"
+#include "emergency_handler/visibility_control.hpp"
 
 namespace autoware
 {
@@ -68,4 +68,4 @@ private:
 }  // namespace emergency_handler
 }  // namespace autoware
 
-#endif  // EMERGENCY_HANDLER__UTIL__HEARTBEAT_CHECKER_HPP_
+#endif  // EMERGENCY_HANDLER__HEARTBEAT_CHECKER_HPP_

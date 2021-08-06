@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef EMERGENCY_HANDLER__EMERGENCY_HANDLER_CORE_HPP_
-#define EMERGENCY_HANDLER__EMERGENCY_HANDLER_CORE_HPP_
+#ifndef EMERGENCY_HANDLER__EMERGENCY_HANDLER_NODE_HPP_
+#define EMERGENCY_HANDLER__EMERGENCY_HANDLER_NODE_HPP_
 
 // Core
 #include <memory>
@@ -71,7 +71,7 @@ private:
   void onStateReport(const autoware_auto_msgs::msg::VehicleStateReport::ConstSharedPtr msg);
   void onOdometry(const autoware_auto_msgs::msg::VehicleOdometry::ConstSharedPtr msg);
   // void onIsStateTimeout(
-    // const autoware_auto_msgs::msg::TimeoutNotification::ConstSharedPtr msg);
+  // const autoware_auto_msgs::msg::TimeoutNotification::ConstSharedPtr msg);
 
   // Service
   rclcpp::Service<std_srvs::srv::Trigger>::SharedPtr srv_clear_emergency_;
@@ -124,4 +124,4 @@ private:
 }  // namespace emergency_handler
 }  // namespace autoware
 
-#endif  // EMERGENCY_HANDLER__EMERGENCY_HANDLER_CORE_HPP_
+#endif  // EMERGENCY_HANDLER__EMERGENCY_HANDLER_NODE_HPP_
