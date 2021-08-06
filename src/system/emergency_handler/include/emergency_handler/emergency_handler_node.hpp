@@ -43,7 +43,7 @@ namespace autoware
 namespace emergency_handler
 {
 
-class EmergencyHandlerNode : public rclcpp::Node
+class EMERGENCY_HANDLER_PUBLIC EmergencyHandlerNode : public rclcpp::Node
 {
 public:
   explicit EmergencyHandlerNode(const rclcpp::NodeOptions & node_options);

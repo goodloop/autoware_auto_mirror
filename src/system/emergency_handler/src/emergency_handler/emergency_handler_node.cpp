@@ -17,6 +17,7 @@
 #include <utility>
 
 #include "emergency_handler/emergency_handler_node.hpp"
+#include "emergency_handler/visibility_control.hpp"
 
 using namespace std::chrono_literals;
 

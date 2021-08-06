@@ -19,13 +19,15 @@
 
 #include "rclcpp/rclcpp.hpp"
 
+#include "visibility_control.hpp"
+
 namespace autoware
 {
 namespace emergency_handler
 {
 
 template<class HeartbeatMsg>
-class HeaderlessHeartbeatChecker
+class EMERGENCY_HANDLER_PUBLIC HeaderlessHeartbeatChecker
 {
 public:
   HeaderlessHeartbeatChecker(
