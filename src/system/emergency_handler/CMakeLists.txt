@@ -28,10 +28,10 @@ if(BUILD_TESTING)
     TIMEOUT "30"
   )
 
-  # ament_add_gtest(${PROJECT_NAME}_test
-    # test/emergency_handler_test.cpp
-  # )
-  # target_link_libraries(${PROJECT_NAME}_test ${PROJECT_NAME})
+  ament_add_gtest(${PROJECT_NAME}_test
+    test/emergency_handler_node_test.cpp
+  )
+  target_link_libraries(${PROJECT_NAME}_test ${PROJECT_NAME})
 endif()
 
 ament_auto_package(INSTALL_TO_SHARE
