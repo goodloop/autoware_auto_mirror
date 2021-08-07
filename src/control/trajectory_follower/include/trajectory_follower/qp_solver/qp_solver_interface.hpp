@@ -30,6 +30,7 @@ namespace control
 namespace trajectory_follower
 {
 using autoware::common::types::bool8_t;
+/// Interface for solvers of Quadratic Programming (QP) problems
 class TRAJECTORY_FOLLOWER_PUBLIC QPSolverInterface
 {
 public:
@@ -39,21 +40,21 @@ public:
   virtual ~QPSolverInterface() = default;
 
   /**
-   * @brief solve QP problem : minimize J = U' * Hmat * U + fvec' * U without constraint
-   * @param [in] Hmat parameter matrix in object function
-   * @param [in] fvec parameter matrix in object function
-   * @param [in] A parameter matrix for constraint lbA < A*U < ubA
-   * @param [in] lb parameter matrix for constraint lb < U < ub
-   * @param [in] ub parameter matrix for constraint lb < U < ub
-   * @param [in] lbA parameter matrix for constraint lbA < A*U < ubA
-   * @param [in] ubA parameter matrix for constraint lbA < A*U < ubA
-   * @param [out] U optimal variable vector
+   * @brief solve QP problem : minimize J = u' * h_mat * u + f_vec' * u without constraint
+   * @param [in] h_mat parameter matrix in object function
+   * @param [in] f_vec parameter matrix in object function
+   * @param [in] a parameter matrix for constraint lb_a < a*u < ub_a
+   * @param [in] lb parameter matrix for constraint lb < u < ub
+   * @param [in] ub parameter matrix for constraint lb < u < ub
+   * @param [in] lb_a parameter matrix for constraint lb_a < a*u < ub_a
+   * @param [in] ub_a parameter matrix for constraint lb_a < a*u < ub_a
+   * @param [out] u optimal variable vector
    * @return ture if the problem was solved
    */
   virtual bool8_t solve(
-    const Eigen::MatrixXd & Hmat, const Eigen::MatrixXd & fvec, const Eigen::MatrixXd & A,
-    const Eigen::VectorXd & lb, const Eigen::VectorXd & ub, const Eigen::VectorXd & lbA,
-    const Eigen::VectorXd & ubA, Eigen::VectorXd & U) = 0;
+    const Eigen::MatrixXd & h_mat, const Eigen::MatrixXd & f_vec, const Eigen::MatrixXd & a,
+    const Eigen::VectorXd & lb, const Eigen::VectorXd & ub, const Eigen::VectorXd & lb_a,
+    const Eigen::VectorXd & ub_a, Eigen::VectorXd & u) = 0;
 };
 }  // namespace trajectory_follower
 }  // namespace control

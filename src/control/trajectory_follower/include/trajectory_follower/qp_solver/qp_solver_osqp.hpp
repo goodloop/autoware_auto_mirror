@@ -33,6 +33,7 @@ namespace trajectory_follower
 {
 using autoware::common::types::float64_t;
 using autoware::common::types::bool8_t;
+/// Solver for QP problems using the OSQP library
 class TRAJECTORY_FOLLOWER_PUBLIC QPSolverOSQP : public QPSolverInterface
 {
 public:
@@ -47,21 +48,21 @@ public:
   virtual ~QPSolverOSQP() = default;
 
   /**
-   * @brief solve QP problem : minimize J = U' * Hmat * U + fvec' * U without constraint
-   * @param [in] Hmat parameter matrix in object function
-   * @param [in] fvec parameter matrix in object function
-   * @param [in] A parameter matrix for constraint lbA < A*U < ubA (not used here)
+   * @brief solve QP problem : minimize j = u' * h_mat * u + f_vec' * u without constraint
+   * @param [in] h_mat parameter matrix in object function
+   * @param [in] f_vec parameter matrix in object function
+   * @param [in] a parameter matrix for constraint lb_a < a*u < ub_a (not used here)
    * @param [in] lb parameter matrix for constraint lb < U < ub (not used here)
    * @param [in] ub parameter matrix for constraint lb < U < ub (not used here)
-   * @param [in] lbA parameter matrix for constraint lbA < A*U < ubA (not used here)
-   * @param [in] ubA parameter matrix for constraint lbA < A*U < ubA (not used here)
-   * @param [out] U optimal variable vector
+   * @param [in] lb_a parameter matrix for constraint lb_a < a*u < ub_a (not used here)
+   * @param [in] ub_a parameter matrix for constraint lb_a < a*u < ub_a (not used here)
+   * @param [out] u optimal variable vector
    * @return true if the problem was solved
    */
   bool8_t solve(
-    const Eigen::MatrixXd & Hmat, const Eigen::MatrixXd & fvec, const Eigen::MatrixXd & A,
-    const Eigen::VectorXd & lb, const Eigen::VectorXd & ub, const Eigen::VectorXd & lbA,
-    const Eigen::VectorXd & ubA, Eigen::VectorXd & U) override;
+    const Eigen::MatrixXd & h_mat, const Eigen::MatrixXd & f_vec, const Eigen::MatrixXd & a,
+    const Eigen::VectorXd & lb, const Eigen::VectorXd & ub, const Eigen::VectorXd & lb_a,
+    const Eigen::VectorXd & ub_a, Eigen::VectorXd & u) override;
 
 private:
   autoware::common::osqp::OSQPInterface osqpsolver_;

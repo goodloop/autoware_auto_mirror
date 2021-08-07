@@ -28,39 +28,39 @@ namespace trajectory_follower
 QPSolverOSQP::QPSolverOSQP(const rclcpp::Logger & logger)
 : logger_{logger} {}
 bool8_t QPSolverOSQP::solve(
-  const Eigen::MatrixXd & Hmat, const Eigen::MatrixXd & fvec, const Eigen::MatrixXd & A,
-  const Eigen::VectorXd & lb, const Eigen::VectorXd & ub, const Eigen::VectorXd & lbA,
-  const Eigen::VectorXd & ubA, Eigen::VectorXd & U)
+  const Eigen::MatrixXd & h_mat, const Eigen::MatrixXd & f_vec, const Eigen::MatrixXd & a,
+  const Eigen::VectorXd & lb, const Eigen::VectorXd & ub, const Eigen::VectorXd & lb_a,
+  const Eigen::VectorXd & ub_a, Eigen::VectorXd & u)
 {
-  const Eigen::Index raw_a = A.rows();
-  const Eigen::Index col_a = A.cols();
-  const Eigen::Index DIM_U = ub.size();
-  Eigen::MatrixXd I = Eigen::MatrixXd::Identity(DIM_U, DIM_U);
+  const Eigen::Index raw_a = a.rows();
+  const Eigen::Index col_a = a.cols();
+  const Eigen::Index dim_u = ub.size();
+  Eigen::MatrixXd Identity = Eigen::MatrixXd::Identity(dim_u, dim_u);
 
   // convert matrix to vector for osqpsolver
-  std::vector<float64_t> f(&fvec(0), fvec.data() + fvec.cols() * fvec.rows());
+  std::vector<float64_t> f(&f_vec(0), f_vec.data() + f_vec.cols() * f_vec.rows());
 
   std::vector<float64_t> lower_bound;
   std::vector<float64_t> upper_bound;
 
-  for (int64_t i = 0; i < DIM_U; ++i) {
+  for (int64_t i = 0; i < dim_u; ++i) {
     lower_bound.push_back(lb(i));
     upper_bound.push_back(ub(i));
   }
 
   for (int64_t i = 0; i < col_a; ++i) {
-    lower_bound.push_back(lbA(i));
-    upper_bound.push_back(ubA(i));
+    lower_bound.push_back(lb_a(i));
+    upper_bound.push_back(ub_a(i));
   }
 
-  Eigen::MatrixXd osqpA = Eigen::MatrixXd(DIM_U + col_a, raw_a);
-  osqpA << I, A;
+  Eigen::MatrixXd osqpA = Eigen::MatrixXd(dim_u + col_a, raw_a);
+  osqpA << Identity, a;
 
   /* execute optimization */
-  auto result = osqpsolver_.optimize(Hmat, osqpA, f, lower_bound, upper_bound);
+  auto result = osqpsolver_.optimize(h_mat, osqpA, f, lower_bound, upper_bound);
 
   std::vector<float64_t> U_osqp = std::get<0>(result);
-  U =
+  u =
     Eigen::Map<Eigen::Matrix<float64_t, Eigen::Dynamic, 1>>(
     &U_osqp[0],
     static_cast<Eigen::Index>(U_osqp.size()), 1);

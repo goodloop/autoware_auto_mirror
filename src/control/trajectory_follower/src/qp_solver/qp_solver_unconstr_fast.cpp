@@ -24,13 +24,13 @@ namespace trajectory_follower
 {
 QPSolverEigenLeastSquareLLT::QPSolverEigenLeastSquareLLT() {}
 bool8_t QPSolverEigenLeastSquareLLT::solve(
-  const Eigen::MatrixXd & Hmat, const Eigen::MatrixXd & fvec, const Eigen::MatrixXd & /*A*/,
-  const Eigen::VectorXd & /*lb*/, const Eigen::VectorXd & /*ub*/, const Eigen::VectorXd & /*lbA*/,
-  const Eigen::VectorXd & /*ubA*/, Eigen::VectorXd & U)
+  const Eigen::MatrixXd & h_mat, const Eigen::MatrixXd & f_vec, const Eigen::MatrixXd & /*a*/,
+  const Eigen::VectorXd & /*lb*/, const Eigen::VectorXd & /*ub*/, const Eigen::VectorXd & /*lb_a*/,
+  const Eigen::VectorXd & /*ub_a*/, Eigen::VectorXd & u)
 {
-  if (std::fabs(Hmat.determinant()) < 1.0E-9) {return false;}
+  if (std::fabs(h_mat.determinant()) < 1.0E-9) {return false;}
 
-  U = -Hmat.llt().solve(fvec);
+  u = -h_mat.llt().solve(f_vec);
 
   return true;
 }
