@@ -75,13 +75,13 @@ public:
    * @param [in] mass_fr mass applied to front right tire [kg]
    * @param [in] mass_rl mass applied to rear left tire [kg]
    * @param [in] mass_rr mass applied to rear right tire [kg]
-   * @param [in] cf front cornering power
-   * @param [in] cr rear cornering power
+   * @param [in] cf front cornering power [N/rad]
+   * @param [in] cr rear cornering power [N/rad]
    */
   DynamicsBicycleModel(
-    const float64_t & wheelbase, const float64_t & mass_fl, const float64_t & mass_fr,
-    const float64_t & mass_rl, const float64_t & mass_rr,
-    const float64_t & cf, const float64_t & cr);
+    const float64_t wheelbase, const float64_t mass_fl, const float64_t mass_fr,
+    const float64_t mass_rl, const float64_t mass_rr,
+    const float64_t cf, const float64_t cr);
 
   /**
    * @brief destructor
@@ -89,22 +89,22 @@ public:
   ~DynamicsBicycleModel() = default;
 
   /**
-   * @brief calculate discrete model matrix of x_k+1 = Ad * xk + Bd * uk + Wd, yk = Cd * xk
-   * @param [in] Ad coefficient matrix
-   * @param [in] Bd coefficient matrix
-   * @param [in] Cd coefficient matrix
-   * @param [in] Wd coefficient matrix
-   * @param [in] dt Discretization time
+   * @brief calculate discrete model matrix of x_k+1 = a_d * xk + b_d * uk + w_d, yk = c_d * xk
+   * @param [in] a_d coefficient matrix
+   * @param [in] b_d coefficient matrix
+   * @param [in] c_d coefficient matrix
+   * @param [in] w_d coefficient matrix
+   * @param [in] dt Discretization time [s]
    */
   void calculateDiscreteMatrix(
-    Eigen::MatrixXd & Ad, Eigen::MatrixXd & Bd, Eigen::MatrixXd & Wd, Eigen::MatrixXd & Cd,
-    const float64_t & dt) override;
+    Eigen::MatrixXd & a_d, Eigen::MatrixXd & b_d, Eigen::MatrixXd & w_d, Eigen::MatrixXd & c_d,
+    const float64_t dt) override;
 
   /**
    * @brief calculate reference input
-   * @param [out] Uref input
+   * @param [out] u_ref input
    */
-  void calculateReferenceInput(Eigen::MatrixXd & Uref) override;
+  void calculateReferenceInput(Eigen::MatrixXd & u_ref) override;
 
 private:
   float64_t m_wheelbase;  //!< @brief wheelbase length [m]

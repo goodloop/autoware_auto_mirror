@@ -23,7 +23,7 @@ namespace control
 namespace trajectory_follower
 {
 KinematicsBicycleModelNoDelay::KinematicsBicycleModelNoDelay(
-  const float64_t & wheelbase, const float64_t & steer_lim)
+  const float64_t wheelbase, const float64_t steer_lim)
 : VehicleModelInterface(/* dim_x */ 2, /* dim_u */ 1, /* dim_y */ 2)
 {
   m_wheelbase = wheelbase;
@@ -31,8 +31,8 @@ KinematicsBicycleModelNoDelay::KinematicsBicycleModelNoDelay(
 }
 
 void KinematicsBicycleModelNoDelay::calculateDiscreteMatrix(
-  Eigen::MatrixXd & Ad, Eigen::MatrixXd & Bd, Eigen::MatrixXd & Cd, Eigen::MatrixXd & Wd,
-  const float64_t & dt)
+  Eigen::MatrixXd & a_d, Eigen::MatrixXd & b_d, Eigen::MatrixXd & c_d, Eigen::MatrixXd & w_d,
+  const float64_t dt)
 {
   auto sign = [](float64_t x) {return (x > 0.0) - (x < 0.0);};
 
@@ -41,22 +41,22 @@ void KinematicsBicycleModelNoDelay::calculateDiscreteMatrix(
   if (abs(delta_r) >= m_steer_lim) {delta_r = m_steer_lim * static_cast<float64_t>(sign(delta_r));}
   float64_t cos_delta_r_squared_inv = 1 / (cos(delta_r) * cos(delta_r));
 
-  Ad << 0.0, m_velocity, 0.0, 0.0;
+  a_d << 0.0, m_velocity, 0.0, 0.0;
   Eigen::MatrixXd I = Eigen::MatrixXd::Identity(m_dim_x, m_dim_x);
-  Ad = I + Ad * dt;
+  a_d = I + a_d * dt;
 
-  Bd << 0.0, m_velocity / m_wheelbase * cos_delta_r_squared_inv;
-  Bd *= dt;
+  b_d << 0.0, m_velocity / m_wheelbase * cos_delta_r_squared_inv;
+  b_d *= dt;
 
-  Cd << 1.0, 0.0, 0.0, 1.0;
+  c_d << 1.0, 0.0, 0.0, 1.0;
 
-  Wd << 0.0, -m_velocity / m_wheelbase * delta_r * cos_delta_r_squared_inv;
-  Wd *= dt;
+  w_d << 0.0, -m_velocity / m_wheelbase * delta_r * cos_delta_r_squared_inv;
+  w_d *= dt;
 }
 
-void KinematicsBicycleModelNoDelay::calculateReferenceInput(Eigen::MatrixXd & Uref)
+void KinematicsBicycleModelNoDelay::calculateReferenceInput(Eigen::MatrixXd & u_ref)
 {
-  Uref(0, 0) = std::atan(m_wheelbase * m_curvature);
+  u_ref(0, 0) = std::atan(m_wheelbase * m_curvature);
 }
 }  // namespace trajectory_follower
 }  // namespace control

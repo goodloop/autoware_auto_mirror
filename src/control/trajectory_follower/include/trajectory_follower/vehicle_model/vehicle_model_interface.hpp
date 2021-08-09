@@ -38,7 +38,7 @@ protected:
   const int64_t m_dim_x;   //!< @brief dimension of state x
   const int64_t m_dim_u;   //!< @brief dimension of input u
   const int64_t m_dim_y;   //!< @brief dimension of output y
-  float64_t m_velocity;   //!< @brief vehicle velocity
+  float64_t m_velocity;   //!< @brief vehicle velocity [m/s]
   float64_t m_curvature;  //!< @brief curvature on the linearized point on path
 
 public:
@@ -77,31 +77,31 @@ public:
    * @brief set velocity
    * @param [in] velocity vehicle velocity
    */
-  void setVelocity(const float64_t & velocity);
+  void setVelocity(const float64_t velocity);
 
   /**
    * @brief set curvature
    * @param [in] curvature curvature on the linearized point on path
    */
-  void setCurvature(const float64_t & curvature);
+  void setCurvature(const float64_t curvature);
 
   /**
-   * @brief calculate discrete model matrix of x_k+1 = Ad * xk + Bd * uk + Wd, yk = Cd * xk
-   * @param [out] Ad coefficient matrix
-   * @param [out] Bd coefficient matrix
-   * @param [out] Cd coefficient matrix
-   * @param [out] Wd coefficient matrix
-   * @param [in] dt Discretization time
+   * @brief calculate discrete model matrix of x_k+1 = a_d * xk + b_d * uk + w_d, yk = c_d * xk
+   * @param [out] a_d coefficient matrix
+   * @param [out] b_d coefficient matrix
+   * @param [out] c_d coefficient matrix
+   * @param [out] w_d coefficient matrix
+   * @param [in] dt Discretization time [s]
    */
   virtual void calculateDiscreteMatrix(
-    Eigen::MatrixXd & Ad, Eigen::MatrixXd & Bd, Eigen::MatrixXd & Cd, Eigen::MatrixXd & Wd,
-    const float64_t & dt) = 0;
+    Eigen::MatrixXd & a_d, Eigen::MatrixXd & b_d, Eigen::MatrixXd & c_d, Eigen::MatrixXd & w_d,
+    const float64_t dt) = 0;
 
   /**
    * @brief calculate reference input
-   * @param [out] Uref input
+   * @param [out] u_ref input
    */
-  virtual void calculateReferenceInput(Eigen::MatrixXd & Uref) = 0;
+  virtual void calculateReferenceInput(Eigen::MatrixXd & u_ref) = 0;
 };
 }  // namespace trajectory_follower
 }  // namespace control

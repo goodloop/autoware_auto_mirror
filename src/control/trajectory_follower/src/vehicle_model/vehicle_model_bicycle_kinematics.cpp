@@ -24,7 +24,7 @@ namespace control
 namespace trajectory_follower
 {
 KinematicsBicycleModel::KinematicsBicycleModel(
-  const float64_t & wheelbase, const float64_t & steer_lim, const float64_t & steer_tau)
+  const float64_t wheelbase, const float64_t steer_lim, const float64_t steer_tau)
 : VehicleModelInterface(/* dim_x */ 3, /* dim_u */ 1, /* dim_y */ 2)
 {
   m_wheelbase = wheelbase;
@@ -33,8 +33,8 @@ KinematicsBicycleModel::KinematicsBicycleModel(
 }
 
 void KinematicsBicycleModel::calculateDiscreteMatrix(
-  Eigen::MatrixXd & Ad, Eigen::MatrixXd & Bd, Eigen::MatrixXd & Cd, Eigen::MatrixXd & Wd,
-  const float64_t & dt)
+  Eigen::MatrixXd & a_d, Eigen::MatrixXd & b_d, Eigen::MatrixXd & c_d, Eigen::MatrixXd & w_d,
+  const float64_t dt)
 {
   auto sign = [](float64_t x) {return (x > 0.0) - (x < 0.0);};
 
@@ -45,26 +45,26 @@ void KinematicsBicycleModel::calculateDiscreteMatrix(
   float64_t velocity = m_velocity;
   if (abs(m_velocity) < 1e-04) {velocity = 1e-04 * (m_velocity >= 0 ? 1 : -1);}
 
-  Ad << 0.0, velocity, 0.0, 0.0, 0.0, velocity / m_wheelbase * cos_delta_r_squared_inv, 0.0, 0.0,
+  a_d << 0.0, velocity, 0.0, 0.0, 0.0, velocity / m_wheelbase * cos_delta_r_squared_inv, 0.0, 0.0,
     -1.0 / m_steer_tau;
   Eigen::MatrixXd I = Eigen::MatrixXd::Identity(m_dim_x, m_dim_x);
-  Ad = (I - dt * 0.5 * Ad).inverse() * (I + dt * 0.5 * Ad);  // bilinear discretization
+  a_d = (I - dt * 0.5 * a_d).inverse() * (I + dt * 0.5 * a_d);  // bilinear discretization
 
-  Bd << 0.0, 0.0, 1.0 / m_steer_tau;
-  Bd *= dt;
+  b_d << 0.0, 0.0, 1.0 / m_steer_tau;
+  b_d *= dt;
 
-  Cd << 1.0, 0.0, 0.0, 0.0, 1.0, 0.0;
+  c_d << 1.0, 0.0, 0.0, 0.0, 1.0, 0.0;
 
-  Wd << 0.0,
+  w_d << 0.0,
     -velocity * m_curvature +
     velocity / m_wheelbase * (tan(delta_r) - delta_r * cos_delta_r_squared_inv),
     0.0;
-  Wd *= dt;
+  w_d *= dt;
 }
 
-void KinematicsBicycleModel::calculateReferenceInput(Eigen::MatrixXd & Uref)
+void KinematicsBicycleModel::calculateReferenceInput(Eigen::MatrixXd & u_ref)
 {
-  Uref(0, 0) = std::atan(m_wheelbase * m_curvature);
+  u_ref(0, 0) = std::atan(m_wheelbase * m_curvature);
 }
 }  // namespace trajectory_follower
 }  // namespace control

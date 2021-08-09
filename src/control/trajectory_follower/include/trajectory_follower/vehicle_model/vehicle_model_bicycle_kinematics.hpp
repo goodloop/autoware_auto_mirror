@@ -69,10 +69,10 @@ public:
    * @brief constructor with parameter initialization
    * @param [in] wheelbase wheelbase length [m]
    * @param [in] steer_lim steering angle limit [rad]
-   * @param [in] steer_tau steering time constant for 1d-model
+   * @param [in] steer_tau steering time constant for 1d-model [s]
    */
   KinematicsBicycleModel(
-    const float64_t & wheelbase, const float64_t & steer_lim, const float64_t & steer_tau);
+    const float64_t wheelbase, const float64_t steer_lim, const float64_t steer_tau);
 
   /**
    * @brief destructor
@@ -80,27 +80,27 @@ public:
   ~KinematicsBicycleModel() = default;
 
   /**
-   * @brief calculate discrete model matrix of x_k+1 = Ad * xk + Bd * uk + Wd, yk = Cd * xk
-   * @param [out] Ad coefficient matrix
-   * @param [out] Bd coefficient matrix
-   * @param [out] Cd coefficient matrix
-   * @param [out] Wd coefficient matrix
-   * @param [in] dt Discretization time
+   * @brief calculate discrete model matrix of x_k+1 = a_d * xk + b_d * uk + w_d, yk = c_d * xk
+   * @param [out] a_d coefficient matrix
+   * @param [out] b_d coefficient matrix
+   * @param [out] c_d coefficient matrix
+   * @param [out] w_d coefficient matrix
+   * @param [in] dt Discretization time [s]
    */
   void calculateDiscreteMatrix(
-    Eigen::MatrixXd & Ad, Eigen::MatrixXd & Bd, Eigen::MatrixXd & Cd, Eigen::MatrixXd & Wd,
-    const float64_t & dt) override;
+    Eigen::MatrixXd & a_d, Eigen::MatrixXd & b_d, Eigen::MatrixXd & c_d, Eigen::MatrixXd & w_d,
+    const float64_t dt) override;
 
   /**
    * @brief calculate reference input
-   * @param [out] Uref input
+   * @param [out] u_ref input
    */
-  void calculateReferenceInput(Eigen::MatrixXd & Uref) override;
+  void calculateReferenceInput(Eigen::MatrixXd & u_ref) override;
 
 private:
   float64_t m_wheelbase;  //!< @brief wheelbase length [m]
   float64_t m_steer_lim;  //!< @brief steering angle limit [rad]
-  float64_t m_steer_tau;  //!< @brief steering time constant for 1d-model
+  float64_t m_steer_tau;  //!< @brief steering time constant for 1d-model [s]
 };
 }  // namespace trajectory_follower
 }  // namespace control
