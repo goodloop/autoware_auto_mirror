@@ -115,25 +115,17 @@ public:
       "input/vehicle_state_report", 1);
     pub_odometry = test_node->create_publisher<VehicleOdometry>("input/odometry", 1);
 
-    // Subscribers
-    using std::placeholders::_1;
-    auto sub_options = rclcpp::SubscriptionOptions();
-    sub_control_command = test_node->create_subscription<VehicleControlCommand>(
-      "output/control_command", 1,
-      std::bind(&EmergencyHandlerNodeTest::onVehicleControlCommand, this, _1), sub_options);
-    sub_state_command = test_node->create_subscription<VehicleStateCommand>(
-      "output/state_command", 1,
-      std::bind(&EmergencyHandlerNodeTest::onVehicleStateCommand, this, _1), sub_options);
-    sub_emergency_mode = test_node->create_subscription<EmergencyMode>(
-      "output/is_emergency", 1,
-      std::bind(&EmergencyHandlerNodeTest::onEmergencyMode, this, _1), sub_options);
-    sub_hazard_status = test_node->create_subscription<HazardStatusStamped>(
-      "output/hazard_status", 1,
-      std::bind(&EmergencyHandlerNodeTest::onHazardStatus, this, _1), sub_options);
-
-      // Register spies
-      diagnostic_spy = std::make_shared<Spy<DiagnosticArray>>(
-        test_node, executor, "output/diagnostics_err");
+    // Register spies
+    control_command_spy = std::make_shared<Spy<VehicleControlCommand>>(
+      test_node, executor, "output/control_command");
+    state_command_spy = std::make_shared<Spy<VehicleStateCommand>>(
+      test_node, executor, "output/state_command");
+    emergency_mode_spy = std::make_shared<Spy<EmergencyMode>>(
+      test_node, executor, "output/is_emergency");
+    hazard_status_spy = std::make_shared<Spy<HazardStatusStamped>>(
+      test_node, executor, "output/hazard_status");
+    diagnostic_spy = std::make_shared<Spy<DiagnosticArray>>(
+      test_node, executor, "output/diagnostics_err");
   }
 
   void TearDown()
@@ -154,52 +146,6 @@ protected:
     return node_options;
   }
 
-  void onVehicleControlCommand(const VehicleControlCommand::ConstSharedPtr msg)
-  {
-    RCLCPP_INFO(test_node->get_logger(), "Received VehicleControlCommand");
-  }
-
-  void onVehicleStateCommand(const VehicleStateCommand::ConstSharedPtr msg)
-  {
-    RCLCPP_INFO(test_node->get_logger(), "Received VehicleStateCommand");
-  }
-
-  void onEmergencyMode(const EmergencyMode::ConstSharedPtr msg)
-  {
-    RCLCPP_INFO(test_node->get_logger(), "Received EmergencyMode");
-  }
-
-  void onHazardStatus(const HazardStatusStamped::ConstSharedPtr msg)
-  {
-    RCLCPP_INFO(test_node->get_logger(), "Received HazardStatusStamped");
-  }
-
-  void onDiagnostic(const DiagnosticArray::ConstSharedPtr msg)
-  {
-    RCLCPP_INFO(test_node->get_logger(), "Received DiagnosticArray");
-    is_new_diagnostic = true;
-    received_diagnostic = *msg;
-  }
-
-  DiagnosticArray expectDiagMsg()
-  {
-    const auto t_start = test_node->get_clock()->now();
-    constexpr double timeout = 5.0;
-
-    while (!is_new_diagnostic) {
-      if (!rclcpp::ok()) {
-        throw std::runtime_error("rclcpp is in NOK state");
-      }
-      if ((test_node->get_clock()->now() - t_start).seconds() > timeout) {
-        throw std::runtime_error("timeout occurred during waiting for msg");
-      }
-      executor->spin_some(10ms);
-    }
-
-    is_new_diagnostic = false;
-    return received_diagnostic;
-  }
-
   std::shared_ptr<EmergencyHandlerNode> tested_node;
   rclcpp::Node::SharedPtr test_node;
   std::shared_ptr<rclcpp::executors::SingleThreadedExecutor> executor;
@@ -210,15 +156,10 @@ protected:
   rclcpp::Publisher<VehicleStateReport>::SharedPtr pub_vehicle_state_report;
   rclcpp::Publisher<VehicleOdometry>::SharedPtr pub_odometry;
 
-  rclcpp::Subscription<VehicleControlCommand>::SharedPtr sub_control_command;
-  rclcpp::Subscription<VehicleStateCommand>::SharedPtr sub_state_command;
-  rclcpp::Subscription<EmergencyMode>::SharedPtr sub_emergency_mode;
-  rclcpp::Subscription<HazardStatusStamped>::SharedPtr sub_hazard_status;
-  rclcpp::Subscription<DiagnosticArray>::SharedPtr sub_diagnostics;
-
-  DiagnosticArray received_diagnostic;
-  bool is_new_diagnostic = false;
-
+  std::shared_ptr<Spy<VehicleControlCommand>> control_command_spy;
+  std::shared_ptr<Spy<VehicleStateCommand>> state_command_spy;
+  std::shared_ptr<Spy<EmergencyMode>> emergency_mode_spy;
+  std::shared_ptr<Spy<HazardStatusStamped>> hazard_status_spy;
   std::shared_ptr<Spy<DiagnosticArray>> diagnostic_spy;
 };
 
