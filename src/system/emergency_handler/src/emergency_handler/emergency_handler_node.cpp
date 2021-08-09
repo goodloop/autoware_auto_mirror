@@ -50,12 +50,12 @@ diagnostic_msgs::msg::DiagnosticArray convertHazardStatusToDiagnosticArray(
   diag_array.header.stamp = clock->now();
 
   const auto decorateDiag = [](const auto & hazard_diag, const std::string & label) {
-      auto diag = hazard_diag;
+    auto diag = hazard_diag;
 
-      diag.message = label + diag.message;
+    diag.message = label + diag.message;
 
-      return diag;
-    };
+    return diag;
+  };
 
   for (const auto & hazard_diag : hazard_status.diag_no_fault) {
     diag_array.status.push_back(decorateDiag(hazard_diag, "[No Fault]"));
@@ -216,7 +216,6 @@ void EmergencyHandlerNode::publishHazardStatus(
 
 void EmergencyHandlerNode::publishControlAndStateCommands()
 {
-  // Create timestamp
   const auto stamp = this->now();
 
   // Publish ControlCommand
@@ -280,7 +279,7 @@ void EmergencyHandlerNode::onTimer()
       hazard_status.level = autoware_auto_msgs::msg::HazardStatus::SINGLE_POINT_FAULT;
 
       diagnostic_msgs::msg::DiagnosticStatus diag;
-      diag.name = "emergency_handler/input_data_timeout";
+      diag.name = "input_data_timeout";
       diag.hardware_id = "emergency_handler";
       diag.level = diagnostic_msgs::msg::DiagnosticStatus::ERROR;
       hazard_status.diag_single_point_fault.push_back(diag);
@@ -288,22 +287,22 @@ void EmergencyHandlerNode::onTimer()
       publishHazardStatus(hazard_status);
     }
   }
-
-  // Check if emergency
-  if (use_emergency_hold_) {
-    if (!is_emergency_) {
-      // Update only when it is not emergency
+  else {
+    // Check if emergency
+    if (use_emergency_hold_) {
+      if (!is_emergency_) {
+        // Update only when it is not emergency
+        hazard_status_ = judgeHazardStatus();
+        is_emergency_ = isEmergency(hazard_status_);
+      }
+    } else {
+      // Update always
       hazard_status_ = judgeHazardStatus();
       is_emergency_ = isEmergency(hazard_status_);
     }
-  } else {
-    // Update always
-    hazard_status_ = judgeHazardStatus();
-    is_emergency_ = isEmergency(hazard_status_);
+    publishHazardStatus(hazard_status_);
   }
 
-  // Publish data
-  publishHazardStatus(hazard_status_);
   publishControlAndStateCommands();
 }
 
@@ -373,7 +372,7 @@ autoware_auto_msgs::msg::HazardStatus EmergencyHandlerNode::judgeHazardStatus()
       hazard_status.level = HazardStatus::SINGLE_POINT_FAULT;
       hazard_status.diag_single_point_fault.push_back(
         createDiagnosticStatus(
-          DiagnosticStatus::ERROR, "emergency_handler/heartbeat_timeout",
+          DiagnosticStatus::ERROR, "heartbeat_timeout",
           "heartbeat_driving_capability is timeout"));
     }
   }
