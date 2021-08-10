@@ -25,6 +25,7 @@ ament_auto_find_build_dependencies()
 ament_auto_add_library(
   ${PROJECT_NAME} SHARED
   src/wiener_noise.cpp
+  src/uniform_noise.cpp
 )
 autoware_set_compile_options(${PROJECT_NAME})
 target_include_directories(${PROJECT_NAME} SYSTEM PUBLIC ${EIGEN3_INCLUDE_DIR})

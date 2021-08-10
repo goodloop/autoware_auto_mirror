@@ -15,6 +15,7 @@
 // Co-developed by Tier IV, Inc. and Apex.AI, Inc.
 
 #include <state_estimation/noise_model/uniform_noise.hpp>
+#include <state_vector/common_states.hpp>
 
 namespace autoware
 {

@@ -86,7 +86,7 @@ public:
   template<typename OtherScalarT>
   explicit UniformNoise(const std::vector<OtherScalarT> & variances)
   {
-    if (variances.size() != State::size()) {
+    if (variances.size() != static_cast<std::size_t>(State::size())) {
       throw std::runtime_error(
               "There must be " + std::to_string(State::size()) +
               " variances for initializing the uniform noise model, but " +
