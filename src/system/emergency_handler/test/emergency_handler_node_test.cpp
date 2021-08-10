@@ -17,6 +17,7 @@
 #include "emergency_handler/emergency_handler_node.hpp"
 
 #include <memory>
+#include <string>
 
 #include "gtest/gtest.h"
 #include "rclcpp/rclcpp.hpp"
@@ -113,6 +114,20 @@ protected:
     pub_vehicle_state_report->publish(msg);
   }
 
+  diagnostic_msgs::msg::DiagnosticStatus createDiagnosticStatus(
+    const int level, const std::string & hw_id,
+    const std::string & name = "", const std::string & message = "")
+  {
+    diagnostic_msgs::msg::DiagnosticStatus diag;
+
+    diag.level = static_cast<unsigned char>(level);
+    diag.hardware_id = hw_id;
+    diag.name = name;
+    diag.message = message;
+
+    return diag;
+  }
+
   void expectNoEmergencyState()
   {
     {
@@ -134,7 +149,7 @@ protected:
     // Emergency vehicle control commands and state commands shouldn't be published
     double timeout = 0.1;
     EXPECT_ANY_THROW(control_command_spy->expectMsg(timeout));
-    EXPECT_ANY_THROW(state_command_spy->expectMsg(timeout));    
+    EXPECT_ANY_THROW(state_command_spy->expectMsg(timeout));
   }
 
   std::shared_ptr<EmergencyHandlerNode> tested_node;
@@ -160,7 +175,7 @@ TEST_F(EmergencyHandlerNodeTest, create_destroy)
 
 TEST_F(EmergencyHandlerNodeTest, manual_mode_not_ignored_autoware_state_no_emergency_state)
 {
-  publishAutowareState(AutowareState::DRIVING); // not ignored state
+  publishAutowareState(AutowareState::DRIVING);  // not ignored state
   publishVehicleStateReport(VehicleStateReport::MODE_MANUAL);
 
   DrivingCapability driving_capability;
@@ -172,7 +187,7 @@ TEST_F(EmergencyHandlerNodeTest, manual_mode_not_ignored_autoware_state_no_emerg
 
 TEST_F(EmergencyHandlerNodeTest, autonomous_mode_not_ignored_autoware_state_no_emergency_state)
 {
-  publishAutowareState(AutowareState::DRIVING); // not ignored state
+  publishAutowareState(AutowareState::DRIVING);  // not ignored state
   publishVehicleStateReport(VehicleStateReport::MODE_AUTONOMOUS);
 
   DrivingCapability driving_capability;
@@ -184,17 +199,142 @@ TEST_F(EmergencyHandlerNodeTest, autonomous_mode_not_ignored_autoware_state_no_e
 
 TEST_F(EmergencyHandlerNodeTest, manual_mode_ignored_autoware_state_no_emergency_state)
 {
-  publishAutowareState(AutowareState::INITIALIZING_VEHICLE); // Ignored state
+  publishAutowareState(AutowareState::INITIALIZING_VEHICLE);  // ignored state
   publishVehicleStateReport(VehicleStateReport::MODE_MANUAL);
 
   DrivingCapability driving_capability;
-  driving_capability.remote_control.level = HazardStatus::SINGLE_POINT_FAULT; // Fault
+  driving_capability.remote_control.level = HazardStatus::SINGLE_POINT_FAULT;  // fault
   pub_driving_capability->publish(driving_capability);
 
   expectNoEmergencyState();
 }
 
-TEST_F(EmergencyHandlerNodeTest, input_data_timeout_because_of_no_input_data)
+TEST_F(EmergencyHandlerNodeTest, autonomous_mode_ignored_autoware_state_no_emergency_state)
+{
+  publishAutowareState(AutowareState::INITIALIZING_VEHICLE);  // ignored state
+  publishVehicleStateReport(VehicleStateReport::MODE_AUTONOMOUS);
+
+  DrivingCapability driving_capability;
+  driving_capability.remote_control.level = HazardStatus::SINGLE_POINT_FAULT;  // fault
+  pub_driving_capability->publish(driving_capability);
+
+  expectNoEmergencyState();
+}
+
+TEST_F(EmergencyHandlerNodeTest, autonomous_mode_emergency_state_in_driving_capability)
+{
+  publishAutowareState(AutowareState::DRIVING);  // not ignored state
+  publishVehicleStateReport(VehicleStateReport::MODE_AUTONOMOUS);
+
+  DrivingCapability driving_capability;
+  driving_capability.remote_control.level = HazardStatus::NO_FAULT;
+  driving_capability.autonomous_driving.level = HazardStatus::SINGLE_POINT_FAULT;  // fault
+  driving_capability.autonomous_driving.diag_single_point_fault.push_back(
+    createDiagnosticStatus(DiagnosticStatus::ERROR, "test_hw", "test_name"));
+  pub_driving_capability->publish(driving_capability);
+
+  {
+    auto msg = hazard_status_spy->expectMsg();
+    EXPECT_EQ(msg.status.level, autoware_auto_msgs::msg::HazardStatus::SINGLE_POINT_FAULT);
+    ASSERT_EQ(msg.status.diag_single_point_fault.size(), 1);
+  }
+  {
+    auto msg = emergency_mode_spy->expectMsg();
+    EXPECT_EQ(msg.is_emergency, true);
+  }
+  {
+    auto msg = diagnostic_spy->expectMsg();
+    ASSERT_EQ(msg.status.size(), 1);
+    EXPECT_EQ(msg.status[0].hardware_id, "test_hw");
+    EXPECT_EQ(msg.status[0].name, "test_name");
+    EXPECT_EQ(msg.status[0].level, DiagnosticStatus::ERROR);
+  }
+  { // Check if control command and state command have been generated
+    auto msg = control_command_spy->expectMsg();
+    EXPECT_EQ(msg.velocity_mps, 0.0);
+    EXPECT_EQ(msg.long_accel_mps2, -2.5);
+    EXPECT_EQ(msg.front_wheel_angle_rad, 0);
+  }
+  {
+    auto msg = state_command_spy->expectMsg();
+    EXPECT_EQ(msg.blinker, VehicleStateCommand::BLINKER_HAZARD);
+    EXPECT_EQ(msg.headlight, VehicleStateCommand::HEADLIGHT_NO_COMMAND);
+    EXPECT_EQ(msg.wiper, VehicleStateCommand::WIPER_NO_COMMAND);
+    EXPECT_EQ(msg.gear, VehicleStateCommand::GEAR_PARK);
+  }
+}
+
+TEST_F(EmergencyHandlerNodeTest, heartbeat_checker_timeout)
+{
+  publishAutowareState(AutowareState::DRIVING);
+  publishVehicleStateReport(VehicleStateReport::MODE_MANUAL);
+  DrivingCapability driving_capability;
+  driving_capability.remote_control.level = HazardStatus::NO_FAULT;
+  pub_driving_capability->publish(driving_capability);
+
+  { // Wait for hazard status with heardbeat timeout
+    const auto t_start = test_node->get_clock()->now();
+    bool received_heartbeat_timeout = false;
+    const double timeout = 1.0;
+
+    while (1) {
+      if (!rclcpp::ok()) {
+        break;
+      }
+      if ((test_node->get_clock()->now() - t_start).seconds() > timeout) {
+        break;
+      }
+
+      auto msg = hazard_status_spy->expectMsg();
+      if (msg.status.level == HazardStatus::SINGLE_POINT_FAULT &&
+        msg.status.diag_single_point_fault.size() == 1 &&
+        msg.status.diag_single_point_fault[0].hardware_id == "emergency_handler" &&
+        msg.status.diag_single_point_fault[0].name == "heartbeat_timeout" &&
+        msg.status.diag_single_point_fault[0].level == DiagnosticStatus::ERROR)
+      {
+        received_heartbeat_timeout = true;
+        break;
+      }
+    }
+    EXPECT_TRUE(received_heartbeat_timeout);
+  }
+}
+
+TEST_F(EmergencyHandlerNodeTest, clear_emergency_service)
+{
+  publishAutowareState(AutowareState::DRIVING);
+  publishVehicleStateReport(VehicleStateReport::MODE_MANUAL);
+  DrivingCapability driving_capability;
+  driving_capability.remote_control.level = HazardStatus::NO_FAULT;
+  pub_driving_capability->publish(driving_capability);
+
+  // Create a client to call the shutdown service
+  rclcpp::Client<std_srvs::srv::Trigger>::SharedPtr client =
+    test_node->create_client<std_srvs::srv::Trigger>("service/clear_emergency");
+
+  // Wait till the service interface is ready
+  while (!client->wait_for_service(1s)) {
+    EXPECT_EQ(rclcpp::ok(), true);
+    RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "service not available, waiting again...");
+  }
+
+  executor->spin_some(100ms);
+
+  // Create a request message and sent it to the service interface
+  auto request = std::make_shared<std_srvs::srv::Trigger::Request>();
+  auto result_future = client->async_send_request(request);
+
+  // Wait for the result to be returned
+  while (result_future.wait_for(100ms) == std::future_status::timeout) {
+    executor->spin_some(10ms);
+  }
+
+  auto result = result_future.get();
+  EXPECT_EQ(result->success, true);
+  EXPECT_EQ(result->message, "Emergency state was cleared.");
+}
+
+TEST_F(EmergencyHandlerNodeTest, input_data_timeout_no_input_data)
 {
   // Node expect data after initialization: DrivingCapability, AutowareState, VehicleStateReport
   {

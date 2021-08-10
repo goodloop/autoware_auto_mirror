@@ -66,7 +66,6 @@ public:
 protected:
   void onMsg(const std::shared_ptr<T> msg)
   {
-    RCLCPP_INFO(node->get_logger(), "Received %s", rosidl_generator_traits::name<T>());
     is_new_msg = true;
     received_msg = *msg;
   }
