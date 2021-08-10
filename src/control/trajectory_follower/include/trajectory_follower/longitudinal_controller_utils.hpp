@@ -23,8 +23,9 @@
 #include "eigen3/Eigen/Geometry"
 
 #include "autoware_auto_msgs/msg/trajectory.hpp"
+#include "common/types.hpp"
 #include "geometry_msgs/msg/pose.hpp"
-#include "helper_functions/message_distance.hpp"
+#include "geometry/common_2d.hpp"
 #include "motion_common/motion_common.hpp"
 #include "motion_common/trajectory_common.hpp"
 #include "tf2/utils.h"

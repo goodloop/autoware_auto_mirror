@@ -17,6 +17,7 @@
 
 #include <vector>
 
+#include "common/types.hpp"
 #include "trajectory_follower/visibility_control.hpp"
 
 namespace autoware
@@ -27,6 +28,8 @@ namespace control
 {
 namespace trajectory_follower
 {
+using autoware::common::types::float64_t;
+using autoware::common::types::bool8_t;
 /// @brief implementation of a PID controller
 class TRAJECTORY_FOLLOWER_PUBLIC PIDController
 {
@@ -41,16 +44,16 @@ public:
    * @param [out] pid_contributions values of the proportional, integral, and derivative components
    * @return PID output
    */
-  double calculate(
-    const double error, const double dt, const bool is_integrated,
-    std::vector<double> & pid_contributions);
+  float64_t calculate(
+    const float64_t error, const float64_t dt, const bool8_t is_integrated,
+    std::vector<float64_t> & pid_contributions);
   /**
    * @brief set the coefficients for the P (proportional) I (integral) D (derivative) terms
    * @param [in] kp proportional coefficient
    * @param [in] ki integral coefficient
    * @param [in] kd derivative coefficient
    */
-  void setGains(const double kp, const double ki, const double kd);
+  void setGains(const float64_t kp, const float64_t ki, const float64_t kd);
   /**
    * @brief set limits on the total, proportional, integral, and derivative components
    * @param [in] max_ret maximum return value of this PID
@@ -63,8 +66,10 @@ public:
    * @param [in] min_ret_d minimum value of the derivative component
    */
   void setLimits(
-    const double max_ret, const double min_ret, const double max_ret_p, const double min_ret_p,
-    const double max_ret_i, const double min_ret_i, const double max_ret_d, const double min_ret_d);
+    const float64_t max_ret, const float64_t min_ret, const float64_t max_ret_p,
+    const float64_t min_ret_p,
+    const float64_t max_ret_i, const float64_t min_ret_i, const float64_t max_ret_d,
+    const float64_t min_ret_d);
   /**
    * @brief reset this PID to its initial state
    */
@@ -74,23 +79,23 @@ private:
   // PID parameters
   struct Params
   {
-    double kp;
-    double ki;
-    double kd;
-    double max_ret_p;
-    double min_ret_p;
-    double max_ret_i;
-    double min_ret_i;
-    double max_ret_d;
-    double min_ret_d;
-    double max_ret;
-    double min_ret;
+    float64_t kp;
+    float64_t ki;
+    float64_t kd;
+    float64_t max_ret_p;
+    float64_t min_ret_p;
+    float64_t max_ret_i;
+    float64_t min_ret_i;
+    float64_t max_ret_d;
+    float64_t min_ret_d;
+    float64_t max_ret;
+    float64_t min_ret;
   };
   Params m_params;
 
   // state variables
-  double m_error_integral;
-  double m_prev_error;
+  float64_t m_error_integral;
+  float64_t m_prev_error;
   bool m_is_first_time;
 };
 }  // namespace trajectory_follower
