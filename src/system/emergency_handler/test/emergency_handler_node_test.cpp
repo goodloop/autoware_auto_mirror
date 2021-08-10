@@ -19,6 +19,7 @@
 #include <memory>
 
 #include "gtest/gtest.h"
+#include "rclcpp/rclcpp.hpp"
 
 #include "test_utils.hpp"
 
@@ -32,59 +33,11 @@ using autoware_auto_msgs::msg::VehicleControlCommand;
 using autoware_auto_msgs::msg::VehicleStateCommand;
 using autoware_auto_msgs::msg::EmergencyMode;
 using autoware_auto_msgs::msg::HazardStatusStamped;
+using autoware_auto_msgs::msg::HazardStatus;
 using autoware::emergency_handler::EmergencyHandlerNode;
 
 using diagnostic_msgs::msg::DiagnosticArray;
-
-template<typename T>
-class Spy
-{
-public:
-  Spy(rclcpp::Node::SharedPtr n, rclcpp::Executor::SharedPtr exec,
-    const std::string & topic_name)
-  : node(n), executor(exec)
-  {
-    using std::placeholders::_1;
-    auto sub_options = rclcpp::SubscriptionOptions();
-
-    subscription = node->create_subscription<T>(
-      topic_name, 1, std::bind(&Spy::onMsg, this, _1), sub_options);
-  }
-
-  T expectMsg()
-  {
-    const auto t_start = node->get_clock()->now();
-    constexpr double timeout = 5.0;
-
-    while (!is_new_msg) {
-      if (!rclcpp::ok()) {
-        throw std::runtime_error("rclcpp is in NOK state");
-      }
-      if ((node->get_clock()->now() - t_start).seconds() > timeout) {
-        throw std::runtime_error("timeout occurred during waiting for msg");
-      }
-      executor->spin_some(10ms);
-    }
-
-    is_new_msg = false;
-    return received_msg;
-  }
-
-protected:
-  void onMsg(const std::shared_ptr<T> msg)
-  {
-    RCLCPP_INFO(node->get_logger(), "Received %s", rosidl_generator_traits::name<T>());
-    is_new_msg = true;
-    received_msg = *msg;
-  }
-
-  rclcpp::Node::SharedPtr node;
-  rclcpp::Executor::SharedPtr executor;
-  std::shared_ptr<rclcpp::Subscription<T>> subscription;
-
-  T received_msg;
-  bool is_new_msg = false;
-};
+using diagnostic_msgs::msg::DiagnosticStatus;
 
 class EmergencyHandlerNodeTest : public ::testing::Test
 {
@@ -112,7 +65,7 @@ public:
     pub_vehicle_control_command = test_node->create_publisher<VehicleControlCommand>(
       "input/prev_control_command", 1);
     pub_vehicle_state_report = test_node->create_publisher<VehicleStateReport>(
-      "input/vehicle_state_report", 1);
+      "input/state_report", 1);
     pub_odometry = test_node->create_publisher<VehicleOdometry>("input/odometry", 1);
 
     // Register spies
@@ -134,7 +87,6 @@ public:
   }
 
 protected:
-
   rclcpp::NodeOptions createNodeOptions()
   {
     rclcpp::NodeOptions node_options;
@@ -144,6 +96,45 @@ protected:
     node_options.append_parameter_override("use_emergency_hold", false);
     node_options.append_parameter_override("emergency_hazard_level", 2);
     return node_options;
+  }
+
+  void publishAutowareState(const uint8_t state)
+  {
+    AutowareState msg;
+    msg.state = state;
+    pub_autoware_state->publish(msg);
+  }
+
+
+  void publishVehicleStateReport(const uint8_t mode)
+  {
+    VehicleStateReport msg;
+    msg.mode = mode;
+    pub_vehicle_state_report->publish(msg);
+  }
+
+  void expectNoEmergencyState()
+  {
+    {
+      auto msg = hazard_status_spy->expectMsg();
+      EXPECT_EQ(msg.status.level, HazardStatus::NO_FAULT);
+      EXPECT_EQ(msg.status.diag_safe_fault.size(), 0);
+      EXPECT_EQ(msg.status.diag_latent_fault.size(), 0);
+      EXPECT_EQ(msg.status.diag_single_point_fault.size(), 0);
+    }
+    {
+      auto msg = emergency_mode_spy->expectMsg();
+      EXPECT_EQ(msg.is_emergency, false);
+    }
+    {
+      auto msg = diagnostic_spy->expectMsg();
+      ASSERT_EQ(msg.status.size(), 0);
+    }
+
+    // Emergency vehicle control commands and state commands shouldn't be published
+    double timeout = 0.1;
+    EXPECT_ANY_THROW(control_command_spy->expectMsg(timeout));
+    EXPECT_ANY_THROW(state_command_spy->expectMsg(timeout));    
   }
 
   std::shared_ptr<EmergencyHandlerNode> tested_node;
@@ -167,11 +158,140 @@ TEST_F(EmergencyHandlerNodeTest, create_destroy)
 {
 }
 
-TEST_F(EmergencyHandlerNodeTest, no_any_input_data_after_initialization)
+TEST_F(EmergencyHandlerNodeTest, manual_mode_not_ignored_autoware_state_no_emergency_state)
 {
-  auto msg = diagnostic_spy->expectMsg();
-  ASSERT_EQ(msg.status.size(), 1);
-  EXPECT_EQ(msg.status[0].hardware_id, "emergency_handler");
-  EXPECT_EQ(msg.status[0].name, "input_data_timeout");
-  EXPECT_EQ(msg.status[0].level, diagnostic_msgs::msg::DiagnosticStatus::ERROR);
+  publishAutowareState(AutowareState::DRIVING); // not ignored state
+  publishVehicleStateReport(VehicleStateReport::MODE_MANUAL);
+
+  DrivingCapability driving_capability;
+  driving_capability.remote_control.level = HazardStatus::NO_FAULT;
+  pub_driving_capability->publish(driving_capability);
+
+  expectNoEmergencyState();
+}
+
+TEST_F(EmergencyHandlerNodeTest, autonomous_mode_not_ignored_autoware_state_no_emergency_state)
+{
+  publishAutowareState(AutowareState::DRIVING); // not ignored state
+  publishVehicleStateReport(VehicleStateReport::MODE_AUTONOMOUS);
+
+  DrivingCapability driving_capability;
+  driving_capability.autonomous_driving.level = HazardStatus::NO_FAULT;
+  pub_driving_capability->publish(driving_capability);
+
+  expectNoEmergencyState();
+}
+
+TEST_F(EmergencyHandlerNodeTest, manual_mode_ignored_autoware_state_no_emergency_state)
+{
+  publishAutowareState(AutowareState::INITIALIZING_VEHICLE); // Ignored state
+  publishVehicleStateReport(VehicleStateReport::MODE_MANUAL);
+
+  DrivingCapability driving_capability;
+  driving_capability.remote_control.level = HazardStatus::SINGLE_POINT_FAULT; // Fault
+  pub_driving_capability->publish(driving_capability);
+
+  expectNoEmergencyState();
+}
+
+TEST_F(EmergencyHandlerNodeTest, input_data_timeout_because_of_no_input_data)
+{
+  // Node expect data after initialization: DrivingCapability, AutowareState, VehicleStateReport
+  {
+    auto msg = hazard_status_spy->expectMsg();
+    EXPECT_EQ(msg.status.level, autoware_auto_msgs::msg::HazardStatus::SINGLE_POINT_FAULT);
+    ASSERT_EQ(msg.status.diag_single_point_fault.size(), 1);
+    EXPECT_EQ(msg.status.diag_single_point_fault[0].hardware_id, "emergency_handler");
+    EXPECT_EQ(msg.status.diag_single_point_fault[0].name, "input_data_timeout");
+    EXPECT_EQ(msg.status.diag_single_point_fault[0].level, DiagnosticStatus::ERROR);
+  }
+  {
+    auto msg = emergency_mode_spy->expectMsg();
+    EXPECT_EQ(msg.is_emergency, true);
+  }
+  {
+    auto msg = diagnostic_spy->expectMsg();
+    ASSERT_EQ(msg.status.size(), 1);
+    EXPECT_EQ(msg.status[0].hardware_id, "emergency_handler");
+    EXPECT_EQ(msg.status[0].name, "input_data_timeout");
+    EXPECT_EQ(msg.status[0].level, DiagnosticStatus::ERROR);
+  }
+}
+
+TEST_F(EmergencyHandlerNodeTest, input_data_timeout_because_of_missing_autoware_state)
+{
+  pub_driving_capability->publish(DrivingCapability{});
+  pub_vehicle_state_report->publish(VehicleStateReport{});
+
+  {
+    auto msg = hazard_status_spy->expectMsg();
+    EXPECT_EQ(msg.status.level, autoware_auto_msgs::msg::HazardStatus::SINGLE_POINT_FAULT);
+    ASSERT_EQ(msg.status.diag_single_point_fault.size(), 1);
+    EXPECT_EQ(msg.status.diag_single_point_fault[0].hardware_id, "emergency_handler");
+    EXPECT_EQ(msg.status.diag_single_point_fault[0].name, "input_data_timeout");
+    EXPECT_EQ(msg.status.diag_single_point_fault[0].level, DiagnosticStatus::ERROR);
+  }
+  {
+    auto msg = emergency_mode_spy->expectMsg();
+    EXPECT_EQ(msg.is_emergency, true);
+  }
+  {
+    auto msg = diagnostic_spy->expectMsg();
+    ASSERT_EQ(msg.status.size(), 1);
+    EXPECT_EQ(msg.status[0].hardware_id, "emergency_handler");
+    EXPECT_EQ(msg.status[0].name, "input_data_timeout");
+    EXPECT_EQ(msg.status[0].level, DiagnosticStatus::ERROR);
+  }
+}
+
+TEST_F(EmergencyHandlerNodeTest, input_data_timeout_because_of_missing_driving_capability)
+{
+  pub_autoware_state->publish(AutowareState{});
+  pub_vehicle_state_report->publish(VehicleStateReport{});
+
+  {
+    auto msg = hazard_status_spy->expectMsg();
+    EXPECT_EQ(msg.status.level, autoware_auto_msgs::msg::HazardStatus::SINGLE_POINT_FAULT);
+    ASSERT_EQ(msg.status.diag_single_point_fault.size(), 1);
+    EXPECT_EQ(msg.status.diag_single_point_fault[0].hardware_id, "emergency_handler");
+    EXPECT_EQ(msg.status.diag_single_point_fault[0].name, "input_data_timeout");
+    EXPECT_EQ(msg.status.diag_single_point_fault[0].level, DiagnosticStatus::ERROR);
+  }
+  {
+    auto msg = emergency_mode_spy->expectMsg();
+    EXPECT_EQ(msg.is_emergency, true);
+  }
+  {
+    auto msg = diagnostic_spy->expectMsg();
+    ASSERT_EQ(msg.status.size(), 1);
+    EXPECT_EQ(msg.status[0].hardware_id, "emergency_handler");
+    EXPECT_EQ(msg.status[0].name, "input_data_timeout");
+    EXPECT_EQ(msg.status[0].level, diagnostic_msgs::msg::DiagnosticStatus::ERROR);
+  }
+}
+
+TEST_F(EmergencyHandlerNodeTest, input_data_timeout_because_of_missing_vehicle_state_report)
+{
+  pub_autoware_state->publish(AutowareState{});
+  pub_driving_capability->publish(DrivingCapability{});
+
+  {
+    auto msg = hazard_status_spy->expectMsg();
+    EXPECT_EQ(msg.status.level, autoware_auto_msgs::msg::HazardStatus::SINGLE_POINT_FAULT);
+    ASSERT_EQ(msg.status.diag_single_point_fault.size(), 1);
+    EXPECT_EQ(msg.status.diag_single_point_fault[0].hardware_id, "emergency_handler");
+    EXPECT_EQ(msg.status.diag_single_point_fault[0].name, "input_data_timeout");
+    EXPECT_EQ(msg.status.diag_single_point_fault[0].level, DiagnosticStatus::ERROR);
+  }
+  {
+    auto msg = emergency_mode_spy->expectMsg();
+    EXPECT_EQ(msg.is_emergency, true);
+  }
+  {
+    auto msg = diagnostic_spy->expectMsg();
+    ASSERT_EQ(msg.status.size(), 1);
+    EXPECT_EQ(msg.status[0].hardware_id, "emergency_handler");
+    EXPECT_EQ(msg.status[0].name, "input_data_timeout");
+    EXPECT_EQ(msg.status[0].level, diagnostic_msgs::msg::DiagnosticStatus::ERROR);
+  }
 }

@@ -19,14 +19,65 @@
 
 #include <cmath>
 #include <memory>
+#include <string>
 
 #include "rclcpp/time.hpp"
+#include "rclcpp/rclcpp.hpp"
 
 #include "autoware_auto_msgs/msg/vehicle_odometry.hpp"
-#include "autoware_auto_msgs/msg/vehicle_state_report.hpp"
 
 using autoware_auto_msgs::msg::VehicleOdometry;
-using autoware_auto_msgs::msg::VehicleStateReport;
+
+template<typename T>
+class Spy
+{
+public:
+  Spy(
+    rclcpp::Node::SharedPtr n, rclcpp::Executor::SharedPtr exec,
+    const std::string & topic_name)
+  : node(n), executor(exec)
+  {
+    using std::placeholders::_1;
+    auto sub_options = rclcpp::SubscriptionOptions();
+
+    subscription = node->create_subscription<T>(
+      topic_name, 1, std::bind(&Spy::onMsg, this, _1), sub_options);
+  }
+
+  T expectMsg(const double timeout = 1.0)
+  {
+    const auto t_start = node->get_clock()->now();
+
+    while (!is_new_msg) {
+      if (!rclcpp::ok()) {
+        throw std::runtime_error("rclcpp is in NOK state");
+      }
+      if ((node->get_clock()->now() - t_start).seconds() > timeout) {
+        throw std::runtime_error("timeout occurred during waiting for msg");
+      }
+      using std::chrono_literals::operator""ms;
+      executor->spin_some(10ms);
+    }
+
+    is_new_msg = false;
+    return received_msg;
+  }
+
+protected:
+  void onMsg(const std::shared_ptr<T> msg)
+  {
+    RCLCPP_INFO(node->get_logger(), "Received %s", rosidl_generator_traits::name<T>());
+    is_new_msg = true;
+    received_msg = *msg;
+  }
+
+  rclcpp::Node::SharedPtr node;
+  rclcpp::Executor::SharedPtr executor;
+  std::shared_ptr<rclcpp::Subscription<T>> subscription;
+
+  T received_msg;
+  bool is_new_msg = false;
+};
 
 inline int64_t nanosec(double sec)
 {
@@ -36,17 +87,6 @@ inline int64_t nanosec(double sec)
 inline rclcpp::Time toTime(double sec)
 {
   return rclcpp::Time(nanosec(sec));
-}
-
-inline VehicleStateReport::SharedPtr prepareVehicleStateReportMsg(bool autonomous_mode)
-{
-  auto msg = std::make_shared<VehicleStateReport>();
-  if (autonomous_mode) {
-    msg->mode = VehicleStateReport::MODE_AUTONOMOUS;
-  } else {
-    msg->mode = VehicleStateReport::MODE_MANUAL;
-  }
-  return msg;
 }
 
 inline VehicleOdometry::SharedPtr prepareVehicleOdometryMsg(
