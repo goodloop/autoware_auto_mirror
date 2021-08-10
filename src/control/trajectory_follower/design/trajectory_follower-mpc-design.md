@@ -10,6 +10,12 @@ This is the design document for the MPC implemented in the `trajectory_follower`
 Model Predictive Control (MPC) is used by the `trajectory_follower`
 to calculate the lateral commands corresponding to a steering angle and a steering rate.
 
+This implementation differs from the one in the `mpc_controller` package in several aspects.
+- This is a linear MPC that only computes the steering command whereas
+the `mpc_controller` uses a non-linear MPC which calculates coupled steering and velocity commands.
+- The optimization problem solved by the linear MPC is simpler, making it less likely to fail.
+- Tuning of the linear MPC is easier.
+
 # Design
 <!-- Required -->
 <!-- Things to consider:
@@ -28,6 +34,16 @@ For the optimization, a Quadratric Programming (QP) solver is used
 with two options are currently implemented:
 - `unconstraint` : use least square method to solve unconstraint QP with eigen.
 - `unconstraint_fast` : similar to unconstraint. This is faster, but lower accuracy for optimization.
+
+## Filtering
+
+Filtering is required for good noise reduction.
+A [Butterworth filter](https://en.wikipedia.org/wiki/Butterworth_filter) is used for the yaw and lateral errors used as input of the MPC as well as for
+the output steering angle.
+Other filtering methods can be considered as long as the noise reduction performances are good
+enough.
+The moving average filter for example is not suited and can yield worse results than without any
+filtering.
 
 ## Inputs / Outputs / API
 <!-- Required -->
