@@ -28,6 +28,7 @@ namespace trajectory_follower
 {
 namespace longitudinal_utils
 {
+
 bool isValidTrajectory(const Trajectory & traj)
 {
   for (const auto & p : traj.points) {
@@ -49,7 +50,7 @@ bool isValidTrajectory(const Trajectory & traj)
   return true;
 }
 
-double calcStopDistance(
+float64_t calcStopDistance(
   const Point & current_pos, const Trajectory & traj)
 {
   const std::experimental::optional<size_t> stop_idx_opt =
@@ -63,27 +64,27 @@ double calcStopDistance(
   return trajectory_common::calcSignedArcLength(traj.points, current_pos, *stop_idx_opt);
 }
 
-double getPitchByPose(const Quaternion & quaternion)
+float64_t getPitchByPose(const Quaternion & quaternion)
 {
   const Eigen::Quaterniond q(quaternion.w, quaternion.x, quaternion.y, quaternion.z);
   const Eigen::Vector3d v = q.toRotationMatrix() * Eigen::Vector3d::UnitX();
-  const double xy = std::max(std::hypot(v.x(), v.y()), 1e-8 /* avoid 0 divide */);
-  const double pitch = -1.0 * std::atan2(v.z(), xy);
+  const float64_t xy = std::max(std::hypot(v.x(), v.y()), 1e-8 /* avoid 0 divide */);
+  const float64_t pitch = -1.0 * std::atan2(v.z(), xy);
   return pitch;
 }
 
-double getPitchByTraj(
-  const Trajectory & trajectory, const size_t nearest_idx, const double wheel_base)
+float64_t getPitchByTraj(
+  const Trajectory & trajectory, const size_t nearest_idx, const float64_t wheel_base)
 {
-  namespace helper_functions = ::autoware::common::helper_functions;
+  using autoware::common::geometry::distance_2d;
   // cannot calculate pitch
   if (trajectory.points.size() <= 1) {
     return 0.0;
   }
 
   for (size_t i = nearest_idx + 1; i < trajectory.points.size(); ++i) {
-    const double dist =
-      helper_functions::calcDist2d(trajectory.points.at(nearest_idx), trajectory.points.at(i));
+    const float64_t dist =
+      distance_2d<float64_t>(trajectory.points.at(nearest_idx), trajectory.points.at(i));
     if (dist > wheel_base) {
       // calculate pitch from trajectory between rear wheel (nearest) and front center (i)
       return calcElevationAngle(
@@ -93,8 +94,8 @@ double getPitchByTraj(
 
   // close to goal
   for (size_t i = trajectory.points.size() - 1; i > 0; --i) {
-    const double dist =
-      helper_functions::calcDist2d(trajectory.points.back(), trajectory.points.at(i));
+    const float64_t dist =
+      distance_2d<float64_t>(trajectory.points.back(), trajectory.points.at(i));
 
     if (dist > wheel_base) {
       // calculate pitch from trajectory
@@ -110,27 +111,27 @@ double getPitchByTraj(
     trajectory.points.back());
 }
 
-double calcElevationAngle(const TrajectoryPoint & p_from, const TrajectoryPoint & p_to)
+float64_t calcElevationAngle(const TrajectoryPoint & p_from, const TrajectoryPoint & p_to)
 {
-  const double dx = p_from.x - p_to.x;
-  const double dy = p_from.y - p_to.y;
+  const float64_t dx = p_from.x - p_to.x;
+  const float64_t dy = p_from.y - p_to.y;
   // TODO(Maxime CLEMENT): update once z information is added to trajectory points
-  const double dz = /* p_from.z - p_to.z */ 0.0;
+  const float64_t dz = /* p_from.z - p_to.z */ 0.0;
 
-  const double dxy = std::max(std::hypot(dx, dy), std::numeric_limits<double>::epsilon());
-  const double pitch = std::atan2(dz, dxy);
+  const float64_t dxy = std::max(std::hypot(dx, dy), std::numeric_limits<float64_t>::epsilon());
+  const float64_t pitch = std::atan2(dz, dxy);
 
   return pitch;
 }
 
 Pose calcPoseAfterTimeDelay(
-  const Pose & current_pose, const double delay_time, const double current_vel)
+  const Pose & current_pose, const float64_t delay_time, const float64_t current_vel)
 {
   // simple linear prediction
-  const double yaw = tf2::getYaw(current_pose.orientation);
-  const double running_distance = delay_time * current_vel;
-  const double dx = running_distance * std::cos(yaw);
-  const double dy = running_distance * std::sin(yaw);
+  const float64_t yaw = tf2::getYaw(current_pose.orientation);
+  const float64_t running_distance = delay_time * current_vel;
+  const float64_t dx = running_distance * std::cos(yaw);
+  const float64_t dy = running_distance * std::sin(yaw);
 
   auto pred_pose = current_pose;
   pred_pose.position.x += dx;
@@ -138,13 +139,13 @@ Pose calcPoseAfterTimeDelay(
   return pred_pose;
 }
 
-double lerp(const double v_from, const double v_to, const double ratio)
+float64_t lerp(const float64_t v_from, const float64_t v_to, const float64_t ratio)
 {
   return v_from + (v_to - v_from) * ratio;
 }
 
 Quaternion lerpOrientation(
-  const Quaternion & o_from, const Quaternion & o_to, const double ratio)
+  const Quaternion & o_from, const Quaternion & o_to, const float64_t ratio)
 {
   tf2::Quaternion q_from, q_to;
   tf2::fromMsg(o_from, q_from);
@@ -154,21 +155,21 @@ Quaternion lerpOrientation(
   return tf2::toMsg(q_interpolated);
 }
 
-double applyDiffLimitFilter(
-  const double input_val, const double prev_val, const double dt, const double max_val,
-  const double min_val)
+float64_t applyDiffLimitFilter(
+  const float64_t input_val, const float64_t prev_val, const float64_t dt, const float64_t max_val,
+  const float64_t min_val)
 {
-  const double diff_raw = (input_val - prev_val) / dt;
-  const double diff = std::min(std::max(diff_raw, min_val), max_val);
-  const double filtered_val = prev_val + diff * dt;
+  const float64_t diff_raw = (input_val - prev_val) / dt;
+  const float64_t diff = std::min(std::max(diff_raw, min_val), max_val);
+  const float64_t filtered_val = prev_val + diff * dt;
   return filtered_val;
 }
 
-double applyDiffLimitFilter(
-  const double input_val, const double prev_val, const double dt, const double lim_val)
+float64_t applyDiffLimitFilter(
+  const float64_t input_val, const float64_t prev_val, const float64_t dt, const float64_t lim_val)
 {
-  const double max_val = std::fabs(lim_val);
-  const double min_val = -max_val;
+  const float64_t max_val = std::fabs(lim_val);
+  const float64_t min_val = -max_val;
   return applyDiffLimitFilter(input_val, prev_val, dt, max_val, min_val);
 }
 }  // namespace longitudinal_utils
