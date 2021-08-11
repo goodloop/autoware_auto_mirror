@@ -67,7 +67,7 @@ TEST_F(FakeNodeFixture, no_input)
     "input/current_kinematic_state");
   rclcpp::Subscription<LateralCommand>::SharedPtr cmd_sub =
     this->create_subscription<LateralCommand>(
-    "output/lateral_control_cmd", *node,
+    "output/lateral/control_cmd", *node,
     [&cmd_msg, &received_lateral_command](const LateralCommand::SharedPtr msg) {
       cmd_msg = msg; received_lateral_command = true;
     });
@@ -102,7 +102,7 @@ TEST_F(FakeNodeFixture, empty_trajectory)
     "input/current_kinematic_state");
   rclcpp::Subscription<LateralCommand>::SharedPtr cmd_sub =
     this->create_subscription<LateralCommand>(
-    "output/lateral_control_cmd", *node,
+    "output/lateral/control_cmd", *node,
     [&cmd_msg, &received_lateral_command](const LateralCommand::SharedPtr msg) {
       cmd_msg = msg; received_lateral_command = true;
     });
@@ -151,7 +151,7 @@ TEST_F(FakeNodeFixture, straight_trajectory)
     "input/current_kinematic_state");
   rclcpp::Subscription<LateralCommand>::SharedPtr cmd_sub =
     this->create_subscription<LateralCommand>(
-    "output/lateral_control_cmd", *node,
+    "output/lateral/control_cmd", *node,
     [&cmd_msg, &received_lateral_command](const LateralCommand::SharedPtr msg) {
       cmd_msg = msg; received_lateral_command = true;
     });
@@ -218,7 +218,7 @@ TEST_F(FakeNodeFixture, right_turn)
     "input/current_kinematic_state");
   rclcpp::Subscription<LateralCommand>::SharedPtr cmd_sub =
     this->create_subscription<LateralCommand>(
-    "output/lateral_control_cmd", *node,
+    "output/lateral/control_cmd", *node,
     [&cmd_msg, &received_lateral_command](const LateralCommand::SharedPtr msg) {
       cmd_msg = msg; received_lateral_command = true;
     });
@@ -285,7 +285,7 @@ TEST_F(FakeNodeFixture, left_turn)
     "input/current_kinematic_state");
   rclcpp::Subscription<LateralCommand>::SharedPtr cmd_sub =
     this->create_subscription<LateralCommand>(
-    "output/lateral_control_cmd", *node,
+    "output/lateral/control_cmd", *node,
     [&cmd_msg, &received_lateral_command](const LateralCommand::SharedPtr msg) {
       cmd_msg = msg; received_lateral_command = true;
     });

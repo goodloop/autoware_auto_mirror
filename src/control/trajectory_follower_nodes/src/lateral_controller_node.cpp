@@ -147,9 +147,11 @@ LateralController::LateralController(const rclcpp::NodeOptions & node_options)
 
   m_pub_ctrl_cmd =
     create_publisher<autoware_auto_msgs::msg::AckermannLateralCommand>(
-    "output/lateral_control_cmd", 1);
+    "output/lateral/control_cmd", 1);
   m_pub_predicted_traj =
-    create_publisher<autoware_auto_msgs::msg::Trajectory>("output/predicted_trajectory", 1);
+    create_publisher<autoware_auto_msgs::msg::Trajectory>("output/lateral/predicted_trajectory", 1);
+  m_pub_diagnostic =
+    create_publisher<autoware_auto_msgs::msg::ControlDiagnostic>("output/lateral/diagnostic", 1);
   m_sub_ref_path = create_subscription<autoware_auto_msgs::msg::Trajectory>(
     "input/reference_trajectory", rclcpp::QoS{1},
     std::bind(&LateralController::onTrajectory, this, _1));
@@ -188,6 +190,7 @@ void LateralController::onTimer()
 
   autoware_auto_msgs::msg::AckermannLateralCommand ctrl_cmd;
   autoware_auto_msgs::msg::Trajectory predicted_traj;
+  autoware_auto_msgs::msg::ControlDiagnostic diagnostic;
 
   if (!m_is_ctrl_cmd_prev_initialized) {
     m_ctrl_cmd_prev = getInitialControlCommand();
@@ -195,9 +198,8 @@ void LateralController::onTimer()
   }
 
   const bool8_t is_mpc_solved = m_mpc.calculateMPC(
-    *m_current_state_ptr,
-    m_current_state_ptr->state.longitudinal_velocity_mps,
-    m_current_pose_ptr->pose, ctrl_cmd, predicted_traj);
+    *m_current_state_ptr, m_current_state_ptr->state.longitudinal_velocity_mps,
+    m_current_pose_ptr->pose, ctrl_cmd, predicted_traj, diagnostic);
 
   if (isStoppedState()) {
     // Reset input buffer
@@ -208,6 +210,7 @@ void LateralController::onTimer()
     m_mpc.m_raw_steer_cmd_prev = m_ctrl_cmd_prev.steering_tire_angle;
 
     publishCtrlCmd(m_ctrl_cmd_prev);
+    publishDiagnostic(diagnostic);
     return;
   }
 
@@ -221,9 +224,10 @@ void LateralController::onTimer()
   m_ctrl_cmd_prev = ctrl_cmd;
   publishCtrlCmd(ctrl_cmd);
   publishPredictedTraj(predicted_traj);
+  publishDiagnostic(diagnostic);
 }
 
-bool8_t LateralController::checkData()
+bool8_t LateralController::checkData() const
 {
   if (!m_mpc.hasVehicleModel()) {
     RCLCPP_DEBUG(
@@ -352,10 +356,19 @@ void LateralController::publishCtrlCmd(autoware_auto_msgs::msg::AckermannLateral
 }
 
 void LateralController::publishPredictedTraj(autoware_auto_msgs::msg::Trajectory & predicted_traj)
+const
 {
   predicted_traj.header.stamp = this->now();
   predicted_traj.header.frame_id = m_current_trajectory_ptr->header.frame_id;
   m_pub_predicted_traj->publish(predicted_traj);
+}
+
+void LateralController::publishDiagnostic(autoware_auto_msgs::msg::ControlDiagnostic & diagnostic)
+const
+{
+  diagnostic.diag_header.data_stamp = this->now();
+  diagnostic.diag_header.name = std::string("linear-MPC lateral controller");
+  m_pub_diagnostic->publish(diagnostic);
 }
 
 void LateralController::initTimer(float64_t period_s)
