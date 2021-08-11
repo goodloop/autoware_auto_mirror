@@ -29,7 +29,7 @@ autoware_set_compile_options(${LATERAL_CONTROLLER_NODE})
 # TODO(lateral_controller) : Temporary workaround until this is fixed.
 target_compile_options(${LATERAL_CONTROLLER_NODE} PRIVATE -Wno-error=old-style-cast)
 rclcpp_components_register_node(${LATERAL_CONTROLLER_NODE}
-  PLUGIN "autoware::motion::control::latlon_muxer::LateralController"
+  PLUGIN "autoware::motion::control::trajectory_follower_nodes::LateralController"
   EXECUTABLE ${LATERAL_CONTROLLER_NODE}_exe
 )
 
@@ -44,7 +44,7 @@ autoware_set_compile_options(${LATLON_MUXER_NODE})
 # TODO(latlon_muxer) : Temporary workaround until this is fixed.
 target_compile_options(${LATLON_MUXER_NODE} PRIVATE -Wno-error=old-style-cast)
 rclcpp_components_register_node(${LATLON_MUXER_NODE}
-  PLUGIN "autoware::motion::control::latlon_muxer::LatLonMuxer"
+  PLUGIN "autoware::motion::control::trajectory_follower_nodes::LatLonMuxer"
   EXECUTABLE ${LATLON_MUXER_NODE}_exe
 )
 
