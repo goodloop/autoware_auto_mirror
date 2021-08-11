@@ -15,7 +15,6 @@
     curvature_smoothing_num: 15    # point-to-point index distance used in curvature calculation : curvature is calculated from three points p(i-num), p(i), p(i+num)
 
     # -- mpc optimization --
-    qpoases_max_iter: 500                        # max iteration number for quadratic programming
     qp_solver_type: "osqp"                       # optimization solver option (unconstraint_fast or osqp)
     mpc_prediction_horizon: 50                   # prediction horizon step
     mpc_prediction_dt: 0.1                       # prediction horizon period [s]
@@ -39,6 +38,8 @@
     mpc_weight_terminal_lat_error: 1.0           # terminal lateral error weight in matrix Q to improve mpc stability
     mpc_weight_terminal_heading_error: 0.1       # terminal heading error weight in matrix Q to improve mpc stability
     mpc_zero_ff_steer_deg: 0.5                   # threshold that feed-forward angle becomes zero
+    mpc_acceleration_limit: 2.0                  # limit on the vehicle's acceleration
+    mpc_velocity_time_constant: 0.3              # time constant used for velocity smoothing
 
     # -- vehicle model --
     vehicle_model_type: "kinematics" # vehicle model type for mpc prediction. option is kinematics, kinematics_no_delay, and dynamics
@@ -51,8 +52,26 @@
 
     # -- lowpass filter for noise reduction --
     steering_lpf_cutoff_hz: 3.0 # cutoff frequency of lowpass filter for steering command [Hz]
+    error_deriv_lpf_cutoff_hz: 5.0
 
     # stop state
     stop_state_entry_ego_speed: 0.2
     stop_state_entry_target_speed: 0.5
     stop_state_keep_stopping_dist: 0.5
+
+    vehicle:
+      cg_to_front_m: 1.228
+      cg_to_rear_m: 1.5618
+      front_corner_stiffness: 0.1
+      rear_corner_stiffness: 0.1
+      mass_kg: 2400.0
+      mass_fl: 600.0
+      mass_fr: 600.0
+      mass_rl: 600.0
+      mass_rr: 600.0
+      cf: 155494.663
+      cr: 155494.663
+      yaw_inertia_kgm2: 12.0
+      width_m: 2.0
+      front_overhang_m: 1.05
+      rear_overhang_m: 0.92
