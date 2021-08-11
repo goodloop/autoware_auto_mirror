@@ -364,12 +364,14 @@ public:
    * @param [in] current_velocity current velocity of the vehicle [m/s]
    * @param [in] current_pose current pose of the vehicle
    * @param [out] ctrl_cmd control command calculated with mpc algorithm
+   * @param [out] predicted_traj predicted MPC trajectory
    */
   bool8_t calculateMPC(
     const autoware_auto_msgs::msg::VehicleKinematicState & current_steer,
     const float64_t current_velocity,
     const geometry_msgs::msg::Pose & current_pose,
-    autoware_auto_msgs::msg::AckermannLateralCommand & ctrl_cmd
+    autoware_auto_msgs::msg::AckermannLateralCommand & ctrl_cmd,
+    autoware_auto_msgs::msg::Trajectory & predicted_traj
   );
   /**
    * @brief set the reference trajectory to follow

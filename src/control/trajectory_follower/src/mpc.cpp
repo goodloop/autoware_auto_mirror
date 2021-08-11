@@ -39,8 +39,8 @@ bool8_t MPC::calculateMPC(
   const autoware_auto_msgs::msg::VehicleKinematicState & current_steer,
   const float64_t current_velocity,
   const geometry_msgs::msg::Pose & current_pose,
-  autoware_auto_msgs::msg::AckermannLateralCommand & ctrl_cmd
-)
+  autoware_auto_msgs::msg::AckermannLateralCommand & ctrl_cmd,
+  autoware_auto_msgs::msg::Trajectory & predicted_traj)
 {
   /* recalculate velocity from ego-velocity with dynamics */
   trajectory_follower::MPCTrajectory reference_trajectory =
@@ -103,6 +103,26 @@ bool8_t MPC::calculateMPC(
   m_raw_steer_cmd_pprev = m_raw_steer_cmd_prev;
   m_raw_steer_cmd_prev = Uex(0);
 
+  /* calculate predicted trajectory */
+  Eigen::VectorXd Xex = mpc_matrix.Aex * x0 + mpc_matrix.Bex * Uex + mpc_matrix.Wex;
+  trajectory_follower::MPCTrajectory mpc_predicted_traj;
+  const auto & traj = mpc_resampled_ref_traj;
+  for (size_t i = 0; i < static_cast<size_t>(m_param.prediction_horizon); ++i) {
+    const int64_t DIM_X = m_vehicle_model_ptr->getDimX();
+    const float64_t lat_error = Xex(static_cast<int64_t>(i) * DIM_X);
+    const float64_t yaw_error = Xex(static_cast<int64_t>(i) * DIM_X + 1);
+    const float64_t x = traj.x[i] - std::sin(traj.yaw[i]) * lat_error;
+    const float64_t y = traj.y[i] + std::cos(traj.yaw[i]) * lat_error;
+    const float64_t z = traj.z[i];
+    const float64_t yaw = traj.yaw[i] + yaw_error;
+    const float64_t vx = traj.vx[i];
+    const float64_t k = traj.k[i];
+    const float64_t smooth_k = traj.smooth_k[i];
+    const float64_t relative_time = traj.relative_time[i];
+    mpc_predicted_traj.push_back(x, y, z, yaw, vx, k, smooth_k, relative_time);
+  }
+  trajectory_follower::MPCUtils::convertToAutowareTrajectory(mpc_predicted_traj, predicted_traj);
+
   return true;
 }
 
@@ -119,7 +139,7 @@ void MPC::setReferenceTrajectory(
   trajectory_follower::MPCTrajectory mpc_traj_smoothed;   // smooth filtered trajectory
 
   /* resampling */
-  trajectory_follower::MPCUtils::convertToMPCTrajectory(trajectory_msg, &mpc_traj_raw);
+  trajectory_follower::MPCUtils::convertToMPCTrajectory(trajectory_msg, mpc_traj_raw);
   if (!trajectory_follower::MPCUtils::resampleMPCTrajectoryByDistance(
       mpc_traj_raw, traj_resample_dist, &mpc_traj_resampled))
   {
@@ -431,7 +451,7 @@ trajectory_follower::MPCTrajectory MPC::applyVelocityDynamicsFilter(
   trajectory_follower::MPCTrajectory output = input;
   trajectory_follower::MPCUtils::dynamicSmoothingVelocity(
     static_cast<size_t>(nearest_idx), v0,
-    alim, tau, &output);
+    alim, tau, output);
   const float64_t t_ext = 100.0;  // extra time to prevent mpc calculation failure due to short time
   const float64_t t_end = output.relative_time.back() + getPredictionTime() + t_ext;
   const float64_t v_end = 0.0;
