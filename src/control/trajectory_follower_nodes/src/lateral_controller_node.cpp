@@ -55,8 +55,8 @@ void update_param(
 }
 }  // namespace
 
-MPCFollower::MPCFollower(const rclcpp::NodeOptions & node_options)
-: Node("mpc_follower", node_options),
+LateralController::LateralController(const rclcpp::NodeOptions & node_options)
+: Node("lateral_controller", node_options),
   m_tf_buffer(this->get_clock()), m_tf_listener(m_tf_buffer)
 {
   using std::placeholders::_1;
@@ -148,22 +148,22 @@ MPCFollower::MPCFollower(const rclcpp::NodeOptions & node_options)
 
   m_pub_ctrl_cmd =
     create_publisher<autoware_auto_msgs::msg::AckermannLateralCommand>(
-    "output/lateral_control_cmd",
-    1);
+    "output/lateral_control_cmd", 1);
   m_pub_predicted_traj =
     create_publisher<autoware_auto_msgs::msg::Trajectory>("output/predicted_trajectory", 1);
   m_sub_ref_path = create_subscription<autoware_auto_msgs::msg::Trajectory>(
     "input/reference_trajectory", rclcpp::QoS{1},
-    std::bind(&MPCFollower::onTrajectory, this, _1));
+    std::bind(&LateralController::onTrajectory, this, _1));
   m_sub_steering = create_subscription<autoware_auto_msgs::msg::VehicleKinematicState>(
-    "input/current_kinematic_state", rclcpp::QoS{1}, std::bind(&MPCFollower::onState, this, _1));
+    "input/current_kinematic_state", rclcpp::QoS{1}, std::bind(
+      &LateralController::onState, this, _1));
 
   // TODO(Frederik.Beaujean) ctor is too long, should factor out parameter declarations
   declareMPCparameters();
 
   /* get parameter updates */
   m_set_param_res =
-    this->add_on_set_parameters_callback(std::bind(&MPCFollower::paramCallback, this, _1));
+    this->add_on_set_parameters_callback(std::bind(&LateralController::paramCallback, this, _1));
 
   m_mpc.setQPSolver(qpsolver_ptr);
   m_mpc.setVehicleModel(vehicle_model_ptr, vehicle_model_type);
@@ -172,13 +172,13 @@ MPCFollower::MPCFollower(const rclcpp::NodeOptions & node_options)
   m_mpc.setClock(get_clock());
 }
 
-MPCFollower::~MPCFollower()
+LateralController::~LateralController()
 {
   autoware_auto_msgs::msg::AckermannLateralCommand stop_cmd = getStopControlCommand();
   publishCtrlCmd(stop_cmd);
 }
 
-void MPCFollower::onTimer()
+void LateralController::onTimer()
 {
   updateCurrentPose();
 
@@ -222,7 +222,7 @@ void MPCFollower::onTimer()
   publishCtrlCmd(ctrl_cmd);
 }
 
-bool8_t MPCFollower::checkData()
+bool8_t LateralController::checkData()
 {
   if (!m_mpc.hasVehicleModel()) {
     RCLCPP_DEBUG(
@@ -250,7 +250,7 @@ bool8_t MPCFollower::checkData()
   return true;
 }
 
-void MPCFollower::onTrajectory(const autoware_auto_msgs::msg::Trajectory::SharedPtr msg)
+void LateralController::onTrajectory(const autoware_auto_msgs::msg::Trajectory::SharedPtr msg)
 {
   m_current_trajectory_ptr = msg;
 
@@ -269,7 +269,7 @@ void MPCFollower::onTrajectory(const autoware_auto_msgs::msg::Trajectory::Shared
     m_enable_yaw_recalculation, m_curvature_smoothing_num);
 }
 
-void MPCFollower::updateCurrentPose()
+void LateralController::updateCurrentPose()
 {
   geometry_msgs::msg::TransformStamped transform;
   try {
@@ -290,12 +290,12 @@ void MPCFollower::updateCurrentPose()
   m_current_pose_ptr = std::make_shared<geometry_msgs::msg::PoseStamped>(ps);
 }
 
-void MPCFollower::onState(const autoware_auto_msgs::msg::VehicleKinematicState::SharedPtr msg)
+void LateralController::onState(const autoware_auto_msgs::msg::VehicleKinematicState::SharedPtr msg)
 {
   m_current_state_ptr = msg;
 }
 
-autoware_auto_msgs::msg::AckermannLateralCommand MPCFollower::getStopControlCommand() const
+autoware_auto_msgs::msg::AckermannLateralCommand LateralController::getStopControlCommand() const
 {
   autoware_auto_msgs::msg::AckermannLateralCommand cmd;
   cmd.steering_tire_angle = static_cast<decltype(cmd.steering_tire_angle)>(m_steer_cmd_prev);
@@ -303,7 +303,7 @@ autoware_auto_msgs::msg::AckermannLateralCommand MPCFollower::getStopControlComm
   return cmd;
 }
 
-autoware_auto_msgs::msg::AckermannLateralCommand MPCFollower::getInitialControlCommand() const
+autoware_auto_msgs::msg::AckermannLateralCommand LateralController::getInitialControlCommand() const
 {
   autoware_auto_msgs::msg::AckermannLateralCommand cmd;
   cmd.steering_tire_angle = m_current_state_ptr->state.front_wheel_angle_rad;
@@ -311,7 +311,7 @@ autoware_auto_msgs::msg::AckermannLateralCommand MPCFollower::getInitialControlC
   return cmd;
 }
 
-bool8_t MPCFollower::isStoppedState() const
+bool8_t LateralController::isStoppedState() const
 {
   const int64_t nearest = trajectory_follower::MPCUtils::calcNearestIndex(
     *m_current_trajectory_ptr,
@@ -343,16 +343,16 @@ bool8_t MPCFollower::isStoppedState() const
   }
 }
 
-void MPCFollower::publishCtrlCmd(autoware_auto_msgs::msg::AckermannLateralCommand ctrl_cmd)
+void LateralController::publishCtrlCmd(autoware_auto_msgs::msg::AckermannLateralCommand ctrl_cmd)
 {
   ctrl_cmd.stamp = this->now();
   m_pub_ctrl_cmd->publish(ctrl_cmd);
   m_steer_cmd_prev = ctrl_cmd.steering_tire_angle;
 }
 
-void MPCFollower::initTimer(float64_t period_s)
+void LateralController::initTimer(float64_t period_s)
 {
-  auto timer_callback = std::bind(&MPCFollower::onTimer, this);
+  auto timer_callback = std::bind(&LateralController::onTimer, this);
   const auto period_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(
     std::chrono::duration<float64_t>(
       period_s));
@@ -362,7 +362,7 @@ void MPCFollower::initTimer(float64_t period_s)
   this->get_node_timers_interface()->add_timer(m_timer, nullptr);
 }
 
-void MPCFollower::declareMPCparameters()
+void LateralController::declareMPCparameters()
 {
   m_mpc.m_param.prediction_horizon = declare_parameter("mpc_prediction_horizon").get<int64_t>();
   m_mpc.m_param.prediction_dt = declare_parameter("mpc_prediction_dt").get<float64_t>();
@@ -406,7 +406,7 @@ void MPCFollower::declareMPCparameters()
     declare_parameter("mpc_velocity_time_constant").get<float64_t>();
 }
 
-rcl_interfaces::msg::SetParametersResult MPCFollower::paramCallback(
+rcl_interfaces::msg::SetParametersResult LateralController::paramCallback(
   const std::vector<rclcpp::Parameter> & parameters)
 {
   rcl_interfaces::msg::SetParametersResult result;
@@ -460,7 +460,7 @@ rcl_interfaces::msg::SetParametersResult MPCFollower::paramCallback(
   return result;
 }
 
-bool8_t MPCFollower::isValidTrajectory(const autoware_auto_msgs::msg::Trajectory & traj) const
+bool8_t LateralController::isValidTrajectory(const autoware_auto_msgs::msg::Trajectory & traj) const
 {
   for (const auto & p : traj.points) {
     if (
@@ -481,4 +481,5 @@ bool8_t MPCFollower::isValidTrajectory(const autoware_auto_msgs::msg::Trajectory
 }  // namespace motion
 }  // namespace autoware
 
-RCLCPP_COMPONENTS_REGISTER_NODE(autoware::motion::control::trajectory_follower_nodes::MPCFollower)
+RCLCPP_COMPONENTS_REGISTER_NODE(
+  autoware::motion::control::trajectory_follower_nodes::LateralController)

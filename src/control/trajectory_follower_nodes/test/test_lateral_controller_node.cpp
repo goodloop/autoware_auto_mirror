@@ -32,7 +32,7 @@
 #include "trajectory_follower_test_utils.hpp"
 
 
-using LateralController = autoware::motion::control::trajectory_follower_nodes::MPCFollower;
+using LateralController = autoware::motion::control::trajectory_follower_nodes::LateralController;
 using LateralCommand = autoware_auto_msgs::msg::AckermannLateralCommand;
 using Trajectory = autoware_auto_msgs::msg::Trajectory;
 using TrajectoryPoint = autoware_auto_msgs::msg::TrajectoryPoint;

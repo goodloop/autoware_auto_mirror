@@ -58,18 +58,18 @@ using autoware::common::types::float64_t;
 using autoware::common::types::bool8_t;
 namespace trajectory_follower = ::autoware::motion::control::trajectory_follower;
 
-class TRAJECTORY_FOLLOWER_PUBLIC MPCFollower : public rclcpp::Node
+class TRAJECTORY_FOLLOWER_PUBLIC LateralController : public rclcpp::Node
 {
 public:
   /**
    * @brief constructor
    */
-  explicit MPCFollower(const rclcpp::NodeOptions & node_options);
+  explicit LateralController(const rclcpp::NodeOptions & node_options);
 
   /**
    * @brief destructor
    */
-  virtual ~MPCFollower();
+  virtual ~LateralController();
 
 private:
   //!< @brief topic publisher for control command
