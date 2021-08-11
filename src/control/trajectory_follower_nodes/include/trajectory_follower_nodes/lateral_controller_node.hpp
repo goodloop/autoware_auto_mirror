@@ -155,10 +155,16 @@ private:
   void onState(const autoware_auto_msgs::msg::VehicleKinematicState::SharedPtr msg);
 
   /**
-   * @brief publish control command as autoware_msgs/ControlCommand type
+   * @brief publish control command
    * @param [in] cmd published control command
    */
   void publishCtrlCmd(autoware_auto_msgs::msg::AckermannLateralCommand cmd);
+
+  /**
+   * @brief publish predicted future trajectory
+   * @param [in] predicted_traj published predicted trajectory
+   */
+  void publishPredictedTraj(autoware_auto_msgs::msg::Trajectory & predicted_traj);
 
   /**
    * @brief get stop command
