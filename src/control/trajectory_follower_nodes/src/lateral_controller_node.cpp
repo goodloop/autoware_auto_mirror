@@ -24,8 +24,6 @@
 
 #include "tf2_ros/create_timer_ros.h"
 
-#define DEG2RAD 3.1415926535 / 180.0
-#define RAD2DEG 180.0 / 3.1415926535
 
 #define UPDATE_MPC_PARAM(PARAM_STRUCT, NAME) \
   update_param(parameters, "m_mpc" #NAME, PARAM_STRUCT.NAME)
@@ -66,7 +64,7 @@ LateralController::LateralController(const rclcpp::NodeOptions & node_options)
   m_enable_yaw_recalculation = declare_parameter("enable_yaw_recalculation").get<bool8_t>();
   m_path_filter_moving_ave_num = declare_parameter("path_filter_moving_ave_num").get<int64_t>();
   m_curvature_smoothing_num = declare_parameter("curvature_smoothing_num").get<int64_t>();
-  m_traj_resample_dist = declare_parameter("traj_resample_dist").get<float64_t>();  // [m]
+  m_traj_resample_dist = declare_parameter("traj_resample_dist").get<float64_t>();
   m_mpc.m_admissible_position_error =
     declare_parameter("admissible_position_error").get<float64_t>();
   m_mpc.m_admissible_yaw_error_rad = declare_parameter("admissible_yaw_error_rad").get<float64_t>();
@@ -83,8 +81,9 @@ LateralController::LateralController(const rclcpp::NodeOptions & node_options)
   /* mpc parameters */
   const float64_t steer_lim_deg = declare_parameter("steer_lim_deg").get<float64_t>();
   const float64_t steer_rate_lim_degs = declare_parameter("steer_rate_lim_dps").get<float64_t>();
-  m_mpc.m_steer_lim = steer_lim_deg * DEG2RAD;
-  m_mpc.m_steer_rate_lim = steer_rate_lim_degs * DEG2RAD;
+  constexpr float64_t deg2rad = static_cast<float64_t>(autoware::common::types::PI) / 180.0;
+  m_mpc.m_steer_lim = steer_lim_deg * deg2rad;
+  m_mpc.m_steer_rate_lim = steer_rate_lim_degs * deg2rad;
   const float64_t cg_to_front_m = declare_parameter("vehicle.cg_to_front_m").get<float64_t>();
   const float64_t cg_to_rear_m = declare_parameter("vehicle.cg_to_rear_m").get<float64_t>();
   const float64_t wheelbase = cg_to_front_m + cg_to_rear_m;
