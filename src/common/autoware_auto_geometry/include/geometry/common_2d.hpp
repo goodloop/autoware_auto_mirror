@@ -153,16 +153,16 @@ inline auto dot_2d(const T1 & pt, const T2 & q)
   return (x_(pt) * x_(q)) + (y_(pt) * y_(q));
 }
 
-/// \tparam T point type. Must have point adapters defined or have float members x and y
+/// \tparam T1, T2, T3 point types. Must have point adapters defined or have float members x and y
 /// \brief Compute the 2d difference between two points, p - q
 /// \param[in] p The left hand side
 /// \param[in] q The right hand side
 /// \return A point with the difference in the x and y fields, all other fields are default
 ///         initialized
-template<typename T>
-T minus_2d(const T & p, const T & q)
+template<typename T1, typename T2, typename T3 = T1>
+T3 minus_2d(const T1 & p, const T2 & q)
 {
-  T r;
+  T3 r;
   using point_adapter::x_;
   using point_adapter::y_;
   point_adapter::xr_(r) = x_(p) - x_(q);
@@ -183,16 +183,17 @@ T minus_2d(const T & p)
   point_adapter::yr_(r) = -point_adapter::y_(p);
   return r;
 }
-/// \tparam T point type. Must have point adapters defined or have float members x and y
+
+/// \tparam T1, T2, T3 point types. Must have point adapters defined or have float members x and y
 /// \brief The 2d addition operation, p + q
 /// \param[in] p The left hand side
 /// \param[in] q The right hand side
 /// \return A point with the sum in the x and y fields, all other fields are default
 ///         initialized
-template<typename T>
-T plus_2d(const T & p, const T & q)
+template<typename T1, typename T2, typename T3 = T1>
+T3 plus_2d(const T1 & p, const T2 & q)
 {
-  T r;
+  T3 r;
   using point_adapter::x_;
   using point_adapter::y_;
   point_adapter::xr_(r) = x_(p) + x_(q);
@@ -215,7 +216,7 @@ T times_2d(const T & p, const float32_t a)
   return r;
 }
 
-/// \tparam T point type. Must have point adapters defined or have float members x and y
+/// \tparam T1, T2, T3 point types. Must have point adapters defined or have float members x and y
 /// \brief solve p + t * u = q + s * v
 ///        Ref: https://stackoverflow.com/questions/563198/
 ///             whats-the-most-efficent-way-to-calculate-where-two-line-segments-intersect
@@ -225,10 +226,10 @@ T times_2d(const T & p, const float32_t a)
 /// \param[in] v direction of second line
 /// \return intersection point
 /// \throw std::runtime_error if lines are (nearly) collinear or parallel
-template<typename T>
-inline T intersection_2d(const T & pt, const T & u, const T & q, const T & v)
+template<typename T1, typename T2, typename T3 = T1>
+inline T3 intersection_2d(const T1 & pt, const T1 & u, const T2 & q, const T2 & v)
 {
-  const float32_t num = cross_2d(minus_2d(pt, q), u);
+  const float32_t num = cross_2d(minus_2d<T1, T2, T3>(pt, q), u);
   float32_t den = cross_2d(v, u);
   constexpr auto FEPS = std::numeric_limits<float32_t>::epsilon();
   if (fabsf(den) < FEPS) {
@@ -241,7 +242,7 @@ inline T intersection_2d(const T & pt, const T & u, const T & q, const T & v)
               "intersection_2d: no unique solution (either collinear or parallel)");
     }
   }
-  return plus_2d(q, times_2d(v, num / den));
+  return plus_2d<T2, T2, T3>(q, times_2d(v, num / den));
 }
 
 
@@ -402,17 +403,17 @@ inline OUT distance_2d(const T1 & a, const T2 & b)
 
 /// \brief Check the given point's position relative the infinite line passing
 /// from p1 to p2. Logic based on http://geomalgorithms.com/a01-_area.html#isLeft()
-/// \tparam T  T  point type. Must have point adapters defined or have float members x and y
+/// \tparam T1, T2, T3 point types. Must have point adapters defined or have float members x and y
 /// \param p1 point 1 laying on the infinite line
 /// \param p2 point 2 laying on the infinite line
 /// \param q point to be checked against the line
 /// \return > 0 for point q left of the line through p1 to p2
 ///         = 0 for point q on the line through p1 to p2
 ///         < 0 for point q right of the line through p1 to p2
-template<typename T>
-inline auto check_point_position_to_line_2d(const T & p1, const T & p2, const T & q)
+template<typename T1, typename T2, typename T3, typename T4 = T1>
+inline auto check_point_position_to_line_2d(const T1 & p1, const T2 & p2, const T3 & q)
 {
-  return cross_2d(minus_2d(p2, p1), minus_2d(q, p1));
+  return cross_2d(minus_2d<T2, T1, T4>(p2, p1), minus_2d<T3, T1, T4>(q, p1));
 }
 
 /// Check if all points are ordered in x-y plane (in either clockwise or counter-clockwise
