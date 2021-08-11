@@ -188,6 +188,7 @@ void LateralController::onTimer()
   }
 
   autoware_auto_msgs::msg::AckermannLateralCommand ctrl_cmd;
+  autoware_auto_msgs::msg::Trajectory predicted_traj;
 
   if (!m_is_ctrl_cmd_prev_initialized) {
     m_ctrl_cmd_prev = getInitialControlCommand();
@@ -197,7 +198,7 @@ void LateralController::onTimer()
   const bool8_t is_mpc_solved = m_mpc.calculateMPC(
     *m_current_state_ptr,
     m_current_state_ptr->state.longitudinal_velocity_mps,
-    m_current_pose_ptr->pose, ctrl_cmd);
+    m_current_pose_ptr->pose, ctrl_cmd, predicted_traj);
 
   if (isStoppedState()) {
     // Reset input buffer
@@ -220,6 +221,7 @@ void LateralController::onTimer()
 
   m_ctrl_cmd_prev = ctrl_cmd;
   publishCtrlCmd(ctrl_cmd);
+  publishPredictedTraj(predicted_traj);
 }
 
 bool8_t LateralController::checkData()
@@ -348,6 +350,13 @@ void LateralController::publishCtrlCmd(autoware_auto_msgs::msg::AckermannLateral
   ctrl_cmd.stamp = this->now();
   m_pub_ctrl_cmd->publish(ctrl_cmd);
   m_steer_cmd_prev = ctrl_cmd.steering_tire_angle;
+}
+
+void LateralController::publishPredictedTraj(autoware_auto_msgs::msg::Trajectory & predicted_traj)
+{
+  predicted_traj.header.stamp = this->now();
+  predicted_traj.header.frame_id = m_current_trajectory_ptr->header.frame_id;
+  m_pub_predicted_traj->publish(predicted_traj);
 }
 
 void LateralController::initTimer(float64_t period_s)
