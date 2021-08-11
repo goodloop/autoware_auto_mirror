@@ -59,18 +59,24 @@ diagnostic_msgs::msg::DiagnosticArray convertHazardStatusToDiagnosticArray(
 }
 
 EmergencyHandlerNode::EmergencyHandlerNode(const rclcpp::NodeOptions & node_options)
-: Node("emergency_handler", node_options),
-  update_rate_(declare_parameter<double>("update_rate", 10.0)),
-  data_ready_timeout_(declare_parameter<double>("data_ready_timeout", 30.0)),
-  timeout_driving_capability_(declare_parameter<double>("timeout_driving_capability", 0.5)),
-  emergency_hazard_level_(declare_parameter<int>("emergency_hazard_level", 2)),
-  use_emergency_hold_(declare_parameter<bool>("use_emergency_hold", false))
+: Node("emergency_handler", node_options)
 {
   using std::placeholders::_1;
   using std::placeholders::_2;
   using std::placeholders::_3;
 
-  // Subscriber
+  // Parameters
+  update_rate_ = this->declare_parameter<double>("update_rate", 10.0);
+  data_ready_timeout_ = this->declare_parameter<double>("data_ready_timeout", 30.0);
+  timeout_driving_capability_ =
+    this->declare_parameter<double>("timeout_driving_capability", 0.5);
+  emergency_hazard_level_ = this->declare_parameter<int>("emergency_hazard_level", 2);
+  use_emergency_hold_ = this->declare_parameter<bool>("use_emergency_hold", false);
+  emergency_stop_acceleration_mps2_ =
+    this->declare_parameter("emergency_stop_acceleration_mps2", -2.5);
+  use_parking_after_stopped_ = this->declare_parameter<bool>("use_parking_after_stopped", true);
+
+  // Subscribers
   sub_autoware_state_ = create_subscription<autoware_auto_msgs::msg::AutowareState>(
     "input/autoware_state", rclcpp::QoS{1},
     std::bind(&EmergencyHandlerNode::onAutowareState, this, _1));
@@ -86,17 +92,7 @@ EmergencyHandlerNode::EmergencyHandlerNode(const rclcpp::NodeOptions & node_opti
   sub_odometry_ = create_subscription<autoware_auto_msgs::msg::VehicleOdometry>(
     "input/odometry", rclcpp::QoS{1}, std::bind(&EmergencyHandlerNode::onOdometry, this, _1));
 
-  // Heartbeat
-  heartbeat_driving_capability_ =
-    std::make_shared<HeaderlessHeartbeatChecker<autoware_auto_msgs::msg::DrivingCapability>>(
-    *this, "input/driving_capability", timeout_driving_capability_);
-
-  // Service
-  srv_clear_emergency_ = this->create_service<std_srvs::srv::Trigger>(
-    "service/clear_emergency",
-    std::bind(&EmergencyHandlerNode::onClearEmergencyService, this, _1, _2, _3));
-
-  // Publisher
+  // Publishers
   pub_control_command_ = create_publisher<autoware_auto_msgs::msg::VehicleControlCommand>(
     "output/control_command", rclcpp::QoS{1});
   pub_state_command_ = create_publisher<autoware_auto_msgs::msg::VehicleStateCommand>(
@@ -107,6 +103,16 @@ EmergencyHandlerNode::EmergencyHandlerNode(const rclcpp::NodeOptions & node_opti
     "output/hazard_status", rclcpp::QoS{1});
   pub_diagnostics_err_ = create_publisher<diagnostic_msgs::msg::DiagnosticArray>(
     "output/diagnostics_err", rclcpp::QoS{1});
+
+  // Heartbeat
+  heartbeat_driving_capability_ =
+    std::make_shared<HeartbeatChecker<autoware_auto_msgs::msg::DrivingCapability>>(
+    *this, "input/driving_capability", timeout_driving_capability_);
+
+  // Service
+  srv_clear_emergency_ = this->create_service<std_srvs::srv::Trigger>(
+    "service/clear_emergency",
+    std::bind(&EmergencyHandlerNode::onClearEmergencyService, this, _1, _2, _3));
 
   // Initialize
   odometry_ = autoware_auto_msgs::msg::VehicleOdometry::ConstSharedPtr(
@@ -203,15 +209,13 @@ void EmergencyHandlerNode::publishControlAndStateCommands()
 {
   const auto stamp = this->now();
 
-  constexpr double emergency_stop_long_acceleration_mps2 = -2.5;
-
   // Publish ControlCommand
   {
     autoware_auto_msgs::msg::VehicleControlCommand msg;
     msg.stamp = stamp;
     msg.front_wheel_angle_rad = prev_control_command_->front_wheel_angle_rad;
     msg.velocity_mps = 0.0;
-    msg.long_accel_mps2 = emergency_stop_long_acceleration_mps2;
+    msg.long_accel_mps2 = static_cast<float>(emergency_stop_acceleration_mps2_);
 
     pub_control_command_->publish(msg);
   }
@@ -224,7 +228,6 @@ void EmergencyHandlerNode::publishControlAndStateCommands()
     msg.headlight = autoware_auto_msgs::msg::VehicleStateCommand::HEADLIGHT_NO_COMMAND;
     msg.wiper = autoware_auto_msgs::msg::VehicleStateCommand::WIPER_NO_COMMAND;
 
-    bool use_parking_after_stopped_ = true;
     if (use_parking_after_stopped_ && isStopped()) {
       msg.gear = autoware_auto_msgs::msg::VehicleStateCommand::GEAR_PARK;
     } else {

@@ -111,6 +111,8 @@ private:
   double timeout_driving_capability_;
   int64_t emergency_hazard_level_;
   bool use_emergency_hold_;
+  double emergency_stop_acceleration_mps2_;
+  bool use_parking_after_stopped_;
 
   // Heartbeat
   rclcpp::Time initialized_time_;
