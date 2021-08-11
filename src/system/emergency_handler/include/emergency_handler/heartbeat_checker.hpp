@@ -29,10 +29,10 @@ namespace emergency_handler
 {
 
 template<class HeartbeatMsg>
-class EMERGENCY_HANDLER_PUBLIC HeaderlessHeartbeatChecker
+class EMERGENCY_HANDLER_PUBLIC HeartbeatChecker
 {
 public:
-  HeaderlessHeartbeatChecker(
+  HeartbeatChecker(
     rclcpp::Node & node, const std::string & topic_name, const double timeout)
   : clock_(node.get_clock()),
     timeout_(timeout)
@@ -40,7 +40,7 @@ public:
     using std::placeholders::_1;
     sub_heartbeat_ = node.create_subscription<HeartbeatMsg>(
       topic_name, rclcpp::QoS{1},
-      std::bind(&HeaderlessHeartbeatChecker::onHeartbeat, this, _1));
+      std::bind(&HeartbeatChecker::onHeartbeat, this, _1));
   }
 
   bool isTimeout()

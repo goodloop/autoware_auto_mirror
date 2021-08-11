@@ -32,12 +32,12 @@
 #include "autoware_auto_msgs/msg/driving_capability.hpp"
 #include "autoware_auto_msgs/msg/emergency_mode.hpp"
 #include "autoware_auto_msgs/msg/hazard_status_stamped.hpp"
-// #include "autoware_auto_msgs/msg/timeout_notification.hpp"
 #include "autoware_auto_msgs/msg/vehicle_odometry.hpp"
 #include "autoware_auto_msgs/msg/vehicle_control_command.hpp"
 #include "autoware_auto_msgs/msg/vehicle_state_report.hpp"
 #include "autoware_auto_msgs/msg/vehicle_state_command.hpp"
 
+// Local
 #include "emergency_handler/heartbeat_checker.hpp"
 
 namespace autoware
@@ -51,6 +51,42 @@ public:
   explicit EmergencyHandlerNode(const rclcpp::NodeOptions & node_options);
 
 private:
+  void onAutowareState(const autoware_auto_msgs::msg::AutowareState::ConstSharedPtr msg);
+  void onDrivingCapability(const autoware_auto_msgs::msg::DrivingCapability::ConstSharedPtr msg);
+  void onPrevControlCommand(
+    const autoware_auto_msgs::msg::VehicleControlCommand::ConstSharedPtr msg);
+  void onStateReport(const autoware_auto_msgs::msg::VehicleStateReport::ConstSharedPtr msg);
+  void onOdometry(const autoware_auto_msgs::msg::VehicleOdometry::ConstSharedPtr msg);
+
+  void publishHazardStatus(const autoware_auto_msgs::msg::HazardStatus & hazard_status);
+  void publishControlAndStateCommands();
+
+  bool onClearEmergencyService(
+    const std::shared_ptr<rmw_request_id_t> request_header,
+    const std::shared_ptr<std_srvs::srv::Trigger::Request> request,
+    std::shared_ptr<std_srvs::srv::Trigger::Response> response);
+
+  bool isDataReady();
+  void onTimer();
+
+  bool isStopped();
+  bool isEmergency(const autoware_auto_msgs::msg::HazardStatus & hazard_status);
+  autoware_auto_msgs::msg::HazardStatus judgeHazardStatus();
+
+  diagnostic_msgs::msg::DiagnosticStatus createDiagnosticStatus(
+    const int level, const std::string & name, const std::string & message = "");
+
+  // Service
+  rclcpp::Service<std_srvs::srv::Trigger>::SharedPtr srv_clear_emergency_;
+
+  // Publishers
+  rclcpp::Publisher<autoware_auto_msgs::msg::VehicleControlCommand>::SharedPtr
+    pub_control_command_;
+  rclcpp::Publisher<autoware_auto_msgs::msg::VehicleStateCommand>::SharedPtr pub_state_command_;
+  rclcpp::Publisher<autoware_auto_msgs::msg::EmergencyMode>::SharedPtr pub_is_emergency_;
+  rclcpp::Publisher<autoware_auto_msgs::msg::HazardStatusStamped>::SharedPtr pub_hazard_status_;
+  rclcpp::Publisher<diagnostic_msgs::msg::DiagnosticArray>::SharedPtr pub_diagnostics_err_;
+
   // Subscribers
   rclcpp::Subscription<autoware_auto_msgs::msg::AutowareState>::SharedPtr sub_autoware_state_;
   rclcpp::Subscription<autoware_auto_msgs::msg::DrivingCapability>::SharedPtr
@@ -66,32 +102,6 @@ private:
   autoware_auto_msgs::msg::VehicleStateReport::ConstSharedPtr state_report_;
   autoware_auto_msgs::msg::VehicleOdometry::ConstSharedPtr odometry_;
 
-  void onAutowareState(const autoware_auto_msgs::msg::AutowareState::ConstSharedPtr msg);
-  void onDrivingCapability(const autoware_auto_msgs::msg::DrivingCapability::ConstSharedPtr msg);
-  void onPrevControlCommand(
-    const autoware_auto_msgs::msg::VehicleControlCommand::ConstSharedPtr msg);
-  void onStateReport(const autoware_auto_msgs::msg::VehicleStateReport::ConstSharedPtr msg);
-  void onOdometry(const autoware_auto_msgs::msg::VehicleOdometry::ConstSharedPtr msg);
-
-  // Service
-  rclcpp::Service<std_srvs::srv::Trigger>::SharedPtr srv_clear_emergency_;
-
-  bool onClearEmergencyService(
-    const std::shared_ptr<rmw_request_id_t> request_header,
-    const std::shared_ptr<std_srvs::srv::Trigger::Request> request,
-    std::shared_ptr<std_srvs::srv::Trigger::Response> response);
-
-  // Publisher
-  rclcpp::Publisher<autoware_auto_msgs::msg::VehicleControlCommand>::SharedPtr
-    pub_control_command_;
-  rclcpp::Publisher<autoware_auto_msgs::msg::VehicleStateCommand>::SharedPtr pub_state_command_;
-  rclcpp::Publisher<autoware_auto_msgs::msg::EmergencyMode>::SharedPtr pub_is_emergency_;
-  rclcpp::Publisher<autoware_auto_msgs::msg::HazardStatusStamped>::SharedPtr pub_hazard_status_;
-  rclcpp::Publisher<diagnostic_msgs::msg::DiagnosticArray>::SharedPtr pub_diagnostics_err_;
-
-  void publishHazardStatus(const autoware_auto_msgs::msg::HazardStatus & hazard_status);
-  void publishControlAndStateCommands();
-
   // Timer
   rclcpp::TimerBase::SharedPtr timer_;
 
@@ -102,21 +112,14 @@ private:
   int64_t emergency_hazard_level_;
   bool use_emergency_hold_;
 
-  bool isDataReady();
-  void onTimer();
-
   // Heartbeat
   rclcpp::Time initialized_time_;
-  std::shared_ptr<HeaderlessHeartbeatChecker<autoware_auto_msgs::msg::DrivingCapability>>
+  std::shared_ptr<HeartbeatChecker<autoware_auto_msgs::msg::DrivingCapability>>
   heartbeat_driving_capability_;
 
   // Algorithm
   bool is_emergency_ = false;
   autoware_auto_msgs::msg::HazardStatus hazard_status_;
-
-  bool isStopped();
-  bool isEmergency(const autoware_auto_msgs::msg::HazardStatus & hazard_status);
-  autoware_auto_msgs::msg::HazardStatus judgeHazardStatus();
 };
 
 }  // namespace emergency_handler

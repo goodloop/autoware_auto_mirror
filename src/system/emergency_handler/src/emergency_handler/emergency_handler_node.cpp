@@ -28,19 +28,6 @@ namespace emergency_handler
 
 using namespace std::chrono_literals;
 
-diagnostic_msgs::msg::DiagnosticStatus createDiagnosticStatus(
-  const int level, const std::string & name, const std::string & message)
-{
-  diagnostic_msgs::msg::DiagnosticStatus diag;
-
-  diag.level = static_cast<unsigned char>(level);
-  diag.name = name;
-  diag.message = message;
-  diag.hardware_id = "emergency_handler";
-
-  return diag;
-}
-
 diagnostic_msgs::msg::DiagnosticArray convertHazardStatusToDiagnosticArray(
   rclcpp::Clock::SharedPtr clock, const autoware_auto_msgs::msg::HazardStatus & hazard_status)
 {
@@ -50,12 +37,10 @@ diagnostic_msgs::msg::DiagnosticArray convertHazardStatusToDiagnosticArray(
   diag_array.header.stamp = clock->now();
 
   const auto decorateDiag = [](const auto & hazard_diag, const std::string & label) {
-    auto diag = hazard_diag;
-
-    diag.message = label + diag.message;
-
-    return diag;
-  };
+      auto diag = hazard_diag;
+      diag.message = label + diag.message;
+      return diag;
+    };
 
   for (const auto & hazard_diag : hazard_status.diag_no_fault) {
     diag_array.status.push_back(decorateDiag(hazard_diag, "[No Fault]"));
@@ -218,13 +203,15 @@ void EmergencyHandlerNode::publishControlAndStateCommands()
 {
   const auto stamp = this->now();
 
+  constexpr double emergency_stop_long_acceleration_mps2 = -2.5;
+
   // Publish ControlCommand
   {
     autoware_auto_msgs::msg::VehicleControlCommand msg;
     msg.stamp = stamp;
     msg.front_wheel_angle_rad = prev_control_command_->front_wheel_angle_rad;
     msg.velocity_mps = 0.0;
-    msg.long_accel_mps2 = -2.5;
+    msg.long_accel_mps2 = emergency_stop_long_acceleration_mps2;
 
     pub_control_command_->publish(msg);
   }
@@ -234,7 +221,15 @@ void EmergencyHandlerNode::publishControlAndStateCommands()
     autoware_auto_msgs::msg::VehicleStateCommand msg;
     msg.stamp = stamp;
     msg.blinker = autoware_auto_msgs::msg::VehicleStateCommand::BLINKER_HAZARD;
-    msg.gear = autoware_auto_msgs::msg::VehicleStateCommand::GEAR_PARK;
+    msg.headlight = autoware_auto_msgs::msg::VehicleStateCommand::HEADLIGHT_NO_COMMAND;
+    msg.wiper = autoware_auto_msgs::msg::VehicleStateCommand::WIPER_NO_COMMAND;
+
+    bool use_parking_after_stopped_ = true;
+    if (use_parking_after_stopped_ && isStopped()) {
+      msg.gear = autoware_auto_msgs::msg::VehicleStateCommand::GEAR_PARK;
+    } else {
+      msg.gear = autoware_auto_msgs::msg::VehicleStateCommand::GEAR_NO_COMMAND;
+    }
 
     pub_state_command_->publish(msg);
   }
@@ -243,23 +238,14 @@ void EmergencyHandlerNode::publishControlAndStateCommands()
 bool EmergencyHandlerNode::isDataReady()
 {
   if (!autoware_state_) {
-    // RCLCPP_INFO_THROTTLE(
-    //   this->get_logger(), *this->get_clock(), 5000L,
-    //   "waiting for autoware_state msg...");
     return false;
   }
 
   if (!driving_capability_) {
-    // RCLCPP_INFO_THROTTLE(
-    //   this->get_logger(), *this->get_clock(), 5000L,
-    //   "waiting for driving_capability msg...");
     return false;
   }
 
   if (!state_report_) {
-    // RCLCPP_INFO_THROTTLE(
-    //   this->get_logger(), *this->get_clock(), 5000L,
-    //   "waiting for state_report msg...");
     return false;
   }
 
@@ -268,42 +254,37 @@ bool EmergencyHandlerNode::isDataReady()
 
 void EmergencyHandlerNode::onTimer()
 {
+  using diagnostic_msgs::msg::DiagnosticStatus;
+
   // Wait for data ready
   if (!isDataReady()) {
     if ((this->now() - initialized_time_).seconds() > data_ready_timeout_) {
-      // RCLCPP_WARN_THROTTLE(
-      //   this->get_logger(), *this->get_clock(),
-      //   static_cast<int64_t>(1000), "input data is timeout");
-
       autoware_auto_msgs::msg::HazardStatus hazard_status;
       hazard_status.level = autoware_auto_msgs::msg::HazardStatus::SINGLE_POINT_FAULT;
 
-      diagnostic_msgs::msg::DiagnosticStatus diag;
-      diag.name = "input_data_timeout";
-      diag.hardware_id = "emergency_handler";
-      diag.level = diagnostic_msgs::msg::DiagnosticStatus::ERROR;
+      const auto diag = createDiagnosticStatus(
+        DiagnosticStatus::ERROR, "input_data_timeout");
       hazard_status.diag_single_point_fault.push_back(diag);
-
-      publishHazardStatus(hazard_status);
+      hazard_status_ = hazard_status;
     }
-  }
-  else {
+  } else {
     // Check if emergency
     if (use_emergency_hold_) {
       if (!is_emergency_) {
         // Update only when it is not emergency
         hazard_status_ = judgeHazardStatus();
-        is_emergency_ = isEmergency(hazard_status_);
       }
     } else {
       // Update always
       hazard_status_ = judgeHazardStatus();
-      is_emergency_ = isEmergency(hazard_status_);
     }
-    publishHazardStatus(hazard_status_);
   }
 
-  publishControlAndStateCommands();
+  publishHazardStatus(hazard_status_);
+  is_emergency_ = isEmergency(hazard_status_);
+  if (is_emergency_) {
+    publishControlAndStateCommands();
+  }
 }
 
 bool EmergencyHandlerNode::isStopped()
@@ -312,7 +293,6 @@ bool EmergencyHandlerNode::isStopped()
   if (static_cast<double>(odometry_->velocity_mps) < th_stopped_velocity) {
     return true;
   }
-
   return false;
 }
 
@@ -324,7 +304,15 @@ bool EmergencyHandlerNode::isEmergency(
 
 autoware_auto_msgs::msg::HazardStatus EmergencyHandlerNode::judgeHazardStatus()
 {
+  using autoware_auto_msgs::msg::AutowareState;
+  using autoware_auto_msgs::msg::HazardStatus;
   using autoware_auto_msgs::msg::VehicleStateReport;
+
+  if (!state_report_ || !autoware_state_) {
+    throw std::runtime_error(std::string(__func__) + ": No state report or autoware state.");
+  }
+
+
   const auto vehicle_mode = state_report_->mode;
 
   // Get hazard status
@@ -334,9 +322,6 @@ autoware_auto_msgs::msg::HazardStatus EmergencyHandlerNode::judgeHazardStatus()
 
   // Ignore initializing and finalizing state
   {
-    using autoware_auto_msgs::msg::AutowareState;
-    using autoware_auto_msgs::msg::HazardStatus;
-
     const auto is_in_auto_ignore_state =
       (autoware_state_->state == AutowareState::INITIALIZING_VEHICLE) ||
       (autoware_state_->state == AutowareState::WAITING_FOR_ROUTE) ||
@@ -358,17 +343,12 @@ autoware_auto_msgs::msg::HazardStatus EmergencyHandlerNode::judgeHazardStatus()
 
   // Check timeout
   {
-    using autoware_auto_msgs::msg::AutowareState;
-    using autoware_auto_msgs::msg::HazardStatus;
     using diagnostic_msgs::msg::DiagnosticStatus;
 
     const auto is_in_heartbeat_timeout_ignore_state =
       (autoware_state_->state == AutowareState::INITIALIZING_VEHICLE);
 
     if (!is_in_heartbeat_timeout_ignore_state && heartbeat_driving_capability_->isTimeout()) {
-      // RCLCPP_WARN_THROTTLE(
-      //   this->get_logger(), *this->get_clock(), t,
-      //   "heartbeat_driving_capability is timeout");
       hazard_status.level = HazardStatus::SINGLE_POINT_FAULT;
       hazard_status.diag_single_point_fault.push_back(
         createDiagnosticStatus(
@@ -378,6 +358,19 @@ autoware_auto_msgs::msg::HazardStatus EmergencyHandlerNode::judgeHazardStatus()
   }
 
   return hazard_status;
+}
+
+diagnostic_msgs::msg::DiagnosticStatus EmergencyHandlerNode::createDiagnosticStatus(
+  const int level, const std::string & name, const std::string & message)
+{
+  diagnostic_msgs::msg::DiagnosticStatus diag;
+
+  diag.level = static_cast<unsigned char>(level);
+  diag.name = name;
+  diag.message = message;
+  diag.hardware_id = "emergency_handler";
+
+  return diag;
 }
 
 }  // namespace emergency_handler

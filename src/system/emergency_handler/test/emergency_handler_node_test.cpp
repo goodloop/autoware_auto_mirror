@@ -233,6 +233,9 @@ TEST_F(EmergencyHandlerNodeTest, autonomous_mode_emergency_state_in_driving_capa
     createDiagnosticStatus(DiagnosticStatus::ERROR, "test_hw", "test_name"));
   pub_driving_capability->publish(driving_capability);
 
+  pub_odometry->publish(*prepareVehicleOdometryMsg(0.0));
+  pub_vehicle_control_command->publish(VehicleControlCommand{});
+
   {
     auto msg = hazard_status_spy->expectMsg();
     EXPECT_EQ(msg.status.level, autoware_auto_msgs::msg::HazardStatus::SINGLE_POINT_FAULT);
@@ -332,6 +335,27 @@ TEST_F(EmergencyHandlerNodeTest, clear_emergency_service)
   auto result = result_future.get();
   EXPECT_EQ(result->success, true);
   EXPECT_EQ(result->message, "Emergency state was cleared.");
+}
+
+TEST_F(EmergencyHandlerNodeTest, clear_emergency_service_no_input_data)
+{
+  // Create a client to call the shutdown service
+  rclcpp::Client<std_srvs::srv::Trigger>::SharedPtr client =
+    test_node->create_client<std_srvs::srv::Trigger>("service/clear_emergency");
+
+  // Wait till the service interface is ready
+  while (!client->wait_for_service(1s)) {
+    EXPECT_EQ(rclcpp::ok(), true);
+    RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "service not available, waiting again...");
+  }
+
+  executor->spin_some(100ms);
+
+  // Create a request message and sent it to the service interface
+  auto request = std::make_shared<std_srvs::srv::Trigger::Request>();
+  auto result_future = client->async_send_request(request);
+
+  EXPECT_ANY_THROW(executor->spin_some(100ms));
 }
 
 TEST_F(EmergencyHandlerNodeTest, input_data_timeout_no_input_data)
