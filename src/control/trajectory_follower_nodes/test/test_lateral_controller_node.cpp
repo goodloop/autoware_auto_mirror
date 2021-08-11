@@ -18,17 +18,17 @@
 #include <memory>
 #include <vector>
 
+#include "ament_index_cpp/get_package_share_directory.hpp"
 #include "autoware_auto_msgs/msg/trajectory.hpp"
 #include "autoware_auto_msgs/msg/ackermann_lateral_command.hpp"
 #include "autoware_auto_msgs/msg/vehicle_kinematic_state.hpp"
 #include "geometry_msgs/msg/pose.hpp"
 #include "geometry_msgs/msg/pose_stamped.hpp"
 #include "geometry_msgs/msg/transform_stamped.hpp"
+#include "gtest/gtest.h"
 #include "fake_test_node/fake_test_node.hpp"
-
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp/time.hpp"
-#include "gtest/gtest.h"
 #include "trajectory_follower_test_utils.hpp"
 
 
@@ -42,14 +42,22 @@ using FakeNodeFixture = autoware::tools::testing::FakeTestNode;
 
 const rclcpp::Duration one_second(1, 0);
 
+std::shared_ptr<LateralController> makeNode()
+{
+  const auto share_dir = ament_index_cpp::get_package_share_directory("trajectory_follower_nodes");
+  rclcpp::NodeOptions node_options;
+  node_options.arguments(
+    {"--ros-args", "--params-file", share_dir + "/param/lateral_controller_defaults.yaml"});
+  return std::make_shared<LateralController>(node_options);
+}
+
 TEST_F(FakeNodeFixture, no_input)
 {
   // Data to test
   LateralCommand::SharedPtr cmd_msg;
   bool received_lateral_command = false;
   // Node
-  rclcpp::NodeOptions node_options;
-  std::shared_ptr<LateralController> node = std::make_shared<LateralController>(node_options);
+  std::shared_ptr<LateralController> node = makeNode();
   // Publisher/Subscribers
   rclcpp::Publisher<Trajectory>::SharedPtr traj_pub =
     this->create_publisher<Trajectory>(
@@ -84,8 +92,7 @@ TEST_F(FakeNodeFixture, empty_trajectory)
   LateralCommand::SharedPtr cmd_msg;
   bool received_lateral_command = false;
   // Node
-  rclcpp::NodeOptions node_options;
-  std::shared_ptr<LateralController> node = std::make_shared<LateralController>(node_options);
+  std::shared_ptr<LateralController> node = makeNode();
   // Publisher/Subscribers
   rclcpp::Publisher<Trajectory>::SharedPtr traj_pub =
     this->create_publisher<Trajectory>(
@@ -134,8 +141,7 @@ TEST_F(FakeNodeFixture, straight_trajectory)
   LateralCommand::SharedPtr cmd_msg;
   bool received_lateral_command = false;
   // Node
-  rclcpp::NodeOptions node_options;
-  std::shared_ptr<LateralController> node = std::make_shared<LateralController>(node_options);
+  std::shared_ptr<LateralController> node = makeNode();
   // Publisher/Subscribers
   rclcpp::Publisher<Trajectory>::SharedPtr traj_pub =
     this->create_publisher<Trajectory>(
@@ -202,8 +208,7 @@ TEST_F(FakeNodeFixture, right_turn)
   LateralCommand::SharedPtr cmd_msg;
   bool received_lateral_command = false;
   // Node
-  rclcpp::NodeOptions node_options;
-  std::shared_ptr<LateralController> node = std::make_shared<LateralController>(node_options);
+  std::shared_ptr<LateralController> node = makeNode();
   // Publisher/Subscribers
   rclcpp::Publisher<Trajectory>::SharedPtr traj_pub =
     this->create_publisher<Trajectory>(
@@ -270,8 +275,7 @@ TEST_F(FakeNodeFixture, left_turn)
   LateralCommand::SharedPtr cmd_msg;
   bool received_lateral_command = false;
   // Node
-  rclcpp::NodeOptions node_options;
-  std::shared_ptr<LateralController> node = std::make_shared<LateralController>(node_options);
+  std::shared_ptr<LateralController> node = makeNode();
   // Publisher/Subscribers
   rclcpp::Publisher<Trajectory>::SharedPtr traj_pub =
     this->create_publisher<Trajectory>(
