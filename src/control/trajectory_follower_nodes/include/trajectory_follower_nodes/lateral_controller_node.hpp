@@ -33,6 +33,7 @@
 #include "trajectory_follower/vehicle_model/vehicle_model_bicycle_kinematics_no_delay.hpp"
 
 #include "autoware_auto_msgs/msg/ackermann_lateral_command.hpp"
+#include "autoware_auto_msgs/msg/control_diagnostic.hpp"
 #include "autoware_auto_msgs/msg/trajectory.hpp"
 #include "autoware_auto_msgs/msg/vehicle_kinematic_state.hpp"
 #include "common/types.hpp"
@@ -73,17 +74,15 @@ public:
 
 private:
   //!< @brief topic publisher for control command
-  rclcpp::Publisher<autoware_auto_msgs::msg::AckermannLateralCommand>::SharedPtr
-    m_pub_ctrl_cmd;
+  rclcpp::Publisher<autoware_auto_msgs::msg::AckermannLateralCommand>::SharedPtr m_pub_ctrl_cmd;
   //!< @brief topic publisher for predicted trajectory
-  rclcpp::Publisher<autoware_auto_msgs::msg::Trajectory>::SharedPtr
-    m_pub_predicted_traj;
+  rclcpp::Publisher<autoware_auto_msgs::msg::Trajectory>::SharedPtr m_pub_predicted_traj;
+  //!< @brief topic publisher for control diagnostic
+  rclcpp::Publisher<autoware_auto_msgs::msg::ControlDiagnostic>::SharedPtr m_pub_diagnostic;
   //!< @brief topic subscription for reference waypoints
-  rclcpp::Subscription<autoware_auto_msgs::msg::Trajectory>::SharedPtr
-    m_sub_ref_path;
+  rclcpp::Subscription<autoware_auto_msgs::msg::Trajectory>::SharedPtr m_sub_ref_path;
   //!< @brief subscription for current state
-  rclcpp::Subscription<autoware_auto_msgs::msg::VehicleKinematicState>::SharedPtr
-    m_sub_steering;
+  rclcpp::Subscription<autoware_auto_msgs::msg::VehicleKinematicState>::SharedPtr m_sub_steering;
   //!< @brief timer to update after a given interval
   rclcpp::TimerBase::SharedPtr m_timer;
 
@@ -147,7 +146,7 @@ private:
   /**
    * @brief check if the received data is valid.
    */
-  bool8_t checkData();
+  bool8_t checkData() const;
 
   /**
    * @brief set current_state with received message
@@ -164,7 +163,13 @@ private:
    * @brief publish predicted future trajectory
    * @param [in] predicted_traj published predicted trajectory
    */
-  void publishPredictedTraj(autoware_auto_msgs::msg::Trajectory & predicted_traj);
+  void publishPredictedTraj(autoware_auto_msgs::msg::Trajectory & predicted_traj) const;
+
+  /**
+   * @brief publish diagnostic message
+   * @param [in] diagnostic published diagnostic
+   */
+  void publishDiagnostic(autoware_auto_msgs::msg::ControlDiagnostic & diagnostic) const;
 
   /**
    * @brief get stop command

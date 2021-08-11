@@ -40,7 +40,8 @@ bool8_t MPC::calculateMPC(
   const float64_t current_velocity,
   const geometry_msgs::msg::Pose & current_pose,
   autoware_auto_msgs::msg::AckermannLateralCommand & ctrl_cmd,
-  autoware_auto_msgs::msg::Trajectory & predicted_traj)
+  autoware_auto_msgs::msg::Trajectory & predicted_traj,
+  autoware_auto_msgs::msg::ControlDiagnostic & diagnostic)
 {
   /* recalculate velocity from ego-velocity with dynamics */
   trajectory_follower::MPCTrajectory reference_trajectory =
@@ -122,6 +123,11 @@ bool8_t MPC::calculateMPC(
     mpc_predicted_traj.push_back(x, y, z, yaw, vx, k, smooth_k, relative_time);
   }
   trajectory_follower::MPCUtils::convertToAutowareTrajectory(mpc_predicted_traj, predicted_traj);
+
+  /* prepare diagnostic message */
+  diagnostic.lateral_error_m =
+    static_cast<decltype(diagnostic.lateral_error_m)>(mpc_data.lateral_err);
+  diagnostic.yaw_error_rad = static_cast<decltype(diagnostic.yaw_error_rad)>(mpc_data.yaw_err);
 
   return true;
 }
