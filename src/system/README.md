@@ -10,3 +10,4 @@ a system monitoring and maintenance.
 
 - Monitoring System
   - @subpage autoware_state_monitor
+  - @subpage emergency_handler
