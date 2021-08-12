@@ -366,6 +366,7 @@ public:
    * @param [in] current_pose current pose of the vehicle
    * @param [out] ctrl_cmd control command calculated with mpc algorithm
    * @param [out] predicted_traj predicted MPC trajectory
+   * @param [out] diagnostic diagnostic msg to be filled-out
    */
   bool8_t calculateMPC(
     const autoware_auto_msgs::msg::VehicleKinematicState & current_steer,
