@@ -28,7 +28,7 @@ namespace test_utils
 {
 using FakeNodeFixture = autoware::tools::testing::FakeTestNode;
 
-void waitForMessage(
+inline void waitForMessage(
   const std::shared_ptr<rclcpp::Node> & node, FakeNodeFixture * fixture,
   const bool & received_flag,
   const std::chrono::duration<int64_t> max_wait_time = std::chrono::seconds{10LL},
@@ -53,7 +53,7 @@ void waitForMessage(
   }
 }
 
-geometry_msgs::msg::TransformStamped getDummyTransform()
+inline geometry_msgs::msg::TransformStamped getDummyTransform()
 {
   geometry_msgs::msg::TransformStamped transform_stamped;
   transform_stamped.transform.translation.x = 0.0;
