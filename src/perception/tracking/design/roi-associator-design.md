@@ -27,7 +27,7 @@ See [Projection](@ref projection) document for more details on how the projectio
 
 * Tracks that are not on the image plane are not associated
 * Tracks that do not have matching ROI counterparts are not associated
-* ROIs that do not have matching ROI counterparts are not associated
+* ROIs that do not have matching track counterparts are not associated
 * To consider a ROI and a track to be a match, the computed IOU between them must be greater 
 than a threshold.
 

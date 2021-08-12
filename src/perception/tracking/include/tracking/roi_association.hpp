@@ -14,11 +14,11 @@
 #ifndef TRACKING__ROI_ASSOCIATION_HPP_
 #define TRACKING__ROI_ASSOCIATION_HPP_
 
-#include <tracking/visibility_control.hpp>
+#include <autoware_auto_msgs/msg/classified_roi_array.hpp>
 #include <geometry/intersection.hpp>
 #include <tracking/data_association.hpp>
 #include <tracking/projection.hpp>
-#include <autoware_auto_msgs/msg/classified_roi_array.hpp>
+#include <tracking/visibility_control.hpp>
 #include <unordered_set>
 
 namespace autoware
