@@ -242,7 +242,7 @@ bool8_t LateralController::checkData() const
 
   if (!m_current_pose_ptr || !m_current_state_ptr) {
     RCLCPP_DEBUG(
-      get_logger(), "waiting data. pose = %d, velocity = %d,  steer = %d",
+      get_logger(), "waiting data. pose = %d, current_state = %d",
       m_current_pose_ptr != nullptr, m_current_state_ptr != nullptr);
     return false;
   }
