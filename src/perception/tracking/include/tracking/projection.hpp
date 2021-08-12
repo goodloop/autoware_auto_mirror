@@ -38,7 +38,7 @@ namespace tracking
 {
 struct TRACKING_PUBLIC Projection
 {
-  using Point = Eigen::Vector3f;
+  using Point = geometry_msgs::msg::Point32;
   std::list<Point> shape{};
 };
 
@@ -61,7 +61,8 @@ class TRACKING_PUBLIC CameraModel
 public:
   using float32_t = common::types::float32_t;
   using Interval = common::geometry::Interval<float32_t>;
-  using Point = Eigen::Vector3f;
+  using Point = geometry_msgs::msg::Point32;
+  using EigPoint = Eigen::Vector3f;
 
   /// \brief Cnstructor
   /// \param intrinsics Camera intrinsics
@@ -91,7 +92,7 @@ public:
 private:
   /// \brief Project a 3D point and return the value if the projection is valid (in fron of the
   // camera)
-  std::experimental::optional<Point> project_point(const Point & pt_3d);
+  std::experimental::optional<EigPoint> project_point(const EigPoint & pt_3d);
 
   bool is_projection_valid(const Projection & projection);
 
