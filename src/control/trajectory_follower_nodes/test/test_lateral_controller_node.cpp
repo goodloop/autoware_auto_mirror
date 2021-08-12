@@ -44,11 +44,18 @@ const rclcpp::Duration one_second(1, 0);
 
 std::shared_ptr<LateralController> makeNode()
 {
+  // Pass default parameter file to the node
   const auto share_dir = ament_index_cpp::get_package_share_directory("trajectory_follower_nodes");
   rclcpp::NodeOptions node_options;
   node_options.arguments(
     {"--ros-args", "--params-file", share_dir + "/param/lateral_controller_defaults.yaml"});
-  return std::make_shared<LateralController>(node_options);
+  std::shared_ptr<LateralController> node = std::make_shared<LateralController>(node_options);
+
+  // Enable all logging in the node
+  auto ret = rcutils_logging_set_logger_level(
+    node->get_logger().get_name(), RCUTILS_LOG_SEVERITY_DEBUG);
+  if (ret != RCUTILS_RET_OK) {std::cout << "Failed to set logging severerity to DEBUG\n";}
+  return node;
 }
 
 TEST_F(FakeNodeFixture, no_input)
@@ -73,11 +80,6 @@ TEST_F(FakeNodeFixture, no_input)
     });
   std::shared_ptr<tf2_ros::StaticTransformBroadcaster> br =
     std::make_shared<tf2_ros::StaticTransformBroadcaster>(node);
-
-  // Enable all logging in the node
-  auto ret = rcutils_logging_set_logger_level(
-    node->get_logger().get_name(), RCUTILS_LOG_SEVERITY_DEBUG);
-  if (ret != RCUTILS_RET_OK) {std::cout << "Failed to set logging severerity to DEBUG\n";}
 
   // No published data: expect a stopped command
   test_utils::waitForMessage(node, this, received_lateral_command);
@@ -108,11 +110,6 @@ TEST_F(FakeNodeFixture, empty_trajectory)
     });
   std::shared_ptr<tf2_ros::StaticTransformBroadcaster> br =
     std::make_shared<tf2_ros::StaticTransformBroadcaster>(node);
-
-  // Enable all logging in the node
-  auto ret = rcutils_logging_set_logger_level(
-    node->get_logger().get_name(), RCUTILS_LOG_SEVERITY_DEBUG);
-  if (ret != RCUTILS_RET_OK) {std::cout << "Failed to set logging severerity to DEBUG\n";}
 
   // Dummy transform: ego is at (0.0, 0.0) in map frame
   geometry_msgs::msg::TransformStamped transform = test_utils::getDummyTransform();
@@ -157,11 +154,6 @@ TEST_F(FakeNodeFixture, straight_trajectory)
     });
   std::shared_ptr<tf2_ros::StaticTransformBroadcaster> br =
     std::make_shared<tf2_ros::StaticTransformBroadcaster>(node);
-
-  // Enable all logging in the node
-  auto ret = rcutils_logging_set_logger_level(
-    node->get_logger().get_name(), RCUTILS_LOG_SEVERITY_DEBUG);
-  if (ret != RCUTILS_RET_OK) {std::cout << "Failed to set logging severerity to DEBUG\n";}
 
   // Dummy transform: ego is at (0.0, 0.0) in map frame
   geometry_msgs::msg::TransformStamped transform = test_utils::getDummyTransform();
@@ -225,11 +217,6 @@ TEST_F(FakeNodeFixture, right_turn)
   std::shared_ptr<tf2_ros::StaticTransformBroadcaster> br =
     std::make_shared<tf2_ros::StaticTransformBroadcaster>(node);
 
-  // Enable all logging in the node
-  auto ret = rcutils_logging_set_logger_level(
-    node->get_logger().get_name(), RCUTILS_LOG_SEVERITY_DEBUG);
-  if (ret != RCUTILS_RET_OK) {std::cout << "Failed to set logging severerity to DEBUG\n";}
-
   // Dummy transform: ego is at (0.0, 0.0) in map frame
   geometry_msgs::msg::TransformStamped transform = test_utils::getDummyTransform();
   transform.header.stamp = node->now();
@@ -292,11 +279,6 @@ TEST_F(FakeNodeFixture, left_turn)
   std::shared_ptr<tf2_ros::StaticTransformBroadcaster> br =
     std::make_shared<tf2_ros::StaticTransformBroadcaster>(node);
 
-  // Enable all logging in the node
-  auto ret = rcutils_logging_set_logger_level(
-    node->get_logger().get_name(), RCUTILS_LOG_SEVERITY_DEBUG);
-  if (ret != RCUTILS_RET_OK) {std::cout << "Failed to set logging severerity to DEBUG\n";}
-
   // Dummy transform: ego is at (0.0, 0.0) in map frame
   geometry_msgs::msg::TransformStamped transform = test_utils::getDummyTransform();
   transform.header.stamp = node->now();
@@ -334,4 +316,80 @@ TEST_F(FakeNodeFixture, left_turn)
   EXPECT_GT(cmd_msg->steering_tire_angle, 0.0f);
   EXPECT_GT(cmd_msg->steering_tire_rotation_rate, 0.0f);
   EXPECT_GT(rclcpp::Time(cmd_msg->stamp), rclcpp::Time(traj_msg.header.stamp));
+}
+
+TEST_F(FakeNodeFixture, stopped)
+{
+  // Data to test
+  LateralCommand::SharedPtr cmd_msg;
+  bool received_lateral_command = false;
+  // Node
+  std::shared_ptr<LateralController> node = makeNode();
+  // Publisher/Subscribers
+  rclcpp::Publisher<Trajectory>::SharedPtr traj_pub =
+    this->create_publisher<Trajectory>(
+    "input/reference_trajectory");
+  rclcpp::Publisher<VehicleKinematicState>::SharedPtr state_pub =
+    this->create_publisher<VehicleKinematicState>(
+    "input/current_kinematic_state");
+  rclcpp::Subscription<LateralCommand>::SharedPtr cmd_sub =
+    this->create_subscription<LateralCommand>(
+    "output/lateral/control_cmd", *node,
+    [&cmd_msg, &received_lateral_command](const LateralCommand::SharedPtr msg) {
+      cmd_msg = msg; received_lateral_command = true;
+    });
+  std::shared_ptr<tf2_ros::StaticTransformBroadcaster> br =
+    std::make_shared<tf2_ros::StaticTransformBroadcaster>(node);
+
+  // Dummy transform: ego is at (0.0, 0.0) in map frame
+  geometry_msgs::msg::TransformStamped transform = test_utils::getDummyTransform();
+  transform.header.stamp = node->now();
+  br->sendTransform(transform);
+  // Straight trajectory: expect no steering
+  received_lateral_command = false;
+  Trajectory traj_msg;
+  VehicleKinematicState state_msg;
+  TrajectoryPoint p;
+  traj_msg.header.stamp = node->now();
+  p.x = -1.0f;
+  p.y = 0.0f;
+  // Set a 0 current velocity and 0 target velocity -> stopped state
+  p.longitudinal_velocity_mps = 0.0f;
+  traj_msg.points.push_back(p);
+  traj_msg.points.push_back(p);  // Add the first point twice since it gets removed in the code
+  p.x = 0.0f;
+  p.y = 0.0f;
+  p.longitudinal_velocity_mps = 0.0f;
+  traj_msg.points.push_back(p);
+  p.x = 1.0f;
+  p.y = 0.0f;
+  p.longitudinal_velocity_mps = 0.0f;
+  traj_msg.points.push_back(p);
+  p.x = 2.0f;
+  p.y = 0.0f;
+  p.longitudinal_velocity_mps = 0.0f;
+  traj_msg.points.push_back(p);
+  traj_pub->publish(traj_msg);
+  state_msg.header.stamp = node->now();
+  state_msg.state.longitudinal_velocity_mps = 0.0;
+  state_msg.state.front_wheel_angle_rad = -0.5;  // dummy value
+  state_pub->publish(state_msg);
+
+  test_utils::waitForMessage(node, this, received_lateral_command);
+  ASSERT_TRUE(received_lateral_command);
+  // when stopped we expect a command that do not change the current state
+  EXPECT_EQ(cmd_msg->steering_tire_angle, state_msg.state.front_wheel_angle_rad);
+  EXPECT_EQ(cmd_msg->steering_tire_rotation_rate, 0.0f);
+  EXPECT_GT(rclcpp::Time(cmd_msg->stamp), rclcpp::Time(traj_msg.header.stamp));
+}
+
+
+TEST_F(FakeNodeFixture, set_param_smoke_test)
+{
+  // Node
+  std::shared_ptr<LateralController> node = makeNode();
+
+  // Change some parameter value
+  auto result = node->set_parameter(rclcpp::Parameter("mpc_prediction_horizon", 10));
+  EXPECT_TRUE(result.successful);
 }
