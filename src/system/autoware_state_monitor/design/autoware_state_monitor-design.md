@@ -62,7 +62,7 @@ Outputs
 
 Services
 * `std_srvs/srv/Trigger` (/autoware/shutdown) is used to request shutdown of
-  the system (`Finalizing` state).
+  the system (i.e. to enter the `Finalizing` state).
 
 # Related issues
 

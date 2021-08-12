@@ -1,5 +1,4 @@
-// Copyright 2021 Robotec.ai
-// Copyright 2020 Tier IV, Inc.
+// Copyright 2021 The Autoware Foundation
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// Co-developed by Tier IV, Inc. and Robotec.AI sp. z o.o.
 
 #include "autoware_state_monitor/state_machine.hpp"
 
@@ -29,7 +30,7 @@ double distance2d(
   return std::hypot(p1.x - p2.x, p1.y - p2.y);
 }
 
-StateMachine::StateMachine(const StateParam & state_param)
+StateMachine::StateMachine(const StateMachineParams & state_param)
 : state_param_(state_param)
 {
 }

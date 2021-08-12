@@ -1,4 +1,4 @@
-// Copyright 2021 Robotec.ai
+// Copyright 2021 The Autoware Foundation
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// Co-developed by Tier IV, Inc. and Robotec.AI sp. z o.o.
 
 #include "autoware_state_monitor/state_machine.hpp"
 
@@ -23,7 +25,7 @@
 using autoware::state_monitor::AutowareState;
 using autoware::state_monitor::StateInput;
 using autoware::state_monitor::StateMachine;
-using autoware::state_monitor::StateParam;
+using autoware::state_monitor::StateMachineParams;
 
 using autoware_auto_msgs::msg::Engage;
 using autoware_auto_msgs::msg::HADMapRoute;
@@ -51,7 +53,7 @@ public:
 
 protected:
   StateInput initializeWithStateAndParams(
-    const AutowareState & state, const StateParam & params)
+    const AutowareState & state, const StateMachineParams & params)
   {
     if (state_machine->getCurrentState() != AutowareState::InitializingVehicle) {
       state_machine.reset(new StateMachine(params));
@@ -106,7 +108,7 @@ protected:
   }
 
   std::shared_ptr<StateMachine> state_machine;
-  StateParam default_params;
+  StateMachineParams default_params;
 };
 
 TEST_F(StateMachineTest, create_destroy)
@@ -255,7 +257,7 @@ TEST_F(StateMachineTest, goal_reached_vehicle_stopped_velocity_zero)
 
 TEST_F(StateMachineTest, goal_reached_velocity_non_zero_but_below_threshold)
 {
-  StateParam params;
+  StateMachineParams params;
   params.arrived_distance_threshold = 1.0;
   params.stopped_velocity_threshold_mps = 0.5;
 
@@ -285,7 +287,7 @@ TEST_F(StateMachineTest, goal_reached_zero_distance)
 
 TEST_F(StateMachineTest, goal_reached_non_zero_distance_below_threshold)
 {
-  StateParam params;
+  StateMachineParams params;
   params.arrived_distance_threshold = 1.0;
   params.stopped_velocity_threshold_mps = 0.5;
 
@@ -305,7 +307,7 @@ TEST_F(StateMachineTest, goal_reached_non_zero_distance_below_threshold)
 
 TEST_F(StateMachineTest, goal_unreached_distance_above_threshold)
 {
-  StateParam params;
+  StateMachineParams params;
   params.arrived_distance_threshold = 1.0;
   params.stopped_velocity_threshold_mps = 0.5;
 
@@ -324,7 +326,7 @@ TEST_F(StateMachineTest, goal_unreached_distance_above_threshold)
 
 TEST_F(StateMachineTest, goal_unreached_distance_equal_to_threshold)
 {
-  StateParam params;
+  StateMachineParams params;
   params.arrived_distance_threshold = 1.0;
   params.stopped_velocity_threshold_mps = 0.5;
 

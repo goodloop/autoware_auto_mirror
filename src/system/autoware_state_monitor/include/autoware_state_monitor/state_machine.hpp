@@ -1,5 +1,4 @@
-// Copyright 2021 Robotec.ai
-// Copyright 2020 Tier IV, Inc.
+// Copyright 2021 The Autoware Foundation
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// Co-developed by Tier IV, Inc. and Robotec.AI sp. z o.o.
 
 #ifndef AUTOWARE_STATE_MONITOR__STATE_MACHINE_HPP_
 #define AUTOWARE_STATE_MONITOR__STATE_MACHINE_HPP_
@@ -55,7 +56,7 @@ struct StateInput
 };
 
 /// \brief Parameters used by the state machine
-struct StateParam
+struct StateMachineParams
 {
   /// Distance threshold between a current position and a goal position.
   double arrived_distance_threshold;
@@ -64,11 +65,11 @@ struct StateParam
   /// Velocity threshold for determining if vehicle is stopped.
   double stopped_velocity_threshold_mps;
   /// Delay after initialization and before transition to a next state.
-  double wait_time_after_initializing = 1.0;
+  double wait_time_after_initializing;
   /// Delay after planning and before transition to a next state.
-  double wait_time_after_planning = 3.0;
+  double wait_time_after_planning;
   /// Delay after arrived goal and before transition to a next state.
-  double wait_time_after_arrived_goal = 2.0;
+  double wait_time_after_arrived_goal;
 };
 
 /// \brief State machine for determining a state of the Autoware system.
@@ -77,7 +78,7 @@ class AUTOWARE_STATE_MONITOR_PUBLIC StateMachine
 public:
   /// \brief Construct the state machine.
   /// \param state_param The set of parameters used by state machine.
-  explicit StateMachine(const StateParam & state_param);
+  explicit StateMachine(const StateMachineParams & state_param);
 
   /// \brief Get the current state of the state machine.
   /// \return The current state.
@@ -124,7 +125,7 @@ private:
 
   AutowareState autoware_state_ = AutowareState::InitializingVehicle;
   StateInput state_input_;
-  const StateParam state_param_;
+  const StateMachineParams state_param_;
 
   mutable Times times_;
   mutable Flags flags_;

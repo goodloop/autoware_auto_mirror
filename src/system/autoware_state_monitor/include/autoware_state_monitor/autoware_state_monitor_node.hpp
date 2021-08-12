@@ -1,5 +1,4 @@
-// Copyright 2021 Robotec.ai
-// Copyright 2020 Tier IV, Inc.
+// Copyright 2021 The Autoware Foundation
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// Co-developed by Tier IV, Inc. and Robotec.AI sp. z o.o.
 
 #ifndef AUTOWARE_STATE_MONITOR__AUTOWARE_STATE_MONITOR_NODE_HPP_
 #define AUTOWARE_STATE_MONITOR__AUTOWARE_STATE_MONITOR_NODE_HPP_
@@ -104,7 +105,7 @@ private:
   void publishAutowareState(const AutowareState & state);
   std::shared_ptr<StateMachine> state_machine_;
   StateInput state_input_;
-  StateParam state_param_;
+  StateMachineParams state_param_;
 
   geometry_msgs::msg::PoseStamped::SharedPtr getCurrentPose(
     const tf2_ros::Buffer & tf_buffer) const;

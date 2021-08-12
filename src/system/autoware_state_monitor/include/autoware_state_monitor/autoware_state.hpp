@@ -1,5 +1,4 @@
-// Copyright 2021 Robotec.ai
-// Copyright 2020 Tier IV, Inc.
+// Copyright 2021 The Autoware Foundation
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// Co-developed by Tier IV, Inc. and Robotec.AI sp. z o.o.
 
 #ifndef AUTOWARE_STATE_MONITOR__AUTOWARE_STATE_HPP_
 #define AUTOWARE_STATE_MONITOR__AUTOWARE_STATE_HPP_
@@ -56,7 +57,9 @@ inline std::string toString(const AutowareState & state)
     case AutowareState::Finalizing:
       return "Finalizing";
     default:
-      throw std::runtime_error("invalid state");
+      throw std::runtime_error(
+              "invalid state: " +
+              std::to_string(static_cast<std::underlying_type<AutowareState>::type>(state)));
   }
 }
 
