@@ -22,6 +22,11 @@ The optimization of the control command is formulated as a Quadradic Program (QP
 These functionalities are implemented in the `trajectory_follower` package
 (see @subpage trajectory_follower-mpc-design)
 
+## Assumptions / Known limits
+<!-- Required -->
+The tracking is not accurate if the first point of the reference trajectory is at or in front of the current ego pose.
+  - Issue to add points behind ego: https://gitlab.com/autowarefoundation/autoware.auto/AutowareAuto/-/issues/1273
+
 ## Inputs / Outputs / API
 <!-- Required -->
 <!-- Things to consider:
@@ -56,7 +61,6 @@ AutonomouStuff Lexus RX 450h for under 40 km/h driving.
 | Name                                    | Type   | Description                                                                                     | Default value     |
 | :-------------------------------------- | :----- | :---------------------------------------------------------------------------------------------- | :---------------- |
 | qp_solver_type                          | string | QP solver option. described below in detail.                                                    | unconstraint_fast |
-| qpoases_max_iter                        | int    | maximum iteration number for convex optimization with qpoases.                                  | 500               |
 | vehicle_model_type                      | string | vehicle model option. described below in detail.                                                | kinematics        |
 | prediction_horizon                      | int    | total prediction step for MPC                                                                   | 70                |
 | prediction_sampling_time                | double | prediction period for one step [s]                                                              | 0.1               |
@@ -74,21 +78,35 @@ AutonomouStuff Lexus RX 450h for under 40 km/h driving.
 
 | Name          | Type   | Description                                                                        | Default value |
 | :------------ | :----- | :--------------------------------------------------------------------------------- | :------------ |
-| wheelbase     | double | wheel base length for vehicle model [m]                                            | 2.9           |
+| cg_to_front_m | double | distance from baselink to the front axle[m]                                        | 1.228         |
+| cg_to_rear_m  | double | distance from baselink to the rear axle [m]                                        | 1.5618        |
+| mass_fl       | double | mass applied to front left tire [kg]                                               | 600           |
+| mass_fr       | double | mass applied to front right tire [kg]                                              | 600           |
+| mass_rl       | double | mass applied to rear left tire [kg]                                                | 600           |
+| mass_rr       | double | mass applied to rear right tire [kg]                                               | 600           |
+| cf            | double | front cornering power [N/rad]                                                      | 155494.663    |
+| cr            | double | rear cornering power [N/rad]                                                       | 155494.663    |
 | steering_tau  | double | steering dynamics time constant (1d approximation) for vehicle model [s]           | 0.3           |
 | steer_lim_deg | double | steering angle limit for vehicle model [deg]. This is also used for QP constraint. | 35.0          |
 
-## how to tune MPC parameters
+## How to tune MPC parameters
 
-1. Set appropriate vehicle kinematics parameters `wheelbase`, `steering_gear_ratio`, and `steer_lim_deg`. Also check the `/vehicle_status` topic has appropriate values (speed: vehicle rear-wheels-center velocity [km/h], angle: steering (tire) angle [rad]). These values give a vehicle information to the controller for path following. Errors in these values cause fundamental tracking error. Whether these values are correct can be confirmed by comparing the angular velocity obtained from the model (`/mpc_follower/debug/angvel_from_steer`) and the actual angular velocity (such as `/estimate_twist/angular/z`).
+1. Set appropriate vehicle kinematics parameters for distance to front and rear axle, and `steer_lim_deg`.
+Also check that the input `VehicleKinematicState` has appropriate values (speed: vehicle rear-wheels-center velocity [km/h], angle: steering (tire) angle [rad]).
+These values give a vehicle information to the controller for path following.
+Errors in these values cause fundamental tracking error.
 
-2. Set appropriate vehicle dynamics parameters of `steering_tau`, which is approximated delay from steering angle command to actual steering angle.
+2. Set appropriate vehicle dynamics parameters of `steering_tau`, which is the approximated delay from steering angle command to actual steering angle.
 
-3. Set `weight_steering_input` = 1.0, `weight_lat_error` = 0.1, and other weights to 0. If the vehicle oscillates when driving with low speed, set `weight_lat_error` smaller.
+3. Set `weight_steering_input` = 1.0, `weight_lat_error` = 0.1, and other weights to 0.
+If the vehicle oscillates when driving with low speed, set `weight_lat_error` smaller.
 
-4. Adjust other weights. One of the simple way for tuning is to increase `weight_lat_error` until oscillation occurs. If the vehicle is unstable with very small `weight_lat_error`, increase terminal weight : `weight_terminal_lat_error` and `weight_terminal_heading_error` to improve tracking stability.
-   Larger `prediction_horizon` and smaller `prediction_sampling_time` is effective for tracking performance, but it is a trade-off between computational costs.
-   Other parameters can be adjusted like below.
+4. Adjust other weights.
+One of the simple way for tuning is to increase `weight_lat_error` until oscillation occurs.
+If the vehicle is unstable with very small `weight_lat_error`, increase terminal weight :
+`weight_terminal_lat_error` and `weight_terminal_heading_error` to improve tracking stability.
+Larger `prediction_horizon` and smaller `prediction_sampling_time` is effective for tracking performance, but it is a trade-off between computational costs.
+Other parameters can be adjusted like below.
 
 - `weight_lat_error`: Reduce lateral tracking error. This acts like P gain in PID.
 - `weight_heading_error`: Make a drive straight. This acts like D gain in PID.
@@ -98,7 +116,6 @@ AutonomouStuff Lexus RX 450h for under 40 km/h driving.
 - `weight_lat_jerk`: Reduce lateral jerk.
 - `weight_terminal_lat_error`: Preferable to set a higher value than normal lateral weight `weight_lat_error` for stability.
 - `weight_terminal_heading_error`: Preferable to set a higher value than normal heading weight `weight_heading_error` for stability.
-
 
 # Related issues
 <!-- Required -->
