@@ -23,9 +23,11 @@
 #include "tf2_ros/transform_broadcaster.h"
 #include "geometry_msgs/msg/transform_stamped.hpp"
 
+#include "autoware_state_monitor/state.hpp"
+
 #include "test_utils.hpp"
 
-using autoware::state_monitor::AutowareState;
+using autoware::state_monitor::State;
 using autoware::state_monitor::AutowareStateMonitorNode;
 using namespace std::chrono_literals;
 
@@ -33,6 +35,7 @@ using autoware_auto_msgs::msg::VehicleStateReport;
 using autoware_auto_msgs::msg::VehicleOdometry;
 using autoware_auto_msgs::msg::HADMapRoute;
 using autoware_auto_msgs::msg::Engage;
+using autoware_auto_msgs::msg::AutowareState;
 
 
 class AutowareStateMonitorNodeNoParametersTest : public ::testing::Test
@@ -123,11 +126,11 @@ public:
   void onAutowareState(
     const autoware_auto_msgs::msg::AutowareState::ConstSharedPtr msg)
   {
-    received_state = static_cast<AutowareState>(msg->state);
+    received_state = static_cast<State>(msg->state);
     is_new_state_received = true;
   }
 
-  void expectState(const AutowareState & state)
+  void expectState(const State & state)
   {
     while (!is_new_state_received) {
       executor->spin_some(10ms);
@@ -159,7 +162,7 @@ protected:
   std::shared_ptr<AutowareStateMonitorNode> tested_node;
   rclcpp::Node::SharedPtr test_helper_node;
   std::shared_ptr<rclcpp::executors::SingleThreadedExecutor> executor;
-  AutowareState received_state = AutowareState::InitializingVehicle;
+  uint8_t received_state = AutowareState::INITIALIZING_VEHICLE;
   bool is_new_state_received = false;
 
   rclcpp::Subscription<autoware_auto_msgs::msg::AutowareState>::SharedPtr sub_state;
@@ -174,25 +177,25 @@ TEST_F(AutowareStateMonitorNodeTest, basic_states_sequence)
 {
   // sequence: InitializingVehicle -> WaitingForRoute -> Planning
   //           -> WaitingForEngage -> Driving
-  expectState(AutowareState::InitializingVehicle);
-  expectState(AutowareState::WaitingForRoute);
+  expectState(AutowareState::INITIALIZING_VEHICLE);
+  expectState(AutowareState::WAITING_FOR_ROUTE);
 
   HADMapRoute route;
   route.goal_point.position.x = 1.0;
   route.goal_point.position.y = 1.0;
   pub_route->publish(route);
-  expectState(AutowareState::Planning);
-  expectState(AutowareState::Planning);
+  expectState(AutowareState::PLANNING);
+  expectState(AutowareState::PLANNING);
 
   VehicleStateReport report;
   report.mode = 1;  // Autonomous
   pub_vehicle_state->publish(report);
-  expectState(AutowareState::WaitingForEngage);
+  expectState(AutowareState::WAITING_FOR_ENGAGE);
 
   Engage engage;
   engage.engage = true;
   pub_engage->publish(engage);
-  expectState(AutowareState::Driving);
+  expectState(AutowareState::DRIVING);
 
   // Publish current tf map->base_link as (1.0, 1.0) --> vehicle close to goal
   publishMapToBaseLinkTf();
@@ -202,15 +205,15 @@ TEST_F(AutowareStateMonitorNodeTest, basic_states_sequence)
   odometry.stamp = toTime(0.0);
   odometry.velocity_mps = 1.0;
   pub_odometry->publish(odometry);
-  expectState(AutowareState::Driving);
+  expectState(AutowareState::DRIVING);
 
   // Velocity below the threshold, odometry buffer have 1s length
   odometry.stamp = toTime(2.0);
   odometry.velocity_mps = 0.0;
   pub_odometry->publish(odometry);
-  expectState(AutowareState::ArrivedGoal);
+  expectState(AutowareState::ARRIVED_GOAL);
 
-  expectState(AutowareState::WaitingForRoute);
+  expectState(AutowareState::WAITING_FOR_ROUTE);
 }
 
 TEST_F(AutowareStateMonitorNodeTest, shutdown_service)
@@ -238,5 +241,5 @@ TEST_F(AutowareStateMonitorNodeTest, shutdown_service)
   auto result = result_future.get();
   EXPECT_EQ(result->success, false);
   EXPECT_EQ(result->message, "Shutdown timeout.");
-  EXPECT_EQ(received_state, AutowareState::Finalizing);
+  EXPECT_EQ(received_state, AutowareState::FINALIZING);
 }

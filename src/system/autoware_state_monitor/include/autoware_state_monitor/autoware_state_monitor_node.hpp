@@ -35,7 +35,7 @@
 #include "autoware_auto_msgs/msg/vehicle_state_report.hpp"
 
 // Local
-#include "autoware_state_monitor/autoware_state.hpp"
+#include "autoware_state_monitor/state.hpp"
 #include "autoware_state_monitor/odometry_updater.hpp"
 #include "autoware_state_monitor/state_machine.hpp"
 #include "autoware_state_monitor/visibility_control.hpp"
@@ -101,8 +101,8 @@ private:
   rclcpp::TimerBase::SharedPtr timer_;
 
   // State Machine
-  AutowareState updateState();
-  void publishAutowareState(const AutowareState & state);
+  State updateState();
+  void publishAutowareState(const State & state);
   std::shared_ptr<StateMachine> state_machine_;
   StateInput state_input_;
   StateMachineParams state_param_;

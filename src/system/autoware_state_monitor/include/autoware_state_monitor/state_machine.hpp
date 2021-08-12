@@ -25,7 +25,7 @@
 #include "autoware_auto_msgs/msg/had_map_route.hpp"
 #include "autoware_auto_msgs/msg/vehicle_state_report.hpp"
 
-#include "autoware_state_monitor/autoware_state.hpp"
+#include "autoware_state_monitor/state.hpp"
 #include "autoware_state_monitor/odometry_buffer.hpp"
 #include "autoware_state_monitor/visibility_control.hpp"
 
@@ -82,12 +82,12 @@ public:
 
   /// \brief Get the current state of the state machine.
   /// \return The current state.
-  AutowareState getCurrentState() const;
+  State getCurrentState() const;
 
   /// \brief Update the state machine.
   /// \param state_input Input values used during the determination of the new state.
   /// \return A state after the state machine update.
-  AutowareState updateState(const StateInput & state_input);
+  State updateState(const StateInput & state_input);
 
 private:
   struct Times
@@ -121,9 +121,9 @@ private:
     const OdometryBuffer & odometry_buffer,
     const double stopped_velocity_threshold_mps) const;
 
-  AutowareState judgeAutowareState() const;
+  State judgeAutowareState() const;
 
-  AutowareState autoware_state_ = AutowareState::InitializingVehicle;
+  State autoware_state_ = autoware_auto_msgs::msg::AutowareState::INITIALIZING_VEHICLE;
   StateInput state_input_;
   const StateMachineParams state_param_;
 

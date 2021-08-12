@@ -149,7 +149,7 @@ bool AutowareStateMonitorNode::onShutdownService(
   constexpr double timeout = 3.0;
 
   while (rclcpp::ok()) {
-    if (state_machine_->getCurrentState() == AutowareState::Finalizing) {
+    if (state_machine_->getCurrentState() == autoware_auto_msgs::msg::AutowareState::FINALIZING) {
       response->success = true;
       response->message = "Shutdown Autoware.";
       return true;
@@ -175,7 +175,7 @@ void AutowareStateMonitorNode::onTimer()
   publishAutowareState(state);
 }
 
-AutowareState AutowareStateMonitorNode::updateState()
+State AutowareStateMonitorNode::updateState()
 {
   state_input_.current_pose = getCurrentPose(tf_buffer_);
   state_input_.current_time = this->now();
@@ -193,11 +193,11 @@ AutowareState AutowareStateMonitorNode::updateState()
   return autoware_state;
 }
 
-void AutowareStateMonitorNode::publishAutowareState(const AutowareState & state)
+void AutowareStateMonitorNode::publishAutowareState(const State & state)
 {
   autoware_auto_msgs::msg::AutowareState autoware_state_msg;
   autoware_state_msg.stamp = get_clock()->now();
-  autoware_state_msg.state = static_cast<uint8_t>(state);
+  autoware_state_msg.state = state;
   pub_autoware_state_->publish(autoware_state_msg);
 }
 

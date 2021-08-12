@@ -129,12 +129,12 @@ bool StateMachine::isFinalizing() const
   return state_input_.is_finalizing;
 }
 
-AutowareState StateMachine::getCurrentState() const
+State StateMachine::getCurrentState() const
 {
   return autoware_state_;
 }
 
-AutowareState StateMachine::updateState(const StateInput & state_input)
+State StateMachine::updateState(const StateInput & state_input)
 {
   state_input_ = state_input;
 
@@ -143,14 +143,16 @@ AutowareState StateMachine::updateState(const StateInput & state_input)
   return autoware_state_;
 }
 
-AutowareState StateMachine::judgeAutowareState() const
+State StateMachine::judgeAutowareState() const
 {
+  using autoware_auto_msgs::msg::AutowareState;
+
   if (isFinalizing()) {
-    return AutowareState::Finalizing;
+    return AutowareState::FINALIZING;
   }
 
   switch (autoware_state_) {
-    case AutowareState::InitializingVehicle: {
+    case AutowareState::INITIALIZING_VEHICLE: {
         if (isVehicleInitialized()) {
           if (!flags_.waiting_after_initializing) {
             flags_.waiting_after_initializing = true;
@@ -158,25 +160,25 @@ AutowareState StateMachine::judgeAutowareState() const
             break;
           }
 
-          // Wait after initialize completed
+          // Wait for initialization complete
           const auto time_from_initializing =
             state_input_.current_time - times_.initializing_completed;
           if (time_from_initializing.seconds() >= state_param_.wait_time_after_initializing) {
             flags_.waiting_after_initializing = false;
-            return AutowareState::WaitingForRoute;
+            return AutowareState::WAITING_FOR_ROUTE;
           }
         }
         break;
       }
 
-    case AutowareState::WaitingForRoute: {
+    case AutowareState::WAITING_FOR_ROUTE: {
         if (isRouteReceived()) {
-          return AutowareState::Planning;
+          return AutowareState::PLANNING;
         }
         break;
       }
 
-    case AutowareState::Planning: {
+    case AutowareState::PLANNING: {
         executing_route_ = state_input_.route;
         if (isPlanningCompleted()) {
           if (!flags_.waiting_after_planning) {
@@ -189,55 +191,58 @@ AutowareState StateMachine::judgeAutowareState() const
           const auto time_from_planning = state_input_.current_time - times_.planning_completed;
           if (time_from_planning.seconds() >= state_param_.wait_time_after_planning) {
             flags_.waiting_after_planning = false;
-            return AutowareState::WaitingForEngage;
+            return AutowareState::WAITING_FOR_ENGAGE;
           }
         }
         break;
       }
 
-    case AutowareState::WaitingForEngage: {
+    case AutowareState::WAITING_FOR_ENGAGE: {
         if (isRouteReceived()) {
-          return AutowareState::Planning;
+          return AutowareState::PLANNING;
         }
 
         if (isEngaged() && isAutonomousMode()) {
-          return AutowareState::Driving;
+          return AutowareState::DRIVING;
         }
 
         if (hasArrivedGoal()) {
           times_.arrived_goal = state_input_.current_time;
-          return AutowareState::ArrivedGoal;
+          return AutowareState::ARRIVED_GOAL;
         }
         break;
       }
 
-    case AutowareState::Driving: {
+    case AutowareState::DRIVING: {
         if (isRouteReceived()) {
-          return AutowareState::Planning;
+          return AutowareState::PLANNING;
         }
 
         if (isOverridden()) {
-          return AutowareState::WaitingForEngage;
+          return AutowareState::WAITING_FOR_ENGAGE;
         }
 
         if (hasArrivedGoal()) {
           times_.arrived_goal = state_input_.current_time;
-          return AutowareState::ArrivedGoal;
+          return AutowareState::ARRIVED_GOAL;
         }
         break;
       }
 
-    case AutowareState::ArrivedGoal: {
+    case AutowareState::ARRIVED_GOAL: {
         const auto time_from_arrived_goal = state_input_.current_time - times_.arrived_goal;
         if (time_from_arrived_goal.seconds() >= state_param_.wait_time_after_arrived_goal) {
-          return AutowareState::WaitingForRoute;
+          return AutowareState::WAITING_FOR_ROUTE;
         }
         break;
       }
 
-    case AutowareState::Finalizing: {
+    case AutowareState::FINALIZING: {
         break;
       }
+
+    default:
+      throw std::runtime_error("Invalid state: " + std::to_string(autoware_state_));
   }
 
   // continue previous state when break

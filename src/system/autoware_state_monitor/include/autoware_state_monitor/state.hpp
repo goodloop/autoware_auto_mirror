@@ -14,8 +14,8 @@
 //
 // Co-developed by Tier IV, Inc. and Robotec.AI sp. z o.o.
 
-#ifndef AUTOWARE_STATE_MONITOR__AUTOWARE_STATE_HPP_
-#define AUTOWARE_STATE_MONITOR__AUTOWARE_STATE_HPP_
+#ifndef AUTOWARE_STATE_MONITOR__STATE_HPP_
+#define AUTOWARE_STATE_MONITOR__STATE_HPP_
 
 #include <string>
 
@@ -26,44 +26,35 @@ namespace autoware
 namespace state_monitor
 {
 
-/// \brief Defines all possible states of the Autoware system
-enum class AutowareState : uint8_t
-{
-  InitializingVehicle = 1,
-  WaitingForRoute = 2,
-  Planning = 3,
-  WaitingForEngage = 4,
-  Driving = 5,
-  ArrivedGoal = 6,
-  Finalizing = 7,
-};
+/// \brief Defines states of the Autoware system
+using State = uint8_t;
 
 /// \brief Converts AutowareState to string
-inline std::string toString(const AutowareState & state)
+inline std::string toString(const State state)
 {
+  using autoware_auto_msgs::msg::AutowareState;
+
   switch (state) {
-    case AutowareState::InitializingVehicle:
+    case AutowareState::INITIALIZING_VEHICLE:
       return "InitializingVehicle";
-    case AutowareState::WaitingForRoute:
+    case AutowareState::WAITING_FOR_ROUTE:
       return "WaitingForRoute";
-    case AutowareState::Planning:
+    case AutowareState::PLANNING:
       return "Planning";
-    case AutowareState::WaitingForEngage:
+    case AutowareState::WAITING_FOR_ENGAGE:
       return "WaitingForEngage";
-    case AutowareState::Driving:
+    case AutowareState::DRIVING:
       return "Driving";
-    case AutowareState::ArrivedGoal:
+    case AutowareState::ARRIVED_GOAL:
       return "ArrivedGoal";
-    case AutowareState::Finalizing:
+    case AutowareState::FINALIZING:
       return "Finalizing";
     default:
-      throw std::runtime_error(
-              "invalid state: " +
-              std::to_string(static_cast<std::underlying_type<AutowareState>::type>(state)));
+      throw std::runtime_error("Invalid state: " + std::to_string(state));
   }
 }
 
 }  // namespace state_monitor
 }  // namespace autoware
 
-#endif  // AUTOWARE_STATE_MONITOR__AUTOWARE_STATE_HPP_
+#endif  // AUTOWARE_STATE_MONITOR__STATE_HPP_
