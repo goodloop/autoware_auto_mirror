@@ -130,10 +130,10 @@ TEST(TestRoiAssociation, association_test) {
   for (auto i = 0U; i < tracks.objects.size(); ++i) {
     const auto projection = camera.project(tracks.objects[i].shape.front());
     if (i < num_noncaptured_tracks) {
-      ASSERT_LT(projection.shape.size(), 3U);
+      ASSERT_FALSE(projection);
     } else {
-      ASSERT_GE(projection.shape.size(), 3U);
-      rois.rois.push_back(projection_to_roi(projection));
+      ASSERT_TRUE(projection);
+      rois.rois.push_back(projection_to_roi(projection.value()));
     }
   }
 
@@ -152,9 +152,9 @@ TEST(TestRoiAssociation, association_test) {
 
   // Push the false positive projections to the roi array
   for (const auto & phantom_track : phantom_tracks.objects) {
-    const auto projection = camera.project(phantom_track.shape.front());
-    ASSERT_GE(projection.shape.size(), 3U);
-    rois.rois.push_back(projection_to_roi(projection));
+    const auto maybe_projection = camera.project(phantom_track.shape.front());
+    ASSERT_TRUE(maybe_projection);
+    rois.rois.push_back(projection_to_roi(maybe_projection.value()));
   }
 
   auto result = associator.assign(rois, tracks);

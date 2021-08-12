@@ -69,7 +69,8 @@ CameraModel::project_point(const Point & pt_3d)
   return std::experimental::nullopt;
 }
 
-Projection CameraModel::project(const autoware_auto_msgs::msg::Shape & shape)
+std::experimental::optional<Projection> CameraModel::project(
+  const autoware_auto_msgs::msg::Shape & shape)
 {
   Projection result;
   const auto & points_3d = shape.polygon.points;
@@ -93,8 +94,16 @@ Projection CameraModel::project(const autoware_auto_msgs::msg::Shape & shape)
   points2d.resize(static_cast<uint32_t>(std::distance(points2d.cbegin(), end_of_shape_it)));
 
   result.shape = common::geometry::convex_polygon_intersection2d(m_corners, points2d);
-  return result;
+  return is_projection_valid(result) ?
+         std::experimental::make_optional(result) :
+         std::experimental::nullopt;
 }
+
+bool CameraModel::is_projection_valid(const Projection & projection)
+{
+  return projection.shape.size() >= 3U;
+}
+
 
 }  // namespace tracking
 }  // namespace perception

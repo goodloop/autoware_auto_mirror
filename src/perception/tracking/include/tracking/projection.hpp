@@ -86,12 +86,14 @@ public:
   /// `K * p_3d = p_2d * depth` where K is the projection matrix.
   /// \param shape 3D shape to be projected.
   /// \return List of points on the camera frame that outline the given 3D object.
-  Projection project(const autoware_auto_msgs::msg::Shape & shape);
+  std::experimental::optional<Projection> project(const autoware_auto_msgs::msg::Shape & shape);
 
 private:
   /// \brief Project a 3D point and return the value if the projection is valid (in fron of the
   // camera)
   std::experimental::optional<Point> project_point(const Point & pt_3d);
+
+  bool is_projection_valid(const Projection & projection);
 
   Eigen::Transform<float32_t, 3, Eigen::Affine, Eigen::ColMajor> m_projector;
   Interval m_height_interval;
