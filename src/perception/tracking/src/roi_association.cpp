@@ -56,10 +56,10 @@ AssociatorResult GreedyRoiAssociator::assign(
 
   for (auto track_idx = 0U; track_idx < tracks.objects.size(); ++track_idx) {
     const auto & track = tracks.objects[track_idx];
-    const auto & projection = m_camera.project(track.shape.front());
-    if (projection.shape.size() >= 3U) {
+    const auto & maybe_projection = m_camera.project(track.shape.front());
+    if (maybe_projection) {
       const auto detection_idx =
-        match_detection(projection, unassigned_detection_indices, rois);
+        match_detection(maybe_projection.value(), unassigned_detection_indices, rois);
       if (detection_idx != AssociatorResult::UNASSIGNED) {
         result.track_assignments[track_idx] = detection_idx;
         unassigned_detection_indices.erase(detection_idx);
