@@ -72,7 +72,7 @@ ClassifiedRoi projection_to_roi(const Projection & projection)
 {
   ClassifiedRoi roi;
   for (const auto & pt : projection.shape) {
-    roi.polygon.points.push_back(Point32{}.set__x(pt.x()).set__y(pt.y()));
+    roi.polygon.points.push_back(Point32{}.set__x(pt.x).set__y(pt.y));
   }
   return roi;
 }
