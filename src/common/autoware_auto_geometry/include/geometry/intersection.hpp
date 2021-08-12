@@ -47,10 +47,6 @@ using autoware::common::geometry::minus_2d;
 using autoware::common::geometry::times_2d;
 using autoware::common::geometry::norm_2d;
 using autoware::common::geometry::closest_line_point_2d;
-using autoware::common::geometry::point_adapter::x_;
-using autoware::common::geometry::point_adapter::xr_;
-using autoware::common::geometry::point_adapter::y_;
-using autoware::common::geometry::point_adapter::yr_;
 
 using Point = geometry_msgs::msg::Point32;
 
@@ -89,29 +85,26 @@ std::vector<Line> get_sorted_face_list(const Iter start, const Iter end)
 
 /// \brief Append points of the polygon `internal` that are contained in the polygon `exernal`.
 template<template<typename ...> class Iterable1T, template<typename ...> class Iterable2T,
-  typename Point1T, typename Point2T, typename ResultPointT>
+  typename PointT>
 void append_contained_points(
-  const Iterable1T<Point1T> & external,
-  const Iterable2T<Point2T> & internal,
-  std::list<ResultPointT> & result)
+  const Iterable1T<PointT> & external,
+  const Iterable2T<PointT> & internal,
+  std::list<PointT> & result)
 {
-  for (const auto & pt : internal) {
-    if (common::geometry::is_point_inside_polygon_2d(external.begin(), external.end(), pt)) {
-      ResultPointT result_point;
-      xr_(result_point) = x_(pt);
-      yr_(result_point) = y_(pt);
-      result.push_back(result_point);
-    }
-  }
+  std::copy_if(
+    internal.begin(), internal.end(), std::back_inserter(result),
+    [&external](const auto & pt) {
+      return common::geometry::is_point_inside_polygon_2d(external.begin(), external.end(), pt);
+    });
 }
 
 /// \brief Append the intersecting points between two polygons into the output list.
 template<template<typename ...> class Iterable1T, template<typename ...> class Iterable2T,
-  typename Point1T, typename Point2T, typename ResultPointT>
+  typename PointT>
 void append_intersection_points(
-  const Iterable1T<Point1T> & polygon1,
-  const Iterable2T<Point2T> & polygon2,
-  std::list<ResultPointT> & result)
+  const Iterable1T<PointT> & polygon1,
+  const Iterable2T<PointT> & polygon2,
+  std::list<PointT> & result)
 {
   auto get_edge = [](const auto & list, const auto & iterator) {
       const auto next_it = std::next(iterator);
@@ -152,10 +145,7 @@ void append_intersection_points(
           Interval::contains(edge1_y_interval, point_adapter::y_(intersection)) &&
           Interval::contains(edge2_y_interval, point_adapter::y_(intersection)))
         {
-          ResultPointT result_point;
-          xr_(result_point) = x_(intersection);
-          yr_(result_point) = y_(intersection);
-          result.push_back(result_point);
+          result.push_back(intersection);
         }
       } catch (const std::runtime_error &) {
         // Parallel lines. TODO(yunus.caliskan): #1229
@@ -245,20 +235,18 @@ bool intersect(const Iter begin1, const Iter end1, const Iter begin2, const Iter
 ///  algorithm: #1230
 /// \tparam Iterable1T A container class that has stl style iterators defined.
 /// \tparam Iterable2T A container class that has stl style iterators defined.
-/// \tparam Point1T Point type that have the adapters for the x and y fields.
-/// \tparam Point2T Point type that have the adapters for the x and y fields.
-/// \tparam ResultPointT Point type that have the adapters for the x and y fields. By default
+/// \tparam PointT Point type that have the adapters for the x and y fields.
 /// set to `Point1T`
 /// \param polygon1 A convex polygon
 /// \param polygon2 A convex polygon
 /// \return The resulting conv
 template<template<typename ...> class Iterable1T, template<typename ...> class Iterable2T,
-  typename Point1T, typename Point2T, typename ResultPointT = Point1T>
-std::list<ResultPointT> convex_polygon_intersection2d(
-  const Iterable1T<Point1T> & polygon1,
-  const Iterable2T<Point2T> & polygon2)
+  typename PointT>
+std::list<PointT> convex_polygon_intersection2d(
+  const Iterable1T<PointT> & polygon1,
+  const Iterable2T<PointT> & polygon2)
 {
-  std::list<ResultPointT> result;
+  std::list<PointT> result;
   details::append_contained_points(polygon1, polygon2, result);
   details::append_contained_points(polygon2, polygon1, result);
   details::append_intersection_points(polygon1, polygon2, result);
@@ -280,10 +268,10 @@ std::list<ResultPointT> convex_polygon_intersection2d(
 /// \throws std::domain_error If there is any inconsistency on the undderlying geometrical
 /// computation.
 template<template<typename ...> class Iterable1T, template<typename ...> class Iterable2T,
-  typename Point1T, typename Point2T>
+  typename PointT>
 common::types::float32_t convex_intersection_over_union_2d(
-  const Iterable1T<Point1T> & polygon1,
-  const Iterable2T<Point2T> & polygon2
+  const Iterable1T<PointT> & polygon1,
+  const Iterable2T<PointT> & polygon2
 )
 {
   constexpr auto eps = std::numeric_limits<float32_t>::epsilon();
