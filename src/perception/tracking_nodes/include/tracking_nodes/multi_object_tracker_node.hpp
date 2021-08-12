@@ -21,6 +21,7 @@
 #ifndef TRACKING_NODES__MULTI_OBJECT_TRACKER_NODE_HPP_
 #define TRACKING_NODES__MULTI_OBJECT_TRACKER_NODE_HPP_
 
+#include <autoware_auto_msgs/msg/classified_roi_array.hpp>
 #include <autoware_auto_msgs/msg/detected_objects.hpp>
 #include <autoware_auto_msgs/msg/tracked_objects.hpp>
 #include <geometry_msgs/msg/pose_with_covariance_stamped.hpp>
@@ -48,10 +49,11 @@ namespace tracking_nodes
 ///        PoseWithCovairanceStamped (depends on use_ndt param) and produces TrackedObjects
 class TRACKING_NODES_PUBLIC MultiObjectTrackerNode : public rclcpp::Node
 {
+  using ClassifiedRoiArray = autoware_auto_msgs::msg::ClassifiedRoiArray;
   using PosePolicy = message_filters::sync_policies::ApproximateTime<autoware_auto_msgs
-      ::msg::DetectedObjects, geometry_msgs::msg::PoseWithCovarianceStamped>;
+      ::msg::DetectedObjects, ClassifiedRoiArray, geometry_msgs::msg::PoseWithCovarianceStamped>;
   using OdomPolicy = message_filters::sync_policies::ExactTime<autoware_auto_msgs
-      ::msg::DetectedObjects, nav_msgs::msg::Odometry>;
+      ::msg::DetectedObjects, ClassifiedRoiArray, nav_msgs::msg::Odometry>;
 
 public:
   /// \brief Constructor
@@ -61,12 +63,14 @@ public:
   /// This unusual signature is mandated by message_filters.
   void process_using_pose(
     const autoware_auto_msgs::msg::DetectedObjects::ConstSharedPtr & objs,
+    const ClassifiedRoiArray::ConstSharedPtr & vision_detections,
     const geometry_msgs::msg::PoseWithCovarianceStamped::ConstSharedPtr & pose);
 
   /// Callback for matching detections + odom messages.
   /// This unusual signature is mandated by message_filters.
   void process_using_odom(
     const autoware_auto_msgs::msg::DetectedObjects::ConstSharedPtr & objs,
+    const ClassifiedRoiArray::ConstSharedPtr & vision_detections,
     const nav_msgs::msg::Odometry::ConstSharedPtr & odom);
 
   /// \brief Struct to initialize callback for variant that defines the synchronizer to be used
@@ -83,6 +87,7 @@ private:
   autoware::perception::tracking::MultiObjectTracker m_tracker;
   size_t m_history_depth = 0U;
   bool m_use_ndt = true;
+  message_filters::Subscriber<autoware_auto_msgs::msg::ClassifiedRoiArray> m_camera_sub;
   /// Subscription to pose and detection messages.
   message_filters::Subscriber<autoware_auto_msgs::msg::DetectedObjects> m_objects_sub;
   /// this sub will be used only if m_use_ndt is false

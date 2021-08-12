@@ -76,10 +76,31 @@ geometry_msgs::msg::TransformStamped to_transform(const nav_msgs::msg::Odometry 
 
 MultiObjectTracker::MultiObjectTracker(MultiObjectTrackerOptions options)
 : m_options(options), m_associator(options.association_config),
-  m_track_creator(options.track_creator_config) {}
+  m_track_creator(options.track_creator_config)
+{
+  CameraIntrinsics camera_intrinsics;
+  camera_intrinsics.width = 1920;
+  camera_intrinsics.height = 1080;
+  camera_intrinsics.fx = 1158.0337F;
+  camera_intrinsics.fy = 1158.0337F;
+  camera_intrinsics.ox = 960.F;
+  camera_intrinsics.oy = 540.F;
+
+  // Get from lgsvl json file. x->y, y->-z, z->-x to get a point from base_link to camera
+  geometry_msgs::msg::Transform tf_camera_from_ego;
+  tf_camera_from_ego.translation.x = 0.2;
+  tf_camera_from_ego.translation.y = 0.;
+  tf_camera_from_ego.translation.z = -1.7;
+  tf_camera_from_ego.rotation.w = 1.0;
+
+  m_vision_associator_ptr = std::make_unique<GreedyRoiAssociator>(
+    camera_intrinsics,
+    tf_camera_from_ego, 0.5);
+}
 
 TrackerUpdateResult MultiObjectTracker::update(
   DetectedObjectsMsg detections,
+  ClassifiedRoiArray vision_detections,
   const nav_msgs::msg::Odometry & detection_frame_odometry)
 {
   TrackerUpdateResult result;
@@ -127,10 +148,28 @@ TrackerUpdateResult MultiObjectTracker::update(
     m_objects[track_idx].no_update();
   }
 
+  const auto vision_association = m_vision_associator_ptr->assign(
+    vision_detections, convert_to_msg(detections.header.stamp));
+
+  for (size_t track_idx = 0U; track_idx < m_objects.size(); ++track_idx) {
+    size_t detection_idx = vision_association.track_assignments[track_idx];
+    if (detection_idx != AssociatorResult::UNASSIGNED) {
+      std::cerr << "Detection idx " << detection_idx << " class size " <<
+        vision_detections.rois[detection_idx].classifications.size() << std::endl;
+      m_objects[track_idx].update_class(vision_detections.rois[detection_idx].classifications);
+    }
+  }
+  std::cerr << "Total vision detections " << vision_detections.rois.size() << " unassociated:" <<
+    vision_association.unassigned_detection_indices.size() << std::endl;
+
+  // Use unassigned vision detection for cluster association
+
+
   // ==================================
   // Initialize new tracks
   // ==================================
   m_track_creator.add_unassigned_lidar_clusters(detections, association);
+  m_track_creator.add_unassigned_vision_detections(vision_detections, vision_association);
   {
     auto && new_tracks = m_track_creator.create_tracks();
     m_objects.insert(

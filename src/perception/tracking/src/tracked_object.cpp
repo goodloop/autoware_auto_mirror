@@ -153,6 +153,11 @@ void TrackedObject::update(const DetectedObjectMsg & detection)
   m_ekf.correct(pose_measurement);
 }
 
+void TrackedObject::update_class(const ObjectClassifications & obj_type)
+{
+  m_msg.classification = obj_type;
+}
+
 void TrackedObject::no_update()
 {
   m_ticks_alive++;

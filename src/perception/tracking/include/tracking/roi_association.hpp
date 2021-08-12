@@ -19,6 +19,7 @@
 #include <tracking/data_association.hpp>
 #include <tracking/projection.hpp>
 #include <autoware_auto_msgs/msg/classified_roi_array.hpp>
+#include <autoware_auto_msgs/msg/shape.hpp>
 #include <unordered_set>
 
 namespace autoware
@@ -68,11 +69,60 @@ public:
   /// \param rois ROI detections
   /// \param tracks Tracks
   /// \return The association between the tracks and the rois
+  template<typename ObjArrayType>
   AssociatorResult assign(
     const autoware_auto_msgs::msg::ClassifiedRoiArray & rois,
-    const autoware_auto_msgs::msg::TrackedObjects & tracks);
+    const ObjArrayType & tracks)
+  {
+    AssociatorResult result;
+    result.track_assignments.resize(tracks.objects.size());
+    std::fill(
+      result.track_assignments.begin(), result.track_assignments.end(),
+      AssociatorResult::UNASSIGNED);
+
+    std::unordered_set<std::size_t> unassigned_detection_indices;
+    {
+      std::size_t counter = 0U;
+      std::generate_n(
+        std::inserter(unassigned_detection_indices, unassigned_detection_indices.begin()),
+        rois.rois.size(), [&counter]() {return counter++;});
+    }
+
+    for (auto track_idx = 0U; track_idx < tracks.objects.size(); ++track_idx) {
+      const auto & track = tracks.objects[track_idx];
+      const auto & projection = m_camera.project(get_shape(track));
+      if (projection.shape.size() >= 3U) {
+        const auto detection_idx =
+          match_detection(projection, unassigned_detection_indices, rois);
+        if (detection_idx != AssociatorResult::UNASSIGNED) {
+          result.track_assignments[track_idx] = detection_idx;
+          unassigned_detection_indices.erase(detection_idx);
+        } else {
+          result.unassigned_track_indices.push_back(track_idx);
+        }
+      } else {
+        result.unassigned_track_indices.push_back(track_idx);
+      }
+    }
+
+    std::copy(
+      unassigned_detection_indices.begin(), unassigned_detection_indices.end(),
+      std::back_inserter(result.unassigned_detection_indices));
+
+    return result;
+  }
 
 private:
+  inline autoware_auto_msgs::msg::Shape get_shape(
+    const autoware_auto_msgs::msg::TrackedObject & track)
+  {
+    return track.shape.front();
+  }
+  inline autoware_auto_msgs::msg::Shape get_shape(
+    const autoware_auto_msgs::msg::DetectedObject & object)
+  {
+    return object.shape;
+  }
   // Scan the ROIs to find the best matching roi for a given track projection
   std::size_t match_detection(
     const Projection & projection,

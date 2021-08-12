@@ -119,6 +119,13 @@ def generate_launch_description():
             ("vehicle_odom", "/lgsvl/vehicle_odom")
         ])
 
+    ground_truth_publisher = Node(
+        package='ground_truth_detections',
+        executable='ground_truth_detections_node_exe',
+        on_exit=Shutdown(),
+        output='screen'
+    )
+
     map_publisher = Node(
         executable='ndt_map_publisher_exe',
         name='map_publisher',
@@ -277,6 +284,7 @@ def generate_launch_description():
         filter_transform_vlp16_front,
         filter_transform_vlp16_rear,
         lgsvl_interface,
+        ground_truth_publisher,
         map_publisher,
         multi_object_tracker_using_lgsvl,
         multi_object_tracker_using_ndt,

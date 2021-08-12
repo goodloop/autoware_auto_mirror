@@ -55,7 +55,9 @@ struct TRACKING_PUBLIC AssociatorResult
 enum class TrackCreationPolicy
 {
   /// Create tracks from every unassociated lidar cluster
-  LidarClusterOnly
+  LidarClusterOnly,
+  /// Create tracks from unassociated lidar clusters only if they have an associated vision detection
+  LidarClusterIfVision
 };
 
 }  // namespace tracking

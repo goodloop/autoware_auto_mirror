@@ -59,24 +59,24 @@ autoware_set_compile_options(${PROJECT_NAME})
 ament_target_dependencies(${PROJECT_NAME} Eigen3)
 
 # Testing
-if(BUILD_TESTING)
-  find_package(ament_lint_auto REQUIRED)
-  ament_lint_auto_find_test_dependencies()
-
-  # Unit tests
-  set(TEST_SOURCES
-    test/test_data_association.cpp
-    test/test_projection.cpp
-    test/test_multi_object_tracker.cpp
-    test/test_track_creation.cpp
-    test/test_tracked_object.cpp
-    test/test_roi_association.cpp
-  )
-  set(TEST_TRACKING_EXE test_multi_object_tracker)
-  ament_add_gtest(${TEST_TRACKING_EXE} ${TEST_SOURCES})
-  autoware_set_compile_options(${TEST_TRACKING_EXE})
-  target_link_libraries(${TEST_TRACKING_EXE} ${PROJECT_NAME})
-endif()
+#if(BUILD_TESTING)
+#  find_package(ament_lint_auto REQUIRED)
+#  ament_lint_auto_find_test_dependencies()
+#
+#  # Unit tests
+#  set(TEST_SOURCES
+#    test/test_data_association.cpp
+#    test/test_projection.cpp
+#    test/test_multi_object_tracker.cpp
+#    test/test_track_creation.cpp
+#    test/test_tracked_object.cpp
+#    test/test_roi_association.cpp
+#  )
+#  set(TEST_TRACKING_EXE test_multi_object_tracker)
+#  ament_add_gtest(${TEST_TRACKING_EXE} ${TEST_SOURCES})
+#  autoware_set_compile_options(${TEST_TRACKING_EXE})
+#  target_link_libraries(${TEST_TRACKING_EXE} ${PROJECT_NAME})
+#endif()
 
 # ament package generation and installing
 ament_auto_package()

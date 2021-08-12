@@ -28,6 +28,7 @@
 #include <string>
 #include <vector>
 
+#include "autoware_auto_msgs/msg/classified_roi_array.hpp"
 #include "autoware_auto_msgs/msg/detected_object.hpp"
 #include "autoware_auto_msgs/msg/tracked_object.hpp"
 #include "autoware_auto_msgs/msg/tracked_objects.hpp"
@@ -42,6 +43,7 @@
 #include "motion_model/linear_motion_model.hpp"
 #include "state_estimation/noise_model/wiener_noise.hpp"
 #include "tracking/visibility_control.hpp"
+#include "tracking/roi_association.hpp"
 
 
 namespace autoware
@@ -103,6 +105,7 @@ struct TRACKING_PUBLIC MultiObjectTrackerOptions
 class TRACKING_PUBLIC MultiObjectTracker
 {
 public:
+  using ClassifiedRoiArray = autoware_auto_msgs::msg::ClassifiedRoiArray;
   using DetectedObjectsMsg = autoware_auto_msgs::msg::DetectedObjects;
   using TrackedObjectsMsg = autoware_auto_msgs::msg::TrackedObjects;
 
@@ -117,6 +120,7 @@ public:
   /// \return A result object containing tracks, unless an error occurred.
   TrackerUpdateResult update(
     DetectedObjectsMsg detections,
+    ClassifiedRoiArray vision_detections,
     const nav_msgs::msg::Odometry & detection_frame_odometry);
 
 private:
@@ -147,6 +151,8 @@ private:
 
   /// Creator for creating tracks based on unassociated observations
   TrackCreator m_track_creator;
+
+  std::unique_ptr<GreedyRoiAssociator> m_vision_associator_ptr;
 };
 
 }  // namespace tracking
