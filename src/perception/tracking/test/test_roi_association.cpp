@@ -20,8 +20,8 @@
 #include <algorithm>
 #include <vector>
 
-using TrackedObjects = autoware_auto_msgs::msg::TrackedObjects;
-using TrackedObject = autoware_auto_msgs::msg::TrackedObject;
+using TrackedObject = autoware::perception::tracking::TrackedObject;
+using TrackedObjects = std::vector<TrackedObject>;
 
 using DetectedObjects = autoware_auto_msgs::msg::DetectedObjects;
 using DetectedObject = autoware_auto_msgs::msg::DetectedObject;
@@ -45,28 +45,26 @@ TrackedObject make_rectangular_track(
   const Point32 & base_face_origin,
   float32_t half_width, float32_t half_length, float32_t shape_height)
 {
-  TrackedObject object;
-  Shape base_shape{};
-  base_shape.polygon.points.push_back(
+  DetectedObject object;
+  object.shape.polygon.points.push_back(
     make_pt(
       (base_face_origin.x + half_width),
       (base_face_origin.y + half_length), (base_face_origin.z)));
-  base_shape.polygon.points.push_back(
+  object.shape.polygon.points.push_back(
     make_pt(
       (base_face_origin.x + half_width),
       (base_face_origin.y - half_length), (base_face_origin.z)));
-  base_shape.polygon.points.push_back(
+  object.shape.polygon.points.push_back(
     make_pt(
       (base_face_origin.x - half_width),
       (base_face_origin.y + half_length), (base_face_origin.z)));
-  base_shape.polygon.points.push_back(
+  object.shape.polygon.points.push_back(
     make_pt(
       (base_face_origin.x - half_width),
       (base_face_origin.y - half_length), (base_face_origin.z)));
-  base_shape.height = shape_height;
-  object.shape.push_back(base_shape);
+  object.shape.height = shape_height;
 
-  return object;
+  return TrackedObject{object, 0.0, 0.0};
 }
 ClassifiedRoi projection_to_roi(const Projection & projection)
 {
@@ -102,10 +100,10 @@ TEST_F(TestRoiAssociation, correct_association) {
   TrackedObjects tracks;
   ClassifiedRoiArray rois;
 
-  tracks.objects.push_back(
+  tracks.push_back(
     make_rectangular_track(
       make_pt(10.0F, 10.0F, 10), 5.0F, 5.0F, 2.0F));
-  const auto projection = camera.project(tracks.objects[0].shape.front());
+  const auto projection = camera.project(tracks.front().shape());
   ASSERT_TRUE(projection);
   rois.rois.push_back(projection_to_roi(projection.value()));
   const auto result = associator.assign(rois, tracks);
@@ -119,10 +117,10 @@ TEST_F(TestRoiAssociation, out_of_image_test) {
   ClassifiedRoiArray rois;
 
   // Create a track behind the camera
-  tracks.objects.push_back(
+  tracks.push_back(
     make_rectangular_track(
       make_pt(10.0F, 10.0F, -10), 5.0F, 5.0F, 2.0F));
-  const auto projection = camera.project(tracks.objects[0].shape.front());
+  const auto projection = camera.project(tracks[0].shape());
   ASSERT_FALSE(projection);
   const auto result = associator.assign(rois, tracks);
   ASSERT_EQ(result.track_assignments.front(), AssociatorResult::UNASSIGNED);
@@ -135,16 +133,16 @@ TEST_F(TestRoiAssociation, non_associated_track_roi) {
   TrackedObjects phantom_tracks;  // Only used to create false-positive ROIs
   ClassifiedRoiArray rois;
 
-  tracks.objects.push_back(
+  tracks.push_back(
     make_rectangular_track(
       make_pt(10.0F, 10.0F, 10), 5.0F, 5.0F, 2.0F));
 
   // Use the phantom track to create a detection that is not associated with the correct track.
-  phantom_tracks.objects.push_back(
+  phantom_tracks.push_back(
     make_rectangular_track(
       make_pt(-50.0F, -20.0F, 100), 2.0F, 5.0F, 25.0F));
 
-  const auto projection = camera.project(phantom_tracks.objects[0].shape.front());
+  const auto projection = camera.project(phantom_tracks[0].shape());
   ASSERT_TRUE(projection);
   rois.rois.push_back(projection_to_roi(projection.value()));
   const auto result = associator.assign(rois, tracks);
@@ -167,35 +165,35 @@ TEST_F(TestRoiAssociation, combined_association_test) {
   ClassifiedRoiArray rois;
 
   // Objects not to be captured by the camera
-  tracks.objects.push_back(
+  tracks.push_back(
     make_rectangular_track(
       make_pt(10.0F, 10.0F, -10), 5.0F, 5.0F, 2.0F));
-  tracks.objects.push_back(
+  tracks.push_back(
     make_rectangular_track(
       make_pt(1e6F, 10.0F, 50), 15.0F, 25.0F, 10.0F));
-  tracks.objects.push_back(
+  tracks.push_back(
     make_rectangular_track(
       make_pt(50.0F, 1e6F, 100), 2.0F, 5.0F, 25.0F));
-  ASSERT_EQ(tracks.objects.size(), num_noncaptured_tracks);
+  ASSERT_EQ(tracks.size(), num_noncaptured_tracks);
 
   // Objects to be captured by the camera (All have positive X,Y coordinates)
-  tracks.objects.push_back(
+  tracks.push_back(
     make_rectangular_track(
       make_pt(10.0F, 10.0F, 10), 5.0F, 5.0F, 2.0F));
-  tracks.objects.push_back(
+  tracks.push_back(
     make_rectangular_track(
       make_pt(20.0F, 10.0F, 50), 15.0F, 25.0F, 10.0F));
-  tracks.objects.push_back(
+  tracks.push_back(
     make_rectangular_track(
       make_pt(50.0F, 20.0F, 100), 2.0F, 5.0F, 25.0F));
-  tracks.objects.push_back(
+  tracks.push_back(
     make_rectangular_track(
       make_pt(105.0F, 5.0F, 100), 1.0F, 1.0F, 5.0F));
-  ASSERT_EQ(tracks.objects.size(), num_captured_tracks + num_noncaptured_tracks);
+  ASSERT_EQ(tracks.size(), num_captured_tracks + num_noncaptured_tracks);
 
   // Push the correct projections to the roi array
-  for (auto i = 0U; i < tracks.objects.size(); ++i) {
-    const auto projection = camera.project(tracks.objects[i].shape.front());
+  for (auto i = 0U; i < tracks.size(); ++i) {
+    const auto projection = camera.project(tracks[i].shape());
     if (i < num_noncaptured_tracks) {
       ASSERT_FALSE(projection);
     } else {
@@ -206,20 +204,20 @@ TEST_F(TestRoiAssociation, combined_association_test) {
 
   // Create some phantom objects to create some false-positive ROIs (All have negative X,Y
   // coordinates so their projections don't get associated with the correct tracks)
-  phantom_tracks.objects.push_back(
+  phantom_tracks.push_back(
     make_rectangular_track(
       make_pt(-10.0F, -10.0F, 10), 5.0F, 5.0F, 2.0F));
-  phantom_tracks.objects.push_back(
+  phantom_tracks.push_back(
     make_rectangular_track(
       make_pt(-20.0F, -10.0F, 50), 15.0F, 25.0F, 10.0F));
-  phantom_tracks.objects.push_back(
+  phantom_tracks.push_back(
     make_rectangular_track(
       make_pt(-50.0F, -20.0F, 100), 2.0F, 5.0F, 25.0F));
-  ASSERT_EQ(phantom_tracks.objects.size(), num_nonassociated_rois);
+  ASSERT_EQ(phantom_tracks.size(), num_nonassociated_rois);
 
   // Push the false positive projections to the roi array
-  for (const auto & phantom_track : phantom_tracks.objects) {
-    const auto maybe_projection = camera.project(phantom_track.shape.front());
+  for (const auto & phantom_track : phantom_tracks) {
+    const auto maybe_projection = camera.project(phantom_track.shape());
     ASSERT_TRUE(maybe_projection);
     rois.rois.push_back(projection_to_roi(maybe_projection.value()));
   }

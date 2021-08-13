@@ -36,7 +36,7 @@ than a threshold.
 Inputs:
 * Camera intrinsics
 * Camera transformation
-* `autoware_auto_msgs::msg::TrackedObjects`
+* A vector of `autoware::perception::tracking::TrackedObject`s
 * `autoware_auto_msgs::msg::ClassifiedRoiArray`
 
 Outputs:

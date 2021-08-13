@@ -19,6 +19,7 @@
 #include <tracking/roi_association.hpp>
 #include <algorithm>
 #include <unordered_set>
+#include <vector>
 
 namespace autoware
 {
@@ -38,10 +39,10 @@ GreedyRoiAssociator::GreedyRoiAssociator(
 
 AssociatorResult GreedyRoiAssociator::assign(
   const autoware_auto_msgs::msg::ClassifiedRoiArray & rois,
-  const autoware_auto_msgs::msg::TrackedObjects & tracks)
+  const std::vector<TrackedObject> & tracks)
 {
   AssociatorResult result;
-  result.track_assignments.resize(tracks.objects.size());
+  result.track_assignments.resize(tracks.size());
   std::fill(
     result.track_assignments.begin(), result.track_assignments.end(),
     AssociatorResult::UNASSIGNED);
@@ -54,9 +55,9 @@ AssociatorResult GreedyRoiAssociator::assign(
       rois.rois.size(), [&counter]() {return counter++;});
   }
 
-  for (auto track_idx = 0U; track_idx < tracks.objects.size(); ++track_idx) {
-    const auto & track = tracks.objects[track_idx];
-    const auto & maybe_projection = m_camera.project(track.shape.front());
+  for (auto track_idx = 0U; track_idx < tracks.size(); ++track_idx) {
+    const auto & track = tracks[track_idx];
+    const auto & maybe_projection = m_camera.project(track.shape());
     if (maybe_projection) {
       const auto detection_idx =
         match_detection(maybe_projection.value(), unassigned_detection_indices, rois);

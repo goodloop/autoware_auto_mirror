@@ -20,6 +20,7 @@
 #include <tracking/projection.hpp>
 #include <tracking/visibility_control.hpp>
 #include <unordered_set>
+#include <vector>
 
 namespace autoware
 {
@@ -70,7 +71,7 @@ public:
   /// \return The association between the tracks and the rois
   AssociatorResult assign(
     const autoware_auto_msgs::msg::ClassifiedRoiArray & rois,
-    const autoware_auto_msgs::msg::TrackedObjects & tracks);
+    const std::vector<TrackedObject> & tracks);
 
 private:
   // Scan the ROIs to find the best matching roi for a given track projection
