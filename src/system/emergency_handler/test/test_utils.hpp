@@ -28,7 +28,8 @@
 
 using autoware_auto_msgs::msg::VehicleOdometry;
 
-template<typename T>
+template<typename T,
+  typename = typename std::enable_if<rosidl_generator_traits::is_message<T>::value>::type>
 class Spy
 {
 public:
