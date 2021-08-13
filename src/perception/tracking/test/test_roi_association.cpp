@@ -77,21 +77,88 @@ ClassifiedRoi projection_to_roi(const Projection & projection)
   return roi;
 }
 
+class TestRoiAssociation : public ::testing::Test
+{
+public:
+  TestRoiAssociation()
+  : intrinsics{CameraIntrinsics{500U, 500U, 5.0F, 5.0F}},
+    camera{intrinsics, make_identity()},
+    associator{intrinsics, make_identity()} {}
+
+  CameraIntrinsics intrinsics;
+  CameraModel camera;
+  RoiAssociator associator;
+
+private:
+  geometry_msgs::msg::Transform make_identity()
+  {
+    geometry_msgs::msg::Transform identity{};
+    identity.rotation.set__w(1.0);
+    return identity;
+  }
+};
+
+TEST_F(TestRoiAssociation, correct_association) {
+  TrackedObjects tracks;
+  ClassifiedRoiArray rois;
+
+  tracks.objects.push_back(
+    make_rectangular_track(
+      make_pt(10.0F, 10.0F, 10), 5.0F, 5.0F, 2.0F));
+  const auto projection = camera.project(tracks.objects[0].shape.front());
+  ASSERT_TRUE(projection);
+  rois.rois.push_back(projection_to_roi(projection.value()));
+  const auto result = associator.assign(rois, tracks);
+  ASSERT_EQ(result.track_assignments.front(), 0U);
+  ASSERT_EQ(result.unassigned_detection_indices.size(), 0U);
+  ASSERT_EQ(result.unassigned_track_indices.size(), 0U);
+}
+
+TEST_F(TestRoiAssociation, out_of_image_test) {
+  TrackedObjects tracks;
+  ClassifiedRoiArray rois;
+
+  // Create a track behind the camera
+  tracks.objects.push_back(
+    make_rectangular_track(
+      make_pt(10.0F, 10.0F, -10), 5.0F, 5.0F, 2.0F));
+  const auto projection = camera.project(tracks.objects[0].shape.front());
+  ASSERT_FALSE(projection);
+  const auto result = associator.assign(rois, tracks);
+  ASSERT_EQ(result.track_assignments.front(), AssociatorResult::UNASSIGNED);
+  ASSERT_EQ(result.unassigned_detection_indices.size(), 0U);
+  ASSERT_EQ(result.unassigned_track_indices[0U], 0U);
+}
+
+TEST_F(TestRoiAssociation, non_associated_track_roi) {
+  TrackedObjects tracks;
+  TrackedObjects phantom_tracks;  // Only used to create false-positive ROIs
+  ClassifiedRoiArray rois;
+
+  tracks.objects.push_back(
+    make_rectangular_track(
+      make_pt(10.0F, 10.0F, 10), 5.0F, 5.0F, 2.0F));
+
+  // Use the phantom track to create a detection that is not associated with the correct track.
+  phantom_tracks.objects.push_back(
+    make_rectangular_track(
+      make_pt(-50.0F, -20.0F, 100), 2.0F, 5.0F, 25.0F));
+
+  const auto projection = camera.project(phantom_tracks.objects[0].shape.front());
+  ASSERT_TRUE(projection);
+  rois.rois.push_back(projection_to_roi(projection.value()));
+  const auto result = associator.assign(rois, tracks);
+  ASSERT_EQ(result.track_assignments.front(), AssociatorResult::UNASSIGNED);
+  ASSERT_EQ(result.unassigned_detection_indices[0U], 0U);
+  ASSERT_EQ(result.unassigned_track_indices[0U], 0U);
+}
+
 /// \brief This test creates a series of tracks and corresponding detection ROIs.
 /// The tracks have the following layout: [FN, FN, FN, TP, TP, TP, TP] where the false negatives
 // don't have corresponding ROI detections.
 /// Likewise the ROIs have the following layout:  [TP, TP, TP, TP, FP, FP, FP] where false
 // positives don't have corresponding tracks.
-TEST(TestRoiAssociation, association_test) {
-  constexpr auto img_width = 500U;
-  constexpr auto img_length = 500U;
-  CameraIntrinsics intrinsics{img_width, img_length, 5.0F, 5.0F};
-  geometry_msgs::msg::Transform identity{};
-  identity.rotation.set__w(1.0);
-  CameraModel camera{intrinsics, identity};
-
-  RoiAssociator associator{intrinsics, identity};
-
+TEST_F(TestRoiAssociation, combined_association_test) {
   constexpr auto num_captured_tracks = 4U;
   constexpr auto num_noncaptured_tracks = 3U;
   constexpr auto num_nonassociated_rois = 3U;
