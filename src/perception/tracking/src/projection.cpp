@@ -61,7 +61,7 @@ CameraModel::CameraModel(
 }
 
 std::experimental::optional<CameraModel::EigPoint>
-CameraModel::project_point(const EigPoint & pt_3d)
+CameraModel::project_point(const EigPoint & pt_3d) const
 {
   // `m_projector * p_3d = p_2d * depth`
   const auto pt_2d = m_projector * pt_3d;
@@ -74,7 +74,7 @@ CameraModel::project_point(const EigPoint & pt_3d)
 }
 
 std::experimental::optional<Projection> CameraModel::project(
-  const autoware_auto_msgs::msg::Shape & shape)
+  const autoware_auto_msgs::msg::Shape & shape) const
 {
   Projection result;
   const auto & points_3d = shape.polygon.points;
@@ -105,7 +105,7 @@ std::experimental::optional<Projection> CameraModel::project(
          std::experimental::nullopt;
 }
 
-bool CameraModel::is_projection_valid(const Projection & projection)
+bool CameraModel::is_projection_valid(const Projection & projection) const noexcept
 {
   return projection.shape.size() >= 3U;
 }

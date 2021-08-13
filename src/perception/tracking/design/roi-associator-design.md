@@ -1,8 +1,9 @@
 ROI Associator {#roi-associator}
 ============
 
-The tracks within the tracker represents 3D objects around the robot. If the 2D measurements of 
-any of these objects is available, then they can be associated to reinforce the track information.
+The tracks within the tracker represents 3D objects around the robot. If the visual 
+measurements of these objects are available, then they can be associated to reinforce the 
+track information.
 
 # Purpose / Use cases
 
@@ -24,6 +25,15 @@ autoware::perception::tracking::IOUHeuristic).
 ## Inner-workings / Algorithms
 
 See [Projection](@ref projection) document for more details on how the projection is executed.
+
+The total complexity is expected to be determined by the association operation which has an 
+worst case complexity of \f$O(N_TN_R(V_R+V_T))\f$ where \f$N_T\f$ is the number of tracks, 
+\f$N_R\f$ is the number of ROIs, \f$V_R\f$ is the maximum number of vertices on a ROI and 
+\f$V_T\f$ is the maximum number of vertices on a track. The explanation behind the complexity 
+is that, each track is compared to each ROI in a loop where the areas of the shapes are 
+computed during the IoU computation. The area calculation has a complexity determined by 
+the number of vertices in each shape, resulting  on a total complexity of \f$O(V_R+V_T)\f$ for 
+each track-ROI comparison.
 
 * Tracks that are not on the image plane are not associated
 * Tracks that do not have matching ROI counterparts are not associated

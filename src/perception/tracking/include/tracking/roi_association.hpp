@@ -15,6 +15,7 @@
 #define TRACKING__ROI_ASSOCIATION_HPP_
 
 #include <autoware_auto_msgs/msg/classified_roi_array.hpp>
+#include <helper_functions/template_utils.hpp>
 #include <geometry/intersection.hpp>
 #include <tracking/data_association.hpp>
 #include <tracking/projection.hpp>
@@ -43,7 +44,7 @@ struct TRACKING_PUBLIC IOUHeuristic
   template<template<typename ...> class Iterable1T,
     template<typename ...> class Iterable2T, typename Point1T, typename Point2T>
   common::types::float32_t operator()(
-    const Iterable1T<Point1T> & shape1, const Iterable2T<Point2T> & shape2)
+    const Iterable1T<Point1T> & shape1, const Iterable2T<Point2T> & shape2) const
   {
     return common::geometry::convex_intersection_over_union_2d(shape1, shape2);
   }
@@ -53,15 +54,17 @@ struct TRACKING_PUBLIC IOUHeuristic
 class TRACKING_PUBLIC GreedyRoiAssociator
 {
 public:
+  using float32_t = autoware::common::types::float32_t;
+
   /// \brief Constructor
   /// \param intrinsics Camera intrinsics of the ROI
   /// \param tf_camera_from_ego ego->camera transform
-  /// \param match_score_threshold Minimum score result for a track and ROI to be considered a
+  /// \param iou_threshold Minimum score result for a track and ROI to be considered a
   // match
   GreedyRoiAssociator(
     const CameraIntrinsics & intrinsics,
     const geometry_msgs::msg::Transform & tf_camera_from_ego,
-    float32_t match_score_threshold = 0.1F
+    float32_t iou_threshold = 0.1F
   );
 
   /// \brief Assign the tracks to the ROIs. The assignment is done by first projecting the tracks,
@@ -71,18 +74,18 @@ public:
   /// \return The association between the tracks and the rois
   AssociatorResult assign(
     const autoware_auto_msgs::msg::ClassifiedRoiArray & rois,
-    const std::vector<TrackedObject> & tracks);
+    const std::vector<TrackedObject> & tracks) const;
 
 private:
   // Scan the ROIs to find the best matching roi for a given track projection
   std::size_t match_detection(
     const Projection & projection,
     const std::unordered_set<std::size_t> & available_roi_indices,
-    const autoware_auto_msgs::msg::ClassifiedRoiArray & rois);
+    const autoware_auto_msgs::msg::ClassifiedRoiArray & rois) const;
 
   CameraModel m_camera;
-  IOUHeuristic m_match_function{};
-  float32_t m_match_threshold{0.1F};
+  IOUHeuristic m_iou_func{};
+  float32_t m_iou_threshold{0.1F};
 };
 
 }  // namespace tracking

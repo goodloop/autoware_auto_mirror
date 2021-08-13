@@ -32,14 +32,14 @@ using autoware::common::types::float32_t;
 GreedyRoiAssociator::GreedyRoiAssociator(
   const CameraIntrinsics & intrinsics,
   const geometry_msgs::msg::Transform & tf_camera_from_ego,
-  float32_t match_score_threshold)
-: m_camera{intrinsics, tf_camera_from_ego}, m_match_threshold{match_score_threshold}
+  const float32_t iou_threshold)
+: m_camera{intrinsics, tf_camera_from_ego}, m_iou_threshold{iou_threshold}
 {
 }
 
 AssociatorResult GreedyRoiAssociator::assign(
   const autoware_auto_msgs::msg::ClassifiedRoiArray & rois,
-  const std::vector<TrackedObject> & tracks)
+  const std::vector<TrackedObject> & tracks) const
 {
   AssociatorResult result;
   result.track_assignments.resize(tracks.size());
@@ -58,18 +58,23 @@ AssociatorResult GreedyRoiAssociator::assign(
   for (auto track_idx = 0U; track_idx < tracks.size(); ++track_idx) {
     const auto & track = tracks[track_idx];
     const auto & maybe_projection = m_camera.project(track.shape());
-    if (maybe_projection) {
-      const auto detection_idx =
-        match_detection(maybe_projection.value(), unassigned_detection_indices, rois);
-      if (detection_idx != AssociatorResult::UNASSIGNED) {
-        result.track_assignments[track_idx] = detection_idx;
-        unassigned_detection_indices.erase(detection_idx);
-      } else {
-        result.unassigned_track_indices.push_back(track_idx);
-      }
-    } else {
+
+    // There is no projection or the projection is collinear
+    if (!maybe_projection) {
       result.unassigned_track_indices.push_back(track_idx);
+      continue;
     }
+    const auto detection_idx =
+      match_detection(maybe_projection.value(), unassigned_detection_indices, rois);
+
+    // There's no ROI assignment fit for the projection
+    if (detection_idx == AssociatorResult::UNASSIGNED) {
+      result.unassigned_track_indices.push_back(track_idx);
+      continue;
+    }
+    // The track can be projected on the image and has a matching ROI, so they are associated
+    result.track_assignments[track_idx] = detection_idx;
+    unassigned_detection_indices.erase(detection_idx);
   }
 
   std::copy(
@@ -82,16 +87,16 @@ AssociatorResult GreedyRoiAssociator::assign(
 std::size_t GreedyRoiAssociator::match_detection(
   const Projection & projection,
   const std::unordered_set<std::size_t> & available_roi_indices,
-  const autoware_auto_msgs::msg::ClassifiedRoiArray & rois)
+  const autoware_auto_msgs::msg::ClassifiedRoiArray & rois) const
 {
   auto max_score = 0.0F;
   std::size_t max_score_idx = AssociatorResult::UNASSIGNED;
   for (const auto idx : available_roi_indices) {
-    const auto score = m_match_function(projection.shape, rois.rois[idx].polygon.points);
+    const auto score = m_iou_func(projection.shape, rois.rois[idx].polygon.points);
     max_score = std::max(score, max_score);
     max_score_idx = idx;
   }
-  return max_score > m_match_threshold ? max_score_idx : AssociatorResult::UNASSIGNED;
+  return max_score > m_iou_threshold ? max_score_idx : AssociatorResult::UNASSIGNED;
 }
 }  // namespace tracking
 }  // namespace perception
