@@ -8,3 +8,4 @@
     emergency_hazard_level: 2 # 1: Safe Fault, 2: Latent Fault, 3: Single Point Fault
     emergency_stop_acceleration_mps2_: -2.5
     use_parking_after_stopped_: true
+    stopped_velocity_threshold: 0.001

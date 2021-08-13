@@ -72,6 +72,7 @@ private:
   double timeout_;
 
   typename rclcpp::Subscription<MsgType>::SharedPtr sub_heartbeat_;
+
   rclcpp::Time last_heartbeat_time_ = rclcpp::Time(0);
 };
 

@@ -121,6 +121,7 @@ private:
   bool use_emergency_hold_;
   double emergency_stop_acceleration_mps2_;
   bool use_parking_after_stopped_;
+  double stopped_velocity_threshold_;
 
   // Heartbeat
   rclcpp::Time initialized_time_;

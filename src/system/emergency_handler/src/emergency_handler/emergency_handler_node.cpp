@@ -31,8 +31,6 @@ using namespace std::chrono_literals;
 diagnostic_msgs::msg::DiagnosticArray convertHazardStatusToDiagnosticArray(
   rclcpp::Clock::SharedPtr clock, const autoware_auto_msgs::msg::HazardStatus & hazard_status)
 {
-  using diagnostic_msgs::msg::DiagnosticStatus;
-
   diagnostic_msgs::msg::DiagnosticArray diag_array;
   diag_array.header.stamp = clock->now();
 
@@ -75,6 +73,8 @@ EmergencyHandlerNode::EmergencyHandlerNode(const rclcpp::NodeOptions & node_opti
   emergency_stop_acceleration_mps2_ =
     this->declare_parameter("emergency_stop_acceleration_mps2", -2.5);
   use_parking_after_stopped_ = this->declare_parameter<bool>("use_parking_after_stopped", true);
+  stopped_velocity_threshold_ =
+    this->declare_parameter<double>("stopped_velocity_threshold", 0.001);
 
   // Subscribers
   sub_autoware_state_ = create_subscription<autoware_auto_msgs::msg::AutowareState>(
@@ -292,8 +292,7 @@ void EmergencyHandlerNode::onTimer()
 
 bool EmergencyHandlerNode::isStopped()
 {
-  constexpr auto th_stopped_velocity = 0.001;
-  if (static_cast<double>(odometry_->velocity_mps) < th_stopped_velocity) {
+  if (static_cast<double>(odometry_->velocity_mps) < stopped_velocity_threshold_) {
     return true;
   }
   return false;
