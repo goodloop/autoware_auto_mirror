@@ -114,7 +114,7 @@ EmergencyHandlerNode::EmergencyHandlerNode(const rclcpp::NodeOptions & node_opti
     "service/clear_emergency",
     std::bind(&EmergencyHandlerNode::onClearEmergencyService, this, _1, _2, _3));
 
-  // Initialize
+  // Initialize messages
   odometry_ = autoware_auto_msgs::msg::VehicleOdometry::ConstSharedPtr(
     new autoware_auto_msgs::msg::VehicleOdometry);
   prev_control_command_ = autoware_auto_msgs::msg::VehicleControlCommand::ConstSharedPtr(
@@ -189,11 +189,11 @@ bool EmergencyHandlerNode::onClearEmergencyService(
 void EmergencyHandlerNode::publishHazardStatus(
   const autoware_auto_msgs::msg::HazardStatus & hazard_status)
 {
-  // Create msg of is_emergency
+  // Create EmergencyMode msg
   autoware_auto_msgs::msg::EmergencyMode emergency_mode;
   emergency_mode.is_emergency = isEmergency(hazard_status);
 
-  // Create msg of hazard_status
+  // Create HazardStatusStamped msg
   autoware_auto_msgs::msg::HazardStatusStamped hazard_status_stamped;
   hazard_status_stamped.stamp = this->now();
   hazard_status_stamped.status = hazard_status;

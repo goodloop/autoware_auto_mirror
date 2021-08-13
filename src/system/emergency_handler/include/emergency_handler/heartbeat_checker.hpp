@@ -28,21 +28,32 @@ namespace autoware
 namespace emergency_handler
 {
 
-template<class HeartbeatMsg>
+/// \brief HeartbeatChecker checks if messages appears on specified topic with specified frequency
+///
+/// It subscribes to specific topic and measures time from the last message received on this topic.
+/// If the measured time is greater than defined timeout value then it returns true on isTimeout().
+template<class MsgType>
 class EMERGENCY_HANDLER_PUBLIC HeartbeatChecker
 {
 public:
+  /// \brief Constructor
+  ///
+  /// \param[in] node is a node handler
+  /// \param[in] topic_name is the name of monitored topic
+  /// \param[in] timeout is a parameter that defines max allowable time between consequent messages
   HeartbeatChecker(
     rclcpp::Node & node, const std::string & topic_name, const double timeout)
   : clock_(node.get_clock()),
     timeout_(timeout)
   {
     using std::placeholders::_1;
-    sub_heartbeat_ = node.create_subscription<HeartbeatMsg>(
+    sub_heartbeat_ = node.create_subscription<MsgType>(
       topic_name, rclcpp::QoS{1},
       std::bind(&HeartbeatChecker::onHeartbeat, this, _1));
   }
 
+  /// \brief Determines if the timeout state has been reached
+  /// \return Returns true if timeout occurred, otherwise false.
   bool isTimeout()
   {
     const auto time_from_last_heartbeat = clock_->now() - last_heartbeat_time_;
@@ -50,21 +61,18 @@ public:
   }
 
 private:
-  // Clock
-  rclcpp::Clock::SharedPtr clock_;
-
-  // Parameter
-  double timeout_;
-
-  // Subscriber
-  typename rclcpp::Subscription<HeartbeatMsg>::SharedPtr sub_heartbeat_;
-  rclcpp::Time last_heartbeat_time_ = rclcpp::Time(0);
-
-  void onHeartbeat(const typename HeartbeatMsg::ConstSharedPtr msg)
+  void onHeartbeat(const typename MsgType::ConstSharedPtr msg)
   {
     (void)msg;
     last_heartbeat_time_ = clock_->now();
   }
+
+  rclcpp::Clock::SharedPtr clock_;
+
+  double timeout_;
+
+  typename rclcpp::Subscription<MsgType>::SharedPtr sub_heartbeat_;
+  rclcpp::Time last_heartbeat_time_ = rclcpp::Time(0);
 };
 
 }  // namespace emergency_handler

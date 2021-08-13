@@ -45,12 +45,20 @@ namespace autoware
 namespace emergency_handler
 {
 
+/// \brief A node for handling the emergency state of the system
+///
+/// The node deals with emergency state detection based on the provided data.
+/// When the emergency state is detected, then the main purpose of this component is
+/// to generate vehicle velocities commands and state commands to stop the vehicle safelty.
 class EMERGENCY_HANDLER_PUBLIC EmergencyHandlerNode : public rclcpp::Node
 {
 public:
+  /// \brief Constructor
+  /// \param[in] node_options Node options
   explicit EmergencyHandlerNode(const rclcpp::NodeOptions & node_options);
 
 private:
+  // Callbacks
   void onAutowareState(const autoware_auto_msgs::msg::AutowareState::ConstSharedPtr msg);
   void onDrivingCapability(const autoware_auto_msgs::msg::DrivingCapability::ConstSharedPtr msg);
   void onPrevControlCommand(
