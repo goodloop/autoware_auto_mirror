@@ -86,12 +86,9 @@ public:
     executor->add_node(tested_node);
     executor->add_node(test_helper_node);
 
-    // Subscriber
-    using std::placeholders::_1;
-    auto subscriber_option = rclcpp::SubscriptionOptions();
-    sub_state = test_helper_node->create_subscription<autoware_auto_msgs::msg::AutowareState>(
-      "output/autoware_state", 1,
-      std::bind(&AutowareStateMonitorNodeTest::onAutowareState, this, _1), subscriber_option);
+    // Spy
+    autoware_state_spy = std::make_shared<Spy<AutowareState>>(
+      test_helper_node, executor, "output/autoware_state");
 
     // Publishers
     pub_engage = test_helper_node->create_publisher<Engage>("input/engage", 1);
@@ -123,20 +120,10 @@ public:
     return node_options;
   }
 
-  void onAutowareState(
-    const autoware_auto_msgs::msg::AutowareState::ConstSharedPtr msg)
-  {
-    received_state = static_cast<State>(msg->state);
-    is_new_state_received = true;
-  }
-
   void expectState(const State & state)
   {
-    while (!is_new_state_received) {
-      executor->spin_some(10ms);
-    }
-    EXPECT_EQ(state, received_state);
-    is_new_state_received = false;
+    auto msg = autoware_state_spy->expectMsg();
+    EXPECT_EQ(msg.state, state);
   }
 
   void publishMapToBaseLinkTf()
@@ -162,15 +149,13 @@ protected:
   std::shared_ptr<AutowareStateMonitorNode> tested_node;
   rclcpp::Node::SharedPtr test_helper_node;
   std::shared_ptr<rclcpp::executors::SingleThreadedExecutor> executor;
-  uint8_t received_state = AutowareState::INITIALIZING_VEHICLE;
-  bool is_new_state_received = false;
 
-  rclcpp::Subscription<autoware_auto_msgs::msg::AutowareState>::SharedPtr sub_state;
   rclcpp::Publisher<Engage>::SharedPtr pub_engage;
   rclcpp::Publisher<VehicleStateReport>::SharedPtr pub_vehicle_state;
   rclcpp::Publisher<HADMapRoute>::SharedPtr pub_route;
   rclcpp::Publisher<VehicleOdometry>::SharedPtr pub_odometry;
   std::shared_ptr<tf2_ros::TransformBroadcaster> tf_broadcaster_;
+  std::shared_ptr<Spy<AutowareState>> autoware_state_spy;
 };
 
 TEST_F(AutowareStateMonitorNodeTest, basic_states_sequence)
@@ -241,5 +226,4 @@ TEST_F(AutowareStateMonitorNodeTest, shutdown_service)
   auto result = result_future.get();
   EXPECT_EQ(result->success, false);
   EXPECT_EQ(result->message, "Shutdown timeout.");
-  EXPECT_EQ(received_state, AutowareState::FINALIZING);
 }

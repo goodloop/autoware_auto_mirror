@@ -19,9 +19,12 @@
 
 #include <cmath>
 #include <memory>
+#include <string>
 
 #include "geometry_msgs/msg/pose_stamped.hpp"
 #include "rclcpp/time.hpp"
+#include "rclcpp/rclcpp.hpp"
+
 
 #include "autoware_auto_msgs/msg/complex32.hpp"
 #include "autoware_auto_msgs/msg/engage.hpp"
@@ -38,6 +41,57 @@ using autoware_auto_msgs::msg::VehicleStateReport;
 using geometry_msgs::msg::Point;
 using geometry_msgs::msg::PoseStamped;
 using geometry_msgs::msg::Quaternion;
+
+template<typename T,
+  typename = typename std::enable_if<rosidl_generator_traits::is_message<T>::value>::type>
+class Spy
+{
+public:
+  Spy(
+    rclcpp::Node::SharedPtr n, rclcpp::Executor::SharedPtr exec,
+    const std::string & topic_name)
+  : node(n), executor(exec)
+  {
+    using std::placeholders::_1;
+    auto sub_options = rclcpp::SubscriptionOptions();
+
+    subscription = node->create_subscription<T>(
+      topic_name, 1, std::bind(&Spy::onMsg, this, _1), sub_options);
+  }
+
+  T expectMsg(const double timeout = 1.0)
+  {
+    const auto t_start = node->get_clock()->now();
+
+    while (!is_new_msg) {
+      if (!rclcpp::ok()) {
+        throw std::runtime_error("rclcpp is in NOK state");
+      }
+      if ((node->get_clock()->now() - t_start).seconds() > timeout) {
+        throw std::runtime_error("timeout occurred during waiting for msg");
+      }
+      using std::chrono_literals::operator""ms;
+      executor->spin_some(10ms);
+    }
+
+    is_new_msg = false;
+    return received_msg;
+  }
+
+protected:
+  void onMsg(const std::shared_ptr<T> msg)
+  {
+    is_new_msg = true;
+    received_msg = *msg;
+  }
+
+  rclcpp::Node::SharedPtr node;
+  rclcpp::Executor::SharedPtr executor;
+  std::shared_ptr<rclcpp::Subscription<T>> subscription;
+
+  T received_msg;
+  bool is_new_msg = false;
+};
 
 inline double distance(
   const geometry_msgs::msg::Point & p1,
