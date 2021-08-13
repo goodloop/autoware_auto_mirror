@@ -15,8 +15,8 @@
 // Co-developed by Tier IV, Inc. and Apex.AI, Inc.
 
 #include <common/types.hpp>
-#include <tracking/data_association.hpp>
-#include <tracking/roi_association.hpp>
+#include <tracking/detected_object_associator.hpp>
+#include <tracking/greedy_roi_associator.hpp>
 #include <algorithm>
 #include <unordered_set>
 #include <vector>

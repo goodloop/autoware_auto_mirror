@@ -11,13 +11,14 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#ifndef TRACKING__ROI_ASSOCIATION_HPP_
-#define TRACKING__ROI_ASSOCIATION_HPP_
+#ifndef TRACKING__GREEDY_ROI_ASSOCIATOR_HPP_
+#define TRACKING__GREEDY_ROI_ASSOCIATOR_HPP_
 
 #include <autoware_auto_msgs/msg/classified_roi_array.hpp>
 #include <helper_functions/template_utils.hpp>
 #include <geometry/intersection.hpp>
-#include <tracking/data_association.hpp>
+#include <tracking/tracker_types.hpp>
+#include <tracking/tracked_object.hpp>
 #include <tracking/projection.hpp>
 #include <tracking/visibility_control.hpp>
 #include <unordered_set>
@@ -92,4 +93,4 @@ private:
 }  // namespace perception
 }  // namespace autoware
 
-#endif  // TRACKING__ROI_ASSOCIATION_HPP_
+#endif  // TRACKING__GREEDY_ROI_ASSOCIATOR_HPP_

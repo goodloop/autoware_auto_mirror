@@ -15,7 +15,7 @@
 // Co-developed by Tier IV, Inc. and Apex.AI, Inc.
 
 #include <gtest/gtest.h>
-#include <tracking/roi_association.hpp>
+#include <tracking/greedy_roi_associator.hpp>
 #include <tracking/projection.hpp>
 #include <algorithm>
 #include <vector>

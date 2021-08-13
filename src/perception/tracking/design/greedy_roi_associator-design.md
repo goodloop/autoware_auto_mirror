@@ -1,4 +1,4 @@
-ROI Associator {#roi-associator}
+ROI Associator {#tracking-roi-associator}
 ============
 
 The tracks within the tracker represents 3D objects around the robot. If the visual 
@@ -26,7 +26,7 @@ autoware::perception::tracking::IOUHeuristic).
 
 See [Projection](@ref projection) document for more details on how the projection is executed.
 
-The total complexity is expected to be determined by the association operation which has an 
+The total complexity is expected to be determined by the association operation which has a 
 worst case complexity of \f$O(N_TN_R(V_R+V_T))\f$ where \f$N_T\f$ is the number of tracks, 
 \f$N_R\f$ is the number of ROIs, \f$V_R\f$ is the maximum number of vertices on a ROI and 
 \f$V_T\f$ is the maximum number of vertices on a track. The explanation behind the complexity 
