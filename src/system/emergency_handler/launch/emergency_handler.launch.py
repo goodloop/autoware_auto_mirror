@@ -40,7 +40,7 @@ def generate_launch_description():
     # Nodes
     emergency_handler = Node(
         package='emergency_handler',
-        executable='emergency_handler',
+        executable='emergency_handler_exe',
         namespace='system',
         parameters=[LaunchConfiguration('emergency_handler_param_file')],
         remappings=[
@@ -53,7 +53,7 @@ def generate_launch_description():
             ('output/state_command', '/vehicle/emergency/state_command'),
             ('output/is_emergency', '/vehicle/emergency/is_emergency'),
             ('output/hazard_status', '/vehicle/emergency/hazard_status'),
-            ('output/diagnostics_err', 'vehicle_kinematic_state')
+            ('output/diagnostics_err', '/diagnostics')
         ]
     )
 

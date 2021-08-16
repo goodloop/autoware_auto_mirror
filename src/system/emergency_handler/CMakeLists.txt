@@ -13,7 +13,7 @@ set(EMERGENCY_HANDLER_SRC
 ament_auto_add_library(${PROJECT_NAME} SHARED ${EMERGENCY_HANDLER_SRC})
 autoware_set_compile_options(${PROJECT_NAME})
 rclcpp_components_register_node(${PROJECT_NAME}
-  PLUGIN "autoware::emergendy_handler::EmergencyHandler"
+  PLUGIN "autoware::emergency_handler::EmergencyHandlerNode"
   EXECUTABLE ${PROJECT_NAME}_exe
 )
 

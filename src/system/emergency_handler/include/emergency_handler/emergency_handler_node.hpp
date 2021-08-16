@@ -123,7 +123,7 @@ private:
   bool use_parking_after_stopped_;
   double stopped_velocity_threshold_;
 
-  // Heartbeat
+  // Heartbeat/watchdog
   rclcpp::Time initialized_time_;
   std::shared_ptr<HeartbeatChecker<autoware_auto_msgs::msg::DrivingCapability>>
   heartbeat_driving_capability_;
