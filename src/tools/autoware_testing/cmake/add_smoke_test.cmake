@@ -25,9 +25,7 @@
 # :type EXECUTABLE_ARGUMENTS: string
 
 function(add_smoke_test package_name executable_name)
-  message(WARNING ${ARGN})
   cmake_parse_arguments(PARSE_ARGV 2 smoke_test "" "PARAM_FILENAME;EXECUTABLE_ARGUMENTS" "")
-  message(WARNING "${package_name} ${executable_name} ${smoke_test_PARAM_FILENAME} ${smoke_test_EXECUTABLE_ARGUMENTS}")
 
   set(ARGUMENTS "arg_package:=${package_name}" "arg_package_exe:=${executable_name}")
 
@@ -38,8 +36,6 @@ function(add_smoke_test package_name executable_name)
   if(smoke_test_EXECUTABLE_ARGUMENTS)
     list(APPEND ARGUMENTS "arg_executable_arguments:=${smoke_test_EXECUTABLE_ARGUMENTS}")
   endif()
-
-  message("${ARGUMENTS}")
 
   add_ros_test(
     ${autoware_testing_DIR}/../autoware_testing/smoke_test.py
