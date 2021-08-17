@@ -10,13 +10,13 @@ information and to generate emergency control and state commands.
 
 # Design
 
-- Features:
-  - checks multiple sources (autoware state, velocity commands, driving capabilities,
-    velocities) and generates emergency state/emergency commands with the diagnostic info
-  - also it contains the heartbeat checker (watchdog)
-  - the emergency state can be cleared by the specific service
-- Service Servers:
-  - /system/clear_emergency: `std_srvs/srv/Trigger`
+The components checks multiple sources and generates emergency
+velocities/state commands with the diagnostic info.
+The emergency commands are sent as long as the vehicle is stopped
+or the emergency state is not present.
+Also it contains the heartbeat checker (watchdog) that generates emergency state
+if the `DrivingCapability` message is not received with the specified frequency.
+The emergency state can be also cleared by the specific service.
 
 ## Inputs / Outputs / API
 
@@ -38,7 +38,7 @@ Outputs
 
 Services
 
-* `std_srvs/srv/Trigger` (/autoware/clear_emergency) is used to request clear of
+* `std_srvs/srv/Trigger` (/system/clear_emergency) is used to request clear of
   the emergency state.
 
 # Related issues
