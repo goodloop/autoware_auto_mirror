@@ -26,6 +26,7 @@
 #include "simple_planning_simulator/simple_planning_simulator_core.hpp"
 
 #include "common/types.hpp"
+#include "helper_functions/angle_utils.hpp"
 #include "autoware_auto_tf2/tf2_autoware_auto_msgs.hpp"
 #include "simple_planning_simulator/vehicle_model/sim_model.hpp"
 #include "motion_common/motion_common.hpp"
@@ -55,7 +56,9 @@ autoware_auto_msgs::msg::VehicleKinematicState to_kinematic_state(
   autoware_auto_msgs::msg::VehicleKinematicState s;
   s.state.x = static_cast<float32_t>(vehicle_model_ptr->getX());
   s.state.y = static_cast<float32_t>(vehicle_model_ptr->getY());
-  s.state.heading = motion::motion_common::from_angle(vehicle_model_ptr->getYaw());
+  s.state.heading = motion::motion_common::from_angle(
+    ::autoware::common::helper_functions::wrap_angle(
+      vehicle_model_ptr->getYaw()));
   s.state.longitudinal_velocity_mps =
     static_cast<float32_t>(vehicle_model_ptr->getVx());
   s.state.lateral_velocity_mps = 0.0;
