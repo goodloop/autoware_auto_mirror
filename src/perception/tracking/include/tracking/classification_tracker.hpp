@@ -19,6 +19,7 @@
 
 #include <autoware_auto_msgs/msg/detected_object.hpp>
 #include <autoware_auto_msgs/msg/object_classification.hpp>
+#include <helper_functions/float_comparisons.hpp>
 #include <state_estimation/kalman_filter/kalman_filter.hpp>
 #include <state_estimation/measurement/linear_measurement.hpp>
 #include <state_vector/variable.hpp>
@@ -26,6 +27,7 @@
 #include <tracking/visibility_control.hpp>
 
 #include <iostream>
+#include <limits>
 
 namespace autoware
 {
@@ -39,9 +41,10 @@ namespace tracking
 ///
 /// @details    Under the hood, this class uses the autoware::common::state_estimation::KalmanFilter
 ///             class with a special state vector containing all the relevant classes that we aim to
-///             track. The state vector directly holds the probabilities in its values.
-///
-/// @note       This class assumes constant observation covariance that can be set upon creation.
+///             track. The state vector directly holds the probabilities in its values. If the
+///             observation covariance for any particular observation is the same for all observed
+///             classes, then the underlying vector is guaranteed to represent probabilities that
+///             always sum up to 1.
 ///
 /// @tparam     ClassificationStateT  A state that defines all classes that can be tracked.
 ///
@@ -66,6 +69,10 @@ public:
   ///
   /// @brief      Update the class probabilities given a classification update.
   ///
+  /// @note       If the probabilities in the classification vector add up to a number less than 1,
+  ///             all the "missing" probability mass will be assigned to the UNKNOWN state. If the
+  ///             sum is above 1 an exception `std::domain_error` will be thrown instead.
+  ///
   /// @param[in]  classification_vector  A vector of classifications with their probabilities.
   ///
   void update(
@@ -76,6 +83,10 @@ public:
 
   ///
   /// @brief      Update the class probabilities given a classification update.
+  ///
+  /// @note       If the probabilities in the classification vector add up to a number less than 1,
+  ///             all the "missing" probability mass will be assigned to the UNKNOWN state. If the
+  ///             sum is above 1 an exception `std::domain_error` will be thrown instead.
   ///
   /// @param[in]  classification_vector   A vector of classifications with their probabilities.
   /// @param[in]  observation_covariance  A custom observation covariance.
@@ -93,14 +104,20 @@ public:
       // guarantee that the variable that corresponds to a certain index within the
       // ObjectClassification constants is exactly on the same position within the state vector used
       // here. See autoware::perception::tracking::assert_indices_match_classification_constants.
+      if (std::isnan(classification.probability)) {
+        throw std::domain_error("Provided classification probability is NAN.");
+      }
       measurement.state()[classification.classification] = classification.probability;
     }
     const auto sum = measurement.state().vector().sum();
     if (sum > 1.0F) {
       throw std::domain_error("Sum of all probabilities in the classification of an object is > 1");
+    } else if (sum < 1.0F) {
+      // Any gap in the total probability mass contributes to the likelihood of an unknown state.
+      std::cerr << "WARNING: Sum of all classification probabilities is less than one. "
+        "Assigning the missing probability to the UNKNOWN class." << std::endl;
+      measurement.state()[autoware_auto_msgs::msg::ObjectClassification::UNKNOWN] = 1.0F - sum;
     }
-    // Any gap in the total probability mass contributes to the likelihood of an unknown state.
-    measurement.state()[autoware_auto_msgs::msg::ObjectClassification::UNKNOWN] = 1.0F - sum;
     m_tracker.correct(measurement);
   }
 
@@ -109,11 +126,29 @@ public:
   ///
   /// @return     The most likely classification value.
   ///
-  std::uint8_t get_most_likely_class() const
+  std::uint8_t most_likely_class() const
   {
     std::uint8_t index_of_the_max_value{};
     m_tracker.state().vector().maxCoeff(&index_of_the_max_value);
     return index_of_the_max_value;
+  }
+
+  ///
+  /// @brief      Gets the object classification vector to be set directly into the DetectedObject
+  ///             message.
+  ///
+  /// @return     The object classification vector.
+  ///
+  autoware_auto_msgs::msg::DetectedObject::_classification_type object_classification_vector() const
+  {
+    autoware_auto_msgs::msg::DetectedObject::_classification_type classification_vector;
+    for (uint8_t label = 0U; label < ClassificationStateT::size(); ++label) {
+      autoware_auto_msgs::msg::ObjectClassification object_classification;
+      object_classification.classification = label;
+      object_classification.probability = m_tracker.state()[label];
+      classification_vector.emplace_back(object_classification);
+    }
+    return classification_vector;
   }
 
   /// @brief      Expose the underlying state for utility purposes.
@@ -137,9 +172,12 @@ private:
     return initial_state;
   }
 
+
   /// The underlying Kalman filter.
   ClassTrackerKalmanFilter m_tracker = common::state_estimation::make_correction_only_kalman_filter(
-    create_initial_classification_vector(), ClassificationStateT::Matrix::Identity());
+    create_initial_classification_vector(),
+    std::numeric_limits<common::types::float32_t>::max() *
+    ClassificationStateT::Matrix::Identity());
 
   /// The default observation covariance.
   autoware::common::types::float32_t m_default_observation_covariance{0.1F};
