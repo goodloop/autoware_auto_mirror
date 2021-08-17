@@ -12,6 +12,7 @@
       rear_steer: 3  # Right joystick, x direction
       # curvature:
       acceleration: 1  # Left joystick, y direction
+      # velocity:
     # Scale and offset of axes: val = (raw * scale) + offset
     axis_scale:
       brake: -50.0
@@ -20,6 +21,7 @@
       rear_steer: 100.0
       # curvature:
       # acceleration:
+      # velocity:
     axis_offset:
       brake: 50.0
       throttle: 50.0
@@ -27,6 +29,7 @@
       rear_steer: 0.0
       # curvature:
       # acceleration:
+      # velocity:
     # Buttons are not yet implemented
     # Index for which button is which
     buttons:
