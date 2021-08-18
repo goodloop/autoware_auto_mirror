@@ -44,7 +44,7 @@ enum class Axes
   FRONT_STEER,  ///< For all control
   REAR_STEER,  ///< For all control
   CURVATURE,  ///< For high level control
-  ACCELERATION, ///< For normal control
+  ACCELERATION,  ///< For normal control
   VELOCITY  ///< For nomal control
 };
 
