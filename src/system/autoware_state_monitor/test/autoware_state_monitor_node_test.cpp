@@ -160,7 +160,7 @@ protected:
 
 TEST_F(AutowareStateMonitorNodeTest, basic_states_sequence)
 {
-  // sequence: InitializingVehicle -> WaitingForRoute -> Planning
+  // sequence: Initializing -> WaitingForRoute -> Planning
   //           -> WaitingForEngage -> Driving
   expectState(AutowareState::INITIALIZING);
   expectState(AutowareState::WAITING_FOR_ROUTE);

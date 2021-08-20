@@ -133,7 +133,7 @@ TEST_F(StateMachineTest, initialization_sequence)
 
 TEST_F(StateMachineTest, default_full_sequence)
 {
-  // sequence: InitializingVehicle -> WaitingForRoute -> Planning
+  // sequence: Initializing -> WaitingForRoute -> Planning
   //           -> WaitingForEngage -> Driving -> ArrivedGoal --> WaitingForRoute ...
   StateInput input;
   // time: 0s, start initialization

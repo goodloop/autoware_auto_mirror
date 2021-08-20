@@ -13,7 +13,7 @@ The current state is generated based on the observations of multiple sources
 and the state machine (below diagram).
 
 Possible states:
-* *InitializingVehicle*
+* *Initializing*
 * *WaitingForRoute*
 * *Planning*
 * *WaitingForEngage*
@@ -23,9 +23,9 @@ Possible states:
 
 ```mermaid
 graph TD
-    Start --> InitializingVehicle
-    InitializingVehicle --> WaitingForRoute
-    InitializingVehicle --> Finalizing
+    Start --> Initializing
+    Initializing --> WaitingForRoute
+    Initializing --> Finalizing
     WaitingForRoute --> Planning
     WaitingForRoute --> Finalizing
     Planning --> WaitingForEngage
