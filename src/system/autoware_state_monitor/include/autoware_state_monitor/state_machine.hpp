@@ -123,7 +123,7 @@ private:
 
   State judgeAutowareState() const;
 
-  State autoware_state_ = autoware_auto_msgs::msg::AutowareState::INITIALIZING_VEHICLE;
+  State autoware_state_ = autoware_auto_msgs::msg::AutowareState::INITIALIZING;
   StateInput state_input_;
   const StateMachineParams state_param_;
 

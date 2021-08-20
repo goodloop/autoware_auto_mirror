@@ -152,7 +152,7 @@ State StateMachine::judgeAutowareState() const
   }
 
   switch (autoware_state_) {
-    case AutowareState::INITIALIZING_VEHICLE: {
+    case AutowareState::INITIALIZING: {
         if (isVehicleInitialized()) {
           if (!flags_.waiting_after_initializing) {
             flags_.waiting_after_initializing = true;

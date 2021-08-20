@@ -162,7 +162,7 @@ TEST_F(AutowareStateMonitorNodeTest, basic_states_sequence)
 {
   // sequence: InitializingVehicle -> WaitingForRoute -> Planning
   //           -> WaitingForEngage -> Driving
-  expectState(AutowareState::INITIALIZING_VEHICLE);
+  expectState(AutowareState::INITIALIZING);
   expectState(AutowareState::WAITING_FOR_ROUTE);
 
   HADMapRoute route;

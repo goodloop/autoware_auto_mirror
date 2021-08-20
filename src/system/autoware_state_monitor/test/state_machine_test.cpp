@@ -56,14 +56,14 @@ protected:
   StateInput initializeWithStateAndParams(
     const State & state, const StateMachineParams & params)
   {
-    if (state_machine->getCurrentState() != AutowareState::INITIALIZING_VEHICLE) {
+    if (state_machine->getCurrentState() != AutowareState::INITIALIZING) {
       state_machine.reset(new StateMachine(params));
     }
 
     StateInput input;
     input.current_time = toTime(0.0);
     state_machine->updateState(input);
-    if (state == AutowareState::INITIALIZING_VEHICLE) {
+    if (state == AutowareState::INITIALIZING) {
       return input;
     }
 
@@ -121,10 +121,10 @@ TEST_F(StateMachineTest, initialization_sequence)
   StateInput input;
   // time: 0s, start initialization
   input.current_time = toTime(0.0);
-  EXPECT_EQ(state_machine->updateState(input), AutowareState::INITIALIZING_VEHICLE);
+  EXPECT_EQ(state_machine->updateState(input), AutowareState::INITIALIZING);
 
   // time: 0s, after initialization SM waits 1s
-  EXPECT_EQ(state_machine->updateState(input), AutowareState::INITIALIZING_VEHICLE);
+  EXPECT_EQ(state_machine->updateState(input), AutowareState::INITIALIZING);
 
   // time: 2s, initialization state should be changed after 2s
   input.current_time = toTime(2.0);
@@ -138,7 +138,7 @@ TEST_F(StateMachineTest, default_full_sequence)
   StateInput input;
   // time: 0s, start initialization
   input.current_time = toTime(0.0);
-  EXPECT_EQ(state_machine->updateState(input), AutowareState::INITIALIZING_VEHICLE);
+  EXPECT_EQ(state_machine->updateState(input), AutowareState::INITIALIZING);
 
   // time: 2s, initialization state should be changed after 2s
   input.current_time = toTime(2.0);
@@ -376,12 +376,12 @@ TEST_F(StateMachineTest, DISABLED_waiting_for_engage_not_in_autonomous_mode)
   EXPECT_EQ(state_machine->updateState(input), AutowareState::WAITING_FOR_ENGAGE);
 }
 
-TEST_F(StateMachineTest, waiting_after_initializing_vehicle)
+TEST_F(StateMachineTest, waiting_after_INITIALIZING)
 {
-  auto input = initializeWithState(AutowareState::INITIALIZING_VEHICLE);
+  auto input = initializeWithState(AutowareState::INITIALIZING);
   const float start_time = input.current_time.seconds();
   input.current_time = toTime(start_time + 0.5);
-  EXPECT_EQ(state_machine->updateState(input), AutowareState::INITIALIZING_VEHICLE);
+  EXPECT_EQ(state_machine->updateState(input), AutowareState::INITIALIZING);
   input.current_time = toTime(start_time + 1.0);
   EXPECT_EQ(state_machine->updateState(input), AutowareState::WAITING_FOR_ROUTE);
 }

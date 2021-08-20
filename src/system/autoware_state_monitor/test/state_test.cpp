@@ -28,7 +28,7 @@ using autoware_auto_msgs::msg::AutowareState;
 
 TEST(StateTest, autoware_state_to_string)
 {
-  EXPECT_EQ(toString(AutowareState::INITIALIZING_VEHICLE), "InitializingVehicle");
+  EXPECT_EQ(toString(AutowareState::INITIALIZING), "Initializing");
   EXPECT_EQ(toString(AutowareState::WAITING_FOR_ROUTE), "WaitingForRoute");
   EXPECT_EQ(toString(AutowareState::PLANNING), "Planning");
   EXPECT_EQ(toString(AutowareState::WAITING_FOR_ENGAGE), "WaitingForEngage");

@@ -35,8 +35,8 @@ inline std::string toString(const State state)
   using autoware_auto_msgs::msg::AutowareState;
 
   switch (state) {
-    case AutowareState::INITIALIZING_VEHICLE:
-      return "InitializingVehicle";
+    case AutowareState::INITIALIZING:
+      return "Initializing";
     case AutowareState::WAITING_FOR_ROUTE:
       return "WaitingForRoute";
     case AutowareState::PLANNING:
