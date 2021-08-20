@@ -32,7 +32,7 @@ using autoware_auto_msgs::msg::DrivingCapability;
 using autoware_auto_msgs::msg::AutowareState;
 using autoware_auto_msgs::msg::VehicleControlCommand;
 using autoware_auto_msgs::msg::VehicleStateCommand;
-using autoware_auto_msgs::msg::EmergencyMode;
+using autoware_auto_msgs::msg::EmergencyState;
 using autoware_auto_msgs::msg::HazardStatusStamped;
 using autoware_auto_msgs::msg::HazardStatus;
 using autoware::emergency_handler::EmergencyHandlerNode;
@@ -74,7 +74,7 @@ public:
       test_node, executor, "output/control_command");
     state_command_spy = std::make_shared<Spy<VehicleStateCommand>>(
       test_node, executor, "output/state_command");
-    emergency_mode_spy = std::make_shared<Spy<EmergencyMode>>(
+    emergency_state_spy = std::make_shared<Spy<EmergencyState>>(
       test_node, executor, "output/is_emergency");
     hazard_status_spy = std::make_shared<Spy<HazardStatusStamped>>(
       test_node, executor, "output/hazard_status");
@@ -105,7 +105,6 @@ protected:
     msg.state = state;
     pub_autoware_state->publish(msg);
   }
-
 
   void publishVehicleStateReport(const uint8_t mode)
   {
@@ -138,8 +137,8 @@ protected:
       EXPECT_EQ(msg.status.diag_single_point_fault.size(), 0);
     }
     {
-      auto msg = emergency_mode_spy->expectMsg();
-      EXPECT_EQ(msg.is_emergency, false);
+      auto msg = emergency_state_spy->expectMsg();
+      EXPECT_EQ(msg.state, EmergencyState::NORMAL);
     }
     {
       auto msg = diagnostic_spy->expectMsg();
@@ -164,7 +163,7 @@ protected:
 
   std::shared_ptr<Spy<VehicleControlCommand>> control_command_spy;
   std::shared_ptr<Spy<VehicleStateCommand>> state_command_spy;
-  std::shared_ptr<Spy<EmergencyMode>> emergency_mode_spy;
+  std::shared_ptr<Spy<EmergencyState>> emergency_state_spy;
   std::shared_ptr<Spy<HazardStatusStamped>> hazard_status_spy;
   std::shared_ptr<Spy<DiagnosticArray>> diagnostic_spy;
 };
@@ -180,6 +179,8 @@ TEST_F(EmergencyHandlerNodeTest, manual_mode_not_ignored_autoware_state_no_emerg
 
   DrivingCapability driving_capability;
   driving_capability.remote_control.level = HazardStatus::NO_FAULT;
+  driving_capability.remote_control.emergency = false;
+
   pub_driving_capability->publish(driving_capability);
 
   expectNoEmergencyState();
@@ -192,6 +193,7 @@ TEST_F(EmergencyHandlerNodeTest, autonomous_mode_not_ignored_autoware_state_no_e
 
   DrivingCapability driving_capability;
   driving_capability.autonomous_driving.level = HazardStatus::NO_FAULT;
+  driving_capability.autonomous_driving.emergency = false;
   pub_driving_capability->publish(driving_capability);
 
   expectNoEmergencyState();
@@ -204,6 +206,7 @@ TEST_F(EmergencyHandlerNodeTest, manual_mode_ignored_autoware_state_no_emergency
 
   DrivingCapability driving_capability;
   driving_capability.remote_control.level = HazardStatus::SINGLE_POINT_FAULT;  // fault
+  driving_capability.remote_control.emergency = true;
   pub_driving_capability->publish(driving_capability);
 
   expectNoEmergencyState();
@@ -215,7 +218,8 @@ TEST_F(EmergencyHandlerNodeTest, autonomous_mode_ignored_autoware_state_no_emerg
   publishVehicleStateReport(VehicleStateReport::MODE_AUTONOMOUS);
 
   DrivingCapability driving_capability;
-  driving_capability.remote_control.level = HazardStatus::SINGLE_POINT_FAULT;  // fault
+  driving_capability.autonomous_driving.level = HazardStatus::SINGLE_POINT_FAULT;  // fault
+  driving_capability.autonomous_driving.emergency = true;
   pub_driving_capability->publish(driving_capability);
 
   expectNoEmergencyState();
@@ -229,6 +233,7 @@ TEST_F(EmergencyHandlerNodeTest, autonomous_mode_emergency_state_in_driving_capa
   DrivingCapability driving_capability;
   driving_capability.remote_control.level = HazardStatus::NO_FAULT;
   driving_capability.autonomous_driving.level = HazardStatus::SINGLE_POINT_FAULT;  // fault
+  driving_capability.autonomous_driving.emergency = true;
   driving_capability.autonomous_driving.diag_single_point_fault.push_back(
     createDiagnosticStatus(DiagnosticStatus::ERROR, "test_hw", "test_name"));
   pub_driving_capability->publish(driving_capability);
@@ -238,12 +243,12 @@ TEST_F(EmergencyHandlerNodeTest, autonomous_mode_emergency_state_in_driving_capa
 
   {
     auto msg = hazard_status_spy->expectMsg();
-    EXPECT_EQ(msg.status.level, autoware_auto_msgs::msg::HazardStatus::SINGLE_POINT_FAULT);
+    EXPECT_EQ(msg.status.level, HazardStatus::SINGLE_POINT_FAULT);
     ASSERT_EQ(msg.status.diag_single_point_fault.size(), 1);
   }
   {
-    auto msg = emergency_mode_spy->expectMsg();
-    EXPECT_EQ(msg.is_emergency, true);
+    auto msg = emergency_state_spy->expectMsg();
+    EXPECT_EQ(msg.state, EmergencyState::MRM_OPERATING);
   }
   {
     auto msg = diagnostic_spy->expectMsg();
@@ -370,8 +375,8 @@ TEST_F(EmergencyHandlerNodeTest, input_data_timeout_no_input_data)
     EXPECT_EQ(msg.status.diag_single_point_fault[0].level, DiagnosticStatus::ERROR);
   }
   {
-    auto msg = emergency_mode_spy->expectMsg();
-    EXPECT_EQ(msg.is_emergency, true);
+    auto msg = emergency_state_spy->expectMsg();
+    EXPECT_EQ(msg.state, EmergencyState::MRM_OPERATING);
   }
   {
     auto msg = diagnostic_spy->expectMsg();
@@ -396,8 +401,8 @@ TEST_F(EmergencyHandlerNodeTest, input_data_timeout_because_of_missing_autoware_
     EXPECT_EQ(msg.status.diag_single_point_fault[0].level, DiagnosticStatus::ERROR);
   }
   {
-    auto msg = emergency_mode_spy->expectMsg();
-    EXPECT_EQ(msg.is_emergency, true);
+    auto msg = emergency_state_spy->expectMsg();
+    EXPECT_EQ(msg.state, EmergencyState::MRM_OPERATING);
   }
   {
     auto msg = diagnostic_spy->expectMsg();
@@ -422,8 +427,8 @@ TEST_F(EmergencyHandlerNodeTest, input_data_timeout_because_of_missing_driving_c
     EXPECT_EQ(msg.status.diag_single_point_fault[0].level, DiagnosticStatus::ERROR);
   }
   {
-    auto msg = emergency_mode_spy->expectMsg();
-    EXPECT_EQ(msg.is_emergency, true);
+    auto msg = emergency_state_spy->expectMsg();
+    EXPECT_EQ(msg.state, EmergencyState::MRM_OPERATING);
   }
   {
     auto msg = diagnostic_spy->expectMsg();
@@ -448,8 +453,8 @@ TEST_F(EmergencyHandlerNodeTest, input_data_timeout_because_of_missing_vehicle_s
     EXPECT_EQ(msg.status.diag_single_point_fault[0].level, DiagnosticStatus::ERROR);
   }
   {
-    auto msg = emergency_mode_spy->expectMsg();
-    EXPECT_EQ(msg.is_emergency, true);
+    auto msg = emergency_state_spy->expectMsg();
+    EXPECT_EQ(msg.state, EmergencyState::MRM_OPERATING);
   }
   {
     auto msg = diagnostic_spy->expectMsg();

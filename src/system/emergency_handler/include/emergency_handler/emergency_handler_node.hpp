@@ -30,7 +30,7 @@
 // Autoware
 #include "autoware_auto_msgs/msg/autoware_state.hpp"
 #include "autoware_auto_msgs/msg/driving_capability.hpp"
-#include "autoware_auto_msgs/msg/emergency_mode.hpp"
+#include "autoware_auto_msgs/msg/emergency_state.hpp"
 #include "autoware_auto_msgs/msg/hazard_status_stamped.hpp"
 #include "autoware_auto_msgs/msg/vehicle_odometry.hpp"
 #include "autoware_auto_msgs/msg/vehicle_control_command.hpp"
@@ -134,7 +134,7 @@ private:
   rclcpp::Publisher<autoware_auto_msgs::msg::VehicleControlCommand>::SharedPtr
     pub_control_command_;
   rclcpp::Publisher<autoware_auto_msgs::msg::VehicleStateCommand>::SharedPtr pub_state_command_;
-  rclcpp::Publisher<autoware_auto_msgs::msg::EmergencyMode>::SharedPtr pub_is_emergency_;
+  rclcpp::Publisher<autoware_auto_msgs::msg::EmergencyState>::SharedPtr pub_is_emergency_;
   rclcpp::Publisher<autoware_auto_msgs::msg::HazardStatusStamped>::SharedPtr pub_hazard_status_;
   rclcpp::Publisher<diagnostic_msgs::msg::DiagnosticArray>::SharedPtr pub_diagnostics_err_;
 

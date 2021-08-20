@@ -97,7 +97,7 @@ EmergencyHandlerNode::EmergencyHandlerNode(const rclcpp::NodeOptions & node_opti
     "output/control_command", rclcpp::QoS{1});
   pub_state_command_ = create_publisher<autoware_auto_msgs::msg::VehicleStateCommand>(
     "output/state_command", rclcpp::QoS{1});
-  pub_is_emergency_ = create_publisher<autoware_auto_msgs::msg::EmergencyMode>(
+  pub_is_emergency_ = create_publisher<autoware_auto_msgs::msg::EmergencyState>(
     "output/is_emergency", rclcpp::QoS{1});
   pub_hazard_status_ = create_publisher<autoware_auto_msgs::msg::HazardStatusStamped>(
     "output/hazard_status", rclcpp::QoS{1});
@@ -177,10 +177,10 @@ bool EmergencyHandlerNode::onClearEmergencyService(
     hazard_status_ = hazard_status;
 
     response->success = true;
-    response->message = "Emergency state was cleared.";
+    response->message = "Emergency state has been cleared.";
   } else {
     response->success = false;
-    response->message = "There are still errors, can't clear emergency state.";
+    response->message = "There are still errors, can't clear the emergency state.";
   }
 
   return true;
@@ -189,9 +189,15 @@ bool EmergencyHandlerNode::onClearEmergencyService(
 void EmergencyHandlerNode::publishHazardStatus(
   const autoware_auto_msgs::msg::HazardStatus & hazard_status)
 {
-  // Create EmergencyMode msg
-  autoware_auto_msgs::msg::EmergencyMode emergency_mode;
-  emergency_mode.is_emergency = isEmergency(hazard_status);
+  using autoware_auto_msgs::msg::EmergencyState;
+
+  // Create EmergencyState msg
+  EmergencyState emergency_state;
+  if (isEmergency(hazard_status)) {
+    emergency_state.state = EmergencyState::MRM_OPERATING;
+  } else {
+    emergency_state.state = EmergencyState::NORMAL;
+  }
 
   // Create HazardStatusStamped msg
   autoware_auto_msgs::msg::HazardStatusStamped hazard_status_stamped;
@@ -199,7 +205,7 @@ void EmergencyHandlerNode::publishHazardStatus(
   hazard_status_stamped.status = hazard_status;
 
   // Publish data
-  pub_is_emergency_->publish(emergency_mode);
+  pub_is_emergency_->publish(emergency_state);
   pub_hazard_status_->publish(hazard_status_stamped);
   pub_diagnostics_err_->publish(
     convertHazardStatusToDiagnosticArray(this->get_clock(), hazard_status_stamped.status));
@@ -264,6 +270,7 @@ void EmergencyHandlerNode::onTimer()
     if ((this->now() - initialized_time_).seconds() > data_ready_timeout_) {
       autoware_auto_msgs::msg::HazardStatus hazard_status;
       hazard_status.level = autoware_auto_msgs::msg::HazardStatus::SINGLE_POINT_FAULT;
+      hazard_status.emergency = true;
 
       const auto diag = createDiagnosticStatus(
         DiagnosticStatus::ERROR, "input_data_timeout");
@@ -285,6 +292,8 @@ void EmergencyHandlerNode::onTimer()
 
   publishHazardStatus(hazard_status_);
   is_emergency_ = isEmergency(hazard_status_);
+
+  // Handle the emergency state by emergency stopping of the vehicle
   if (is_emergency_) {
     publishControlAndStateCommands();
   }
@@ -301,7 +310,7 @@ bool EmergencyHandlerNode::isStopped()
 bool EmergencyHandlerNode::isEmergency(
   const autoware_auto_msgs::msg::HazardStatus & hazard_status)
 {
-  return hazard_status.level >= emergency_hazard_level_;
+  return hazard_status.emergency;
 }
 
 autoware_auto_msgs::msg::HazardStatus EmergencyHandlerNode::judgeHazardStatus()
@@ -313,7 +322,6 @@ autoware_auto_msgs::msg::HazardStatus EmergencyHandlerNode::judgeHazardStatus()
   if (!state_report_ || !autoware_state_) {
     throw std::runtime_error(std::string(__func__) + ": No state report or autoware state.");
   }
-
 
   const auto vehicle_mode = state_report_->mode;
 
@@ -332,6 +340,7 @@ autoware_auto_msgs::msg::HazardStatus EmergencyHandlerNode::judgeHazardStatus()
 
     if (vehicle_mode == VehicleStateReport::MODE_AUTONOMOUS && is_in_auto_ignore_state) {
       hazard_status.level = HazardStatus::NO_FAULT;
+      hazard_status.emergency = false;
     }
 
     const auto is_in_remote_ignore_state =
@@ -340,6 +349,7 @@ autoware_auto_msgs::msg::HazardStatus EmergencyHandlerNode::judgeHazardStatus()
 
     if (vehicle_mode == VehicleStateReport::MODE_MANUAL && is_in_remote_ignore_state) {
       hazard_status.level = HazardStatus::NO_FAULT;
+      hazard_status.emergency = false;
     }
   }
 
@@ -352,6 +362,7 @@ autoware_auto_msgs::msg::HazardStatus EmergencyHandlerNode::judgeHazardStatus()
 
     if (!is_in_heartbeat_timeout_ignore_state && heartbeat_driving_capability_->isTimeout()) {
       hazard_status.level = HazardStatus::SINGLE_POINT_FAULT;
+      hazard_status.emergency = true;
       hazard_status.diag_single_point_fault.push_back(
         createDiagnosticStatus(
           DiagnosticStatus::ERROR, "heartbeat_timeout",
