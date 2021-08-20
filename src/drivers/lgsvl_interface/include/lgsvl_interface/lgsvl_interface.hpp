@@ -23,6 +23,7 @@
 #include <autoware_auto_msgs/msg/headlights_command.hpp>
 #include <autoware_auto_msgs/msg/horn_command.hpp>
 #include <autoware_auto_msgs/msg/wipers_command.hpp>
+#include <autoware_auto_msgs/msg/hazard_lights_command.hpp>
 #include <autoware_auto_msgs/msg/raw_control_command.hpp>
 #include <autoware_auto_msgs/msg/vehicle_kinematic_state.hpp>
 #include <autoware_auto_msgs/msg/vehicle_state_command.hpp>
@@ -128,6 +129,8 @@ public:
   void send_horn_command(const autoware_auto_msgs::msg::HornCommand & msg) override;
   /// Send wipers command data.
   void send_wipers_command(const autoware_auto_msgs::msg::WipersCommand & msg) override;
+  /// Send hazard_lights command data.
+  void send_hazard_lights_command(const autoware_auto_msgs::msg::HazardLightsCommand & msg) override;
 
 private:
   // Mappings from Autoware to LGSVL values
