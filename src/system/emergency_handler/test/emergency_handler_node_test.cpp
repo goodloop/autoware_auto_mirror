@@ -199,7 +199,7 @@ TEST_F(EmergencyHandlerNodeTest, autonomous_mode_not_ignored_autoware_state_no_e
 
 TEST_F(EmergencyHandlerNodeTest, manual_mode_ignored_autoware_state_no_emergency_state)
 {
-  publishAutowareState(AutowareState::INITIALIZING_VEHICLE);  // ignored state
+  publishAutowareState(AutowareState::INITIALIZING);  // ignored state
   publishVehicleStateReport(VehicleStateReport::MODE_MANUAL);
 
   DrivingCapability driving_capability;
@@ -211,7 +211,7 @@ TEST_F(EmergencyHandlerNodeTest, manual_mode_ignored_autoware_state_no_emergency
 
 TEST_F(EmergencyHandlerNodeTest, autonomous_mode_ignored_autoware_state_no_emergency_state)
 {
-  publishAutowareState(AutowareState::INITIALIZING_VEHICLE);  // ignored state
+  publishAutowareState(AutowareState::INITIALIZING);  // ignored state
   publishVehicleStateReport(VehicleStateReport::MODE_AUTONOMOUS);
 
   DrivingCapability driving_capability;

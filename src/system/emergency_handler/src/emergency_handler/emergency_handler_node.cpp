@@ -325,7 +325,7 @@ autoware_auto_msgs::msg::HazardStatus EmergencyHandlerNode::judgeHazardStatus()
   // Ignore initializing and finalizing state
   {
     const auto is_in_auto_ignore_state =
-      (autoware_state_->state == AutowareState::INITIALIZING_VEHICLE) ||
+      (autoware_state_->state == AutowareState::INITIALIZING) ||
       (autoware_state_->state == AutowareState::WAITING_FOR_ROUTE) ||
       (autoware_state_->state == AutowareState::PLANNING) ||
       (autoware_state_->state == AutowareState::FINALIZING);
@@ -335,7 +335,7 @@ autoware_auto_msgs::msg::HazardStatus EmergencyHandlerNode::judgeHazardStatus()
     }
 
     const auto is_in_remote_ignore_state =
-      (autoware_state_->state == AutowareState::INITIALIZING_VEHICLE) ||
+      (autoware_state_->state == AutowareState::INITIALIZING) ||
       (autoware_state_->state == AutowareState::FINALIZING);
 
     if (vehicle_mode == VehicleStateReport::MODE_MANUAL && is_in_remote_ignore_state) {
@@ -348,7 +348,7 @@ autoware_auto_msgs::msg::HazardStatus EmergencyHandlerNode::judgeHazardStatus()
     using diagnostic_msgs::msg::DiagnosticStatus;
 
     const auto is_in_heartbeat_timeout_ignore_state =
-      (autoware_state_->state == AutowareState::INITIALIZING_VEHICLE);
+      (autoware_state_->state == AutowareState::INITIALIZING);
 
     if (!is_in_heartbeat_timeout_ignore_state && heartbeat_driving_capability_->isTimeout()) {
       hazard_status.level = HazardStatus::SINGLE_POINT_FAULT;
