@@ -34,7 +34,7 @@ def generate_test_description():
         namespace='test',
         parameters=[os.path.join(
             get_package_share_directory('autoware_state_monitor'),
-            'param/test.param.yaml'
+            'param/defaults.param.yaml'
         )]
     )
 
