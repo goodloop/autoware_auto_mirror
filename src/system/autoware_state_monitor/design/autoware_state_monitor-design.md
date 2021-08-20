@@ -46,7 +46,19 @@ In each update of the state machine the inputs are checked and the new state is 
 For example, before transition to `ArrivedGoal` state, the component checks
 if the vehicle is close to the goal and if the vehicle is stopped.
 
-## Inputs / Outputs / API
+## Inputs / Outputs / API / Parameters
+
+Parameters
+* `update_rate` determines the state machine loop frequency.
+* `arrived_distance_threshold` is a distance threshold that determines how close to the goal
+  the vehicle should be to consider goal as reached.
+* `stopped_velocity_threshold_mps` is a velocity threshold below which the vehicle
+  is considered to be stopped.
+* `stopped_time_threshold` is a time threshold. If the vehicle velocities are below the threshold
+  for specified time then the vehicle is considered to be stopped.
+* `wait_time_after_initializing` is a delay after `Initializing` state, before switch to the new state
+* `wait_time_after_planning` is a delay after `Planning` state, before switch to the new state
+* `wait_time_after_arrived_goal` is a delay after `ArrivedGoal` state, before switch to the new state
 
 Inputs
 * `autoware_auto_msgs/msg/Engage` is used to check if the vehicle has been engaged or not.
