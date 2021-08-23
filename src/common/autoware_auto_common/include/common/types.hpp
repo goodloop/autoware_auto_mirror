@@ -68,10 +68,10 @@ struct COMMON_PUBLIC PointXYZIF
     using autoware::common::helper_functions::comparisons::rel_eq;
     const auto epsilon = std::numeric_limits<float32_t>::epsilon();
     return rel_eq(p1.x, p2.x, epsilon) &&
-          rel_eq(p1.y, p2.y, epsilon) &&
-          rel_eq(p1.z, p2.z, epsilon) &&
-          rel_eq(p1.intensity, p2.intensity, epsilon) &&
-          (p1.id == p2.id);
+           rel_eq(p1.y, p2.y, epsilon) &&
+           rel_eq(p1.z, p2.z, epsilon) &&
+           rel_eq(p1.intensity, p2.intensity, epsilon) &&
+           (p1.id == p2.id);
   }
 };
 
