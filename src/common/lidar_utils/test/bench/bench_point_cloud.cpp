@@ -50,21 +50,6 @@ sensor_msgs::msg::PointCloud2 create_point_cloud_through_utils(const std::size_t
 
 }  // namespace
 
-static void BenchLidarUtilsAddPointToCloud(benchmark::State & state)
-{
-  auto msg = create_point_cloud_through_utils(kCloudSize);
-  const autoware::common::types::PointXYZIF point{};
-  std::uint32_t idx{};
-  for (auto _ : state) {
-    idx = 0;
-    for (auto i = 0U; i < kCloudSize; ++i) {
-      autoware::common::lidar_utils::add_point_to_cloud(msg, point, idx);
-      benchmark::DoNotOptimize(msg);
-    }
-  }
-}
-
-
 static void BenchMsgWrapperAddPointToCloud(benchmark::State & state)
 {
   using autoware::common::types::PointXYZIF;
@@ -112,42 +97,6 @@ static void BenchMsgWrapperPushBackPointToCloud(benchmark::State & state)
 }
 
 
-static void BenchLidarUtilsAccessPoint(benchmark::State & state)
-{
-  auto msg = create_point_cloud_through_utils(kCloudSize);
-  std::uint32_t idx{};
-  const autoware::common::types::PointXYZIF point{};
-  for (auto i = 0U; i < kCloudSize; ++i) {
-    autoware::common::lidar_utils::add_point_to_cloud(msg, point, idx);
-  }
-  auto x = 0.0F;
-  auto y = 0.0F;
-  auto z = 0.0F;
-  auto intensity = 0.0F;
-  for (auto _ : state) {
-    sensor_msgs::PointCloud2ConstIterator<float32_t> x_it{msg, "x"};
-    sensor_msgs::PointCloud2ConstIterator<float32_t> y_it{msg, "y"};
-    sensor_msgs::PointCloud2ConstIterator<float32_t> z_it{msg, "z"};
-    sensor_msgs::PointCloud2ConstIterator<float32_t> intensity_it{msg, "intensity"};
-    while (x_it != x_it.end() && y_it != y_it.end() && z_it != z_it.end() &&
-      intensity_it != intensity_it.end())
-    {
-      benchmark::DoNotOptimize(x);
-      benchmark::DoNotOptimize(y);
-      benchmark::DoNotOptimize(z);
-      benchmark::DoNotOptimize(intensity);
-      x = *x_it;
-      y = *y_it;
-      z = *z_it;
-      intensity = *intensity_it;
-      ++x_it;
-      ++y_it;
-      ++z_it;
-      ++intensity_it;
-    }
-  }
-}
-
 static void BenchMsgWrapperAccessPoint(benchmark::State & state)
 {
   using autoware::common::types::PointXYZIF;
@@ -182,8 +131,6 @@ static void BenchMsgWrapperAccessPoint(benchmark::State & state)
 BENCHMARK(BenchMsgWrapperAddPointToCloud);
 BENCHMARK(BenchMsgWrapperResizeAndAddPointToCloud);
 BENCHMARK(BenchMsgWrapperPushBackPointToCloud);
-BENCHMARK(BenchLidarUtilsAddPointToCloud);
 
 
 BENCHMARK(BenchMsgWrapperAccessPoint);
-BENCHMARK(BenchLidarUtilsAccessPoint);
