@@ -150,16 +150,17 @@ protected:
 void create_dummy_cloud(sensor_msgs::msg::PointCloud2 & cloud)
 {
   std::vector<float32_t> seeds = {0.0, 0.0, 0.0};
-  autoware::common::lidar_utils::init_pcl_msg(cloud, "base_link", seeds.size());
 
-  uint32_t pidx = 0;
+  using autoware::common::types::PointXYZIF;
+  point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZIF> modifier{cloud, "base_link"};
+
   for (auto seed : seeds) {
-    autoware::common::types::PointXYZIF pt;
+    PointXYZIF pt;
     pt.x = seed;
     pt.y = seed;
     pt.z = seed;
     pt.intensity = seed;
-    autoware::common::lidar_utils::add_point_to_cloud(cloud, pt, pidx);
+    modifier.push_back(pt);
   }
 }
 
