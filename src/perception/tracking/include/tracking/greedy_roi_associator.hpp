@@ -78,7 +78,7 @@ public:
   /// \param tracks Tracks
   /// \param tf_camera_from_track Transform from the track frame to the camera frame
   /// \return The association between the tracks and the rois
-  AssociatorResult assign(
+  virtual AssociatorResult assign(
     const autoware_auto_msgs::msg::ClassifiedRoiArray & rois,
     const std::vector<TrackedObject> & tracks,
     const geometry_msgs::msg::Transform & tf_camera_from_track
@@ -92,29 +92,19 @@ public:
   /// \param tf_camera_from_object Transform from the track frame to the camera frame
   /// \return The association between the objects and the rois. In this case, "tracks" in the
   ///         return struct refers to the 3D objects and "detections" refer to the ROIs
-  AssociatorResult assign(
+  virtual AssociatorResult assign(
     const autoware_auto_msgs::msg::ClassifiedRoiArray & rois,
     const autoware_auto_msgs::msg::DetectedObjects & objects,
     const geometry_msgs::msg::Transform & tf_camera_from_object
   ) const;
 
 private:
-  // Create result struct and initialize data to expected default values
-  AssociatorResult create_and_init_result(
-    const std::size_t rois_size,
-    const std::size_t objects_size) const;
-
   // Scan the ROIs to find the best matching roi for a given shape by projecting it onto image
   // frame
   std::size_t project_and_match_detection(
     const std::vector<geometry_msgs::msg::Point32> & object_shape_in_camera_frame,
     const std::unordered_set<std::size_t> & available_roi_indices,
     const autoware_auto_msgs::msg::ClassifiedRoiArray & rois) const;
-
-  // Uses the given matched_detection_idx to assign to appropriate containers in result
-  void handle_matching_output(
-    const std::size_t matched_detection_idx,
-    const std::size_t object_idx, AssociatorResult & result) const;
 
   CameraModel m_camera;
   IOUHeuristic m_iou_func{};
