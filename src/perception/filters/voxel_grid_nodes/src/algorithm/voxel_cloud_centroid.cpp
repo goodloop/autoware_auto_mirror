@@ -21,7 +21,6 @@
 #include "lidar_utils/point_cloud_utils.hpp"
 #include "voxel_grid_nodes/algorithm/voxel_cloud_centroid.hpp"
 
-using autoware::common::lidar_utils::add_point_to_cloud;
 using autoware::common::lidar_utils::has_intensity_and_throw_if_no_xyz;
 
 namespace autoware
