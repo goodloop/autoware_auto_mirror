@@ -16,9 +16,8 @@
 
 #include <cstring>
 
-#include <point_cloud_msg_wrapper/point_cloud_msg_wrapper.hpp>
-
 #include "lidar_utils/point_cloud_utils.hpp"
+#include "point_cloud_msg_wrapper/point_cloud_msg_wrapper.hpp"
 #include "voxel_grid_nodes/algorithm/voxel_cloud_approximate.hpp"
 
 using autoware::common::lidar_utils::has_intensity_and_throw_if_no_xyz;
