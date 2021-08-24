@@ -39,7 +39,7 @@ VoxelCloudCentroid::VoxelCloudCentroid(const voxel_grid::Config & cfg)
   m_grid(cfg)
 {
   // frame id is arbitrary, not the responsibility of this component
-  autoware::common::lidar_utils::init_pcl_msg(m_cloud, "base_link", cfg.get_capacity());
+  point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZIF>{m_cloud, "base_link"};
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -82,7 +82,9 @@ void VoxelCloudCentroid::insert(
 const sensor_msgs::msg::PointCloud2 & VoxelCloudCentroid::get()
 {
   using autoware::common::types::PointXYZIF;
-  point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZIF> modifier{m_cloud, "frame_id"};
+  point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZIF> modifier{m_cloud};
+  modifier.clear();
+  modifier.reserve(m_grid.size());
 
   for (const auto & it : m_grid) {
     const auto & pt = it.second.get();
