@@ -20,6 +20,7 @@
 
 #include "common/types.hpp"
 #include "lidar_utils/point_cloud_utils.hpp"
+#include "point_cloud_msg_wrapper/point_cloud_msg_wrapper.hpp"
 #include "sensor_msgs/point_cloud2_iterator.hpp"
 #include "velodyne_nodes/velodyne_cloud_node.hpp"
 
@@ -99,7 +100,8 @@ void VelodyneCloudNode<T>::receiver_callback(const std::vector<uint8_t> & buffer
 template<typename T>
 void VelodyneCloudNode<T>::init_output(sensor_msgs::msg::PointCloud2 & output)
 {
-  autoware::common::lidar_utils::init_pcl_msg(output, m_frame_id.c_str(), m_cloud_size);
+  point_cloud_msg_wrapper::PointCloud2Modifier<autoware::common::types::PointXYZIF>{
+    output, m_frame_id}.reserve(m_cloud_size);
   m_point_cloud_its.reset(output, m_point_cloud_idx);
 }
 

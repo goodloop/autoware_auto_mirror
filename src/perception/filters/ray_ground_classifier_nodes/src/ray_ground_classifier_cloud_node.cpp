@@ -15,6 +15,7 @@
 // Co-developed by Tier IV, Inc. and Apex.AI, Inc.
 #include <common/types.hpp>
 #include <lidar_utils/point_cloud_utils.hpp>
+#include <point_cloud_msg_wrapper/point_cloud_msg_wrapper.hpp>
 #include <ray_ground_classifier_nodes/ray_ground_classifier_cloud_node.hpp>
 #include <rclcpp/rclcpp.hpp>
 #include <rclcpp_components/register_node_macro.hpp>
@@ -39,7 +40,6 @@ using autoware::perception::filters::ray_ground_classifier::PointPtrBlock;
 using std::placeholders::_1;
 
 using autoware::common::lidar_utils::has_intensity_and_throw_if_no_xyz;
-using autoware::common::lidar_utils::init_pcl_msg;
 using autoware::common::lidar_utils::add_point_to_cloud_raw;
 
 RayGroundClassifierCloudNode::RayGroundClassifierCloudNode(
@@ -86,8 +86,10 @@ RayGroundClassifierCloudNode::RayGroundClassifierCloudNode(
   m_nonground_pc_idx{0}
 {
   // initialize messages
-  init_pcl_msg(m_ground_msg, m_frame_id.c_str(), m_pcl_size);
-  init_pcl_msg(m_nonground_msg, m_frame_id.c_str(), m_pcl_size);
+  point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZIF>{
+    m_ground_msg, m_frame_id}.reserve(m_pcl_size);
+  point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZIF>{
+    m_nonground_msg, m_frame_id}.reserve(m_pcl_size);
 }
 ////////////////////////////////////////////////////////////////////////////////
 void

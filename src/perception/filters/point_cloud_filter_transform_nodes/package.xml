@@ -13,6 +13,7 @@
 
     <depend>autoware_auto_msgs</depend>
     <depend>lidar_utils</depend>
+    <depend>point_cloud_msg_wrapper</depend>
     <depend>yaml_cpp_vendor</depend>
     <depend>tf2</depend>
     <depend>tf2_ros</depend>
