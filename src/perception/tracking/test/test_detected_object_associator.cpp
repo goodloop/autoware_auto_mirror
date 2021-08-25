@@ -16,9 +16,6 @@
 
 #include <gtest/gtest.h>
 
-#include "autoware_auto_msgs/msg/tracked_object.hpp"
-#include "autoware_auto_msgs/msg/tracked_objects.hpp"
-
 #include <tracking/detected_object_associator.hpp>
 
 #include <vector>
