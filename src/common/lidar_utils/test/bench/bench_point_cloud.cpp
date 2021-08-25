@@ -42,9 +42,9 @@ sensor_msgs::msg::PointCloud2 create_point_cloud_through_utils(const std::size_t
 {
   sensor_msgs::msg::PointCloud2 msg;
   using autoware::common::types::PointXYZIF;
-  autoware::common::lidar_utils::init_pcl_msg(msg, "frame_id", kCloudSize);
-  std::uint32_t idx{};
-  autoware::common::lidar_utils::reset_pcl_msg(msg, kCloudSize, idx);
+  point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZIF> modifier{msg, "frame_id"};
+  modifier.reserve(kCloudSize);
+  modifier.clear();
   return msg;
 }
 

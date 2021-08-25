@@ -16,6 +16,7 @@
 
 #include <common/types.hpp>
 #include <point_cloud_fusion_nodes/point_cloud_fusion_node.hpp>
+#include <point_cloud_msg_wrapper/point_cloud_msg_wrapper.hpp>
 #include <rclcpp_components/register_node_macro.hpp>
 #include <tf2_sensor_msgs/tf2_sensor_msgs.h>
 
@@ -56,9 +57,9 @@ void PointCloudFusionNode::init()
     m_cloud_capacity,
     m_input_topics.size());
 
-  common::lidar_utils::init_pcl_msg(
-    m_cloud_concatenated, m_output_frame_id,
-    m_cloud_capacity);
+  using autoware::common::types::PointXYZIF;
+  point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZIF>{
+    m_cloud_concatenated, m_output_frame_id}.reserve(m_cloud_capacity);
 
   if (m_input_topics.size() > 8 || m_input_topics.size() < 2) {
     throw std::domain_error(
