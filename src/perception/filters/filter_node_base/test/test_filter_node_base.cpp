@@ -170,9 +170,9 @@ void check_pc(
   sensor_msgs::msg::PointCloud2 & msg2)
 {
   // Convert to using the wrapper
-  const point_cloud_msg_wrapper::PointCloud2View<autoware::common::types::PointXYZI> msg1_wrapper{
+  const point_cloud_msg_wrapper::PointCloud2View<autoware::common::types::PointXYZIF> msg1_wrapper{
     msg1};
-  const point_cloud_msg_wrapper::PointCloud2View<autoware::common::types::PointXYZI> msg2_wrapper{
+  const point_cloud_msg_wrapper::PointCloud2View<autoware::common::types::PointXYZIF> msg2_wrapper{
     msg2};
 
   EXPECT_EQ(msg1.header.frame_id, msg2.header.frame_id);
