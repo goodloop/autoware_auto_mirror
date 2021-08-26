@@ -33,7 +33,7 @@
 #include "trajectory_follower/vehicle_model/vehicle_model_bicycle_kinematics_no_delay.hpp"
 
 #include "autoware_auto_msgs/msg/ackermann_lateral_command.hpp"
-#include "autoware_auto_msgs/msg/control_diagnostic.hpp"
+#include "autoware_auto_msgs/msg/float32_multi_array_diagnostic.hpp"
 #include "autoware_auto_msgs/msg/trajectory.hpp"
 #include "autoware_auto_msgs/msg/vehicle_kinematic_state.hpp"
 #include "common/types.hpp"
@@ -78,7 +78,8 @@ private:
   //!< @brief topic publisher for predicted trajectory
   rclcpp::Publisher<autoware_auto_msgs::msg::Trajectory>::SharedPtr m_pub_predicted_traj;
   //!< @brief topic publisher for control diagnostic
-  rclcpp::Publisher<autoware_auto_msgs::msg::ControlDiagnostic>::SharedPtr m_pub_diagnostic;
+  rclcpp::Publisher<autoware_auto_msgs::msg::Float32MultiArrayDiagnostic>::SharedPtr
+    m_pub_diagnostic;
   //!< @brief topic subscription for reference waypoints
   rclcpp::Subscription<autoware_auto_msgs::msg::Trajectory>::SharedPtr m_sub_ref_path;
   //!< @brief subscription for current state
@@ -103,7 +104,7 @@ private:
   float64_t m_stop_state_entry_target_speed;
   float64_t m_stop_state_keep_stopping_dist;
 
-  // for mpc design parameter
+  // MPC object
   trajectory_follower::MPC m_mpc;
 
   //!< @brief measured pose
@@ -169,7 +170,7 @@ private:
    * @brief publish diagnostic message
    * @param [in] diagnostic published diagnostic
    */
-  void publishDiagnostic(autoware_auto_msgs::msg::ControlDiagnostic & diagnostic) const;
+  void publishDiagnostic(autoware_auto_msgs::msg::Float32MultiArrayDiagnostic & diagnostic) const;
 
   /**
    * @brief get stop command
