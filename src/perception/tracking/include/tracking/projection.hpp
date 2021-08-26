@@ -26,10 +26,10 @@
 #include <Eigen/Geometry>
 #include <geometry/interval.hpp>
 #include <experimental/optional>
+#include <tracking/visibility_control.hpp>
 #include <list>
 #include <algorithm>
 #include <vector>
-#include "visibility_control.hpp"
 
 namespace autoware
 {

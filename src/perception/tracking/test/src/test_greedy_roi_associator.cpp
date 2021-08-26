@@ -18,7 +18,7 @@
 #include <tracking/greedy_roi_associator.hpp>
 #include <tracking/projection.hpp>
 #include <vector>
-#include "test_projection.hpp"
+#include "tracking/test_utils.hpp"
 
 using TrackedObject = autoware::perception::tracking::TrackedObject;
 using TrackedObjects = std::vector<TrackedObject>;

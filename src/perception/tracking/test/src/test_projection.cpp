@@ -17,15 +17,13 @@
 #include <gtest/gtest.h>
 #include <tracking/projection.hpp>
 #include <autoware_auto_msgs/msg/shape.hpp>
-#include <autoware_auto_tf2/tf2_autoware_auto_msgs.hpp>
 #include <geometry_msgs/msg/point32.hpp>
+#include <tracking/test_utils.hpp>
 #include <tf2_eigen/tf2_eigen.h>
 #include <tracking/greedy_roi_associator.hpp>
 #include <algorithm>
-#include <set>
 #include <limits>
 #include <vector>
-#include "test_projection.hpp"
 
 using Shape = autoware_auto_msgs::msg::Shape;
 using Polygon = Shape::_polygon_type;
@@ -33,7 +31,7 @@ using Point32 = geometry_msgs::msg::Point32;
 using CameraModel = autoware::perception::tracking::CameraModel;
 using CameraIntrinsics = autoware::perception::tracking::CameraIntrinsics;
 using Projection = autoware::perception::tracking::Projection;
-using ShapeTransformer = autoware::perception::tracking::ShapeTransformer;
+using ShapeTransformer = autoware::perception::tracking::details::ShapeTransformer;
 using autoware::common::geometry::point_adapter::x_;
 using autoware::common::geometry::point_adapter::y_;
 using autoware::common::geometry::point_adapter::z_;
@@ -41,65 +39,36 @@ using autoware::common::types::float32_t;
 using autoware::common::types::float64_t;
 
 
-PrismProjectionTest::PrismProjectionTest()
+class PrismProjectionTest : public testing::Test
 {
-  auto & points = rectangular_prism.polygon.points;
+public:
+  PrismProjectionTest()
+  {
+    auto & points = rectangular_prism.polygon.points;
 
-  points.emplace_back(
-    geometry_msgs::build<Point32>().
-    x(half_width).y(half_length).z(distance_from_origin));
-  points.emplace_back(
-    geometry_msgs::build<Point32>().
-    x(half_width).y(-half_length).z(distance_from_origin));
-  points.emplace_back(
-    geometry_msgs::build<Point32>().
-    x(-half_width).y(half_length).z(distance_from_origin));
-  points.emplace_back(
-    geometry_msgs::build<Point32>().
-    x(-half_width).y(-half_length).z(distance_from_origin));
+    points.emplace_back(
+      geometry_msgs::build<Point32>().
+      x(half_width).y(half_length).z(distance_from_origin));
+    points.emplace_back(
+      geometry_msgs::build<Point32>().
+      x(half_width).y(-half_length).z(distance_from_origin));
+    points.emplace_back(
+      geometry_msgs::build<Point32>().
+      x(-half_width).y(half_length).z(distance_from_origin));
+    points.emplace_back(
+      geometry_msgs::build<Point32>().
+      x(-half_width).y(-half_length).z(distance_from_origin));
 
-  rectangular_prism.set__height(height);
-}
-
-std::vector<geometry_msgs::msg::Point32> expand_shape_to_vector(
-  const autoware_auto_msgs::msg::Shape & shape)
-{
-  std::vector<geometry_msgs::msg::Point32> result{shape.polygon.points};
-  const auto num_corners = shape.polygon.points.size();
-  for (auto i = 0U; i < num_corners; ++i) {
-    auto pt = shape.polygon.points[i];
-    result.push_back(pt.set__z(pt.z + shape.height));
+    rectangular_prism.set__height(height);
   }
-  return result;
-}
 
-void compare_shapes(
-  const geometry_msgs::msg::Polygon & prism_face,
-  const autoware::perception::tracking::Projection & projection,
-  const CameraIntrinsics & intrinsics)
-{
-  for (auto i = 0U; i < prism_face.points.size(); ++i) {
-    const auto & pt_3d = prism_face.points[i];
-    const auto expected_projected_x =
-      (pt_3d.x * intrinsics.fx + pt_3d.y * intrinsics.skew + pt_3d.z * intrinsics.ox) / pt_3d.z;
-    const auto expected_projected_y =
-      (pt_3d.y * intrinsics.fy + pt_3d.z * intrinsics.oy) / pt_3d.z;
+  float32_t half_length{1.0F};
+  float32_t half_width{1.0F};
+  float32_t height{4.0F};
 
-    const auto projected_pt_it = std::find_if(
-      projection.shape.begin(), projection.shape.end(),
-      [expected_projected_x, expected_projected_y](const auto & pt) {
-        // TODO(#1241): Investigate the numerical instability that causes large
-        //  floating point errors
-        constexpr auto eps = 1e-5F;
-        return autoware::common::helper_functions::comparisons::abs_eq(
-          (x_(pt) - expected_projected_x), 0.0F, eps) &&
-        autoware::common::helper_functions::comparisons::abs_eq(
-          (y_(pt) - expected_projected_y), 0.0F, eps);
-      });
-    EXPECT_NE(projected_pt_it, projection.shape.end());
-  }
-}
-
+  float32_t distance_from_origin{8.0F};
+  autoware_auto_msgs::msg::Shape rectangular_prism;
+};
 
 /// \brief Project the prism's bottom face to the image plane. Since the prism and the camera
 /// are on the same coordinate frame, manually projected points of the prism's bottom face should

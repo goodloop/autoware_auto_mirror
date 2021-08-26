@@ -14,26 +14,13 @@
 
 // Co-developed by Tier IV, Inc. and Apex.AI, Inc.
 
-#ifndef TEST_PROJECTION_HPP_
-#define TEST_PROJECTION_HPP_
+#ifndef TRACKING__TEST_UTILS_HPP_
+#define TRACKING__TEST_UTILS_HPP_
 
 #include <tracking/projection.hpp>
 #include <autoware_auto_msgs/msg/shape.hpp>
 #include <geometry_msgs/msg/point32.hpp>
 #include <vector>
-
-class PrismProjectionTest : public testing::Test
-{
-public:
-  PrismProjectionTest();
-
-  float32_t half_length{1.0F};
-  float32_t half_width{1.0F};
-  float32_t height{4.0F};
-
-  float32_t distance_from_origin{8.0F};
-  autoware_auto_msgs::msg::Shape rectangular_prism;
-};
 
 std::vector<geometry_msgs::msg::Point32> expand_shape_to_vector(
   const autoware_auto_msgs::msg::Shape & shape);
@@ -43,4 +30,4 @@ void compare_shapes(
   const autoware::perception::tracking::Projection & projection,
   const autoware::perception::tracking::CameraIntrinsics & intrinsics);
 
-#endif  // TEST_PROJECTION_HPP_
+#endif  // TRACKING__TEST_UTILS_HPP_

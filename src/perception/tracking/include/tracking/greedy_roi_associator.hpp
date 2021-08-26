@@ -33,7 +33,6 @@ namespace perception
 {
 namespace tracking
 {
-
 /// \brief Simple heuristic functor that returns the IoU between two shapes.
 struct TRACKING_PUBLIC IOUHeuristic
 {
@@ -52,21 +51,6 @@ struct TRACKING_PUBLIC IOUHeuristic
   {
     return common::geometry::convex_intersection_over_union_2d(shape1, shape2);
   }
-};
-
-/// \brief Transform a 3D prism shape msg into a transformed vector points.
-class TRACKING_PUBLIC ShapeTransformer
-{
-public:
-  explicit ShapeTransformer(const geometry_msgs::msg::Transform & tf);
-  using Point32 = geometry_msgs::msg::Point32;
-  /// \brief Transform the bottom and top face vertices of the given shape. No order is preserved.
-  /// \param shape Shape msg.
-  /// \return Transformed vertices of the bottom and the top face.
-  std::vector<Point32> operator()(const autoware_auto_msgs::msg::Shape & shape);
-
-private:
-  common::lidar_utils::StaticTransformer m_transformer;
 };
 
 /// \brief Class to associate the detections and tracks in euclidean space to ROIs in image space
@@ -133,6 +117,23 @@ private:
   float32_t m_iou_threshold{0.1F};
 };
 
+namespace details
+{
+/// \brief Transform a 3D prism shape msg into a transformed vector points.
+class TRACKING_PUBLIC ShapeTransformer
+{
+public:
+  explicit ShapeTransformer(const geometry_msgs::msg::Transform & tf);
+  using Point32 = geometry_msgs::msg::Point32;
+  /// \brief Transform the bottom and top face vertices of the given shape. No order is preserved.
+  /// \param shape Shape msg.
+  /// \return Transformed vertices of the bottom and the top face.
+  std::vector<Point32> operator()(const autoware_auto_msgs::msg::Shape & shape) const;
+
+private:
+  common::lidar_utils::StaticTransformer m_transformer;
+};
+}  // namespace details
 }  // namespace tracking
 }  // namespace perception
 }  // namespace autoware

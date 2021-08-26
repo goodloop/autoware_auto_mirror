@@ -43,7 +43,7 @@ AssociatorResult GreedyRoiAssociator::assign(
 ) const
 {
   AssociatorResult result = create_and_init_result(rois.rois.size(), tracks.size());
-  ShapeTransformer transformer{tf_camera_from_track};
+  const details::ShapeTransformer transformer{tf_camera_from_track};
   for (auto track_idx = 0U; track_idx < tracks.size(); ++track_idx) {
     const auto matched_detection_idx = project_and_match_detection(
       transformer(tracks[track_idx].shape()), result.unassigned_detection_indices, rois);
@@ -61,7 +61,7 @@ AssociatorResult GreedyRoiAssociator::assign(
 ) const
 {
   AssociatorResult result = create_and_init_result(rois.rois.size(), objects.objects.size());
-  ShapeTransformer transformer{tf_camera_from_object};
+  const details::ShapeTransformer transformer{tf_camera_from_object};
 
   for (auto object_idx = 0U; object_idx < objects.objects.size(); ++object_idx) {
     auto detection_idx = project_and_match_detection(
@@ -128,14 +128,15 @@ void GreedyRoiAssociator::handle_matching_output(
   result.unassigned_detection_indices.erase(matched_detection_idx);
 }
 
-
+namespace details
+{
 ShapeTransformer::ShapeTransformer(const geometry_msgs::msg::Transform & tf)
 : m_transformer{tf}
 {
 }
 
 std::vector<geometry_msgs::msg::Point32> ShapeTransformer::operator()(
-  const autoware_auto_msgs::msg::Shape & shape)
+  const autoware_auto_msgs::msg::Shape & shape) const
 {
   std::vector<Point32> result;
   result.reserve(2U * shape.polygon.points.size());
@@ -153,7 +154,7 @@ std::vector<geometry_msgs::msg::Point32> ShapeTransformer::operator()(
 
   return result;
 }
-
+}  // namespace details
 }  // namespace tracking
 }  // namespace perception
 }  // namespace autoware
