@@ -33,7 +33,7 @@ namespace filters
 namespace ray_ground_classifier_nodes
 {
 ////////////////////////////////////////////////////////////////////////////////
-using autoware::common::types::PointXYZIF;
+using autoware::common::types::PointXYZI;
 using autoware::common::types::float32_t;
 using autoware::perception::filters::ray_ground_classifier::PointPtrBlock;
 
@@ -86,9 +86,9 @@ RayGroundClassifierCloudNode::RayGroundClassifierCloudNode(
   m_nonground_pc_idx{0}
 {
   // initialize messages
-  point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZIF>{
+  point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZI>{
     m_ground_msg, m_frame_id}.reserve(m_pcl_size);
-  point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZIF>{
+  point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZI>{
     m_nonground_msg, m_frame_id}.reserve(m_pcl_size);
 }
 ////////////////////////////////////////////////////////////////////////////////
