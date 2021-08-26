@@ -249,7 +249,7 @@ bool8_t convertToAutowareTrajectory(
   for (size_t i = 0; i < input.size(); ++i) {
     p.x = static_cast<decltype(p.x)>(input.x.at(i));
     p.y = static_cast<decltype(p.y)>(input.y.at(i));
-    // p.z = input.z.at(i);  // TODO(Maxime CLEMENT): fix once z is added to trajectory points
+    p.z = static_cast<decltype(p.z)>(input.z.at(i));
     p.heading = ::motion::motion_common::from_angle(input.yaw.at(i));
     p.longitudinal_velocity_mps =
       static_cast<decltype(p.longitudinal_velocity_mps)>(input.vx.at(i));
