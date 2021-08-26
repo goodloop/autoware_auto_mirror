@@ -23,7 +23,7 @@
 #include "trajectory_follower/vehicle_model/vehicle_model_bicycle_kinematics.hpp"
 
 #include "autoware_auto_msgs/msg/ackermann_lateral_command.hpp"
-#include "autoware_auto_msgs/msg/control_diagnostic.hpp"
+#include "autoware_auto_msgs/msg/float32_multi_array_diagnostic.hpp"
 #include "autoware_auto_msgs/msg/trajectory.hpp"
 #include "autoware_auto_msgs/msg/trajectory_point.hpp"
 #include "autoware_auto_msgs/msg/vehicle_kinematic_state.hpp"
@@ -42,7 +42,7 @@ typedef autoware_auto_msgs::msg::TrajectoryPoint TrajectoryPoint;
 typedef autoware_auto_msgs::msg::VehicleKinematicState VehicleKinematicState;
 typedef geometry_msgs::msg::Pose Pose;
 typedef autoware_auto_msgs::msg::AckermannLateralCommand AckermannLateralCommand;
-typedef autoware_auto_msgs::msg::ControlDiagnostic ControlDiagnostic;
+typedef autoware_auto_msgs::msg::Float32MultiArrayDiagnostic Float32MultiArrayDiagnostic;
 
 class MPCTest : public ::testing::Test
 {
@@ -197,7 +197,7 @@ TEST_F(MPCTest, initialize_and_calculate) {
   // Calculate MPC
   AckermannLateralCommand ctrl_cmd;
   Trajectory pred_traj;
-  ControlDiagnostic diag;
+  Float32MultiArrayDiagnostic diag;
   ASSERT_TRUE(
     mpc.calculateMPC(
       neutral_steer, default_velocity, pose_zero, ctrl_cmd, pred_traj,
@@ -233,7 +233,7 @@ TEST_F(MPCTest, initialize_and_calculate_right_turn) {
   // Calculate MPC
   AckermannLateralCommand ctrl_cmd;
   Trajectory pred_traj;
-  ControlDiagnostic diag;
+  Float32MultiArrayDiagnostic diag;
   ASSERT_TRUE(
     mpc.calculateMPC(
       neutral_steer, default_velocity, pose_zero, ctrl_cmd, pred_traj,
@@ -265,7 +265,7 @@ TEST_F(MPCTest, osqp_calculate) {
   // Calculate MPC
   AckermannLateralCommand ctrl_cmd;
   Trajectory pred_traj;
-  ControlDiagnostic diag;
+  Float32MultiArrayDiagnostic diag;
   // with OSQP this function returns false despite finding correct solutions
   EXPECT_FALSE(
     mpc.calculateMPC(
@@ -298,7 +298,7 @@ TEST_F(MPCTest, osqp_calculate_right_turn) {
   // Calculate MPC
   AckermannLateralCommand ctrl_cmd;
   Trajectory pred_traj;
-  ControlDiagnostic diag;
+  Float32MultiArrayDiagnostic diag;
   ASSERT_TRUE(
     mpc.calculateMPC(
       neutral_steer, default_velocity, pose_zero, ctrl_cmd, pred_traj,
@@ -332,7 +332,7 @@ TEST_F(MPCTest, kinematics_no_delay_calculate) {
   // Calculate MPC
   AckermannLateralCommand ctrl_cmd;
   Trajectory pred_traj;
-  ControlDiagnostic diag;
+  Float32MultiArrayDiagnostic diag;
   ASSERT_TRUE(
     mpc.calculateMPC(
       neutral_steer, default_velocity, pose_zero, ctrl_cmd, pred_traj,
@@ -366,7 +366,7 @@ TEST_F(MPCTest, kinematics_no_delay_calculate_right_turn) {
   // Calculate MPC
   AckermannLateralCommand ctrl_cmd;
   Trajectory pred_traj;
-  ControlDiagnostic diag;
+  Float32MultiArrayDiagnostic diag;
   ASSERT_TRUE(
     mpc.calculateMPC(
       neutral_steer, default_velocity, pose_zero, ctrl_cmd, pred_traj,
@@ -395,7 +395,7 @@ TEST_F(MPCTest, dynamic_calculate) {
   // Calculate MPC
   AckermannLateralCommand ctrl_cmd;
   Trajectory pred_traj;
-  ControlDiagnostic diag;
+  Float32MultiArrayDiagnostic diag;
   ASSERT_TRUE(
     mpc.calculateMPC(
       neutral_steer, default_velocity, pose_zero, ctrl_cmd, pred_traj,
@@ -422,7 +422,7 @@ TEST_F(MPCTest, multi_solve_with_buffer) {
   // Calculate MPC
   AckermannLateralCommand ctrl_cmd;
   Trajectory pred_traj;
-  ControlDiagnostic diag;
+  Float32MultiArrayDiagnostic diag;
   ASSERT_TRUE(
     mpc.calculateMPC(
       neutral_steer, default_velocity, pose_zero, ctrl_cmd, pred_traj,
@@ -473,7 +473,7 @@ TEST_F(MPCTest, failure_cases) {
   pose_far.position.y = pose_zero.position.y - admissible_position_error - 1.0;
   AckermannLateralCommand ctrl_cmd;
   Trajectory pred_traj;
-  ControlDiagnostic diag;
+  Float32MultiArrayDiagnostic diag;
   EXPECT_FALSE(
     mpc.calculateMPC(
       neutral_steer, default_velocity, pose_far, ctrl_cmd, pred_traj,

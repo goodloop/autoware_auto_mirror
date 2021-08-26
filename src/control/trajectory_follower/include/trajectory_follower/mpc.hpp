@@ -36,7 +36,7 @@
 #include "trajectory_follower/visibility_control.hpp"
 
 #include "autoware_auto_msgs/msg/ackermann_lateral_command.hpp"
-#include "autoware_auto_msgs/msg/control_diagnostic.hpp"
+#include "autoware_auto_msgs/msg/float32_multi_array_diagnostic.hpp"
 #include "autoware_auto_msgs/msg/trajectory.hpp"
 #include "autoware_auto_msgs/msg/vehicle_kinematic_state.hpp"
 #include "common/types.hpp"
@@ -374,7 +374,7 @@ public:
     const geometry_msgs::msg::Pose & current_pose,
     autoware_auto_msgs::msg::AckermannLateralCommand & ctrl_cmd,
     autoware_auto_msgs::msg::Trajectory & predicted_traj,
-    autoware_auto_msgs::msg::ControlDiagnostic & diagnostic
+    autoware_auto_msgs::msg::Float32MultiArrayDiagnostic & diagnostic
   );
   /**
    * @brief set the reference trajectory to follow

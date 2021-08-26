@@ -41,7 +41,7 @@ bool8_t MPC::calculateMPC(
   const geometry_msgs::msg::Pose & current_pose,
   autoware_auto_msgs::msg::AckermannLateralCommand & ctrl_cmd,
   autoware_auto_msgs::msg::Trajectory & predicted_traj,
-  autoware_auto_msgs::msg::ControlDiagnostic & diagnostic)
+  autoware_auto_msgs::msg::Float32MultiArrayDiagnostic & diagnostic)
 {
   /* recalculate velocity from ego-velocity with dynamics */
   trajectory_follower::MPCTrajectory reference_trajectory =
@@ -125,9 +125,52 @@ bool8_t MPC::calculateMPC(
   trajectory_follower::MPCUtils::convertToAutowareTrajectory(mpc_predicted_traj, predicted_traj);
 
   /* prepare diagnostic message */
-  diagnostic.lateral_error_m =
-    static_cast<decltype(diagnostic.lateral_error_m)>(mpc_data.lateral_err);
-  diagnostic.yaw_error_rad = static_cast<decltype(diagnostic.yaw_error_rad)>(mpc_data.yaw_err);
+  const float64_t nearest_k = reference_trajectory.k[static_cast<size_t>(mpc_data.nearest_idx)];
+  const float64_t nearest_smooth_k =
+    reference_trajectory.smooth_k[static_cast<size_t>(mpc_data.nearest_idx)];
+  const float64_t steer_cmd = ctrl_cmd.steering_tire_angle;
+  const float64_t wb = m_vehicle_model_ptr->getWheelbase();
+
+  typedef decltype (diagnostic.diag_array.data) ::value_type DiagnosticValueType;
+  auto append_diag_data = [&](const auto & val) -> void {
+      diagnostic.diag_array.data.push_back(static_cast<DiagnosticValueType>(val));
+    };
+  // [0] final steering command (MPC + LPF)
+  append_diag_data(steer_cmd);
+  // [1] mpc calculation result
+  append_diag_data(Uex(0));
+  // [2] feedforward steering value
+  append_diag_data(mpc_matrix.Urefex(0));
+  // [3] feedforward steering value raw
+  append_diag_data(std::atan(nearest_smooth_k * wb));
+  // [4] current steering angle
+  append_diag_data(mpc_data.steer);
+  // [5] lateral error
+  append_diag_data(mpc_data.lateral_err);
+  // [6] current_pose yaw
+  append_diag_data(tf2::getYaw(current_pose.orientation));
+  // [7] nearest_pose yaw
+  append_diag_data(tf2::getYaw(mpc_data.nearest_pose.orientation));
+  // [8] yaw error
+  append_diag_data(mpc_data.yaw_err);
+  // [9] command steering rate
+  diagnostic.diag_array.data.push_back(ctrl_cmd.steering_tire_rotation_rate);
+  // [10] measured velocity
+  append_diag_data(current_velocity);
+  // [11] angvel from steer command
+  append_diag_data(current_velocity * tan(steer_cmd) / wb);
+  // [12] angvel from measured steer
+  append_diag_data(current_velocity * tan(mpc_data.steer) / wb);
+  // [13] angvel from path curvature
+  append_diag_data(current_velocity * nearest_smooth_k);
+  // [14] nearest path curvature (used for feedforward)
+  append_diag_data(nearest_smooth_k);
+  // [15] nearest path curvature (not smoothed)
+  append_diag_data(nearest_k);
+  // [16] predicted steer
+  append_diag_data(mpc_data.predicted_steer);
+  // [17] angvel from predicted steer
+  append_diag_data(current_velocity * tan(mpc_data.predicted_steer) / wb);
 
   return true;
 }
