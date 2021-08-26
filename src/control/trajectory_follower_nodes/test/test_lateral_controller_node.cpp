@@ -356,7 +356,6 @@ TEST_F(FakeNodeFixture, stopped)
   // Set a 0 current velocity and 0 target velocity -> stopped state
   p.longitudinal_velocity_mps = 0.0f;
   traj_msg.points.push_back(p);
-  traj_msg.points.push_back(p);  // Add the first point twice since it gets removed in the code
   p.x = 0.0f;
   p.y = 0.0f;
   p.longitudinal_velocity_mps = 0.0f;
