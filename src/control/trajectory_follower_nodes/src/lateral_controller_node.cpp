@@ -151,7 +151,8 @@ LateralController::LateralController(const rclcpp::NodeOptions & node_options)
   m_pub_predicted_traj =
     create_publisher<autoware_auto_msgs::msg::Trajectory>("output/lateral/predicted_trajectory", 1);
   m_pub_diagnostic =
-    create_publisher<autoware_auto_msgs::msg::ControlDiagnostic>("output/lateral/diagnostic", 1);
+    create_publisher<autoware_auto_msgs::msg::Float32MultiArrayDiagnostic>(
+    "output/lateral/diagnostic", 1);
   m_sub_ref_path = create_subscription<autoware_auto_msgs::msg::Trajectory>(
     "input/reference_trajectory", rclcpp::QoS{1},
     std::bind(&LateralController::onTrajectory, this, _1));
@@ -190,7 +191,7 @@ void LateralController::onTimer()
 
   autoware_auto_msgs::msg::AckermannLateralCommand ctrl_cmd;
   autoware_auto_msgs::msg::Trajectory predicted_traj;
-  autoware_auto_msgs::msg::ControlDiagnostic diagnostic;
+  autoware_auto_msgs::msg::Float32MultiArrayDiagnostic diagnostic;
 
   if (!m_is_ctrl_cmd_prev_initialized) {
     m_ctrl_cmd_prev = getInitialControlCommand();
@@ -363,7 +364,8 @@ const
   m_pub_predicted_traj->publish(predicted_traj);
 }
 
-void LateralController::publishDiagnostic(autoware_auto_msgs::msg::ControlDiagnostic & diagnostic)
+void LateralController::publishDiagnostic(
+  autoware_auto_msgs::msg::Float32MultiArrayDiagnostic & diagnostic)
 const
 {
   diagnostic.diag_header.data_stamp = this->now();
