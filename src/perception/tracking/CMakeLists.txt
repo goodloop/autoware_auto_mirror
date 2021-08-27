@@ -64,22 +64,22 @@ if(BUILD_TESTING)
   ament_lint_auto_find_test_dependencies()
 
   # Unit tests
-#  set(TEST_TRACKING_EXE test_multi_object_tracker)
-#  ament_add_gmock(${TEST_TRACKING_EXE}
-#      test/src/test_detected_object_associator.cpp
-#      test/src/test_greedy_roi_associator.cpp
-#      test/src/test_multi_object_tracker.cpp
-#      test/src/test_projection.cpp
-#      test/src/test_classification_tracker.cpp
-#      test/src/test_track_creation.cpp
-#      test/src/test_tracked_object.cpp
-#      test/include/tracking/test_utils.hpp
-#      test/src/test_utils.cpp
-#  )
-#  # Needed when using TYPED_TEST since gtest in foxy uses integer to index some container
-#  target_compile_options(${TEST_TRACKING_EXE} PRIVATE -Wno-conversion -Wno-sign-conversion)
-#  target_include_directories(${TEST_TRACKING_EXE} PRIVATE "test/include" "include")
-#  target_link_libraries(${TEST_TRACKING_EXE} ${PROJECT_NAME})
+  set(TEST_TRACKING_EXE test_multi_object_tracker)
+  ament_add_gmock(${TEST_TRACKING_EXE}
+      test/src/test_detected_object_associator.cpp
+      test/src/test_greedy_roi_associator.cpp
+      test/src/test_multi_object_tracker.cpp
+      test/src/test_projection.cpp
+      test/src/test_classification_tracker.cpp
+      test/src/test_track_creation.cpp
+      test/src/test_tracked_object.cpp
+      test/include/tracking/test_utils.hpp
+      test/src/test_utils.cpp
+  )
+  # Needed when using TYPED_TEST since gtest in foxy uses integer to index some container
+  target_compile_options(${TEST_TRACKING_EXE} PRIVATE -Wno-conversion -Wno-sign-conversion)
+  target_include_directories(${TEST_TRACKING_EXE} PRIVATE "test/include" "include")
+  target_link_libraries(${TEST_TRACKING_EXE} ${PROJECT_NAME})
 endif()
 
 # ament package generation and installing

@@ -71,7 +71,26 @@ class CreationPolicyBase
 public:
   using float64_t = common::types::float64_t;
   CreationPolicyBase(const float64_t default_variance, const float64_t noise_variance);
-  virtual TracksAndLeftovers create(TrackCreator * creator_ptr) = 0;
+  virtual TracksAndLeftovers create() = 0;
+
+  /// \brief Keep tracks of all unassigned lidar clusters. Clears the previously passed clusters
+  /// \param clusters DetectedObjects msg output by the lidar clustering algorithm
+  /// \param associator_result Struct containing indices of clusters that do not have track
+  ///                          association
+  virtual void add_objects(
+    const autoware_auto_msgs::msg::DetectedObjects & clusters,
+    const AssociatorResult & associator_result) = 0;
+  /// \brief Keep tracks of all unassigned vision detections
+  /// \param vision_rois msg output by the vision detector
+  /// \param associator_result Struct containing indices of detections that do not have track
+  ///                          association
+  virtual void add_objects(
+    const autoware_auto_msgs::msg::ClassifiedRoiArray & vision_rois,
+    const AssociatorResult & associator_result) = 0;
+
+  static autoware_auto_msgs::msg::DetectedObjects populate_unassigned_lidar_detections(
+    const autoware_auto_msgs::msg::DetectedObjects & clusters,
+    const AssociatorResult & associator_result);
 
 protected:
   float64_t m_default_variance;
@@ -84,58 +103,71 @@ public:
   LidarIfVisionPolicy(
     const VisionPolicyConfig & cfg, const float64_t default_variance,
     const float64_t noise_variance);
-  TracksAndLeftovers create(TrackCreator * creator_ptr) override;
+  TracksAndLeftovers create() override;
+
+  void add_objects(
+    const autoware_auto_msgs::msg::DetectedObjects & clusters,
+    const AssociatorResult & associator_result) override;
+
+  void add_objects(
+    const autoware_auto_msgs::msg::ClassifiedRoiArray & vision_rois,
+    const AssociatorResult & associator_result) override;
 
 private:
+  static constexpr size_t kVisionCacheSize = 20U;
+
   VisionPolicyConfig m_cfg;
   GreedyRoiAssociator m_associator;
+
+  using VisionCache = message_filters::Cache<autoware_auto_msgs::msg::ClassifiedRoiArray>;
+  std::shared_ptr<VisionCache> m_vision_rois_cache_ptr;
+  autoware_auto_msgs::msg::DetectedObjects m_lidar_clusters;
+
 };
 
 class LidaronlyPolicy : public CreationPolicyBase
 {
 public:
   LidaronlyPolicy(const float64_t default_variance, const float64_t noise_variance);
-  TracksAndLeftovers create(TrackCreator * creator_ptr) override;
+  TracksAndLeftovers create() override;
+
+  void add_objects(
+    const autoware_auto_msgs::msg::DetectedObjects & clusters,
+    const AssociatorResult & associator_result) override;
+
+  inline void add_objects(
+    const autoware_auto_msgs::msg::ClassifiedRoiArray &,
+    const AssociatorResult &) override
+  {
+    throw std::domain_error("LidarOnly policy cannot handle ClassifiedRoiArray");
+  }
+
+private:
+  autoware_auto_msgs::msg::DetectedObjects m_lidar_clusters;
 };
 
 /// \brief Class to create new tracks based on a predefined policy and unassociated detections
 class TRACKING_PUBLIC TrackCreator
 {
-  friend class LidarIfVisionPolicy;
-  friend class LidaronlyPolicy;
-
 public:
   using float32_t = common::types::float32_t;
   /// \brief Constructor
   /// \param config parameters for track creation
   /// \param associator Pointer to an object of a class that performs vision-lidar association
   explicit TrackCreator(const TrackCreatorConfig & config);
-  /// \brief Keep tracks of all unassigned lidar clusters. Clears the previously passed clusters
-  /// \param clusters DetectedObjects msg output by the lidar clustering algorithm
-  /// \param associator_result Struct containing indices of clusters that do not have track
-  ///                          association
-  void add_objects(
-    const autoware_auto_msgs::msg::DetectedObjects & clusters,
-    const AssociatorResult & associator_result);
-  /// \brief Keep tracks of all unassigned vision detections
-  /// \param vision_rois msg output by the vision detector
-  /// \param associator_result Struct containing indices of detections that do not have track
-  ///                          association
-  void add_objects(
-    const autoware_auto_msgs::msg::ClassifiedRoiArray & vision_rois,
-    const AssociatorResult & associator_result);
   /// \brief Create new tracks based on the policy and unassociated detections. Call the
   ///        appropriate add_unassigned_* functions before calling this.
   /// \return vector of newly created TrackedObject objects
-  inline TracksAndLeftovers create_tracks() {return m_policy_object->create(this);}
+  inline TracksAndLeftovers create_tracks() {return m_policy_object->create();}
+
+  template<typename ... Ts>
+  auto add_objects(Ts... args)
+  {
+    return m_policy_object->add_objects(args ...);
+  }
 
 private:
-  static constexpr size_t kVisionCacheSize = 20U;
   std::unique_ptr<CreationPolicyBase> m_policy_object;
-
-  using VisionCache = message_filters::Cache<autoware_auto_msgs::msg::ClassifiedRoiArray>;
-  std::shared_ptr<VisionCache> m_vision_rois_cache_ptr;
-  autoware_auto_msgs::msg::DetectedObjects m_lidar_clusters;
 };
 
 }  // namespace tracking

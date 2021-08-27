@@ -32,12 +32,13 @@ using DetectedObjects = autoware_auto_msgs::msg::DetectedObjects;
 using GreedyRoiAssociator = autoware::perception::tracking::GreedyRoiAssociator;
 using TrackCreator = autoware::perception::tracking::TrackCreator;
 using TrackedObject = autoware::perception::tracking::TrackedObject;
+using VisionPolicyConfig = autoware::perception::tracking::VisionPolicyConfig;
 
 class MockRoiAssociator : public GreedyRoiAssociator
 {
 public:
   MockRoiAssociator()
-  : GreedyRoiAssociator(intrinsics, empty_tf) {}
+  : GreedyRoiAssociator(intrinsics, matching_threshold) {}
   MOCK_METHOD(
     AssociatorResult, assign, (const ClassifiedRoiArray &, const std::vector<TrackedObject>&),
     (const));
@@ -46,6 +47,7 @@ public:
 
 private:
   autoware::perception::tracking::CameraIntrinsics intrinsics;
+  float32_t matching_threshold = 0.5F;
   geometry_msgs::msg::Transform empty_tf;
 };
 
@@ -53,10 +55,10 @@ using ::testing::_;
 using ::testing::Matcher;
 using ::testing::Return;
 
-TEST(TrackCreatorTest, test_basic)
+TEST(TrackCreatorTest, test_lidar_only)
 {
   std::shared_ptr<GreedyRoiAssociator> associator = std::make_shared<MockRoiAssociator>();
-  TrackCreator creator{{CreationPolicies::LidarClusterOnly, 1.0F, 1.0F}, associator};
+  TrackCreator creator{{CreationPolicies::LidarClusterOnly, 1.0F, 1.0F}};
   DetectedObject obj;
   DetectedObjects objs;
   const int num_objects = 10;
@@ -67,16 +69,18 @@ TEST(TrackCreatorTest, test_basic)
   AssociatorResult result;
   result.unassigned_detection_indices = {0, 2, 4};
 
-  creator.add_unassigned_lidar_clusters(objs, result);
+  creator.add_objects(objs, result);
 
-  EXPECT_EQ(creator.create_tracks().size(), 3U);
+  EXPECT_EQ(creator.create_tracks().tracks.size(), 3U);
+  EXPECT_EQ(creator.create_tracks().detections_leftover.objects.size(), 0U);
 }
 
 // Test lidar and vision with one match between them
 TEST(TrackCreatorTest, test_lidar_if_vision_1_new_track)
 {
   auto associator = std::make_shared<MockRoiAssociator>();
-  TrackCreator creator{{CreationPolicies::LidarClusterIfVision, 1.0F, 1.0F}, associator};
+  VisionPolicyConfig policy_cfg;
+  TrackCreator creator{{CreationPolicies::LidarClusterIfVision, 1.0F, 1.0F}};
   auto now_time = time_utils::to_message(
     std::chrono::system_clock::time_point{std::chrono::system_clock::now()});
 
@@ -91,7 +95,7 @@ TEST(TrackCreatorTest, test_lidar_if_vision_1_new_track)
   }
   AssociatorResult lidar_track_assn;
   lidar_track_assn.unassigned_detection_indices = {0, 2, 4};
-  creator.add_unassigned_lidar_clusters(lidar_detections, lidar_track_assn);
+  creator.add_objects(lidar_detections, lidar_track_assn);
   // Since unordered_set is used to refer unassigned detections that actual inserted order is
   // undefined. Get a copy of that to test erase logic
   const auto inserted_clusters = creator.get_unassigned_lidar_detections();
