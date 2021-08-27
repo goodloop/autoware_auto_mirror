@@ -32,11 +32,13 @@
 #include <nav_msgs/msg/odometry.hpp>
 #include <rclcpp/rclcpp.hpp>
 #include <tf2/buffer_core.h>
+#include <tf2_ros/transform_listener.h>
 #include <tf2_msgs/msg/tf_message.hpp>
 #include <tracking/multi_object_tracker.hpp>
 #include <tracking_nodes/visibility_control.hpp>
 
 #include <memory>
+#include <string>
 
 namespace autoware
 {
@@ -102,6 +104,9 @@ public:
   };
 
 private:
+  geometry_msgs::msg::Transform compute_extrinsics(
+    const nav_msgs::msg::Odometry & odom,
+    const ClassifiedRoiArray::_header_type::_frame_id_type & camera_frame_id);
   /// The actual tracker implementation.
   autoware::perception::tracking::MultiObjectTracker m_tracker;
   size_t m_history_depth = 0U;
@@ -120,6 +125,8 @@ private:
     std::shared_ptr<message_filters::Synchronizer<VisionPosePolicy>>> m_vision_sync;
   /// Publisher for tracked objects.
   rclcpp::Publisher<autoware_auto_msgs::msg::TrackedObjects>::SharedPtr m_pub;
+  tf2::BufferCore m_tf_buffer;
+  tf2_ros::TransformListener m_tf_listener;
 };
 }  // namespace tracking_nodes
 }  // namespace autoware

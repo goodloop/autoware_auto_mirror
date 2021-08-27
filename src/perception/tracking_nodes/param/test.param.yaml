@@ -16,3 +16,14 @@
     # Number of observations to remove unseen tracks.
     # Note also the pruning_time_threshold_ms – only one threshold is necessary for removal.
     pruning_ticks_threshold: 10
+
+    vision_association:
+      iou_threshold: 0.5
+      intrinsics:
+        width: 1920
+        height: 1080
+        fx : 1000.0
+        fy: 1000.0
+        ox : 1000.0
+        oy: 1000.0
+        skew: 0.0
