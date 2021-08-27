@@ -71,7 +71,7 @@ RayGroundClassifierCloudNode::RayGroundClassifierCloudNode(
           static_cast<std::size_t>(
             declare_parameter("aggregator.max_ray_points").get<std::size_t>())
         }),
-  m_pcl_size(static_cast<std::size_t>(declare_parameter("pcl_size").get<std::size_t>())),
+  m_pcl_size(static_cast<uint32_t>(declare_parameter("pcl_size").get<uint32_t>())),
   m_frame_id(declare_parameter("frame_id").get<std::string>().c_str()),
   m_has_failed(false),
   m_timeout(std::chrono::milliseconds{declare_parameter("cloud_timeout_ms").get<uint16_t>()}),
@@ -276,8 +276,18 @@ void RayGroundClassifierCloudNode::reset()
   //                   which would lead to filled rays and overflow during next callback
   m_aggregator.reset();
   // reset messages
+
   autoware::common::lidar_utils::reset_pcl_msg(m_ground_msg, m_pcl_size, m_ground_pc_idx);
-  autoware::common::lidar_utils::reset_pcl_msg(m_nonground_msg, m_pcl_size, m_nonground_pc_idx);
+
+  // point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZI> modifier1{m_ground_msg};
+  // modifier1.clear();
+  // modifier1.resize(m_pcl_size);
+
+  // autoware::common::lidar_utils::reset_pcl_msg(m_nonground_msg, m_pcl_size, m_nonground_pc_idx);
+
+  point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZI> modifier2{m_nonground_msg};
+  modifier2.clear();
+  modifier2.resize(m_pcl_size);
 }
 }  // namespace ray_ground_classifier_nodes
 }  // namespace filters
