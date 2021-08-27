@@ -13,6 +13,9 @@
 // limitations under the License.
 
 #include "vehicle_constants_manager_nodes/vehicle_constants_manager_node.hpp"
+#include <common/types.hpp>
+#include <string>
+#include <vector>
 
 namespace autoware
 {
@@ -21,9 +24,53 @@ namespace common
 namespace vehicle_constants_manager_node
 {
 
+using common::types::float64_t;
+
 VehicleConstantsManagerNode::VehicleConstantsManagerNode(const rclcpp::NodeOptions & options)
 :  Node("vehicle_constants_manager_node", options)
 {
+  // Get primary parameters to construct the VehicleConstants object
+  std::vector<std::string> names_parameters{
+    "wheel_radius",
+    "wheel_width",
+    "wheel_base",
+    "wheel_tread",
+    "overhang_front",
+    "overhang_rear",
+    "overhang_left",
+    "overhang_right",
+    "vehicle_height",
+    "cg_to_rear",
+    "tire_cornering_stiffness_front_N_per_deg",
+    "tire_cornering_stiffness_rear_N_per_deg",
+    "mass_vehicle",
+    "inertia_yaw_kg_m2"
+  };
+  std::vector<float64_t> parameters(names_parameters.size());
+  assert(parameters.size() == names_parameters.size());
+
+  for (size_t i = 0; i < names_parameters.size(); ++i) {
+    const auto & name_parameter = names_parameters.at(i);
+    parameters.at(i) = this->declare_parameter(name_parameter).get<float64_t>();
+  }
+
+  vehicle_constants_manager::VehicleConstants vc(
+    parameters.at(0),
+    parameters.at(1),
+    parameters.at(2),
+    parameters.at(3),
+    parameters.at(4),
+    parameters.at(5),
+    parameters.at(6),
+    parameters.at(7),
+    parameters.at(8),
+    parameters.at(9),
+    parameters.at(10),
+    parameters.at(11),
+    parameters.at(12),
+    parameters.at(13));
+
+  RCLCPP_INFO_STREAM(get_logger(), "vehicle constants: \n" << vc.str_pretty());
 }
 
 }  // namespace vehicle_constants_manager_node

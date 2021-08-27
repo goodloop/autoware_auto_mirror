@@ -16,5 +16,5 @@
 #include "vehicle_constants_manager/vehicle_constants_manager.hpp"
 
 TEST(test_vehicle_constants_manager, test_hello) {
-  EXPECT_EQ(autoware::common::vehicle_constants_manager::print_hello(), 0);
+//  EXPECT_EQ(autoware::common::vehicle_constants_manager::print_hello(), 0);
 }

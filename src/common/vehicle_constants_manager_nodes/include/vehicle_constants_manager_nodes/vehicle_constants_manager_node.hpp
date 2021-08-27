@@ -20,6 +20,7 @@
 #define VEHICLE_CONSTANTS_MANAGER_NODES__VEHICLE_CONSTANTS_MANAGER_NODE_HPP_
 
 #include <rclcpp/rclcpp.hpp>
+#include <vehicle_constants_manager/vehicle_constants_manager.hpp>
 #include "vehicle_constants_manager_nodes/visibility_control.hpp"
 
 
@@ -30,17 +31,14 @@ namespace common
 namespace vehicle_constants_manager_node
 {
 
-/// \class VehicleConstantsManagerNodesNode
-/// \brief ROS 2 Node for hello world.
 class VEHICLE_CONSTANTS_MANAGER_NODES_PUBLIC VehicleConstantsManagerNode : public rclcpp::Node
 {
 public:
-  /// \brief default constructor, starts driver
-  /// \throw runtime error if failed to start threads or configure driver
   explicit VehicleConstantsManagerNode(const rclcpp::NodeOptions & options);
 
 private:
 };
+
 }  // namespace vehicle_constants_manager_node
 }  // namespace common
 }  // namespace autoware

@@ -20,20 +20,14 @@ project(vehicle_constants_manager_nodes)
 find_package(ament_cmake_auto REQUIRED)
 ament_auto_find_build_dependencies()
 
-set(VEHICLE_CONSTANTS_MANAGER_NODE_SRC
-  src/vehicle_constants_manager_node.cpp)
-
-set(VEHICLE_CONSTANTS_MANAGER_NODE_HEADERS
-  include/vehicle_constants_manager_nodes/vehicle_constants_manager_node.hpp)
-
-# generate component node library
 set(NAME_NODE vehicle_constants_manager_node)
 ament_auto_add_library(${NAME_NODE} SHARED
-  ${VEHICLE_CONSTANTS_MANAGER_NODE_SRC}
-  ${VEHICLE_CONSTANTS_MANAGER_NODE_HEADERS})
+  include/vehicle_constants_manager_nodes/visibility_control.hpp
+  include/vehicle_constants_manager_nodes/vehicle_constants_manager_node.hpp
+  src/vehicle_constants_manager_node.cpp)
 autoware_set_compile_options(${NAME_NODE})
 rclcpp_components_register_node(${NAME_NODE}
-  PLUGIN "autoware::common::vehicle_constants_manager_nodes::VehicleConstantsManagerNode"
+  PLUGIN "autoware::common::vehicle_constants_manager_node::VehicleConstantsManagerNode"
   EXECUTABLE ${NAME_NODE}_exe)
 
 # Testing
@@ -51,4 +45,5 @@ endif()
 
 # ament package generation and installing
 ament_auto_package(INSTALL_TO_SHARE
-  launch)
+  launch
+  param)
