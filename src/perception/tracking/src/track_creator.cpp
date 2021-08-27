@@ -46,14 +46,34 @@ autoware_auto_msgs::msg::DetectedObjects CreationPolicyBase::populate_unassigned
   }
   return retval;
 }
-void LidarIfVisionPolicy::add_objects(
+void LidarClusterIfVisionPolicy::add_objects(
   const autoware_auto_msgs::msg::DetectedObjects & clusters,
   const AssociatorResult & associator_result)
 {
   m_lidar_clusters = populate_unassigned_lidar_detections(clusters, associator_result);
 }
 
-void LidarIfVisionPolicy::add_objects(
+LidaronlyPolicy::LidaronlyPolicy(const float64_t default_variance, const float64_t noise_variance)
+: CreationPolicyBase(default_variance, noise_variance) {}
+
+void LidaronlyPolicy::add_objects(
+  const autoware_auto_msgs::msg::DetectedObjects & clusters,
+  const AssociatorResult & associator_result)
+{
+  m_lidar_clusters = populate_unassigned_lidar_detections(clusters, associator_result);
+}
+
+TracksAndLeftovers LidaronlyPolicy::create()
+{
+  TracksAndLeftovers retval;
+  for (const auto & cluster : m_lidar_clusters.objects) {
+    retval.tracks.emplace_back(
+      TrackedObject(cluster, m_default_variance, m_noise_variance));
+  }
+  return retval;
+}
+
+void LidarClusterIfVisionPolicy::add_objects(
   const autoware_auto_msgs::msg::ClassifiedRoiArray & vision_rois,
   const AssociatorResult & associator_result)
 {
@@ -65,7 +85,7 @@ void LidarIfVisionPolicy::add_objects(
   }
   m_vision_rois_cache_ptr->add(vision_rois_msg);
 }
-LidarIfVisionPolicy::LidarIfVisionPolicy(
+LidarClusterIfVisionPolicy::LidarClusterIfVisionPolicy(
   const VisionPolicyConfig & cfg, const float64_t default_variance,
   const float64_t noise_variance)
 : CreationPolicyBase(default_variance, noise_variance),
@@ -76,15 +96,15 @@ LidarIfVisionPolicy::LidarIfVisionPolicy(
   m_vision_rois_cache_ptr->setCacheSize(kVisionCacheSize);
 }
 
-TracksAndLeftovers LidarIfVisionPolicy::create()
+TracksAndLeftovers LidarClusterIfVisionPolicy::create()
 {
   TracksAndLeftovers retval;
   retval.detections_leftover = m_lidar_clusters;
   // For foxy time has to be initialized explicitly with sec, nanosec constructor to use the
   // correct clock source when querying message_filters::cache.
   // Refer: https://github.com/ros2/message_filters/issues/32
-  const rclcpp::Time t(m_lidar_clusters.header.stamp.sec,
-    m_lidar_clusters.header.stamp.nanosec);
+  const rclcpp::Time t{m_lidar_clusters.header.stamp.sec,
+    m_lidar_clusters.header.stamp.nanosec};
   const auto before = t - std::chrono::milliseconds(m_cfg.kMaxVisionLidarStampDiffMs);
   const auto after = t + std::chrono::milliseconds(m_cfg.kMaxVisionLidarStampDiffMs);
   const auto vision_msg_matches = m_vision_rois_cache_ptr->getInterval(before, after);
@@ -116,26 +136,6 @@ TracksAndLeftovers LidarIfVisionPolicy::create()
   return retval;
 }
 
-LidaronlyPolicy::LidaronlyPolicy(const float64_t default_variance, const float64_t noise_variance)
-: CreationPolicyBase(default_variance, noise_variance) {}
-
-void LidaronlyPolicy::add_objects(
-  const autoware_auto_msgs::msg::DetectedObjects & clusters,
-  const AssociatorResult & associator_result)
-{
-  m_lidar_clusters = populate_unassigned_lidar_detections(clusters, associator_result);
-}
-
-TracksAndLeftovers LidaronlyPolicy::create()
-{
-  TracksAndLeftovers retval;
-  for (const auto & cluster : m_lidar_clusters.objects) {
-    retval.tracks.emplace_back(
-      TrackedObject(cluster, m_default_variance, m_noise_variance));
-  }
-  return retval;
-}
-
 TrackCreator::TrackCreator(const TrackCreatorConfig & config)
 {
   switch (config.policy) {
@@ -150,8 +150,8 @@ TrackCreator::TrackCreator(const TrackCreatorConfig & config)
                 "Vision policy config needs to be initialized to use "
                 "LidarClusterIfVision track creation policy");
       }
-      m_policy_object = std::make_unique<LidarIfVisionPolicy>(
-        *(config.vision_policy_config),
+      m_policy_object = std::make_unique<LidarClusterIfVisionPolicy>(
+        config.vision_policy_config.value(),
         config.default_variance,
         config.noise_variance);
       break;
