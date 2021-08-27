@@ -48,10 +48,19 @@ namespace tracking_nodes
 ///        PoseWithCovairanceStamped (depends on use_ndt param) and produces TrackedObjects
 class TRACKING_NODES_PUBLIC MultiObjectTrackerNode : public rclcpp::Node
 {
-  using PosePolicy = message_filters::sync_policies::ApproximateTime<autoware_auto_msgs
-      ::msg::DetectedObjects, geometry_msgs::msg::PoseWithCovarianceStamped>;
-  using OdomPolicy = message_filters::sync_policies::ExactTime<autoware_auto_msgs
-      ::msg::DetectedObjects, nav_msgs::msg::Odometry>;
+  using DetectedObjects = autoware_auto_msgs::msg::DetectedObjects;
+  using ClassifiedRoiArray = autoware_auto_msgs::msg::ClassifiedRoiArray;
+  template<typename ObservationT>
+  using PosePolicyT = message_filters::sync_policies::ApproximateTime<ObservationT,
+      geometry_msgs::msg::PoseWithCovarianceStamped>;
+  template<typename ObservationT>
+  using OdomPolicyT = message_filters::sync_policies::ExactTime<ObservationT,
+      nav_msgs::msg::Odometry>;
+
+  using ObjectOdomPolicy = OdomPolicyT<DetectedObjects>;
+  using ObjectPosePolicy = PosePolicyT<DetectedObjects>;
+  using VisionOdomPolicy = OdomPolicyT<ClassifiedRoiArray>;
+  using VisionPosePolicy = PosePolicyT<ClassifiedRoiArray>;
 
 public:
   /// \brief Constructor
@@ -59,22 +68,36 @@ public:
 
   /// Callback for matching detections + pose messages.
   /// This unusual signature is mandated by message_filters.
-  void process_using_pose(
+  void process_objects_using_pose(
     const autoware_auto_msgs::msg::DetectedObjects::ConstSharedPtr & objs,
     const geometry_msgs::msg::PoseWithCovarianceStamped::ConstSharedPtr & pose);
 
   /// Callback for matching detections + odom messages.
   /// This unusual signature is mandated by message_filters.
-  void process_using_odom(
+  void process_objects_using_odom(
     const autoware_auto_msgs::msg::DetectedObjects::ConstSharedPtr & objs,
+    const nav_msgs::msg::Odometry::ConstSharedPtr & odom);
+
+  /// Callback for matching vision detections + pose messages.
+  /// This unusual signature is mandated by message_filters.
+  void process_rois_using_pose(
+    const autoware_auto_msgs::msg::ClassifiedRoiArray::ConstSharedPtr & rois,
+    const geometry_msgs::msg::PoseWithCovarianceStamped::ConstSharedPtr & pose);
+
+  /// Callback for matching vision detections + odom messages.
+  /// This unusual signature is mandated by message_filters.
+  void process_rois_using_odom(
+    const autoware_auto_msgs::msg::ClassifiedRoiArray::ConstSharedPtr & rois,
     const nav_msgs::msg::Odometry::ConstSharedPtr & odom);
 
   /// \brief Struct to initialize callback for variant that defines the synchronizer to be used
   struct RegisterSyncCallback
   {
     explicit RegisterSyncCallback(MultiObjectTrackerNode * class_ptr);
-    void operator()(std::shared_ptr<message_filters::Synchronizer<OdomPolicy>> sync);
-    void operator()(std::shared_ptr<message_filters::Synchronizer<PosePolicy>> sync);
+    void operator()(std::shared_ptr<message_filters::Synchronizer<ObjectOdomPolicy>> sync);
+    void operator()(std::shared_ptr<message_filters::Synchronizer<ObjectPosePolicy>> sync);
+    void operator()(std::shared_ptr<message_filters::Synchronizer<VisionOdomPolicy>> sync);
+    void operator()(std::shared_ptr<message_filters::Synchronizer<VisionPosePolicy>> sync);
     MultiObjectTrackerNode * m_class_ptr;
   };
 
@@ -85,12 +108,16 @@ private:
   bool m_use_ndt = true;
   /// Subscription to pose and detection messages.
   message_filters::Subscriber<autoware_auto_msgs::msg::DetectedObjects> m_objects_sub;
+  message_filters::Subscriber<autoware_auto_msgs::msg::ClassifiedRoiArray> m_rois_sub;
   /// this sub will be used only if m_use_ndt is false
   message_filters::Subscriber<geometry_msgs::msg::PoseWithCovarianceStamped> m_pose_sub;
   /// this sub will be used only if m_use_ndt is true
   message_filters::Subscriber<nav_msgs::msg::Odometry> m_odom_sub;
-  mpark::variant<std::shared_ptr<message_filters::Synchronizer<OdomPolicy>>,
-    std::shared_ptr<message_filters::Synchronizer<PosePolicy>>> m_sync;
+  mpark::variant<std::shared_ptr<message_filters::Synchronizer<ObjectOdomPolicy>>,
+    std::shared_ptr<message_filters::Synchronizer<ObjectPosePolicy>>> m_oject_sync;
+
+  mpark::variant<std::shared_ptr<message_filters::Synchronizer<VisionOdomPolicy>>,
+    std::shared_ptr<message_filters::Synchronizer<VisionPosePolicy>>> m_vision_sync;
   /// Publisher for tracked objects.
   rclcpp::Publisher<autoware_auto_msgs::msg::TrackedObjects>::SharedPtr m_pub;
 };
