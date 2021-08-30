@@ -187,19 +187,6 @@ SafeCloudIndices sanitize_point_cloud(const sensor_msgs::msg::PointCloud2 & msg)
   return SafeCloudIndices{num_floats * sizeof(float32_t), index_after_last_safe_byte_index(msg)};
 }
 
-void init_pcl_msg(
-  sensor_msgs::msg::PointCloud2 & msg,
-  const std::string & frame_id,
-  const std::size_t size)
-{
-  init_pcl_msg(
-    msg, frame_id, size, 4U,
-    "x", 1U, sensor_msgs::msg::PointField::FLOAT32,
-    "y", 1U, sensor_msgs::msg::PointField::FLOAT32,
-    "z", 1U, sensor_msgs::msg::PointField::FLOAT32,
-    "intensity", 1U, sensor_msgs::msg::PointField::FLOAT32);
-}
-
 bool8_t add_point_to_cloud_raw(
   sensor_msgs::msg::PointCloud2 & cloud,
   const autoware::common::types::PointXYZIF & pt,
