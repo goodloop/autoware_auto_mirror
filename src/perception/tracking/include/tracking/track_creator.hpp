@@ -39,12 +39,10 @@ namespace tracking
 /// Struct defining configuration parameters for LidarIfVision policy
 struct TRACKING_PUBLIC VisionPolicyConfig
 {
+  // Struct defining parameters for vision association
+  GreedyRoiAssociatorConfig associator_cfg;
   // Tf to transform from base_link to the camera frame
   geometry_msgs::msg::Transform tf_camera_from_base_link;
-  // Minimum IOU value needed for matching
-  common::types::float32_t iou_threshold = 0.5F;
-  // Intrinsic parameters of the camera being used
-  CameraIntrinsics camera_intrinsics;
   // Maximum allowed difference in the timestamp of the two messages being associated
   int kMaxVisionLidarStampDiffMs = 20;
 };

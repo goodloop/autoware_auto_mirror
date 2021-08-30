@@ -90,7 +90,7 @@ LidarClusterIfVisionPolicy::LidarClusterIfVisionPolicy(
   const float64_t noise_variance)
 : CreationPolicyBase(default_variance, noise_variance),
   m_cfg(cfg),
-  m_associator(cfg.camera_intrinsics, cfg.iou_threshold),
+  m_associator(cfg.associator_cfg),
   m_vision_rois_cache_ptr(std::make_shared<VisionCache>())
 {
   m_vision_rois_cache_ptr->setCacheSize(kVisionCacheSize);
