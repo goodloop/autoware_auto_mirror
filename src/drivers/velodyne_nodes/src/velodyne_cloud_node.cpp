@@ -100,7 +100,9 @@ void VelodyneCloudNode<T>::receiver_callback(const std::vector<uint8_t> & buffer
 template<typename T>
 void VelodyneCloudNode<T>::init_output(sensor_msgs::msg::PointCloud2 & output)
 {
-  autoware::common::lidar_utils::init_pcl_msg(output, m_frame_id.c_str(), m_cloud_size);
+  using autoware::common::types::PointXYZI;
+  point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZI>{
+    output, m_frame_id}.resize(m_cloud_size);
   m_point_cloud_its.reset(output, m_point_cloud_idx);
 }
 
