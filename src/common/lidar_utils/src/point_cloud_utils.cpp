@@ -372,14 +372,6 @@ bool8_t add_point_to_cloud(
 
 /////////////////////////////////////////////////////////////////////////////////////////
 
-void resize_pcl_msg(
-  sensor_msgs::msg::PointCloud2 & msg,
-  const std::size_t new_size)
-{
-  sensor_msgs::PointCloud2Modifier pc_modifier(msg);
-  pc_modifier.resize(new_size);
-}
-
 DistanceFilter::DistanceFilter(float32_t min_radius, float32_t max_radius)
 : m_min_r2(min_radius * min_radius), m_max_r2(max_radius * max_radius)
 {
