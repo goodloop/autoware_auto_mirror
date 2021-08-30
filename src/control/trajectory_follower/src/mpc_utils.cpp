@@ -268,7 +268,7 @@ bool8_t calcMPCTrajectoryTime(MPCTrajectory & traj)
     const float64_t dy = traj.y.at(i + 1) - traj.y.at(i);
     const float64_t dz = traj.z.at(i + 1) - traj.z.at(i);
     const float64_t dist = std::sqrt(dx * dx + dy * dy + dz * dz);
-    float64_t v = std::max(std::fabs(traj.vx.at(i)), 0.1);
+    const float64_t v = std::max(std::fabs(traj.vx.at(i)), 0.1);
     t += (dist / v);
     traj.relative_time.push_back(t);
   }
@@ -280,7 +280,6 @@ void dynamicSmoothingVelocity(
   MPCTrajectory & traj)
 {
   float64_t curr_v = start_vel;
-  std::vector<float64_t> smoothed_vel;
   traj.vx.at(start_idx) = start_vel;
 
   for (size_t i = start_idx + 1; i < traj.size(); ++i) {
