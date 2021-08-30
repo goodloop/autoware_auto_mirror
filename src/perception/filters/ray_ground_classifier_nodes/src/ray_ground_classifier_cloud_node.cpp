@@ -251,8 +251,10 @@ RayGroundClassifierCloudNode::callback(const PointCloud2::SharedPtr msg)
     }
 
     // Resize the clouds down to their actual sizes.
-    autoware::common::lidar_utils::resize_pcl_msg(m_ground_msg, m_ground_pc_idx);
-    autoware::common::lidar_utils::resize_pcl_msg(m_nonground_msg, m_nonground_pc_idx);
+    point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZI>{
+      m_ground_msg}.resize(m_ground_pc_idx);
+    point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZI>{
+      m_nonground_msg}.resize(m_nonground_pc_idx);
     // publish: nonground first for the possible microseconds of latency
     m_nonground_pub_ptr->publish(m_nonground_msg);
     m_ground_pub_ptr->publish(m_ground_msg);
