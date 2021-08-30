@@ -143,7 +143,7 @@ PointCloudFusionNode::pointcloud_callback(
 
   if (fused_cloud_size > 0) {
     // Resize and publish.
-    common::lidar_utils::resize_pcl_msg(m_cloud_concatenated, fused_cloud_size);
+    modifier.resize(fused_cloud_size);
 
     m_cloud_concatenated.header.stamp = latest_stamp;
     m_cloud_publisher->publish(m_cloud_concatenated);
