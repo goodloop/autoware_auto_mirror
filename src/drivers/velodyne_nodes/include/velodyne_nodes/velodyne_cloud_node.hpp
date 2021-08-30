@@ -71,7 +71,7 @@ public:
     const std::string & ip,
     const uint16_t port,
     const std::string & frame_id,
-    const std::size_t cloud_size,
+    const std::uint32_t cloud_size,
     const Config & config);
 
   /// \brief Parameter file constructor
@@ -103,7 +103,7 @@ private:
   uint32_t m_point_cloud_idx;
   autoware::common::lidar_utils::PointCloudIts m_point_cloud_its;
   const std::string m_frame_id;
-  const std::size_t m_cloud_size;
+  const std::uint32_t m_cloud_size;
 };  // class VelodyneCloudNode
 
 using VLP16DriverNode = VelodyneCloudNode<velodyne_driver::VLP16Data>;

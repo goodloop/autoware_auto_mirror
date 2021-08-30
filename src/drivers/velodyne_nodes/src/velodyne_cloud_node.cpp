@@ -20,6 +20,7 @@
 
 #include "common/types.hpp"
 #include "lidar_utils/point_cloud_utils.hpp"
+#include "point_cloud_msg_wrapper/point_cloud_msg_wrapper.hpp"
 #include "sensor_msgs/point_cloud2_iterator.hpp"
 #include "velodyne_nodes/velodyne_cloud_node.hpp"
 
@@ -38,7 +39,7 @@ VelodyneCloudNode<T>::VelodyneCloudNode(
   const std::string & ip,
   const uint16_t port,
   const std::string & frame_id,
-  const std::size_t cloud_size,
+  const std::uint32_t cloud_size,
   const Config & config)
 : UdpDriverNode(
     node_name,
@@ -71,8 +72,8 @@ VelodyneCloudNode<T>::VelodyneCloudNode(
   m_remainder_start_idx(0U),
   m_point_cloud_idx(0),
   m_frame_id(this->declare_parameter("frame_id").template get<std::string>().c_str()),
-  m_cloud_size(static_cast<std::size_t>(
-      this->declare_parameter("cloud_size").template get<std::size_t>()))
+  m_cloud_size(static_cast<std::uint32_t>(
+      this->declare_parameter("cloud_size").template get<std::uint32_t>()))
 {
   m_point_block.reserve(autoware::drivers::velodyne_driver::Vlp16Translator::POINT_BLOCK_CAPACITY);
   // If your preallocated cloud size is too small, the node really won't operate well at all
@@ -97,7 +98,11 @@ bool8_t VelodyneCloudNode<T>::convert(
   // This handles the case when the below loop exited due to containing extra points
   if (m_published_cloud) {
     // reset the pointcloud
-    autoware::common::lidar_utils::reset_pcl_msg(output, m_cloud_size, m_point_cloud_idx);
+    using autoware::common::types::PointXYZI;
+    point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZI> modifier{output};
+    modifier.clear();
+    modifier.resize(m_cloud_size);
+    m_point_cloud_idx = 0;
     m_point_cloud_its.reset(output, m_point_cloud_idx);
 
     // deserialize remainder into pointcloud
