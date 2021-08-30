@@ -192,10 +192,6 @@ LIDAR_UTILS_PUBLIC bool8_t add_point_to_cloud(
   const autoware::common::types::PointXYZF & pt,
   uint32_t & point_cloud_idx);
 
-LIDAR_UTILS_PUBLIC void resize_pcl_msg(
-  sensor_msgs::msg::PointCloud2 & msg,
-  const std::size_t new_size);
-
 /// \brief Get cluster from clusters based on the cluster id
 /// \param[in] clusters The clusters object
 /// \param[in] cls_id The id of the target cluster
