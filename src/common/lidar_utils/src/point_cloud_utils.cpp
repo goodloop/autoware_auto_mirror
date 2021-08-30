@@ -372,19 +372,6 @@ bool8_t add_point_to_cloud(
 
 /////////////////////////////////////////////////////////////////////////////////////////
 
-void reset_pcl_msg(
-  sensor_msgs::msg::PointCloud2 & msg,
-  const std::size_t size,
-  uint32_t & point_cloud_idx)
-{
-  sensor_msgs::PointCloud2Modifier pc_modifier(msg);
-  pc_modifier.clear();
-  point_cloud_idx = 0;
-  pc_modifier.resize(size);
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-
 void resize_pcl_msg(
   sensor_msgs::msg::PointCloud2 & msg,
   const std::size_t new_size)
