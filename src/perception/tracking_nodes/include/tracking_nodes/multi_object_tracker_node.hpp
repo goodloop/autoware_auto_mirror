@@ -108,12 +108,14 @@ private:
     const nav_msgs::msg::Odometry & odom,
     const ClassifiedRoiArray::_header_type::_frame_id_type & camera_frame_id);
   /// The actual tracker implementation.
+  bool8_t m_use_vision = true;
   autoware::perception::tracking::MultiObjectTracker m_tracker;
   size_t m_history_depth = 0U;
-  bool m_use_ndt = true;
+  bool8_t m_use_ndt = true;
   /// Subscription to pose and detection messages.
   message_filters::Subscriber<autoware_auto_msgs::msg::DetectedObjects> m_objects_sub;
-  message_filters::Subscriber<autoware_auto_msgs::msg::ClassifiedRoiArray> m_rois_sub;
+  std::experimental::optional<
+    message_filters::Subscriber<autoware_auto_msgs::msg::ClassifiedRoiArray>> m_maybe_rois_sub;
   /// this sub will be used only if m_use_ndt is false
   message_filters::Subscriber<geometry_msgs::msg::PoseWithCovarianceStamped> m_pose_sub;
   /// this sub will be used only if m_use_ndt is true

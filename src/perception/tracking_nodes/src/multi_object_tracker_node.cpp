@@ -48,7 +48,7 @@ using std::placeholders::_2;
 
 namespace
 {
-MultiObjectTracker init_tracker(rclcpp::Node & node)
+MultiObjectTracker init_tracker(rclcpp::Node & node, const bool8_t use_vision)
 {
   const float32_t max_distance =
     static_cast<float32_t>(node.declare_parameter(
@@ -75,28 +75,32 @@ MultiObjectTracker init_tracker(rclcpp::Node & node)
       "pruning_ticks_threshold").get<int64_t>());
   const std::string frame = node.declare_parameter("track_frame_id", "odom");
 
-  const CameraIntrinsics intrinsics{
-    static_cast<std::size_t>(node.declare_parameter(
-      "vision_association.intrinsics.width").get<int64_t>()),
-    static_cast<std::size_t>(node.declare_parameter(
-      "vision_association.intrinsics.height").get<int64_t>()),
-    static_cast<float32_t>(node.declare_parameter(
-      "vision_association.intrinsics.fx").get<float32_t>()),
-    static_cast<float32_t>(node.declare_parameter(
-      "vision_association.intrinsics.fy").get<float32_t>()),
-    static_cast<float32_t>(node.declare_parameter(
-      "vision_association.intrinsics.ox").get<float32_t>()),
-    static_cast<float32_t>(node.declare_parameter(
-      "vision_association.intrinsics.oy").get<float32_t>()),
-    static_cast<float32_t>(node.declare_parameter(
-      "vision_association.intrinsics.skew").get<float32_t>())
-  };
+  GreedyRoiAssociatorConfig vision_config{};
 
-  const auto iou_threshold = static_cast<float32_t>(node.declare_parameter(
-      "vision_association.iou_threshold").get<float32_t>());
+  if (use_vision) {
+    vision_config.intrinsics = {
+      static_cast<std::size_t>(node.declare_parameter(
+        "vision_association.intrinsics.width").get<int64_t>()),
+      static_cast<std::size_t>(node.declare_parameter(
+        "vision_association.intrinsics.height").get<int64_t>()),
+      static_cast<float32_t>(node.declare_parameter(
+        "vision_association.intrinsics.fx").get<float32_t>()),
+      static_cast<float32_t>(node.declare_parameter(
+        "vision_association.intrinsics.fy").get<float32_t>()),
+      static_cast<float32_t>(node.declare_parameter(
+        "vision_association.intrinsics.ox").get<float32_t>()),
+      static_cast<float32_t>(node.declare_parameter(
+        "vision_association.intrinsics.oy").get<float32_t>()),
+      static_cast<float32_t>(node.declare_parameter(
+        "vision_association.intrinsics.skew").get<float32_t>())
+    };
+
+    vision_config.iou_threshold = static_cast<float32_t>(node.declare_parameter(
+        "vision_association.iou_threshold").get<float32_t>());
+  }
 
   MultiObjectTrackerOptions options{
-    {max_distance, max_area_ratio, consider_edge_for_big_detections}, {intrinsics, iou_threshold},
+    {max_distance, max_area_ratio, consider_edge_for_big_detections}, vision_config,
     {creation_policy, default_variance, noise_variance},
     pruning_time_threshold, pruning_ticks_threshold, frame};
   return MultiObjectTracker{options};
@@ -130,11 +134,11 @@ geometry_msgs::msg::Transform to_transform(const nav_msgs::msg::Odometry & odome
 
 MultiObjectTrackerNode::MultiObjectTrackerNode(const rclcpp::NodeOptions & options)
 :  Node("multi_object_tracker_node", options),
-  m_tracker(init_tracker(*this)),
+  m_use_vision{this->declare_parameter("use_vision", true)},
+  m_tracker(init_tracker(*this, m_use_vision)),
   m_history_depth(static_cast<size_t>(this->declare_parameter("history_depth", 20))),
   m_use_ndt(this->declare_parameter("use_ndt", true)),
   m_objects_sub(this, "detected_objects", rclcpp::QoS(m_history_depth).get_rmw_qos_profile()),
-  m_rois_sub(this, "classified_rois", rclcpp::QoS(m_history_depth).get_rmw_qos_profile()),
   m_pub(create_publisher<TrackedObjects>("tracked_objects", m_history_depth)),
   m_tf_listener{m_tf_buffer, this}
 {
@@ -142,26 +146,32 @@ MultiObjectTrackerNode::MultiObjectTrackerNode(const rclcpp::NodeOptions & optio
     m_oject_sync = std::make_shared<message_filters::Synchronizer<ObjectOdomPolicy>>(
       ObjectOdomPolicy(static_cast<uint32_t>(m_history_depth)),
       m_objects_sub, m_odom_sub);
-
-    m_vision_sync = std::make_shared<message_filters::Synchronizer<VisionOdomPolicy>>(
-      VisionOdomPolicy(static_cast<uint32_t>(m_history_depth)),
-      m_rois_sub, m_odom_sub);
-
     m_odom_sub.subscribe(this, "odometry", rclcpp::QoS(m_history_depth).get_rmw_qos_profile());
   } else {
     m_oject_sync = std::make_shared<message_filters::Synchronizer<ObjectPosePolicy>>(
       ObjectPosePolicy(static_cast<uint32_t>(m_history_depth)),
       m_objects_sub, m_pose_sub);
-
-    m_vision_sync = std::make_shared<message_filters::Synchronizer<VisionPosePolicy>>(
-      VisionPosePolicy(static_cast<uint32_t>(m_history_depth)),
-      m_rois_sub, m_pose_sub);
-
     m_pose_sub.subscribe(this, "odometry", rclcpp::QoS(m_history_depth).get_rmw_qos_profile());
   }
 
   mpark::visit(RegisterSyncCallback(this), m_oject_sync);
-  mpark::visit(RegisterSyncCallback(this), m_vision_sync);
+
+  // Initialize vision callbacks if vision is configured to be used:
+  if (m_use_vision) {
+    m_maybe_rois_sub.emplace(
+      this, "classified_rois", rclcpp::QoS(m_history_depth).get_rmw_qos_profile());
+
+    if (m_use_ndt) {
+      m_vision_sync = std::make_shared<message_filters::Synchronizer<VisionOdomPolicy>>(
+        VisionOdomPolicy(static_cast<uint32_t>(m_history_depth)),
+        m_maybe_rois_sub.value(), m_odom_sub);
+    } else {
+      m_vision_sync = std::make_shared<message_filters::Synchronizer<VisionPosePolicy>>(
+        VisionPosePolicy(static_cast<uint32_t>(m_history_depth)),
+        m_maybe_rois_sub.value(), m_pose_sub);
+    }
+    mpark::visit(RegisterSyncCallback(this), m_vision_sync);
+  }
 }
 
 void MultiObjectTrackerNode::process_objects_using_odom(

@@ -20,7 +20,8 @@
       max_area_ratio: 20.0
       # When true, the shortest edge of the detection will be used as the max distance threshold if it is greater than the configured threshold
       consider_edge_for_big_detection: True
-    # Parameters for associating the vision detections
+    # Parameter to allow the tracker to use vision detections for improving tracking.
+    use_vision: True    # Parameters for associating the vision detections
     vision_association:
       # The IoU threshold for a RoI and projection of another detection to be considered matches
       iou_threshold: 0.5

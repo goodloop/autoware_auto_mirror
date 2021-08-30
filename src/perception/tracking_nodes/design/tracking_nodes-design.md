@@ -15,9 +15,9 @@ This is a ROS-layer wrapper around the `tracking` package.
 <!-- Required -->
 <!-- Things to consider:
     - How does it work? -->
-DetectedObjects and ClassifiedRoiArray messages are time synchronized with - Odometry messages 
-which are then forwarded to the tracker implementation which updates the state of the tracks. 
-The updated tracks are then acquired and published.
+`DetectedObjects` and (optionally) `ClassifiedRoiArray` messages are time synchronized with `Odometry` 
+messages which are then forwarded to the tracker implementation which updates the state of the 
+tracks. The updated tracks are then acquired and published.
 
 
 ## Assumptions / Known limits
@@ -31,7 +31,7 @@ Currently, due to using `message_filters` to implement timestamp matching, there
     - How do you use the package / API? -->
 Input topics:
 * "detected_objects"
-* "classified_rois"
+* "classified_rois" (optional)
 * "odometry"
 
 Output topics:
