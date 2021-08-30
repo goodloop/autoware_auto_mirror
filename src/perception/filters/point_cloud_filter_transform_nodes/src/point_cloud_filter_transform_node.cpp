@@ -34,7 +34,6 @@ namespace point_cloud_filter_transform_nodes
 {
 using autoware::common::lidar_utils::add_point_to_cloud;
 using autoware::common::lidar_utils::has_intensity_and_throw_if_no_xyz;
-using autoware::common::lidar_utils::resize_pcl_msg;
 using autoware::common::lidar_utils::sanitize_point_cloud;
 using autoware::common::types::float64_t;
 using autoware::common::types::PointXYZI;
@@ -198,7 +197,7 @@ const PointCloud2 & PointCloud2FilterTransformNode::filter_and_transform(const P
       break;
     }
   }
-  resize_pcl_msg(m_filtered_transformed_msg, point_cloud_idx);
+  modifier.resize(point_cloud_idx);
   return m_filtered_transformed_msg;
 }
 
