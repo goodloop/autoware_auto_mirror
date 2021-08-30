@@ -96,10 +96,10 @@ bool8_t VelodyneCloudNode<T>::convert(
   sensor_msgs::msg::PointCloud2 & output)
 {
   // This handles the case when the below loop exited due to containing extra points
+  using autoware::common::types::PointXYZI;
+  point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZI> modifier{output};
   if (m_published_cloud) {
     // reset the pointcloud
-    using autoware::common::types::PointXYZI;
-    point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZI> modifier{output};
     modifier.clear();
     modifier.resize(m_cloud_size);
     m_point_cloud_idx = 0;
@@ -133,7 +133,7 @@ bool8_t VelodyneCloudNode<T>::convert(
   }
   if (m_published_cloud) {
     // resize pointcloud down to its actual size
-    autoware::common::lidar_utils::resize_pcl_msg(output, m_point_cloud_idx);
+    modifier.resize(m_point_cloud_idx);
     output.header.stamp = this->now();
     m_point_cloud_its.reset(output, m_point_cloud_idx);
   }
