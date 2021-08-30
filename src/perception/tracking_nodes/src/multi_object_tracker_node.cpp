@@ -52,12 +52,13 @@ MultiObjectTracker init_tracker(rclcpp::Node & node)
 {
   const float32_t max_distance =
     static_cast<float32_t>(node.declare_parameter(
-      "association_max_distance").get<float64_t>());
+      "object_association.max_distance").get<float64_t>());
   const float32_t max_area_ratio =
     static_cast<float32_t>(node.declare_parameter(
-      "association_max_area_ratio").get<float64_t>());
+      "object_association.max_area_ratio").get<float64_t>());
   const bool consider_edge_for_big_detections = node.declare_parameter(
-    "association_consider_edge_for_big_detection").get<bool>();
+    "object_association.consider_edge_for_big_detection").get<bool>();
+
   const auto creation_policy = perception::tracking::TrackCreationPolicy::LidarClusterOnly;
   const float32_t default_variance =
     static_cast<float32_t>(node.declare_parameter(
