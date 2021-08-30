@@ -103,11 +103,11 @@ PointCloudFusionNode::pointcloud_callback(
   std::array<PointCloudMsgT::ConstSharedPtr, 8> msgs{msg1, msg2, msg3, msg4, msg5, msg6, msg7,
     msg8};
 
-  uint32_t pc_concat_idx = 0;
   // reset pointcloud before using
-  common::lidar_utils::reset_pcl_msg(
-    m_cloud_concatenated, m_cloud_capacity,
-    pc_concat_idx);
+  using autoware::common::types::PointXYZI;
+  point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZI> modifier{m_cloud_concatenated};
+  modifier.clear();
+  modifier.resize(m_cloud_capacity);
 
   auto latest_stamp = msgs[0]->header.stamp;
   auto total_size = 0U;
