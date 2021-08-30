@@ -14,7 +14,9 @@
 //
 // Co-developed by Tier IV, Inc. and Apex.AI, Inc.
 
+#include <common/types.hpp>
 #include <point_cloud_fusion/point_cloud_fusion.hpp>
+#include <point_cloud_msg_wrapper/point_cloud_msg_wrapper.hpp>
 
 namespace autoware
 {
@@ -54,27 +56,19 @@ void PointCloudFusion::concatenate_pointcloud(
     throw Error::TOO_LARGE;
   }
 
-  sensor_msgs::PointCloud2ConstIterator<float32_t> x_it_in(pc_in, "x");
-  sensor_msgs::PointCloud2ConstIterator<float32_t> y_it_in(pc_in, "y");
-  sensor_msgs::PointCloud2ConstIterator<float32_t> z_it_in(pc_in, "z");
-  sensor_msgs::PointCloud2ConstIterator<float32_t> intensity_it_in(pc_in, "intensity");
+  using autoware::common::types::PointXYZI;
+  point_cloud_msg_wrapper::PointCloud2View<PointXYZI> view{pc_in};
 
-  while (x_it_in != x_it_in.end() &&
-    y_it_in != y_it_in.end() &&
-    z_it_in != z_it_in.end() &&
-    intensity_it_in != intensity_it_in.end())
-  {
+  auto view_it = view.cbegin();
+  while (view_it != view.cend()) {
     common::types::PointXYZIF pt;
-    pt.x = *x_it_in;
-    pt.y = *y_it_in;
-    pt.z = *z_it_in;
-    pt.intensity = *intensity_it_in;
+    pt.x = (*view_it).x;
+    pt.y = (*view_it).y;
+    pt.z = (*view_it).z;
+    pt.intensity = (*view_it).intensity;
 
     if (common::lidar_utils::add_point_to_cloud(pc_out, pt, concat_idx)) {
-      ++x_it_in;
-      ++y_it_in;
-      ++z_it_in;
-      ++intensity_it_in;
+      ++view_it;
     } else {
       // Somehow the point could be inserted to the concatenated cloud. Something regarding
       // the cloud sizes must be off.
