@@ -87,7 +87,7 @@ private:
   uint32_t m_point_cloud_idx;
   autoware::common::lidar_utils::PointCloudIts m_point_cloud_its;
   const std::string m_frame_id;
-  const std::size_t m_cloud_size;
+  const std::uint32_t m_cloud_size;
 };  // class VelodyneCloudNode
 
 using VLP16DriverNode = VelodyneCloudNode<velodyne_driver::VLP16Data>;

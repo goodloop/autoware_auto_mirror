@@ -20,6 +20,7 @@
 
 #include "common/types.hpp"
 #include "lidar_utils/point_cloud_utils.hpp"
+#include "point_cloud_msg_wrapper/point_cloud_msg_wrapper.hpp"
 #include "sensor_msgs/point_cloud2_iterator.hpp"
 #include "velodyne_nodes/velodyne_cloud_node.hpp"
 
@@ -112,7 +113,11 @@ bool8_t VelodyneCloudNode<T>::convert(
   // This handles the case when the below loop exited due to containing extra points
   if (m_published_cloud) {
     // reset the pointcloud
-    autoware::common::lidar_utils::reset_pcl_msg(output, m_cloud_size, m_point_cloud_idx);
+    using autoware::common::types::PointXYZI;
+    point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZI> modifier{output};
+    modifier.clear();
+    modifier.resize(m_cloud_size);
+    m_point_cloud_idx = 0;
     m_point_cloud_its.reset(output, m_point_cloud_idx);
 
     // deserialize remainder into pointcloud
