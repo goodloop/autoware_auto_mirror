@@ -53,17 +53,17 @@ void LidarClusterIfVisionPolicy::add_objects(
   m_lidar_clusters = populate_unassigned_lidar_detections(clusters, associator_result);
 }
 
-LidaronlyPolicy::LidaronlyPolicy(const float64_t default_variance, const float64_t noise_variance)
+LidarOnlyPolicy::LidarOnlyPolicy(const float64_t default_variance, const float64_t noise_variance)
 : CreationPolicyBase(default_variance, noise_variance) {}
 
-void LidaronlyPolicy::add_objects(
+void LidarOnlyPolicy::add_objects(
   const autoware_auto_msgs::msg::DetectedObjects & clusters,
   const AssociatorResult & associator_result)
 {
   m_lidar_clusters = populate_unassigned_lidar_detections(clusters, associator_result);
 }
 
-TracksAndLeftovers LidaronlyPolicy::create()
+TracksAndLeftovers LidarOnlyPolicy::create()
 {
   TracksAndLeftovers retval;
   for (const auto & cluster : m_lidar_clusters.objects) {
@@ -128,6 +128,7 @@ TracksAndLeftovers LidarClusterIfVisionPolicy::create()
           m_default_variance, m_noise_variance));
     }
   }
+
   // Erase lidar clusters that are associated to a vision roi
   for (const auto idx : lidar_idx_to_erase) {
     m_lidar_clusters.objects.erase(m_lidar_clusters.objects.begin() + static_cast<int32_t>(idx));
@@ -140,7 +141,7 @@ TrackCreator::TrackCreator(const TrackCreatorConfig & config)
 {
   switch (config.policy) {
     case TrackCreationPolicy::LidarClusterOnly:
-      m_policy_object = std::make_unique<LidaronlyPolicy>(
+      m_policy_object = std::make_unique<LidarOnlyPolicy>(
         config.default_variance,
         config.noise_variance);
       break;

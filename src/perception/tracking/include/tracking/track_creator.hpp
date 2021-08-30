@@ -27,6 +27,7 @@
 #include <tracking/visibility_control.hpp>
 
 #include <memory>
+#include <utility>
 #include <vector>
 
 namespace autoware
@@ -115,10 +116,10 @@ protected:
 };
 
 // Class implementing LidarOnly track creation policy
-class LidaronlyPolicy : public CreationPolicyBase
+class LidarOnlyPolicy : public CreationPolicyBase
 {
 public:
-  LidaronlyPolicy(const float64_t default_variance, const float64_t noise_variance);
+  LidarOnlyPolicy(const float64_t default_variance, const float64_t noise_variance);
   TracksAndLeftovers create() override;
 
   void add_objects(
@@ -181,9 +182,9 @@ public:
   /// The actual implementation is handled by the individual policy implementation classes.
   /// Refer to the CreationPolicyBase doc for details
   template<typename ... Ts>
-  auto add_objects(Ts... args)
+  auto add_objects(Ts && ... args)
   {
-    return m_policy_object->add_objects(args ...);
+    return m_policy_object->add_objects(std::forward<Ts>(args)...);
   }
 
 private:
