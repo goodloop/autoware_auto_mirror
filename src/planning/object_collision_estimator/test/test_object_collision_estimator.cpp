@@ -158,6 +158,6 @@ TEST(ObjectCollisionEstimator, NoObstacle) {
   object_collision_estimator_test(100, 101);
 }
 
-TEST(object_collision_estimator, small_obstacle) {
+TEST(ObjectCollisionEstimator, SmallObstacle) {
   object_collision_estimator_test(100, 40, 0.0003);
 }

@@ -73,7 +73,6 @@ public:
       object_roi_pairs.emplace_back(std::make_pair(obj3, roi3));
     }
 
-<<<<<<< HEAD
     // Construct unmatched objects and rois
     {
       DetectedObject obj1;
