@@ -153,8 +153,8 @@ bool8_t MPC::calculateMPC(
   append_diag_data(tf2::getYaw(mpc_data.nearest_pose.orientation));
   // [8] yaw error
   append_diag_data(mpc_data.yaw_err);
-  // [9] command steering rate
-  diagnostic.diag_array.data.push_back(ctrl_cmd.steering_tire_rotation_rate);
+  // [9] reference velocity
+  append_diag_data(reference_trajectory.vx[static_cast<size_t>(mpc_data.nearest_idx)]);
   // [10] measured velocity
   append_diag_data(current_velocity);
   // [11] angvel from steer command
