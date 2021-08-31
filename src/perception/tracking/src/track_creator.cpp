@@ -105,8 +105,8 @@ TracksAndLeftovers LidarClusterIfVisionPolicy::create()
   // Refer: https://github.com/ros2/message_filters/issues/32
   const rclcpp::Time t{m_lidar_clusters.header.stamp.sec,
     m_lidar_clusters.header.stamp.nanosec};
-  const auto before = t - std::chrono::milliseconds(m_cfg.kMaxVisionLidarStampDiffMs);
-  const auto after = t + std::chrono::milliseconds(m_cfg.kMaxVisionLidarStampDiffMs);
+  const auto before = t - m_cfg.max_vision_lidar_timestamp_diff;
+  const auto after = t + m_cfg.max_vision_lidar_timestamp_diff;
   const auto vision_msg_matches = m_vision_rois_cache_ptr->getInterval(before, after);
 
   if (vision_msg_matches.empty()) {

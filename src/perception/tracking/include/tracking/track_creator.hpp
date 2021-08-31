@@ -45,7 +45,7 @@ struct TRACKING_PUBLIC VisionPolicyConfig
   // Tf to transform from base_link to the camera frame
   geometry_msgs::msg::Transform tf_camera_from_base_link;
   // Maximum allowed difference in the timestamp of the two messages being associated
-  int kMaxVisionLidarStampDiffMs = 20;
+  std::chrono::milliseconds max_vision_lidar_timestamp_diff{20};
 };
 
 /// \brief Struct to hold all the configuration parameters for the track creation module

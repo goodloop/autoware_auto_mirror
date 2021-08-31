@@ -26,7 +26,7 @@ The logic used to create new tracks is controlled by [TrackCreationPolicy](@ref 
 ### LidarClusterIfVision
 - Call `add_objects()` with the lidar clusters message and result from the lidar-track association. This method will go through every lidar cluster that was not associated to a track and store it internally  
 - Call `add_objects()` with the vision detections message and result from the vision-track association. This method will go through every vision detection that was not associated to a track and store it internally. Every time this function is called a new vision detection message is created internally and pushed to a cache 
-- Call `create_tracks()`. This method will first try to find a vision detection that is within `kMaxVisionLidarStampDiffMs` from the lidar cluster msg stamp. If it finds such a message it will try to associate the lidar clusters and the vision detections. New tracks will be created only from lidar clusters that are matched with a vision detection
+- Call `create_tracks()`. This method will first try to find a vision detection that is within `max_vision_lidar_timestamp_diff` from the lidar cluster msg stamp. If it finds such a message it will try to associate the lidar clusters and the vision detections. New tracks will be created only from lidar clusters that are matched with a vision detection
 - Using this policy requires a valid `VisionPolicyConfig` struct object to be initialized in the `TrackCreatorConfig` struct object. 
 
 ## Parameters
@@ -36,7 +36,7 @@ The logic used to create new tracks is controlled by [TrackCreationPolicy](@ref 
   - Transform from base_link to camera
   - iou_threshold - Minimum IOU value to math a lidar cluster and a vision detection
   - Instrinsic parameters of the camera
-  - kMaxVisionLidarStampDiffMs - Maximum difference between vision detections message stamp and lidar clusters message stamp to be considered for association
+  - max_vision_lidar_timestamp_diff - Maximum difference between vision detections message stamp and lidar clusters message stamp to be considered for association
 
 ## Assumptions / Known Limitations
 - This module assumes `create_tracks` will be called every time a lidar objects message is received
