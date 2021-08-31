@@ -160,13 +160,16 @@ TEST_F(TestTrackCreator, test_lidar_if_vision_2_new_tracks)
   // Test
   const auto ret = creator.create_tracks();
   EXPECT_EQ(ret.tracks.size(), 2U);
-  // Because of unodered_set we need to check both possible shapes
   EXPECT_TRUE(
-    (ret.tracks[0].shape() == this->object_roi_pairs[0].first.shape) ||
-    (ret.tracks[0].shape() == this->object_roi_pairs[1].first.shape));
+    std::find_if(
+      ret.tracks.begin(), ret.tracks.end(), [this](const TrackedObject & t) {
+        return t.shape() == this->object_roi_pairs[0].first.shape;
+      }) != ret.tracks.end());
   EXPECT_TRUE(
-    (ret.tracks[1].shape() == this->object_roi_pairs[0].first.shape) ||
-    (ret.tracks[1].shape() == this->object_roi_pairs[1].first.shape));
+    std::find_if(
+      ret.tracks.begin(), ret.tracks.end(), [this](const TrackedObject & t) {
+        return t.shape() == this->object_roi_pairs[1].first.shape;
+      }) != ret.tracks.end());
 
   EXPECT_EQ(ret.detections_leftover.objects.size(), 1U);
   EXPECT_EQ(ret.detections_leftover.objects[0U], lidar_detections.objects[4]);

@@ -78,7 +78,7 @@ public:
   /// \param tracks Tracks
   /// \param tf_camera_from_track Transform from the track frame to the camera frame
   /// \return The association between the tracks and the rois
-  virtual AssociatorResult assign(
+  AssociatorResult assign(
     const autoware_auto_msgs::msg::ClassifiedRoiArray & rois,
     const std::vector<TrackedObject> & tracks,
     const geometry_msgs::msg::Transform & tf_camera_from_track
@@ -92,7 +92,7 @@ public:
   /// \param tf_camera_from_object Transform from the track frame to the camera frame
   /// \return The association between the objects and the rois. In this case, "tracks" in the
   ///         return struct refers to the 3D objects and "detections" refer to the ROIs
-  virtual AssociatorResult assign(
+  AssociatorResult assign(
     const autoware_auto_msgs::msg::ClassifiedRoiArray & rois,
     const autoware_auto_msgs::msg::DetectedObjects & objects,
     const geometry_msgs::msg::Transform & tf_camera_from_object
