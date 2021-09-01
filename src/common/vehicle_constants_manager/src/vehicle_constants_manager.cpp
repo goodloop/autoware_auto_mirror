@@ -15,6 +15,7 @@
 #include "vehicle_constants_manager/vehicle_constants_manager.hpp"
 #include <rclcpp/rclcpp.hpp>
 
+#include <chrono>
 #include <map>
 #include <memory>
 #include <stdexcept>
@@ -183,17 +184,38 @@ std::string VehicleConstants::str_pretty() const
   return sstream.str();
 }
 
-VehicleConstants get_vehicle_constants(const rclcpp::Node::SharedPtr & node_ptr)
+VehicleConstants try_get_vehicle_constants(
+  const rclcpp::Node::SharedPtr & node_ptr,
+  const std::chrono::nanoseconds & nanos_timeout)
 {
   auto parameters_client = std::make_shared<rclcpp::SyncParametersClient>(
     node_ptr, "vehicle_constants_manager_node");
   using namespace std::chrono_literals;
+  auto tp_start = node_ptr->now();
+  // Wait until node is available
   while (!parameters_client->wait_for_service(1s)) {
     if (!rclcpp::ok()) {
       throw std::runtime_error("Interrupted while waiting for the vehicle_constants_manager_node.");
     }
+    if (node_ptr->now() - tp_start > nanos_timeout) {
+      throw std::runtime_error(
+              "Timeout reached while attempting to reach vehicle_constants_manager_node");
+    }
     RCLCPP_WARN(
       node_ptr->get_logger(), "vehicle_constants_manager_node is not available, waiting...");
+  }
+
+  // Wait until all parameters are published
+  while (!parameters_client->has_parameter("published_all")) {
+    if (!rclcpp::ok()) {
+      throw std::runtime_error("Interrupted while waiting for parameters to be published.");
+    }
+    if (node_ptr->now() - tp_start > nanos_timeout) {
+      throw std::runtime_error(
+              "Timeout reached while waiting for all parameters to be published");
+    }
+    RCLCPP_WARN(node_ptr->get_logger(), "Not all parameters are published yet, waiting...");
+    rclcpp::sleep_for(500ms);
   }
 
   std::map<ParamsPrimary, float64_t> map_params_primary;

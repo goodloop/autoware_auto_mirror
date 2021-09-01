@@ -50,8 +50,9 @@ TEST(test_vehicle_constants_manager_nodes, test_call_from_another_node) {
     node_options);
 
   // Create it by passing it a sub node (emulating an outer node)
-  auto vc = autoware::common::vehicle_constants_manager::get_vehicle_constants(
-    node_vehicle_constants_manager->create_sub_node("test"));
+  using namespace std::chrono_literals;
+  auto vc = autoware::common::vehicle_constants_manager::try_get_vehicle_constants(
+    node_vehicle_constants_manager->create_sub_node("test"), 300ms);
 
   using VehicleConstants = autoware::common::vehicle_constants_manager::VehicleConstants;
   using ParamsPrimary = VehicleConstants::ParamsPrimary;

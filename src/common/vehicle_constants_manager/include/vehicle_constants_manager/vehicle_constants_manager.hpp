@@ -23,6 +23,7 @@
 #include <rclcpp/rclcpp.hpp>
 #include <common/types.hpp>
 
+#include <chrono>
 #include <map>
 #include <memory>
 #include <string>
@@ -144,8 +145,9 @@ struct VEHICLE_CONSTANTS_MANAGER_PUBLIC VehicleConstants
   std::string str_pretty() const;
 };
 
-VEHICLE_CONSTANTS_MANAGER_PUBLIC VehicleConstants get_vehicle_constants(
-  const rclcpp::Node::SharedPtr & node_ptr);
+VEHICLE_CONSTANTS_MANAGER_PUBLIC VehicleConstants try_get_vehicle_constants(
+  const rclcpp::Node::SharedPtr & node_ptr,
+  const std::chrono::nanoseconds & nanos_timeout);
 
 }  // namespace vehicle_constants_manager
 }  // namespace common

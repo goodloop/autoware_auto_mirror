@@ -63,6 +63,12 @@ VehicleConstantsManagerNode::VehicleConstantsManagerNode(const rclcpp::NodeOptio
       true);
   }
 
+  this->declare_parameter<types::bool8_t>(
+    "published_all",
+    true,
+    rcl_interfaces::msg::ParameterDescriptor(),
+    true);
+
   // Pretty print
   RCLCPP_INFO_STREAM(get_logger(), "vehicle constants: \n" << vc.str_pretty());
 }
