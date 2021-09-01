@@ -13,9 +13,12 @@
 // limitations under the License.
 
 #include "vehicle_constants_manager_nodes/vehicle_constants_manager_node.hpp"
+#include <rclcpp/rclcpp.hpp>
 #include <common/types.hpp>
+
+#include <map>
 #include <string>
-#include <vector>
+#include <utility>
 
 namespace autoware
 {
@@ -29,47 +32,38 @@ using common::types::float64_t;
 VehicleConstantsManagerNode::VehicleConstantsManagerNode(const rclcpp::NodeOptions & options)
 :  Node("vehicle_constants_manager_node", options)
 {
-  // Get primary parameters to construct the VehicleConstants object
-  std::vector<std::string> names_parameters{
-    "wheel_radius",
-    "wheel_width",
-    "wheel_base",
-    "wheel_tread",
-    "overhang_front",
-    "overhang_rear",
-    "overhang_left",
-    "overhang_right",
-    "vehicle_height",
-    "cg_to_rear",
-    "tire_cornering_stiffness_front_N_per_deg",
-    "tire_cornering_stiffness_rear_N_per_deg",
-    "mass_vehicle",
-    "inertia_yaw_kg_m2"
-  };
-  std::vector<float64_t> parameters(names_parameters.size());
-  assert(parameters.size() == names_parameters.size());
+  // Declare params from yaml/inputs to ROS2 parameter server
+  using ParamsPrimary = vehicle_constants_manager::VehicleConstants::ParamsPrimary;
+  std::map<ParamsPrimary, float64_t> map_params_primary;
+  for (ParamsPrimary param = ParamsPrimary::wheel_radius;
+    param != ParamsPrimary::last;
+    param = static_cast<ParamsPrimary>(static_cast<int>(param) + 1))
+  {
+    map_params_primary.insert(
+      std::make_pair(
+        param,
+        this->declare_parameter(
+          vehicle_constants_manager::VehicleConstants::map_names_primary.at(
+            param)).get<float64_t>()));
+  }
+  // Build the VehicleConstants object
+  auto vc = vehicle_constants_manager::VehicleConstants(map_params_primary);
 
-  for (size_t i = 0; i < names_parameters.size(); ++i) {
-    const auto & name_parameter = names_parameters.at(i);
-    parameters.at(i) = this->declare_parameter(name_parameter).get<float64_t>();
+
+  // Publish the derived parameters to the parameter server
+  using ParamsDerived = vehicle_constants_manager::VehicleConstants::ParamsDerived;
+  for (ParamsDerived param = ParamsDerived::cg_to_front;
+    param != ParamsDerived::last;
+    param = static_cast<ParamsDerived>(static_cast<int>(param) + 1))
+  {
+    this->declare_parameter<float64_t>(
+      vehicle_constants_manager::VehicleConstants::map_names_derived.at(param),
+      vc.map_params_derived.at(param),
+      rcl_interfaces::msg::ParameterDescriptor(),
+      true);
   }
 
-  vehicle_constants_manager::VehicleConstants vc(
-    parameters.at(0),
-    parameters.at(1),
-    parameters.at(2),
-    parameters.at(3),
-    parameters.at(4),
-    parameters.at(5),
-    parameters.at(6),
-    parameters.at(7),
-    parameters.at(8),
-    parameters.at(9),
-    parameters.at(10),
-    parameters.at(11),
-    parameters.at(12),
-    parameters.at(13));
-
+  // Pretty print
   RCLCPP_INFO_STREAM(get_logger(), "vehicle constants: \n" << vc.str_pretty());
 }
 

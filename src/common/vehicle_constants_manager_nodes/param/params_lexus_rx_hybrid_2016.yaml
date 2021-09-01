@@ -10,8 +10,8 @@
     overhang_right: 0.3135 # Measured from SVL
     vehicle_height: 1.662 # Measured from SVL
     cg_to_rear: 1.367 # Assuming it is in middle of front and rear axle centers
-    tire_cornering_stiffness_front_N_per_deg: 0.1 # Taken from AVP demo params, can't verify
-    tire_cornering_stiffness_rear_N_per_deg: 0.1 # Taken from AVP demo params, can't verify
+    tire_cornering_stiffness_front: 0.1 # Taken from AVP demo params, can't verify
+    tire_cornering_stiffness_rear: 0.1 # Taken from AVP demo params, can't verify
     mass_vehicle: 2120.0 # Measured from SVL
     inertia_yaw_kg_m2: 12.0  # Taken from AVP demo params, can't verify
 
