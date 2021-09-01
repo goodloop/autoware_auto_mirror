@@ -16,6 +16,7 @@
 #include <rclcpp/rclcpp.hpp>
 
 #include <map>
+#include <memory>
 #include <stdexcept>
 #include <string>
 #include <utility>
@@ -137,7 +138,7 @@ VehicleConstants::VehicleConstants(const std::map<ParamsPrimary, float64_t> & ma
 
     std::make_pair(
       ParamsDerived::offset_lateral_max,
-      -map_params_primary.at(ParamsPrimary::wheel_tread) / 2.0 -
+      map_params_primary.at(ParamsPrimary::wheel_tread) / 2.0 +
       map_params_primary.at(ParamsPrimary::overhang_left)),
 
     std::make_pair(
@@ -184,17 +185,31 @@ std::string VehicleConstants::str_pretty() const
 
 VehicleConstants get_vehicle_constants(const rclcpp::Node::SharedPtr & node_ptr)
 {
+  auto parameters_client = std::make_shared<rclcpp::SyncParametersClient>(
+    node_ptr, "vehicle_constants_manager_node");
+  using namespace std::chrono_literals;
+  while (!parameters_client->wait_for_service(1s)) {
+    if (!rclcpp::ok()) {
+      throw std::runtime_error("Interrupted while waiting for the vehicle_constants_manager_node.");
+    }
+    RCLCPP_WARN(
+      node_ptr->get_logger(), "vehicle_constants_manager_node is not available, waiting...");
+  }
+
   std::map<ParamsPrimary, float64_t> map_params_primary;
   for (ParamsPrimary param = ParamsPrimary::wheel_radius;
     param != ParamsPrimary::last;
     param = static_cast<ParamsPrimary>(static_cast<int>(param) + 1))
   {
+    const auto & param_name = VehicleConstants::map_names_primary.at(param);
+    if (!parameters_client->has_parameter(param_name)) {
+      throw std::runtime_error(
+              "vehicle_constants_manager_node doesn't have parameter: " + param_name);
+    }
     map_params_primary.insert(
       std::make_pair(
         param,
-        node_ptr->declare_parameter(
-          "/vehicle_constants_manager_node/" +
-          VehicleConstants::map_names_primary.at(param)).get<float64_t>()));
+        parameters_client->get_parameter<float64_t>(param_name)));
   }
   return VehicleConstants(map_params_primary);
 }
