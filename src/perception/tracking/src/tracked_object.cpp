@@ -154,7 +154,7 @@ void TrackedObject::update(const DetectedObjectMsg & detection)
   m_ekf.correct(pose_measurement);
 }
 
-void TrackedObject::update(const DetectedObjectMsg::_classification_type & classification)
+void TrackedObject::update(const ObjectClassifications & classification)
 {
   m_classifier.update(classification);
 }

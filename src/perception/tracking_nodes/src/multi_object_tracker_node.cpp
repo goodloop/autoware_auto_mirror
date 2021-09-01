@@ -41,6 +41,7 @@ using autoware::perception::tracking::TrackerUpdateResult;
 using autoware::perception::tracking::TrackerUpdateStatus;
 using autoware::perception::tracking::GreedyRoiAssociatorConfig;
 using autoware::perception::tracking::CameraIntrinsics;
+using autoware::perception::tracking::VisionPolicyConfig;
 using autoware_auto_msgs::msg::DetectedObjects;
 using autoware_auto_msgs::msg::TrackedObjects;
 using nav_msgs::msg::Odometry;
@@ -49,26 +50,34 @@ using std::placeholders::_2;
 
 namespace
 {
-constexpr std::chrono::milliseconds kMaxLidarEgoStateStampDiff{20};
+constexpr std::chrono::milliseconds kMaxLidarEgoStateStampDiff{30};
 constexpr std::chrono::milliseconds kMaxVisionEgoStateStampDiff{10};
 
 geometry_msgs::msg::Transform get_tf_camera_from_base_link_from_params(rclcpp::Node & node)
 {
+  const auto maybe_declare_and_get = [&node](const std::string & s) -> double {
+      if (node.has_parameter(s)) {
+        return node.get_parameter(s).as_double();
+      } else {
+        return node.declare_parameter(s).get<float64_t>();
+      }
+    };
+
   geometry_msgs::msg::Transform tf_camera_from_base_link;
-  tf_camera_from_base_link.translation.x = node.declare_parameter(
-    "vision_association.tf_camera_from_baselink.translation.x").get<float64_t>();
-  tf_camera_from_base_link.translation.y = node.declare_parameter(
-    "vision_association.tf_camera_from_baselink.translation.y").get<float64_t>();
-  tf_camera_from_base_link.translation.y = node.declare_parameter(
-    "vision_association.tf_camera_from_baselink.translation.z").get<float64_t>();
-  tf_camera_from_base_link.rotation.w = node.declare_parameter(
-    "vision_association.tf_camera_from_baselink.rotation.w").get<float64_t>();
-  tf_camera_from_base_link.rotation.x = node.declare_parameter(
-    "vision_association.tf_camera_from_baselink.rotation.x").get<float64_t>();
-  tf_camera_from_base_link.rotation.y = node.declare_parameter(
-    "vision_association.tf_camera_from_baselink.rotation.y").get<float64_t>();
-  tf_camera_from_base_link.rotation.z = node.declare_parameter(
-    "vision_association.tf_camera_from_baselink.rotation.z").get<float64_t>();
+  tf_camera_from_base_link.translation.x = maybe_declare_and_get(
+    "vision_association.tf_camera_from_base_link.translation.x");
+  tf_camera_from_base_link.translation.y = maybe_declare_and_get(
+    "vision_association.tf_camera_from_base_link.translation.y");
+  tf_camera_from_base_link.translation.y = maybe_declare_and_get(
+    "vision_association.tf_camera_from_base_link.translation.z");
+  tf_camera_from_base_link.rotation.w = maybe_declare_and_get(
+    "vision_association.tf_camera_from_base_link.rotation.w");
+  tf_camera_from_base_link.rotation.x = maybe_declare_and_get(
+    "vision_association.tf_camera_from_base_link.rotation.x");
+  tf_camera_from_base_link.rotation.y = maybe_declare_and_get(
+    "vision_association.tf_camera_from_base_link.rotation.y");
+  tf_camera_from_base_link.rotation.z = maybe_declare_and_get(
+    "vision_association.tf_camera_from_base_link.rotation.z");
   return tf_camera_from_base_link;
 }
 
@@ -122,15 +131,17 @@ MultiObjectTracker init_tracker(rclcpp::Node & node, const bool8_t use_vision)
         "vision_association.intrinsics.skew").get<float32_t>())
     };
 
+
     vision_config.iou_threshold = static_cast<float32_t>(node.declare_parameter(
         "vision_association.iou_threshold").get<float32_t>());
 
-    creator_config.vision_policy_config->associator_cfg = vision_config;
-    creator_config.vision_policy_config->tf_camera_from_base_link =
-      get_tf_camera_from_base_link_from_params(node);
-    creator_config.vision_policy_config->max_vision_lidar_timestamp_diff =
-      std::chrono::milliseconds(
-      node.declare_parameter("vision_association.timestamp_diff_ms").get<int64_t>());
+    VisionPolicyConfig vision_policy_cfg;
+    vision_policy_cfg.associator_cfg = vision_config;
+    vision_policy_cfg.tf_camera_from_base_link = get_tf_camera_from_base_link_from_params(node);
+    vision_policy_cfg.max_vision_lidar_timestamp_diff = std::chrono::milliseconds(
+      node.declare_parameter(
+        "vision_association.timestamp_diff_ms").get<int64_t>());
+    creator_config.vision_policy_config.emplace(vision_policy_cfg);
   }
 
   creator_config.policy = creation_policy;
@@ -200,7 +211,7 @@ MultiObjectTrackerNode::MultiObjectTrackerNode(const rclcpp::NodeOptions & optio
   m_history_depth(static_cast<size_t>(this->declare_parameter("history_depth", 20))),
   m_use_ndt(this->declare_parameter("use_ndt", true)),
   m_pub(create_publisher<TrackedObjects>("tracked_objects", m_history_depth)),
-  m_tf_listener{m_tf_buffer, this}
+  m_tf_listener{m_tf_buffer}
 {
   if (m_use_ndt) {
     m_pose_or_odom_sub.emplace<OdomSubscriber>(

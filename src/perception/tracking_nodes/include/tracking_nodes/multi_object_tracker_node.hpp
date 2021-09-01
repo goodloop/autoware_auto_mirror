@@ -53,6 +53,7 @@ class TRACKING_NODES_PUBLIC MultiObjectTrackerNode : public rclcpp::Node
 {
   using DetectedObjects = autoware_auto_msgs::msg::DetectedObjects;
   using ClassifiedRoiArray = autoware_auto_msgs::msg::ClassifiedRoiArray;
+  using Odometry = nav_msgs::msg::Odometry;
 
   using OdomSubscriber = message_filters::Subscriber<nav_msgs::msg::Odometry>;
   using PoseSubscriber = message_filters::Subscriber<geometry_msgs::msg
@@ -68,13 +69,13 @@ public:
   /// Callback for matching detections + odom messages.
   /// This unusual signature is mandated by message_filters.
   void process(
-    const autoware_auto_msgs::msg::DetectedObjects::ConstSharedPtr & objs,
-    const nav_msgs::msg::Odometry::ConstSharedPtr & odom);
+    const DetectedObjects::ConstSharedPtr & objs,
+    const Odometry::ConstSharedPtr & odom);
   /// Callback for matching vision detections + odom messages.
   /// This unusual signature is mandated by message_filters.
   void process(
-    const autoware_auto_msgs::msg::ClassifiedRoiArray::ConstSharedPtr & rois,
-    const nav_msgs::msg::Odometry::ConstSharedPtr & odom);
+    const ClassifiedRoiArray::ConstSharedPtr & rois,
+    const Odometry::ConstSharedPtr & odom);
 
   // Forward declare structs that handle variant. Declaration outside the class to better handle
   // formatting with uncrustify
