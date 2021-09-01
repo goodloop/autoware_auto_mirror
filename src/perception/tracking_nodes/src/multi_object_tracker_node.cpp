@@ -49,6 +49,29 @@ using std::placeholders::_2;
 
 namespace
 {
+constexpr std::chrono::milliseconds kMaxLidarEgoStateStampDiff{20};
+constexpr std::chrono::milliseconds kMaxVisionEgoStateStampDiff{10};
+
+geometry_msgs::msg::Transform get_tf_camera_from_base_link_from_params(rclcpp::Node & node)
+{
+  geometry_msgs::msg::Transform tf_camera_from_base_link;
+  tf_camera_from_base_link.translation.x = node.declare_parameter(
+    "vision_association.tf_camera_from_baselink.translation.x").get<float64_t>();
+  tf_camera_from_base_link.translation.y = node.declare_parameter(
+    "vision_association.tf_camera_from_baselink.translation.y").get<float64_t>();
+  tf_camera_from_base_link.translation.y = node.declare_parameter(
+    "vision_association.tf_camera_from_baselink.translation.z").get<float64_t>();
+  tf_camera_from_base_link.rotation.w = node.declare_parameter(
+    "vision_association.tf_camera_from_baselink.rotation.w").get<float64_t>();
+  tf_camera_from_base_link.rotation.x = node.declare_parameter(
+    "vision_association.tf_camera_from_baselink.rotation.x").get<float64_t>();
+  tf_camera_from_base_link.rotation.y = node.declare_parameter(
+    "vision_association.tf_camera_from_baselink.rotation.y").get<float64_t>();
+  tf_camera_from_base_link.rotation.z = node.declare_parameter(
+    "vision_association.tf_camera_from_baselink.rotation.z").get<float64_t>();
+  return tf_camera_from_base_link;
+}
+
 MultiObjectTracker init_tracker(rclcpp::Node & node, const bool8_t use_vision)
 {
   const float32_t max_distance =
@@ -99,28 +122,12 @@ MultiObjectTracker init_tracker(rclcpp::Node & node, const bool8_t use_vision)
         "vision_association.intrinsics.skew").get<float32_t>())
     };
 
-    geometry_msgs::msg::Transform tf_camera_from_base_link;
-    tf_camera_from_base_link.translation.x = node.declare_parameter(
-      "vision_association.tf_camera_from_baselink.translation.x").get<float64_t>();
-    tf_camera_from_base_link.translation.y = node.declare_parameter(
-      "vision_association.tf_camera_from_baselink.translation.y").get<float64_t>();
-    tf_camera_from_base_link.translation.y = node.declare_parameter(
-      "vision_association.tf_camera_from_baselink.translation.z").get<float64_t>();
-    tf_camera_from_base_link.rotation.w = node.declare_parameter(
-      "vision_association.tf_camera_from_baselink.rotation.w").get<float64_t>();
-    tf_camera_from_base_link.rotation.x = node.declare_parameter(
-      "vision_association.tf_camera_from_baselink.rotation.x").get<float64_t>();
-    tf_camera_from_base_link.rotation.y = node.declare_parameter(
-      "vision_association.tf_camera_from_baselink.rotation.y").get<float64_t>();
-    tf_camera_from_base_link.rotation.z = node.declare_parameter(
-      "vision_association.tf_camera_from_baselink.rotation.z").get<float64_t>();
-
-
     vision_config.iou_threshold = static_cast<float32_t>(node.declare_parameter(
         "vision_association.iou_threshold").get<float32_t>());
 
     creator_config.vision_policy_config->associator_cfg = vision_config;
-    creator_config.vision_policy_config->tf_camera_from_base_link = tf_camera_from_base_link;
+    creator_config.vision_policy_config->tf_camera_from_base_link =
+      get_tf_camera_from_base_link_from_params(node);
     creator_config.vision_policy_config->max_vision_lidar_timestamp_diff =
       std::chrono::milliseconds(
       node.declare_parameter("vision_association.timestamp_diff_ms").get<int64_t>());
@@ -178,8 +185,8 @@ T get_closest_match(const std::vector<T> & matched_msgs, const rclcpp::Time & st
   return *std::min_element(
     matched_msgs.begin(), matched_msgs.end(), [&stamp](const auto &
     a, const auto & b) {
-      rclcpp::Time t1(a->header.stamp);
-      rclcpp::Time t2(b->header.stamp);
+      const rclcpp::Time t1(a->header.stamp);
+      const rclcpp::Time t2(b->header.stamp);
       return std::abs((t1 - stamp).nanoseconds()) < std::abs((t2 - stamp).nanoseconds());
     });
 }
@@ -197,12 +204,12 @@ MultiObjectTrackerNode::MultiObjectTrackerNode(const rclcpp::NodeOptions & optio
 {
   if (m_use_ndt) {
     m_pose_or_odom_sub.emplace<OdomSubscriber>(
-      this, "odometry", rclcpp::QoS(m_history_depth).get_rmw_qos_profile());
+      this, "ego_state", rclcpp::QoS(m_history_depth).get_rmw_qos_profile());
     m_pose_or_odom_cache = std::make_shared<OdomCache>(
       mpark::get<OdomSubscriber>(m_pose_or_odom_sub), m_history_depth);
   } else {
     m_pose_or_odom_sub.emplace<PoseSubscriber>(
-      this, "odometry", rclcpp::QoS(m_history_depth).get_rmw_qos_profile());
+      this, "ego_state", rclcpp::QoS(m_history_depth).get_rmw_qos_profile());
     m_pose_or_odom_cache = std::make_shared<PoseCache>(
       mpark::get<PoseSubscriber>(m_pose_or_odom_sub), m_history_depth);
   }
@@ -210,7 +217,7 @@ MultiObjectTrackerNode::MultiObjectTrackerNode(const rclcpp::NodeOptions & optio
   m_lidar_clusters_sub = create_subscription<autoware_auto_msgs::msg::DetectedObjects>(
     "detected_objects", rclcpp::QoS(m_history_depth), [this]
       (autoware_auto_msgs::msg::DetectedObjects::ConstSharedPtr msg) {
-      mpark::visit(CallLidarProcess(this, msg), m_pose_or_odom_cache);
+      mpark::visit(ProcessLidar{this, msg}, m_pose_or_odom_cache);
     });
 
   // Initialize vision callbacks if vision is configured to be used:
@@ -219,8 +226,12 @@ MultiObjectTrackerNode::MultiObjectTrackerNode(const rclcpp::NodeOptions & optio
       create_subscription<ClassifiedRoiArray>(
         "classified_rois", rclcpp::QoS(m_history_depth), [this]
           (ClassifiedRoiArray::ConstSharedPtr msg) {
-          mpark::visit(CallVisionProcess(this, msg), m_pose_or_odom_cache);
+          mpark::visit(ProcessVision{this, msg}, m_pose_or_odom_cache);
         }));
+
+    tf2::Transform temp;
+    tf2::fromMsg(get_tf_camera_from_base_link_from_params(*this), temp);
+    m_maybe_tf_camera_from_base_link.emplace(temp);
   }
 }
 
@@ -245,40 +256,33 @@ void MultiObjectTrackerNode::process(
   const ClassifiedRoiArray::ConstSharedPtr & rois,
   const Odometry::ConstSharedPtr & odom)
 {
-  const auto tf_camera_from_track = compute_extrinsics(*odom, rois->header.frame_id);
+  const auto tf_camera_from_track = compute_tf_camera_from_odom(*odom);
   m_tracker.update(*rois, tf_camera_from_track);
 }
 
-geometry_msgs::msg::Transform MultiObjectTrackerNode::compute_extrinsics(
-  const nav_msgs::msg::Odometry & odom,
-  const ClassifiedRoiArray::_header_type::_frame_id_type & camera_frame_id)
+geometry_msgs::msg::Transform MultiObjectTrackerNode::compute_tf_camera_from_odom(
+  const nav_msgs::msg::Odometry & odom)
 {
-  const auto & tf_camera_from_base_link_stamped =
-    m_tf_buffer.lookupTransform(
-    camera_frame_id, odom.child_frame_id,
-    time_utils::from_message(odom.header.stamp));
-  tf2::Transform tf_camera_from_base_link;
-  tf2::fromMsg(tf_camera_from_base_link_stamped, tf_camera_from_base_link);
-
   tf2::Transform tf_base_link_from_odom;
   tf2::fromMsg(to_transform(odom), tf_base_link_from_odom);
 
-  return tf2::toMsg(tf_camera_from_base_link * tf_base_link_from_odom);
+  return tf2::toMsg(m_maybe_tf_camera_from_base_link.value() * tf_base_link_from_odom);
 }
 
-MultiObjectTrackerNode::CallLidarProcess::CallLidarProcess(
+MultiObjectTrackerNode::ProcessLidar::ProcessLidar(
   MultiObjectTrackerNode * tracker_ptr,
   DetectedObjects::ConstSharedPtr msg)
 {
   m_node_ptr = tracker_ptr;
   m_msg = msg;
 
-  rclcpp::Time msg_stamp(m_msg->header.stamp.sec, m_msg->header.stamp.nanosec);
-  const auto m_left_interval = msg_stamp - std::chrono::milliseconds(30);
-  const auto m_right_interval = msg_stamp + std::chrono::milliseconds(30);
+  const rclcpp::Time msg_stamp{m_msg->header.stamp.sec, m_msg->header.stamp.nanosec};
+  m_left_interval = msg_stamp - std::chrono::milliseconds{kMaxLidarEgoStateStampDiff};
+  m_right_interval = msg_stamp + std::chrono::milliseconds{kMaxLidarEgoStateStampDiff};
 }
 
-void MultiObjectTrackerNode::CallLidarProcess::operator()(std::shared_ptr<OdomCache> cache_ptr)
+void MultiObjectTrackerNode::ProcessLidar::operator()(
+  const std::shared_ptr<OdomCache> & cache_ptr)
 {
   const auto matched_msgs = cache_ptr->getInterval(m_left_interval, m_right_interval);
   if (matched_msgs.empty()) {
@@ -288,7 +292,8 @@ void MultiObjectTrackerNode::CallLidarProcess::operator()(std::shared_ptr<OdomCa
   m_node_ptr->process(m_msg, get_closest_match(matched_msgs, m_msg->header.stamp));
 }
 
-void MultiObjectTrackerNode::CallLidarProcess::operator()(std::shared_ptr<PoseCache> cache_ptr)
+void MultiObjectTrackerNode::ProcessLidar::operator()(
+  const std::shared_ptr<PoseCache> & cache_ptr)
 {
   const auto matched_msgs = cache_ptr->getInterval(m_left_interval, m_right_interval);
   if (matched_msgs.empty()) {
@@ -298,19 +303,20 @@ void MultiObjectTrackerNode::CallLidarProcess::operator()(std::shared_ptr<PoseCa
   m_node_ptr->process(m_msg, to_odom(get_closest_match(matched_msgs, m_msg->header.stamp)));
 }
 
-MultiObjectTrackerNode::CallVisionProcess::CallVisionProcess(
+MultiObjectTrackerNode::ProcessVision::ProcessVision(
   MultiObjectTrackerNode * tracker_ptr,
   ClassifiedRoiArray::ConstSharedPtr msg)
 {
   m_node_ptr = tracker_ptr;
   m_msg = msg;
 
-  rclcpp::Time msg_stamp(m_msg->header.stamp.sec, m_msg->header.stamp.nanosec);
-  const auto m_left_interval = msg_stamp - std::chrono::milliseconds(30);
-  const auto m_right_interval = msg_stamp + std::chrono::milliseconds(30);
+  const rclcpp::Time msg_stamp(m_msg->header.stamp.sec, m_msg->header.stamp.nanosec);
+  m_left_interval = msg_stamp - std::chrono::milliseconds(kMaxVisionEgoStateStampDiff);
+  m_right_interval = msg_stamp + std::chrono::milliseconds(kMaxVisionEgoStateStampDiff);
 }
 
-void MultiObjectTrackerNode::CallVisionProcess::operator()(std::shared_ptr<OdomCache> cache_ptr)
+void MultiObjectTrackerNode::ProcessVision::operator()(
+  const std::shared_ptr<OdomCache> & cache_ptr)
 {
   const auto matched_msgs = cache_ptr->getInterval(m_left_interval, m_right_interval);
   if (matched_msgs.empty()) {
@@ -319,7 +325,8 @@ void MultiObjectTrackerNode::CallVisionProcess::operator()(std::shared_ptr<OdomC
   m_node_ptr->process(m_msg, get_closest_match(matched_msgs, m_msg->header.stamp));
 }
 
-void MultiObjectTrackerNode::CallVisionProcess::operator()(std::shared_ptr<PoseCache> cache_ptr)
+void MultiObjectTrackerNode::ProcessVision::operator()(
+  const std::shared_ptr<PoseCache> & cache_ptr)
 {
   const auto matched_msgs = cache_ptr->getInterval(m_left_interval, m_right_interval);
   if (matched_msgs.empty()) {

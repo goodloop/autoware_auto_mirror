@@ -65,8 +65,6 @@ public:
   /// \brief Constructor
   explicit MultiObjectTrackerNode(const rclcpp::NodeOptions & options);
 
-  void process_lidar_clusters(const autoware_auto_msgs::msg::DetectedObjects::ConstSharedPtr & msg);
-
   /// Callback for matching detections + odom messages.
   /// This unusual signature is mandated by message_filters.
   void process(
@@ -78,44 +76,13 @@ public:
     const autoware_auto_msgs::msg::ClassifiedRoiArray::ConstSharedPtr & rois,
     const nav_msgs::msg::Odometry::ConstSharedPtr & odom);
 
-  /// Callback for matching vision detections + pose messages.
-  /// This unusual signature is mandated by message_filters.
-  void process_rois_using_pose(
-    const autoware_auto_msgs::msg::ClassifiedRoiArray::ConstSharedPtr & rois,
-    const geometry_msgs::msg::PoseWithCovarianceStamped::ConstSharedPtr & pose);
-
-  // *INDENT-OFF* (Uncrustify does not do a good job with nested classes)
-  struct CallLidarProcess
-  {
-    CallLidarProcess(MultiObjectTrackerNode * tracker_ptr, DetectedObjects::ConstSharedPtr msg);
-    void operator()(std::shared_ptr<OdomCache> cache_ptr);
-    void operator()(std::shared_ptr<PoseCache> cache_ptr);
-
-    private:
-      DetectedObjects::ConstSharedPtr m_msg;
-      MultiObjectTrackerNode * m_node_ptr;
-      rclcpp::Time m_left_interval;
-      rclcpp::Time m_right_interval;
-  };
-
-  struct CallVisionProcess
-  {
-    CallVisionProcess(MultiObjectTrackerNode * tracker_ptr, ClassifiedRoiArray::ConstSharedPtr msg);
-    void operator()(std::shared_ptr<OdomCache> cache_ptr);
-    void operator()(std::shared_ptr<PoseCache> cache_ptr);
-
-    private:
-      ClassifiedRoiArray::ConstSharedPtr m_msg;
-      MultiObjectTrackerNode * m_node_ptr;
-      rclcpp::Time m_left_interval;
-      rclcpp::Time m_right_interval;
-  };
-  // *INDENT-ON*
+  // Forward declare structs that handle variant. Declaration outside the class to better handle
+  // formatting with uncrustify
+  struct ProcessLidar;
+  struct ProcessVision;
 
 private:
-  geometry_msgs::msg::Transform compute_extrinsics(
-    const nav_msgs::msg::Odometry & odom,
-    const ClassifiedRoiArray::_header_type::_frame_id_type & camera_frame_id);
+  geometry_msgs::msg::Transform compute_tf_camera_from_odom(const nav_msgs::msg::Odometry & odom);
 
   bool8_t m_use_vision = true;
   /// The actual tracker implementation.
@@ -128,6 +95,8 @@ private:
   std::experimental::optional<rclcpp::Subscription<ClassifiedRoiArray>::SharedPtr>
   m_maybe_vision_sub;
 
+  std::experimental::optional<tf2::Transform> m_maybe_tf_camera_from_base_link;
+
   mpark::variant<PoseSubscriber, OdomSubscriber> m_pose_or_odom_sub;
   mpark::variant<std::shared_ptr<OdomCache>, std::shared_ptr<PoseCache>> m_pose_or_odom_cache;
 
@@ -136,6 +105,37 @@ private:
   tf2::BufferCore m_tf_buffer;
   tf2_ros::TransformListener m_tf_listener;
 };
+
+/// Struct to call the process function with correct arguments for the different types of cache
+/// variant
+struct MultiObjectTrackerNode::ProcessLidar
+{
+  ProcessLidar(MultiObjectTrackerNode * tracker_ptr, DetectedObjects::ConstSharedPtr msg);
+  void operator()(const std::shared_ptr<OdomCache> & cache_ptr);
+  void operator()(const std::shared_ptr<PoseCache> & cache_ptr);
+
+private:
+  DetectedObjects::ConstSharedPtr m_msg;
+  MultiObjectTrackerNode * m_node_ptr;
+  rclcpp::Time m_left_interval;
+  rclcpp::Time m_right_interval;
+};
+
+/// Struct to call the process function with correct arguments for the different types of cache
+/// variant
+struct MultiObjectTrackerNode::ProcessVision
+{
+  ProcessVision(MultiObjectTrackerNode * tracker_ptr, ClassifiedRoiArray::ConstSharedPtr msg);
+  void operator()(const std::shared_ptr<OdomCache> & cache_ptr);
+  void operator()(const std::shared_ptr<PoseCache> & cache_ptr);
+
+private:
+  ClassifiedRoiArray::ConstSharedPtr m_msg;
+  MultiObjectTrackerNode * m_node_ptr;
+  rclcpp::Time m_left_interval;
+  rclcpp::Time m_right_interval;
+};
+
 }  // namespace tracking_nodes
 }  // namespace autoware
 
