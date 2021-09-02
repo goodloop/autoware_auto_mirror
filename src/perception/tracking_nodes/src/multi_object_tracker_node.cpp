@@ -53,6 +53,7 @@ namespace
 constexpr std::chrono::milliseconds kMaxLidarEgoStateStampDiff{30};
 constexpr std::chrono::milliseconds kMaxVisionEgoStateStampDiff{10};
 
+// TODO(#1304): This tf should come from tf listener and not from param file
 geometry_msgs::msg::Transform get_tf_camera_from_base_link_from_params(rclcpp::Node & node)
 {
   const auto maybe_declare_and_get = [&node](const std::string & s) -> double {
