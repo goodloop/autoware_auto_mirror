@@ -51,7 +51,7 @@ using std::placeholders::_2;
 namespace
 {
 constexpr std::chrono::milliseconds kMaxLidarEgoStateStampDiff{30};
-constexpr std::chrono::milliseconds kMaxVisionEgoStateStampDiff{10};
+constexpr std::chrono::milliseconds kMaxVisionEgoStateStampDiff{100};
 
 // TODO(#1304): This tf should come from tf listener and not from param file
 geometry_msgs::msg::Transform get_tf_camera_from_base_link_from_params(rclcpp::Node & node)
@@ -333,6 +333,7 @@ void MultiObjectTrackerNode::ProcessVision::operator()(
   const auto matched_msgs = cache_ptr->getInterval(m_left_interval, m_right_interval);
   if (matched_msgs.empty()) {
     RCLCPP_WARN(m_node_ptr->get_logger(), "No matching odom msg received for vision msg");
+    return;
   }
   m_node_ptr->process(m_msg, get_closest_match(matched_msgs, m_msg->header.stamp));
 }
@@ -343,6 +344,7 @@ void MultiObjectTrackerNode::ProcessVision::operator()(
   const auto matched_msgs = cache_ptr->getInterval(m_left_interval, m_right_interval);
   if (matched_msgs.empty()) {
     RCLCPP_WARN(m_node_ptr->get_logger(), "No matching pose msg received for vision msg");
+    return;
   }
   m_node_ptr->process(m_msg, to_odom(get_closest_match(matched_msgs, m_msg->header.stamp)));
 }
