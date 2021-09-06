@@ -9,7 +9,7 @@ We require the Velodyne driver to be able to interface with a ROS-based system.
 
 # Design
 
-These nodes use the UdpDriver to recieve the packets from the socket and then parse the packet into sensor_msgs::msg::PointCloud2 with the Vlp16Translator.
+These nodes use the UdpDriver to receive the packets from the socket and then parse the packet into sensor_msgs::msg::PointCloud2 with the Vlp16Translator.
 
 The purpose of these nodes are to convert Udp packets from a VLP16 HiRes sensor into
 ROS 2 messages.
