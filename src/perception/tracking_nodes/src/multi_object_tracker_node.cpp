@@ -69,7 +69,7 @@ geometry_msgs::msg::Transform get_tf_camera_from_base_link_from_params(rclcpp::N
     "vision_association.tf_camera_from_base_link.translation.x");
   tf_camera_from_base_link.translation.y = maybe_declare_and_get(
     "vision_association.tf_camera_from_base_link.translation.y");
-  tf_camera_from_base_link.translation.y = maybe_declare_and_get(
+  tf_camera_from_base_link.translation.z = maybe_declare_and_get(
     "vision_association.tf_camera_from_base_link.translation.z");
   tf_camera_from_base_link.rotation.w = maybe_declare_and_get(
     "vision_association.tf_camera_from_base_link.rotation.w");
