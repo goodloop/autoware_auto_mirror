@@ -46,4 +46,4 @@
           z: -0.4999999896293064
           w: 0.4998981633981524
       # Max acceptable timestamp difference between lidar cluster and vision RoI msg
-      timestamp_diff_ms: 20
+      timestamp_diff_ms: 100

@@ -14,11 +14,12 @@
 //
 // Co-developed by Tier IV, Inc. and Apex.AI, Inc.
 
-#include "tracking_nodes/multi_object_tracker_node.hpp"
+#include <tracking_nodes/multi_object_tracker_node.hpp>
 
 #include <rclcpp_components/register_node_macro.hpp>
-#include <time_utils/time_utils.hpp>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
+#include <time_utils/time_utils.hpp>
+
 #include <cstddef>
 #include <cstdint>
 #include <memory>
@@ -52,6 +53,8 @@ namespace
 {
 constexpr std::chrono::milliseconds kMaxLidarEgoStateStampDiff{30};
 constexpr std::chrono::milliseconds kMaxVisionEgoStateStampDiff{100};
+constexpr std::int64_t kDefaultHistoryDepth{20};
+constexpr std::int64_t kDefaultPoseHistoryDepth{100};
 
 // TODO(#1304): This tf should come from tf listener and not from param file
 geometry_msgs::msg::Transform get_tf_camera_from_base_link_from_params(rclcpp::Node & node)
@@ -208,26 +211,28 @@ T get_closest_match(const std::vector<T> & matched_msgs, const rclcpp::Time & st
 MultiObjectTrackerNode::MultiObjectTrackerNode(const rclcpp::NodeOptions & options)
 :  Node("multi_object_tracker_node", options),
   m_use_vision{this->declare_parameter("use_vision", true)},
-  m_tracker(init_tracker(*this, m_use_vision)),
-  m_history_depth(static_cast<size_t>(this->declare_parameter("history_depth", 20))),
-  m_use_ndt(this->declare_parameter("use_ndt", true)),
-  m_pub(create_publisher<TrackedObjects>("tracked_objects", m_history_depth)),
+  m_tracker{init_tracker(*this, m_use_vision)},
+  m_history_depth{static_cast<size_t>(declare_parameter("history_depth", kDefaultHistoryDepth))},
+  m_use_ndt{this->declare_parameter("use_ndt", true)},
+  m_pub{create_publisher<TrackedObjects>("tracked_objects", m_history_depth)},
   m_tf_listener{m_tf_buffer}
 {
+  const auto pose_history_depth =
+    static_cast<size_t>(declare_parameter("pose_history_depth", kDefaultPoseHistoryDepth));
   if (m_use_ndt) {
     m_pose_or_odom_sub.emplace<OdomSubscriber>(
-      this, "ego_state", rclcpp::QoS(m_history_depth).get_rmw_qos_profile());
+      this, "ego_state", rclcpp::QoS{pose_history_depth}.get_rmw_qos_profile());
     m_pose_or_odom_cache = std::make_shared<OdomCache>(
-      mpark::get<OdomSubscriber>(m_pose_or_odom_sub), m_history_depth);
+      mpark::get<OdomSubscriber>(m_pose_or_odom_sub), pose_history_depth);
   } else {
     m_pose_or_odom_sub.emplace<PoseSubscriber>(
-      this, "ego_state", rclcpp::QoS(m_history_depth).get_rmw_qos_profile());
+      this, "ego_state", rclcpp::QoS{pose_history_depth}.get_rmw_qos_profile());
     m_pose_or_odom_cache = std::make_shared<PoseCache>(
-      mpark::get<PoseSubscriber>(m_pose_or_odom_sub), m_history_depth);
+      mpark::get<PoseSubscriber>(m_pose_or_odom_sub), pose_history_depth);
   }
 
   m_lidar_clusters_sub = create_subscription<autoware_auto_msgs::msg::DetectedObjects>(
-    "detected_objects", rclcpp::QoS(m_history_depth), [this]
+    "detected_objects", rclcpp::QoS{m_history_depth}, [this]
       (autoware_auto_msgs::msg::DetectedObjects::ConstSharedPtr msg) {
       mpark::visit(ProcessLidar{this, msg}, m_pose_or_odom_cache);
     });
@@ -236,7 +241,7 @@ MultiObjectTrackerNode::MultiObjectTrackerNode(const rclcpp::NodeOptions & optio
   if (m_use_vision) {
     m_maybe_vision_sub.emplace(
       create_subscription<ClassifiedRoiArray>(
-        "classified_rois", rclcpp::QoS(m_history_depth), [this]
+        "classified_rois", rclcpp::QoS{m_history_depth}, [this]
           (ClassifiedRoiArray::ConstSharedPtr msg) {
           mpark::visit(ProcessVision{this, msg}, m_pose_or_odom_cache);
         }));
@@ -289,8 +294,8 @@ MultiObjectTrackerNode::ProcessLidar::ProcessLidar(
   m_msg = msg;
 
   const rclcpp::Time msg_stamp{m_msg->header.stamp.sec, m_msg->header.stamp.nanosec};
-  m_left_interval = msg_stamp - std::chrono::milliseconds{kMaxLidarEgoStateStampDiff};
-  m_right_interval = msg_stamp + std::chrono::milliseconds{kMaxLidarEgoStateStampDiff};
+  m_left_interval = msg_stamp - kMaxLidarEgoStateStampDiff;
+  m_right_interval = msg_stamp + kMaxLidarEgoStateStampDiff;
 }
 
 void MultiObjectTrackerNode::ProcessLidar::operator()(
