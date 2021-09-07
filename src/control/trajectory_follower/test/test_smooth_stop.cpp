@@ -19,7 +19,7 @@
 #include "rclcpp/rclcpp.hpp"
 #include "trajectory_follower/smooth_stop.hpp"
 
-TEST(test_smooth_stop, calculate_stopping_acceleration) {
+TEST(TestSmoothStop, calculate_stopping_acceleration) {
   using ::autoware::motion::control::trajectory_follower::SmoothStop;
   using rclcpp::Time;
   using rclcpp::Duration;

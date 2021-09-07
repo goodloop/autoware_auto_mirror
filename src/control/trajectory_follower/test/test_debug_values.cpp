@@ -15,7 +15,7 @@
 #include "gtest/gtest.h"
 #include "trajectory_follower/debug_values.hpp"
 
-TEST(test_debug_values, assign_and_get) {
+TEST(TestDebugValues, assign_and_get) {
   using ::autoware::motion::control::trajectory_follower::DebugValues;
   DebugValues debug;
 
