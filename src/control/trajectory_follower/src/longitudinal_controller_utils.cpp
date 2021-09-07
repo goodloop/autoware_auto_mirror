@@ -33,7 +33,7 @@ bool isValidTrajectory(const Trajectory & traj)
 {
   for (const auto & p : traj.points) {
     if (
-      !isfinite(p.x) || !isfinite(p.y) || /* !isfinite(p.z) || */
+      !isfinite(p.x) || !isfinite(p.y) || !isfinite(p.z) ||
       !isfinite(p.heading.real) || !isfinite(p.heading.imag) ||
       !isfinite(p.longitudinal_velocity_mps) || !isfinite(p.lateral_velocity_mps) ||
       !isfinite(p.acceleration_mps2) || !isfinite(p.heading_rate_rps))
@@ -115,8 +115,7 @@ float64_t calcElevationAngle(const TrajectoryPoint & p_from, const TrajectoryPoi
 {
   const float64_t dx = p_from.x - p_to.x;
   const float64_t dy = p_from.y - p_to.y;
-  // TODO(Maxime CLEMENT): update once z information is added to trajectory points
-  const float64_t dz = /* p_from.z - p_to.z */ 0.0;
+  const float64_t dz = p_from.z - p_to.z;
 
   const float64_t dxy = std::max(std::hypot(dx, dy), std::numeric_limits<float64_t>::epsilon());
   const float64_t pitch = std::atan2(dz, dxy);
