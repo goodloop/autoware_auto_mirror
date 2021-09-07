@@ -339,7 +339,7 @@ TEST_F(EmergencyHandlerNodeTest, clear_emergency_service)
 
   auto result = result_future.get();
   EXPECT_EQ(result->success, true);
-  EXPECT_EQ(result->message, "Emergency state was cleared.");
+  EXPECT_EQ(result->message, "Emergency state has been cleared.");
 }
 
 TEST_F(EmergencyHandlerNodeTest, clear_emergency_service_no_input_data)
