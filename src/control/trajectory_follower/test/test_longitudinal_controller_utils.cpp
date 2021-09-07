@@ -26,7 +26,7 @@
 
 namespace longitudinal_utils = ::autoware::motion::control::trajectory_follower::longitudinal_utils;
 
-TEST(test_longitudinal_controller_utils, isValidTrajectory) {
+TEST(TestLongitudinalControllerUtils, isValidTrajectory) {
   using autoware_auto_msgs::msg::Trajectory;
   using autoware_auto_msgs::msg::TrajectoryPoint;
   Trajectory traj;
@@ -39,7 +39,7 @@ TEST(test_longitudinal_controller_utils, isValidTrajectory) {
   EXPECT_FALSE(longitudinal_utils::isValidTrajectory(traj));
 }
 
-TEST(test_longitudinal_controller_utils, calcStopDistance) {
+TEST(TestLongitudinalControllerUtils, calcStopDistance) {
   using autoware_auto_msgs::msg::Trajectory;
   using autoware_auto_msgs::msg::TrajectoryPoint;
   using geometry_msgs::msg::Point;
@@ -87,7 +87,7 @@ TEST(test_longitudinal_controller_utils, calcStopDistance) {
   EXPECT_EQ(longitudinal_utils::calcStopDistance(current_pos, traj), 3.0);
 }
 
-TEST(test_longitudinal_controller_utils, getPitchByPose) {
+TEST(TestLongitudinalControllerUtils, getPitchByPose) {
   tf2::Quaternion quaternion_tf;
   quaternion_tf.setRPY(0.0, 0.0, 0.0);
   EXPECT_EQ(longitudinal_utils::getPitchByPose(tf2::toMsg(quaternion_tf)), 0.0);
@@ -96,7 +96,7 @@ TEST(test_longitudinal_controller_utils, getPitchByPose) {
 }
 
 // TODO(Maxime CLEMENT): update when z is added to the trajectory points
-TEST(test_longitudinal_controller_utils, getPitchByTraj) {
+TEST(TestLongitudinalControllerUtils, getPitchByTraj) {
   using autoware_auto_msgs::msg::Trajectory;
   using autoware_auto_msgs::msg::TrajectoryPoint;
   const double wheel_base = 0.9;
@@ -148,7 +148,7 @@ TEST(test_longitudinal_controller_utils, getPitchByTraj) {
     /*std::atan2(0.5, 1)*/ 0.0);
 }
 
-TEST(test_longitudinal_controller_utils, calcElevationAngle) {
+TEST(TestLongitudinalControllerUtils, calcElevationAngle) {
   using autoware_auto_msgs::msg::TrajectoryPoint;
   TrajectoryPoint p_from;
   p_from.x = 0.0;
@@ -176,7 +176,7 @@ TEST(test_longitudinal_controller_utils, calcElevationAngle) {
   */
 }
 
-TEST(test_longitudinal_controller_utils, calcPoseAfterTimeDelay) {
+TEST(TestLongitudinalControllerUtils, calcPoseAfterTimeDelay) {
   using geometry_msgs::msg::Pose;
   const double abs_err = 1e-15;
   Pose current_pose;
@@ -258,7 +258,7 @@ TEST(test_longitudinal_controller_utils, calcPoseAfterTimeDelay) {
   EXPECT_NEAR(delayed_pose.position.z, current_pose.position.z, abs_err);
 }
 
-TEST(test_longitudinal_controller_utils, lerpOrientation) {
+TEST(TestLongitudinalControllerUtils, lerpOrientation) {
   geometry_msgs::msg::Quaternion result;
   tf2::Quaternion o_from;
   tf2::Quaternion o_to;
@@ -313,7 +313,7 @@ TEST(test_longitudinal_controller_utils, lerpOrientation) {
   EXPECT_DOUBLE_EQ(yaw, M_PI_4 / 2);
 }
 
-TEST(test_longitudinal_controller_utils, lerpTrajectoryPoint) {
+TEST(TestLongitudinalControllerUtils, lerpTrajectoryPoint) {
   using autoware_auto_msgs::msg::TrajectoryPoint;
   using geometry_msgs::msg::Point;
   const double abs_err = 1e-15;
@@ -411,7 +411,7 @@ TEST(test_longitudinal_controller_utils, lerpTrajectoryPoint) {
   EXPECT_NEAR(result.acceleration_mps2, 15.0, abs_err);
 }
 
-TEST(test_longitudinal_controller, applyDiffLimitFilter) {
+TEST(TestLongitudinalControllerUtils, applyDiffLimitFilter) {
   double dt = 1.0;
   double max_val = 0.0;  // cannot increase
   double min_val = 0.0;  // cannot decrease
