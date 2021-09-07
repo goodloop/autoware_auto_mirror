@@ -95,7 +95,6 @@ TEST(TestLongitudinalControllerUtils, getPitchByPose) {
   EXPECT_EQ(longitudinal_utils::getPitchByPose(tf2::toMsg(quaternion_tf)), 1.0);
 }
 
-// TODO(Maxime CLEMENT): update when z is added to the trajectory points
 TEST(TestLongitudinalControllerUtils, getPitchByTraj) {
   using autoware_auto_msgs::msg::Trajectory;
   using autoware_auto_msgs::msg::TrajectoryPoint;
@@ -111,41 +110,41 @@ TEST(TestLongitudinalControllerUtils, getPitchByTraj) {
   TrajectoryPoint point;
   point.x = 0.0;
   point.y = 0.0;
-  // point.z = 0.0;
+  point.z = 0.0;
   traj.points.push_back(point);
   // non stopping trajectory: stop distance = trajectory length
   point.x = 1.0;
   point.y = 0.0;
-  // point.z = 1.0;
+  point.z = 1.0;
   traj.points.push_back(point);
   point.x = 2.0;
   point.y = 0.0;
-  // point.z = 0.0;
+  point.z = 0.0;
   traj.points.push_back(point);
   point.x = 3.0;
   point.y = 0.0;
-  // point.z = 0.5;
+  point.z = 0.5;
   traj.points.push_back(point);
   size_t closest_idx = 0;
   EXPECT_DOUBLE_EQ(
     std::abs(
       longitudinal_utils::getPitchByTraj(
         traj, closest_idx,
-        wheel_base)), /*M_PI_4*/ 0.0);
+        wheel_base)), M_PI_4);
   closest_idx = 1;
   EXPECT_DOUBLE_EQ(
     std::abs(
       longitudinal_utils::getPitchByTraj(
         traj, closest_idx,
-        wheel_base)), /*M_PI_4*/ 0.0);
+        wheel_base)), M_PI_4);
   closest_idx = 2;
   EXPECT_DOUBLE_EQ(
     std::abs(longitudinal_utils::getPitchByTraj(traj, closest_idx, wheel_base)),
-    /*std::atan2(0.5, 1)*/ 0.0);
+    std::atan2(0.5, 1));
   closest_idx = 3;
   EXPECT_DOUBLE_EQ(
     std::abs(longitudinal_utils::getPitchByTraj(traj, closest_idx, wheel_base)),
-    /*std::atan2(0.5, 1)*/ 0.0);
+    std::atan2(0.5, 1));
 }
 
 TEST(TestLongitudinalControllerUtils, calcElevationAngle) {
@@ -158,7 +157,6 @@ TEST(TestLongitudinalControllerUtils, calcElevationAngle) {
   p_to.y = 0.0;
   EXPECT_DOUBLE_EQ(longitudinal_utils::calcElevationAngle(p_from, p_to), 0.0);
   p_to.x = 1.0;
-  /* TODO(Maxime CLEMENT): uncomment when z is added to trajectory points
   p_to.z = 1.0;
   EXPECT_DOUBLE_EQ(longitudinal_utils::calcElevationAngle(p_from, p_to), -M_PI_4);
   p_to.x = -1.0;
@@ -173,7 +171,6 @@ TEST(TestLongitudinalControllerUtils, calcElevationAngle) {
   p_to.x = -1.0;
   p_to.z = -1.0;
   EXPECT_DOUBLE_EQ(longitudinal_utils::calcElevationAngle(p_from, p_to), M_PI_4);
-  */
 }
 
 TEST(TestLongitudinalControllerUtils, calcPoseAfterTimeDelay) {
