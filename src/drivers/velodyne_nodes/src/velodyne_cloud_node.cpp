@@ -50,8 +50,8 @@ VelodyneCloudNode<T>::VelodyneCloudNode(
   m_remainder_start_idx(0U),
   m_point_cloud_idx(0),
   m_frame_id(this->declare_parameter("frame_id").template get<std::string>().c_str()),
-  m_cloud_size(static_cast<std::size_t>(
-      this->declare_parameter("cloud_size").template get<std::size_t>()))
+  m_cloud_size(static_cast<std::uint32_t>(
+      this->declare_parameter("cloud_size").template get<std::uint32_t>()))
 {
   m_point_block.reserve(VelodyneTranslatorT::POINT_BLOCK_CAPACITY);
   // If your preallocated cloud size is too small, the node really won't operate well at all
