@@ -33,15 +33,16 @@
 #include "autoware_auto_msgs/msg/tracked_objects.hpp"
 #include "common/types.hpp"
 #include "geometry_msgs/msg/transform_stamped.hpp"
+#include "motion_model/linear_motion_model.hpp"
 #include "nav_msgs/msg/odometry.hpp"
+#include "state_estimation/kalman_filter/kalman_filter.hpp"
+#include "state_estimation/noise_model/wiener_noise.hpp"
+#include "state_vector/common_states.hpp"
+#include "tf2/buffer_core.h"
 #include "tracking/detected_object_associator.hpp"
 #include "tracking/greedy_roi_associator.hpp"
 #include "tracking/track_creator.hpp"
 #include "tracking/tracked_object.hpp"
-#include "state_vector/common_states.hpp"
-#include "state_estimation/kalman_filter/kalman_filter.hpp"
-#include "motion_model/linear_motion_model.hpp"
-#include "state_estimation/noise_model/wiener_noise.hpp"
 #include "tracking/visibility_control.hpp"
 
 
@@ -112,7 +113,7 @@ private:
 
 public:
   /// Constructor
-  explicit MultiObjectTracker(MultiObjectTrackerOptions options);
+  explicit MultiObjectTracker(MultiObjectTrackerOptions options, tf2::BufferCore & tf2_buffer);
 
   /// \brief Update the tracks with the specified detections and return the tracks at the current
   /// timestamp.
@@ -121,15 +122,15 @@ public:
   /// tracking frame, which is defined in MultiObjectTrackerOptions.
   /// \return A result object containing tracks, unless an error occurred.
   TrackerUpdateResult update(
-    DetectedObjectsMsg detections,
-    const nav_msgs::msg::Odometry & detection_frame_odometry);
+    const DetectedObjectsMsg & detections,
+    const Eigen::Isometry3d & tf_track_from_detection);
 
   /// \brief Update the tracks with the specified detections
   /// \param[in] rois An array of vision detections.
   /// \param[in] tf_camera_from_track A transform from the track frame to the camera frame.
   void update(
     const ClassifiedRoiArrayMsg & rois,
-    const geometry_msgs::msg::Transform & tf_camera_from_track);
+    const Eigen::Isometry3d & tf_camera_from_track);
 
 private:
   /// Check that the input data is valid.
@@ -161,6 +162,8 @@ private:
 
   /// Creator for creating tracks based on unassociated observations
   TrackCreator m_track_creator;
+
+  tf2::BufferCore & m_tf_buffer;
 };
 
 }  // namespace tracking

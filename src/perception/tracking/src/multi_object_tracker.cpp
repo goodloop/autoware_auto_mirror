@@ -74,25 +74,23 @@ geometry_msgs::msg::TransformStamped to_transform(const nav_msgs::msg::Odometry 
 }  // anonymous namespace
 
 
-MultiObjectTracker::MultiObjectTracker(MultiObjectTrackerOptions options)
+MultiObjectTracker::MultiObjectTracker(MultiObjectTrackerOptions options, tf2::BufferCore & buffer)
 : m_options(options), m_object_associator(options.object_association_config),
   m_vision_associator{options.vision_association_config},
-  m_track_creator(options.track_creator_config) {}
+  m_track_creator(options.track_creator_config, buffer),
+  m_tf_buffer(buffer)
+{
+}
 
 TrackerUpdateResult MultiObjectTracker::update(
-  DetectedObjectsMsg detections,
-  const nav_msgs::msg::Odometry & detection_frame_odometry)
+  const DetectedObjectsMsg & detections,
+  const Eigen::Isometry3d & tf_track_from_detection)
 {
   TrackerUpdateResult result;
-  result.status = this->validate(detections, detection_frame_odometry);
-  if (result.status != TrackerUpdateStatus::Ok) {
-    return result;
-  }
-
-  // ==================================
-  // Transform detections
-  // ==================================
-  this->transform(detections, detection_frame_odometry);
+  // result.status = this->validate(detections, detection_frame_odometry);
+  // if (result.status != TrackerUpdateStatus::Ok) {
+  //   return result;
+  // }
 
   // ==================================
   // Predict tracks forward
@@ -108,7 +106,7 @@ TrackerUpdateResult MultiObjectTracker::update(
   // Associate observations with tracks
   // ==================================
   AssociatorResult association;
-  association = m_object_associator.assign(detections, this->m_objects);
+  association = m_object_associator.assign(detections, tf_track_from_detection, this->m_objects);
   if (association.had_errors) {
     result.status = TrackerUpdateStatus::InvalidShape;
   }
@@ -122,7 +120,7 @@ TrackerUpdateResult MultiObjectTracker::update(
       continue;
     }
     const auto & detection = detections.objects[detection_idx];
-    m_objects[track_idx].update(detection);
+    m_objects[track_idx].update(detection, tf_track_from_detection);
   }
   for (const size_t track_idx : association.unassigned_track_indices) {
     m_objects[track_idx].no_update();
@@ -164,10 +162,13 @@ TrackerUpdateResult MultiObjectTracker::update(
 
 void MultiObjectTracker::update(
   const ClassifiedRoiArrayMsg & rois,
-  const geometry_msgs::msg::Transform & tf_camera_from_track)
+  const Eigen::Isometry3d & tf_camera_from_track)
 {
   const auto association = m_vision_associator.assign(rois, m_objects, tf_camera_from_track);
 
+//  std::cerr << "Track - vision association: Num vision: " << rois.rois.size() <<
+//    " num associated: " << m_objects.size() - association.unassigned_track_indices.size() <<
+//    std::endl;
   for (size_t i = 0U; i < m_objects.size(); ++i) {
     const auto & maybe_roi_idx = association.track_assignments[i];
     if (maybe_roi_idx != AssociatorResult::UNASSIGNED) {
