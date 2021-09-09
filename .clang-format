@@ -1,4 +1,3 @@
----
 Language: Cpp
 BasedOnStyle: Google
 
@@ -16,4 +15,4 @@ ContinuationIndentWidth: 2
 DerivePointerAlignment: false
 PointerAlignment: Middle
 ReflowComments: true
-...
+SortIncludes: Never
