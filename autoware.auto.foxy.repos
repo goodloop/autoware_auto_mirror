@@ -7,3 +7,7 @@ repositories:
     type: git
     url: https://github.com/ANYbotics/grid_map.git
     version: 869c5d56f05c01c73e0ef8fa30c85ba7f68f8558
+  src/external/vesc:
+    type: git
+    url: https://github.com/f1tenth/vesc
+    version: ros2
