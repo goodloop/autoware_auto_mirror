@@ -98,8 +98,6 @@ private:
   std::experimental::optional<rclcpp::Subscription<ClassifiedRoiArray>::SharedPtr>
   m_maybe_vision_sub;
 
-  std::experimental::optional<tf2::Transform> m_maybe_tf_camera_from_base_link;
-
   mpark::variant<PoseSubscriber, OdomSubscriber> m_pose_or_odom_sub;
   mpark::variant<std::shared_ptr<OdomCache>, std::shared_ptr<PoseCache>> m_pose_or_odom_cache;
 

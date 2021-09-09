@@ -43,8 +43,6 @@ struct TRACKING_PUBLIC VisionPolicyConfig
 {
   // Struct defining parameters for vision association
   GreedyRoiAssociatorConfig associator_cfg;
-  // Tf to transform from base_link to the camera frame
-  geometry_msgs::msg::Transform tf_camera_from_base_link;
   // Maximum allowed difference in the timestamp of the two messages being associated
   std::chrono::milliseconds max_vision_lidar_timestamp_diff{20};
 };

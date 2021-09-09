@@ -62,7 +62,7 @@ class TestTrackCreator : public testing::Test
 public:
   TestTrackCreator()
   : intrinsics{CameraIntrinsics{500U, 500U, 5.0F, 5.0F}},
-    vision_policy_cfg{{intrinsics, 0.1F}, make_identity(), std::chrono::milliseconds{20}},
+    vision_policy_cfg{{intrinsics, 0.1F}, std::chrono::milliseconds{20}},
     camera{intrinsics}
   {
     const auto get_roi_from_detection = [this](const DetectedObject & obj) -> ClassifiedRoi
