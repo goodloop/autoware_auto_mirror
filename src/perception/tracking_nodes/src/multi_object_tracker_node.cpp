@@ -174,16 +174,6 @@ std::string status_to_string(TrackerUpdateStatus status)
   return "Invalid status";
 }
 
-geometry_msgs::msg::Transform to_transform(const nav_msgs::msg::Odometry & odometry)
-{
-  geometry_msgs::msg::Transform tf;
-  tf.translation.x = odometry.pose.pose.position.x;
-  tf.translation.y = odometry.pose.pose.position.y;
-  tf.translation.z = odometry.pose.pose.position.z;
-  tf.rotation = odometry.pose.pose.orientation;
-  return tf;
-}
-
 // Convert pose msg to odom msg
 nav_msgs::msg::Odometry::SharedPtr to_odom(
   geometry_msgs::msg::PoseWithCovarianceStamped::ConstSharedPtr pose_msg)
@@ -275,15 +265,6 @@ void MultiObjectTrackerNode::process(
   const ClassifiedRoiArray::ConstSharedPtr & rois, const Odometry::ConstSharedPtr &)
 {
   m_tracker.update(*rois);
-}
-
-geometry_msgs::msg::Transform MultiObjectTrackerNode::compute_tf_camera_from_odom(
-  const nav_msgs::msg::Odometry & odom)
-{
-  tf2::Transform tf_base_link_from_odom;
-  tf2::fromMsg(to_transform(odom), tf_base_link_from_odom);
-
-  return tf2::toMsg(m_maybe_tf_camera_from_base_link.value() * tf_base_link_from_odom);
 }
 
 MultiObjectTrackerNode::ProcessLidar::ProcessLidar(

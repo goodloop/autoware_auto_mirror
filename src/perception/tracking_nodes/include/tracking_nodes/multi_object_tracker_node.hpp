@@ -83,8 +83,6 @@ public:
   struct ProcessVision;
 
 private:
-  geometry_msgs::msg::Transform compute_tf_camera_from_odom(const nav_msgs::msg::Odometry & odom);
-
   bool8_t m_use_vision = true;
 
   tf2::BufferCore m_tf_buffer;
