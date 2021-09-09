@@ -71,6 +71,7 @@ public:
 
   /// \brief Constructor
   /// \param config Configuration for projection and association
+  /// \param tf_buffer TF2 buffer
   explicit GreedyRoiAssociator(
     const GreedyRoiAssociatorConfig & config,
     const tf2::BufferCore & tf_buffer);

@@ -128,7 +128,6 @@ public:
 
   /// \brief Update the tracks with the specified detections
   /// \param[in] rois An array of vision detections.
-  /// \param[in] tf_camera_from_track A transform from the track frame to the camera frame.
   void update(const ClassifiedRoiArrayMsg & rois);
 
 private:

@@ -91,7 +91,6 @@ public:
   /// \param clusters DetectedObjects msg output by the lidar clustering algorithm
   /// \param associator_result Struct containing indices of clusters that do not have track
   ///                          association
-  /// \param tf_base_link_from_object Transform from the cluster frame to the base_link frame.
   virtual void add_objects(
     const autoware_auto_msgs::msg::DetectedObjects & clusters,
     const AssociatorResult & associator_result) = 0;
