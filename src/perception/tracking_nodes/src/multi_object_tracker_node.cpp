@@ -272,11 +272,9 @@ void MultiObjectTrackerNode::process(
 }
 
 void MultiObjectTrackerNode::process(
-  const ClassifiedRoiArray::ConstSharedPtr & rois,
-  const Odometry::ConstSharedPtr & odom)
+  const ClassifiedRoiArray::ConstSharedPtr & rois, const Odometry::ConstSharedPtr &)
 {
-  const auto tf_camera_from_track = compute_tf_camera_from_odom(*odom);
-  m_tracker.update(*rois, tf_camera_from_track);
+  m_tracker.update(*rois);
 }
 
 geometry_msgs::msg::Transform MultiObjectTrackerNode::compute_tf_camera_from_odom(

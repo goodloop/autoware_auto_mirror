@@ -14,14 +14,14 @@
 //
 // Co-developed by Tier IV, Inc. and Apex.AI, Inc.
 
+#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 #include <time_utils/time_utils.hpp>
 #include <tracking/track_creator.hpp>
-#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
+
 #include <functional>
 #include <memory>
 #include <set>
 #include <vector>
-
 
 namespace autoware
 {
@@ -32,10 +32,8 @@ namespace tracking
 CreationPolicyBase::CreationPolicyBase(
   const float64_t default_variance,
   const float64_t noise_variance,
-  const tf2::BufferCore & tf_buffer
-)
-: m_default_variance(default_variance), m_noise_variance(noise_variance), m_tf_buffer(tf_buffer)
-{}
+  const tf2::BufferCore & tf_buffer)
+: m_default_variance{default_variance}, m_noise_variance{noise_variance}, m_tf_buffer{tf_buffer} {}
 
 autoware_auto_msgs::msg::DetectedObjects CreationPolicyBase::populate_unassigned_lidar_detections(
   const autoware_auto_msgs::msg::DetectedObjects & clusters,
@@ -93,10 +91,10 @@ void LidarClusterIfVisionPolicy::add_objects(
 LidarClusterIfVisionPolicy::LidarClusterIfVisionPolicy(
   const VisionPolicyConfig & cfg, const float64_t default_variance,
   const float64_t noise_variance, const tf2::BufferCore & tf_buffer)
-: CreationPolicyBase(default_variance, noise_variance, tf_buffer),
-  m_cfg(cfg),
-  m_associator(cfg.associator_cfg),
-  m_vision_rois_cache_ptr(std::make_shared<VisionCache>())
+: CreationPolicyBase{default_variance, noise_variance, tf_buffer},
+  m_cfg{cfg},
+  m_associator{cfg.associator_cfg, tf_buffer},
+  m_vision_rois_cache_ptr{std::make_shared<VisionCache>()}
 {
   m_vision_rois_cache_ptr->setCacheSize(kVisionCacheSize);
 }
@@ -120,18 +118,7 @@ TracksAndLeftovers LidarClusterIfVisionPolicy::create()
   }
 
   const auto & vision_msg = *vision_msg_matches.back();
-  geometry_msgs::msg::TransformStamped tf_camera_from_object;
-  try {
-    tf_camera_from_object = m_tf_buffer.lookupTransform(
-      "camera", m_lidar_clusters.header.frame_id, tf2::TimePointZero);
-  } catch (const std::exception & e) {
-    std::cerr << "Caould not get object frame to camera frame transform. Skipping vision "
-      "association";
-    return retval;
-  }
-  const auto result = m_associator.assign(
-    vision_msg, m_lidar_clusters,
-    tf_camera_from_object.transform);
+  const auto result = m_associator.assign(vision_msg, m_lidar_clusters);
   std::set<size_t, std::greater<>> lidar_idx_to_erase;
 
   for (size_t cluster_idx = 0U; cluster_idx < m_lidar_clusters.objects.size();

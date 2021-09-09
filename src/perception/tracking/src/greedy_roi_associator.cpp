@@ -15,8 +15,10 @@
 // Co-developed by Tier IV, Inc. and Apex.AI, Inc.
 
 #include <common/types.hpp>
+#include <time_utils/time_utils.hpp>
 #include <tracking/detected_object_associator.hpp>
 #include <tracking/greedy_roi_associator.hpp>
+
 #include <algorithm>
 #include <unordered_set>
 #include <vector>
@@ -67,23 +69,21 @@ void handle_matching_output(
 }  // namespace
 
 GreedyRoiAssociator::GreedyRoiAssociator(
-  const GreedyRoiAssociatorConfig & config
-)
-: m_camera{config.intrinsics}, m_iou_threshold{config.iou_threshold}
-{
-}
+  const GreedyRoiAssociatorConfig & config,
+  const tf2::BufferCore & tf_buffer)
+: m_camera{config.intrinsics}, m_iou_threshold{config.iou_threshold}, m_tf_buffer{tf_buffer} {}
 
 AssociatorResult GreedyRoiAssociator::assign(
   const autoware_auto_msgs::msg::ClassifiedRoiArray & rois,
-  const std::vector<TrackedObject> & tracks,
-  const geometry_msgs::msg::Transform & tf_camera_from_track
-) const
+  const TrackedObjects & tracks) const
 {
-  AssociatorResult result = create_and_init_result(rois.rois.size(), tracks.size());
-  const details::ShapeTransformer transformer{tf_camera_from_track};
-  for (auto track_idx = 0U; track_idx < tracks.size(); ++track_idx) {
+  const auto tf_roi_from_track = m_tf_buffer.lookupTransform(
+    rois.header.frame_id, tracks.frame_id, time_utils::from_message(rois.header.stamp));
+  AssociatorResult result = create_and_init_result(rois.rois.size(), tracks.objects.size());
+  const details::ShapeTransformer transformer{tf_roi_from_track.transform};
+  for (auto track_idx = 0U; track_idx < tracks.objects.size(); ++track_idx) {
     const auto matched_detection_idx = project_and_match_detection(
-      transformer(tracks[track_idx].shape()), result.unassigned_detection_indices, rois);
+      transformer(tracks.objects[track_idx].shape()), result.unassigned_detection_indices, rois);
 
     handle_matching_output(matched_detection_idx, track_idx, result);
   }
@@ -93,12 +93,12 @@ AssociatorResult GreedyRoiAssociator::assign(
 
 AssociatorResult GreedyRoiAssociator::assign(
   const autoware_auto_msgs::msg::ClassifiedRoiArray & rois,
-  const autoware_auto_msgs::msg::DetectedObjects & objects,
-  const geometry_msgs::msg::Transform & tf_camera_from_object
-) const
+  const autoware_auto_msgs::msg::DetectedObjects & objects) const
 {
+  const auto tf_roi_from_detection = m_tf_buffer.lookupTransform(
+    rois.header.frame_id, objects.header.frame_id, time_utils::from_message(rois.header.stamp));
   AssociatorResult result = create_and_init_result(rois.rois.size(), objects.objects.size());
-  const details::ShapeTransformer transformer{tf_camera_from_object};
+  const details::ShapeTransformer transformer{tf_roi_from_detection.transform};
 
   for (auto object_idx = 0U; object_idx < objects.objects.size(); ++object_idx) {
     auto detection_idx = project_and_match_detection(
