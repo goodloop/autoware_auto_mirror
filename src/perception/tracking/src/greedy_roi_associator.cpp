@@ -21,6 +21,7 @@
 
 #include <algorithm>
 #include <unordered_set>
+#include <string>
 #include <vector>
 
 namespace autoware
@@ -30,6 +31,8 @@ namespace perception
 namespace tracking
 {
 using autoware::common::types::float32_t;
+
+const std::chrono::milliseconds GreedyRoiAssociator::kTfTooOld{100};
 
 namespace
 {
@@ -77,9 +80,15 @@ AssociatorResult GreedyRoiAssociator::assign(
   const autoware_auto_msgs::msg::ClassifiedRoiArray & rois,
   const TrackedObjects & tracks) const
 {
-  const auto tf_roi_from_track = m_tf_buffer.lookupTransform(
-    rois.header.frame_id, tracks.frame_id, time_utils::from_message(rois.header.stamp));
   AssociatorResult result = create_and_init_result(rois.rois.size(), tracks.objects.size());
+  geometry_msgs::msg::TransformStamped tf_roi_from_track;
+  try {
+    tf_roi_from_track = lookup_transform_handler(
+      rois.header.frame_id, tracks.frame_id, time_utils::from_message(rois.header.stamp));
+  } catch (const std::exception & e) {
+    std::cerr << "Transform lookup failed with exception: " << e.what() << std::endl;
+    return result;
+  }
   const details::ShapeTransformer transformer{tf_roi_from_track.transform};
   for (auto track_idx = 0U; track_idx < tracks.objects.size(); ++track_idx) {
     const auto matched_detection_idx = project_and_match_detection(
@@ -95,9 +104,16 @@ AssociatorResult GreedyRoiAssociator::assign(
   const autoware_auto_msgs::msg::ClassifiedRoiArray & rois,
   const autoware_auto_msgs::msg::DetectedObjects & objects) const
 {
-  const auto tf_roi_from_detection = m_tf_buffer.lookupTransform(
-    rois.header.frame_id, objects.header.frame_id, time_utils::from_message(rois.header.stamp));
   AssociatorResult result = create_and_init_result(rois.rois.size(), objects.objects.size());
+  geometry_msgs::msg::TransformStamped tf_roi_from_detection;
+  try {
+    tf_roi_from_detection = lookup_transform_handler(
+      rois.header.frame_id, objects.header.frame_id,
+      time_utils::from_message(rois.header.stamp));
+  } catch (const std::exception & e) {
+    std::cerr << "Transform lookup failed with exception: " << e.what() << std::endl;
+    return result;
+  }
   const details::ShapeTransformer transformer{tf_roi_from_detection.transform};
 
   for (auto object_idx = 0U; object_idx < objects.objects.size(); ++object_idx) {
@@ -108,6 +124,25 @@ AssociatorResult GreedyRoiAssociator::assign(
   }
 
   return result;
+}
+
+geometry_msgs::msg::TransformStamped GreedyRoiAssociator::lookup_transform_handler(
+  const std::string & target_frame,
+  const std::string & source_frame,
+  const tf2::TimePoint & stamp) const
+{
+  geometry_msgs::msg::TransformStamped retval;
+  try {
+    retval = m_tf_buffer.lookupTransform(target_frame, source_frame, stamp);
+  } catch (const tf2::ExtrapolationException & e) {
+    retval = m_tf_buffer.lookupTransform(target_frame, source_frame, tf2::TimePointZero);
+    const auto stamp_diff = stamp - time_utils::from_message(retval.header.stamp);
+    if (stamp_diff > kTfTooOld) {
+      std::cerr << "Using tf that is " << std::chrono::duration_cast<std::chrono::milliseconds>(
+        stamp_diff).count() << "ms old" << std::endl;
+    }
+  }
+  return retval;
 }
 
 std::size_t GreedyRoiAssociator::project_and_match_detection(

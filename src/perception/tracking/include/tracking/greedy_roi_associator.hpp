@@ -26,7 +26,7 @@
 #include <tracking/tracker_types.hpp>
 #include <tracking/visibility_control.hpp>
 
-
+#include <string>
 #include <unordered_set>
 #include <vector>
 
@@ -97,6 +97,12 @@ public:
     const autoware_auto_msgs::msg::DetectedObjects & objects) const;
 
 private:
+  // Handles extrapolation exception alone. Caller responsible for all else
+  geometry_msgs::msg::TransformStamped lookup_transform_handler(
+    const std::string & target_frame,
+    const std::string & source_frame,
+    const tf2::TimePoint & stamp) const;
+
   // Scan the ROIs to find the best matching roi for a given shape by projecting it onto image
   // frame
   std::size_t project_and_match_detection(
@@ -108,6 +114,8 @@ private:
   IOUHeuristic m_iou_func{};
   float32_t m_iou_threshold{0.1F};
   const tf2::BufferCore & m_tf_buffer;
+
+  static const std::chrono::milliseconds kTfTooOld;
 };
 
 namespace details
