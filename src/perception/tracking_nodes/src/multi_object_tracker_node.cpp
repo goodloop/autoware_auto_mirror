@@ -57,8 +57,9 @@ constexpr std::int64_t kDefaultHistoryDepth{20};
 constexpr std::int64_t kDefaultPoseHistoryDepth{100};
 
 MultiObjectTracker init_tracker(
-  rclcpp::Node & node, const bool8_t use_vision, tf2::BufferCore &
-  tf_buffer)
+  rclcpp::Node & node,
+  const bool8_t use_vision,
+  tf2::BufferCore & tf_buffer)
 {
   const float32_t max_distance =
     static_cast<float32_t>(node.declare_parameter(
@@ -230,6 +231,7 @@ void MultiObjectTrackerNode::process(
 void MultiObjectTrackerNode::process(
   const ClassifiedRoiArray::ConstSharedPtr & rois, const Odometry::ConstSharedPtr &)
 {
+  // TODO(#1321): Do we need the odometry input here?
   m_tracker.update(*rois);
 }
 

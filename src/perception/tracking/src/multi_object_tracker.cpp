@@ -79,8 +79,7 @@ MultiObjectTracker::MultiObjectTracker(
 : m_options{options},
   m_object_associator{options.object_association_config},
   m_vision_associator{options.vision_association_config, buffer},
-  m_track_creator{options.track_creator_config, buffer},
-  m_tf_buffer{buffer}
+  m_track_creator{options.track_creator_config, buffer}
 {
   m_tracks.frame_id = m_options.frame;
 }

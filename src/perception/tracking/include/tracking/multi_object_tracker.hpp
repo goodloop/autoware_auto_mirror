@@ -160,8 +160,6 @@ private:
 
   /// Creator for creating tracks based on unassociated observations
   TrackCreator m_track_creator;
-
-  const tf2::BufferCore & m_tf_buffer;
 };
 
 }  // namespace tracking
