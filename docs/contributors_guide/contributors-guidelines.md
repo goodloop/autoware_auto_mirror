@@ -135,6 +135,111 @@ ament_cpplint path/to/pkg_foo
 Tools such as CLion can parse the output of the previous command and provide fast navigation to
 offending lines in the code.
 
+### Using ament_clang_format
+
+`ament_uncrustify --reformat` is able to format the code to a degree but its results
+are generally not enough to pass `ament_cpplint`. To automatize the process, 
+`ament_clang_format` can be used like: 
+`ament_clang_format --config AutowareAuto/.clang-format --reformat file.cpp`.
+
+A way to use all these 3 tools is as follows:
+- `ament_clang_format --config AutowareAuto/.clang-format --reformat file.cpp`
+- `ament_uncrustify --reformat file.cpp`
+- `ament_cpplint file.cpp`
+- Fix errors stated
+- Repeat previous 4 steps until ament_uncrustify and ament_cpplint give no more errors.
+
+#### Header Reordering Issues
+
+Sometimes `ament_clang_format` breaks the order of header files in a way `ament_cpplint`
+doesn't like.
+In these cases headers should be separated into groups with line breaks.
+
+Example:
+
+Following is a valid header file ordering:
+```cpp
+#include <localization_common/optimized_registration_summary.hpp>
+#include <localization_common/initialization.hpp>
+#include <rclcpp/rclcpp.hpp>
+#include <tf2/buffer_core.h>
+#include <tf2_ros/transform_listener.h>
+#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
+#include <sensor_msgs/msg/point_cloud2.hpp>
+#include <time_utils/time_utils.hpp>
+#include <helper_functions/message_adapters.hpp>
+#include <localization_nodes/visibility_control.hpp>
+#include <localization_nodes/constraints.hpp>
+#include <memory>
+#include <string>
+#include <tuple>
+#include <utility>
+```
+
+But if `ament_clang_format --reformat` is run, it changes it to:
+```cpp
+#include <tf2/buffer_core.h>
+#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
+#include <tf2_ros/transform_listener.h>
+#include <helper_functions/message_adapters.hpp>
+#include <localization_common/initialization.hpp>
+#include <localization_common/optimized_registration_summary.hpp>
+#include <localization_nodes/constraints.hpp>
+#include <localization_nodes/visibility_control.hpp>
+#include <memory>
+#include <rclcpp/rclcpp.hpp>
+#include <sensor_msgs/msg/point_cloud2.hpp>
+#include <string>
+#include <time_utils/time_utils.hpp>
+#include <tuple>
+#include <utility>
+```
+
+And `ament_cpplint` will give `Found C system header after C++ system header.` errors.
+
+To not have this issue, headers should be grouped with line-breaks like following:
+```cpp
+#include <localization_common/optimized_registration_summary.hpp>
+#include <localization_common/initialization.hpp>
+#include <rclcpp/rclcpp.hpp>
+#include <tf2/buffer_core.h>
+#include <tf2_ros/transform_listener.h>
+#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
+#include <sensor_msgs/msg/point_cloud2.hpp>
+#include <time_utils/time_utils.hpp>
+#include <helper_functions/message_adapters.hpp>
+#include <localization_nodes/visibility_control.hpp>
+#include <localization_nodes/constraints.hpp>
+
+#include <memory>
+#include <string>
+#include <tuple>
+#include <utility>
+```
+
+Now if `ament_clang_format --reformat` is run, it changes it to:
+```cpp
+#include <tf2/buffer_core.h>
+#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
+#include <tf2_ros/transform_listener.h>
+#include <helper_functions/message_adapters.hpp>
+#include <localization_common/initialization.hpp>
+#include <localization_common/optimized_registration_summary.hpp>
+#include <localization_nodes/constraints.hpp>
+#include <localization_nodes/visibility_control.hpp>
+#include <rclcpp/rclcpp.hpp>
+#include <sensor_msgs/msg/point_cloud2.hpp>
+#include <time_utils/time_utils.hpp>
+
+#include <memory>
+#include <string>
+#include <tuple>
+#include <utility>
+```
+And now `ament_cpplint` is alright with this ordering too.
+
+### Utilizing git pre-commit
+
 To lint the code automatically before each commit, activate the `pre-commit`
 [hook](https://gitlab.com/autowarefoundation/autoware.auto/AutowareAuto/-/blob/master/.git-hooks/pre-commit). From the
 repository base directory, do:
