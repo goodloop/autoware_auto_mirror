@@ -27,22 +27,28 @@ from launch_ros.actions import Node
 
 from ament_index_python import get_package_share_directory
 from os import path as osp
-import errno
-import os
+
 
 def get_share_file(package_name, file_name):
     """
-    Find the path to a given package name, and uppend with a file_name
+    Find the path to a given package name, and append with a file_name.
+
     :param package_name: The name of the package
     :param file_name: relative location of the file wrt to package
     :returns string: The appended file name
     """
-    return osp.join(get_package_share_directory(package_name=package_name), file_name)
+    return osp.join(
+        get_package_share_directory(package_name=package_name),
+        file_name
+    )
+
 
 def generate_launch_description():
     """
-    Launch VESC_driver node and VESC_interface node for interfacing autoware.auto
-    with f1tenth car.
+    Generate Launch Description.
+
+    Launch VESC_driver node and VESC_interface node for interfacing
+    Autoware.Auto with F1TENTH car.
     """
     # Launch VESC_driver node
     vesc_driver = Node(
@@ -62,7 +68,6 @@ def generate_launch_description():
         ],
         description="Path to config file for vesc interface"
     )
-    paramFile = osp.join(get_package_share_directory('vesc_interface'), '/param/vesc_config.param.yaml')
 
     vesc_interface = Node(
         package='vesc_interface',
