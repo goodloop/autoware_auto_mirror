@@ -27,7 +27,9 @@
 #include <tracking/projection.hpp>
 #include <tf2/buffer_core.h>
 #include <tf2_ros/transform_listener.h>
+
 #include <memory>
+#include <string>
 
 #include "visibility_control.hpp"
 
@@ -44,7 +46,7 @@ public:
 
   /// Project and publish clusters
   void cluster_callback(
-      autoware_auto_msgs::msg::DetectedObjects::ConstSharedPtr objects_msg);
+    autoware_auto_msgs::msg::DetectedObjects::ConstSharedPtr objects_msg);
 
 private:
   rclcpp::Subscription<autoware_auto_msgs::msg::DetectedObjects>::SharedPtr m_clusters_sub;
