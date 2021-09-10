@@ -5,11 +5,9 @@ Panels:
     Property Tree Widget:
       Expanded:
         - /Global Options1
-        - /Status1
-        - /Grid1
-        - /TrackedObjects1
+        - /PointCloud21/Topic1
       Splitter Ratio: 0.5
-    Tree Height: 925
+    Tree Height: 407
   - Class: rviz_common/Selection
     Name: Selection
   - Class: rviz_common/Tool Properties
@@ -43,21 +41,6 @@ Visualization Manager:
       Plane Cell Count: 10
       Reference Frame: base_link
       Value: true
-    - Class: apex_auto_rviz2_plugins/Trajectory
-      Enabled: true
-      Name: Trajectory
-      Namespaces: ~
-      Topic: /trajectory
-      Unreliable: false
-      Value: true
-    - Class: apex_auto_rviz2_plugins/BoundingBoxArray
-      Enabled: true
-      Name: BoundingBoxArray
-      Namespaces:
-        bounding_box: true
-      Topic: /lidar_bounding_boxes
-      Unreliable: false
-      Value: true
     - Alpha: 1
       Autocompute Intensity Bounds: true
       Autocompute Value Bounds:
@@ -73,7 +56,7 @@ Visualization Manager:
       Enabled: true
       Invert Rainbow: false
       Max Color: 255; 255; 255
-      Max Intensity: 0
+      Max Intensity: 252
       Min Color: 0; 0; 0
       Min Intensity: 0
       Name: PointCloud2
@@ -87,22 +70,10 @@ Visualization Manager:
         Durability Policy: Volatile
         History Policy: Keep Last
         Reliability Policy: Reliable
-        Value: /fused_point_cloud
+        Value: /lidars/points_filtered
       Use Fixed Frame: true
       Use rainbow: true
       Value: true
-    - Class: rviz_default_plugins/MarkerArray
-      Enabled: false
-      Name: MarkerArray
-      Namespaces:
-        {}
-      Topic:
-        Depth: 5
-        Durability Policy: Volatile
-        History Policy: Keep Last
-        Reliability Policy: Reliable
-        Value: /debug_trajectory
-      Value: false
     - Class: rviz_default_plugins/TF
       Enabled: true
       Frame Timeout: 15
@@ -110,7 +81,17 @@ Visualization Manager:
         All Enabled: true
         base_link:
           Value: true
-        odom:
+        camera:
+          Value: true
+        gnss:
+          Value: true
+        imu:
+          Value: true
+        lidar_front:
+          Value: true
+        lidar_rear:
+          Value: true
+        nav_base:
           Value: true
       Marker Scale: 1
       Name: TF
@@ -118,44 +99,20 @@ Visualization Manager:
       Show Axes: true
       Show Names: true
       Tree:
-        odom:
-          base_link:
+        base_link:
+          camera:
+            {}
+          gnss:
+            {}
+          imu:
+            {}
+          lidar_front:
+            {}
+          lidar_rear:
+            {}
+          nav_base:
             {}
       Update Interval: 0
-      Value: true
-    - CAR:
-        Alpha: 0.699999988079071
-        Color: 0; 0; 142
-      CYCLIST:
-        Alpha: 0.699999988079071
-        Color: 119; 11; 32
-      Class: autoware_rviz_plugins/TrackedObjects
-      Display 3d polygon: true
-      Enabled: true
-      MOTORCYCLE:
-        Alpha: 0.699999988079071
-        Color: 0; 0; 230
-      Name: TrackedObjects
-      Namespaces:
-        {}
-      PEDESTRIAN:
-        Alpha: 0.699999988079071
-        Color: 220; 20; 60
-      TRAILER:
-        Alpha: 0.699999988079071
-        Color: 0; 80; 100
-      TRUCK:
-        Alpha: 0.699999988079071
-        Color: 0; 0; 70
-      Topic:
-        Depth: 5
-        Durability Policy: Volatile
-        History Policy: Keep Last
-        Reliability Policy: Reliable
-        Value: tracks
-      UNKNOWN:
-        Alpha: 0.699999988079071
-        Color: 255; 255; 255
       Value: true
     - Class: rviz_default_plugins/Image
       Enabled: true
@@ -171,10 +128,44 @@ Visualization Manager:
         Reliability Policy: Reliable
         Value: /image_with_detections
       Value: true
+    - CAR:
+        Alpha: 0.699999988079071
+        Color: 0; 0; 142
+      CYCLIST:
+        Alpha: 0.699999988079071
+        Color: 119; 11; 32
+      Class: autoware_rviz_plugins/DetectedObjects
+      Display 3d polygon: true
+      Enabled: true
+      MOTORCYCLE:
+        Alpha: 0.699999988079071
+        Color: 0; 0; 230
+      Name: DetectedObjects
+      Namespaces:
+        "": true
+      PEDESTRIAN:
+        Alpha: 0.699999988079071
+        Color: 220; 20; 60
+      TRAILER:
+        Alpha: 0.699999988079071
+        Color: 0; 80; 100
+      TRUCK:
+        Alpha: 0.699999988079071
+        Color: 0; 0; 70
+      Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: /lidars/lidar_detected_objects
+      UNKNOWN:
+        Alpha: 0.699999988079071
+        Color: 255; 255; 255
+      Value: true
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
-    Fixed Frame: camera
+    Fixed Frame: base_link
     Frame Rate: 60
   Name: root
   Tools:
@@ -212,7 +203,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz_default_plugins/Orbit
-      Distance: 203.6241455078125
+      Distance: 21.2216854095459
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -227,10 +218,10 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 1.2203978300094604
+      Pitch: 0.23539870977401733
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 2.1403985023498535
+      Yaw: 3.090402364730835
     Saved: ~
 Window Geometry:
   Displays:
@@ -240,7 +231,7 @@ Window Geometry:
   Hide Right Dock: false
   Image:
     collapsed: false
-  QMainWindow State: 000000ff00000000fd0000000400000000000002b900000426fc0200000008fb0000001200530065006c0065006300740069006f006e00000001e10000009b0000005c00fffffffb0000001e0054006f006f006c002000500072006f007000650072007400690065007302000001ed000001df00000185000000a3fb000000120056006900650077007300200054006f006f02000001df000002110000018500000122fb000000200054006f006f006c002000500072006f0070006500720074006900650073003203000002880000011d000002210000017afb000000100044006900730070006c006100790073000000003b00000426000000c700fffffffb0000002000730065006c0065006300740069006f006e00200062007500660066006500720200000138000000aa0000023a00000294fb00000014005700690064006500530074006500720065006f02000000e6000000d2000003ee0000030bfb0000000c004b0069006e0065006300740200000186000001060000030c00000261000000010000010f00000377fc0200000003fb0000001e0054006f006f006c002000500072006f00700065007200740069006500730100000041000000780000000000000000fb0000000a0056006900650077007300000000ea00000377000000a000fffffffb0000001200530065006c0065006300740069006f006e010000025a000000b2000000000000000000000002000006ac00000401fc0100000002fb0000000a0049006d0061006700650100000000000006ac0000005a00fffffffb0000000a00560069006500770073030000004e00000080000002e10000019700000003000004420000003efc0100000002fb0000000800540069006d00650100000000000004420000000000000000fb0000000800540069006d00650100000000000004500000000000000000000006ac0000001800000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
+  QMainWindow State: 000000ff00000000fd0000000400000000000002b900000220fc0200000008fb0000001200530065006c0065006300740069006f006e00000001e10000009b0000005c00fffffffb0000001e0054006f006f006c002000500072006f007000650072007400690065007302000001ed000001df00000185000000a3fb000000120056006900650077007300200054006f006f02000001df000002110000018500000122fb000000200054006f006f006c002000500072006f0070006500720074006900650073003203000002880000011d000002210000017afb000000100044006900730070006c006100790073000000023a00000220000000c700fffffffb0000002000730065006c0065006300740069006f006e00200062007500660066006500720200000138000000aa0000023a00000294fb00000014005700690064006500530074006500720065006f02000000e6000000d2000003ee0000030bfb0000000c004b0069006e0065006300740200000186000001060000030c00000261000000010000010f00000377fc0200000003fb0000001e0054006f006f006c002000500072006f00700065007200740069006500730100000041000000780000000000000000fb0000000a0056006900650077007300000000ea00000377000000a000fffffffb0000001200530065006c0065006300740069006f006e010000025a000000b2000000000000000000000002000006ac000001f9fc0100000002fb0000000a0049006d0061006700650100000000000006ac0000005a00fffffffb0000000a00560069006500770073030000004e00000080000002e10000019700000003000004420000003efc0100000002fb0000000800540069006d00650100000000000004420000000000000000fb0000000800540069006d00650100000000000004500000000000000000000006ac0000022000000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
   Selection:
     collapsed: false
   Tool Properties:
@@ -248,5 +239,5 @@ Window Geometry:
   Views:
     collapsed: false
   Width: 1708
-  X: 1767
-  Y: 114
+  X: 800
+  Y: 152
