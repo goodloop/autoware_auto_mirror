@@ -16,6 +16,7 @@
 
 #include "vesc_interface/vesc_interface_node.hpp"
 
+#include <memory>
 #include <unordered_set>
 
 namespace autoware
