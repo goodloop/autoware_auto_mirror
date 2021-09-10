@@ -68,7 +68,7 @@ class VESC_INTERFACE_PUBLIC VESCInterface
 {
 public:
   /// \brief Default Constructor.
-  /// \todo
+  /// TODO(jjj025): Comment
   VESCInterface(
     rclcpp::Node & node,
     double speed_to_erpm_gain,
@@ -80,20 +80,20 @@ public:
   /// \brief Sends True message
   bool8_t update(std::chrono::nanoseconds timeout);
 
-  // send_state_command() - Most for gears, trasmit the gear to VESC driver
+  // send_state_command() - Most for gears, transmit the gear to VESC driver
   // Gear equivalent of reverse/ forward
   bool8_t send_state_command(const VehicleStateCommand & msg);
 
   // send_control_command() - desired speed and desired tire angle
   // Convert those to motorRPM, servo positions
   // RawControlCommand - Log NotSupported!!
-  // IF mannual mode - send zeros.
+  // IF manual mode - send zeros.
   bool8_t send_control_command(const VehicleControlCommand & msg);
 
   // handle_mode_change_request()
   // Switch between autonomous, and manual mode
-  // maintain interal state, and only send commands when autonomous mode is active
-  // IF mannual mode - send zeros.
+  // maintain internal state, and only send commands when autonomous mode is active
+  // IF manual mode - send zeros.
   bool8_t handle_mode_change_request(
     autoware_auto_msgs::srv::AutonomyModeChange_Request::SharedPtr request);
 
@@ -125,11 +125,11 @@ private:
   rclcpp::Subscription<VescStateStamped>::SharedPtr vesc_motor_state_;
   rclcpp::Subscription<Float64>::SharedPtr servo_state_;
 
-  /// \brief Recieves the vesc motor state and converts it to car velocity
+  /// \brief Receives the vesc motor state and converts it to car velocity
   /// \param[in] msg Message from the vesc for the motor status
   void on_motor_state_report(const VescStateStamped::SharedPtr & msg);
 
-  /// \brief Recieves the servo position and converts it to front wheel angle
+  /// \brief Receives the servo position and converts it to front wheel angle
   /// \param[in] msg Message from the vesc for the servo status
   void on_servo_state_report(const Float64::SharedPtr & msg);
 };  // class VESCInterface

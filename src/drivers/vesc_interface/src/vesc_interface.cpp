@@ -89,7 +89,7 @@ bool8_t VESCInterface::send_control_command(const VehicleControlCommand & msg)
   return false;
 }
 
-/// \todo
+/// TODO(jjj025): Add comments
 bool8_t VESCInterface::handle_mode_change_request(
   autoware_auto_msgs::srv::AutonomyModeChange_Request::SharedPtr request)
 {
