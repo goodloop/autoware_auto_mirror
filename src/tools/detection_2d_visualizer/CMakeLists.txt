@@ -14,7 +14,7 @@
 
 cmake_minimum_required(VERSION 3.5)
 
-project(ground_truth_visualizer)
+project(detection_2d_visualizer)
 
 # require that dependencies from package.xml be available
 find_package(ament_cmake_auto REQUIRED)
@@ -25,21 +25,30 @@ ament_auto_find_build_dependencies(REQUIRED
 
 set(GROUND_TRUTH_VISUALIZER_NODE_SRC
   src/ground_truth_visualizer_node.cpp
-)
+  src/detection_2d_visualizer_node.cpp
+  src/utils.cpp)
 
 set(GROUND_TRUTH_VISUALIZER_NODE_HEADERS
-  include/ground_truth_visualizer/ground_truth_visualizer_node.hpp
-)
+    include/detection_2d_visualizer/ground_truth_visualizer_node.hpp
+    include/detection_2d_visualizer/detection_2d_visualizer_node.hpp
+    include/detection_2d_visualizer/utils.hpp)
 
 # generate component node library
 ament_auto_add_library(${PROJECT_NAME}_node SHARED
   ${GROUND_TRUTH_VISUALIZER_NODE_SRC}
   ${GROUND_TRUTH_VISUALIZER_NODE_HEADERS}
 )
+
 autoware_set_compile_options(${PROJECT_NAME}_node)
+
 rclcpp_components_register_node(${PROJECT_NAME}_node
-  PLUGIN "autoware::ground_truth_visualizer::GroundTruthVisualizerNode"
-  EXECUTABLE ${PROJECT_NAME}_node_exe
+  PLUGIN "autoware::detection_2d_visualizer::GroundTruthVisualizerNode"
+  EXECUTABLE ground_truth_visualizer_node_exe
+)
+
+rclcpp_components_register_node(${PROJECT_NAME}_node
+    PLUGIN "autoware::detection_2d_visualizer::Detection2dVisualizerNode"
+    EXECUTABLE detection_2d_visualizer_node_exe
 )
 
 # Testing
