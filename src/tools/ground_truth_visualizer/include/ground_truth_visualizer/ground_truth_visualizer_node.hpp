@@ -24,7 +24,7 @@
 #include <autoware_auto_msgs/msg/classified_roi_array.hpp>
 #include <message_filters/subscriber.h>
 #include <message_filters/synchronizer.h>
-#include <message_filters/sync_policies/approximate_time.h>
+#include <message_filters/sync_policies/exact_time.h>
 #include <rclcpp/rclcpp.hpp>
 #include <sensor_msgs/msg/compressed_image.hpp>
 #include <sensor_msgs/msg/image.hpp>
@@ -53,7 +53,7 @@ public:
     autoware_auto_msgs::msg::ClassifiedRoiArray::ConstSharedPtr roi_msg);
 
 private:
-  using Policy = message_filters::sync_policies::ApproximateTime<sensor_msgs::msg::CompressedImage,
+  using Policy = message_filters::sync_policies::ExactTime<sensor_msgs::msg::CompressedImage,
       autoware_auto_msgs::msg::ClassifiedRoiArray>;
 
   message_filters::Subscriber<sensor_msgs::msg::CompressedImage> m_image_sub;

@@ -15,6 +15,7 @@
   <depend>sensor_msgs</depend>
   <depend>libopencv-dev</depend>
   <depend>autoware_auto_msgs</depend>
+  <depend>vision_opencv</depend>
   <depend>cv_bridge</depend>
   <depend>message_filters</depend>
 
