@@ -56,7 +56,7 @@ using std_msgs::msg::Float64;
 
 namespace autoware
 {
-/// \brief TODO(jjj025): Document namespaces!
+/// \brief TODO(jacobjj): Document namespaces!
 namespace vesc_interface
 // Inherit from vehicle_interface::platform_interface
 {
@@ -68,7 +68,7 @@ class VESC_INTERFACE_PUBLIC VESCInterface
 {
 public:
   /// \brief Default Constructor.
-  /// TODO(jjj025): Comment
+  /// TODO(jacobjj): Comment
   VESCInterface(
     rclcpp::Node & node,
     double speed_to_erpm_gain,
