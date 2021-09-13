@@ -23,8 +23,8 @@ namespace autoware
 namespace detection_2d_visualizer
 {
 void  draw_shape(
-  cv_bridge::CvImagePtr & image_ptr, const
-  geometry_msgs::msg::Polygon & polygon, const cv::Scalar & color, const std::int32_t thickness)
+  cv_bridge::CvImagePtr & image_ptr, const geometry_msgs::msg::Polygon & polygon,
+  const cv::Scalar & color, const std::int32_t thickness)
 {
   std::vector<cv::Point> pts;
   constexpr auto is_polyline_closed = true;
