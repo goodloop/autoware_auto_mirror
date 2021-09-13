@@ -67,7 +67,7 @@ class TestRoiAssociation : public testing::Test
 {
 public:
   TestRoiAssociation()
-  : intrinsics{CameraIntrinsics{500U, 500U, 5.0F, 5.0F}},
+  : intrinsics{CameraIntrinsics{500U, 500U, 5.0F, 5.0F, 250.F, 250.F}},
     camera{intrinsics},
     associator{{intrinsics, 0.1F}, tf_buffer} {init_frame_id();}
 

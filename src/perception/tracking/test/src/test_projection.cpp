@@ -93,7 +93,7 @@ public:
 
  * */
 TEST_F(PrismProjectionTest, CameraFrameProjectionTest) {
-  CameraIntrinsics intrinsics{100, 100, 1.0F, 1.0F};
+  CameraIntrinsics intrinsics{100, 100, 1.0F, 1.0F, 50.0, 50.0};
   geometry_msgs::msg::Transform identity{};
   identity.rotation.set__w(1.0);
   CameraModel model{intrinsics};
@@ -118,7 +118,7 @@ TEST_F(PrismProjectionTest, CameraFrameProjectionTest) {
      •••••••••
  * */
 TEST_F(PrismProjectionTest, TransformedCameraFrameTest) {
-  CameraIntrinsics intrinsics{100, 100, 0.6F, 1.5F, 0.01F, 0.01F, 0.005F};
+  CameraIntrinsics intrinsics{100, 100, 0.6F, 1.5F, 50.0, 50.0, 0.005F};
   CameraModel model{intrinsics};
 
   // Define where the camera is with respect to the origin
@@ -163,7 +163,7 @@ TEST_F(PrismProjectionTest, TransformedCameraFrameTest) {
 
 /// \brief Test to validate that objects behind the camera are not captured.
 TEST_F(PrismProjectionTest, BehindTheImagePlaneTest) {
-  CameraIntrinsics intrinsics{100, 100, 1.0F, 1.0F};
+  CameraIntrinsics intrinsics{100, 100, 1.0F, 1.0F, 50.0, 50.0};
   CameraModel model{intrinsics};
   std::transform(
     rectangular_prism.polygon.points.begin(), rectangular_prism.polygon.points.end(),
@@ -181,7 +181,7 @@ TEST_F(PrismProjectionTest, OutOfPlaneTest) {
   // Catastrophic cancellation makes this test fail on the arm release build. See #1241
   GTEST_SKIP();
   #endif
-  CameraIntrinsics intrinsics{100, 100, 1.0F, 1.0F};
+  CameraIntrinsics intrinsics{100, 100, 1.0F, 1.0F, 50.0, 50.0};
   CameraModel model{intrinsics};
   // Pull two of the corners of the rectangle to outside of the camera's FoV
   rectangular_prism.polygon.points[0U].x +=
@@ -212,10 +212,13 @@ TEST_F(PrismProjectionTest, OutOfPlaneTest) {
       projection->shape.erase(res_it);
     };
   // Check that one of the projected points is clamped to the edge of the image plane as expected
+
+  const auto project_y = [&intrinsics](auto y, auto depth) {
+      return (y * intrinsics.fy + depth * intrinsics.oy) / depth;
+    };
   const auto depth = rectangular_prism.polygon.points.front().z;
-  const auto y2d = (half_length * intrinsics.fy + depth * intrinsics.oy) / depth;
-  check_pt(static_cast<float32_t>(intrinsics.width) / 2.0F, y2d);
-  check_pt(static_cast<float32_t>(intrinsics.width) / 2.0F, -y2d);
+  check_pt(static_cast<float32_t>(intrinsics.width), project_y(half_length, depth));
+  check_pt(static_cast<float32_t>(intrinsics.width), project_y(-half_length, depth));
   rectangular_prism.polygon.points.erase(
     rectangular_prism.polygon.points.begin(),
     rectangular_prism.polygon.points.begin() + 2U);
