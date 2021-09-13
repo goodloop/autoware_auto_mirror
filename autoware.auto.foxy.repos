@@ -8,20 +8,3 @@ repositories:
     url: https://github.com/RobotWebTools/rosbridge_suite.git
     version: 1a2c386455067b00a9e67fb70cc711add38c3582
 
-  ## Scenario test runner packages
-  src/external/scenario_simulator:
-    type: git
-    url: https://github.com/tier4/scenario_simulator_v2.git
-    version: 4a4223ce146c01c21b6317b2d2d8b4489ebbadf0  # "remove compilation flag" merge commit
-  src/external/quaternion_operation:
-    type: git
-    url: https://github.com/OUXT-Polaris/quaternion_operation.git
-    version: f08cd28b357f9feede55f1fb485cb21964f5d594
-  src/external/AutowareArchitectureProposal_msgs:
-    type: git
-    url: https://github.com/tier4/AutowareArchitectureProposal_msgs.git
-    version: add-autoware-api-msgs
-  src/external/lexus_description:
-    type: git
-    url: https://github.com/tier4/lexus_description.iv.universe.git
-    version: ros2

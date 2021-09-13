@@ -18,12 +18,13 @@ cd AutowareAuto
 * import required repos
 ```
 vcs import < autoware.auto.foxy.repos
+./get_scenario_simulator_v2.sh
 ```
 * install dependencies for `scenario_test_runner` that are not present in ADE
 ```
 sudo apt-get update
 rosdep update
-rosdep install --from-paths src --ignore-src -r -y
+rosdep install --from-paths src --ignore-src -y
 ```
 * build Autoware, `scenario_test_runner` and `kashiwanoha_map` (needed for this demo only) 
  ```
@@ -67,7 +68,7 @@ rviz2 -d $(ros2 pkg prefix autoware_auto_launch)/share/autoware_auto_launch/conf
 * launch scenario test runner
 ```
 source install/setup.bash
-ros2 launch scenario_test_runner scenario_test_runner.launch.py sensor_model:=aip_xx1 vehicle_model:=lexus scenario:=src/external/scenario_simulator/test_runner/scenario_test_runner/test/scenario/autoware-simple.yaml architecture-type:=awf/auto
+ros2 launch scenario_test_runner scenario_test_runner.launch.py sensor_model:=aip_xx1 vehicle_model:=lexus scenario:=src/external/scenario_simulator/test_runner/scenario_test_runner/test/scenario/autoware-simple.yaml architecture_type:=awf/auto
 ```
 
 > _NOTE:_ You can ignore Rviz2 errors about missing models for 3D vehicle representation.
