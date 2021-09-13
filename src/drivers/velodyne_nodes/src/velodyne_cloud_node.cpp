@@ -113,8 +113,8 @@ bool8_t VelodyneCloudNode<T>::convert(
   sensor_msgs::msg::PointCloud2 & output)
 {
   // This handles the case when the below loop exited due to containing extra points
-  using autoware::common::types::PointXYZI;
-  point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZI> modifier{output};
+  using autoware::common::types::PointXYZIF;
+  point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZIF> modifier{output};
   if (m_published_cloud) {
     // reset the pointcloud
     modifier.clear();
@@ -126,7 +126,9 @@ bool8_t VelodyneCloudNode<T>::convert(
     m_published_cloud = false;
     for (uint32_t idx = m_remainder_start_idx; idx < m_point_block.size(); ++idx) {
       const autoware::common::types::PointXYZIF & pt = m_point_block[idx];
-      (void)add_point_to_cloud(m_point_cloud_its, pt, m_point_cloud_idx);
+      // (void)add_point_to_cloud(m_point_cloud_its, pt, m_point_cloud_idx);
+      modifier.push_back(pt);
+      ++m_point_cloud_idx;
       // Here I am ignoring the return value, because this operation should never fail.
       // In the constructor I ensure that cloud_size > PointBlock::CAPACITY. This means
       // I am guaranteed to fit at least one whole PointBlock into my PointCloud2.
