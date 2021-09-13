@@ -14,16 +14,59 @@ BasedOnStyle: Google
 
 AccessModifierOffset: -2
 AlignAfterOpenBracket: AlwaysBreak
+AllowAllArgumentsOnNextLine: true
+AllowAllConstructorInitializersOnNextLine: true
+AllowAllParametersOfDeclarationOnNextLine: true
+AllowShortBlocksOnASingleLine: true
+AllowShortCaseLabelsOnASingleLine: true
+AllowShortFunctionsOnASingleLine: All
+AllowShortIfStatementsOnASingleLine: Always
+AllowShortLambdasOnASingleLine: All
+AllowShortLoopsOnASingleLine: true
+AlwaysBreakTemplateDeclarations: MultiLine
 BraceWrapping:
   AfterClass: true
   AfterFunction: true
   AfterNamespace: true
   AfterStruct: true
+BinPackArguments: false
+BinPackParameters: false
 BreakBeforeBraces: Custom
 ColumnLimit: 100
+ConstructorInitializerAllOnOneLineOrOnePerLine: true
 ConstructorInitializerIndentWidth: 0
 ContinuationIndentWidth: 2
+Cpp11BracedListStyle: true
 DerivePointerAlignment: false
+FixNamespaceComments: true
+IncludeBlocks: Preserve
+IncludeCategories:
+  # Main header (e.g. foo.hpp for foo.cpp) automatically assigned priority zero
+
+  # Headers in "" with extension.
+  - Regex: '"([A-Za-z0-9.\Q/-_\E])+"'
+    Priority: 1
+  # Messages
+  - Regex: '.*_msgs/.*\.hpp'
+    Priority: 2
+    # SortPriority: 0
+  # Other Packages
+  - Regex: '^<.*/.*\.h.*>'
+    Priority: 3
+    SortPriority: 0
+  # C System
+  - Regex: '^<.*\.h>'
+    Priority: 4
+    SortPriority: 0
+  # Headers in <> without extension.
+  - Regex: '<([A-Za-z0-9\Q/-_\E])+>'
+    Priority: 5
+IndentPPDirectives: BeforeHash
+IndentWidth: '2'
+MaxEmptyLinesToKeep: 2
+NamespaceIndentation: None
 PointerAlignment: Middle
 ReflowComments: true
-IncludeBlocks: Preserve
+SortIncludes: true
+SortUsingDeclarations: true
+UseTab: Never
