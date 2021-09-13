@@ -23,7 +23,6 @@ from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch_ros.actions import Node
 from launch.substitutions import LaunchConfiguration, TextSubstitution
 
-import errno
 import os
 from enum import Enum
 
@@ -46,8 +45,8 @@ def find_and_validate_single_file_with_extension(base_path, file_list, extension
             matches.append(file)
 
     if len(matches) > 1:
-        error_msg = \
-            "ERROR: Single *.{} file expected in {}. Files found: {}".format(extension, base_path, " ".join(matches))
+        error_msg = "ERROR: Single *.{} file expected in {}. Files found: {}".\
+            format(extension, base_path, " ".join(matches))
 
     if len(matches) == 0:
         error_msg = "ERROR: No files fulfilling pattern {}/*.{}".format(base_path, extension)
@@ -71,7 +70,8 @@ def launch_setup(context, *args, **kwargs):
     map_file_paths = {}
     for key, map_filename_extension in map_filenames_extensions.items():
         found_file, error_msg = \
-            find_and_validate_single_file_with_extension(map_path, files_in_map_path, map_filename_extension)
+            find_and_validate_single_file_with_extension(map_path, files_in_map_path,
+                                                         map_filename_extension)
         if error_msg:
             return [LogInfo(msg=TextSubstitution(text=error_msg))]
         else:
@@ -105,12 +105,14 @@ def launch_setup(context, *args, **kwargs):
     )
 
     planning = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource([autoware_launch_prefix, '/launch/autoware_auto_planning.launch.py']),
+        PythonLaunchDescriptionSource([autoware_launch_prefix,
+                                       '/launch/autoware_auto_planning.launch.py']),
         launch_arguments={}.items()
     )
 
     perception = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource([autoware_launch_prefix, '/launch/autoware_auto_perception.launch.py']),
+        PythonLaunchDescriptionSource([autoware_launch_prefix,
+                                       '/launch/autoware_auto_perception.launch.py']),
         launch_arguments={}.items()
     )
 
