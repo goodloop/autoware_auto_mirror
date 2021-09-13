@@ -24,19 +24,14 @@ namespace detection_2d_visualizer
 {
 void  draw_shape(
   cv_bridge::CvImagePtr & image_ptr, const
-  geometry_msgs::msg::Polygon & polygon, const cv::Scalar & color)
+  geometry_msgs::msg::Polygon & polygon, const cv::Scalar & color, const std::int32_t thickness)
 {
   std::vector<cv::Point> pts;
   constexpr auto is_polyline_closed = true;
   for (const auto & pt : polygon.points) {
-    cv::Point temp_pt;
-    temp_pt.x = static_cast<int>(pt.x);
-    temp_pt.y = static_cast<int>(pt.y);
-    pts.emplace_back(std::move(temp_pt));
+    pts.emplace_back(static_cast<std::int32_t>(pt.x), static_cast<std::int32_t>(pt.y));
   }
-  cv::polylines(image_ptr->image, pts, is_polyline_closed, color);
+  cv::polylines(image_ptr->image, pts, is_polyline_closed, color, thickness);
 }
-
-
 }  // namespace detection_2d_visualizer
 }  // namespace autoware

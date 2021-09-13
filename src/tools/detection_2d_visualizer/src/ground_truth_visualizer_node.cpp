@@ -46,8 +46,7 @@ void GroundTruthVisualizerNode::process(
   sensor_msgs::msg::CompressedImage::ConstSharedPtr img_msg,
   autoware_auto_msgs::msg::ClassifiedRoiArray::ConstSharedPtr roi_msg)
 {
-  const bool is_polyline_closed = true;
-  const std::int32_t thickness = 5;
+  constexpr std::int32_t thickness = 5;
   const cv::Scalar color{0, 255, 0};
   cv_bridge::CvImagePtr cv_img_ptr{};
   try {
@@ -58,7 +57,7 @@ void GroundTruthVisualizerNode::process(
   }
   if (!cv_img_ptr) {return;}
   for (const auto & rect : roi_msg->rois) {
-    draw_shape(cv_img_ptr, rect.polygon, color);
+    draw_shape(cv_img_ptr, rect.polygon, color, thickness);
   }
   m_image_pub->publish(*(cv_img_ptr->toImageMsg()));
 }

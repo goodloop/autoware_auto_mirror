@@ -48,6 +48,7 @@ void Detection2dVisualizerNode::process(
 {
   static const cv::Scalar ground_truth_color{0, 255, 0};
   static const cv::Scalar projection_color{0, 0, 255};
+  constexpr std::int32_t thickness = 5;
   cv_bridge::CvImagePtr cv_img_ptr;
   try {
     cv_img_ptr = cv_bridge::toCvCopy(img_msg);
@@ -57,11 +58,11 @@ void Detection2dVisualizerNode::process(
   }
 
   for (const auto & rect : roi_msg->rois) {
-    draw_shape(cv_img_ptr, rect.polygon, ground_truth_color);
+    draw_shape(cv_img_ptr, rect.polygon, ground_truth_color, thickness);
   }
 
   for (const auto & rect : projection_msg->rois) {
-    draw_shape(cv_img_ptr, rect.polygon, projection_color);
+    draw_shape(cv_img_ptr, rect.polygon, projection_color, thickness);
   }
 
   m_image_pub->publish(*(cv_img_ptr->toImageMsg()));

@@ -32,7 +32,7 @@ namespace detection_2d_visualizer
 
 void DETECTION_2D_VISUALIZER_PUBLIC draw_shape(
   cv_bridge::CvImagePtr & image_ptr, const
-  geometry_msgs::msg::Polygon & polygon, const cv::Scalar & color);
+  geometry_msgs::msg::Polygon & polygon, const cv::Scalar & color, std::int32_t thickness);
 }  // namespace detection_2d_visualizer
 }  // namespace autoware
 
