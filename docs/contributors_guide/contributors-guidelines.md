@@ -138,7 +138,7 @@ offending lines in the code.
 ### Using ament_clang_format
 
 `ament_uncrustify --reformat` is able to format the code to a degree but its results
-are generally not enough to pass `ament_cpplint`. To automatize the process, 
+are generally not enough to pass `ament_cpplint`. To automate the process, 
 `ament_clang_format` can be used like: 
 `ament_clang_format --config AutowareAuto/.clang-format --reformat file.cpp`.
 
