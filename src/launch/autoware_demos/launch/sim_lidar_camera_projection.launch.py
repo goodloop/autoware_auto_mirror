@@ -149,7 +149,7 @@ def generate_launch_description():
         ])
 
     rviz_cfg_pkg_path = get_package_share_directory(
-        'cluster_projection_node')
+        'autoware_demos')
     rviz_cfg_path = os.path.join(rviz_cfg_pkg_path, 'rviz2',
                                  'image_with_detections.rviz')
     rviz_runner = Node(
