@@ -126,14 +126,7 @@ bool8_t VelodyneCloudNode<T>::convert(
     m_published_cloud = false;
     for (uint32_t idx = m_remainder_start_idx; idx < m_point_block.size(); ++idx) {
       const autoware::common::types::PointXYZIF & pt = m_point_block[idx];
-      // (void)add_point_to_cloud(m_point_cloud_its, pt, m_point_cloud_idx);
-      PointXYZI pti;
-      pti.x = pt.x;
-      pti.y = pt.y;
-      pti.z = pt.z;
-      pti.intensity = pt.intensity;
-      modifier.push_back(pti);
-      ++m_point_cloud_idx;
+      (void)add_point_to_cloud(m_point_cloud_its, pt, m_point_cloud_idx);
       // Here I am ignoring the return value, because this operation should never fail.
       // In the constructor I ensure that cloud_size > PointBlock::CAPACITY. This means
       // I am guaranteed to fit at least one whole PointBlock into my PointCloud2.
