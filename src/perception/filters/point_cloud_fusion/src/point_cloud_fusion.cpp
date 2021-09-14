@@ -41,16 +41,21 @@ uint32_t PointCloudFusion::fuse_pc_msgs(
 {
   uint32_t pc_concat_idx = 0;
 
+  point_cloud_msg_wrapper::PointCloud2Modifier<
+    autoware::common::types::PointXYZI> modifier{cloud_concatenated};
+
   for (size_t i = 0; i < m_input_topics_size; ++i) {
-    concatenate_pointcloud(*msgs[i], cloud_concatenated, pc_concat_idx);
+    concatenate_pointcloud(*msgs[i], pc_concat_idx, modifier);
   }
+
   return pc_concat_idx;
 }
 
 void PointCloudFusion::concatenate_pointcloud(
   const sensor_msgs::msg::PointCloud2 & pc_in,
-  sensor_msgs::msg::PointCloud2 & pc_out,
-  uint32_t & concat_idx) const
+  uint32_t & concat_idx,
+  point_cloud_msg_wrapper::PointCloud2Modifier<
+    autoware::common::types::PointXYZI> & modifier) const
 {
   if ((pc_in.width + concat_idx) > m_cloud_capacity) {
     throw Error::TOO_LARGE;
@@ -61,19 +66,16 @@ void PointCloudFusion::concatenate_pointcloud(
 
   auto view_it = view.cbegin();
   while (view_it != view.cend()) {
-    common::types::PointXYZIF pt;
+    common::types::PointXYZI pt;
     pt.x = (*view_it).x;
     pt.y = (*view_it).y;
     pt.z = (*view_it).z;
     pt.intensity = (*view_it).intensity;
 
-    if (common::lidar_utils::add_point_to_cloud(pc_out, pt, concat_idx)) {
-      ++view_it;
-    } else {
-      // Somehow the point could be inserted to the concatenated cloud. Something regarding
-      // the cloud sizes must be off.
-      throw Error::INSERT_FAILED;
-    }
+    modifier.push_back(pt);
+    ++concat_idx;
+
+    ++view_it;
   }
 }
 

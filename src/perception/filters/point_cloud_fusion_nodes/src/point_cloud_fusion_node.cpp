@@ -107,7 +107,7 @@ PointCloudFusionNode::pointcloud_callback(
   using autoware::common::types::PointXYZI;
   point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZI> modifier{m_cloud_concatenated};
   modifier.clear();
-  modifier.resize(m_cloud_capacity);
+  modifier.reserve(m_cloud_capacity);
 
   auto latest_stamp = msgs[0]->header.stamp;
   auto total_size = 0U;
