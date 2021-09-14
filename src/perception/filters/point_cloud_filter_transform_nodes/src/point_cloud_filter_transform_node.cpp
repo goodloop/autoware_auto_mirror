@@ -162,16 +162,15 @@ const PointCloud2 & PointCloud2FilterTransformNode::filter_and_transform(const P
 
   auto && intensity_it = autoware::common::lidar_utils::IntensityIteratorWrapper(msg);
 
-  auto point_cloud_idx = 0U;
   using autoware::common::types::PointXYZI;
   point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZI> modifier{m_filtered_transformed_msg};
   modifier.clear();
-  modifier.resize(m_pcl_size);
+  modifier.reserve(m_pcl_size);
 
   m_filtered_transformed_msg.header.stamp = msg.header.stamp;
 
   for (size_t it = 0; it < (msg.data.size() / 16); it++) {
-    PointXYZIF pt;
+    PointXYZI pt;
     pt.x = *x_it;
     pt.y = *y_it;
     pt.z = *z_it;
@@ -180,12 +179,7 @@ const PointCloud2 & PointCloud2FilterTransformNode::filter_and_transform(const P
     if (point_not_filtered(pt)) {
       auto transformed_point = transform_point(pt);
       transformed_point.intensity = pt.intensity;
-      if (!add_point_to_cloud(
-          m_filtered_transformed_msg, transformed_point, point_cloud_idx))
-      {
-        throw std::runtime_error(
-                "Overran cloud msg point capacity");
-      }
+      modifier.push_back(transformed_point);
     }
 
     ++x_it;
