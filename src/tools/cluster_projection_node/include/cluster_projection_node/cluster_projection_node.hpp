@@ -23,6 +23,7 @@
 
 #include <autoware_auto_msgs/msg/classified_roi_array.hpp>
 #include <autoware_auto_msgs/msg/detected_objects.hpp>
+#include <cluster_projection_node/visibility_control.hpp>
 #include <rclcpp/rclcpp.hpp>
 #include <tracking/projection.hpp>
 #include <tf2/buffer_core.h>
@@ -30,8 +31,6 @@
 
 #include <memory>
 #include <string>
-
-#include "visibility_control.hpp"
 
 namespace autoware
 {

@@ -22,6 +22,7 @@
 #define DETECTION_2D_VISUALIZER__GROUND_TRUTH_VISUALIZER_NODE_HPP_
 
 #include <autoware_auto_msgs/msg/classified_roi_array.hpp>
+#include <detection_2d_visualizer/visibility_control.hpp>
 #include <message_filters/subscriber.h>
 #include <message_filters/synchronizer.h>
 #include <message_filters/sync_policies/exact_time.h>
@@ -30,8 +31,6 @@
 #include <sensor_msgs/msg/image.hpp>
 
 #include <memory>
-
-#include "visibility_control.hpp"
 
 namespace autoware
 {

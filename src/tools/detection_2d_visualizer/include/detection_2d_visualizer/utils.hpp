@@ -22,8 +22,8 @@
 #define DETECTION_2D_VISUALIZER__UTILS_HPP_
 
 #include <cv_bridge/cv_bridge.h>
+#include <detection_2d_visualizer/visibility_control.hpp>
 #include <geometry_msgs/msg/polygon.hpp>
-#include "visibility_control.hpp"
 
 namespace autoware
 {
