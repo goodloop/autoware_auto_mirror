@@ -32,7 +32,6 @@ namespace filters
 /// \brief Boilerplate Apex.OS nodes around point_cloud_filter_transform_nodes
 namespace point_cloud_filter_transform_nodes
 {
-using autoware::common::lidar_utils::add_point_to_cloud;
 using autoware::common::lidar_utils::has_intensity_and_throw_if_no_xyz;
 using autoware::common::lidar_utils::sanitize_point_cloud;
 using autoware::common::types::float64_t;
@@ -191,7 +190,6 @@ const PointCloud2 & PointCloud2FilterTransformNode::filter_and_transform(const P
       break;
     }
   }
-  modifier.resize(point_cloud_idx);
   return m_filtered_transformed_msg;
 }
 
