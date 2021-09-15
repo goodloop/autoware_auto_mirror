@@ -87,9 +87,9 @@ RayGroundClassifierCloudNode::RayGroundClassifierCloudNode(
 {
   // initialize messages
   point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZI>{
-    m_ground_msg, m_frame_id}.resize(m_pcl_size);
+    m_ground_msg, m_frame_id}.reserve(m_pcl_size);
   point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZI>{
-    m_nonground_msg, m_frame_id}.resize(m_pcl_size);
+    m_nonground_msg, m_frame_id}.reserve(m_pcl_size);
 }
 ////////////////////////////////////////////////////////////////////////////////
 void
@@ -100,6 +100,10 @@ RayGroundClassifierCloudNode::callback(const PointCloud2::SharedPtr msg)
   const ray_ground_classifier::PointXYZIFR eos_pt{&pt_tmp};
 
   try {
+    point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZIF> ground_msg_modifier{m_ground_msg};
+    point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZIF> nonground_msg_modifier{
+      m_nonground_msg};
+
     // Reset messages and aggregator to ensure they are in a good state
     reset();
     // Verify header
@@ -155,10 +159,8 @@ RayGroundClassifierCloudNode::callback(const PointCloud2::SharedPtr msg)
         } else {
           uint32_t local_nonground_pc_idx;
           local_nonground_pc_idx = m_nonground_pc_idx++;
-          if (!add_point_to_cloud_raw(m_nonground_msg, *pt, local_nonground_pc_idx)) {
-            throw std::runtime_error(
-                    "RayGroundClassifierNode: Overran nonground msg point capacity");
-          }
+          nonground_msg_modifier.push_back(*pt);
+          local_nonground_pc_idx++;
         }
       } catch (const std::runtime_error & e) {
         m_has_failed = true;
@@ -201,24 +203,14 @@ RayGroundClassifierCloudNode::callback(const PointCloud2::SharedPtr msg)
             uint32_t local_ground_pc_idx;
 
             local_ground_pc_idx = m_ground_pc_idx++;
-            if (!add_point_to_cloud_raw(
-                m_ground_msg, *ground_point,
-                local_ground_pc_idx))
-            {
-              throw std::runtime_error(
-                      "RayGroundClassifierNode: Overran ground msg point capacity");
-            }
+            ground_msg_modifier.push_back(*ground_point);
+            local_ground_pc_idx++;
           }
           for (auto & nonground_point : nonground_blk) {
             uint32_t local_nonground_pc_idx;
             local_nonground_pc_idx = m_nonground_pc_idx++;
-            if (!add_point_to_cloud_raw(
-                m_nonground_msg, *nonground_point,
-                local_nonground_pc_idx))
-            {
-              throw std::runtime_error(
-                      "RayGroundClassifierNode: Overran nonground msg point capacity");
-            }
+            nonground_msg_modifier.push_back(*nonground_point);
+            local_nonground_pc_idx++;
           }
         } catch (const std::runtime_error & e) {
           m_has_failed = true;
@@ -251,10 +243,8 @@ RayGroundClassifierCloudNode::callback(const PointCloud2::SharedPtr msg)
     }
 
     // Resize the clouds down to their actual sizes.
-    point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZI>{
-      m_ground_msg}.resize(m_ground_pc_idx);
-    point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZI>{
-      m_nonground_msg}.resize(m_nonground_pc_idx);
+    // ground_msg_modifier.resize(m_ground_pc_idx);
+    // nonground_msg_modifier.resize(m_nonground_pc_idx);
     // publish: nonground first for the possible microseconds of latency
     m_nonground_pub_ptr->publish(m_nonground_msg);
     m_ground_pub_ptr->publish(m_ground_msg);
