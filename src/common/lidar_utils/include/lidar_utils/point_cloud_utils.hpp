@@ -119,30 +119,9 @@ struct SafeCloudIndices
 /// {memcpy(&pt, msg.data[idx], ret.point_step);}`
 LIDAR_UTILS_PUBLIC SafeCloudIndices sanitize_point_cloud(const sensor_msgs::msg::PointCloud2 & msg);
 
-/// \brief add a point in the cloud by memcpy instead of using iterators
-/// This version prioritize speed and ease of parallelisation
-/// it assumes : - PointXYZIF is a POD object equivalent to a point stored in the cloud,
-///                which means same fields and same endianness.
-///              - The caller is responsible for incrementing point_cloud_idx between two calls.
-///                This differs from add_point_to_cloud who increment point_cloud_idx by itself
-LIDAR_UTILS_PUBLIC bool8_t add_point_to_cloud_raw(
-  sensor_msgs::msg::PointCloud2 & cloud,
-  const autoware::common::types::PointXYZIF & pt,
-  uint32_t point_cloud_idx);
-
 LIDAR_UTILS_PUBLIC bool8_t add_point_to_cloud(
   PointCloudIts & cloud_its,
   const autoware::common::types::PointXYZIF & pt,
-  uint32_t & point_cloud_idx);
-
-LIDAR_UTILS_PUBLIC bool8_t add_point_to_cloud(
-  sensor_msgs::msg::PointCloud2 & cloud,
-  const autoware::common::types::PointXYZIF & pt,
-  uint32_t & point_cloud_idx);
-
-LIDAR_UTILS_PUBLIC bool8_t add_point_to_cloud(
-  sensor_msgs::msg::PointCloud2 & cloud,
-  const autoware::common::types::PointXYZF & pt,
   uint32_t & point_cloud_idx);
 
 /// \brief Get cluster from clusters based on the cluster id

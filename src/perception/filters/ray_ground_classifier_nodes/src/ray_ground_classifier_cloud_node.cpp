@@ -40,7 +40,6 @@ using autoware::perception::filters::ray_ground_classifier::PointPtrBlock;
 using std::placeholders::_1;
 
 using autoware::common::lidar_utils::has_intensity_and_throw_if_no_xyz;
-using autoware::common::lidar_utils::add_point_to_cloud_raw;
 
 RayGroundClassifierCloudNode::RayGroundClassifierCloudNode(
   const rclcpp::NodeOptions & node_options)
