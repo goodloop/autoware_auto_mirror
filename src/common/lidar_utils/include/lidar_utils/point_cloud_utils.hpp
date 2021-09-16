@@ -119,11 +119,6 @@ struct SafeCloudIndices
 /// {memcpy(&pt, msg.data[idx], ret.point_step);}`
 LIDAR_UTILS_PUBLIC SafeCloudIndices sanitize_point_cloud(const sensor_msgs::msg::PointCloud2 & msg);
 
-LIDAR_UTILS_PUBLIC bool8_t add_point_to_cloud(
-  PointCloudIts & cloud_its,
-  const autoware::common::types::PointXYZIF & pt,
-  uint32_t & point_cloud_idx);
-
 /// \brief Get cluster from clusters based on the cluster id
 /// \param[in] clusters The clusters object
 /// \param[in] cls_id The id of the target cluster

@@ -187,48 +187,6 @@ SafeCloudIndices sanitize_point_cloud(const sensor_msgs::msg::PointCloud2 & msg)
   return SafeCloudIndices{num_floats * sizeof(float32_t), index_after_last_safe_byte_index(msg)};
 }
 
-bool8_t add_point_to_cloud(
-  PointCloudIts & cloud_its,
-  const autoware::common::types::PointXYZIF & pt,
-  uint32_t & point_cloud_idx)
-{
-  bool8_t ret = false;
-
-  auto & x_it = cloud_its.x_it();
-  auto & y_it = cloud_its.y_it();
-  auto & z_it = cloud_its.z_it();
-  auto & intensity_it = cloud_its.intensity_it();
-
-  // Actual size is 20 due to padding by compilers for the memory alignment boundary.
-  // This check is to make sure that when we do a insert of 16 bytes, we will not stride
-  // past the bounds of the structure.
-  static_assert(
-    sizeof(autoware::common::types::PointXYZIF) >= ((4U * sizeof(float32_t)) + sizeof(uint16_t)),
-    "PointXYZF is not expected size: ");
-
-  if (x_it != x_it.end() &&
-    y_it != y_it.end() &&
-    z_it != z_it.end() &&
-    intensity_it != intensity_it.end())
-  {
-    // add the point data
-    *x_it = pt.x;
-    *y_it = pt.y;
-    *z_it = pt.z;
-    *intensity_it = pt.intensity;
-
-    // increment the index to keep track of the pointcloud's size
-    x_it += 1;
-    y_it += 1;
-    z_it += 1;
-    intensity_it += 1;
-    ++point_cloud_idx;
-
-    ret = true;
-  }
-  return ret;
-}
-
 /////////////////////////////////////////////////////////////////////////////////////////
 
 DistanceFilter::DistanceFilter(float32_t min_radius, float32_t max_radius)
