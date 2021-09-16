@@ -100,8 +100,8 @@ RayGroundClassifierCloudNode::callback(const PointCloud2::SharedPtr msg)
   const ray_ground_classifier::PointXYZIFR eos_pt{&pt_tmp};
 
   try {
-    point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZIF> ground_msg_modifier{m_ground_msg};
-    point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZIF> nonground_msg_modifier{
+    point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZI> ground_msg_modifier{m_ground_msg};
+    point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZI> nonground_msg_modifier{
       m_nonground_msg};
 
     // Reset messages and aggregator to ensure they are in a good state
@@ -159,7 +159,7 @@ RayGroundClassifierCloudNode::callback(const PointCloud2::SharedPtr msg)
         } else {
           uint32_t local_nonground_pc_idx;
           local_nonground_pc_idx = m_nonground_pc_idx++;
-          nonground_msg_modifier.push_back(*pt);
+          nonground_msg_modifier.push_back(PointXYZI{pt->x, pt->y, pt->z, pt->intensity});
           local_nonground_pc_idx++;
         }
       } catch (const std::runtime_error & e) {
@@ -201,15 +201,19 @@ RayGroundClassifierCloudNode::callback(const PointCloud2::SharedPtr msg)
           // Add ray to point clouds
           for (auto & ground_point : ground_blk) {
             uint32_t local_ground_pc_idx;
-
             local_ground_pc_idx = m_ground_pc_idx++;
-            ground_msg_modifier.push_back(*ground_point);
+            ground_msg_modifier.push_back(
+              PointXYZI{
+                      ground_point->x, ground_point->y, ground_point->z, ground_point->intensity});
             local_ground_pc_idx++;
           }
           for (auto & nonground_point : nonground_blk) {
             uint32_t local_nonground_pc_idx;
             local_nonground_pc_idx = m_nonground_pc_idx++;
-            nonground_msg_modifier.push_back(*nonground_point);
+            nonground_msg_modifier.push_back(
+              PointXYZI{
+                      nonground_point->x, nonground_point->y, nonground_point->z,
+                      nonground_point->intensity});
             local_nonground_pc_idx++;
           }
         } catch (const std::runtime_error & e) {
@@ -243,8 +247,8 @@ RayGroundClassifierCloudNode::callback(const PointCloud2::SharedPtr msg)
     }
 
     // Resize the clouds down to their actual sizes.
-    // ground_msg_modifier.resize(m_ground_pc_idx);
-    // nonground_msg_modifier.resize(m_nonground_pc_idx);
+    ground_msg_modifier.resize(m_ground_pc_idx);
+    nonground_msg_modifier.resize(m_nonground_pc_idx);
     // publish: nonground first for the possible microseconds of latency
     m_nonground_pub_ptr->publish(m_nonground_msg);
     m_ground_pub_ptr->publish(m_ground_msg);
