@@ -388,14 +388,13 @@ TEST_F(FakeNodeFixture, stopped)
   EXPECT_GT(rclcpp::Time(cmd_msg->stamp), rclcpp::Time(traj_msg.header.stamp));
 }
 
-TEST_F(FakeNodeFixture, set_param_smoke_test)
+// TODO (Maxime CLEMENT): disabled as this test crashes in the CI but works locally
+TEST_F(FakeNodeFixture, DISABLED_set_param_smoke_test)
 {
-  /* TODO (Maxime CLEMENT): this test crashes in the CI but I cannot reproduce the issue locally
   // Node
   std::shared_ptr<LateralController> node = makeNode();
 
   // Change some parameter value
   auto result = node->set_parameter(rclcpp::Parameter("mpc_prediction_horizon", 10));
   EXPECT_TRUE(result.successful);
-  */
 }
