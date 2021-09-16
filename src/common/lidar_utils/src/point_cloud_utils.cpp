@@ -133,35 +133,6 @@ bool8_t has_intensity_and_throw_if_no_xyz(
   return ret;
 }
 
-PointCloudIts::PointCloudIts() {m_its.reserve(4);}
-
-void PointCloudIts::reset(sensor_msgs::msg::PointCloud2 & cloud, uint32_t idx)
-{
-  // Destroy the old iterators
-  m_its.clear();
-
-  // Create new iterators
-  m_its.emplace_back(cloud, "x");
-  m_its.emplace_back(cloud, "y");
-  m_its.emplace_back(cloud, "z");
-  m_its.emplace_back(cloud, "intensity");
-
-  // Advance iterators to given index
-  // TODO(vrichard) replace explicit check by safe_cast
-  // See https://gitlab.com/autowarefoundation/autoware.auto/AutowareAuto/-/issues/1027
-  if (idx > static_cast<uint32_t>(std::numeric_limits<int>::max())) {
-    // prevent future access to random memory value or segmentation fault
-    throw std::runtime_error(
-            "converting " + std::to_string(
-              idx) + " to int would change sign of value");
-  }
-  const int i = static_cast<int>(idx);
-  x_it() += i;
-  y_it() += i;
-  z_it() += i;
-  intensity_it() += i;
-}
-
 std::size_t index_after_last_safe_byte_index(const sensor_msgs::msg::PointCloud2 & msg) noexcept
 {
   // Count expected amount of data from various source of truths
