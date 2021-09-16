@@ -388,7 +388,7 @@ TEST_F(FakeNodeFixture, stopped)
   EXPECT_GT(rclcpp::Time(cmd_msg->stamp), rclcpp::Time(traj_msg.header.stamp));
 }
 
-// TODO (Maxime CLEMENT): disabled as this test crashes in the CI but works locally
+// TODO(Maxime CLEMENT): disabled as this test crashes in the CI but works locally
 TEST_F(FakeNodeFixture, DISABLED_set_param_smoke_test)
 {
   // Node
