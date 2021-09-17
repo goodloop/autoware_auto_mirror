@@ -32,6 +32,8 @@ namespace filters
 {
 namespace point_cloud_fusion
 {
+using autoware::common::types::PointXYZI;
+
 class POINT_CLOUD_FUSION_PUBLIC PointCloudFusion
 {
 public:
@@ -65,8 +67,7 @@ private:
   void concatenate_pointcloud(
     const PointCloudMsgT & pc_in,
     uint32_t & concat_idx,
-    point_cloud_msg_wrapper::PointCloud2Modifier<
-      autoware::common::types::PointXYZI> & modifier) const;
+    point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZI> & modifier) const;
 
   uint32_t m_cloud_capacity;
   size_t m_input_topics_size;

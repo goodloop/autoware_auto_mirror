@@ -99,7 +99,8 @@ void read_from_pcd(const std::string & file_name, sensor_msgs::msg::PointCloud2 
   sensor_msgs::msg::PointCloud2 adjusted_cloud;
   const size_t num_points = cloud.data.size() / cloud.point_step;
 
-  point_cloud_msg_wrapper::PointCloud2Modifier<common::types::PointXYZI> modifier{
+  using autoware::common::types::PointXYZI;
+  point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZI> modifier{
     adjusted_cloud, msg->header.frame_id};
   modifier.reserve(num_points);
 
@@ -134,7 +135,8 @@ geocentric_pose_t load_map(
   const std::string & pcl_file_name,
   sensor_msgs::msg::PointCloud2 & pc_out)
 {
-  point_cloud_msg_wrapper::PointCloud2Modifier<common::types::PointXYZI>{pc_out}.clear();
+  using autoware::common::types::PointXYZI;
+  point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZI>{pc_out}.clear();
   geodetic_pose_t geodetic_pose{0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
 
   if (!yaml_file_name.empty()) {
