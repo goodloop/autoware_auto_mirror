@@ -156,10 +156,8 @@ RayGroundClassifierCloudNode::callback(const PointCloud2::SharedPtr msg)
             m_aggregator.end_of_scan();
           }
         } else {
-          uint32_t local_nonground_pc_idx;
-          local_nonground_pc_idx = m_nonground_pc_idx++;
           nonground_msg_modifier.push_back(PointXYZI{pt->x, pt->y, pt->z, pt->intensity});
-          local_nonground_pc_idx++;
+          m_nonground_pc_idx++;
         }
       } catch (const std::runtime_error & e) {
         m_has_failed = true;
@@ -199,21 +197,17 @@ RayGroundClassifierCloudNode::callback(const PointCloud2::SharedPtr msg)
 
           // Add ray to point clouds
           for (auto & ground_point : ground_blk) {
-            uint32_t local_ground_pc_idx;
-            local_ground_pc_idx = m_ground_pc_idx++;
             ground_msg_modifier.push_back(
               PointXYZI{
                       ground_point->x, ground_point->y, ground_point->z, ground_point->intensity});
-            local_ground_pc_idx++;
+            m_ground_pc_idx++;
           }
           for (auto & nonground_point : nonground_blk) {
-            uint32_t local_nonground_pc_idx;
-            local_nonground_pc_idx = m_nonground_pc_idx++;
             nonground_msg_modifier.push_back(
               PointXYZI{
                       nonground_point->x, nonground_point->y, nonground_point->z,
                       nonground_point->intensity});
-            local_nonground_pc_idx++;
+            m_nonground_pc_idx++;
           }
         } catch (const std::runtime_error & e) {
           m_has_failed = true;
@@ -274,13 +268,11 @@ void RayGroundClassifierCloudNode::reset()
   point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZI> modifier1{m_ground_msg};
   modifier1.clear();
   modifier1.resize(m_pcl_size);
-  // TODO(esteve): remove index variable once fully migrated to point_cloud_msg_wrapper
   m_ground_pc_idx = 0;
 
   point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZI> modifier2{m_nonground_msg};
   modifier2.clear();
   modifier2.resize(m_pcl_size);
-  // TODO(esteve): remove index variable once fully migrated to point_cloud_msg_wrapper
   m_nonground_pc_idx = 0;
 }
 }  // namespace ray_ground_classifier_nodes
