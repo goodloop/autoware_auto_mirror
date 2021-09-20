@@ -15,8 +15,8 @@
 #ifndef TRAJECTORY_FOLLOWER__LONGITUDINAL_CONTROLLER_UTILS_HPP_
 #define TRAJECTORY_FOLLOWER__LONGITUDINAL_CONTROLLER_UTILS_HPP_
 
-#include <experimental/optional>
 #include <cmath>
+#include <experimental/optional>  // NOLINT
 #include <limits>
 
 #include "eigen3/Eigen/Core"

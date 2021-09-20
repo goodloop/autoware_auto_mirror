@@ -15,9 +15,9 @@
 #ifndef TRAJECTORY_FOLLOWER__SMOOTH_STOP_HPP_
 #define TRAJECTORY_FOLLOWER__SMOOTH_STOP_HPP_
 
-#include <experimental/optional>
 #include <algorithm>
 #include <cmath>
+#include <experimental/optional>  // NOLINT
 #include <limits>
 #include <utility>
 #include <vector>

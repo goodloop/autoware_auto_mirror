@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <experimental/optional>
 #include <algorithm>
+#include <experimental/optional>  // NOLINT
 #include <limits>
 
 #include "trajectory_follower/longitudinal_controller_utils.hpp"
