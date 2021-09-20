@@ -19,9 +19,9 @@
 # :type package_name: string
 # :param package_exec: package executable to run during smoke test
 # :type executable_name: string
-# :param param_filename: yaml filename containing test parameters
+# :param PARAM_FILENAME: yaml filename containing test parameters
 # :type PARAM_FILENAME: string
-# :param executable_arguments: arguments passed to tested executable
+# :param EXECUTABLE_ARGUMENTS: arguments passed to tested executable
 # :type EXECUTABLE_ARGUMENTS: string
 
 function(add_smoke_test package_name executable_name)
