@@ -18,6 +18,11 @@
 
 #include "trajectory_follower/longitudinal_controller_utils.hpp"
 
+#include "tf2/LinearMath/Matrix3x3.h"
+#include "tf2/LinearMath/Quaternion.h"
+#include "tf2_geometry_msgs/tf2_geometry_msgs.h"
+
+
 namespace autoware
 {
 namespace motion
@@ -64,12 +69,13 @@ float64_t calcStopDistance(
   return trajectory_common::calcSignedArcLength(traj.points, current_pos, *stop_idx_opt);
 }
 
-float64_t getPitchByPose(const Quaternion & quaternion)
+float64_t getPitchByPose(const Quaternion & quaternion_msg)
 {
-  const Eigen::Quaterniond q(quaternion.w, quaternion.x, quaternion.y, quaternion.z);
-  const Eigen::Vector3d v = q.toRotationMatrix() * Eigen::Vector3d::UnitX();
-  const float64_t xy = std::max(std::hypot(v.x(), v.y()), 1e-8 /* avoid 0 divide */);
-  const float64_t pitch = -1.0 * std::atan2(v.z(), xy);
+  float64_t roll, pitch, yaw;
+  tf2::Quaternion quaternion;
+  tf2::fromMsg(quaternion_msg, quaternion);
+  tf2::Matrix3x3{quaternion}.getRPY(roll, pitch, yaw);
+
   return pitch;
 }
 
