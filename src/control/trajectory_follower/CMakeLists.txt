@@ -67,6 +67,7 @@ target_compile_options(${LATERAL_CONTROLLER_LIB} PRIVATE -Wno-error=old-style-ca
 set(LONGITUDINAL_CONTROLLER_LIB longitudinal_controller_lib)
 set(LONGITUDINAL_CONTROLLER_LIB_SRC
   src/pid.cpp
+  src/smooth_stop.cpp
   src/longitudinal_controller_utils.cpp
 )
 
