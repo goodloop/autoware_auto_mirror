@@ -43,6 +43,7 @@ public:
    * @param [in] is_integrated if true, will use the integral component for calculation
    * @param [out] pid_contributions values of the proportional, integral, and derivative components
    * @return PID output
+   * @throw std::runtime_error if gains or limits have not been set
    */
   float64_t calculate(
     const float64_t error, const float64_t dt, const bool8_t is_integrated,
@@ -96,7 +97,9 @@ private:
   // state variables
   float64_t m_error_integral;
   float64_t m_prev_error;
-  bool m_is_first_time;
+  bool8_t m_is_first_time;
+  bool8_t m_is_gains_set;
+  bool8_t m_is_limits_set;
 };
 }  // namespace trajectory_follower
 }  // namespace control

@@ -74,6 +74,7 @@ public:
    * @brief predict time when car stops by fitting some latest observed velocity history
    *        with linear function (v = at + b)
    * @param [in] vel_hist history of previous ego velocities as (rclcpp::Time, float64_t[m/s]) pairs
+   * @throw std::runtime_error if parameters have not been set
    */
   std::experimental::optional<float64_t> calcTimeToStop(
     const std::vector<std::pair<rclcpp::Time, float64_t>> & vel_hist) const;
@@ -89,6 +90,7 @@ public:
    * @param [in] current_acc current acceleration of ego [m/s²]
    * @param [in] vel_hist history of previous ego velocities as (rclcpp::Time, float64_t[m/s]) pairs
    * @param [in] delay_time assumed time delay when the stop command will actually be executed
+   * @throw std::runtime_error if parameters have not been set
    */
   float64_t calculate(
     const float64_t stop_dist, const float64_t current_vel, const float64_t current_acc,
@@ -115,6 +117,7 @@ private:
 
   float64_t m_strong_acc;
   rclcpp::Time m_weak_acc_time;
+  bool8_t m_is_set_params = false;
 };
 }  // namespace trajectory_follower
 }  // namespace control

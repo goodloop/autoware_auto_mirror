@@ -19,15 +19,19 @@
 
 TEST(TestPID, calculate_pid_output) {
   using ::autoware::motion::control::trajectory_follower::PIDController;
+  std::vector<double> contributions;
   const double dt = 1.0;
   double target = 10.0;
   double current = 0.0;
   bool enable_integration = false;
 
   PIDController pid;
+
+  // Cannot calculate before initializing gains and limits
+  EXPECT_THROW(pid.calculate(0.0, dt, enable_integration, contributions), std::runtime_error);
+
   pid.setGains(1.0, 1.0, 1.0);
   pid.setLimits(10.0, 0.0, 10.0, 0.0, 10.0, 0.0, 10.0, 0.0);
-  std::vector<double> contributions;
   double error = target - current;
   double prev_error = error;
   while (current != target) {

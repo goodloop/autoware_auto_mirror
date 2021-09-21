@@ -64,11 +64,17 @@ void SmoothStop::setParams(
 
   m_params.weak_stop_dist = weak_stop_dist;
   m_params.strong_stop_dist = strong_stop_dist;
+
+  m_is_set_params = true;
 }
 
 std::experimental::optional<float64_t> SmoothStop::calcTimeToStop(
   const std::vector<std::pair<rclcpp::Time, float64_t>> & vel_hist) const
 {
+  if (!m_is_set_params) {
+    throw std::runtime_error("Trying to calculate uninitialized SmoothStop");
+  }
+
   // return when vel_hist is empty
   const float64_t vel_hist_size = static_cast<float64_t>(vel_hist.size());
   if (vel_hist_size == 0.0) {
@@ -122,6 +128,10 @@ float64_t SmoothStop::calculate(
   const float64_t stop_dist, const float64_t current_vel, const float64_t current_acc,
   const std::vector<std::pair<rclcpp::Time, float64_t>> & vel_hist, const float64_t delay_time)
 {
+  if (!m_is_set_params) {
+    throw std::runtime_error("Trying to calculate uninitialized SmoothStop");
+  }
+
   // predict time to stop
   const auto time_to_stop = calcTimeToStop(vel_hist);
 

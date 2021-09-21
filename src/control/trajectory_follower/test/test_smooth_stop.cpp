@@ -39,6 +39,10 @@ TEST(TestSmoothStop, calculate_stopping_acceleration) {
   const double delay_time = 0.17;
 
   SmoothStop ss;
+
+  // Cannot calculate before setting parameters
+  EXPECT_THROW(ss.calculate(0.0, 0.0, 0.0, {}, delay_time), std::runtime_error);
+
   ss.setParams(
     max_strong_acc, min_strong_acc, weak_acc, weak_stop_acc, strong_stop_acc, max_fast_vel,
     min_running_vel, min_running_acc, weak_stop_time, weak_stop_dist, strong_stop_dist);

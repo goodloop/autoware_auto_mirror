@@ -28,12 +28,17 @@ namespace control
 namespace trajectory_follower
 {
 PIDController::PIDController()
-: m_error_integral(0.0), m_prev_error(0.0), m_is_first_time(true) {}
+: m_error_integral(0.0), m_prev_error(0.0), m_is_first_time(true), m_is_gains_set(false),
+  m_is_limits_set(false) {}
 
 float64_t PIDController::calculate(
   const float64_t error, const float64_t dt, const bool8_t enable_integration,
   std::vector<float64_t> & pid_contributions)
 {
+  if (!m_is_gains_set || !m_is_limits_set) {
+    throw std::runtime_error("Trying to calculate uninitialized PID");
+  }
+
   const auto & p = m_params;
 
   float64_t ret_p = p.kp * error;
@@ -73,6 +78,7 @@ void PIDController::setGains(const float64_t kp, const float64_t ki, const float
   m_params.kp = kp;
   m_params.ki = ki;
   m_params.kd = kd;
+  m_is_gains_set = true;
 }
 
 void PIDController::setLimits(
@@ -89,6 +95,7 @@ void PIDController::setLimits(
   m_params.min_ret_d = min_ret_d;
   m_params.max_ret_i = max_ret_i;
   m_params.min_ret_i = min_ret_i;
+  m_is_limits_set = true;
 }
 
 void PIDController::reset()
