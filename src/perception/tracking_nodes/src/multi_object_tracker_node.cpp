@@ -38,7 +38,7 @@ using autoware::common::types::float64_t;
 using autoware::perception::tracking::MultiObjectTracker;
 using autoware::perception::tracking::MultiObjectTrackerOptions;
 using autoware::perception::tracking::TrackCreatorConfig;
-using autoware::perception::tracking::TrackerUpdateResult;
+using autoware::perception::tracking::DetectedObjectsUpdateResult;
 using autoware::perception::tracking::TrackerUpdateStatus;
 using autoware::perception::tracking::GreedyRoiAssociatorConfig;
 using autoware::perception::tracking::CameraIntrinsics;
@@ -226,7 +226,7 @@ void MultiObjectTrackerNode::detected_objects_callback(const DetectedObjects::Co
     RCLCPP_WARN(get_logger(), "No matching odom msg received for obj msg");
     return;
   }
-  const TrackerUpdateResult result = m_tracker.update(
+  const auto result = m_tracker.update(
     *objs, *get_closest_match(matched_msgs, objs->header.stamp));
   if (result.status == TrackerUpdateStatus::Ok) {
     m_track_publisher->publish(result.tracks);
