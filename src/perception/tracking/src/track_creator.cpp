@@ -121,7 +121,7 @@ TrackCreationResult LidarClusterIfVisionPolicy::create()
   const auto association_result = m_associator.assign(vision_msg, m_lidar_clusters);
 
   retval.track_creation_summary.maybe_vision_associations.emplace();
-  retval.track_creation_summary.maybe_vision_associations->association = association_result;
+  retval.track_creation_summary.maybe_vision_associations->assignments = association_result;
   retval.track_creation_summary.maybe_vision_associations->rois = vision_msg;
   retval.track_creation_summary.maybe_vision_associations->objects3d = m_lidar_clusters;
 
