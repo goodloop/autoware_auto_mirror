@@ -31,8 +31,9 @@ namespace perception
 namespace tracking
 {
 /// \brief Class to visualize 3d-2d association
-class AssociationVisualizer2D
+class TRACKING_PUBLIC AssociationVisualizer2D
 {
+public:
   AssociationVisualizer2D(const CameraIntrinsics & intrinsics, const tf2::BufferCore & tf_buffer);
 
   /// \brief Draw the detections and rois on the given image.
@@ -44,7 +45,6 @@ class AssociationVisualizer2D
     const ClusterVisionAssociation & clusters_vision_association);
 
 private:
-  cv_bridge::CvImagePtr m_img_ptr;
   CameraModel m_camera_model;
   const tf2::BufferCore & m_tf_buffer;
 };

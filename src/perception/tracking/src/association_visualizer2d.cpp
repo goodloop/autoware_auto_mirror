@@ -28,7 +28,7 @@ namespace tracking
 /// \brief Function to draw shapes on an opencv image
 template<template<typename ...> class IterableT>
 void draw_shape(
-  cv_bridge::CvImagePtr & image_ptr,
+  cv::Mat & image_ptr,
   const IterableT<geometry_msgs::msg::Point32> points,
   const cv::Scalar & color, const std::int32_t thickness)
 {
@@ -37,7 +37,7 @@ void draw_shape(
   for (const auto & pt : points) {
     pts.emplace_back(static_cast<std::int32_t>(pt.x), static_cast<std::int32_t>(pt.y));
   }
-  cv::polylines(image_ptr->image, pts, is_polyline_closed, color, thickness);
+  cv::polylines(image_ptr, pts, is_polyline_closed, color, thickness);
 }
 
 AssociationVisualizer2D::AssociationVisualizer2D(
@@ -57,7 +57,6 @@ sensor_msgs::msg::Image AssociationVisualizer2D::draw_association(
   constexpr auto association_thickness = 5;
   constexpr auto nonassociation_thickness = 2;
 
-
   geometry_msgs::msg::TransformStamped tf;
   const auto & rois = clusters_vision_association.rois;
   const auto & objects = clusters_vision_association.objects3d;
@@ -69,7 +68,6 @@ sensor_msgs::msg::Image AssociationVisualizer2D::draw_association(
       rois.header.frame_id, objects.header.frame_id,
       time_utils::from_message(objects.header.stamp));
   } catch (const tf2::ExtrapolationException & e) {
-    std::cerr << "Couldn't get the transform for visualization." << std::endl;
     return *(cv_img_ptr->toImageMsg());
   }
 
@@ -80,10 +78,14 @@ sensor_msgs::msg::Image AssociationVisualizer2D::draw_association(
     const auto & object = objects.objects[object_idx];
     const auto projected_pts = m_camera_model.project(transformer(object.shape));
 
+    if (!projected_pts) {
+      continue;  // Can't draw.
+    }
+
     // Draw unassigned detections
     if (assignments.track_assignments[object_idx] == AssociatorResult::UNASSIGNED) {
       draw_shape(
-        m_img_ptr, projected_pts->shape,
+        cv_img_ptr->image, projected_pts->shape,
         nonassociated_projection_color, nonassociation_thickness);
       continue;
     }
@@ -92,17 +94,19 @@ sensor_msgs::msg::Image AssociationVisualizer2D::draw_association(
     const auto & roi = rois.rois[assignments.track_assignments[object_idx]];
 
     draw_shape(
-      m_img_ptr, projected_pts->shape,
+      cv_img_ptr->image, projected_pts->shape,
       projection_color, association_thickness);
     draw_shape(
-      m_img_ptr, roi.polygon.points,
+      cv_img_ptr->image, roi.polygon.points,
       roi_color, association_thickness);
   }
 
   // Draw unassigned rois
   for (const auto roi_idx : assignments.unassigned_detection_indices) {
     const auto & roi = rois.rois[roi_idx];
-    draw_shape(m_img_ptr, roi.polygon.points, nonassociated_roi_color, nonassociation_thickness);
+    draw_shape(
+      cv_img_ptr->image, roi.polygon.points, nonassociated_roi_color,
+      nonassociation_thickness);
   }
   return *(cv_img_ptr->toImageMsg());
 }

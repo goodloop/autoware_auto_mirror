@@ -62,14 +62,14 @@ struct TRACKING_PUBLIC TrackCreatorConfig
 };
 
 
-struct ClusterVisionAssociation
+struct TRACKING_PUBLIC ClusterVisionAssociation
 {
   AssociatorResult assignments;
   autoware_auto_msgs::msg::ClassifiedRoiArray rois;
   autoware_auto_msgs::msg::DetectedObjects objects3d;
 };
 
-struct TrackCreationSummary
+struct TRACKING_PUBLIC TrackCreationSummary
 {
   /// The vision-cluster association result if it applies
   std::experimental::optional<ClusterVisionAssociation> maybe_vision_associations{};
