@@ -83,13 +83,15 @@ ros2 launch scenario_test_runner scenario_test_runner.launch.py sensor_model:=ai
 * vehicle should reach the goal
 * success logs should appear in terminal:
 ```
-[openscenario_interpreter_node-3] [INFO] [simulation.openscenario_interpreter]: Deactivate myself.
-[openscenario_interpreter_node-3] [INFO] [simulation.openscenario_interpreter]: Deactivating.
-[openscenario_interpreter_node-3] [INFO] [simulation.concealer]: Shutting down Autoware: (1/2) Stop publlishing/subscribing.
-[openscenario_interpreter_node-3] [INFO] [simulation.concealer]: Shutting down Autoware: (1/2) Stoped publlishing/subscribing.
-[openscenario_interpreter_node-3] [INFO] [simulation.concealer]: Shutting down Autoware: (2/2) Send SIGINT to Autoware launch process.
+[openscenario_interpreter_node-3] [INFO] [1632295823.545019872] [simulation.openscenario_interpreter]: Deactivating.
+[openscenario_interpreter_node-3] [INFO] [1632295823.670206781] [simulation.concealer]: Shutting down Autoware: (1/3) Stop publlishing/subscribing.
+[openscenario_interpreter_node-3] [INFO] [1632295823.670490120] [simulation.concealer]: Shutting down Autoware: (1/3) Stoped publlishing/subscribing.
+[openscenario_interpreter_node-3] [INFO] [1632295823.670616542] [simulation.concealer]: Shutting down Autoware: (2/3) Send SIGINT to Autoware launch process.
+[openscenario_interpreter_node-3] [INFO] [1632295823.671433147] [simulation.concealer]: Shutting down Autoware: (2/3) Terminating Autoware.
 [openscenario_interpreter_node-3] [WARNING] [launch]: user interrupted with ctrl-c (SIGINT)
-[openscenario_interpreter_node-3] [INFO] [simulation.openscenario_interpreter]: Success
+[openscenario_interpreter_node-3] [INFO] [1632295823.676396403] [simulation.concealer]: Shutting down Autoware: (3/3) Waiting for Autoware to be exited.
+[openscenario_interpreter_node-3] [INFO] [1632295823.886743638] [simulation.openscenario_interpreter]: Passed
+
 ```
 * the scenario should run three times
 * after third run, the program should shut down
