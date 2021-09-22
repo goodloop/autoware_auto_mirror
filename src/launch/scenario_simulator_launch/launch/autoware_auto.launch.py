@@ -14,7 +14,7 @@
 #
 # Developed by Robotec.ai.
 
-"""Launch required subsystems for TierIV scenario_test_runner."""
+"""Launch required subsystems for running scenario simulator."""
 
 from ament_index_python import get_package_share_directory
 from launch import LaunchDescription

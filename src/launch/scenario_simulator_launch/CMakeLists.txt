@@ -9,7 +9,7 @@
 # limitations under the License.
 cmake_minimum_required(VERSION 3.5)
 
-project(scenario_test_runner_launch)
+project(scenario_simulator_launch)
 
 # dependencies
 find_package(ament_cmake_auto REQUIRED)
