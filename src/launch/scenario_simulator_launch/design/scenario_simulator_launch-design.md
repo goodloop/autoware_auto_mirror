@@ -23,4 +23,4 @@ Note that this package does not provide the scenario simulator itself but only t
 - https://github.com/tier4/scenario_simulator_v2
 
 # Related issues
-- Issue #1215: Create scenario testing framework
+- Issue [#1215](https://gitlab.com/autowarefoundation/autoware.auto/AutowareAuto/-/issues/1215): Create scenario testing framework
