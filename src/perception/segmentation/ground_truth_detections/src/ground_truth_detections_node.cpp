@@ -24,7 +24,8 @@ namespace autoware
 namespace ground_truth_detections
 {
 
-constexpr char GroundTruthDetectionsNode::kFrameId[];
+constexpr char GroundTruthDetectionsNode::kFrameId2d[];
+constexpr char GroundTruthDetectionsNode::kFrameId3d[];
 
 GroundTruthDetectionsNode::GroundTruthDetectionsNode(const rclcpp::NodeOptions & options)
 :  Node("ground_truth_detections", options),
@@ -47,7 +48,7 @@ void GroundTruthDetectionsNode::on_detection(const lgsvl_msgs::msg::Detection2DA
 {
   autoware_auto_msgs::msg::ClassifiedRoiArray roi_array;
   roi_array.header = msg.header;
-  roi_array.header.frame_id = kFrameId;
+  roi_array.header.frame_id = kFrameId2d;
 
   roi_array.rois.resize(msg.detections.size());
   std::transform(
@@ -64,7 +65,7 @@ void GroundTruthDetectionsNode::on_detection(const lgsvl_msgs::msg::Detection3DA
 {
   autoware_auto_msgs::msg::DetectedObjects detected_objects;
   detected_objects.header = msg.header;
-  // TODO Should the frame be updated? It's done for the camera detections to kFrameId.
+  detected_objects.header.frame_id = kFrameId3d;
 
   detected_objects.objects.resize(msg.detections.size());
   const auto create_detected_object =

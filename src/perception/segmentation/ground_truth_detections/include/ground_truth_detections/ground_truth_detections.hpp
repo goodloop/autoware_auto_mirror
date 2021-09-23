@@ -50,7 +50,7 @@ autoware_auto_msgs::msg::ObjectClassification GROUND_TRUTH_DETECTIONS_PUBLIC mak
 
 /**
  * @brief Convert 2D bounding box from LGSVL format of center point, width, and height to a
- * polygon with four points
+ * polygon with four points in image coordinates.
  *
  * @param detection The 2D input detection
  * @return the output polygon. The first point is the lower left corner, the second point is the lower right corner etc.
@@ -67,13 +67,15 @@ autoware_auto_msgs::msg::DetectedObjectKinematics GROUND_TRUTH_DETECTIONS_PUBLIC
   const lgsvl_msgs::msg::Detection3D & detection);
 
 /**
- * @brief Make a shape from a 3D detection from SVL
+ * @brief Make a (2D + height) shape from a 3D detection from SVL
  *
- * Assume that the detection is level on the ground and that the input frame's z-axis is aligned
- * with gravity.
+ * The four points of the shape's polygon represent the bottom of the detection. The first point is
+ * the rear left corner, the second point is the rear right corner, the third point is the front
+ * right corner, and the fourth point is the front left corner.
  *
- * @warning Due to the above assumptions, this function is not suitable for a general conversion of
- * a detection into a shape.
+ * The z coordinate of all four points is identical and set to the minimum value of all points after
+ * rotating and translating in 3D. This assumes the detection is made in a frame whose z axis is
+ * gravity aligned.
  *
  * @param detection The 3D input detection
  */

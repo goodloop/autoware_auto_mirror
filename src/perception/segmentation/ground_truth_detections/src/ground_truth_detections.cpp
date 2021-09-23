@@ -16,11 +16,83 @@
 
 #include "ground_truth_detections/ground_truth_detections.hpp"
 #include <autoware_auto_msgs/msg/detected_object.hpp>
+#include <autoware_auto_tf2/tf2_autoware_auto_msgs.hpp>
 #include <geometry_msgs/msg/point.hpp>
+#include <geometry_msgs/msg/transform_stamped.hpp>
+#include <geometry_msgs/msg/vector3.hpp>
 #include <tf2/utils.h>
 #include <algorithm>
 #include <cmath>
 #include <string>
+
+namespace
+{
+/**
+ * Assume polygon has at least one point, else behavior is undefined
+ *
+ * @return Minimum z coordinate of polygon
+ */
+float_t minimum_z(const geometry_msgs::msg::Polygon & polygon)
+{
+  const auto it = std::min_element(
+    polygon.points.begin(), polygon.points.end(),
+    [](const geometry_msgs::msg::Point32 & a, const geometry_msgs::msg::Point32 & b)
+    {
+      return a.z < b.z;
+    });
+  return it->z;
+}
+
+template<typename T1, typename T2>
+T1 convert(const T2 & p);
+
+template<>
+geometry_msgs::msg::Vector3 convert(const geometry_msgs::msg::Point & p)
+{
+  geometry_msgs::msg::Vector3 v;
+  v.x = p.x;
+  v.y = p.y;
+  v.z = p.z;
+  return v;
+}
+
+template<>
+geometry_msgs::msg::Point32 convert(const geometry_msgs::msg::Vector3 & p_in)
+{
+  geometry_msgs::msg::Point32 p_out;
+  p_out.x = static_cast<float_t>(p_in.x);
+  p_out.y = static_cast<float_t>(p_in.y);
+  p_out.z = static_cast<float_t>(p_in.z);
+  return p_out;
+}
+
+geometry_msgs::msg::Polygon make_polygon_around_origin(
+  const lgsvl_msgs::msg::Detection3D & detection)
+{
+  // Polygon is 2D rectangle
+  geometry_msgs::msg::Polygon polygon;
+  auto & points = polygon.points;
+  points.resize(4);
+
+  // origin of reference system: centroid of bbox
+  const auto size = convert<geometry_msgs::msg::Point32>(detection.bbox.size);
+  points[0].x = -0.5F * size.x;
+  points[0].y = -0.5F * size.y;
+  points[0].z = -0.5F * size.z;
+
+  points[1] = points[0];
+  points[1].y += size.y;
+
+  points[2] = points[1];
+  points[2].x += size.x;
+
+  points[3] = points[2];
+  points[3].y -= size.y;
+
+  return polygon;
+}
+
+}  // namespace
 
 namespace autoware
 {
@@ -55,8 +127,8 @@ geometry_msgs::msg::Polygon make_polygon(const lgsvl_msgs::msg::Detection2D & de
   auto & points = polygon.points;
   // implicitly assign 0 to z coordinate
   points.resize(4);
-  const float width = detection.bbox.width;
-  const float height = detection.bbox.height;
+  const float_t width = detection.bbox.width;
+  const float_t height = detection.bbox.height;
 
   // clip coordinates to avoid negative values due to rounding.
   // Can't clip upper bound because image size not known.
@@ -99,64 +171,26 @@ autoware_auto_msgs::msg::DetectedObjectKinematics make_kinematics(
          .has_twist_covariance(false);
 }
 
-/**
- * Assume z-axis of bounding box of `detection` is aligned with gravity and object not tilted.
- *
- * @return Minimum z coordinate of detection
- */
-float minimum_z(const lgsvl_msgs::msg::Detection3D & detection)
-{
-  return static_cast<float>(detection.bbox.position.position.z - 0.5 * detection.bbox.size.z);
-}
-
-/**
- * Assume that `detection` is on the ground and not tilted.
- *
- * @return Height of `detection` inferred from bounding box
- */
-float height(const lgsvl_msgs::msg::Detection3D & detection)
-{
-  return static_cast<float>(detection.bbox.size.z);
-}
-
 autoware_auto_msgs::msg::Shape make_shape(const lgsvl_msgs::msg::Detection3D & detection)
 {
-  // Polygon is 2D rectangle + height
-  geometry_msgs::msg::Polygon polygon;
-  auto & points = polygon.points;
-  points.resize(4);
+  geometry_msgs::msg::Polygon polygon_in = make_polygon_around_origin(detection);
+  geometry_msgs::msg::Polygon polygon_out;
 
-  // origin of reference system: centroid of bbox
-  const auto & size = detection.bbox.size;
-  points[0].x = static_cast<float>(-0.5 * size.x);
-  points[0].y = static_cast<float>(-0.5 * size.y);
-  points[0].z = minimum_z(detection);
+  // header and child_frame_id not needed
+  geometry_msgs::msg::TransformStamped tf;
+  tf.transform.translation = convert<geometry_msgs::msg::Vector3>(detection.bbox.position.position);
+  tf.transform.rotation = detection.bbox.position.orientation;
 
-  points[1] = points[0];
-  points[1].x += static_cast<float>(size.x);
+  tf2::doTransform(polygon_in, polygon_out, tf);
 
-  points[2] = points[1];
-  points[2].y += static_cast<float>(size.y);
-
-  points[3] = points[2];
-  points[3].x -= static_cast<float>(size.x);
-
-  using std::sin;
-  using std::cos;
-
-  // rotate rectangle corners in bbox-local coordinate system around z-axis, then translate
-  const auto yaw = static_cast<float>(tf2::getYaw(detection.bbox.position.orientation));
-  for (auto & corner : polygon.points) {
-    const auto x = corner.x;
-    corner.x = x * cos(yaw) - corner.y * sin(yaw) +
-      static_cast<float>(detection.bbox.position.position.x);
-    corner.y = x * sin(yaw) + corner.y * cos(yaw) +
-      static_cast<float>(detection.bbox.position.position.y);
-  }
+  const auto min_z = minimum_z(polygon_out);
+  std::for_each(
+    polygon_out.points.begin(), polygon_out.points.end(),
+    [min_z](geometry_msgs::msg::Point32 & p) {p.z = min_z;});
 
   return autoware_auto_msgs::build<autoware_auto_msgs::msg::Shape>()
-         .polygon(polygon)
-         .height(height(detection));
+         .polygon(polygon_out)
+         .height(static_cast<float_t>(detection.bbox.size.z));
 }
 
 }  // namespace ground_truth_detections

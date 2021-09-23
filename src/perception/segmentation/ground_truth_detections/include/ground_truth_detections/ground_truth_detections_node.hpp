@@ -54,10 +54,11 @@ private:
 
   rclcpp::Publisher<autoware_auto_msgs::msg::ClassifiedRoiArray>::SharedPtr m_detection2d_pub{};
   rclcpp::Subscription<lgsvl_msgs::msg::Detection2DArray>::SharedPtr m_detection2d_sub{};
-  static constexpr char kFrameId[] = "camera";
+  static constexpr char kFrameId2d[] = "camera";
 
   rclcpp::Publisher<autoware_auto_msgs::msg::DetectedObjects>::SharedPtr m_detection3d_pub{};
   rclcpp::Subscription<lgsvl_msgs::msg::Detection3DArray>::SharedPtr m_detection3d_sub{};
+  static constexpr char kFrameId3d[] = "base_link";
 };
 }  // namespace ground_truth_detections
 }  // namespace autoware

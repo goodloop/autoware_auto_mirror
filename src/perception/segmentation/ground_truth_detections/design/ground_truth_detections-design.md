@@ -123,14 +123,28 @@ values is performed:
 | anything else | `UNKNOWN`    |
 
 For 2D detections, the coordinates of bounding boxes in camera coordinates are converted to polygons
-in camera coordinates with four points. The first point is the lower left corner, the second is the
-lower right corner etc. The coordinates are guaranteed to be non-negative.
+in camera coordinates with four points. The points are ordered counter-clockwise:
 
-For 3D detections, the coordinates of bounding boxes are transformed to a `Shape` object made up of
-a polygon with four points and a height. Check the `Shape` [message
+1. bottom left
+1. bottom right
+1. upper right
+1. upper left
+
+The coordinates are guaranteed to be non-negative.
+
+For 3D detections, the coordinates of bounding boxes are transformed to an oriented `Shape` object
+made up of a polygon with four points and a height. The four points represent the bottom of the object
+and are ordered counter-clockwise:
+
+1. rear left
+1. rear right
+1. front right
+1. front left
+
+Check the `Shape` [message
 definition](https://gitlab.com/autowarefoundation/autoware.auto/autoware_auto_msgs/-/blob/master/autoware_auto_msgs/msg/Shape.idl)
-to learn more about constraints on its members. Looking down on the bounding box, the first point is the lower left corner, the second
-is the lower right corner etc.
+to learn more about constraints on its members. Roll, pitch, and yaw of the input bounding box are
+considered but the z value of all points on output are set equal.
 
 ## Error detection and handling
 <!-- Required -->
