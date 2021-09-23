@@ -15,16 +15,10 @@ ade --rc .aderc-amd64-foxy-lgsvl start --update --enter
 ```
 cd AutowareAuto
 ```
-* import required repos
+* import required repos install dependencies for `scenario_test_runner` that are not present in ADE
 ```
 vcs import < autoware.auto.foxy.repos
 ./get_scenario_simulator_v2.sh
-```
-* install dependencies for `scenario_test_runner` that are not present in ADE
-```
-sudo apt-get update
-rosdep update
-rosdep install --from-paths src --ignore-src -y
 ```
 * build Autoware, `scenario_test_runner` and `kashiwanoha_map` (needed for this demo only) 
  ```
