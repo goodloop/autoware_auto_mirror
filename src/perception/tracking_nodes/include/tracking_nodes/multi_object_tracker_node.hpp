@@ -100,7 +100,7 @@ private:
   // Visualization variables
   bool8_t m_visualize_track_creation = false;
   std::experimental::optional<perception::tracking::AssociationVisualizer2D>
-      m_track_creation_visualizer2d;
+  m_track_creation_visualizer2d;
   rclcpp::Subscription<sensor_msgs::msg::CompressedImage>::SharedPtr m_raw_img_sub;
   message_filters::Cache<sensor_msgs::msg::CompressedImage> m_raw_img_cache;
   rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr m_2d_visualization_pub;
