@@ -73,11 +73,36 @@ def generate_launch_description():
             ("points_clustered", "cluster_points")
         ])
 
-    vision_detections = Node(
+    vision_detections_right = Node(
             name='vision_detections',
             executable='ground_truth_detections_node_exe',
             package='ground_truth_detections',
-            on_exit=Shutdown()
+            on_exit=Shutdown(),
+            remappings=[
+                ("/simulator/ground_truth/detections2D",
+                 "/simulator/ground_truth/camera_right/detections2D"),
+                ("/perception/ground_truth_detections_2d",
+                 "/perception/ground_truth/camera_right_2d")
+            ],
+            parameters=[
+                {"vision_frame_id": "camera_right"}
+            ]
+    )
+
+    vision_detections_left = Node(
+        name='vision_detections',
+        executable='ground_truth_detections_node_exe',
+        package='ground_truth_detections',
+        on_exit=Shutdown(),
+        remappings=[
+            ("/simulator/ground_truth/detections2D",
+             "/simulator/ground_truth/camera_left/detections2D"),
+            ("/perception/ground_truth_detections_2d",
+             "/perception/ground_truth/camera_left_2d")
+        ],
+        parameters=[
+            {"vision_frame_id": "camera_left"}
+        ]
     )
 
     # point cloud filter transform param file shared by front and rear instances
@@ -155,7 +180,8 @@ def generate_launch_description():
         remappings=[
             ("detected_objects", "/lidars/lidar_detected_objects"),
             ("ego_state", "/vehicle/odom_pose"),
-            ("classified_rois", "/perception/ground_truth_detections_2d")
+            ("classified_rois1", "/perception/ground_truth/camera_left_2d"),
+            ("classified_rois2", "/perception/ground_truth/camera_right_2d")
         ],
         condition=LaunchConfigurationEquals('use_ndt', 'False')
     )
@@ -176,7 +202,8 @@ def generate_launch_description():
         remappings=[
             ("detected_objects", "/lidars/lidar_detected_objects"),
             ("ego_state", "/localization/odometry"),
-            ("classified_rois", "/perception/ground_truth_detections_2d")
+            ("classified_rois1", "/perception/ground_truth/camera_left_2d"),
+            ("classified_rois2", "/perception/ground_truth/camera_right_2d")
         ],
         condition=IfCondition(LaunchConfiguration('use_ndt'))
     )
@@ -268,30 +295,59 @@ def generate_launch_description():
         parameters=[{'robot_description': urdf_file}],
     )
 
-    lidar_projector = Node(
-        name='lidar_projector',
+    lidar_projector_right = Node(
+        name='lidar_projector_right',
         package='cluster_projection_node',
         executable='cluster_projection_node_exe',
         parameters=[get_param_file('cluster_projection_node',
-                                   'cluster_projection_node.param.yaml')],
+                                   'cluster_projection_node.param.yaml'),
+                    {"camera_frame": "camera_right"}],
         remappings=[
             ("/clusters_in", "/perception/associated_detections"),
-            ("/projected_clusters", "/track_creating_projections"),
+            ("/projected_clusters", "/projected_clusters_on_right_camera")
         ],
         on_exit=Shutdown()
     )
 
-    image_visualizer = Node(
-        name='image_visualizer',
+    lidar_projector_left = Node(
+        name='lidar_projector_left',
+        package='cluster_projection_node',
+        executable='cluster_projection_node_exe',
+        parameters=[get_param_file('cluster_projection_node',
+                                   'cluster_projection_node.param.yaml'),
+                    {"camera_frame": "camera_left"}],
+        remappings=[
+            ("/clusters_in", "/perception/associated_detections"),
+            ("/projected_clusters", "/projected_clusters_on_left_camera")
+        ],
+        on_exit=Shutdown()
+    )
+
+    image_visualizer_right = Node(
+        name='image_visualizer_right',
         package='detection_2d_visualizer',
         executable='detection_2d_visualizer_node_exe',
         on_exit=Shutdown(),
         parameters=[get_param_file('autoware_demos',
                                    'tracker_detection_visualization.param.yaml')],
         remappings=[
-            ("/projections", "/track_creating_projections"),
-            ("/rois", "perception/ground_truth_detections_2d"),
-            ("/image_with_detections", "/image_with_detections")
+            ("/projections", "/projected_clusters_on_right_camera"),
+            ("/simulator/main_camera", "/simulator/camera_right"),
+            ("/perception/ground_truth_detections_2d", "/perception/ground_truth/camera_right_2d"),
+            ("image_with_detections", "image_right_with_detections")
+        ]
+    )
+
+    image_visualizer_left = Node(
+        name='image_visualizer_left',
+        package='detection_2d_visualizer',
+        executable='detection_2d_visualizer_node_exe',
+        on_exit=Shutdown(),
+        remappings=[
+            ("/projections", "/projected_clusters_on_left_camera"),
+            ("/simulator/main_camera", "/simulator/camera_left"),
+            ("/perception/ground_truth_detections_2d", "/perception/ground_truth/camera_left_2d"),
+            ("image_with_detections", "image_left_with_detections")
         ]
     )
 
@@ -310,7 +366,8 @@ def generate_launch_description():
         use_ndt,
         covariance_insertion,
         euclidean_clustering,
-        vision_detections,
+        vision_detections_left,
+        vision_detections_right,
         filter_transform_vlp16_front,
         filter_transform_vlp16_rear,
         lgsvl_interface,
@@ -324,6 +381,8 @@ def generate_launch_description():
         rviz_runner,
         state_estimation,
         voxel_grid_downsampling,
-        lidar_projector,
-        image_visualizer
+        lidar_projector_right,
+        lidar_projector_left,
+        image_visualizer_right,
+        image_visualizer_left
     ])
