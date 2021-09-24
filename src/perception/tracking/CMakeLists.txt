@@ -37,7 +37,6 @@ set(TRACKING_LIB_SRC
   src/track_creator.cpp
   src/tracked_object.cpp
   src/projection.cpp
-    src/association_visualizer2d.cpp
 )
 
 set(TRACKING_LIB_HEADERS
@@ -48,7 +47,6 @@ set(TRACKING_LIB_HEADERS
   include/tracking/tracked_object.hpp
   include/tracking/tracker_types.hpp
   include/tracking/visibility_control.hpp
-    include/tracking/association_visualizer2d.hpp
 )
 
 # generate library
