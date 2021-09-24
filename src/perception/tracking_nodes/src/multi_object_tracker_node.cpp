@@ -298,7 +298,8 @@ void MultiObjectTrackerNode::maybe_visualize(const DetectedObjectsUpdateResult &
   if (!result.track_creation_summary.maybe_vision_associations || !m_visualize_track_creation) {
     return;
   }
-  constexpr auto time_tol = std::chrono::milliseconds{20U};
+  // There's a delay between the latest available roi and the raw img.
+  constexpr auto time_tol = std::chrono::milliseconds{350U};
   const auto & rois = result.track_creation_summary.maybe_vision_associations->rois;
   // For foxy time has to be initialized explicitly with sec, nanosec constructor to use the
   // correct clock source when querying message_filters::cache.
@@ -315,7 +316,7 @@ void MultiObjectTrackerNode::maybe_visualize(const DetectedObjectsUpdateResult &
   const auto & raw_img = raw_images.back();
 
   auto vis_img = m_track_creation_visualizer2d->draw_association(
-      raw_img, result.track_creation_summary.maybe_vision_associations.value());
+    raw_img, result.track_creation_summary.maybe_vision_associations.value());
 
   vis_img.header = raw_img->header;
   m_2d_visualization_pub->publish(vis_img);
