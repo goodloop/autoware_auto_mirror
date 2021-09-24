@@ -211,10 +211,8 @@ MultiObjectTrackerNode::MultiObjectTrackerNode(const rclcpp::NodeOptions & optio
       throw std::runtime_error(
               "Visualization can only be enabled if the vision detections are enabled.");
     }
-    m_track_creating_rois_pub =
-      create_publisher<ClassifiedRoiArray>("track_creating_rois", m_history_depth);
     m_track_creating_clusters_pub =
-      create_publisher<DetectedObjects>("track_creating_clusters", m_history_depth);
+      create_publisher<DetectedObjects>("associated_detections", m_history_depth);
   }
 }
 
@@ -243,7 +241,7 @@ void MultiObjectTrackerNode::detected_objects_callback(const DetectedObjects::Co
   if (result.status == TrackerUpdateStatus::Ok) {
     m_track_publisher->publish(result.tracks);
     m_leftover_publisher->publish(result.unassigned_clusters);
-    maybe_visualize(result);
+    maybe_visualize(result, *objs);
   } else {
     RCLCPP_WARN(
       get_logger(), "Tracker update for vision detection at time %d.%d failed. Reason: %s",
@@ -257,30 +255,18 @@ void MultiObjectTrackerNode::classified_roi_callback(const ClassifiedRoiArray::C
   m_tracker.update(*rois);
 }
 
-void MultiObjectTrackerNode::maybe_visualize(const DetectedObjectsUpdateResult & result)
+void MultiObjectTrackerNode::maybe_visualize(
+  const DetectedObjectsUpdateResult & result,
+  DetectedObjects all_objects)
 {
-  if (!m_visualize_track_creation || !m_use_vision) {
+  if (!m_visualize_track_creation) {
     return;
   }
+  // Align the detections on time with the rois they are associated to.
   const auto & rois = result.track_creation_summary.maybe_vision_associations->rois;
-  const auto & objects = result.track_creation_summary.maybe_vision_associations->objects3d;
-  const auto & assignments = result.track_creation_summary.maybe_vision_associations->assignments;
-  ClassifiedRoiArray rois_out;
-  DetectedObjects objects_out;
+  all_objects.header.stamp = rois.header.stamp;
 
-  rois_out.header = rois.header;
-  objects_out.header = objects.header;
-  objects_out.header.stamp = rois_out.header.stamp;
-
-  for (auto obj_id = 0U; obj_id < assignments.track_assignments.size(); ++obj_id) {
-    const auto roi_id = assignments.track_assignments[obj_id];
-    if (roi_id != perception::tracking::AssociatorResult::UNASSIGNED) {
-      rois_out.rois.push_back(rois.rois[roi_id]);
-      objects_out.objects.push_back(objects.objects[obj_id]);
-    }
-  }
-  m_track_creating_clusters_pub->publish(objects_out);
-  m_track_creating_rois_pub->publish(rois_out);
+  m_track_creating_clusters_pub->publish(all_objects);
 }
 }  // namespace tracking_nodes
 }  // namespace autoware

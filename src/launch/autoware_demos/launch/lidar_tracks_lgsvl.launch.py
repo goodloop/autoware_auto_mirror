@@ -275,7 +275,8 @@ def generate_launch_description():
         parameters=[get_param_file('cluster_projection_node',
                                    'cluster_projection_node.param.yaml')],
         remappings=[
-            ("/clusters_in", "/lidars/lidar_detected_objects"),
+            ("/clusters_in", "/perception/associated_detections"),
+            ("/projected_clusters", "/track_creating_projections"),
         ],
         on_exit=Shutdown()
     )
@@ -286,33 +287,9 @@ def generate_launch_description():
         executable='detection_2d_visualizer_node_exe',
         on_exit=Shutdown(),
         remappings=[
-            ("/projections", "/projected_clusters"),
-            ("/rois", "/perception/ground_truth_detections_2d")
-        ]
-    )
-
-    track_creating_lidar_projector = Node(
-        name='lidar_projector',
-        package='cluster_projection_node',
-        executable='cluster_projection_node_exe',
-        parameters=[get_param_file('cluster_projection_node',
-                                   'cluster_projection_node.param.yaml')],
-        remappings=[
-            ("/clusters_in", "/perception/track_creating_clusters"),
-            ("/projected_clusters", "/track_creating_projections"),
-        ],
-        on_exit=Shutdown()
-    )
-
-    track_creating_image_visualizer = Node(
-        name='image_visualizer',
-        package='detection_2d_visualizer',
-        executable='detection_2d_visualizer_node_exe',
-        on_exit=Shutdown(),
-        remappings=[
             ("/projections", "/track_creating_projections"),
-            ("/rois", "/perception/track_creating_rois"),
-            ("/image_with_detections", "/image_with_track_creating_associations")
+            ("/rois", "perception/ground_truth_detections_2d"),
+            ("/image_with_detections", "/image_with_detections")
         ]
     )
 
@@ -346,7 +323,5 @@ def generate_launch_description():
         state_estimation,
         voxel_grid_downsampling,
         lidar_projector,
-        image_visualizer,
-        track_creating_lidar_projector,
-        track_creating_image_visualizer
+        image_visualizer
     ])

@@ -91,10 +91,12 @@ private:
   rclcpp::Publisher<autoware_auto_msgs::msg::DetectedObjects>::SharedPtr m_leftover_publisher{};
 
   // Visualization variables & functions
-  void maybe_visualize(const perception::tracking::DetectedObjectsUpdateResult & result);
+  void maybe_visualize(
+    const perception::tracking::DetectedObjectsUpdateResult & result,
+    DetectedObjects all_objects);
 
   bool8_t m_visualize_track_creation = false;
-  rclcpp::Publisher<ClassifiedRoiArray>::SharedPtr m_track_creating_rois_pub;
+
   rclcpp::Publisher<DetectedObjects>::SharedPtr m_track_creating_clusters_pub;
 };
 

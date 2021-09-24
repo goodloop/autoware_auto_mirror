@@ -32,8 +32,8 @@ Detection2dVisualizerNode::Detection2dVisualizerNode(const rclcpp::NodeOptions &
   m_roi_sub(this, "/rois"),
   m_projection_sub(this, "/projections"),
   m_sync_ptr(std::make_unique<message_filters::Synchronizer<Policy>>(
-      Policy(50), m_image_sub, m_roi_sub, m_projection_sub)),
-  m_image_pub{create_publisher<sensor_msgs::msg::Image>("/image_with_detections", rclcpp::QoS{10})}
+      Policy(100), m_image_sub, m_roi_sub, m_projection_sub)),
+  m_image_pub{create_publisher<sensor_msgs::msg::Image>("/image_with_detections", rclcpp::QoS{20})}
 {
   m_sync_ptr->registerCallback(
     std::bind(
