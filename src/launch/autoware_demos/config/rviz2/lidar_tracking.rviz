@@ -193,7 +193,7 @@ Visualization Manager:
       Max Value: 1
       Median window: 5
       Min Value: 0
-      Name: Image
+      Name: All detections
       Normalize Range: true
       Topic:
         Depth: 5
@@ -274,14 +274,14 @@ Visualization Manager:
       Max Value: 1
       Median window: 5
       Min Value: 0
-      Name: Image
+      Name: Track Creation
       Normalize Range: true
       Topic:
         Depth: 15
         Durability Policy: Volatile
         History Policy: Keep Last
         Reliability Policy: Reliable
-        Value: perception/track_creation_associations
+        Value: image_with_track_creating_associations
       Value: true
   Enabled: true
   Global Options:
