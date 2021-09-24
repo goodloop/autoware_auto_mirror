@@ -32,13 +32,10 @@
 #include <mpark_variant_vendor/variant.hpp>
 #include <nav_msgs/msg/odometry.hpp>
 #include <rclcpp/rclcpp.hpp>
-#include <sensor_msgs/msg/compressed_image.hpp>
-#include <sensor_msgs/msg/image.hpp>
 #include <tf2/buffer_core.h>
 #include <tf2_msgs/msg/tf_message.hpp>
 #include <tf2_ros/transform_listener.h>
 #include <tracking/multi_object_tracker.hpp>
-#include <tracking/association_visualizer2d.hpp>
 #include <tracking_nodes/visibility_control.hpp>
 
 #include <memory>
@@ -77,7 +74,6 @@ private:
   tf2::BufferCore m_tf_buffer;
   tf2_ros::TransformListener m_tf_listener;
 
-  autoware::perception::tracking::MultiObjectTrackerOptions m_tracker_options;
   /// The actual tracker implementation.
   autoware::perception::tracking::MultiObjectTracker m_tracker;
 
@@ -94,12 +90,12 @@ private:
   /// A publisher for all the leftover objects.
   rclcpp::Publisher<autoware_auto_msgs::msg::DetectedObjects>::SharedPtr m_leftover_publisher{};
 
-  // Visualization functions
+  // Visualization variables & functions
+  void maybe_visualize(const perception::tracking::DetectedObjectsUpdateResult & result);
+
+  bool8_t m_visualize_track_creation = false;
   rclcpp::Publisher<ClassifiedRoiArray>::SharedPtr m_track_creating_rois_pub;
   rclcpp::Publisher<DetectedObjects>::SharedPtr m_track_creating_clusters_pub;
-  // Visualization variables
-  bool8_t m_visualize_track_creation = false;
-  void maybe_visualize(const perception::tracking::DetectedObjectsUpdateResult & result);
 };
 
 }  // namespace tracking_nodes

@@ -43,7 +43,6 @@ using autoware::perception::tracking::TrackerUpdateStatus;
 using autoware::perception::tracking::GreedyRoiAssociatorConfig;
 using autoware::perception::tracking::CameraIntrinsics;
 using autoware::perception::tracking::VisionPolicyConfig;
-using perception::tracking::AssociationVisualizer2D;
 using autoware_auto_msgs::msg::DetectedObjects;
 using autoware_auto_msgs::msg::TrackedObjects;
 using nav_msgs::msg::Odometry;
@@ -57,9 +56,10 @@ constexpr std::chrono::milliseconds kMaxVisionEgoStateStampDiff{100};
 constexpr std::int64_t kDefaultHistoryDepth{20};
 constexpr std::int64_t kDefaultPoseHistoryDepth{100};
 
-MultiObjectTrackerOptions make_options(
+MultiObjectTracker init_tracker(
   rclcpp::Node & node,
-  const bool8_t use_vision)
+  const bool8_t use_vision,
+  tf2::BufferCore & tf_buffer)
 {
   const float32_t max_distance =
     static_cast<float32_t>(node.declare_parameter(
@@ -123,9 +123,10 @@ MultiObjectTrackerOptions make_options(
   creator_config.default_variance = default_variance;
   creator_config.noise_variance = noise_variance;
 
-  return MultiObjectTrackerOptions{
+  MultiObjectTrackerOptions options{
     {max_distance, max_area_ratio, consider_edge_for_big_detections}, vision_config,
     creator_config, pruning_time_threshold, pruning_ticks_threshold, frame};
+  return MultiObjectTracker{options, tf_buffer};
 }
 
 std::string status_to_string(TrackerUpdateStatus status)
@@ -175,8 +176,7 @@ MultiObjectTrackerNode::MultiObjectTrackerNode(const rclcpp::NodeOptions & optio
   m_history_depth{static_cast<std::size_t>(
       declare_parameter("history_depth", kDefaultHistoryDepth))},
   m_tf_listener{m_tf_buffer},
-  m_tracker_options{make_options(*this, m_use_vision)},
-  m_tracker{m_tracker_options, m_tf_buffer},
+  m_tracker{init_tracker(*this, m_use_vision, m_tf_buffer)},
   m_track_publisher{create_publisher<TrackedObjects>("tracked_objects", m_history_depth)},
   m_leftover_publisher{create_publisher<DetectedObjects>("leftover_clusters", m_history_depth)},
   m_visualize_track_creation{this->declare_parameter("visualize_track_creation", false)}
@@ -212,9 +212,9 @@ MultiObjectTrackerNode::MultiObjectTrackerNode(const rclcpp::NodeOptions & optio
               "Visualization can only be enabled if the vision detections are enabled.");
     }
     m_track_creating_rois_pub =
-        create_publisher<ClassifiedRoiArray>("track_creating_rois", m_history_depth);
+      create_publisher<ClassifiedRoiArray>("track_creating_rois", m_history_depth);
     m_track_creating_clusters_pub =
-        create_publisher<DetectedObjects>("track_creating_clusters", m_history_depth);
+      create_publisher<DetectedObjects>("track_creating_clusters", m_history_depth);
   }
 }
 
@@ -259,7 +259,7 @@ void MultiObjectTrackerNode::classified_roi_callback(const ClassifiedRoiArray::C
 
 void MultiObjectTrackerNode::maybe_visualize(const DetectedObjectsUpdateResult & result)
 {
-  if(!m_visualize_track_creation || !m_use_vision){
+  if (!m_visualize_track_creation || !m_use_vision) {
     return;
   }
   const auto & rois = result.track_creation_summary.maybe_vision_associations->rois;
@@ -272,9 +272,9 @@ void MultiObjectTrackerNode::maybe_visualize(const DetectedObjectsUpdateResult &
   objects_out.header = objects.header;
   objects_out.header.stamp = rois_out.header.stamp;
 
-  for(auto obj_id = 0U; obj_id < assignments.track_assignments.size(); ++obj_id){
+  for (auto obj_id = 0U; obj_id < assignments.track_assignments.size(); ++obj_id) {
     const auto roi_id = assignments.track_assignments[obj_id];
-    if(roi_id != perception::tracking::AssociatorResult::UNASSIGNED){
+    if (roi_id != perception::tracking::AssociatorResult::UNASSIGNED) {
       rois_out.rois.push_back(rois.rois[roi_id]);
       objects_out.objects.push_back(objects.objects[obj_id]);
     }
