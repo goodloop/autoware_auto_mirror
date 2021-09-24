@@ -342,119 +342,34 @@ TEST_F(GroundTruth3dDetectionsTest, ReceiveDetections)
 
     ASSERT_EQ(s.polygon.points.size(), 4UL);
 
-    const auto & rear_left_corner = s.polygon.points[0];
-
-    // contract: all corners have same z value
-    const auto z = rear_left_corner.z;
+    // contract: all corners have zero z value
     for (size_t i = 1; i < 4; ++i) {
-      EXPECT_EQ(s.polygon.points[i].z, z) << i;
+      EXPECT_EQ(s.polygon.points[i].z, 0.0F) << i;
     }
 
-    // computed these values in julia
-    /*
-julia> using Rotations, StaticArrays
-julia> prl = SVector(-0.5*4.8, -0.5*2.15, -0.5*2.1) # rear left
-julia> prr = SVector(-0.5*4.8, 0.5*2.15, -0.5*2.1) # rear right
-julia> pfr = SVector(0.5*4.8, 0.5*2.15, -0.5*2.1) # front right
-julia> pfl = SVector(0.5*4.8, -0.5*2.15, -0.5*2.1) # front left
-julia> q = UnitQuaternion(0.861173, -0.0696078, 0.0795518, 0.497199)
-julia> centroid = SVector(15.3, 17.4, 9.9);
-julia> q*prl + centroid
-    */
-
     {
-      EXPECT_FLOAT_EQ(rear_left_corner.x, 14.978263177581667F);
-      EXPECT_FLOAT_EQ(rear_left_corner.y, 14.629309308702421F);
-
-      // this corner's z value is 9.412266968253025F before setting to the minimum value that comes
-      // from the front right corner in this case
-      EXPECT_FLOAT_EQ(rear_left_corner.z, 8.334662740207106F);
+      const auto & rear_left_corner = s.polygon.points[0];
+      EXPECT_FLOAT_EQ(rear_left_corner.x, -0.5F * CAR_BBOX_3D_LENGTH);
+      EXPECT_FLOAT_EQ(rear_left_corner.y, -0.5F * CAR_BBOX_3D_WIDTH);
     }
 
     {
       const auto & rear_right_corner = s.polygon.points[1];
-      EXPECT_FLOAT_EQ(rear_right_corner.x, 13.113301620469352F);
-      EXPECT_FLOAT_EQ(rear_right_corner.y, 15.695484791271143F);
-
-      // this corner's z value is 9.324584410908033F before setting to the minimum value that comes
-      // from the front right corner in this case
+      EXPECT_FLOAT_EQ(rear_right_corner.x, -0.5F * CAR_BBOX_3D_LENGTH);
+      EXPECT_FLOAT_EQ(rear_right_corner.y, +0.5F * CAR_BBOX_3D_WIDTH);
     }
-
 
     {
       const auto & front_right_corner = s.polygon.points[2];
-      EXPECT_FLOAT_EQ(front_right_corner.x, 15.479361231963235F);
-      EXPECT_FLOAT_EQ(front_right_corner.y, 19.752801269034997F);
+      EXPECT_FLOAT_EQ(front_right_corner.x, +0.5F * CAR_BBOX_3D_LENGTH);
+      EXPECT_FLOAT_EQ(front_right_corner.y, +0.5F * CAR_BBOX_3D_WIDTH);
     }
 
     {
       const auto & front_left_corner = s.polygon.points[3];
-      EXPECT_FLOAT_EQ(front_left_corner.x, 17.34432278907555F);
-      EXPECT_FLOAT_EQ(front_left_corner.y, 18.686625786466273F);
-
-      // this corner's z value is 8.422345297552098F before setting to the minimum value that comes
-      // from the front right corner in this case
+      EXPECT_FLOAT_EQ(front_left_corner.x, +0.5F * CAR_BBOX_3D_LENGTH);
+      EXPECT_FLOAT_EQ(front_left_corner.y, -0.5F * CAR_BBOX_3D_WIDTH);
     }
-  }
-}
-
-TEST(test_make_shape, pure_rotation_around_z_by_90_degrees)
-{
-  auto detection = make_sample_detections_3d().detections.front();
-
-  // no translation
-  detection.bbox.position.position = geometry_msgs::msg::Point();
-  auto & q = detection.bbox.position.orientation;
-  q.x = 0.0;
-  q.y = 0.0;
-  q.z = M_SQRT1_2;
-  q.w = M_SQRT1_2;
-  auto & size = detection.bbox.size;
-  size.x = 2.0;
-  size.y = 4.0;
-  size.z = 8.0;
-
-  const auto shape = autoware::ground_truth_detections::make_shape(detection);
-
-  const auto & front_right_corner = shape.polygon.points[2];
-
-  EXPECT_FLOAT_EQ(front_right_corner.x, -2.F);
-  EXPECT_FLOAT_EQ(front_right_corner.y, +1.F);
-  // unaffected by rotation
-  EXPECT_FLOAT_EQ(front_right_corner.z, -4.F);
-}
-
-TEST(test_make_shape, pure_translation)
-{
-  auto detection = make_sample_detections_3d().detections.front();
-
-  // translation
-  auto & position = detection.bbox.position.position;
-  position.x = 1.0;
-  position.y = 2.0;
-  position.z = 4.0;
-
-  auto & size = detection.bbox.size;
-  size.x = 2.0;
-  size.y = 4.0;
-  size.z = 8.0;
-
-  // no rotation
-  detection.bbox.position.orientation = geometry_msgs::msg::Quaternion();
-
-  const auto shape = autoware::ground_truth_detections::make_shape(detection);
-
-  const auto & rear_left_corner = shape.polygon.points[0];
-
-  // translate only x and y
-  EXPECT_FLOAT_EQ(rear_left_corner.x, 0.F);
-  EXPECT_FLOAT_EQ(rear_left_corner.y, 0.F);
-
-  // minimum value unchanged
-  int i = 0;
-  for (const auto & corner : shape.polygon.points) {
-    EXPECT_FLOAT_EQ(corner.z, 0.F) << i;
-    ++i;
   }
 }
 

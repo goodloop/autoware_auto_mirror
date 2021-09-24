@@ -13,8 +13,8 @@ Autoware.Auto perception module.
 
 # Example Usage
 
-The following instructions for a minimal test environment to extract ground-truth detections assume
-LGSVL 2020.06.
+@note The following instructions for a minimal test environment to extract ground-truth detections
+assume LGSVL 2020.06.
 
 ### Configure the vehicle in LGSVL
 
@@ -30,12 +30,13 @@ To extract 3D ground-truth detections, add
 
 -# a virtual sensor of type [`3D Ground Truth`](https://www.svlsimulator.com/docs/archive/2020.06/sensor-json-options/#3d-ground-truth)
 
-Check the file `config/lgsvl-sensors-camera.json` in this package as a basis to configure these sensors
+Check the file `config/lgsvl-sensors-camera.json` in this package as a basis to configure these
 sensors and follow the
 [instructions](https://autowarefoundation.gitlab.io/autoware.auto/AutowareAuto/lgsvl.html#lgsvl-configuring-vehicle)
-to add them to vehicle configuration. The position (i.e. `transform`) of the camera, the other
-sensors, and their other properties may have to be adjusted for a particular vehicle model to avoid
-occlusions and missing detections.
+to add them to vehicle configuration. The position (i.e. `transform`) of the camera may have to be
+adjusted for a particular vehicle model to avoid occlusions and missing detections. The position of
+the `2D Ground Truth` sensor should coincide with a camera position. The position of the `3D Ground
+Truth` sensor is independent of the camera position and chosen as `base_link` for simplicity.
 
 ### Configure the visualization
 
@@ -92,17 +93,10 @@ and the ground-truth detections have to be output.
     - How do you use the package / API? -->
 This node has no ROS2 parameters.
 
-### Input/Output
-
-2D inputs on **topic** `/simulator/ground_truth/detections2D` of **type**
- [`lgsvl_msgs::msg::Detection2DArray`](https://github.com/lgsvl/lgsvl_msgs/blob/master/msg/Detection2DArray.msg)
- are converted to 2D outputs on **topic** `/perception/ground_truth_detections_2d` of **type**
- [`autoware_auto_msgs::msg::ClassifiedRoiArray`](https://gitlab.com/autowarefoundation/autoware.auto/autoware_auto_msgs/-/blob/master/autoware_auto_msgs/msg/ClassifiedRoiArray.idl).
-
-3D inputs on **topic** `/simulator/ground_truth/detections3D` of **type**
- [`lgsvl_msgs::msg::Detection3DArray`](https://github.com/lgsvl/lgsvl_msgs/blob/master/msg/Detection3DArray.msg)
- are converted to 3D outputs on **topic** `/perception/ground_truth_detections_3d` of **type**
- [`autoware_auto_msgs::msg::DetectedObjects`](https://gitlab.com/autowarefoundation/autoware.auto/autoware_auto_msgs/-/blob/master/autoware_auto_msgs/msg/DetectedObjects.idl).
+| input topic                            | input type                                                                                                      | output topic                             | output type                                                                                                                                                                         | output frame |
+|-----|----|----|----|---|
+| `/simulator/ground_truth/detections2D` | [`lgsvl_msgs::msg::Detection2DArray`](https://github.com/lgsvl/lgsvl_msgs/blob/master/msg/Detection2DArray.msg) | `/perception/ground_truth_detections_2d` | [`autoware_auto_msgs::msg::ClassifiedRoiArray`](https://gitlab.com/autowarefoundation/autoware.auto/autoware_auto_msgs/-/blob/master/autoware_auto_msgs/msg/ClassifiedRoiArray.idl) | `camera`     |
+| `/simulator/ground_truth/detections3D` | [`lgsvl_msgs::msg::Detection3DArray`](https://github.com/lgsvl/lgsvl_msgs/blob/master/msg/Detection3DArray.msg) | `/perception/ground_truth_detections_3d` | [`autoware_auto_msgs::msg::DetectedObjects`](https://gitlab.com/autowarefoundation/autoware.auto/autoware_auto_msgs/-/blob/master/autoware_auto_msgs/msg/DetectedObjects.idl)       | `base_link`  |
 
 ## Inner-workings / Algorithms
 <!-- If applicable -->
@@ -125,26 +119,27 @@ values is performed:
 For 2D detections, the coordinates of bounding boxes in camera coordinates are converted to polygons
 in camera coordinates with four points. The points are ordered counter-clockwise:
 
-1. bottom left
-1. bottom right
-1. upper right
-1. upper left
+-# bottom left
+-# bottom right
+-# upper right
+-# upper left
 
 The coordinates are guaranteed to be non-negative.
 
 For 3D detections, the coordinates of bounding boxes are transformed to an oriented `Shape` object
-made up of a polygon with four points and a height. The four points represent the bottom of the object
-and are ordered counter-clockwise:
+made up of a polygon with four points and a height. The four points represent the bottom of the
+object in object-local coordinates and are ordered counter-clockwise:
 
-1. rear left
-1. rear right
-1. front right
-1. front left
+-# rear left
+-# rear right
+-# front right
+-# front left
 
 Check the `Shape` [message
 definition](https://gitlab.com/autowarefoundation/autoware.auto/autoware_auto_msgs/-/blob/master/autoware_auto_msgs/msg/Shape.idl)
-to learn more about constraints on its members. Roll, pitch, and yaw of the input bounding box are
-considered but the z value of all points on output are set equal.
+to learn more about constraints on its members. The z value of each corner is zero. The position and
+orientation of the object (in `base_link` coordinates) are not stored in the shape but rather in the
+[kinematics](https://gitlab.com/autowarefoundation/autoware.auto/autoware_auto_msgs/-/blob/master/autoware_auto_msgs/msg/DetectedObjectKinematics.idl).
 
 ## Error detection and handling
 <!-- Required -->
@@ -160,7 +155,7 @@ The only check is to ensure that corners of the bounding box in 2D are not negat
 <!-- Optional -->
 
 1. The object type itself is not exposed by LGSVL, so the current mapping depends on the label and needs to be extended for maps with other vehicle labels.
-1. The implementation assumes that all objects are level on the ground; i.e., they are not tilted and roll and pitch are ignored.
+1. The coordinate frame id is hard coded and could be made configurable to support more advanced sensor setups.
 
 # Related issues
 <!-- Required -->

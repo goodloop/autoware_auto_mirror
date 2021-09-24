@@ -16,45 +16,16 @@
 
 #include "ground_truth_detections/ground_truth_detections.hpp"
 #include <autoware_auto_msgs/msg/detected_object.hpp>
-#include <autoware_auto_tf2/tf2_autoware_auto_msgs.hpp>
 #include <geometry_msgs/msg/point.hpp>
-#include <geometry_msgs/msg/transform_stamped.hpp>
 #include <geometry_msgs/msg/vector3.hpp>
-#include <tf2/utils.h>
 #include <algorithm>
 #include <cmath>
 #include <string>
 
 namespace
 {
-/**
- * Assume polygon has at least one point, else behavior is undefined
- *
- * @return Minimum z coordinate of polygon
- */
-float_t minimum_z(const geometry_msgs::msg::Polygon & polygon)
-{
-  const auto it = std::min_element(
-    polygon.points.begin(), polygon.points.end(),
-    [](const geometry_msgs::msg::Point32 & a, const geometry_msgs::msg::Point32 & b)
-    {
-      return a.z < b.z;
-    });
-  return it->z;
-}
-
 template<typename T1, typename T2>
 T1 convert(const T2 & p);
-
-template<>
-geometry_msgs::msg::Vector3 convert(const geometry_msgs::msg::Point & p)
-{
-  geometry_msgs::msg::Vector3 v;
-  v.x = p.x;
-  v.y = p.y;
-  v.z = p.z;
-  return v;
-}
 
 template<>
 geometry_msgs::msg::Point32 convert(const geometry_msgs::msg::Vector3 & p_in)
@@ -75,10 +46,10 @@ geometry_msgs::msg::Polygon make_polygon_around_origin(
   points.resize(4);
 
   // origin of reference system: centroid of bbox
-  const auto size = convert<geometry_msgs::msg::Point32>(detection.bbox.size);
+  const auto size = ::convert<geometry_msgs::msg::Point32>(detection.bbox.size);
   points[0].x = -0.5F * size.x;
   points[0].y = -0.5F * size.y;
-  points[0].z = -0.5F * size.z;
+  points[0].z = 0.0F;
 
   points[1] = points[0];
   points[1].y += size.y;
@@ -173,23 +144,8 @@ autoware_auto_msgs::msg::DetectedObjectKinematics make_kinematics(
 
 autoware_auto_msgs::msg::Shape make_shape(const lgsvl_msgs::msg::Detection3D & detection)
 {
-  geometry_msgs::msg::Polygon polygon_in = make_polygon_around_origin(detection);
-  geometry_msgs::msg::Polygon polygon_out;
-
-  // header and child_frame_id not needed
-  geometry_msgs::msg::TransformStamped tf;
-  tf.transform.translation = convert<geometry_msgs::msg::Vector3>(detection.bbox.position.position);
-  tf.transform.rotation = detection.bbox.position.orientation;
-
-  tf2::doTransform(polygon_in, polygon_out, tf);
-
-  const auto min_z = minimum_z(polygon_out);
-  std::for_each(
-    polygon_out.points.begin(), polygon_out.points.end(),
-    [min_z](geometry_msgs::msg::Point32 & p) {p.z = min_z;});
-
   return autoware_auto_msgs::build<autoware_auto_msgs::msg::Shape>()
-         .polygon(polygon_out)
+         .polygon(make_polygon_around_origin(detection))
          .height(static_cast<float_t>(detection.bbox.size.z));
 }
 
