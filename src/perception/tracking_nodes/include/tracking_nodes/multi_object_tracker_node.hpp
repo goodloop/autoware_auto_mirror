@@ -95,15 +95,11 @@ private:
   rclcpp::Publisher<autoware_auto_msgs::msg::DetectedObjects>::SharedPtr m_leftover_publisher{};
 
   // Visualization functions
-  void raw_img_callback(sensor_msgs::msg::CompressedImage::ConstSharedPtr img_ptr);
-  void maybe_visualize(const perception::tracking::DetectedObjectsUpdateResult & result);
+  rclcpp::Publisher<ClassifiedRoiArray>::SharedPtr m_track_creating_rois_pub;
+  rclcpp::Publisher<DetectedObjects>::SharedPtr m_track_creating_clusters_pub;
   // Visualization variables
   bool8_t m_visualize_track_creation = false;
-  std::experimental::optional<perception::tracking::AssociationVisualizer2D>
-  m_track_creation_visualizer2d;
-  rclcpp::Subscription<sensor_msgs::msg::CompressedImage>::SharedPtr m_raw_img_sub;
-  message_filters::Cache<sensor_msgs::msg::CompressedImage> m_raw_img_cache;
-  rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr m_2d_visualization_pub;
+  void maybe_visualize(const perception::tracking::DetectedObjectsUpdateResult & result);
 };
 
 }  // namespace tracking_nodes
