@@ -286,6 +286,8 @@ def generate_launch_description():
         package='detection_2d_visualizer',
         executable='detection_2d_visualizer_node_exe',
         on_exit=Shutdown(),
+        parameters=[get_param_file('autoware_demos',
+                                   'tracker_detection_visualization.param.yaml')],
         remappings=[
             ("/projections", "/track_creating_projections"),
             ("/rois", "perception/ground_truth_detections_2d"),
