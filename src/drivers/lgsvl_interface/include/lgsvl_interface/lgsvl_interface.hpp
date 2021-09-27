@@ -104,7 +104,6 @@ public:
     Table1D && throttle_table,
     Table1D && brake_table,
     Table1D && steer_table,
-    rclcpp::Publisher<autoware_auto_msgs::msg::HeadlightsReport>::SharedPtr headlights_report_pub,
     bool publish_tf = NO_PUBLISH,
     bool publish_pose = PUBLISH);
 
@@ -129,8 +128,6 @@ public:
   void send_horn_command(const autoware_auto_msgs::msg::HornCommand & msg) override;
   /// Send wipers command data.
   void send_wipers_command(const autoware_auto_msgs::msg::WipersCommand & msg) override;
-  /// Send hazard_lights command data.
-  void send_hazard_lights_command(const autoware_auto_msgs::msg::HazardLightsCommand & msg) override;
 
 private:
   // Mappings from Autoware to LGSVL values
