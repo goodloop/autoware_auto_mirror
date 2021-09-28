@@ -138,105 +138,72 @@ offending lines in the code.
 ### Using ament_clang_format
 
 `ament_uncrustify --reformat` is able to format the code to a degree but its results
-are generally not enough to pass `ament_cpplint`. To automate the process, 
-`ament_clang_format` can be used like: 
-`ament_clang_format --config AutowareAuto/.clang-format --reformat file.cpp`.
-
-A way to use all these 3 tools is as follows:
-- `ament_clang_format --config AutowareAuto/.clang-format --reformat file.cpp`
-- `ament_uncrustify --reformat file.cpp`
-- `ament_cpplint file.cpp`
-- Fix errors stated
-- Repeat previous 4 steps until ament_uncrustify and ament_cpplint give no more errors.
-
-#### Header Reordering Issues
-
-Sometimes `ament_clang_format` breaks the order of header files in a way `ament_cpplint`
-doesn't like.
-In these cases headers should be separated into groups with line breaks.
-
-Example:
-
-Following is a valid header file ordering:
-```cpp
-#include <localization_common/optimized_registration_summary.hpp>
-#include <localization_common/initialization.hpp>
-#include <rclcpp/rclcpp.hpp>
-#include <tf2/buffer_core.h>
-#include <tf2_ros/transform_listener.h>
-#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
-#include <sensor_msgs/msg/point_cloud2.hpp>
-#include <time_utils/time_utils.hpp>
-#include <helper_functions/message_adapters.hpp>
-#include <localization_nodes/visibility_control.hpp>
-#include <localization_nodes/constraints.hpp>
-#include <memory>
-#include <string>
-#include <tuple>
-#include <utility>
+are generally not enough to pass `ament_cpplint`. To automate the process,
+`ament_clang_format` can be used like:
+```{bash}
+AutowareAuto $ ament_clang_format --config .clang-format --reformat file.cpp
 ```
 
-But if `ament_clang_format --reformat` is run, it changes it to:
-```cpp
-#include <tf2/buffer_core.h>
-#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
-#include <tf2_ros/transform_listener.h>
-#include <helper_functions/message_adapters.hpp>
-#include <localization_common/initialization.hpp>
-#include <localization_common/optimized_registration_summary.hpp>
-#include <localization_nodes/constraints.hpp>
-#include <localization_nodes/visibility_control.hpp>
-#include <memory>
-#include <rclcpp/rclcpp.hpp>
-#include <sensor_msgs/msg/point_cloud2.hpp>
-#include <string>
-#include <time_utils/time_utils.hpp>
-#include <tuple>
-#include <utility>
+The configuration is stored in the text file `.clang-format` in the base directory of a source
+checkout of Autoware.Auto.
+
+`ament_clang_format` is available in ADE by default. When working outside of ADE, install it e.g.
+with
+
+```{bash}
+sudo apt install ros-${ROS_DISTRO}-ament-clang-format
 ```
 
-And `ament_cpplint` will give `Found C system header after C++ system header.` errors.
+A way to use all these three tools is as follows:
+-# `ament_clang_format --config AutowareAuto/.clang-format --reformat file.cpp`
+-# `ament_uncrustify --reformat file.cpp`
+-# `ament_cpplint file.cpp`
+-# Fix all reported errors
+-# Repeat the previous steps until `ament_uncrustify` and `ament_cpplint` give no more errors.
 
-To not have this issue, headers should be grouped with line-breaks like following:
-```cpp
-#include <localization_common/optimized_registration_summary.hpp>
-#include <localization_common/initialization.hpp>
-#include <rclcpp/rclcpp.hpp>
-#include <tf2/buffer_core.h>
-#include <tf2_ros/transform_listener.h>
-#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
-#include <sensor_msgs/msg/point_cloud2.hpp>
-#include <time_utils/time_utils.hpp>
-#include <helper_functions/message_adapters.hpp>
-#include <localization_nodes/visibility_control.hpp>
-#include <localization_nodes/constraints.hpp>
+#### Order of header includes
 
-#include <memory>
-#include <string>
-#include <tuple>
-#include <utility>
+The recommended order of `#include` directives is:
+
+-# corresponding file: from `foo.cpp`, that's `#include "foo.hpp"`
+-# messages
+-# headers from this or other packages
+-# C system headers
+-# C++ system headers.
+
+with headers in each group sorted alphabetically. Invoking `ament_clang_format` with the supplied
+config file does this automatically in a way that `ament_cpplint` is happy with.
+`ament_clang_format` respects groups of `#include`s separated by blank lines and only sorts inside but not across groups.
+
+**Good**:
+
+```{cpp}
+#include "foo.hpp"                           // header corresponding to this file foo.cpp
+#include <sensor_msgs/msg/point_cloud2.hpp>  // message
+#include <std_msgs/msg/byte.hpp>             // message
+#include <other_pkg/a.hpp>                   // file in another package
+#include <this_pkg/b.hpp>                    // file in this package
+#include <math.h>                            // C system header
+#include <unistd.h>                          // C system header
+#include <memory>                            // C++ system header
+#include <utility>                           // C++ system header
 ```
 
-Now if `ament_clang_format --reformat` is run, it changes it to:
-```cpp
-#include <tf2/buffer_core.h>
-#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
-#include <tf2_ros/transform_listener.h>
-#include <helper_functions/message_adapters.hpp>
-#include <localization_common/initialization.hpp>
-#include <localization_common/optimized_registration_summary.hpp>
-#include <localization_nodes/constraints.hpp>
-#include <localization_nodes/visibility_control.hpp>
-#include <rclcpp/rclcpp.hpp>
-#include <sensor_msgs/msg/point_cloud2.hpp>
-#include <time_utils/time_utils.hpp>
+**Bad**:
 
-#include <memory>
-#include <string>
-#include <tuple>
-#include <utility>
+```{cpp}
+#include <std_msgs/msg/byte.hpp> // message
+#include <sensor_msgs/msg/point_cloud2.hpp> // message
+#include <this_pkg/b.hpp> // file in this package
+#include "foo.hpp" // header corresponding to this file foo.cpp
+#include <unistd.h> // C system header
+#include <other_pkg/a.hpp> // file in another package
+#include <utility> // C++ system header
+#include <memory> // C++ system header
+#include <math.h> // C system header
 ```
-And now `ament_cpplint` is alright with this ordering too.
+
+@note `ament_cpplint` may interpret files differently based on whether `#include <file.hpp>` or `#include "file.hpp"` is used. The results with angle brackets seem to be more reliable.
 
 ### Utilizing git pre-commit
 
