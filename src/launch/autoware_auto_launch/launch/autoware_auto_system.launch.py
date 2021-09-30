@@ -23,10 +23,10 @@ from launch.launch_description_sources import PythonLaunchDescriptionSource
 def generate_launch_description():
     """
     Launch the system modules.
+
      * autoware_state_monitor
      * emergency_handler
     """
-
     # Packages
     autoware_state_monitor_pkg_prefix = get_package_share_directory('autoware_state_monitor')
     emergency_handler_pkg_prefix = get_package_share_directory('emergency_handler')

@@ -1,4 +1,4 @@
-Planning {#autoware-system-design}
+System {#autoware-system-design}
 ========
 
 # Domain Description
