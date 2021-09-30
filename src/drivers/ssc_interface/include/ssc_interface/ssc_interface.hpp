@@ -33,7 +33,6 @@
 #include <automotive_platform_msgs/msg/turn_signal_command.hpp>
 #include <automotive_platform_msgs/msg/velocity_accel_cov.hpp>
 #include <autoware_auto_msgs/msg/headlights_command.hpp>
-#include <autoware_auto_msgs/msg/horn_command.hpp>
 #include <autoware_auto_msgs/msg/high_level_control_command.hpp>
 #include <autoware_auto_msgs/msg/raw_control_command.hpp>
 #include <autoware_auto_msgs/msg/trajectory_point.hpp>
@@ -63,7 +62,6 @@ using automotive_platform_msgs::msg::SteerMode;
 using automotive_platform_msgs::msg::TurnSignalCommand;
 using automotive_platform_msgs::msg::VelocityAccelCov;
 using autoware_auto_msgs::msg::HeadlightsCommand;
-using autoware_auto_msgs::msg::HornCommand;
 using autoware_auto_msgs::msg::HighLevelControlCommand;
 using autoware_auto_msgs::msg::RawControlCommand;
 using autoware_auto_msgs::msg::TrajectoryPoint;
