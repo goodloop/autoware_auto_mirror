@@ -94,7 +94,7 @@ VehicleConstantsManagerNode::VehicleConstantsManagerNode(const rclcpp::NodeOptio
     std::make_pair("offset_height_max", vc.offset_height_max)
   };
 
-  this->declare_parameters(this->get_namespace(), map_param_deriv_name_to_val, true);
+  this->declare_parameters("", map_param_deriv_name_to_val, true);
 
   // Publish confirmation bool parameter
   this->declare_parameter<types::bool8_t>(
