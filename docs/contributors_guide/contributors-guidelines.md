@@ -171,39 +171,17 @@ The recommended order of `#include` directives is:
 -# C system headers
 -# C++ system headers.
 
-with headers in each group sorted alphabetically. Invoking `ament_clang_format` with the supplied
-config file does this automatically in a way that `ament_cpplint` is happy with.
-`ament_clang_format` respects groups of `#include`s separated by blank lines and only sorts inside but not across groups.
+with headers in each group sorted alphabetically.
 
-**Good**:
+In order for automatic grouping and sorting to work,
+- Use `< >`angle brackets for all header files like:
+  - `#include <foo.hpp>`
+  - `#include <bar.cpp>`
+  - `#include <vector>`
+- Invoke `ament_clang_format` like explained above.
 
-```{cpp}
-#include "foo.hpp"                           // header corresponding to this file foo.cpp
-#include <sensor_msgs/msg/point_cloud2.hpp>  // message
-#include <std_msgs/msg/byte.hpp>             // message
-#include <other_pkg/a.hpp>                   // file in another package
-#include <this_pkg/b.hpp>                    // file in this package
-#include <math.h>                            // C system header
-#include <unistd.h>                          // C system header
-#include <memory>                            // C++ system header
-#include <utility>                           // C++ system header
-```
-
-**Bad**:
-
-```{cpp}
-#include <std_msgs/msg/byte.hpp> // message
-#include <sensor_msgs/msg/point_cloud2.hpp> // message
-#include <this_pkg/b.hpp> // file in this package
-#include "foo.hpp" // header corresponding to this file foo.cpp
-#include <unistd.h> // C system header
-#include <other_pkg/a.hpp> // file in another package
-#include <utility> // C++ system header
-#include <memory> // C++ system header
-#include <math.h> // C system header
-```
-
-@note `ament_cpplint` may interpret files differently based on whether `#include <file.hpp>` or `#include "file.hpp"` is used. The results with angle brackets seem to be more reliable.
+This should result with grouping and order that will pass the `ament_cpplint` 
+test.
 
 ### Utilizing git pre-commit
 

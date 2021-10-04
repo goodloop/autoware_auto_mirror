@@ -39,7 +39,7 @@ ContinuationIndentWidth: 2
 Cpp11BracedListStyle: true
 DerivePointerAlignment: false
 FixNamespaceComments: true
-IncludeBlocks: Preserve
+IncludeBlocks: Regroup
 IncludeCategories:
   # Main header (e.g. foo.hpp for foo.cpp) automatically assigned priority zero
 
