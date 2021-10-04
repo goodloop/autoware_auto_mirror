@@ -116,7 +116,7 @@
     <origin xyz="0.308 -0.022 1.49" rpy="0 0 0"/>
   </joint>
 
-  <link name="camera">
+  <link name="camera_right">
     <visual>
       <geometry>
         <box size="0.05 0.1 0.1"/>
@@ -137,9 +137,37 @@
     </inertial>
   </link>
 
-  <joint name="camera_joint" type="fixed">
+  <joint name="camera_right_joint" type="fixed">
     <parent link="base_link"/>
-    <child link="camera"/>
-    <origin xyz="1.75 0 1.25" rpy="-1.571 0 -1.571"/>
+    <child link="camera_right"/>
+    <origin xyz="1.75 -0.5 1.25" rpy="-1.571 0 -2.356194"/>
+  </joint>
+
+  <link name="camera_left">
+    <visual>
+      <geometry>
+        <box size="0.05 0.1 0.1"/>
+      </geometry>
+      <material name="blue"/>
+    </visual>
+    <collision>
+      <geometry>
+        <box size="0.05 0.1 0.1"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <!-- TODO: Get or calculate inertia values -->
+      <mass value="0.1"/>
+      <inertia ixx="1.02083e-5" ixy="0" ixz="0"
+        iyy="1.02083e-5" iyz="0"
+        izz="2e-5"/>
+    </inertial>
+  </link>
+
+  <joint name="camera_left_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="camera_left"/>
+    <!--origin xyz="1.75 0.5 1.25" rpy="-1.571 0 -2.356194"/-->
+    <origin xyz="1.75 0.5 1.25" rpy="-1.571 0 -0.78539"/>
   </joint>
 </robot>

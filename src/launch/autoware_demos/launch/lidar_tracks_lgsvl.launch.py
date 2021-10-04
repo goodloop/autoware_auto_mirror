@@ -36,6 +36,18 @@ def get_param_file(package_name, file_name):
         'params', default=[file_path])
 
 
+def get_lexus_robot_description(filename):
+    # Setup robot state publisher
+    vehicle_description_pkg_path = get_package_share_directory(
+        'lexus_rx_450h_description')
+    urdf_path = os.path.join(vehicle_description_pkg_path, 'urdf',
+                             filename)
+    with open(urdf_path, 'r') as infp:
+        urdf_file = infp.read()
+
+    return urdf_file
+
+
 def generate_launch_description():
     use_ndt = DeclareLaunchArgument(
         'use_ndt',
@@ -281,18 +293,22 @@ def generate_launch_description():
         condition=IfCondition(LaunchConfiguration('use_ndt'))
     )
 
-    # Setup robot state publisher
-    vehicle_description_pkg_path = get_package_share_directory(
-        'lexus_rx_450h_description')
-    urdf_path = os.path.join(vehicle_description_pkg_path, 'urdf',
-                             'lexus_rx_450h.urdf')
-    with open(urdf_path, 'r') as infp:
-        urdf_file = infp.read()
-    robot_state_publisher_runner = Node(
+    single_camera_robot_state_publisher_runner = Node(
         package='robot_state_publisher',
         executable='robot_state_publisher',
         name='robot_state_publisher',
-        parameters=[{'robot_description': urdf_file}],
+        parameters=[{'robot_description': get_lexus_robot_description('lexus_rx_450h.urdf')}],
+    )
+
+    dual_camera_robot_state_publisher_runner = Node(
+        package='robot_state_publisher',
+        executable='robot_state_publisher',
+        name='robot_state_publisher',
+        parameters=[
+            {
+                'robot_description': get_lexus_robot_description('lexus_rx_450h_dual_camera.urdf')
+            }
+        ],
     )
 
     lidar_projector_right = Node(

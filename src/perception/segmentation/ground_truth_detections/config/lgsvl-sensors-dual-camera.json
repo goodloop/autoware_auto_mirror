@@ -179,7 +179,7 @@
   },
   {
     "type": "2D Ground Truth",
-    "name": "2D Ground Truth",
+    "name": "2D Ground Truth Right",
     "params": {
       "Width": 1920,
       "Height": 1080,
