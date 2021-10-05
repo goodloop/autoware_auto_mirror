@@ -1,7 +1,7 @@
 # This file is provided for developer convenience.
 
 # The recommended way to format Autoware.Auto code is as follows:
-# (optional) ament_clang_format --config .../AutowareAuto/.clang-format --reformat foobar.cpp
+# (optional) ament_clang_format --config ../AutowareAuto/.clang-format --reformat foobar.cpp
 # ament_uncrustify --reformat foobar.cpp
 # ament_cpplint foobar.cpp
 # Fix errors stated
@@ -43,24 +43,26 @@ IncludeBlocks: Regroup
 IncludeCategories:
   # Main header (e.g. foo.hpp for foo.cpp) automatically assigned priority zero
 
-  # Headers in "" with extension.
-  - Regex: '"([A-Za-z0-9.\Q/-_\E])+"'
+  # Rules are processed in order, the first match assigns the priority, so more general rules come last
+
+  # C System headers
+  - Regex: '^<.*\.h>'
     Priority: 1
+  # Eigen headers are not std C++ headers
+  - Regex: '<Eigen/([A-Za-z0-9\Q/-_\E])+>'
+    Priority: 3
+  # Headers in <> without extension; e.g. C++ standard
+  - Regex: '<([A-Za-z0-9\Q/-_\E])+>'
+    Priority: 2
   # Messages
   - Regex: '.*_msgs/.*\.hpp'
-    Priority: 2
-    # SortPriority: 0
+    Priority: 4
+  # Headers in "" with file extension; e.g. from the same or another package
+  - Regex: '"([A-Za-z0-9.\Q/-_\E])+"'
+    Priority: 3
   # Other Packages
   - Regex: '^<.*/.*\.h.*>'
     Priority: 3
-    SortPriority: 0
-  # C System
-  - Regex: '^<.*\.h>'
-    Priority: 4
-    SortPriority: 0
-  # Headers in <> without extension.
-  - Regex: '<([A-Za-z0-9\Q/-_\E])+>'
-    Priority: 5
 IndentPPDirectives: BeforeHash
 IndentWidth: '2'
 MaxEmptyLinesToKeep: 2

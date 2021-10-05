@@ -163,25 +163,30 @@ A way to use all these three tools is as follows:
 
 #### Order of header includes
 
-The recommended order of `#include` directives is:
+The recommended order of `#include` directives is based on the [google styleguide](https://google.github.io/styleguide/cppguide.html#Names_and_Order_of_Includes)
 
--# corresponding file: from `foo.cpp`, that's `#include "foo.hpp"`
--# messages
--# headers from this or other packages
--# C system headers
--# C++ system headers.
+-# corresponding file: from `bar.cpp` in package `foo`, that's `#include "foo/bar.hpp"`
+-# C system headers; e.g. `#include <stdint.h>`
+-# C++ system headers; e.g. `#include <vector>`
+-# headers from this or other packages; e.g. `#include "pkg/baz.hpp"`
+-# message headers; e.g. `#include "foo/msg/bar.hpp"`
 
-with headers in each group sorted alphabetically.
+with headers in each group sorted alphabetically and groups separated by a single blank line.
 
-In order for automatic grouping and sorting to work,
-- Use `< >`angle brackets for all header files like:
-  - `#include <foo.hpp>`
-  - `#include <bar.cpp>`
-  - `#include <vector>`
-- Invoke `ament_clang_format` like explained above.
+In order for automatic grouping and sorting to work:
 
-This should result with grouping and order that will pass the `ament_cpplint` 
-test.
+-# Use `#include "foo/bar.hpp"` for headers from the same and other packages
+-# Use `#include <vector>` with **angle brackets only for C and C++ system headers**
+-# Invoke `ament_clang_format` like explained above.
+
+The resulting order should satisfy `ament_cpplint`.
+
+@note If cpplint complains about the order of headers, ensure that the delimiters match the above
+rules. Example error:
+
+```console
+Found C system header after C++ system header.
+```
 
 ### Utilizing git pre-commit
 
