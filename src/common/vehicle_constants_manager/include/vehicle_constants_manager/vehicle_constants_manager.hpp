@@ -165,6 +165,7 @@ struct VEHICLE_CONSTANTS_MANAGER_PUBLIC VehicleConstants
 /// @throws std::runtime_error if `VehicleConstants` object fails to initialize
 /// @throws rclcpp::exceptions::InvalidParameterTypeException if declare_parameter gets a value with
 /// wrong type
+/// @throws rclcpp::exceptions::InvalidParameterValueException if initial value fails to be set.
 /// @return A VehicleConstants object containing vehicle constant parameters.
 VEHICLE_CONSTANTS_MANAGER_PUBLIC VehicleConstants
 declare_and_get_vehicle_constants(rclcpp::Node & node);
