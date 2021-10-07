@@ -29,6 +29,9 @@
 #elif defined(__APPLE__)
   #define MPC_CONTROLLER_PUBLIC __attribute__((visibility("default")))
   #define MPC_CONTROLLER_LOCAL __attribute__((visibility("hidden")))
+#elif defined(__QNXNTO__)
+  #define MPC_CONTROLLER_PUBLIC __attribute__((visibility("default")))
+  #define MPC_CONTROLLER_LOCAL __attribute__((visibility("hidden")))
 #else  // defined(_LINUX)
   #error "Unsupported Build Configuration"
 #endif  // defined(_WINDOWS)

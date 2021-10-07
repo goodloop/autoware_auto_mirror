@@ -35,6 +35,9 @@
 #elif defined(__APPLE__)
   #define MOTION_MODEL_PUBLIC __attribute__((visibility("default")))
   #define MOTION_MODEL_LOCAL __attribute__((visibility("hidden")))
+#elif defined(__QNXNTO__)
+  #define MOTION_MODEL_PUBLIC __attribute__((visibility("default")))
+  #define MOTION_MODEL_LOCAL __attribute__((visibility("hidden")))
 #else  // defined(__linux__)
   #error "Unsupported Build Configuration"
 #endif  // defined(__WIN32)

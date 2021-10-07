@@ -29,10 +29,13 @@
     #define NDT_MAPPING_NODES_LOCAL
   #endif  // defined(NDT_MAPPING_NODES_BUILDING_DLL) || defined(NDT_MAPPING_NODES_EXPORTS)
 #elif defined(__linux__)
-#define NDT_MAPPING_NODES_PUBLIC __attribute__((visibility("default")))
+  #define NDT_MAPPING_NODES_PUBLIC __attribute__((visibility("default")))
   #define NDT_MAPPING_NODES_LOCAL __attribute__((visibility("hidden")))
 #elif defined(__APPLE__)
-#define NDT_MAPPING_NODES_PUBLIC __attribute__((visibility("default")))
+  #define NDT_MAPPING_NODES_PUBLIC __attribute__((visibility("default")))
+  #define NDT_MAPPING_NODES_LOCAL __attribute__((visibility("hidden")))
+#elif defined(__QNXNTO__)
+  #define NDT_MAPPING_NODES_PUBLIC __attribute__((visibility("default")))
   #define NDT_MAPPING_NODES_LOCAL __attribute__((visibility("hidden")))
 #else  // defined(_LINUX)
 #error "Unsupported Build Configuration"

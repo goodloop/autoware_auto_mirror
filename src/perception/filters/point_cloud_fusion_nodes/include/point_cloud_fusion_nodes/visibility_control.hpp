@@ -33,6 +33,9 @@
 #elif defined(__APPLE__)
   #define POINT_CLOUD_FUSION_NODES_PUBLIC __attribute__((visibility("default")))
   #define POINT_CLOUD_FUSION_NODES_LOCAL __attribute__((visibility("hidden")))
+#elif defined(__QNXNTO__)
+  #define POINT_CLOUD_FUSION_NODES_PUBLIC __attribute__((visibility("default")))
+  #define POINT_CLOUD_FUSION_NODES_LOCAL __attribute__((visibility("hidden")))
 #else  // defined(_LINUX)
   #error "Unsupported Build Configuration"
 #endif  // defined(_WINDOWS)

@@ -20,7 +20,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 #if defined(__WIN32)
-#if defined(OPTIMIZATION_BUILDING_DLL) || defined(OPTIMIZATION_EXPORTS)
+  #if defined(OPTIMIZATION_BUILDING_DLL) || defined(OPTIMIZATION_EXPORTS)
     #define OPTIMIZATION_PUBLIC __declspec(dllexport)
     #define OPTIMIZATION_LOCAL
   #else  // defined(OPTIMIZATION_BUILDING_DLL) || defined(OPTIMIZATION_EXPORTS)
@@ -28,10 +28,13 @@
     #define OPTIMIZATION_LOCAL
   #endif  // defined(OPTIMIZATION_BUILDING_DLL) || defined(OPTIMIZATION_EXPORTS)
 #elif defined(__linux__)
-#define OPTIMIZATION_PUBLIC __attribute__((visibility("default")))
+  #define OPTIMIZATION_PUBLIC __attribute__((visibility("default")))
   #define OPTIMIZATION_LOCAL __attribute__((visibility("hidden")))
 #elif defined(__APPLE__)
-#define OPTIMIZATION_PUBLIC __attribute__((visibility("default")))
+  #define OPTIMIZATION_PUBLIC __attribute__((visibility("default")))
+  #define OPTIMIZATION_LOCAL __attribute__((visibility("hidden")))
+#elif defined(__QNXNTO__)
+  #define OPTIMIZATION_PUBLIC __attribute__((visibility("default")))
   #define OPTIMIZATION_LOCAL __attribute__((visibility("hidden")))
 #else  // defined(_LINUX)
 #error "Unsupported Build Configuration"

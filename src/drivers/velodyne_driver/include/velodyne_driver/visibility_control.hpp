@@ -32,6 +32,9 @@
 #elif defined(__APPLE__)
   #define VELODYNE_DRIVER_PUBLIC __attribute__((visibility("default")))
   #define VELODYNE_DRIVER_LOCAL __attribute__((visibility("hidden")))
+#elif defined(__QNXNTO__)
+  #define VELODYNE_DRIVER_PUBLIC __attribute__((visibility("default")))
+  #define VELODYNE_DRIVER_LOCAL __attribute__((visibility("hidden")))
 #else  // defined(_LINUX)
   #error "Unsupported Build Configuration"
 #endif  // defined(_WINDOWS)

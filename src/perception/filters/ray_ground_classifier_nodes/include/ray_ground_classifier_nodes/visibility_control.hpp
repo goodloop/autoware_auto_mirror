@@ -35,6 +35,9 @@
 #elif defined(__GNUC__) && defined(__APPLE__)
   #define RAY_GROUND_CLASSIFIER_NODES_PUBLIC __attribute__((visibility("default")))
   #define RAY_GROUND_CLASSIFIER_NODES_LOCAL __attribute__((visibility("hidden")))
+#elif defined(__GNUC__) && defined(__QNXNTO__)
+  #define RAY_GROUND_CLASSIFIER_NODES_PUBLIC __attribute__((visibility("default")))
+  #define RAY_GROUND_CLASSIFIER_NODES_LOCAL __attribute__((visibility("hidden")))
 #else  // !(defined(__GNUC__) && defined(__APPLE__))
   #error "Unsupported Build Configuration"
 #endif  // _MSC_VER

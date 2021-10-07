@@ -36,6 +36,9 @@
 #elif defined(QNX)
   #define VOXEL_GRID_NODES_PUBLIC __attribute__((visibility("default")))
   #define VOXEL_GRID_NODES_LOCAL __attribute__((visibility("hidden")))
+#elif defined(__QNXNTO__)
+  #define VOXEL_GRID_NODES_PUBLIC __attribute__((visibility("default")))
+  #define VOXEL_GRID_NODES_LOCAL __attribute__((visibility("hidden")))
 #else  // defined(__linux__)
   #error "Unsupported Build Configuration"
 #endif  // defined(__WIN32)

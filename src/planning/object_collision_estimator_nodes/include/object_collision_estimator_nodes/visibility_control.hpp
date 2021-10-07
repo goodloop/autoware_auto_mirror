@@ -32,6 +32,9 @@
 #elif defined(__APPLE__)
   #define OBJECT_COLLISION_ESTIMATOR_NODES_PUBLIC __attribute__((visibility("default")))
   #define OBJECT_COLLISION_ESTIMATOR_NODES_LOCAL __attribute__((visibility("hidden")))
+#elif defined(__QNXNTO__)
+  #define OBJECT_COLLISION_ESTIMATOR_NODES_PUBLIC __attribute__((visibility("default")))
+  #define OBJECT_COLLISION_ESTIMATOR_NODES_LOCAL __attribute__((visibility("hidden")))
 #else  // defined(_LINUX)
   #error "Unsupported Build Configuration"
 #endif  // defined(_WINDOWS)

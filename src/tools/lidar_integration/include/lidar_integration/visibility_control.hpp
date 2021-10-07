@@ -32,7 +32,7 @@
 #elif defined(__APPLE__)
   #define LIDAR_INTEGRATION_PUBLIC __attribute__((visibility("default")))
   #define LIDAR_INTEGRATION_LOCAL __attribute__((visibility("hidden")))
-#elif defined(QNX)
+#elif defined(__QNXNTO__)
   #define LIDAR_INTEGRATION_PUBLIC __attribute__((visibility("default")))
   #define LIDAR_INTEGRATION_LOCAL __attribute__((visibility("hidden")))
 #else  // defined(__linux__)

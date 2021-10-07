@@ -29,6 +29,9 @@
 #elif defined(__APPLE__)
   #define MOTION_TESTING_PUBLIC __attribute__((visibility("default")))
   #define MOTION_TESTING_LOCAL __attribute__((visibility("hidden")))
+#elif defined(__QNXNTO__)
+  #define MOTION_TESTING_PUBLIC __attribute__((visibility("default")))
+  #define MOTION_TESTING_LOCAL __attribute__((visibility("hidden")))
 #else  // defined(_LINUX)
   #error "Unsupported Build Configuration"
 #endif  // defined(_WINDOWS)

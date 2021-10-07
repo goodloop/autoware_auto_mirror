@@ -30,6 +30,9 @@
 #elif defined(__APPLE__)
   #define BEHAVIOR_PLANNER_NODES_PUBLIC __attribute__((visibility("default")))
   #define BEHAVIOR_PLANNER_NODES_LOCAL __attribute__((visibility("hidden")))
+#elif defined(__QNXNTO__)
+  #define BEHAVIOR_PLANNER_NODES_PUBLIC __attribute__((visibility("default")))
+  #define BEHAVIOR_PLANNER_NODES_LOCAL __attribute__((visibility("hidden")))
 #else
   #error "Unsupported Build Configuration"
 #endif

@@ -30,6 +30,9 @@
 #elif defined(__APPLE__)
   #define SSC_INTERFACE_PUBLIC __attribute__((visibility("default")))
   #define SSC_INTERFACE_LOCAL __attribute__((visibility("hidden")))
+#elif defined(__QNXNTO__)
+  #define SSC_INTERFACE_PUBLIC __attribute__((visibility("default")))
+  #define SSC_INTERFACE_LOCAL __attribute__((visibility("hidden")))
 #else
   #error "Unsupported Build Configuration"
 #endif

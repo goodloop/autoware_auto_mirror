@@ -31,6 +31,9 @@
 #elif defined(__APPLE__)
   #define PARKING_PLANNER_NODES_PUBLIC __attribute__((visibility("default")))
   #define PARKING_PLANNER_NODES_LOCAL __attribute__((visibility("hidden")))
+#elif defined(__QNXNTO__)
+  #define PARKING_PLANNER_NODES_PUBLIC __attribute__((visibility("default")))
+  #define PARKING_PLANNER_NODES_LOCAL __attribute__((visibility("hidden")))
 #else  // defined(_LINUX)
   #error "Unsupported Build Configuration"
 #endif  // defined(_WINDOWS)

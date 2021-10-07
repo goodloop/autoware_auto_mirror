@@ -28,10 +28,13 @@
     #define NDT_LOCAL
   #endif  // defined(NDT_BUILDING_DLL) || defined(NDT_EXPORTS)
 #elif defined(__linux__)
-#define NDT_PUBLIC __attribute__((visibility("default")))
+  #define NDT_PUBLIC __attribute__((visibility("default")))
   #define NDT_LOCAL __attribute__((visibility("hidden")))
 #elif defined(__APPLE__)
-#define NDT_PUBLIC __attribute__((visibility("default")))
+  #define NDT_PUBLIC __attribute__((visibility("default")))
+  #define NDT_LOCAL __attribute__((visibility("hidden")))
+#elif defined(__QNXNTO__)
+  #define NDT_PUBLIC __attribute__((visibility("default")))
   #define NDT_LOCAL __attribute__((visibility("hidden")))
 #else  // defined(_LINUX)
 #error "Unsupported Build Configuration"

@@ -31,7 +31,10 @@
 #elif defined(__GNUC__) && defined(__APPLE__)
   #define HAD_MAP_UTILS_PUBLIC __attribute__((visibility("default")))
   #define HAD_MAP_UTILS_LOCAL __attribute__((visibility("hidden")))
-#else  // !(defined(__GNUC__) && defined(__APPLE__))
+#elif defined(__GNUC__) && defined(__QNXNTO__)
+  #define HAD_MAP_UTILS_PUBLIC __attribute__((visibility("default")))
+  #define HAD_MAP_UTILS_LOCAL __attribute__((visibility("hidden")))
+#else  // !(defined(__GNUC__) && defined(__QNXNTO__))
   #error "Unsupported Build Configuration"
 #endif  // _MSC_VER
 
