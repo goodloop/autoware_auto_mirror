@@ -45,7 +45,7 @@ VESCInterface::VESCInterface(
     "sensors/core", 
     10,
     [this](VescStateStamped::SharedPtr msg) {on_motor_state_report(msg);}
-    );git@gitlab.com:autowarefoundation/autoware.auto/AutowareAuto.git
+    );
 
   servo_state_ = node.create_subscription<Float64>(
     "sensors/servo_position_command",
