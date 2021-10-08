@@ -33,6 +33,8 @@
 #include <tracking/classification_tracker.hpp>
 #include <tracking/visibility_control.hpp>
 
+#include <experimental/optional>
+
 #include <chrono>
 #include <cstddef>
 #include <vector>
@@ -75,7 +77,10 @@ public:
   void update(const DetectedObjectMsg & detection);
 
   /// Update just the classification state of the track
-  void update(const ObjectClassifications & obj_type);
+  void update(
+    const ObjectClassifications & obj_type,
+    const std::experimental::optional<common::types::float32_t> maybe_covariance =
+    std::experimental::nullopt);
 
   /// Call when no correspondence for this track was found.
   void no_update();

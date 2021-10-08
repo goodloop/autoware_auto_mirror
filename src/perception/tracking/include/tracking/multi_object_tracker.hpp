@@ -111,6 +111,8 @@ class TRACKING_PUBLIC MultiObjectTracker
 private:
   using DetectedObjectsMsg = autoware_auto_msgs::msg::DetectedObjects;
   using ClassifiedRoiArrayMsg = autoware_auto_msgs::msg::ClassifiedRoiArray;
+  using Classification = autoware_auto_msgs::msg::ObjectClassification;
+  using ClassificationsType = autoware_auto_msgs::msg::DetectedObject::_classification_type;
   using TrackedObjectsMsg = autoware_auto_msgs::msg::TrackedObjects;
 
 public:

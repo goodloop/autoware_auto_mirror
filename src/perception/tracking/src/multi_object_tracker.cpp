@@ -169,12 +169,18 @@ DetectedObjectsUpdateResult MultiObjectTracker::update(
 
 void MultiObjectTracker::update(const ClassifiedRoiArrayMsg & rois)
 {
+  static const ClassificationsType unknown_class = {
+    Classification{}.set__classification(Classification::UNKNOWN).set__probability(1.0F)};
+  static constexpr float32_t unknown_measurement_covariance = 1.0F;
+
   const auto association = m_vision_associator.assign(rois, m_tracks);
 
   for (size_t i = 0U; i < m_tracks.objects.size(); ++i) {
     const auto & maybe_roi_idx = association.track_assignments[i];
     if (maybe_roi_idx != AssociatorResult::UNASSIGNED) {
       m_tracks.objects[i].update(rois.rois[maybe_roi_idx].classifications);
+    } else {
+      m_tracks.objects[i].update(unknown_class, unknown_measurement_covariance);
     }
   }
   m_track_creator.add_objects(rois, association);
