@@ -31,12 +31,12 @@ namespace autoware
 {
 namespace vesc_interface
 {
-// TODO: Inherits from vehicle_interface::VehicleInterfaceNode
-// have all the publishers/Subsrcibers for VESC specific topics.
+// TODO(jacobjj): Inherits from vehicle_interface::VehicleInterfaceNode
+// have all the publishers/Subscribers for VESC specific topics.
 
 /// \class VESCInterfaceNode
 /// \brief ROS 2 Node for hello world.
-class VESC_INTERFACE_PUBLIC VESCInterfaceNode 
+class VESC_INTERFACE_PUBLIC VESCInterfaceNode
   : public ::autoware::drivers::vehicle_interface::VehicleInterfaceNode
 {
 public:

@@ -46,7 +46,7 @@ struct HighFrequency
   FrequencyTargets targets;
 };
 
-class high_frequency_warning
+class HighFrequencyWarning
   : public state_machine, public ::testing::WithParamInterface<HighFrequency>
 {
 protected:
@@ -107,7 +107,7 @@ protected:
   }
 };
 
-TEST_P(high_frequency_warning, basic)
+TEST_P(HighFrequencyWarning, Basic)
 {
   GTEST_SKIP();  // #5455: Not quarantined since not broken... just not implemented
   const auto param = GetParam();
@@ -147,8 +147,8 @@ TEST_P(high_frequency_warning, basic)
 }
 
 INSTANTIATE_TEST_CASE_P(
-  test,
-  high_frequency_warning,
+  Test,
+  HighFrequencyWarning,
   ::testing::Values(
     HighFrequency{0.0F, 0.3F, std::chrono::milliseconds{10LL}, 20U,
       FrequencyTargets{FrequencyTarget::SteerReport}},
@@ -169,11 +169,11 @@ struct StateChange
   VSC command;
 };
 
-class no_state_change : public state_machine, public ::testing::WithParamInterface<StateChange>
+class NoStateChange : public state_machine, public ::testing::WithParamInterface<StateChange>
 {
 };
 
-TEST_P(no_state_change, basic)
+TEST_P(NoStateChange, Basic)
 {
   const auto param = GetParam();
   const auto now = std::chrono::system_clock::now();
@@ -207,8 +207,8 @@ TEST_P(no_state_change, basic)
 }
 
 INSTANTIATE_TEST_CASE_P(
-  test,
-  no_state_change,
+  Test,
+  NoStateChange,
   ::testing::Values(
     //// Gear //// 0-15
     // Gear park->*
@@ -266,26 +266,26 @@ INSTANTIATE_TEST_CASE_P(
     StateChange{VSR{}.set__blinker(VSR::BLINKER_HAZARD), VSC{}.set__blinker(VSC::BLINKER_OFF)},
     //// Wiper //// 34-45
     // off -> *
-    StateChange{VSR{}.set__wiper(VSR::WIPER_OFF), VSC{}.set__wiper(VSC::WIPER_LOW)},
-    StateChange{VSR{}.set__wiper(VSR::WIPER_OFF), VSC{}.set__wiper(VSC::WIPER_HIGH)},
-    StateChange{VSR{}.set__wiper(VSR::WIPER_OFF), VSC{}.set__wiper(VSC::WIPER_CLEAN)},
+    StateChange{VSR{}.set__wiper(VSR::WIPER_OFF), VSC{}.set__wiper(WipersCommand::ENABLE_LOW)},
+    StateChange{VSR{}.set__wiper(VSR::WIPER_OFF), VSC{}.set__wiper(WipersCommand::ENABLE_HIGH)},
+    StateChange{VSR{}.set__wiper(VSR::WIPER_OFF), VSC{}.set__wiper(WipersCommand::ENABLE_CLEAN)},
     // low -> *
-    StateChange{VSR{}.set__wiper(VSR::WIPER_LOW), VSC{}.set__wiper(VSC::WIPER_OFF)},
-    StateChange{VSR{}.set__wiper(VSR::WIPER_LOW), VSC{}.set__wiper(VSC::WIPER_HIGH)},
-    StateChange{VSR{}.set__wiper(VSR::WIPER_LOW), VSC{}.set__wiper(VSC::WIPER_CLEAN)},
+    StateChange{VSR{}.set__wiper(VSR::WIPER_LOW), VSC{}.set__wiper(WipersCommand::DISABLE)},
+    StateChange{VSR{}.set__wiper(VSR::WIPER_LOW), VSC{}.set__wiper(WipersCommand::ENABLE_HIGH)},
+    StateChange{VSR{}.set__wiper(VSR::WIPER_LOW), VSC{}.set__wiper(WipersCommand::ENABLE_CLEAN)},
     // high -> *
-    StateChange{VSR{}.set__wiper(VSR::WIPER_HIGH), VSC{}.set__wiper(VSC::WIPER_LOW)},
-    StateChange{VSR{}.set__wiper(VSR::WIPER_HIGH), VSC{}.set__wiper(VSC::WIPER_OFF)},
-    StateChange{VSR{}.set__wiper(VSR::WIPER_HIGH), VSC{}.set__wiper(VSC::WIPER_CLEAN)},
+    StateChange{VSR{}.set__wiper(VSR::WIPER_HIGH), VSC{}.set__wiper(WipersCommand::ENABLE_LOW)},
+    StateChange{VSR{}.set__wiper(VSR::WIPER_HIGH), VSC{}.set__wiper(WipersCommand::DISABLE)},
+    StateChange{VSR{}.set__wiper(VSR::WIPER_HIGH), VSC{}.set__wiper(WipersCommand::ENABLE_CLEAN)},
     // clean -> *
-    StateChange{VSR{}.set__wiper(VSR::WIPER_CLEAN), VSC{}.set__wiper(VSC::WIPER_LOW)},
-    StateChange{VSR{}.set__wiper(VSR::WIPER_CLEAN), VSC{}.set__wiper(VSC::WIPER_HIGH)},
-    StateChange{VSR{}.set__wiper(VSR::WIPER_CLEAN), VSC{}.set__wiper(VSC::WIPER_OFF)},
+    StateChange{VSR{}.set__wiper(VSR::WIPER_CLEAN), VSC{}.set__wiper(WipersCommand::ENABLE_LOW)},
+    StateChange{VSR{}.set__wiper(VSR::WIPER_CLEAN), VSC{}.set__wiper(WipersCommand::ENABLE_HIGH)},
+    StateChange{VSR{}.set__wiper(VSR::WIPER_CLEAN), VSC{}.set__wiper(WipersCommand::DISABLE)},
     // Everything 46
     StateChange{
   VSR{}.set__wiper(VSR::WIPER_CLEAN).set__blinker(VSR::BLINKER_HAZARD).
   set__headlight(VSR::HEADLIGHT_HIGH).set__gear(VSR::GEAR_DRIVE),
-  VSC{}.set__wiper(VSC::WIPER_OFF).set__blinker(VSC::BLINKER_OFF).
+  VSC{}.set__wiper(WipersCommand::DISABLE).set__blinker(VSC::BLINKER_OFF).
   set__headlight(HeadlightsCommand::DISABLE).set__gear(VSC::GEAR_LOW)
 }
     // TODO(c.ho) more combinatorial tests
@@ -301,7 +301,7 @@ struct TimeoutCommand
   decltype(VCC::long_accel_mps2) expected_accel;
 };
 
-class timeout_commands : public state_machine, public ::testing::WithParamInterface<TimeoutCommand>
+class TimeoutCommands : public state_machine, public ::testing::WithParamInterface<TimeoutCommand>
 {
 protected:
   void SetUp()
@@ -311,7 +311,7 @@ protected:
   }
 };
 
-TEST_P(timeout_commands, basic)
+TEST_P(TimeoutCommands, Basic)
 {
   const auto param = GetParam();
   // set state
@@ -328,8 +328,8 @@ TEST_P(timeout_commands, basic)
 // Assume characteristic time rate of 100ms
 
 INSTANTIATE_TEST_CASE_P(
-  test,
-  timeout_commands,
+  Test,
+  TimeoutCommands,
   ::testing::Values(
     TimeoutCommand{0.0F, 0.0F},  // Stopped
     // Positive

@@ -16,6 +16,7 @@
   <depend>autoware_auto_tf2</depend>
   <depend>geometry_msgs</depend>
   <depend>hungarian_assigner</depend>
+  <depend>lidar_utils</depend>
   <depend>motion_model</depend>
   <depend>nav_msgs</depend>
   <depend>state_estimation</depend>
@@ -27,6 +28,7 @@
   <build_depend>tf2_eigen</build_depend>
   <build_depend>time_utils</build_depend>
 
+  <test_depend>ament_cmake_gmock</test_depend>
   <test_depend>ament_cmake_gtest</test_depend>
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>

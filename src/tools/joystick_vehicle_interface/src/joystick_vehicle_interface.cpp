@@ -85,6 +85,7 @@ JoystickVehicleInterface::compute_command(const sensor_msgs::msg::Joy & msg)
   {
     ret.stamp = msg.header.stamp;
     axis_value(msg, Axes::ACCELERATION, ret.long_accel_mps2);
+    axis_value(msg, Axes::VELOCITY, ret.velocity_mps);
     axis_value(msg, Axes::FRONT_STEER, ret.front_wheel_angle_rad);
     axis_value(msg, Axes::REAR_STEER, ret.rear_wheel_angle_rad);
   }
@@ -135,7 +136,7 @@ bool8_t JoystickVehicleInterface::handle_active_button(Buttons button)
       m_headlights_on = !m_headlights_on;
       break;
     case Buttons::WIPER_TOGGLE:
-      m_state_command.wiper = m_wipers_on ? VSC::WIPER_OFF : VSC::WIPER_LOW;
+      m_state_command.wiper = m_wipers_on ? WipersCommand::DISABLE : WipersCommand::ENABLE_LOW;
       m_wipers_on = !m_wipers_on;
       break;
     case Buttons::HAND_BRAKE_TOGGLE:

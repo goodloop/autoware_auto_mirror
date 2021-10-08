@@ -19,6 +19,7 @@
 #define JOYSTICK_VEHICLE_INTERFACE__JOYSTICK_VEHICLE_INTERFACE_HPP_
 
 #include <autoware_auto_msgs/msg/headlights_command.hpp>
+#include <autoware_auto_msgs/msg/wipers_command.hpp>
 #include <autoware_auto_msgs/msg/high_level_control_command.hpp>
 #include <autoware_auto_msgs/msg/raw_control_command.hpp>
 #include <autoware_auto_msgs/msg/vehicle_control_command.hpp>
@@ -43,7 +44,8 @@ enum class Axes
   FRONT_STEER,  ///< For all control
   REAR_STEER,  ///< For all control
   CURVATURE,  ///< For high level control
-  ACCELERATION  ///< For normal control
+  ACCELERATION,  ///< For normal control
+  VELOCITY  ///< For nomal control
 };
 
 /// Discretely varying control commands; not all of VehicleStateCommand is here
@@ -87,6 +89,7 @@ static constexpr AxisValue DEFAULT_OFFSET = 0.0F;
 static constexpr AxisValue VELOCITY_INCREMENT = 1.0F;
 
 using autoware_auto_msgs::msg::HeadlightsCommand;
+using autoware_auto_msgs::msg::WipersCommand;
 using autoware_auto_msgs::msg::VehicleStateCommand;
 
 /// A core class which performs all basic functions which are not ROS-related for

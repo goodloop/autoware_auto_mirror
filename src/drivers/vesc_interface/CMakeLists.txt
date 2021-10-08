@@ -63,12 +63,13 @@ if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
   ament_lint_auto_find_test_dependencies()
 
+  # TODO(jacobjj): Add tests to the vesc_iterface package
   # Unit tests
-  set(TEST_SOURCES test/test_vesc_interface.cpp)
-  set(TEST_VESC_INTERFACE_EXE test_vesc_interface)
-  ament_add_gtest(${TEST_VESC_INTERFACE_EXE} ${TEST_SOURCES})
-  autoware_set_compile_options(${TEST_VESC_INTERFACE_EXE})
-  target_link_libraries(${TEST_VESC_INTERFACE_EXE} ${PROJECT_NAME})
+  # set(TEST_SOURCES test/test_vesc_interface.cpp)
+  # set(TEST_VESC_INTERFACE_EXE test_vesc_interface)
+  # ament_add_gtest(${TEST_VESC_INTERFACE_EXE} ${TEST_SOURCES})
+  # autoware_set_compile_options(${TEST_VESC_INTERFACE_EXE})
+  # target_link_libraries(${TEST_VESC_INTERFACE_EXE} ${PROJECT_NAME})
 endif()
 
 # ament package generation and installing

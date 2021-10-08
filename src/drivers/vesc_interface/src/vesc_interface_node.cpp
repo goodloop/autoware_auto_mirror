@@ -16,13 +16,18 @@
 
 #include "vesc_interface/vesc_interface_node.hpp"
 
+#include <memory>
+#include <unordered_set>
+
 namespace autoware
 {
 namespace vesc_interface
 {
 
+using autoware::drivers::vehicle_interface::ViFeature;
+
 VESCInterfaceNode::VESCInterfaceNode(const rclcpp::NodeOptions & options)
-:  VehicleInterfaceNode{"vesc_interface", options}
+:  VehicleInterfaceNode{"vesc_interface", std::unordered_set<ViFeature>{}, options}
 {
   // Set up interface
   set_interface(

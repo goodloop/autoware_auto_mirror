@@ -85,11 +85,11 @@ std::vector<Line> get_sorted_face_list(const Iter start, const Iter end)
 
 /// \brief Append points of the polygon `internal` that are contained in the polygon `exernal`.
 template<template<typename ...> class Iterable1T, template<typename ...> class Iterable2T,
-  typename Point1T, typename Point2T, typename ResultPointT>
+  typename PointT>
 void append_contained_points(
-  const Iterable1T<Point1T> & external,
-  const Iterable2T<Point2T> & internal,
-  std::list<ResultPointT> & result)
+  const Iterable1T<PointT> & external,
+  const Iterable2T<PointT> & internal,
+  std::list<PointT> & result)
 {
   std::copy_if(
     internal.begin(), internal.end(), std::back_inserter(result),
@@ -100,18 +100,29 @@ void append_contained_points(
 
 /// \brief Append the intersecting points between two polygons into the output list.
 template<template<typename ...> class Iterable1T, template<typename ...> class Iterable2T,
-  typename Point1T, typename Point2T, typename ResultPointT>
+  typename PointT>
 void append_intersection_points(
-  const Iterable1T<Point1T> & polygon1,
-  const Iterable2T<Point2T> & polygon2,
-  std::list<ResultPointT> & result)
+  const Iterable1T<PointT> & polygon1,
+  const Iterable2T<PointT> & polygon2,
+  std::list<PointT> & result)
 {
+  using FloatT = decltype(point_adapter::x_(std::declval<PointT>()));
+  using Interval = common::geometry::Interval<float32_t>;
+
   auto get_edge = [](const auto & list, const auto & iterator) {
       const auto next_it = std::next(iterator);
       const auto & next_pt = (next_it != list.end()) ? *next_it : list.front();
       return std::make_pair(*iterator, next_pt);
     };
-  using Interval = common::geometry::Interval<float32_t>;
+
+  // Get the max absolute value out of two intervals and a scalar.
+  auto compute_eps_scale = [](const auto & i1, const auto & i2, const auto val) {
+      auto get_abs_max = [](const auto & interval) {
+          return std::max(std::fabs(Interval::min(interval)), std::fabs(Interval::max(interval)));
+        };
+      return std::max(std::fabs(val), std::max(get_abs_max(i1), get_abs_max(i2)));
+    };
+
   // Compare each edge from polygon1 to each edge from polygon2
   for (auto corner1_it = polygon1.begin(); corner1_it != polygon1.end(); ++corner1_it) {
     const auto & edge1 = get_edge(polygon1, corner1_it);
@@ -139,11 +150,20 @@ void append_intersection_points(
         Interval edge2_y_interval{
           std::min(point_adapter::y_(edge2.first), point_adapter::y_(edge2.second)),
           std::max(point_adapter::y_(edge2.first), point_adapter::y_(edge2.second))};
+
+        // The accumulated floating point error depends on the magnitudes of each end of the
+        // intervals. Hence the upper bound of the absolute magnitude should be taken into account
+        // while computing the epsilon.
+        const auto max_feps_scale = std::max(
+          compute_eps_scale(edge1_x_interval, edge2_x_interval, point_adapter::x_(intersection)),
+          compute_eps_scale(edge1_y_interval, edge2_y_interval, point_adapter::y_(intersection))
+        );
+        const auto feps = max_feps_scale * std::numeric_limits<FloatT>::epsilon();
         // Only accept intersections that lie on both of the line segments (edges)
-        if (Interval::contains(edge1_x_interval, point_adapter::x_(intersection)) &&
-          Interval::contains(edge2_x_interval, point_adapter::x_(intersection)) &&
-          Interval::contains(edge1_y_interval, point_adapter::y_(intersection)) &&
-          Interval::contains(edge2_y_interval, point_adapter::y_(intersection)))
+        if (Interval::contains(edge1_x_interval, point_adapter::x_(intersection), feps) &&
+          Interval::contains(edge2_x_interval, point_adapter::x_(intersection), feps) &&
+          Interval::contains(edge1_y_interval, point_adapter::y_(intersection), feps) &&
+          Interval::contains(edge2_y_interval, point_adapter::y_(intersection), feps))
         {
           result.push_back(intersection);
         }
@@ -235,20 +255,18 @@ bool intersect(const Iter begin1, const Iter end1, const Iter begin2, const Iter
 ///  algorithm: #1230
 /// \tparam Iterable1T A container class that has stl style iterators defined.
 /// \tparam Iterable2T A container class that has stl style iterators defined.
-/// \tparam Point1T Point type that have the adapters for the x and y fields.
-/// \tparam Point2T Point type that have the adapters for the x and y fields.
-/// \tparam ResultPointT Point type that have the adapters for the x and y fields. By default
+/// \tparam PointT Point type that have the adapters for the x and y fields.
 /// set to `Point1T`
 /// \param polygon1 A convex polygon
 /// \param polygon2 A convex polygon
 /// \return The resulting conv
 template<template<typename ...> class Iterable1T, template<typename ...> class Iterable2T,
-  typename Point1T, typename Point2T, typename ResultPointT = Point1T>
-std::list<ResultPointT> convex_polygon_intersection2d(
-  const Iterable1T<Point1T> & polygon1,
-  const Iterable2T<Point2T> & polygon2)
+  typename PointT>
+std::list<PointT> convex_polygon_intersection2d(
+  const Iterable1T<PointT> & polygon1,
+  const Iterable2T<PointT> & polygon2)
 {
-  std::list<ResultPointT> result;
+  std::list<PointT> result;
   details::append_contained_points(polygon1, polygon2, result);
   details::append_contained_points(polygon2, polygon1, result);
   details::append_intersection_points(polygon1, polygon2, result);
@@ -270,10 +288,10 @@ std::list<ResultPointT> convex_polygon_intersection2d(
 /// \throws std::domain_error If there is any inconsistency on the undderlying geometrical
 /// computation.
 template<template<typename ...> class Iterable1T, template<typename ...> class Iterable2T,
-  typename Point1T, typename Point2T>
+  typename PointT>
 common::types::float32_t convex_intersection_over_union_2d(
-  const Iterable1T<Point1T> & polygon1,
-  const Iterable2T<Point2T> & polygon2
+  const Iterable1T<PointT> & polygon1,
+  const Iterable2T<PointT> & polygon2
 )
 {
   constexpr auto eps = std::numeric_limits<float32_t>::epsilon();

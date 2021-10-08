@@ -31,19 +31,22 @@ ament_auto_find_build_dependencies(REQUIRED
 )
 
 set(TRACKING_LIB_SRC
-  src/data_association.cpp
+  src/detected_object_associator.cpp
+  src/greedy_roi_associator.cpp
   src/multi_object_tracker.cpp
+  src/track_creator.cpp
   src/tracked_object.cpp
   src/projection.cpp
 )
 
 set(TRACKING_LIB_HEADERS
-  include/tracking/data_association.hpp
+  include/tracking/detected_object_associator.hpp
+  include/tracking/greedy_roi_associator.hpp
   include/tracking/multi_object_tracker.hpp
+  include/tracking/track_creator.hpp
   include/tracking/tracked_object.hpp
   include/tracking/tracker_types.hpp
   include/tracking/visibility_control.hpp
-  include/tracking/roi_association.hpp
 )
 
 # generate library
@@ -61,15 +64,23 @@ if(BUILD_TESTING)
   ament_lint_auto_find_test_dependencies()
 
   # Unit tests
-  set(TEST_SOURCES
-    test/test_data_association.cpp
-    test/test_projection.cpp
-    test/test_multi_object_tracker.cpp
-    test/test_tracked_object.cpp
-  )
   set(TEST_TRACKING_EXE test_multi_object_tracker)
+  set(TEST_SOURCES
+      test/src/test_detected_object_associator.cpp
+      test/src/test_greedy_roi_associator.cpp
+      test/src/test_multi_object_tracker.cpp
+      test/src/test_projection.cpp
+      test/src/test_classification_tracker.cpp
+      test/src/test_track_creation.cpp
+      test/src/test_tracked_object.cpp
+      test/include/tracking/test_utils.hpp
+      test/src/test_utils.cpp
+  )
   ament_add_gtest(${TEST_TRACKING_EXE} ${TEST_SOURCES})
   autoware_set_compile_options(${TEST_TRACKING_EXE})
+  # Needed when using TYPED_TEST since gtest in foxy uses integer to index some container
+  target_compile_options(${TEST_TRACKING_EXE} PRIVATE -Wno-conversion -Wno-sign-conversion)
+  target_include_directories(${TEST_TRACKING_EXE} PRIVATE "test/include" "include")
   target_link_libraries(${TEST_TRACKING_EXE} ${PROJECT_NAME})
 endif()
 

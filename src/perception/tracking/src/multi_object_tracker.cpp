@@ -14,16 +14,16 @@
 //
 // Co-developed by Tier IV, Inc. and Apex.AI, Inc.
 
-#include "tracking/multi_object_tracker.hpp"
+#include <tracking/multi_object_tracker.hpp>
+
+#include <autoware_auto_tf2/tf2_autoware_auto_msgs.hpp>
+#include <geometry_msgs/msg/quaternion.hpp>
+#include <tf2_eigen/tf2_eigen.h>
+#include <time_utils/time_utils.hpp>
 
 #include <algorithm>
 #include <cmath>
 #include <memory>
-
-#include "autoware_auto_tf2/tf2_autoware_auto_msgs.hpp"
-#include "geometry_msgs/msg/quaternion.hpp"
-#include "tf2_eigen/tf2_eigen.h"
-#include "time_utils/time_utils.hpp"
 
 using autoware::common::types::float64_t;
 
@@ -74,14 +74,21 @@ geometry_msgs::msg::TransformStamped to_transform(const nav_msgs::msg::Odometry 
 }  // anonymous namespace
 
 
-MultiObjectTracker::MultiObjectTracker(MultiObjectTrackerOptions options)
-: m_options(options), m_associator(options.association_config) {}
+MultiObjectTracker::MultiObjectTracker(
+  MultiObjectTrackerOptions options, const tf2::BufferCore & buffer)
+: m_options{options},
+  m_object_associator{options.object_association_config},
+  m_vision_associator{options.vision_association_config, buffer},
+  m_track_creator{options.track_creator_config, buffer}
+{
+  m_tracks.frame_id = m_options.frame;
+}
 
-TrackerUpdateResult MultiObjectTracker::update(
-  DetectedObjectsMsg detections,
+DetectedObjectsUpdateResult MultiObjectTracker::update(
+  const DetectedObjectsMsg & detections,
   const nav_msgs::msg::Odometry & detection_frame_odometry)
 {
-  TrackerUpdateResult result;
+  DetectedObjectsUpdateResult result;
   result.status = this->validate(detections, detection_frame_odometry);
   if (result.status != TrackerUpdateStatus::Ok) {
     return result;
@@ -90,15 +97,15 @@ TrackerUpdateResult MultiObjectTracker::update(
   // ==================================
   // Transform detections
   // ==================================
-  this->transform(detections, detection_frame_odometry);
+  const auto detection_in_tracker_frame = this->transform(detections, detection_frame_odometry);
 
   // ==================================
   // Predict tracks forward
   // ==================================
   // TODO(nikolai.morin): Simplify after #1002
-  const auto target_time = time_utils::from_message(detections.header.stamp);
+  const auto target_time = time_utils::from_message(detection_in_tracker_frame.header.stamp);
   const auto dt = target_time - m_last_update;
-  for (auto & object : m_objects) {
+  for (auto & object : m_tracks.objects) {
     object.predict(dt);
   }
 
@@ -106,7 +113,7 @@ TrackerUpdateResult MultiObjectTracker::update(
   // Associate observations with tracks
   // ==================================
   AssociatorResult association;
-  association = m_associator.assign(detections, this->m_objects);
+  association = m_object_associator.assign(detection_in_tracker_frame, this->m_tracks);
   if (association.had_errors) {
     result.status = TrackerUpdateStatus::InvalidShape;
   }
@@ -114,51 +121,64 @@ TrackerUpdateResult MultiObjectTracker::update(
   // ==================================
   // Update tracks with observations
   // ==================================
-  for (size_t track_idx = 0; track_idx < m_objects.size(); ++track_idx) {
+  for (size_t track_idx = 0; track_idx < m_tracks.objects.size(); ++track_idx) {
     size_t detection_idx = association.track_assignments[track_idx];
     if (detection_idx == AssociatorResult::UNASSIGNED) {
       continue;
     }
-    const auto & detection = detections.objects[detection_idx];
-    m_objects[track_idx].update(detection);
+    const auto & detection = detection_in_tracker_frame.objects[detection_idx];
+    m_tracks.objects[track_idx].update(detection);
   }
   for (const size_t track_idx : association.unassigned_track_indices) {
-    m_objects[track_idx].no_update();
+    m_tracks.objects[track_idx].no_update();
   }
 
   // ==================================
   // Initialize new tracks
   // ==================================
-  for (size_t new_detection_idx : association.unassigned_detection_indices) {
-    const auto & detection = detections.objects[new_detection_idx];
-    m_objects.push_back(
-      TrackedObject(
-        detection,
-        m_options.default_variance, m_options.noise_variance));
+  m_track_creator.add_objects(detection_in_tracker_frame, association);
+  {
+    const auto ret = m_track_creator.create_tracks();
+    m_tracks.objects.insert(
+      m_tracks.objects.end(),
+      std::make_move_iterator(ret.tracks.begin()),
+      std::make_move_iterator(ret.tracks.end()));
+    result.unassigned_clusters = ret.detections_leftover;
+    result.track_creation_summary = ret.track_creation_summary;
   }
 
   // ==================================
   // Prune tracks
   // ==================================
   const auto last = std::remove_if(
-    m_objects.begin(), m_objects.end(), [this](const auto & object) {
+    m_tracks.objects.begin(), m_tracks.objects.end(), [this](const auto & object) {
       return object.should_be_removed(
         this->m_options.pruning_time_threshold,
         this->m_options.pruning_ticks_threshold);
     });
-  m_objects.erase(last, m_objects.end());
-
+  m_tracks.objects.erase(last, m_tracks.objects.end());
   // ==================================
   // Build result
   // ==================================
-  result.objects =
-    std::make_unique<TrackedObjectsMsg>(this->convert_to_msg(detections.header.stamp));
+  result.tracks = this->convert_to_msg(detection_in_tracker_frame.header.stamp);
   result.status = TrackerUpdateStatus::Ok;
   m_last_update = target_time;
 
   return result;
 }
 
+void MultiObjectTracker::update(const ClassifiedRoiArrayMsg & rois)
+{
+  const auto association = m_vision_associator.assign(rois, m_tracks);
+
+  for (size_t i = 0U; i < m_tracks.objects.size(); ++i) {
+    const auto & maybe_roi_idx = association.track_assignments[i];
+    if (maybe_roi_idx != AssociatorResult::UNASSIGNED) {
+      m_tracks.objects[i].update(rois.rois[maybe_roi_idx].classifications);
+    }
+  }
+  m_track_creator.add_objects(rois, association);
+}
 
 TrackerUpdateStatus MultiObjectTracker::validate(
   const DetectedObjectsMsg & detections,
@@ -184,8 +204,8 @@ TrackerUpdateStatus MultiObjectTracker::validate(
   return TrackerUpdateStatus::Ok;
 }
 
-void MultiObjectTracker::transform(
-  DetectedObjectsMsg & detections,
+MultiObjectTracker::DetectedObjectsMsg MultiObjectTracker::transform(
+  const DetectedObjectsMsg & detections,
   const nav_msgs::msg::Odometry & detection_frame_odometry)
 {
   // Convert the odometry to Eigen objects.
@@ -197,17 +217,21 @@ void MultiObjectTracker::transform(
     detection_frame_odometry);
   // Hoisted outside the loop
   Eigen::Vector3d centroid_detection = Eigen::Vector3d::Zero();
-  Eigen::Vector3d centroid_tracking = Eigen::Vector3d::Zero();
 
-  detections.header.frame_id = m_options.frame;
-  for (auto & detection : detections.objects) {
+  DetectedObjectsMsg result;
+  result.header = detections.header;
+  result.header.frame_id = m_options.frame;
+  result.objects.reserve(detections.objects.size());
+  for (const auto & original_detection : detections.objects) {
     // Transform the shape. If needed, this can potentially be made more efficient by not using
     // tf2::doTransform, which converts the TransformStamped message to a different representation
     // in each call.
+    result.objects.emplace_back(original_detection);
+    auto & detection = result.objects.back();
     tf2::doTransform(detection.shape.polygon, detection.shape.polygon, tf_msg__tracking__detection);
     // Transform the pose.
     tf2::fromMsg(detection.kinematics.centroid_position, centroid_detection);
-    centroid_tracking = tf__tracking__detection * centroid_detection;
+    const Eigen::Vector3d centroid_tracking = tf__tracking__detection * centroid_detection;
     detection.kinematics.centroid_position = tf2::toMsg(centroid_tracking);
     if (detection.kinematics.has_position_covariance) {
       // Doing this properly is difficult. We'll ignore the rotational part. This is a practical
@@ -232,6 +256,7 @@ void MultiObjectTracker::transform(
       linear.z = frame_linear.z + eigen_linear_transformed.z();
     }
   }
+  return result;
 }
 
 MultiObjectTracker::TrackedObjectsMsg MultiObjectTracker::convert_to_msg(
@@ -239,10 +264,10 @@ MultiObjectTracker::TrackedObjectsMsg MultiObjectTracker::convert_to_msg(
 {
   TrackedObjectsMsg array;
   array.header.stamp = stamp;
-  array.header.frame_id = m_options.frame;
-  array.objects.reserve(m_objects.size());
+  array.header.frame_id = m_tracks.frame_id;
+  array.objects.reserve(m_tracks.objects.size());
   std::transform(
-    m_objects.begin(), m_objects.end(), std::back_inserter(array.objects), [](
+    m_tracks.objects.begin(), m_tracks.objects.end(), std::back_inserter(array.objects), [](
       TrackedObject o) {return o.msg();});
   return array;
 }

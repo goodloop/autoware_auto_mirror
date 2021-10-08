@@ -25,7 +25,7 @@
 
 /* Test handle_mode_change_request directly
  * & check whether ROS messages are received */
-TEST_F(DISABLED_NERaptorInterface_test, DISABLED_test_cmd_mode_change_func)
+TEST_F(NERaptorInterfaceTest, DISABLED_TestCmdModeChangeFunc)
 {
   test_hmcr myTests[kNumTests_HMCR];
   VehicleStateCommand test_vsc{};
@@ -179,7 +179,7 @@ TEST_F(DISABLED_NERaptorInterface_test, DISABLED_test_cmd_mode_change_func)
 
 /* Test handle_mode_change_request directly
  * without checking whether ROS messages are received */
-TEST_F(DISABLED_NERaptorInterface_test, test_cmd_mode_change_func_no_msg_check)
+TEST_F(NERaptorInterfaceTest, TestCmdModeChangeFuncNoMsgCheck)
 {
   test_hmcr myTests[kNumTests_HMCR];
   VehicleStateCommand test_vsc{};
@@ -322,7 +322,7 @@ TEST_F(DISABLED_NERaptorInterface_test, test_cmd_mode_change_func_no_msg_check)
 
 /* Test Mode Change Request with server client
  * & check whether ROS messages are received */
-TEST_F(DISABLED_NERaptorInterface_test, DISABLED_test_cmd_mode_change_client)
+TEST_F(NERaptorInterfaceTest, DISABLED_TestCmdModeChangeClient)
 {
   test_hmcr myTests[kNumTests_HMCR];
   VehicleStateCommand test_vsc{};
@@ -504,7 +504,7 @@ TEST_F(DISABLED_NERaptorInterface_test, DISABLED_test_cmd_mode_change_client)
 
 /* Test Mode Change Request with server client
  * without checking whether ROS messages are received */
-TEST_F(DISABLED_NERaptorInterface_test, test_cmd_mode_change_client_no_msg_check)
+TEST_F(NERaptorInterfaceTest, TestCmdModeChangeClientNoMsgCheck)
 {
   test_hmcr myTests[kNumTests_HMCR];
   VehicleStateCommand test_vsc{};
@@ -528,7 +528,7 @@ TEST_F(DISABLED_NERaptorInterface_test, test_cmd_mode_change_client_no_msg_check
 
   test_vsc.blinker = VehicleStateCommand::BLINKER_NO_COMMAND;
   test_vsc.headlight = HeadlightsCommand::NO_COMMAND;
-  test_vsc.wiper = VehicleStateCommand::WIPER_NO_COMMAND;
+  test_vsc.wiper = WipersCommand::NO_COMMAND;
   test_vsc.gear = VehicleStateCommand::GEAR_NO_COMMAND;
   test_vsc.hand_brake = false;
   test_vsc.horn = false;
@@ -673,7 +673,7 @@ TEST_F(DISABLED_NERaptorInterface_test, test_cmd_mode_change_client_no_msg_check
 
 /* Test Vehicle State Command
  * & check whether ROS messages are received */
-TEST_F(DISABLED_NERaptorInterface_test, DISABLED_test_cmd_vehicle_state)
+TEST_F(NERaptorInterfaceTest, DISABLED_TestCmdVehicleState)
 {
   test_vsc myTests[kNumTests_VSC];
   HighLevelControlCommand hlcc{};
@@ -837,7 +837,7 @@ TEST_F(DISABLED_NERaptorInterface_test, DISABLED_test_cmd_vehicle_state)
   myTests[kTestValid_VSC + 6].exp_mc.high_beam_cmd.status = HighBeam::OFF;
 
   // Test invalid: wiper
-  myTests[kTestValid_VSC + 7].in_vsc.wiper = VehicleStateCommand::WIPER_CLEAN + 1;
+  myTests[kTestValid_VSC + 7].in_vsc.wiper = WipersCommand::ENABLE_CLEAN + 1;
   myTests[kTestValid_VSC + 7].exp_mc.front_wiper_cmd.status = WiperFront::SNA;
 
   myTests[kTestValid_VSC + 8].in_vsc.wiper = 0xFF;
@@ -1039,7 +1039,7 @@ TEST_F(DISABLED_NERaptorInterface_test, DISABLED_test_cmd_vehicle_state)
 
 /* Test Vehicle State Command
  * without checking whether ROS messages are received */
-TEST_F(DISABLED_NERaptorInterface_test, test_cmd_vehicle_state_no_msg_check)
+TEST_F(NERaptorInterfaceTest, DISABLED_TestCmdVehicleStateNoMsgCheck)
 {
   test_vsc myTests[kNumTests_VSC];
   HighLevelControlCommand hlcc{};
@@ -1065,7 +1065,7 @@ TEST_F(DISABLED_NERaptorInterface_test, test_cmd_vehicle_state_no_msg_check)
   for (i = 0; i < kNumTests_VSC; i++) {
     myTests[i].in_vsc.blinker = VehicleStateCommand::BLINKER_HAZARD;
     myTests[i].in_vsc.headlight = HeadlightsCommand::ENABLE_HIGH;
-    myTests[i].in_vsc.wiper = VehicleStateCommand::WIPER_HIGH;
+    myTests[i].in_vsc.wiper = WipersCommand::ENABLE_HIGH;
     myTests[i].in_vsc.gear = VehicleStateCommand::GEAR_DRIVE;
     myTests[i].in_mcr = ModeChangeRequest::MODE_AUTONOMOUS;
     myTests[i].in_vsc.hand_brake = true;
@@ -1305,7 +1305,7 @@ TEST_F(DISABLED_NERaptorInterface_test, test_cmd_vehicle_state_no_msg_check)
 
 /* Test High Level Control Command
  * & check whether ROS messages are received */
-TEST_F(DISABLED_NERaptorInterface_test, DISABLED_test_cmd_high_level_control)
+TEST_F(NERaptorInterfaceTest, DISABLED_TestCmdHighLevelControl)
 {
   test_hlcc myTests[kNumTests_HLCC];
   MiscReport in_mr{};
@@ -1593,7 +1593,7 @@ TEST_F(DISABLED_NERaptorInterface_test, DISABLED_test_cmd_high_level_control)
 
 /* Test High Level Control Command
  * without checking whether ROS messages are received */
-TEST_F(DISABLED_NERaptorInterface_test, test_cmd_high_level_control_no_msg_check)
+TEST_F(NERaptorInterfaceTest, DISABLED_TestCmdHighLevelControlNoMsgCheck)
 {
   test_hlcc myTests[kNumTests_HLCC];
   MiscReport in_mr{};
@@ -1613,7 +1613,7 @@ TEST_F(DISABLED_NERaptorInterface_test, test_cmd_high_level_control_no_msg_check
   for (i = 0; i < kNumTests_HLCC; i++) {
     myTests[i].in_vsc.blinker = VehicleStateCommand::BLINKER_OFF;
     myTests[i].in_vsc.headlight = HeadlightsCommand::DISABLE;
-    myTests[i].in_vsc.wiper = VehicleStateCommand::WIPER_OFF;
+    myTests[i].in_vsc.wiper = WipersCommand::DISABLE;
     myTests[i].in_vsc.gear = VehicleStateCommand::GEAR_DRIVE;
     myTests[i].in_mcr = ModeChangeRequest::MODE_AUTONOMOUS;
     myTests[i].in_vsc.hand_brake = false;
@@ -1784,7 +1784,7 @@ TEST_F(DISABLED_NERaptorInterface_test, test_cmd_high_level_control_no_msg_check
 }
 
 /* Raw Control Command is not supported */
-TEST_F(DISABLED_NERaptorInterface_test, test_cmd_raw_control)
+TEST_F(NERaptorInterfaceTest, TestCmdRawControl)
 {
   /* Not supported */
   RawControlCommand rcc{};
@@ -1805,7 +1805,7 @@ TEST_F(DISABLED_NERaptorInterface_test, test_cmd_raw_control)
 
 /* Test Vehicle Control Command
  * & check whether ROS messages are received */
-TEST_F(DISABLED_NERaptorInterface_test, DISABLED_test_cmd_vehicle_control)
+TEST_F(NERaptorInterfaceTest, DISABLED_TestCmdVehicleControl)
 {
   test_vcc myTests[kNumTests_VCC];
   MiscReport in_mr{};
@@ -2194,7 +2194,7 @@ TEST_F(DISABLED_NERaptorInterface_test, DISABLED_test_cmd_vehicle_control)
 
 /* Test Vehicle Control Command
  * without checking whether ROS messages are received */
-TEST_F(DISABLED_NERaptorInterface_test, test_cmd_vehicle_control_no_msg_check)
+TEST_F(NERaptorInterfaceTest, TestCmdVehicleControlNoMsgCheck)
 {
   test_vcc myTests[kNumTests_VCC];
   MiscReport in_mr{};
@@ -2465,7 +2465,7 @@ TEST_F(DISABLED_NERaptorInterface_test, test_cmd_vehicle_control_no_msg_check)
 
 /* Test Vehicle State Report
  * & check whether ROS messages are received */
-TEST_F(DISABLED_NERaptorInterface_test, DISABLED_test_rpt_vehicle_state)
+TEST_F(NERaptorInterfaceTest, DISABLED_TestRptVehicleState)
 {
   test_vsr myTests[kNumTests_VSR];
   ModeChangeRequest::SharedPtr t_request{new ModeChangeRequest};
@@ -2620,7 +2620,7 @@ TEST_F(DISABLED_NERaptorInterface_test, DISABLED_test_rpt_vehicle_state)
 
 /* Test Vehicle State Report
  * without checking whether ROS messages are received */
-TEST_F(DISABLED_NERaptorInterface_test, test_rpt_vehicle_state_no_msg_check)
+TEST_F(NERaptorInterfaceTest, TestRptVehicleStateNoMsgCheck)
 {
   test_vsr myTests[kNumTests_VSR];
   ModeChangeRequest::SharedPtr t_request{new ModeChangeRequest};
@@ -2739,7 +2739,7 @@ TEST_F(DISABLED_NERaptorInterface_test, test_rpt_vehicle_state_no_msg_check)
 
 /* Test Vehicle Odometry Report
  * & check whether ROS messages are received */
-TEST_F(DISABLED_NERaptorInterface_test, DISABLED_test_rpt_vehicle_odometry)
+TEST_F(NERaptorInterfaceTest, DISABLED_TestRptVehicleOdometry)
 {
   test_vo myTests[kNumTests_VO];
   uint8_t timeout{0}, i{0}, dT{2};  // delta Time = 2 seconds
@@ -2887,7 +2887,7 @@ TEST_F(DISABLED_NERaptorInterface_test, DISABLED_test_rpt_vehicle_odometry)
 
 /* Test Vehicle Odometry Report
  * without checking whether ROS messages are received */
-TEST_F(DISABLED_NERaptorInterface_test, test_rpt_vehicle_odometry_no_msg_check)
+TEST_F(NERaptorInterfaceTest, TestRptVehicleOdometryNoMsgCheck)
 {
   test_vo myTests[kNumTests_VO];
   uint8_t timeout{0}, i{0}, dT{2};  // delta Time = 2 seconds
@@ -3027,7 +3027,7 @@ TEST_F(DISABLED_NERaptorInterface_test, test_rpt_vehicle_odometry_no_msg_check)
  * Note: VehicleKinematicState.delta is currently unused.
  * Not enabled in the interface & not testing it here.
  */
-TEST_F(DISABLED_NERaptorInterface_test, DISABLED_test_rpt_vehicle_kinematic_state)
+TEST_F(NERaptorInterfaceTest, DISABLED_TestRptVehicleKinematicState)
 {
   test_vks myTests[kNumTests_VKS];
   int32_t timeout{0}, i{0}, dT{2};  // delta Time = 2 seconds
@@ -3218,7 +3218,7 @@ TEST_F(DISABLED_NERaptorInterface_test, DISABLED_test_rpt_vehicle_kinematic_stat
 
 /* Test Vehicle Kinematic State Report
  * without checking whether ROS messages are received */
-TEST_F(DISABLED_NERaptorInterface_test, test_rpt_vehicle_kinematic_state_no_msg_check)
+TEST_F(NERaptorInterfaceTest, TestRptVehicleKinematicStateNoMsgCheck)
 {
   test_vks myTests[kNumTests_VKS];
   int32_t timeout{0}, i{0}, dT{2};  // delta Time = 2 seconds
@@ -3379,7 +3379,7 @@ TEST_F(DISABLED_NERaptorInterface_test, test_rpt_vehicle_kinematic_state_no_msg_
 
 /* Test the kinematic bike model
  */
-TEST_F(DISABLED_NERaptorInterface_test, test_kinematic_bike_model)
+TEST_F(NERaptorInterfaceTest, TestKinematicBikeModel)
 {
   VehicleKinematicState vks{};
 

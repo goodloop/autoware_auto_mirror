@@ -15,11 +15,10 @@
 // Co-developed by Tier IV, Inc. and Apex.AI, Inc.
 
 #include <tracking/projection.hpp>
-#include <tf2_eigen/tf2_eigen.h>
-#include <autoware_auto_tf2/tf2_autoware_auto_msgs.hpp>
 #include <geometry/intersection.hpp>
 #include <geometry/common_2d.hpp>
 #include <algorithm>
+#include <vector>
 
 namespace autoware
 {
@@ -27,40 +26,41 @@ namespace perception
 {
 namespace tracking
 {
-CameraModel::CameraModel(
-  const CameraIntrinsics & intrinsics,
-  const geometry_msgs::msg::Transform & tf_camera_from_ego
-)
-: CameraModel(intrinsics, tf2::transformToEigen(tf_camera_from_ego).cast<float32_t>()) {}
+namespace
+{
+bool is_projection_valid(const Projection & projection) noexcept
+{
+  return projection.shape.size() >= 3U;
+}
+}
 
 CameraModel::CameraModel(
-  const CameraIntrinsics & intrinsics,
-  const Eigen::Transform<float32_t, 3U, Eigen::Affine> & tf_camera_from_ego
+  const CameraIntrinsics & intrinsics
 )
-: m_height_interval{-static_cast<float32_t>(intrinsics.height) / 2.0F,
-    static_cast<float32_t>(intrinsics.height) / 2.0F},
-  m_width_interval{-static_cast<float32_t>(intrinsics.width) / 2.0F,
-    static_cast<float32_t>(intrinsics.width) / 2.0F},
+: m_height_interval{0.F, static_cast<float32_t>(intrinsics.height)},
+  m_width_interval{0.F, static_cast<float32_t>(intrinsics.width)},
   m_corners{
-    Eigen::Vector3f{Interval::min(m_width_interval), Interval::max(m_height_interval), 0.0F},
-    Eigen::Vector3f{Interval::max(m_width_interval), Interval::max(m_height_interval), 0.0F},
-    Eigen::Vector3f{Interval::max(m_width_interval), Interval::min(m_height_interval), 0.0F},
-    Eigen::Vector3f{Interval::min(m_width_interval), Interval::min(m_height_interval), 0.0F}
+    Point{}.set__x(Interval::min(m_width_interval))
+    .set__y(Interval::max(m_height_interval)).set__z(0.0F),
+    Point{}.set__x(Interval::max(m_width_interval))
+    .set__y(Interval::max(m_height_interval)).set__z(0.0F),
+    Point{}.set__x(Interval::max(m_width_interval))
+    .set__y(Interval::min(m_height_interval)).set__z(0.0F),
+    Point{}.set__x(Interval::min(m_width_interval))
+    .set__y(Interval::min(m_height_interval)).set__z(0.0F)
   }
 {
-  Eigen::Matrix3f intrinsic_matrix{};
-  intrinsic_matrix <<
+  m_intrinsics <<
     intrinsics.fx, intrinsics.skew, intrinsics.ox,
     0.0, intrinsics.fy, intrinsics.oy,
     0.0, 0.0, 1.0;
-  m_projector = intrinsic_matrix * tf_camera_from_ego;
 }
 
-std::experimental::optional<CameraModel::Point>
-CameraModel::project_point(const Point & pt_3d)
+std::experimental::optional<CameraModel::EigPoint>
+CameraModel::project_point(const EigPoint & pt_3d) const
 {
-  // `m_projector * p_3d = p_2d * depth`
-  const auto pt_2d = m_projector * pt_3d;
+  // `m_intrinsics * p_3d = p_2d * depth`
+  const auto pt_2d = m_intrinsics * pt_3d;
   const auto depth = pt_2d.z();
   // Only accept points are in front of the camera lens
   if (depth > 0.0F) {
@@ -69,22 +69,23 @@ CameraModel::project_point(const Point & pt_3d)
   return std::experimental::nullopt;
 }
 
-Projection CameraModel::project(const autoware_auto_msgs::msg::Shape & shape)
+std::experimental::optional<Projection> CameraModel::project(
+  const std::vector<Point> & points) const
 {
   Projection result;
-  const auto & points_3d = shape.polygon.points;
   auto & points2d = result.shape;
 
   const auto project_and_append = [&points2d, this](auto x, auto y, auto z) {
       const auto projected_pt = project_point(Eigen::Vector3f{x, y, z});
       if (projected_pt) {
-        points2d.emplace_back(*projected_pt);
+        points2d.emplace_back(
+          Point{}.set__x(projected_pt->x()).
+          set__y(projected_pt->y()).set__z(projected_pt->z()));
       }
     };
 
-  for (const auto & pt : points_3d) {
+  for (const auto & pt : points) {
     project_and_append(pt.x, pt.y, pt.z);
-    project_and_append(pt.x, pt.y, pt.z + shape.height);
   }
 
   // Outline the shape of the projected points in the image
@@ -93,7 +94,9 @@ Projection CameraModel::project(const autoware_auto_msgs::msg::Shape & shape)
   points2d.resize(static_cast<uint32_t>(std::distance(points2d.cbegin(), end_of_shape_it)));
 
   result.shape = common::geometry::convex_polygon_intersection2d(m_corners, points2d);
-  return result;
+  return is_projection_valid(result) ?
+         std::experimental::make_optional(result) :
+         std::experimental::nullopt;
 }
 
 }  // namespace tracking

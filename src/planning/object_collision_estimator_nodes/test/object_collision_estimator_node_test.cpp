@@ -1,4 +1,4 @@
-// Copyright 2020 Arm Limited
+// Copyright 2020-2021 Arm Limited
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -47,7 +47,8 @@ const auto make_point(const float32_t x, const float32_t y)
 
 void object_collision_estimator_node_test(
   std::size_t trajectory_length,
-  std::size_t obstacle_bbox_idx)
+  std::size_t obstacle_bbox_idx,
+  float32_t generated_obstacle_size = 0.5)
 {
   rclcpp::init(0, nullptr);
 
@@ -98,6 +99,10 @@ void object_collision_estimator_node_test(
   node_options.append_parameter_override(
     "stop_margin",
     0.0);
+  const float32_t min_obstacle_dimension_m = 0.0004;
+  node_options.append_parameter_override(
+    "min_obstacle_dimension_m",
+    min_obstacle_dimension_m);
   // create collision estimator node
   auto estimator_node = std::make_shared<ObjectCollisionEstimatorNode>(node_options);
 
@@ -136,8 +141,9 @@ void object_collision_estimator_node_test(
 
     auto obstacle_point = trajectory.points[obstacle_bbox_idx];
     obstacle_bbox.centroid = make_point(obstacle_point.x, obstacle_point.y);
-    obstacle_bbox.size = make_point(0.5, 0.5);
-    obstacle_bbox.orientation.x = 1.0F;
+    obstacle_bbox.size = make_point(generated_obstacle_size, generated_obstacle_size);
+    obstacle_bbox.orientation.w = 1.0F / sqrtf(2.0F);
+    obstacle_bbox.orientation.z = 1.0F / sqrtf(2.0F);
     obstacle_bbox.corners = {
       make_point(
         obstacle_point.x - obstacle_bbox.size.x / 2,
@@ -219,11 +225,11 @@ void object_collision_estimator_node_test(
   rclcpp::shutdown();
 }
 
-TEST(object_collision_estimator_node, sanity) {
+TEST(ObjectCollisionEstimatorNode, Sanity) {
   object_collision_estimator_node_test(100, 40);
 }
 
-TEST(object_collision_estimator_node, short_trajectory) {
+TEST(ObjectCollisionEstimatorNode, ShortTrajectory) {
   object_collision_estimator_node_test(3, 1);
   object_collision_estimator_node_test(3, 2);
 
@@ -233,11 +239,15 @@ TEST(object_collision_estimator_node, short_trajectory) {
   object_collision_estimator_node_test(0, 2);
 }
 
-TEST(object_collision_estimator_node, emergency_stop) {
+TEST(ObjectCollisionEstimatorNode, EmergencyStop) {
   object_collision_estimator_node_test(100, 0);
   object_collision_estimator_node_test(100, 1);
 }
 
-TEST(object_collision_estimator_node, no_obstacle) {
+TEST(ObjectCollisionEstimatorNode, NoObstacle) {
   object_collision_estimator_node_test(100, 101);
+}
+
+TEST(ObjectCollisionEstimatorNode, SmallObstacle) {
+  object_collision_estimator_node_test(100, 40, 0.0003);
 }

@@ -73,6 +73,13 @@ def generate_launch_description():
             ("points_clustered", "cluster_points")
         ])
 
+    vision_detections = Node(
+            name='vision_detections',
+            executable='ground_truth_detections_node_exe',
+            package='ground_truth_detections',
+            on_exit=Shutdown()
+    )
+
     # point cloud filter transform param file shared by front and rear instances
     filter_transform_param = get_param_file(
         'point_cloud_filter_transform_nodes',
@@ -147,7 +154,8 @@ def generate_launch_description():
         ],
         remappings=[
             ("detected_objects", "/lidars/lidar_detected_objects"),
-            ("odometry", "/vehicle/odom_pose")
+            ("ego_state", "/vehicle/odom_pose"),
+            ("classified_rois", "/perception/ground_truth_detections_2d")
         ],
         condition=LaunchConfigurationEquals('use_ndt', 'False')
     )
@@ -167,7 +175,8 @@ def generate_launch_description():
         ],
         remappings=[
             ("detected_objects", "/lidars/lidar_detected_objects"),
-            ("odometry", "/localization/odometry")
+            ("ego_state", "/localization/odometry"),
+            ("classified_rois", "/perception/ground_truth_detections_2d")
         ],
         condition=IfCondition(LaunchConfiguration('use_ndt'))
     )
@@ -259,6 +268,33 @@ def generate_launch_description():
         parameters=[{'robot_description': urdf_file}],
     )
 
+    lidar_projector = Node(
+        name='lidar_projector',
+        package='cluster_projection_node',
+        executable='cluster_projection_node_exe',
+        parameters=[get_param_file('cluster_projection_node',
+                                   'cluster_projection_node.param.yaml')],
+        remappings=[
+            ("/clusters_in", "/perception/associated_detections"),
+            ("/projected_clusters", "/track_creating_projections"),
+        ],
+        on_exit=Shutdown()
+    )
+
+    image_visualizer = Node(
+        name='image_visualizer',
+        package='detection_2d_visualizer',
+        executable='detection_2d_visualizer_node_exe',
+        on_exit=Shutdown(),
+        parameters=[get_param_file('autoware_demos',
+                                   'tracker_detection_visualization.param.yaml')],
+        remappings=[
+            ("/projections", "/track_creating_projections"),
+            ("/rois", "perception/ground_truth_detections_2d"),
+            ("/image_with_detections", "/image_with_detections")
+        ]
+    )
+
     # Run rviz
     examples_pkg_path = get_package_share_directory(
         'autoware_demos')
@@ -274,6 +310,7 @@ def generate_launch_description():
         use_ndt,
         covariance_insertion,
         euclidean_clustering,
+        vision_detections,
         filter_transform_vlp16_front,
         filter_transform_vlp16_rear,
         lgsvl_interface,
@@ -287,4 +324,6 @@ def generate_launch_description():
         rviz_runner,
         state_estimation,
         voxel_grid_downsampling,
+        lidar_projector,
+        image_visualizer
     ])

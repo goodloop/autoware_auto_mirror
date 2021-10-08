@@ -31,9 +31,9 @@ protected:
   void SetUp()
   {
     // Wiper
-    ASSERT_EQ(VSR::WIPER_LOW, VSC::WIPER_LOW);
-    ASSERT_EQ(VSR::WIPER_HIGH, VSC::WIPER_HIGH);
-    ASSERT_EQ(VSR::WIPER_OFF, VSC::WIPER_OFF);
+    ASSERT_EQ(VSR::WIPER_LOW, WipersCommand::ENABLE_LOW);
+    ASSERT_EQ(VSR::WIPER_HIGH, WipersCommand::ENABLE_HIGH);
+    ASSERT_EQ(VSR::WIPER_OFF, WipersCommand::DISABLE);
     // headlight
     ASSERT_EQ(VSR::HEADLIGHT_OFF, HeadlightsCommand::DISABLE);
     ASSERT_EQ(VSR::HEADLIGHT_ON, HeadlightsCommand::ENABLE_LOW);
@@ -41,12 +41,12 @@ protected:
   }
 };
 
-class wipers_on_headlights_on : public wiper_headlight_state_machine
+class WipersOnHeadlightsOn : public wiper_headlight_state_machine
 {
 };
 
 // Turning wipers on should turn on headlights: wiper command, light command, light result
-TEST_P(wipers_on_headlights_on, basic)
+TEST_P(WipersOnHeadlightsOn, Basic)
 {
   const auto param = GetParam();
   const auto state = VSC{}.set__wiper(param.wiper).set__headlight(param.headlight);
@@ -68,33 +68,42 @@ TEST_P(wipers_on_headlights_on, basic)
 }
 
 INSTANTIATE_TEST_CASE_P(
-  test,
-  wipers_on_headlights_on,
+  Test,
+  WipersOnHeadlightsOn,
   ::testing::Values(
-    WiperHeadlight{VSC::WIPER_LOW, HeadlightsCommand::NO_COMMAND, HeadlightsCommand::ENABLE_LOW},
-    WiperHeadlight{VSC::WIPER_LOW, HeadlightsCommand::DISABLE, HeadlightsCommand::ENABLE_LOW},
-    WiperHeadlight{VSC::WIPER_LOW, HeadlightsCommand::ENABLE_LOW, HeadlightsCommand::ENABLE_LOW},
-    WiperHeadlight{VSC::WIPER_LOW, HeadlightsCommand::ENABLE_HIGH, HeadlightsCommand::ENABLE_HIGH},
-    WiperHeadlight{VSC::WIPER_HIGH, HeadlightsCommand::NO_COMMAND, HeadlightsCommand::ENABLE_LOW},
-    WiperHeadlight{VSC::WIPER_HIGH, HeadlightsCommand::DISABLE, HeadlightsCommand::ENABLE_LOW},
-    WiperHeadlight{VSC::WIPER_HIGH, HeadlightsCommand::ENABLE_LOW, HeadlightsCommand::ENABLE_LOW},
-    WiperHeadlight{VSC::WIPER_HIGH, HeadlightsCommand::ENABLE_HIGH, HeadlightsCommand::ENABLE_HIGH}
+    WiperHeadlight{WipersCommand::ENABLE_LOW, HeadlightsCommand::NO_COMMAND,
+      HeadlightsCommand::ENABLE_LOW},
+    WiperHeadlight{WipersCommand::ENABLE_LOW, HeadlightsCommand::DISABLE,
+      HeadlightsCommand::ENABLE_LOW},
+    WiperHeadlight{WipersCommand::ENABLE_LOW, HeadlightsCommand::ENABLE_LOW,
+      HeadlightsCommand::ENABLE_LOW},
+    WiperHeadlight{WipersCommand::ENABLE_LOW, HeadlightsCommand::ENABLE_HIGH,
+      HeadlightsCommand::ENABLE_HIGH},
+    WiperHeadlight{WipersCommand::ENABLE_HIGH, HeadlightsCommand::NO_COMMAND,
+      HeadlightsCommand::ENABLE_LOW},
+    WiperHeadlight{WipersCommand::ENABLE_HIGH, HeadlightsCommand::DISABLE,
+      HeadlightsCommand::ENABLE_LOW},
+    WiperHeadlight{WipersCommand::ENABLE_HIGH, HeadlightsCommand::ENABLE_LOW,
+      HeadlightsCommand::ENABLE_LOW},
+    WiperHeadlight{WipersCommand::ENABLE_HIGH, HeadlightsCommand::ENABLE_HIGH,
+      HeadlightsCommand::ENABLE_HIGH}
     // cppcheck-suppress syntaxError
   ),
 );
 
-class wipers_off_headlight_no_change : public wiper_headlight_state_machine
+class WipersOffHeadlightNoChange : public wiper_headlight_state_machine
 {
 };
 
 // Turning off wipers should keep headlights on: wiper state, light state, light command
-TEST_P(wipers_off_headlight_no_change, basic)
+TEST_P(WipersOffHeadlightNoChange, Basic)
 {
   const auto param = GetParam();
   // Set state to wipers on, headlights on
   sm_.update(VO{}, VSR{}.set__headlight(param.headlight).set__wiper(param.wiper));
   // Turn off wipers
-  const auto state = VSC{}.set__wiper(VSC::WIPER_OFF).set__headlight(param.headlight_result);
+  const auto state =
+    VSC{}.set__wiper(WipersCommand::DISABLE).set__headlight(param.headlight_result);
   const auto cmd = sm_.compute_safe_commands(Command{ctrl, state});
   // Nothing should change
   EXPECT_EQ(cmd.control(), ctrl);
@@ -104,8 +113,8 @@ TEST_P(wipers_off_headlight_no_change, basic)
 }
 
 INSTANTIATE_TEST_CASE_P(
-  test,
-  wipers_off_headlight_no_change,
+  Test,
+  WipersOffHeadlightNoChange,
   ::testing::Values(
     WiperHeadlight{VSR::WIPER_LOW, VSR::HEADLIGHT_ON, HeadlightsCommand::NO_COMMAND},
     WiperHeadlight{VSR::WIPER_LOW, VSR::HEADLIGHT_ON, HeadlightsCommand::DISABLE},

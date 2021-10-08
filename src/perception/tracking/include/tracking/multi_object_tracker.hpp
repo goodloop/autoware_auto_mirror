@@ -21,26 +21,30 @@
 #ifndef TRACKING__MULTI_OBJECT_TRACKER_HPP_
 #define TRACKING__MULTI_OBJECT_TRACKER_HPP_
 
+#include <tracking/detected_object_associator.hpp>
+#include <tracking/greedy_roi_associator.hpp>
+#include <tracking/track_creator.hpp>
+#include <tracking/tracked_object.hpp>
+#include <tracking/visibility_control.hpp>
+
+#include <autoware_auto_msgs/msg/detected_object.hpp>
+#include <autoware_auto_msgs/msg/tracked_object.hpp>
+#include <autoware_auto_msgs/msg/tracked_objects.hpp>
+#include <common/types.hpp>
+#include <geometry_msgs/msg/transform_stamped.hpp>
+#include <motion_model/linear_motion_model.hpp>
+#include <nav_msgs/msg/odometry.hpp>
+#include <state_estimation/kalman_filter/kalman_filter.hpp>
+#include <state_estimation/noise_model/wiener_noise.hpp>
+#include <state_vector/common_states.hpp>
+#include <tf2/buffer_core.h>
+
 #include <chrono>
 #include <cstddef>
 #include <limits>
 #include <memory>
 #include <string>
 #include <vector>
-
-#include "autoware_auto_msgs/msg/detected_object.hpp"
-#include "autoware_auto_msgs/msg/tracked_object.hpp"
-#include "autoware_auto_msgs/msg/tracked_objects.hpp"
-#include "common/types.hpp"
-#include "geometry_msgs/msg/transform_stamped.hpp"
-#include "nav_msgs/msg/odometry.hpp"
-#include "tracking/data_association.hpp"
-#include "tracking/tracked_object.hpp"
-#include "state_vector/common_states.hpp"
-#include "state_estimation/kalman_filter/kalman_filter.hpp"
-#include "motion_model/linear_motion_model.hpp"
-#include "state_estimation/noise_model/wiener_noise.hpp"
-#include "tracking/visibility_control.hpp"
 
 
 namespace autoware
@@ -72,44 +76,47 @@ enum class TrackerUpdateStatus
 
 
 /// \brief Output of MultiObjectTracker::update.
-struct TRACKING_PUBLIC TrackerUpdateResult
+struct TRACKING_PUBLIC DetectedObjectsUpdateResult
 {
-  /// The tracking output. It can be nullptr when the status is not Ok.
-  std::unique_ptr<autoware_auto_msgs::msg::TrackedObjects> objects;
+  /// The existing tracks output.
+  autoware_auto_msgs::msg::TrackedObjects tracks;
+  /// Any unassigned clusters left after the update.
+  autoware_auto_msgs::msg::DetectedObjects unassigned_clusters;
   /// Indicates the success or failure, and kind of failure, of the tracking operation.
   TrackerUpdateStatus status;
-  /// How many of the input objects are not present in the output.
-  int ignored = 0;
+  /// Additional context regarding the track creation
+  TrackCreationSummary track_creation_summary;
 };
 
 /// \brief Options for object tracking, with sensible defaults.
 struct TRACKING_PUBLIC MultiObjectTrackerOptions
 {
-  /// Data association parameters.
-  DataAssociationConfig association_config;
-  /// When initializing a new track, this value is used for the variance when none is provided by
-  /// the detection.
-  float32_t default_variance = -1.0F;  // Invalid, to make sure it is set.
-  /// The magnitude of the noise in the Kalman filter.
-  float32_t noise_variance = -1.0F;  // Invalid, to make sure it is set.
+  /// Detected object association parameters.
+  DataAssociationConfig object_association_config;
+  /// Vision ROI association parameters.
+  GreedyRoiAssociatorConfig vision_association_config;
+  /// Track creator parameters.
+  TrackCreatorConfig track_creator_config;
   /// Time after which unseen tracks should be pruned.
   std::chrono::nanoseconds pruning_time_threshold = std::chrono::nanoseconds::max();
   /// Number of updates after which unseen tracks should be pruned.
   std::size_t pruning_ticks_threshold = std::numeric_limits<std::size_t>::max();
   /// The frame in which to do tracking.
-  std::string frame = "map";  // This default probably does not need to be changed.
+  std::string frame = "map";
 };
-
 
 /// \brief A class for multi-object tracking.
 class TRACKING_PUBLIC MultiObjectTracker
 {
-public:
+private:
   using DetectedObjectsMsg = autoware_auto_msgs::msg::DetectedObjects;
+  using ClassifiedRoiArrayMsg = autoware_auto_msgs::msg::ClassifiedRoiArray;
   using TrackedObjectsMsg = autoware_auto_msgs::msg::TrackedObjects;
 
+public:
   /// Constructor
-  explicit MultiObjectTracker(MultiObjectTrackerOptions options);
+  explicit MultiObjectTracker(
+    MultiObjectTrackerOptions options, const tf2::BufferCore & tf2_buffer);
 
   /// \brief Update the tracks with the specified detections and return the tracks at the current
   /// timestamp.
@@ -117,9 +124,13 @@ public:
   /// \param[in] detection_frame_odometry An odometry message for the detection frame in the
   /// tracking frame, which is defined in MultiObjectTrackerOptions.
   /// \return A result object containing tracks, unless an error occurred.
-  TrackerUpdateResult update(
-    DetectedObjectsMsg detections,
+  DetectedObjectsUpdateResult update(
+    const DetectedObjectsMsg & detections,
     const nav_msgs::msg::Odometry & detection_frame_odometry);
+
+  /// \brief Update the tracks with the specified detections
+  /// \param[in] rois An array of vision detections.
+  void update(const ClassifiedRoiArrayMsg & rois);
 
 private:
   /// Check that the input data is valid.
@@ -128,15 +139,15 @@ private:
     const nav_msgs::msg::Odometry & detection_frame_odometry);
 
   /// Transform the detections into the tracker frame.
-  void transform(
-    DetectedObjectsMsg & detections,
+  DetectedObjectsMsg transform(
+    const DetectedObjectsMsg & detections,
     const nav_msgs::msg::Odometry & detection_frame_odometry);
 
   /// Convert the internal tracked object representation to the ROS message type.
   TrackedObjectsMsg convert_to_msg(const builtin_interfaces::msg::Time & stamp) const;
 
   /// The tracked objects, also called "tracks".
-  std::vector<TrackedObject> m_objects;
+  TrackedObjects m_tracks;
 
   /// Timestamp of the last update.
   std::chrono::system_clock::time_point m_last_update;
@@ -145,7 +156,12 @@ private:
   MultiObjectTrackerOptions m_options;
 
   /// Associator for matching observations to tracks.
-  Associator m_associator;
+  DetectedObjectAssociator m_object_associator;
+
+  GreedyRoiAssociator m_vision_associator;
+
+  /// Creator for creating tracks based on unassociated observations
+  TrackCreator m_track_creator;
 };
 
 }  // namespace tracking

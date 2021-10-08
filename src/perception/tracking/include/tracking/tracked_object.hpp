@@ -21,19 +21,21 @@
 #ifndef TRACKING__TRACKED_OBJECT_HPP_
 #define TRACKING__TRACKED_OBJECT_HPP_
 
+#include <autoware_auto_msgs/msg/detected_object.hpp>
+#include <autoware_auto_msgs/msg/detected_objects.hpp>
+#include <autoware_auto_msgs/msg/shape.hpp>
+#include <autoware_auto_msgs/msg/tracked_objects.hpp>
+#include <common/types.hpp>
+#include <motion_model/linear_motion_model.hpp>
+#include <state_estimation/kalman_filter/kalman_filter.hpp>
+#include <state_estimation/noise_model/wiener_noise.hpp>
+#include <state_vector/common_states.hpp>
+#include <tracking/classification_tracker.hpp>
+#include <tracking/visibility_control.hpp>
+
 #include <chrono>
 #include <cstddef>
-
-#include "autoware_auto_msgs/msg/detected_object.hpp"
-#include "autoware_auto_msgs/msg/detected_objects.hpp"
-#include "autoware_auto_msgs/msg/tracked_objects.hpp"
-#include "autoware_auto_msgs/msg/shape.hpp"
-#include "common/types.hpp"
-#include "motion_model/linear_motion_model.hpp"
-#include "state_estimation/kalman_filter/kalman_filter.hpp"
-#include "state_estimation/noise_model/wiener_noise.hpp"
-#include "state_vector/common_states.hpp"
-#include "tracking/visibility_control.hpp"
+#include <vector>
 
 namespace autoware
 {
@@ -53,6 +55,7 @@ public:
   using EKF = autoware::common::state_estimation::KalmanFilter<MotionModel, NoiseModel>;
   using TrackedObjectMsg = autoware_auto_msgs::msg::TrackedObject;
   using DetectedObjectMsg = autoware_auto_msgs::msg::DetectedObject;
+  using ObjectClassifications = autoware_auto_msgs::msg::TrackedObject::_classification_type;
   using ShapeMsg = autoware_auto_msgs::msg::Shape;
 
   /// Constructor
@@ -70,6 +73,9 @@ public:
 
   /// Adjust the track to the detection.
   void update(const DetectedObjectMsg & detection);
+
+  /// Update just the classification state of the track
+  void update(const ObjectClassifications & obj_type);
 
   /// Call when no correspondence for this track was found.
   void no_update();
@@ -115,6 +121,18 @@ private:
   /// All variables will initially have this variance where the detection
   /// does not contain one.
   common::types::float64_t m_default_variance = -1.0;
+  /// Track class classifier.
+  ClassificationTracker m_classifier;
+};
+
+
+/// A collection of tracked objects.
+struct TRACKING_PUBLIC TrackedObjects
+{
+  /// Tracked objects.
+  std::vector<TrackedObject> objects;
+  /// Frame in which the objects exist.
+  std_msgs::msg::Header::_frame_id_type frame_id;
 };
 
 }  // namespace tracking
