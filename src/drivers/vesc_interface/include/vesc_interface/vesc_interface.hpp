@@ -44,6 +44,9 @@
 #include <chrono>
 #include <cstdint>
 
+
+using autoware::common::types::float64_t;
+
 using autoware_auto_msgs::msg::RawControlCommand;
 using autoware_auto_msgs::msg::VehicleControlCommand;
 using autoware_auto_msgs::msg::VehicleStateCommand;
@@ -71,10 +74,10 @@ public:
   /// TODO(jacobjj): Comment
   VESCInterface(
     rclcpp::Node & node,
-    double speed_to_erpm_gain,
-    double speed_to_erpm_offset,
-    double steering_to_servo_gain,
-    double steering_to_servo_offset
+    float64_t speed_to_erpm_gain,
+    float64_t speed_to_erpm_offset,
+    float64_t steering_to_servo_gain,
+    float64_t steering_to_servo_offset
   );
 
   /// \brief Sends True message
@@ -110,13 +113,13 @@ private:
   // ROS parameters
   rclcpp::Logger m_logger;
   // conversion and gain offsets
-  double speed_to_erpm_gain_, speed_to_erpm_offset_;
-  double steering_to_servo_gain_, steering_to_servo_offset_;
+  float64_t speed_to_erpm_gain_, speed_to_erpm_offset_;
+  float64_t steering_to_servo_gain_, steering_to_servo_offset_;
 
   // Direction:
   //      1: Forward
   //     -1: Reverse
-  int direction{1};
+  int32_t direction{1};
   bool seen_zero_speed{false};
 
   // ROS services

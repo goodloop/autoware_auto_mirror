@@ -25,10 +25,10 @@ namespace vesc_interface
 using VSC = autoware_auto_msgs::msg::VehicleStateCommand;
 VESCInterface::VESCInterface(
   rclcpp::Node & node,
-  double speed_to_erpm_gain,
-  double speed_to_erpm_offset,
-  double steering_to_servo_gain,
-  double steering_to_servo_offset
+  float64_t speed_to_erpm_gain,
+  float64_t speed_to_erpm_offset,
+  float64_t steering_to_servo_gain,
+  float64_t steering_to_servo_offset
 )
 : m_logger{node.get_logger()},
   speed_to_erpm_gain_{speed_to_erpm_gain},
