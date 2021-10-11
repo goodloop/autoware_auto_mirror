@@ -8,6 +8,9 @@
   <license>Apache 2.0</license>
 
   <buildtool_depend>ament_cmake_auto</buildtool_depend>
+  <buildtool_depend>curl</buildtool_depend>
+  <buildtool_depend>tar</buildtool_depend>
+  <buildtool_depend>coreutils</buildtool_depend>
 
   <build_depend>autoware_auto_cmake</build_depend>
 

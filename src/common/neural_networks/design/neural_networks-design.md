@@ -42,8 +42,8 @@ The structure is as follow:
     └── ...
 ```
 
-The pre-compiled networks are only downloaded the first time this package is built. To re-trigger
-the download step, the user can remove the package's build directory.
+The pre-compiled networks are downloaded at build time when a new revision is available, provided
+that `DOWNLOAD_ARTIFACTS` is set (see Inputs).
 
 ## Assumptions / Known limits
 <!-- Required -->
