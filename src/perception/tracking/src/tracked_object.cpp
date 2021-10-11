@@ -156,13 +156,9 @@ void TrackedObject::update(const DetectedObjectMsg & detection)
 
 void TrackedObject::update(
   const ObjectClassifications & classification,
-  const std::experimental::optional<common::types::float32_t> maybe_covariance)
+  const common::types::float32_t covariance)
 {
-  if (!maybe_covariance) {
-    m_classifier.update(classification);
-  } else {
-    m_classifier.update(classification, *maybe_covariance);
-  }
+  m_classifier.update(classification, covariance);
 }
 
 void TrackedObject::no_update()

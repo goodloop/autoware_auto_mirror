@@ -35,6 +35,12 @@ namespace tracking
 {
 namespace
 {
+using Classification = autoware_auto_msgs::msg::ObjectClassification;
+using ClassificationsType = autoware_auto_msgs::msg::DetectedObject::_classification_type;
+static const ClassificationsType kUnknownClass = {
+  Classification{}.set__classification(Classification::UNKNOWN).set__probability(1.0F)};
+static constexpr float32_t KLidarClassificationCovariance = 1.0F;
+static constexpr float32_t kVisionClassificationCovariance = 0.1F;
 
 bool is_gravity_aligned(const geometry_msgs::msg::Quaternion & quat)
 {
@@ -169,18 +175,16 @@ DetectedObjectsUpdateResult MultiObjectTracker::update(
 
 void MultiObjectTracker::update(const ClassifiedRoiArrayMsg & rois)
 {
-  static const ClassificationsType unknown_class = {
-    Classification{}.set__classification(Classification::UNKNOWN).set__probability(1.0F)};
-  static constexpr float32_t unknown_measurement_covariance = 1.0F;
-
   const auto association = m_vision_associator.assign(rois, m_tracks);
 
   for (size_t i = 0U; i < m_tracks.objects.size(); ++i) {
     const auto & maybe_roi_idx = association.track_assignments[i];
     if (maybe_roi_idx != AssociatorResult::UNASSIGNED) {
-      m_tracks.objects[i].update(rois.rois[maybe_roi_idx].classifications);
+      m_tracks.objects[i].update(
+        rois.rois[maybe_roi_idx].classifications,
+        kVisionClassificationCovariance);
     } else {
-      m_tracks.objects[i].update(unknown_class, unknown_measurement_covariance);
+      m_tracks.objects[i].update(kUnknownClass, KLidarClassificationCovariance);
     }
   }
   m_track_creator.add_objects(rois, association);

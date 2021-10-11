@@ -26,7 +26,6 @@
 #include <tracking/track_class_variable.hpp>
 #include <tracking/visibility_control.hpp>
 
-#include <experimental/optional>
 #include <iostream>
 #include <limits>
 
