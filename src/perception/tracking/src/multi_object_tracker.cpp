@@ -17,16 +17,19 @@
 #include <tracking/multi_object_tracker.hpp>
 
 #include <autoware_auto_tf2/tf2_autoware_auto_msgs.hpp>
+#include <geometry/bounding_box/bounding_box_common.hpp>
+#include <geometry/bounding_box_2d.hpp>
 #include <geometry_msgs/msg/quaternion.hpp>
+#include <lidar_utils/cluster_utils/point_clusters_view.hpp>
 #include <tf2_eigen/tf2_eigen.h>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 #include <time_utils/time_utils.hpp>
 
 #include <algorithm>
 #include <cmath>
+#include <list>
 #include <memory>
 
-using autoware::common::types::float64_t;
 
 namespace autoware
 {
@@ -42,6 +45,10 @@ static const ClassificationsType kUnknownClass = {
   Classification{}.set__classification(Classification::UNKNOWN).set__probability(1.0F)};
 static constexpr float32_t KLidarClassificationCovariance = 1.0F;
 static constexpr float32_t kVisionClassificationCovariance = 0.1F;
+
+using autoware::common::types::float64_t;
+using geometry_msgs::build;
+using geometry_msgs::msg::Point32;
 
 bool is_gravity_aligned(const geometry_msgs::msg::Quaternion & quat)
 {
@@ -89,6 +96,37 @@ MultiObjectTracker::MultiObjectTracker(
   m_track_creator{options.track_creator_config, buffer}
 {
   m_tracks.frame_id = m_options.frame;
+}
+
+DetectedObjectsUpdateResult MultiObjectTracker::update(
+  const ClustersMsg & incoming_clusters,
+  const nav_msgs::msg::Odometry & detection_frame_odometry)
+{
+  ClustersMsg clusters = incoming_clusters;
+  BoundingBoxArray boxes_in_detection_frame;
+  boxes_in_detection_frame.header.stamp = clusters.header.stamp;
+  boxes_in_detection_frame.header.frame_id = clusters.header.frame_id;
+  for (auto cls_id = 0U; cls_id < clusters.cluster_boundary.size(); cls_id++) {
+    const auto iter_pair = common::lidar_utils::get_cluster(clusters, cls_id);
+    if (iter_pair.first == iter_pair.second) {
+      continue;
+    }
+    boxes_in_detection_frame.boxes.push_back(
+      common::geometry::bounding_box::lfit_bounding_box_2d(iter_pair.first, iter_pair.second));
+    common::geometry::bounding_box::compute_height(
+      iter_pair.first, iter_pair.second, boxes_in_detection_frame.boxes.back());
+  }
+
+  DetectedObjectsMsg detections;
+  detections.objects.reserve(boxes_in_detection_frame.boxes.size());
+  detections.header = boxes_in_detection_frame.header;
+  std::transform(
+    boxes_in_detection_frame.boxes.begin(),
+    boxes_in_detection_frame.boxes.end(),
+    std::back_inserter(detections.objects),
+    common::geometry::bounding_box::details::make_detected_object);
+
+  return update(detections, detection_frame_odometry);
 }
 
 DetectedObjectsUpdateResult MultiObjectTracker::update(
@@ -150,7 +188,7 @@ DetectedObjectsUpdateResult MultiObjectTracker::update(
       m_tracks.objects.end(),
       std::make_move_iterator(ret.tracks.begin()),
       std::make_move_iterator(ret.tracks.end()));
-    result.unassigned_clusters = ret.detections_leftover;
+    result.unassigned_clusters_indices = ret.detections_leftover_indices;
     result.maybe_roi_stamps = ret.maybe_roi_stamps;
   }
 

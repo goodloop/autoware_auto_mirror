@@ -98,7 +98,8 @@ public:
   /// Getter for centroid position
   inline Eigen::Vector2d centroid() const
   {
-    return Eigen::Vector2d {m_ekf.state().at<autoware::common::state_vector::variable::X>(),
+    return Eigen::Vector2d {
+      m_ekf.state().at<autoware::common::state_vector::variable::X>(),
       m_ekf.state().at<autoware::common::state_vector::variable::Y>()};
   }
 

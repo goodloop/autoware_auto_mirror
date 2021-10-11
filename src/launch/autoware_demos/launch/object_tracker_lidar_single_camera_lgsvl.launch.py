@@ -149,7 +149,8 @@ def generate_launch_description():
         remappings=[
             ("detected_objects", "/lidars/lidar_detected_objects"),
             ("ego_state", "/vehicle/odom_pose"),
-            ("classified_rois1", "/perception/ground_truth_detections_2d")
+            ("classified_rois1", "/perception/ground_truth_detections_2d"),
+            ("clusters", "/lidars/cluster_points")
         ],
         condition=LaunchConfigurationEquals('use_ndt', 'False')
     )
@@ -172,7 +173,8 @@ def generate_launch_description():
         remappings=[
             ("detected_objects", "/lidars/lidar_detected_objects"),
             ("ego_state", "/localization/odometry"),
-            ("classified_rois1", "/perception/ground_truth_detections_2d")
+            ("classified_rois1", "/perception/ground_truth_detections_2d"),
+            ("clusters", "/lidars/cluster_points")
         ],
         condition=IfCondition(LaunchConfiguration('use_ndt'))
     )

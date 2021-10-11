@@ -133,13 +133,9 @@ void LidarClusterIfVisionPolicy::create_using_cache(
   }
   creator_ret.maybe_roi_stamps->push_back(vision_msg.header.stamp);
 
-  std::set<size_t, std::greater<>> lidar_idx_to_erase;
-
-  for (size_t cluster_idx = 0U; cluster_idx < m_lidar_clusters.objects.size();
-    cluster_idx++)
-  {
+  for (auto cluster_idx = 0U; cluster_idx < m_lidar_clusters.objects.size(); ++cluster_idx) {
     if (association_result.track_assignments[cluster_idx] != AssociatorResult::UNASSIGNED) {
-      lidar_idx_to_erase.insert(cluster_idx);
+      creator_ret.detections_leftover_indices.push_back(cluster_idx);
       // TrackedObject constructor uses the classification field in the DetectedObject to
       // initialize track class. So assign the class from the associated ROI to the cluster.
       m_lidar_clusters.objects[cluster_idx].classification = vision_msg.rois[association_result
@@ -150,11 +146,6 @@ void LidarClusterIfVisionPolicy::create_using_cache(
           m_default_variance, m_noise_variance));
     }
   }
-
-  // Erase lidar clusters that are associated to a vision roi
-  for (const auto idx : lidar_idx_to_erase) {
-    m_lidar_clusters.objects.erase(m_lidar_clusters.objects.begin() + static_cast<int32_t>(idx));
-  }
 }
 
 TrackCreationResult LidarClusterIfVisionPolicy::create()
@@ -163,7 +154,6 @@ TrackCreationResult LidarClusterIfVisionPolicy::create()
   for (const auto & frame_cache : m_vision_cache_map) {
     create_using_cache(frame_cache.second, retval);
   }
-  retval.detections_leftover = m_lidar_clusters;
   return retval;
 }
 

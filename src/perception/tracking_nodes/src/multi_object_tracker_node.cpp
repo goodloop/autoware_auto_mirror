@@ -16,12 +16,16 @@
 
 #include <tracking_nodes/multi_object_tracker_node.hpp>
 
+#include <geometry/bounding_box/bounding_box_common.hpp>
+#include <geometry_msgs/msg/point32.hpp>
+#include <lidar_utils/cluster_utils/point_clusters_view.hpp>
 #include <rclcpp_components/register_node_macro.hpp>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 #include <time_utils/time_utils.hpp>
 
 #include <cstddef>
 #include <cstdint>
+#include <list>
 #include <memory>
 #include <string>
 #include <utility>
@@ -195,9 +199,19 @@ MultiObjectTrackerNode::MultiObjectTrackerNode(const rclcpp::NodeOptions & optio
       std::bind(&MultiObjectTrackerNode::pose_callback, this, std::placeholders::_1));
   }
 
-  m_detected_objects_subscription = create_subscription<DetectedObjects>(
-    "detected_objects", rclcpp::QoS{m_history_depth},
-    std::bind(&MultiObjectTrackerNode::detected_objects_callback, this, std::placeholders::_1));
+  const auto use_detected_objects = this->declare_parameter("use_detected_objects", true);
+  if (use_detected_objects) {
+    m_detected_objects_subscription = create_subscription<DetectedObjects>(
+      "detected_objects", rclcpp::QoS{m_history_depth},
+      std::bind(&MultiObjectTrackerNode::detected_objects_callback, this, std::placeholders::_1));
+  }
+
+  const auto use_raw_clusters = this->declare_parameter("use_raw_clusters", true);
+  if (use_raw_clusters) {
+    m_clusters_subscription = create_subscription<ClustersMsg>(
+      "clusters", rclcpp::QoS{m_history_depth},
+      std::bind(&MultiObjectTrackerNode::clusters_callback, this, std::placeholders::_1));
+  }
 
   // Initialize vision callbacks if vision is configured to be used:
   if (m_use_vision) {
@@ -225,6 +239,76 @@ MultiObjectTrackerNode::MultiObjectTrackerNode(const rclcpp::NodeOptions & optio
   }
 }
 
+void MultiObjectTrackerNode::clusters_callback(const ClustersMsg::ConstSharedPtr objs)
+{
+  using geometry_msgs::msg::Point32;
+  using geometry_msgs::build;
+
+  const rclcpp::Time msg_stamp{objs->header.stamp.sec, objs->header.stamp.nanosec};
+  const auto earliest_time = msg_stamp - kMaxLidarEgoStateStampDiff;
+  const auto latest_time = msg_stamp + kMaxLidarEgoStateStampDiff;
+  const auto matched_msgs = m_odom_cache->getInterval(earliest_time, latest_time);
+  if (matched_msgs.empty()) {
+    RCLCPP_WARN(get_logger(), "No matching odom msgs received for clusters msg");
+    return;
+  }
+  const auto result = m_tracker.update(
+    *objs, *get_closest_match(matched_msgs, objs->header.stamp));
+  if (result.status == TrackerUpdateStatus::Ok && result.maybe_roi_stamps) {
+    m_track_publisher->publish(result.tracks);
+
+    common::lidar_utils::PointClustersView clusters_msg_view{*objs};
+    DetectedObjects detections_from_clusters;
+    detections_from_clusters.header = objs->header;
+    detections_from_clusters.objects.reserve(clusters_msg_view.size());
+    for (std::uint32_t idx = 0U; idx < clusters_msg_view.size(); ++idx) {
+      autoware_auto_msgs::msg::DetectedObject detected_object;
+      detected_object.existence_probability = 1.0F;
+      // Set shape as a convex hull of the cluster.
+      auto cluster_view = clusters_msg_view[idx];
+      std::list<ClustersMsg::_points_type::value_type> point_list{
+        cluster_view.begin(), cluster_view.end()};
+      const auto hull_end_iter = common::geometry::convex_hull(point_list);
+
+      for (auto iter = point_list.begin(); iter != hull_end_iter; ++iter) {
+        const auto & hull_point = *iter;
+        detected_object.shape.polygon.points.push_back(
+          build<Point32>().x(hull_point.x).y(hull_point.y).z(0.0F));
+      }
+      common::geometry::bounding_box::compute_height(
+        cluster_view.begin(),
+        cluster_view.end(),
+        detected_object.shape);
+
+      // Compute the centroid
+      geometry_msgs::msg::Point32 sum;
+      for (const auto & point : detected_object.shape.polygon.points) {
+        sum = common::geometry::plus_2d(sum, point);
+      }
+      const auto centroid = common::geometry::times_2d(
+        sum, 1.0F / static_cast<float>(detected_object.shape.polygon.points.size()));
+      detected_object.kinematics.centroid_position.x = static_cast<double>(centroid.x);
+      detected_object.kinematics.centroid_position.y = static_cast<double>(centroid.y);
+      detected_object.kinematics.centroid_position.z = static_cast<double>(centroid.z);
+
+      // Compute the classification
+      autoware_auto_msgs::msg::ObjectClassification label;
+      label.classification = autoware_auto_msgs::msg::ObjectClassification::UNKNOWN;
+      label.probability = 1.0F;
+      detected_object.classification.emplace_back(label);
+
+      detections_from_clusters.objects.push_back(detected_object);
+    }
+    m_leftover_publisher->publish(detections_from_clusters);
+  } else {
+    RCLCPP_WARN(
+      get_logger(), "Tracker update for 3D detection at time %d.%d failed. Reason: %s",
+      objs->header.stamp.sec, objs->header.stamp.nanosec,
+      status_to_string(result.status).c_str());
+  }
+}
+
+
 void MultiObjectTrackerNode::odometry_callback(const OdometryMsg::ConstSharedPtr odom)
 {
   m_odom_cache->add(odom);
@@ -249,11 +333,11 @@ void MultiObjectTrackerNode::detected_objects_callback(const DetectedObjects::Co
     *objs, *get_closest_match(matched_msgs, objs->header.stamp));
   if (result.status == TrackerUpdateStatus::Ok && result.maybe_roi_stamps) {
     m_track_publisher->publish(result.tracks);
-    m_leftover_publisher->publish(result.unassigned_clusters);
-    maybe_visualize(*(result.maybe_roi_stamps), *objs);
+    // m_leftover_publisher->publish(result.unassigned_clusters);
+    // maybe_visualize(*(result.maybe_roi_stamps), *objs);
   } else {
     RCLCPP_WARN(
-      get_logger(), "Tracker update for vision detection at time %d.%d failed. Reason: %s",
+      get_logger(), "Tracker update for 3D detection at time %d.%d failed. Reason: %s",
       objs->header.stamp.sec, objs->header.stamp.nanosec,
       status_to_string(result.status).c_str());
   }

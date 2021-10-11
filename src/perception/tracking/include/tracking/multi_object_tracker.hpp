@@ -27,7 +27,9 @@
 #include <tracking/tracked_object.hpp>
 #include <tracking/visibility_control.hpp>
 
+#include <autoware_auto_msgs/msg/bounding_box_array.hpp>
 #include <autoware_auto_msgs/msg/detected_object.hpp>
+#include <autoware_auto_msgs/msg/point_clusters.hpp>
 #include <autoware_auto_msgs/msg/tracked_object.hpp>
 #include <autoware_auto_msgs/msg/tracked_objects.hpp>
 #include <common/types.hpp>
@@ -80,8 +82,8 @@ struct TRACKING_PUBLIC DetectedObjectsUpdateResult
 {
   /// The existing tracks output.
   autoware_auto_msgs::msg::TrackedObjects tracks;
-  /// Any unassigned clusters left after the update.
-  autoware_auto_msgs::msg::DetectedObjects unassigned_clusters;
+  /// Indices of unassigned clusters.
+  std::vector<std::size_t> unassigned_clusters_indices;
   /// Indicates the success or failure, and kind of failure, of the tracking operation.
   TrackerUpdateStatus status;
   /// Timestamps of ROI msgs used for track creation. Useful for debugging purposes.
@@ -109,8 +111,10 @@ struct TRACKING_PUBLIC MultiObjectTrackerOptions
 class TRACKING_PUBLIC MultiObjectTracker
 {
 private:
+  using ClustersMsg = autoware_auto_msgs::msg::PointClusters;
   using DetectedObjectsMsg = autoware_auto_msgs::msg::DetectedObjects;
   using DetectedObjectKinematics = autoware_auto_msgs::msg::DetectedObjectKinematics;
+  using BoundingBoxArrayMsg = autoware_auto_msgs::msg::BoundingBoxArray;
   using ClassifiedRoiArrayMsg = autoware_auto_msgs::msg::ClassifiedRoiArray;
   using TrackedObjectsMsg = autoware_auto_msgs::msg::TrackedObjects;
 
@@ -127,6 +131,10 @@ public:
   /// \return A result object containing tracks, unless an error occurred.
   DetectedObjectsUpdateResult update(
     const DetectedObjectsMsg & detections,
+    const nav_msgs::msg::Odometry & detection_frame_odometry);
+
+  DetectedObjectsUpdateResult update(
+    const ClustersMsg & detections,
     const nav_msgs::msg::Odometry & detection_frame_odometry);
 
   /// \brief Update the tracks with the specified detections

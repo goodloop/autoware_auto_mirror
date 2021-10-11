@@ -72,7 +72,7 @@ struct TRACKING_PUBLIC TrackCreationResult
   /// List of newly created tracks
   std::vector<TrackedObject> tracks;
   /// List of detection that was not associated and not used to create tracks
-  autoware_auto_msgs::msg::DetectedObjects detections_leftover;
+  std::vector<std::size_t> detections_leftover_indices;
   /// Timestamps of msgs from each of the ClassifiedROIArray topics used for track creation
   MaybeRoiStampsT maybe_roi_stamps = std::experimental::nullopt;
 };
