@@ -46,7 +46,6 @@ using autoware::common::state_estimation::Stamped;
 using autoware::common::state_estimation::convert_to;
 
 using common::types::float64_t;
-using common::types::float32_t;
 
 using CA = autoware::common::state_vector::ConstAccelerationXY64;
 using MotionModel = autoware::common::motion_model::LinearMotionModel<CA>;
@@ -157,9 +156,13 @@ void TrackedObject::update(const DetectedObjectMsg & detection)
 
 void TrackedObject::update(
   const ObjectClassifications & classification,
-  const std::experimental::optional<float32_t> maybe_covariance)
+  const std::experimental::optional<common::types::float32_t> maybe_covariance)
 {
-  m_classifier.update(classification, maybe_covariance);
+  if (!maybe_covariance) {
+    m_classifier.update(classification);
+  } else {
+    m_classifier.update(classification, *maybe_covariance);
+  }
 }
 
 void TrackedObject::no_update()

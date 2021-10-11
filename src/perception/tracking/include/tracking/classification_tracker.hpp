@@ -78,16 +78,10 @@ public:
   ///
   /// @param[in]  classification_vector  A vector of classifications with their probabilities.
   ///
-  /// @param[in]  maybe_covariance An optional covariance value for this measurement.
-  ///                              Default value will be used if not provided.
   void update(
-    const autoware_auto_msgs::msg::DetectedObject::_classification_type & classification_vector,
-    std::experimental::optional<float> maybe_covariance = std::experimental::nullopt)
+    const autoware_auto_msgs::msg::DetectedObject::_classification_type & classification_vector)
   {
-    if (maybe_covariance == std::experimental::nullopt) {
-      maybe_covariance = m_default_observation_covariance;
-    }
-    update(classification_vector, *maybe_covariance);
+    update(classification_vector, m_default_observation_covariance);
   }
 
   ///
