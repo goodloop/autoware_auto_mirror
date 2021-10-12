@@ -126,9 +126,27 @@ bool8_t VESCInterface::handle_mode_change_request(
 bool8_t VESCInterface::send_control_command(const RawControlCommand & msg)
 {
   (void)msg;
-  // Log Error, Not Implemented.
   RCLCPP_WARN(m_logger, "Cannot control the VESC using RawControlCommand");
   return true;
+}
+
+void VESCInterface::on_motor_state_report(const VescStateStamped::SharedPtr &msg)
+{
+  float64_t current_speed = (-msg->state.speed - speed_to_erpm_offset_) / speed_to_erpm_gain_;
+  if (std::fabs(current_speed)<0.05){
+    current_speed = 0.0;
+  }
+  odometry().velocity_mps = static_cast<float>(current_speed);
+
+
+  float64_t current_front_wheel_angle(0.0);
+  current_front_wheel_angle =(last_servo_cmd->data - steering_to_servo_offset_) / steering_to_servo_gain_;
+  odometry().front_wheel_angle_rad = static_cast<float>(current_front_wheel_angle);
+}
+
+void VESCInterface::on_servo_state_report(const Float64::SharedPtr &msg)
+{
+  last_servo_cmd = msg;
 }
 }  // namespace vesc_interface
 }  // namespace autoware

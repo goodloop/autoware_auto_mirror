@@ -123,13 +123,15 @@ private:
   rclcpp::Logger m_logger;
   // conversion and gain offsets
   float64_t speed_to_erpm_gain_, speed_to_erpm_offset_;
-  float64_t steering_to_servo_gain_, steering_to_servo_offset_;
+  float64_t steering_to_servo_gain_, steering_to_servo_offset_;  
+  Float64::SharedPtr last_servo_cmd;
 
   // Direction:
   //      1: Forward
   //     -1: Reverse
   int32_t direction{1};
-  bool seen_zero_speed{false};
+  bool8_t seen_zero_speed{false};
+  bool8_t run_autonomous{false};
 
   // ROS services
   rclcpp::Publisher<Float64>::SharedPtr erpm_pub_;
