@@ -18,6 +18,8 @@
 #include <common/types.hpp>
 #include <memory>
 
+#include "autoware_auto_msgs/msg/object_classification.hpp"
+
 using autoware::common::types::float32_t;
 using autoware::common::types::float64_t;
 
@@ -26,27 +28,29 @@ namespace autoware
 namespace rviz_plugins
 {
 
-BoundingBoxArrayDisplay::BoundingBoxArrayDisplay()
-: rviz_common::RosTopicDisplay<autoware_auto_msgs::msg::BoundingBoxArray>(),
+using autoware_auto_msgs::msg::ObjectClassification;
+
+DetectedObjectsDisplay::DetectedObjectsDisplay()
+: rviz_common::RosTopicDisplay<autoware_auto_msgs::msg::DetectedObjects>(),
   m_marker_common(std::make_unique<MarkerCommon>(this))
 {
   no_label_color_property_ = new rviz_common::properties::ColorProperty(
-    "No Label Color", QColor(255.0, 255.0, 255.0), "Color to draw unlabelled boundingboxes.",
+    "No Label Color", QColor(255.0, 255.0, 255.0), "Color to draw unlabelled detectedobjects.",
     this, SLOT(updateProperty()));
   car_color_property_ = new rviz_common::properties::ColorProperty(
-    "Car Color", QColor(255.0, 255.0, 0), "Color to draw car boundingboxes.",
+    "Car Color", QColor(255.0, 255.0, 0), "Color to draw car detectedobjects.",
     this, SLOT(updateProperty()));
   pedestrian_color_property_ = new rviz_common::properties::ColorProperty(
-    "Pedestrian Color", QColor(0, 0, 255.0), "Color to draw pedestrian boundingboxes.",
+    "Pedestrian Color", QColor(0, 0, 255.0), "Color to draw pedestrian detectedobjects.",
     this, SLOT(updateProperty()));
   cyclist_color_property_ = new rviz_common::properties::ColorProperty(
-    "Cyclist Color", QColor(255.0, 165.0, 0), "Color to draw cyclist boundingboxes.",
+    "Cyclist Color", QColor(255.0, 165.0, 0), "Color to draw cyclist detectedobjects.",
     this, SLOT(updateProperty()));
   motorcycle_color_property_ = new rviz_common::properties::ColorProperty(
-    "Motorcycle Color", QColor(0, 255.0, 0), "Color to draw motorcycle boundingboxes.",
+    "Motorcycle Color", QColor(0, 255.0, 0), "Color to draw motorcycle detectedobjects.",
     this, SLOT(updateProperty()));
   other_color_property_ = new rviz_common::properties::ColorProperty(
-    "Other Color", QColor(0, 0, 0), "Color to draw other boundingboxes.",
+    "Other Color", QColor(0, 0, 0), "Color to draw other detectedobjects.",
     this, SLOT(updateProperty()));
 
   alpha_property_ = new rviz_common::properties::FloatProperty(
@@ -56,44 +60,44 @@ BoundingBoxArrayDisplay::BoundingBoxArrayDisplay()
   alpha_property_->setMax(1);
 }
 
-void BoundingBoxArrayDisplay::onInitialize()
+void DetectedObjectsDisplay::onInitialize()
 {
   RTDClass::onInitialize();
   m_marker_common->initialize(context_, scene_node_);
 
-  topic_property_->setValue("lidar_bounding_boxes");
-  topic_property_->setDescription("BoundingBoxArray topic to subscribe to.");
+  topic_property_->setValue("lidar_detected_objects");
+  topic_property_->setDescription("DetectedObjects topic to subscribe to.");
 }
 
-void BoundingBoxArrayDisplay::load(const rviz_common::Config & config)
+void DetectedObjectsDisplay::load(const rviz_common::Config & config)
 {
   Display::load(config);
   m_marker_common->load(config);
 }
 
-void BoundingBoxArrayDisplay::updateProperty()
+void DetectedObjectsDisplay::updateProperty()
 {
   if (msg_cache != nullptr) {
     processMessage(msg_cache);
   }
 }
 
-void BoundingBoxArrayDisplay::processMessage(
-  BoundingBoxArray::ConstSharedPtr msg)
+void DetectedObjectsDisplay::processMessage(
+  DetectedObjects::ConstSharedPtr msg)
 {
   msg_cache = msg;
   m_marker_common->clearMarkers();
-  for (auto idx = 0U; idx < msg->boxes.size(); idx++) {
-    const auto marker_ptr = get_marker(msg->boxes[idx]);
-    marker_ptr->ns = "bounding_box";
+  for (auto idx = 0U; idx < msg->objects.size(); idx++) {
+    const auto marker_ptr = get_marker(msg->objects[idx]);
+    marker_ptr->ns = "detected_object";
     marker_ptr->header = msg->header;
     marker_ptr->id = static_cast<int>(idx);
     m_marker_common->addMessage(marker_ptr);
   }
 }
 
-visualization_msgs::msg::Marker::SharedPtr BoundingBoxArrayDisplay::get_marker(
-  const BoundingBox & box) const
+visualization_msgs::msg::Marker::SharedPtr DetectedObjectsDisplay::get_marker(
+  const DetectedObject & box) const
 {
   auto marker = std::make_shared<Marker>();
 
@@ -102,20 +106,22 @@ visualization_msgs::msg::Marker::SharedPtr BoundingBoxArrayDisplay::get_marker(
   marker->color.a = alpha_property_->getFloat();
 
   QColor color;
-  switch (box.vehicle_label) {
-    case BoundingBox::NO_LABEL:     // white: non labeled
+
+  // NOTE(esteve): using first entry in the classification vector
+  switch (box.classification[0].classification) {
+    case ObjectClassification::UNKNOWN:     // white: non labeled
       color = no_label_color_property_->getColor();
       break;
-    case BoundingBox::CAR:          // yellow: car
+    case ObjectClassification::CAR:          // yellow: car
       color = car_color_property_->getColor();
       break;
-    case BoundingBox::PEDESTRIAN:   // blue: pedestrian
+    case ObjectClassification::PEDESTRIAN:   // blue: pedestrian
       color = pedestrian_color_property_->getColor();
       break;
-    case BoundingBox::CYCLIST:      // orange: cyclist
+    case ObjectClassification::BICYCLE:      // orange: cyclist
       color = cyclist_color_property_->getColor();
       break;
-    case BoundingBox::MOTORCYCLE:   // green: motorcycle
+    case ObjectClassification::MOTORCYCLE:   // green: motorcycle
       color = motorcycle_color_property_->getColor();
       break;
     default:                        // black: other labels
@@ -126,27 +132,29 @@ visualization_msgs::msg::Marker::SharedPtr BoundingBoxArrayDisplay::get_marker(
   marker->color.r = static_cast<float>(color.redF());
   marker->color.g = static_cast<float>(color.greenF());
   marker->color.b = static_cast<float>(color.blueF());
-  marker->pose.position.x = static_cast<float64_t>(box.centroid.x);
-  marker->pose.position.y = static_cast<float64_t>(box.centroid.y);
-  marker->pose.position.z = static_cast<float64_t>(box.centroid.z);
-  marker->pose.orientation.x = static_cast<float64_t>(box.orientation.x);
-  marker->pose.orientation.y = static_cast<float64_t>(box.orientation.y);
-  marker->pose.orientation.z = static_cast<float64_t>(box.orientation.z);
-  marker->pose.orientation.w = static_cast<float64_t>(box.orientation.w);
-  marker->scale.y = static_cast<float64_t>(box.size.x);
-  marker->scale.x = static_cast<float64_t>(box.size.y);
-  marker->scale.z = static_cast<float64_t>(box.size.z);
+  marker->pose.position.x = static_cast<float64_t>(box.kinematics.centroid_position.x);
+  marker->pose.position.y = static_cast<float64_t>(box.kinematics.centroid_position.y);
+  marker->pose.position.z = static_cast<float64_t>(box.kinematics.centroid_position.z);
+  marker->pose.orientation.x = static_cast<float64_t>(box.kinematics.orientation.x);
+  marker->pose.orientation.y = static_cast<float64_t>(box.kinematics.orientation.y);
+  marker->pose.orientation.z = static_cast<float64_t>(box.kinematics.orientation.z);
+  marker->pose.orientation.w = static_cast<float64_t>(box.kinematics.orientation.w);
+
+  // NOTE(esteve): commented out because DetectedObject does not have a size field
+  // marker->scale.y = static_cast<float64_t>(box.size.x);
+  // marker->scale.x = static_cast<float64_t>(box.size.y);
+  // marker->scale.z = static_cast<float64_t>(box.size.z);
 
   return marker;
 }
 
 
-void BoundingBoxArrayDisplay::update(float32_t wall_dt, float32_t ros_dt)
+void DetectedObjectsDisplay::update(float32_t wall_dt, float32_t ros_dt)
 {
   m_marker_common->update(wall_dt, ros_dt);
 }
 
-void BoundingBoxArrayDisplay::reset()
+void DetectedObjectsDisplay::reset()
 {
   RosTopicDisplay::reset();
   m_marker_common->clearMarkers();
@@ -157,4 +165,4 @@ void BoundingBoxArrayDisplay::reset()
 
 // Export the plugin
 #include <pluginlib/class_list_macros.hpp>  // NOLINT
-PLUGINLIB_EXPORT_CLASS(autoware::rviz_plugins::BoundingBoxArrayDisplay, rviz_common::Display)
+PLUGINLIB_EXPORT_CLASS(autoware::rviz_plugins::DetectedObjectsDisplay, rviz_common::Display)

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <autoware_auto_msgs/msg/bounding_box_array.hpp>
+#include <autoware_auto_msgs/msg/detected_objects.hpp>
 #include <visualization_msgs/msg/marker_array.hpp>
 #include <visualization_msgs/msg/marker.hpp>
 #include <time_utils/time_utils.hpp>
@@ -32,13 +32,13 @@ namespace planning
 namespace object_collision_estimator_nodes
 {
 
-using autoware_auto_msgs::msg::BoundingBoxArray;
+using autoware_auto_msgs::msg::DetectedObjects;
 using visualization_msgs::msg::Marker;
 using visualization_msgs::msg::MarkerArray;
 using autoware::common::types::float64_t;
 using autoware::common::types::float32_t;
 
-MarkerArray toVisualizationMarkerArray(const BoundingBoxArray bboxes, const size_t collision_idx)
+MarkerArray toVisualizationMarkerArray(const DetectedObjects bboxes, const size_t collision_idx)
 {
   MarkerArray marker_array{};
 
@@ -58,7 +58,7 @@ MarkerArray toVisualizationMarkerArray(const BoundingBoxArray bboxes, const size
   marker.action = Marker::ADD;
   marker.lifetime = time_utils::to_message(std::chrono::nanoseconds(100000));
 
-  for (std::size_t i = 0; i < bboxes.boxes.size(); ++i) {
+  for (std::size_t i = 0; i < bboxes.objects.size(); ++i) {
     marker.id = static_cast<int32_t>(i);
     marker.pose.orientation.w = 1.0;
     if (i < collision_idx) {
@@ -81,18 +81,18 @@ MarkerArray toVisualizationMarkerArray(const BoundingBoxArray bboxes, const size
       marker.color.b = 0.7F;
     }
     marker.points.clear();
-    const auto box = bboxes.boxes.at(i);
+    const auto box = bboxes.objects.at(i);
     for (std::size_t j = 0; j < 4; ++j) {
       geometry_msgs::msg::Point point;
-      point.x = static_cast<float64_t>(box.corners.at(j).x);
-      point.y = static_cast<float64_t>(box.corners.at(j).y);
-      point.z = static_cast<float64_t>(box.corners.at(j).z);
+      point.x = static_cast<float64_t>(box.shape.polygon.points.at(j).x);
+      point.y = static_cast<float64_t>(box.shape.polygon.points.at(j).y);
+      point.z = static_cast<float64_t>(box.shape.polygon.points.at(j).z);
       marker.points.push_back(point);
     }
     geometry_msgs::msg::Point point;
-    point.x = static_cast<float64_t>(box.corners.at(0).x);
-    point.y = static_cast<float64_t>(box.corners.at(0).y);
-    point.z = static_cast<float64_t>(box.corners.at(0).z);
+    point.x = static_cast<float64_t>(box.shape.polygon.points.at(0).x);
+    point.y = static_cast<float64_t>(box.shape.polygon.points.at(0).y);
+    point.z = static_cast<float64_t>(box.shape.polygon.points.at(0).z);
     marker.points.push_back(point);
 
     marker_array.markers.push_back(marker);

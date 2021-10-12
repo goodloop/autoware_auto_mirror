@@ -282,11 +282,11 @@ std::size_t EuclideanCluster::last_cluster_size(const Clusters & clusters)
 ////////////////////////////////////////////////////////////////////////////////
 namespace details
 {
-BoundingBoxArray compute_bounding_boxes(
+DetectedObjects compute_bounding_boxes(
   Clusters & clusters, const BboxMethod method,
   const bool compute_height)
 {
-  BoundingBoxArray boxes;
+  DetectedObjects boxes;
   for (uint32_t cls_id = 0U; cls_id < clusters.cluster_boundary.size(); cls_id++) {
     try {
       const auto iter_pair = common::lidar_utils::get_cluster(clusters, cls_id);
@@ -295,12 +295,12 @@ BoundingBoxArray compute_bounding_boxes(
       }
 
       switch (method) {
-        case BboxMethod::Eigenbox: boxes.boxes.push_back(
+        case BboxMethod::Eigenbox: boxes.objects.push_back(
             common::geometry::bounding_box::eigenbox_2d(
               iter_pair.first,
               iter_pair.second));
           break;
-        case BboxMethod::LFit:     boxes.boxes.push_back(
+        case BboxMethod::LFit:     boxes.objects.push_back(
             common::geometry::bounding_box::lfit_bounding_box_2d(
               iter_pair.first,
               iter_pair.second));
@@ -309,7 +309,7 @@ BoundingBoxArray compute_bounding_boxes(
 
       if (compute_height) {
         common::geometry::bounding_box::compute_height(
-          iter_pair.first, iter_pair.second, boxes.boxes.back());
+          iter_pair.first, iter_pair.second, boxes.objects.back());
       }
     } catch (const std::exception & e) {
       std::cerr << e.what() << std::endl;
@@ -318,20 +318,20 @@ BoundingBoxArray compute_bounding_boxes(
   return boxes;
 }
 ////////////////////////////////////////////////////////////////////////////////
-BoundingBoxArray compute_lfit_bounding_boxes(Clusters & clusters, const bool compute_height)
+DetectedObjects compute_lfit_bounding_boxes(Clusters & clusters, const bool compute_height)
 {
-  BoundingBoxArray boxes;
+  DetectedObjects boxes;
   for (uint32_t cls_id = 0U; cls_id < clusters.cluster_boundary.size(); cls_id++) {
     try {
       const auto iter_pair = common::lidar_utils::get_cluster(clusters, cls_id);
       if (iter_pair.first == iter_pair.second) {
         continue;
       }
-      boxes.boxes.push_back(
+      boxes.objects.push_back(
         common::geometry::bounding_box::lfit_bounding_box_2d(iter_pair.first, iter_pair.second));
       if (compute_height) {
         common::geometry::bounding_box::compute_height(
-          iter_pair.first, iter_pair.second, boxes.boxes.back());
+          iter_pair.first, iter_pair.second, boxes.objects.back());
       }
     } catch (const std::exception & e) {
       std::cerr << e.what() << std::endl;
@@ -340,13 +340,13 @@ BoundingBoxArray compute_lfit_bounding_boxes(Clusters & clusters, const bool com
   return boxes;
 }
 ////////////////////////////////////////////////////////////////////////////////
-DetectedObjects convert_to_detected_objects(const BoundingBoxArray & boxes)
+DetectedObjects convert_to_detected_objects(const DetectedObjects & boxes)
 {
   DetectedObjects detected_objects;
-  detected_objects.objects.reserve(boxes.boxes.size());
+  detected_objects.objects.reserve(boxes.objects.size());
   detected_objects.header = boxes.header;
   std::transform(
-    boxes.boxes.begin(), boxes.boxes.end(), std::back_inserter(detected_objects.objects),
+    boxes.objects.begin(), boxes.objects.end(), std::back_inserter(detected_objects.objects),
     common::geometry::bounding_box::details::make_detected_object);
   return detected_objects;
 }

@@ -153,8 +153,11 @@ void init_bbox(const IT begin, const IT end, Point4<IT> & support)
 /// \throw std::domain_error if the list of points is too small to reasonable generate a bounding
 ///                          box
 template<typename IT, typename MetricF>
-BoundingBox rotating_calipers_impl(const IT begin, const IT end, const MetricF metric_fn)
+DetectedObject rotating_calipers_impl(const IT begin, const IT end, const MetricF metric_fn)
 {
+  // NOTE(esteve): unused metric_fn
+  (void)metric_fn;
+
   using PointT = base_type<decltype(*begin)>;
   // sanity check TODO(c.ho) more checks (up to n = 2?)
   if (begin == end) {
@@ -177,29 +180,26 @@ BoundingBox rotating_calipers_impl(const IT begin, const IT end, const MetricF m
   Point4<PointT> edges;
   init_edges(begin, end, support, edges);
   // size of initial guess
-  BoundingBox bbox;
-  decltype(BoundingBox::corners) best_corners;
+  DetectedObject bbox;
+  decltype(Polygon::points) best_corners;
   compute_corners(best_corners, support, directions);
-  size_2d(best_corners, bbox.size);
-  bbox.value = metric_fn(bbox.size);
+
+  // NOTE(esteve): commented out because DetectedObject does not have a size field
+  auto bbox_size = size_2d(best_corners);
+  (void)bbox_size;
+
   // rotating calipers step: incrementally advance, update angles, points, compute area
   for (auto it = begin; it != end; ++it) {
     // find smallest angle to next, update directions
     const uint32_t advance_idx = update_angles(edges, directions);
     // recompute area
-    decltype(BoundingBox::corners) corners;
+    decltype(Polygon::points) corners;
     compute_corners(corners, support, directions);
-    decltype(BoundingBox::size) tmp_size;
-    size_2d(corners, tmp_size);
-    const float32_t tmp_value = metric_fn(tmp_size);
-    // update best if necessary
-    if (tmp_value < bbox.value) {
-      // corners: memcpy is fine since I know corners and best_corners are distinct
-      (void)std::memcpy(&best_corners[0U], &corners[0U], sizeof(corners));
-      // size
-      bbox.size = tmp_size;
-      bbox.value = tmp_value;
-    }
+
+    // NOTE(esteve): commented out because DetectedObject does not have a size field
+    auto tmp_size = size_2d(corners);
+    (void)tmp_size;
+
     // Step to next iteration of calipers
     {
       // update smallest support
@@ -233,9 +233,9 @@ BoundingBox rotating_calipers_impl(const IT begin, const IT end, const MetricF m
 /// \return A minimum area bounding box, value field is the area
 /// \tparam IT An iterator type dereferencable into a point type with float members x and y
 template<typename IT>
-BoundingBox minimum_area_bounding_box(const IT begin, const IT end)
+DetectedObject minimum_area_bounding_box(const IT begin, const IT end)
 {
-  const auto metric_fn = [](const decltype(BoundingBox::size) & pt) -> float32_t
+  const auto metric_fn = [](const geometry_msgs::msg::Point32 & pt) -> float32_t
     {
       return pt.x * pt.y;
     };
@@ -249,9 +249,9 @@ BoundingBox minimum_area_bounding_box(const IT begin, const IT end)
 /// \return A minimum perimeter bounding box, value field is half the perimeter
 /// \tparam IT An iterator type dereferencable into a point type with float members x and y
 template<typename IT>
-BoundingBox minimum_perimeter_bounding_box(const IT begin, const IT end)
+DetectedObject minimum_perimeter_bounding_box(const IT begin, const IT end)
 {
-  const auto metric_fn = [](const decltype(BoundingBox::size) & pt) -> float32_t
+  const auto metric_fn = [](const geometry_msgs::msg::Point32 & pt) -> float32_t
     {
       return pt.x + pt.y;
     };
@@ -265,7 +265,7 @@ BoundingBox minimum_perimeter_bounding_box(const IT begin, const IT end)
 /// \return A minimum area bounding box, value field is the area
 /// \tparam PointT Point type of the lists, must have float members x and y
 template<typename PointT>
-BoundingBox minimum_area_bounding_box(std::list<PointT> & list)
+DetectedObject minimum_area_bounding_box(std::list<PointT> & list)
 {
   const auto last = convex_hull(list);
   return minimum_area_bounding_box(list.cbegin(), last);
@@ -278,7 +278,7 @@ BoundingBox minimum_area_bounding_box(std::list<PointT> & list)
 /// \return A minimum perimeter bounding box, value field is half the perimeter
 /// \tparam PointT Point type of the lists, must have float members x and y
 template<typename PointT>
-BoundingBox minimum_perimeter_bounding_box(std::list<PointT> & list)
+DetectedObject minimum_perimeter_bounding_box(std::list<PointT> & list)
 {
   const auto last = convex_hull(list);
   return minimum_perimeter_bounding_box(list.cbegin(), last);

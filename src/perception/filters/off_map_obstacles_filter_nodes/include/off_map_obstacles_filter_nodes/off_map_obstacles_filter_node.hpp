@@ -24,7 +24,7 @@
 #include <memory>
 #include <string>
 
-#include "autoware_auto_msgs/msg/bounding_box_array.hpp"
+#include "autoware_auto_msgs/msg/detected_objects.hpp"
 #include "autoware_auto_msgs/srv/had_map_service.hpp"
 #include "off_map_obstacles_filter_nodes/visibility_control.hpp"
 #include "off_map_obstacles_filter/off_map_obstacles_filter.hpp"
@@ -55,21 +55,21 @@ public:
   explicit OffMapObstaclesFilterNode(const rclcpp::NodeOptions & options);
 
   /// \brief Callback for the client call
-  /// \param msg The BoundingBoxArray message containing obstacles
+  /// \param msg The DetectedObjects message containing obstacles
   void map_response(const rclcpp::Client<autoware_auto_msgs::srv::HADMapService>::SharedFuture msg);
 
   /// \brief The main callback of this node
-  /// \param msg The BoundingBoxArray message containing obstacles
-  void process_bounding_boxes(const autoware_auto_msgs::msg::BoundingBoxArray::SharedPtr msg) const;
+  /// \param msg The DetectedObjects message containing obstacles
+  void process_bounding_boxes(const autoware_auto_msgs::msg::DetectedObjects::SharedPtr msg) const;
 
 private:
   /// The actual filter implementation – this will be nullptr before the map has arrived.
   std::unique_ptr<OffMapObstaclesFilter> m_filter;
   /// Input
-  const rclcpp::Subscription<autoware_auto_msgs::msg::BoundingBoxArray>::SharedPtr
+  const rclcpp::Subscription<autoware_auto_msgs::msg::DetectedObjects>::SharedPtr
     m_sub_ptr;
   /// Output
-  const rclcpp::Publisher<autoware_auto_msgs::msg::BoundingBoxArray>::SharedPtr m_pub_ptr;
+  const rclcpp::Publisher<autoware_auto_msgs::msg::DetectedObjects>::SharedPtr m_pub_ptr;
   /// Client for getting the map. Only used once.
   const rclcpp::Client<autoware_auto_msgs::srv::HADMapService>::SharedPtr m_map_client_ptr;
   /// Debugging publisher

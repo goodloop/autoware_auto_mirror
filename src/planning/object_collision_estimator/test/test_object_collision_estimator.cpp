@@ -28,8 +28,8 @@ using autoware::common::types::float32_t;
 using motion::motion_common::VehicleConfig;
 using autoware_auto_msgs::msg::Trajectory;
 using autoware_auto_msgs::msg::TrajectoryPoint;
-using autoware_auto_msgs::msg::BoundingBox;
-using autoware_auto_msgs::msg::BoundingBoxArray;
+using autoware_auto_msgs::msg::DetectedObject;
+using autoware_auto_msgs::msg::DetectedObjects;
 
 const auto make_point(const float32_t x, const float32_t y)
 {
@@ -74,32 +74,35 @@ void object_collision_estimator_test(
   trajectory.points.resize(trajectory_length);
 
   // insert an obstacle that blocks the trajectory
-  BoundingBoxArray bbox_array{};
+  DetectedObjects bbox_array{};
 
   if (obstacle_bbox_idx < trajectory_length) {
-    BoundingBox obstacle_bbox{};
+    DetectedObject obstacle_bbox{};
 
     auto obstacle_point = trajectory.points[obstacle_bbox_idx];
-    obstacle_bbox.centroid = make_point(obstacle_point.x, obstacle_point.y);
-    obstacle_bbox.size = make_point(generated_obstacle_size, generated_obstacle_size);
-    obstacle_bbox.orientation.w = 1.0F / sqrtf(2.0F);
-    obstacle_bbox.orientation.z = 1.0F / sqrtf(2.0F);
-    obstacle_bbox.corners = {
+
+    obstacle_bbox.kinematics.centroid_position.x = obstacle_point.x;
+    obstacle_bbox.kinematics.centroid_position.y = obstacle_point.y;
+
+    auto size_point = make_point(generated_obstacle_size, generated_obstacle_size);
+    obstacle_bbox.kinematics.orientation.w = 1.0F / sqrtf(2.0F);
+    obstacle_bbox.kinematics.orientation.z = 1.0F / sqrtf(2.0F);
+    obstacle_bbox.shape.polygon.points = {
       make_point(
-        obstacle_point.x - obstacle_bbox.size.x / 2,
-        obstacle_point.y - obstacle_bbox.size.y / 2),
+        obstacle_point.x - size_point.x / 2,
+        obstacle_point.y - size_point.y / 2),
       make_point(
-        obstacle_point.x + obstacle_bbox.size.x / 2,
-        obstacle_point.y - obstacle_bbox.size.y / 2),
+        obstacle_point.x + size_point.x / 2,
+        obstacle_point.y - size_point.y / 2),
       make_point(
-        obstacle_point.x + obstacle_bbox.size.x / 2,
-        obstacle_point.y + obstacle_bbox.size.y / 2),
+        obstacle_point.x + size_point.x / 2,
+        obstacle_point.y + size_point.y / 2),
       make_point(
-        obstacle_point.x - obstacle_bbox.size.x / 2,
-        obstacle_point.y + obstacle_bbox.size.y / 2)
+        obstacle_point.x - size_point.x / 2,
+        obstacle_point.y + size_point.y / 2)
     };
 
-    bbox_array.boxes.push_back(obstacle_bbox);
+    bbox_array.objects.push_back(obstacle_bbox);
   }
 
   // call the estimator API

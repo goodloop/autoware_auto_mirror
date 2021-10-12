@@ -19,7 +19,6 @@
 
 #include <euclidean_cluster_nodes/euclidean_cluster_node.hpp>
 
-#include <autoware_auto_msgs/msg/bounding_box_array.hpp>
 #include <autoware_auto_msgs/msg/detected_objects.hpp>
 #include <common/types.hpp>
 #include <lidar_utils/point_cloud_utils.hpp>
@@ -33,7 +32,7 @@
 using autoware::common::types::bool8_t;
 using autoware::common::types::float32_t;
 using autoware::perception::segmentation::euclidean_cluster::details::BboxMethod;
-using BoundingBoxArray = autoware_auto_msgs::msg::BoundingBoxArray;
+using DetectedObjects = autoware_auto_msgs::msg::DetectedObjects;
 using DetectedObjects = autoware_auto_msgs::msg::DetectedObjects;
 
 namespace autoware
@@ -57,7 +56,7 @@ EuclideanClusterNode::EuclideanClusterNode(
     "points_clustered",
     rclcpp::QoS(10)) : nullptr},
 m_box_pub_ptr{declare_parameter("use_box").get<bool8_t>() ?
-  create_publisher<BoundingBoxArray>(
+  create_publisher<DetectedObjects>(
     "lidar_bounding_boxes", rclcpp::QoS{10}) :
   nullptr},
 m_detected_objects_pub_ptr{declare_parameter("use_detected_objects").get<bool8_t>() ?
@@ -183,7 +182,7 @@ void EuclideanClusterNode::handle_clusters(
     return;
   }
 
-  BoundingBoxArray boxes;
+  DetectedObjects boxes;
   if (m_use_lfit) {
     boxes = euclidean_cluster::details::compute_bounding_boxes(clusters, BboxMethod::LFit, m_use_z);
   } else {
@@ -204,7 +203,7 @@ void EuclideanClusterNode::handle_clusters(
   // Also publish boxes for visualization
   uint32_t id_counter = 0;
   MarkerArray marker_array;
-  for (const auto & box : boxes.boxes) {
+  for (const auto & box : boxes.objects) {
     Marker m{};
     m.header.stamp = rclcpp::Time(0);
     m.header.frame_id = header.frame_id;
@@ -212,17 +211,20 @@ void EuclideanClusterNode::handle_clusters(
     m.id = static_cast<int>(id_counter);
     m.type = Marker::CUBE;
     m.action = Marker::ADD;
-    m.pose.position.x = static_cast<float64_t>(box.centroid.x);
-    m.pose.position.y = static_cast<float64_t>(box.centroid.y);
-    m.pose.position.z = static_cast<float64_t>(box.centroid.z);
-    m.pose.orientation.x = static_cast<float64_t>(box.orientation.x);
-    m.pose.orientation.y = static_cast<float64_t>(box.orientation.y);
-    m.pose.orientation.z = static_cast<float64_t>(box.orientation.z);
-    m.pose.orientation.w = static_cast<float64_t>(box.orientation.w);
+    m.pose.position.x = static_cast<float64_t>(box.kinematics.centroid_position.x);
+    m.pose.position.y = static_cast<float64_t>(box.kinematics.centroid_position.y);
+    m.pose.position.z = static_cast<float64_t>(box.kinematics.centroid_position.z);
+    m.pose.orientation.x = static_cast<float64_t>(box.kinematics.orientation.x);
+    m.pose.orientation.y = static_cast<float64_t>(box.kinematics.orientation.y);
+    m.pose.orientation.z = static_cast<float64_t>(box.kinematics.orientation.z);
+    m.pose.orientation.w = static_cast<float64_t>(box.kinematics.orientation.w);
     // X and Y scale are swapped between these two message types
-    m.scale.x = static_cast<float64_t>(box.size.y);
-    m.scale.y = static_cast<float64_t>(box.size.x);
-    m.scale.z = static_cast<float64_t>(box.size.z);
+
+    // NOTE(esteve): commented out because DetectedObject does not have a size field
+    // m.scale.x = static_cast<float64_t>(box.size.y);
+    // m.scale.y = static_cast<float64_t>(box.size.x);
+    // m.scale.z = static_cast<float64_t>(box.size.z);
+
     m.color.r = 1.0;
     m.color.g = 0.5;
     m.color.b = 0.0;

@@ -229,10 +229,10 @@ LidarIntegrationBoxListener::LidarIntegrationBoxListener(
     expected_size,
     relative_tolerance_period,
     relative_tolerance_size},
-  m_sub_ptr{create_subscription<BoundingBoxArray>(
+  m_sub_ptr{create_subscription<DetectedObjects>(
       topic, rclcpp::QoS(rclcpp::KeepLast(20)),
-      [this](const BoundingBoxArray::SharedPtr msg_ptr) {
-        this->callback(static_cast<uint32_t>(msg_ptr->boxes.size()));
+      [this](const DetectedObjects::SharedPtr msg_ptr) {
+        this->callback(static_cast<uint32_t>(msg_ptr->objects.size()));
       })}
 {
   RCLCPP_INFO(get_logger(), ("\tbox_topic: " + topic).c_str());

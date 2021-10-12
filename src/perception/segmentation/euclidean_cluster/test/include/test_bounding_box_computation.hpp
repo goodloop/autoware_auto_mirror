@@ -24,10 +24,8 @@
 #include "gtest/gtest.h"
 
 using Clusters = autoware_auto_msgs::msg::PointClusters;
-using BoundingBox = autoware_auto_msgs::msg::BoundingBox;
-using BoundingBoxArray = autoware_auto_msgs::msg::BoundingBoxArray;
-using DetectedObjects = autoware_auto_msgs::msg::DetectedObjects;
 using DetectedObject = autoware_auto_msgs::msg::DetectedObject;
+using DetectedObjects = autoware_auto_msgs::msg::DetectedObjects;
 using Pt = autoware_auto_msgs::msg::PointXYZIF;
 
 using autoware::perception::segmentation::euclidean_cluster::details::compute_bounding_boxes;
@@ -58,22 +56,6 @@ protected:
       ret.cluster_boundary.push_back(boundary_idx);
     }
     return ret;
-  }
-
-  void test_corners(
-    const BoundingBox & box, const std::vector<Pt> & expect,
-    const float TOL = 1.0E-6F)
-  {
-    for (uint32_t idx = 0U; idx < 4U; ++idx) {
-      bool found = false;
-      for (auto & p : expect) {
-        if (fabsf(p.x - box.corners[idx].x) < TOL && fabsf(p.y - box.corners[idx].y) < TOL) {
-          found = true;
-          break;
-        }
-      }
-      ASSERT_TRUE(found) << idx << ": " << box.corners[idx].x << ", " << box.corners[idx].y;
-    }
   }
 
   void test_corners(
@@ -128,9 +110,9 @@ TEST_F(BoundingBoxComputationTest, BasicLfit2d)
   auto clusters = make_clusters(
     {pt_vector, pt_vector});
 
-  BoundingBoxArray boxes_msg = compute_bounding_boxes(clusters, BboxMethod::LFit, false);
-  ASSERT_EQ(boxes_msg.boxes.size(), 2U);
-  for (const auto & box : boxes_msg.boxes) {
+  DetectedObjects boxes_msg = compute_bounding_boxes(clusters, BboxMethod::LFit, false);
+  ASSERT_EQ(boxes_msg.objects.size(), 2U);
+  for (const auto & box : boxes_msg.objects) {
     test_corners(box, lfit_expected_corners, 0.25F);
   }
 
@@ -145,9 +127,9 @@ TEST_F(BoundingBoxComputationTest, BasicEigen2d) {
   auto clusters = make_clusters(
     {pt_vector, pt_vector});
 
-  BoundingBoxArray boxes_msg = compute_bounding_boxes(clusters, BboxMethod::Eigenbox, false);
-  ASSERT_EQ(boxes_msg.boxes.size(), 2U);
-  for (const auto & box : boxes_msg.boxes) {
+  DetectedObjects boxes_msg = compute_bounding_boxes(clusters, BboxMethod::Eigenbox, false);
+  ASSERT_EQ(boxes_msg.objects.size(), 2U);
+  for (const auto & box : boxes_msg.objects) {
     test_corners(box, eigen_expected_corners, 0.25F);
   }
 
@@ -165,7 +147,7 @@ TEST_F(BoundingBoxComputationTest, BasicLfit3d)
   pt_vector_3d[1U].z = 2.F;
   auto clusters = make_clusters({pt_vector_3d, pt_vector_3d});
 
-  BoundingBoxArray boxes_msg = compute_bounding_boxes(clusters, BboxMethod::LFit, true);
+  DetectedObjects boxes_msg = compute_bounding_boxes(clusters, BboxMethod::LFit, true);
   DetectedObjects objects_msg = convert_to_detected_objects(boxes_msg);
 
   auto expected_corners_3d = lfit_expected_corners;
@@ -187,7 +169,7 @@ TEST_F(BoundingBoxComputationTest, BasicEigen3d)
   pt_vector_3d[1U].z = 2.F;
   auto clusters = make_clusters({pt_vector_3d, pt_vector_3d});
 
-  BoundingBoxArray boxes_msg = compute_bounding_boxes(clusters, BboxMethod::Eigenbox, true);
+  DetectedObjects boxes_msg = compute_bounding_boxes(clusters, BboxMethod::Eigenbox, true);
   DetectedObjects objects_msg = convert_to_detected_objects(boxes_msg);
 
   auto expected_corners_3d = eigen_expected_corners;

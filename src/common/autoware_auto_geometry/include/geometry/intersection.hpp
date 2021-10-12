@@ -19,7 +19,7 @@
 
 
 #include <autoware_auto_msgs/msg/vehicle_kinematic_state.hpp>
-#include <autoware_auto_msgs/msg/bounding_box.hpp>
+#include <autoware_auto_msgs/msg/detected_object.hpp>
 #include <autoware_auto_msgs/msg/trajectory_point.hpp>
 #include <geometry/convex_hull.hpp>
 #include <geometry/common_2d.hpp>
@@ -39,7 +39,7 @@ namespace common
 namespace geometry
 {
 using autoware_auto_msgs::msg::TrajectoryPoint;
-using autoware_auto_msgs::msg::BoundingBox;
+using autoware_auto_msgs::msg::DetectedObject;
 using autoware::common::geometry::convex_hull;
 using autoware::common::geometry::get_normal;
 using autoware::common::geometry::dot_2d;
