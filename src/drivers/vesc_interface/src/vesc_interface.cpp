@@ -109,11 +109,17 @@ bool8_t VESCInterface::send_control_command(const VehicleControlCommand & msg)
   return false;
 }
 
-/// TODO(jacobjj): Add comments
 bool8_t VESCInterface::handle_mode_change_request(
   autoware_auto_msgs::srv::AutonomyModeChange_Request::SharedPtr request)
 {
-  (void)request;
+  if (request->mode == ModeChangeRequest::MODE_MANUAL) {
+    run_autonomous = false;
+  } else if (request->mode == ModeChangeRequest::MODE_AUTONOMOUS){
+    run_autonomous = true;
+  } else {
+    RCLCPP_ERROR(m_logger, "Got invalid autonomy mode request value.");
+    return false;
+  }
   return true;
 }
 
