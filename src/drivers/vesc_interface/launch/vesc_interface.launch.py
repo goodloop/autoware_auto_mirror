@@ -14,11 +14,7 @@
 #
 # Co-developed by Tier IV, Inc. and Apex.AI, Inc.
 
-"""
-Example launch file for a new package.
-
-Note: Does not work in ROS2 dashing!
-"""
+"""Launch file for the interface between the VESC interface and Autoware.Auto"""
 
 from launch import LaunchDescription
 from launch.substitutions import LaunchConfiguration
@@ -76,13 +72,11 @@ def generate_launch_description():
         output='screen',
         parameters=[
             LaunchConfiguration('vesc_interface_param')
-            # paramFile
         ]
     )
 
-    ld = LaunchDescription([
+    return LaunchDescription([
         vesc_driver,
         vesc_interface_params,
         vesc_interface
     ])
-    return ld
