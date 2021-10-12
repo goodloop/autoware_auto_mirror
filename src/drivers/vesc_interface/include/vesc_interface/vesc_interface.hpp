@@ -114,10 +114,6 @@ public:
 
   // state_report() -> Set the gear (forward/backward)
 
-  // odometry() -> velocity_mps meters/s
-  //               front_wheel_angle_rad (radians, positive-to the left)
-  // https://gitlab.com/autowarefoundation/autoware.auto/autoware_auto_msgs/-/blob/master/autoware_auto_msgs/msg/VehicleOdometry.idl
-
 private:
   // ROS parameters
   rclcpp::Logger m_logger;
