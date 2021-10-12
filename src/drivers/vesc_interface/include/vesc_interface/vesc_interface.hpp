@@ -101,6 +101,7 @@ public:
     autoware_auto_msgs::srv::AutonomyModeChange_Request::SharedPtr request);
 
   /// \brief Send raw control commands, currently not implemented, hence logs error.
+  /// \param[in] msg The raw message command.
   bool8_t send_control_command(const RawControlCommand & msg);
 
   // state_report() -> Set the gear (forward/backward)
