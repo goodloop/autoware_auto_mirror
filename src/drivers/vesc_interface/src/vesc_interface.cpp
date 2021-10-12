@@ -78,15 +78,17 @@ bool8_t VESCInterface::send_control_command(const VehicleControlCommand & msg)
 {
   if (msg.velocity_mps == 0.0f) {
     seen_zero_speed = true;
+  } else{
+    seen_zero_speed = false;
   }
 
   // calc vesc electric RPM (speed)
   Float64 erpm_msg;
   if (seen_zero_speed) {
+    erpm_msg.data = 0.0f;
+  } else {
     erpm_msg.data = direction * speed_to_erpm_gain_ * static_cast<double>(msg.velocity_mps) +
       speed_to_erpm_offset_;
-  } else {
-    erpm_msg.data = 0.0f;
   }
 
   // calc steering angle (servo)
