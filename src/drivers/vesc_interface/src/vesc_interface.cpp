@@ -76,7 +76,7 @@ bool8_t VESCInterface::send_state_command(const VehicleStateCommand & msg)
 
 bool8_t VESCInterface::send_control_command(const VehicleControlCommand & msg)
 {
-  if (msg.velocity_mps == 0.0f) {
+  if (msg.velocity_mps == 0.0f || !run_autonomous) {
     seen_zero_speed = true;
   } else{
     seen_zero_speed = false;
@@ -93,8 +93,13 @@ bool8_t VESCInterface::send_control_command(const VehicleControlCommand & msg)
 
   // calc steering angle (servo)
   Float64 servo_msg;
-  servo_msg.data = direction * steering_to_servo_gain_ *
-    static_cast<double>(msg.front_wheel_angle_rad) + steering_to_servo_offset_;
+  if (run_autonomous){
+    servo_msg.data = direction * steering_to_servo_gain_ * 
+      static_cast<double>(msg.front_wheel_angle_rad) + steering_to_servo_offset_;   
+  } else {
+    servo_msg.data = steering_to_servo_offset_;
+  }
+
 
   if (rclcpp::ok()) {
     erpm_pub_->publish(erpm_msg);
