@@ -131,8 +131,7 @@ geocentric_pose_t load_map(
   const std::string & pcl_file_name,
   sensor_msgs::msg::PointCloud2 & pc_out)
 {
-  using autoware::common::types::PointXYZI;
-  point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZI>{pc_out}.clear();
+  point_cloud_msg_wrapper::PointCloud2Modifier<common::types::PointXYZI>{pc_out}.clear();
   geodetic_pose_t geodetic_pose{0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
 
   if (!yaml_file_name.empty()) {
