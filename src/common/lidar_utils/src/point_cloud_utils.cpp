@@ -171,39 +171,6 @@ void init_pcl_msg(
     "intensity", 1U, sensor_msgs::msg::PointField::FLOAT32);
 }
 
-bool8_t add_point_to_cloud_raw(
-  sensor_msgs::msg::PointCloud2 & cloud,
-  const autoware::common::types::PointXYZIF & pt,
-  uint32_t point_cloud_idx)
-{
-  bool8_t ret = false;
-
-  // Actual size is 20 due to padding by compilers for the memory alignment boundary.
-  // This check is to make sure that when we do a insert of 16 bytes, we will not stride
-  // past the bounds of the structure.
-  static_assert(
-    sizeof(autoware::common::types::PointXYZIF) >= ((4U * sizeof(float32_t)) + sizeof(uint16_t)),
-    "PointXYZF is not expected size: ");
-  static_assert(
-    std::is_trivially_copyable<autoware::common::types::PointXYZIF>::value,
-    "PointXYZF is not trivial, add_point_to_cloud instead of add_point_to_cloud_raw");
-
-  const uint8_t * casted_point_ptr = reinterpret_cast<const uint8_t *>(&pt);
-  uint8_t * const cloud_insertion_slot = &cloud.data[cloud.point_step * point_cloud_idx];
-  std::size_t copy_size = std::min(static_cast<std::size_t>(cloud.point_step), sizeof(pt));
-
-  // make sure we don't overflow
-  uint8_t * const one_past_last_modified_address = &(cloud_insertion_slot[copy_size]);
-  uint8_t * const vector_one_past_last_address = &(*cloud.data.end());
-
-  if (one_past_last_modified_address <= vector_one_past_last_address) {
-    // add the point data
-    std::copy(casted_point_ptr, casted_point_ptr + copy_size, cloud_insertion_slot);
-    ret = true;
-  }
-  return ret;
-}
-
 bool8_t add_point_to_cloud(
   sensor_msgs::msg::PointCloud2 & cloud,
   const autoware::common::types::PointXYZIF & pt,

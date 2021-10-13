@@ -122,17 +122,6 @@ LIDAR_UTILS_PUBLIC void init_pcl_msg(
   modifier.resize(size);
 }
 
-/// \brief add a point in the cloud by memcpy instead of using iterators
-/// This version prioritize speed and ease of parallelisation
-/// it assumes : - PointXYZIF is a POD object equivalent to a point stored in the cloud,
-///                which means same fields and same endianness.
-///              - The caller is responsible for incrementing point_cloud_idx between two calls.
-///                This differs from add_point_to_cloud who increment point_cloud_idx by itself
-LIDAR_UTILS_PUBLIC bool8_t add_point_to_cloud_raw(
-  sensor_msgs::msg::PointCloud2 & cloud,
-  const autoware::common::types::PointXYZIF & pt,
-  uint32_t point_cloud_idx);
-
 LIDAR_UTILS_PUBLIC bool8_t add_point_to_cloud(
   sensor_msgs::msg::PointCloud2 & cloud,
   const autoware::common::types::PointXYZIF & pt,
