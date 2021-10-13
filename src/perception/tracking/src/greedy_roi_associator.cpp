@@ -21,8 +21,8 @@
 #include <tracking/greedy_roi_associator.hpp>
 
 #include <algorithm>
-#include <unordered_set>
 #include <string>
+#include <unordered_set>
 #include <vector>
 
 namespace autoware
@@ -63,12 +63,13 @@ void handle_matching_output(
 {
   // There's no ROI assignment fit for the projection
   if (matched_detection_idx == AssociatorResult::UNASSIGNED) {
-    result.unassigned_track_indices.insert(object_idx);
+    result.unassigned_track_indices.push_back(object_idx);
     return;
   }
   // The track can be projected on the image and has a matching ROI, so they are associated
   result.track_assignments[object_idx] = matched_detection_idx;
-  result.unassigned_detection_indices.erase(matched_detection_idx);
+  result.unassigned_detection_indices.erase(
+    result.unassigned_detection_indices.begin() + static_cast<std::int64_t>(matched_detection_idx));
 }
 }  // namespace
 
@@ -156,7 +157,7 @@ geometry_msgs::msg::TransformStamped GreedyRoiAssociator::lookup_transform_handl
 
 std::size_t GreedyRoiAssociator::project_and_match_detection(
   const std::vector<geometry_msgs::msg::Point32> & object_shape_in_camera_frame,
-  const std::unordered_set<std::size_t> & available_roi_indices,
+  const std::vector<std::size_t> & available_roi_indices,
   const autoware_auto_msgs::msg::ClassifiedRoiArray & rois) const
 {
   const auto & maybe_projection = m_camera.project(object_shape_in_camera_frame);

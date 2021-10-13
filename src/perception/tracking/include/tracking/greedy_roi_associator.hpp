@@ -107,7 +107,7 @@ private:
   // frame
   std::size_t project_and_match_detection(
     const std::vector<geometry_msgs::msg::Point32> & object_shape_in_camera_frame,
-    const std::unordered_set<std::size_t> & available_roi_indices,
+    const std::vector<std::size_t> & available_roi_indices,
     const autoware_auto_msgs::msg::ClassifiedRoiArray & rois) const;
 
   CameraModel m_camera;

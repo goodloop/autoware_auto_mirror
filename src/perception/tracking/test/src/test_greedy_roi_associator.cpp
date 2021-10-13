@@ -178,7 +178,9 @@ TYPED_TEST(TestRoiAssociation, OutOfImageTest) {
   const auto result = this->associator.assign(rois, this->objects);
   ASSERT_EQ(result.track_assignments.front(), AssociatorResult::UNASSIGNED);
   ASSERT_EQ(result.unassigned_detection_indices.size(), 0U);
-  ASSERT_TRUE(result.unassigned_track_indices.find(0U) != result.unassigned_track_indices.end());
+  for (const auto index : result.unassigned_track_indices) {
+    EXPECT_NE(index, 0U);
+  }
 }
 
 TYPED_TEST(TestRoiAssociation, NonAssociatedTrackRoi) {
@@ -206,9 +208,14 @@ TYPED_TEST(TestRoiAssociation, NonAssociatedTrackRoi) {
   rois.rois.push_back(projection_to_roi(projection.value()));
   const auto result = this->associator.assign(rois, this->objects);
   ASSERT_EQ(result.track_assignments.front(), AssociatorResult::UNASSIGNED);
-  ASSERT_TRUE(
-    result.unassigned_detection_indices.find(0U) != result.unassigned_detection_indices.end());
-  ASSERT_TRUE(result.unassigned_track_indices.find(0U) != result.unassigned_track_indices.end());
+  ASSERT_NE(
+    std::find(
+      result.unassigned_detection_indices.begin(), result.unassigned_detection_indices.end(), 0U),
+    result.unassigned_detection_indices.end());
+  ASSERT_NE(
+    std::find(
+      result.unassigned_track_indices.begin(), result.unassigned_track_indices.end(), 0U),
+    result.unassigned_track_indices.end());
 }
 
 /// \brief This test creates a series of tracks and corresponding detection ROIs.
@@ -288,13 +295,18 @@ TYPED_TEST(TestRoiAssociation, CombinedAssociationTest) {
   EXPECT_EQ(result.unassigned_detection_indices.size(), num_nonassociated_rois);
 
   for (auto i = 0U; i < result.unassigned_track_indices.size(); ++i) {
-    EXPECT_TRUE(result.unassigned_track_indices.find(i) != result.unassigned_track_indices.end());
+    ASSERT_NE(
+      std::find(result.unassigned_track_indices.begin(), result.unassigned_track_indices.end(), i),
+      result.unassigned_track_indices.end());
   }
 
   for (auto i = 0U; i < result.unassigned_detection_indices.size(); ++i) {
     // Unassigned rois reside at the end of the array, after the assigned rois
-    EXPECT_TRUE(
-      result.unassigned_detection_indices.find(i + num_captured_tracks) != result
-      .unassigned_detection_indices.end());
+    ASSERT_NE(
+      std::find(
+        result.unassigned_detection_indices.begin(),
+        result.unassigned_detection_indices.end(),
+        i + num_captured_tracks),
+      result.unassigned_detection_indices.end());
   }
 }

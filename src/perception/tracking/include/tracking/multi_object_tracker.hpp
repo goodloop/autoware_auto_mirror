@@ -58,7 +58,7 @@ namespace tracking
 
 
 /// \brief A return code for the tracker update.
-enum class TrackerUpdateStatus
+enum class TRACKING_PUBLIC TrackerUpdateStatus
 {
   /// Success.
   Ok,
@@ -75,7 +75,6 @@ enum class TrackerUpdateStatus
   /// At least one of the provided detections has an invalid shape.
   InvalidShape,
 };
-
 
 /// \brief Output of MultiObjectTracker::update.
 struct TRACKING_PUBLIC DetectedObjectsUpdateResult
@@ -97,8 +96,6 @@ struct TRACKING_PUBLIC MultiObjectTrackerOptions
   DataAssociationConfig object_association_config;
   /// Vision ROI association parameters.
   GreedyRoiAssociatorConfig vision_association_config;
-  /// Track creator parameters.
-  TrackCreatorConfig track_creator_config;
   /// Time after which unseen tracks should be pruned.
   std::chrono::nanoseconds pruning_time_threshold = std::chrono::nanoseconds::max();
   /// Number of updates after which unseen tracks should be pruned.
@@ -108,6 +105,7 @@ struct TRACKING_PUBLIC MultiObjectTrackerOptions
 };
 
 /// \brief A class for multi-object tracking.
+template<class TrackCreatorT>
 class TRACKING_PUBLIC MultiObjectTracker
 {
 private:
@@ -121,7 +119,9 @@ private:
 public:
   /// Constructor
   explicit MultiObjectTracker(
-    MultiObjectTrackerOptions options, const tf2::BufferCore & tf2_buffer);
+    MultiObjectTrackerOptions options,
+    TrackCreatorT track_creator,
+    const tf2::BufferCore & tf2_buffer);
 
   /// \brief Update the tracks with the specified detections and return the tracks at the current
   /// timestamp.
@@ -147,14 +147,6 @@ private:
     const DetectedObjectsMsg & detections,
     const nav_msgs::msg::Odometry & detection_frame_odometry);
 
-  /// Transform the detections into the tracker frame.
-  DetectedObjectsMsg transform(
-    const DetectedObjectsMsg & detections,
-    const nav_msgs::msg::Odometry & detection_frame_odometry);
-
-  /// Convert the internal tracked object representation to the ROS message type.
-  TrackedObjectsMsg convert_to_msg(const builtin_interfaces::msg::Time & stamp) const;
-
   /// The tracked objects, also called "tracks".
   TrackedObjects m_tracks;
 
@@ -170,8 +162,15 @@ private:
   GreedyRoiAssociator m_vision_associator;
 
   /// Creator for creating tracks based on unassociated observations
-  TrackCreator m_track_creator;
+  TrackCreatorT m_track_creator;
 };
+
+template<>
+void TRACKING_PUBLIC MultiObjectTracker<TrackCreator<LidarOnlyPolicy>>::update(
+  const ClassifiedRoiArrayMsg &)
+{
+  throw std::runtime_error("Trying to update a LiDAR-only tracker with a vision message.");
+}
 
 }  // namespace tracking
 }  // namespace perception

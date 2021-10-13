@@ -41,12 +41,14 @@ using autoware::common::types::float32_t;
 using autoware::common::types::float64_t;
 using autoware::perception::tracking::MultiObjectTracker;
 using autoware::perception::tracking::MultiObjectTrackerOptions;
-using autoware::perception::tracking::TrackCreatorConfig;
 using autoware::perception::tracking::DetectedObjectsUpdateResult;
 using autoware::perception::tracking::TrackerUpdateStatus;
 using autoware::perception::tracking::GreedyRoiAssociatorConfig;
 using autoware::perception::tracking::CameraIntrinsics;
 using autoware::perception::tracking::VisionPolicyConfig;
+using autoware::perception::tracking::LidarOnlyPolicy;
+using autoware::perception::tracking::LidarClusterIfVisionPolicy;
+using autoware::perception::tracking::TrackCreator;
 using autoware_auto_msgs::msg::DetectedObjects;
 using autoware_auto_msgs::msg::TrackedObjects;
 using nav_msgs::msg::Odometry;
@@ -60,7 +62,7 @@ constexpr std::chrono::milliseconds kMaxVisionEgoStateStampDiff{100};
 constexpr std::int64_t kDefaultHistoryDepth{20};
 constexpr std::int64_t kDefaultPoseHistoryDepth{100};
 
-MultiObjectTracker init_tracker(
+auto init_tracker(
   rclcpp::Node & node,
   const bool8_t use_vision,
   tf2::BufferCore & tf_buffer)
@@ -74,7 +76,6 @@ MultiObjectTracker init_tracker(
   const bool consider_edge_for_big_detections = node.declare_parameter(
     "object_association.consider_edge_for_big_detection").get<bool>();
 
-  auto creation_policy = perception::tracking::TrackCreationPolicy::LidarClusterOnly;
   const auto default_variance = node.declare_parameter(
     "ekf_default_variance").get<float64_t>();
   const auto noise_variance = node.declare_parameter(
@@ -88,12 +89,16 @@ MultiObjectTracker init_tracker(
       "pruning_ticks_threshold").get<int64_t>());
   const std::string frame = node.declare_parameter("track_frame_id", "odom");
 
-  TrackCreatorConfig creator_config{};
   GreedyRoiAssociatorConfig vision_config{};
 
+  MultiObjectTrackerOptions options{
+    {max_distance, max_area_ratio, consider_edge_for_big_detections}, vision_config,
+    pruning_time_threshold, pruning_ticks_threshold, frame};
+
   if (use_vision) {
+    using Policy = LidarClusterIfVisionPolicy;
+    using VisionTrackCreator = TrackCreator<LidarClusterIfVisionPolicy>;
     // There is no reason to have vision and use LidarClusterOnly policy. So, update the policy
-    creation_policy = perception::tracking::TrackCreationPolicy::LidarClusterIfVision;
     vision_config.intrinsics = {
       static_cast<std::size_t>(node.declare_parameter(
         "vision_association.intrinsics.width").get<int64_t>()),
@@ -120,17 +125,12 @@ MultiObjectTracker init_tracker(
     vision_policy_cfg.max_vision_lidar_timestamp_diff = std::chrono::milliseconds(
       node.declare_parameter(
         "vision_association.timestamp_diff_ms").get<int64_t>());
-    creator_config.vision_policy_config.emplace(vision_policy_cfg);
+    auto policy = std::make_shared<Policy>(
+      vision_policy_cfg, default_variance, noise_variance, tf_buffer);
+    VisionTrackCreator track_creator{policy};
+    return MultiObjectTracker<VisionTrackCreator>{options, track_creator, tf_buffer};
   }
-
-  creator_config.policy = creation_policy;
-  creator_config.default_variance = default_variance;
-  creator_config.noise_variance = noise_variance;
-
-  MultiObjectTrackerOptions options{
-    {max_distance, max_area_ratio, consider_edge_for_big_detections}, vision_config,
-    creator_config, pruning_time_threshold, pruning_ticks_threshold, frame};
-  return MultiObjectTracker{options, tf_buffer};
+  throw std::runtime_error("Only vision tracker supported right now.");
 }
 
 std::string status_to_string(TrackerUpdateStatus status)

@@ -64,8 +64,15 @@ public:
   /// does not contain one.
   /// \param noise_variance The sigma for the acceleration noise
   /// \throws std::runtime_error if the detection does not have a pose.
-  TrackedObject(
-    const DetectedObjectMsg & detection, common::types::float64_t default_variance,
+  explicit TrackedObject(
+    const DetectedObjectMsg & detection,
+    common::types::float64_t default_variance,
+    common::types::float64_t noise_variance);
+
+  explicit TrackedObject(
+    const DetectedObjectMsg & detection,
+    const DetectedObjectMsg::_classification_type & override_classification,
+    common::types::float64_t default_variance,
     common::types::float64_t noise_variance);
   /// Extrapolate the track forward.
   // TODO(nikolai.morin): Change signature to use absolute time after #1002

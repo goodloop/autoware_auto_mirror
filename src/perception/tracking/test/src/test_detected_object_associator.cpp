@@ -112,10 +112,12 @@ TEST_F(AssociationTester, Basic)
   objects_msg.header.frame_id = kTrackerFrame;  // Set to the same frame as the tracker.
 
   tracking::TrackedObjects tracks{tracked_object_vec, kTrackerFrame};
-  const auto ret = m_associator.assign(objects_msg, tracks);
-  EXPECT_EQ(ret.track_assignments[0U], 1U);
-  EXPECT_EQ(ret.unassigned_detection_indices.size(), 1U);
-  EXPECT_TRUE(ret.unassigned_detection_indices.find(0U) != ret.unassigned_detection_indices.end());
+  tracking::ObjectsWithAssociations objects_with_associations{objects_msg};
+  const auto associations = m_associator.assign(objects_with_associations, tracks);
+  ASSERT_EQ(associations.size(), 2UL);
+  EXPECT_EQ(associations[0U].matched, tracking::Matched::kNothing);
+  EXPECT_EQ(associations[1U].matched, tracking::Matched::kExistingTrack);
+  EXPECT_EQ(associations[1U].match_index, 0U);
 }
 
 // 10 tracks, 5 detections. Make sure 5 tracks are unassigned
@@ -156,12 +158,14 @@ TEST_F(AssociationTester, MoreTracksLessObjects)
   detections_msg.header.frame_id = kTrackerFrame;  // Set to the same frame as the tracker.
 
   tracking::TrackedObjects tracks{tracked_object_vec, kTrackerFrame};
-  const auto ret = m_associator.assign(detections_msg, tracks);
+  tracking::ObjectsWithAssociations objects_with_associations{detections_msg};
+  const auto associations = m_associator.assign(objects_with_associations, tracks);
 
-  EXPECT_EQ(ret.unassigned_track_indices.size(), num_tracks - num_associated_dets);
-  for (size_t i = 0U; i < ret.unassigned_track_indices.size(); ++i) {
-    EXPECT_TRUE(
-      ret.unassigned_track_indices.find((i * 2U) + 1U) != ret.unassigned_track_indices.end());
+  EXPECT_EQ(m_associator.unassigned_tracks().size(), num_tracks - num_associated_dets);
+  ASSERT_EQ(associations.size(), 5UL);
+  for (const auto & association : associations) {
+    EXPECT_EQ(association.matched, tracking::Matched::kExistingTrack);
+    EXPECT_EQ(association.match_index % 2, 0UL);
   }
 }
 
@@ -170,75 +174,76 @@ TEST_F(AssociationTester, MoreTracksLessObjects)
 // 3 tracks.
 TEST_F(AssociationTester, AreaGatingFails)
 {
-  const auto num_tracks = 5U;
-  auto num_unassociated_dets = 0U;
+  // const auto num_tracks = 5U;
+  // auto num_unassociated_dets = 0U;
 
-  TrackedObjects tracks_msg;
-  std::vector<tracking::TrackedObject> tracked_object_vec{};
-  DetectedObjects detections_msg;
+  // TrackedObjects tracks_msg;
+  // std::vector<tracking::TrackedObject> tracked_object_vec{};
+  // DetectedObjects detections_msg;
 
-  // toggle to set some detections to bigger size and some to smaller size
-  bool toggle = true;
+  // // toggle to set some detections to bigger size and some to smaller size
+  // bool toggle = true;
 
-  for (size_t i = 0U; i < num_tracks; ++i) {
-    DetectedObject current_track;
-    const auto current_shape = create_square(4.0F);
-    current_track.shape = current_shape;
-    current_track.kinematics.centroid_position.x = 2.0 * static_cast<double>(i + 1U);
-    current_track.kinematics.centroid_position.y = 2.0 * static_cast<double>(i + 1U);
-    current_track.kinematics.position_covariance = m_some_covariance;
-    current_track.kinematics.has_position_covariance = true;
-    tracked_object_vec.emplace_back(current_track, 0.0, 0.0);
+  // for (size_t i = 0U; i < num_tracks; ++i) {
+  //   DetectedObject current_track;
+  //   const auto current_shape = create_square(4.0F);
+  //   current_track.shape = current_shape;
+  //   current_track.kinematics.centroid_position.x = 2.0 * static_cast<double>(i + 1U);
+  //   current_track.kinematics.centroid_position.y = 2.0 * static_cast<double>(i + 1U);
+  //   current_track.kinematics.position_covariance = m_some_covariance;
+  //   current_track.kinematics.has_position_covariance = true;
+  //   tracked_object_vec.emplace_back(current_track, 0.0, 0.0);
 
-    DetectedObject current_detection;
-    if (i % 2 == 0) {
-      // Create detections that cannot be associated with tracks
-      ++num_unassociated_dets;
-      if (toggle) {
-        current_detection.shape = create_square(12.F);
-        toggle = false;
-      } else {
-        current_detection.shape = create_square(0.5F);
-        toggle = true;
-      }
-    } else {
-      current_detection.shape = current_shape;
-    }
-    // Exact same position as track
-    current_detection.kinematics.centroid_position = current_track.kinematics.centroid_position;
-    current_detection.kinematics.position_covariance = m_some_covariance;
+  //   DetectedObject current_detection;
+  //   if (i % 2 == 0) {
+  //     // Create detections that cannot be associated with tracks
+  //     ++num_unassociated_dets;
+  //     if (toggle) {
+  //       current_detection.shape = create_square(12.F);
+  //       toggle = false;
+  //     } else {
+  //       current_detection.shape = create_square(0.5F);
+  //       toggle = true;
+  //     }
+  //   } else {
+  //     current_detection.shape = current_shape;
+  //   }
+  //   // Exact same position as track
+  //   current_detection.kinematics.centroid_position = current_track.kinematics.centroid_position;
+  //   current_detection.kinematics.position_covariance = m_some_covariance;
 
-    detections_msg.objects.push_back(current_detection);
-  }
-  detections_msg.header.frame_id = kTrackerFrame;  // Set to the same frame as the tracker.
+  //   detections_msg.objects.push_back(current_detection);
+  // }
+  // detections_msg.header.frame_id = kTrackerFrame;  // Set to the same frame as the tracker.
 
-  tracking::TrackedObjects tracks{tracked_object_vec, kTrackerFrame};
-  const auto ret = m_associator.assign(detections_msg, tracks);
+  // tracking::TrackedObjects tracks{tracked_object_vec, kTrackerFrame};
+  // tracking::ObjectsWithAssociations objects_with_associations{detections_msg};
+  // const auto ret = m_associator.assign(objects_with_associations, tracks);
 
-  // Verify unassigned tracks
-  ASSERT_EQ(ret.unassigned_track_indices.size(), num_unassociated_dets);
-  for (size_t i = 0U, track_idx = 0U; i < ret.unassigned_track_indices.size();
-    ++i, track_idx += 2)
-  {
-    EXPECT_TRUE(ret.unassigned_track_indices.find(track_idx) != ret.unassigned_track_indices.end());
-  }
+  // // Verify unassigned tracks
+  // ASSERT_EQ(ret.unassigned_track_indices.size(), num_unassociated_dets);
+  // for (size_t i = 0U, track_idx = 0U; i < ret.unassigned_track_indices.size();
+  //   ++i, track_idx += 2)
+  // {
+  //   EXPECT_TRUE(ret.unassigned_track_indices.find(track_idx) != ret.unassigned_track_indices.end());
+  // }
 
-  // Verify unassigned detections
-  ASSERT_EQ(ret.unassigned_detection_indices.size(), num_unassociated_dets);
-  for (size_t i = 0U, det_idx = 0U; i < ret.unassigned_detection_indices.size();
-    ++i, det_idx += 2)
-  {
-    EXPECT_TRUE(
-      ret.unassigned_detection_indices.find(det_idx) != ret.unassigned_detection_indices.end());
-  }
+  // // Verify unassigned detections
+  // ASSERT_EQ(ret.unassigned_detection_indices.size(), num_unassociated_dets);
+  // for (size_t i = 0U, det_idx = 0U; i < ret.unassigned_detection_indices.size();
+  //   ++i, det_idx += 2)
+  // {
+  //   EXPECT_TRUE(
+  //     ret.unassigned_detection_indices.find(det_idx) != ret.unassigned_detection_indices.end());
+  // }
 
-  // Verify assignments
-  for (size_t track_idx = 0U; track_idx < num_tracks; track_idx++) {
-    if (track_idx % 2 == 0) {
-      EXPECT_EQ(ret.track_assignments[track_idx], tracking::AssociatorResult::UNASSIGNED);
+  // // Verify assignments
+  // for (size_t track_idx = 0U; track_idx < num_tracks; track_idx++) {
+  //   if (track_idx % 2 == 0) {
+  //     EXPECT_EQ(ret.track_assignments[track_idx], tracking::AssociatorResult::UNASSIGNED);
 
-    } else {
-      EXPECT_EQ(ret.track_assignments[track_idx], track_idx);
-    }
-  }
+  //   } else {
+  //     EXPECT_EQ(ret.track_assignments[track_idx], track_idx);
+  //   }
+  // }
 }

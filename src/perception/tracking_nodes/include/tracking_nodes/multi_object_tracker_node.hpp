@@ -79,7 +79,9 @@ private:
   tf2_ros::TransformListener m_tf_listener;
 
   /// The actual tracker implementation.
-  autoware::perception::tracking::MultiObjectTracker m_tracker;
+  autoware::perception::tracking::MultiObjectTracker<
+    autoware::perception::tracking::TrackCreator<
+      autoware::perception::tracking::LidarClusterIfVisionPolicy>> m_tracker;
 
   rclcpp::Subscription<PoseMsg>::SharedPtr m_pose_subscription{};
   rclcpp::Subscription<OdometryMsg>::SharedPtr m_odom_subscription{};

@@ -108,10 +108,11 @@ EKF init_ekf(
 
 }  // anonymous namespace
 
-/// \relates autoware::perception::tracking::TrackedObject
 TrackedObject::TrackedObject(
-  const DetectedObjectMsg & detection, float64_t default_variance,
-  float64_t noise_variance)
+  const DetectedObjectMsg & detection,
+  const DetectedObjectMsg::_classification_type & override_classification,
+  common::types::float64_t default_variance,
+  common::types::float64_t noise_variance)
 : m_msg{},
   m_ekf{init_ekf(detection, default_variance, noise_variance)},
   m_default_variance{default_variance}
@@ -119,7 +120,7 @@ TrackedObject::TrackedObject(
   static uint64_t object_id = 0;
   m_msg.object_id = ++object_id;
   m_msg.existence_probability = detection.existence_probability;
-  m_msg.classification = detection.classification;
+  m_msg.classification = override_classification;
   m_msg.shape.push_back(detection.shape);
   // z is not filtered through ekf. Just pass it through
   m_msg.kinematics.centroid_position.z = detection.kinematics.centroid_position.z;
@@ -129,6 +130,12 @@ TrackedObject::TrackedObject(
   // Kinematics are owned by the EKF and only filled in in the msg() getter
   m_classifier.update(detection.classification);
 }
+
+TrackedObject::TrackedObject(
+  const DetectedObjectMsg & detection,
+  float64_t default_variance,
+  float64_t noise_variance)
+: TrackedObject{detection, detection.classification, default_variance, noise_variance} {}
 
 void TrackedObject::predict(std::chrono::nanoseconds dt)
 {

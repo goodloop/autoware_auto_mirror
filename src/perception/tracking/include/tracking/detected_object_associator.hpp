@@ -19,6 +19,7 @@
 #include <autoware_auto_msgs/msg/detected_objects.hpp>
 #include <common/types.hpp>
 #include <hungarian_assigner/hungarian_assigner.hpp>
+#include <tracking/objects_with_associations.hpp>
 #include <tracking/tracked_object.hpp>
 #include <tracking/tracker_types.hpp>
 
@@ -83,8 +84,12 @@ public:
   /// \param detections List of detections
   /// \param tracks List of tracks
   /// \return Returns Associator result struct
-  AssociatorResult assign(
-    const autoware_auto_msgs::msg::DetectedObjects & detections, const TrackedObjects & tracks);
+  Associations assign(const ObjectsWithAssociations & detections, const TrackedObjects & tracks);
+
+  const std::vector<std::size_t> & unassigned_tracks() const noexcept
+  {
+    return m_unassigned_tracks;
+  }
 
 private:
   /// \brief Reset internal states of the associator
@@ -92,7 +97,7 @@ private:
 
   /// \brief Loop through all detections and tracks and set weights between them in the assigner
   void compute_weights(
-    const autoware_auto_msgs::msg::DetectedObjects & detections, const TrackedObjects & tracks);
+    const ObjectsWithAssociations & detections, const TrackedObjects & tracks);
 
   /// \brief Check if the given track and detection are similar enough to compute weight
   bool consider_associating(
@@ -102,7 +107,8 @@ private:
   void set_weight(const float32_t weight, const size_t det_idx, const size_t track_idx);
 
   /// \brief Extract result from the assigner and populate the AssociatorResult container
-  AssociatorResult extract_result() const;
+  Associations extract_result(
+    const Associations & initial_object_associations);
 
   DataAssociationConfig m_association_cfg;
   Assigner m_assigner;
@@ -111,6 +117,7 @@ private:
   size_t m_num_tracks;
   size_t m_num_detections;
   bool m_had_errors = false;
+  std::vector<std::size_t> m_unassigned_tracks;
 };
 
 
