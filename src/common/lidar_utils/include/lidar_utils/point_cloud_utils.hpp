@@ -57,50 +57,6 @@ using autoware::common::types::float64_t;
 /// rotation
 static const uint32_t MAX_SCAN_POINTS = 57872U;
 
-/// Point cloud iterator wrapper, that allows to reuse iterators. Reinitializing
-/// of iterators is quite costly due to the implementation of the
-/// PointCloud2IteratorBase<...>::set_field method.
-class LIDAR_UTILS_PUBLIC PointCloudIts
-{
-public:
-  /// \brief Creates new iterator wrapper with space reserved for 4 iterators,
-  /// namely x, y, z and intensity
-  PointCloudIts();
-
-  /// \brief Resets the iterators for the given cloud to the given index
-  /// \param[in] cloud the point cloud to reset the iterators to
-  /// \param[in] idx the index/offset to advance the iterators to
-  void reset(sensor_msgs::msg::PointCloud2 & cloud, uint32_t idx = 0);
-
-  /// \brief Returns iterator for the "x" field
-  inline sensor_msgs::PointCloud2Iterator<float32_t> & x_it()
-  {
-    return m_its[0];
-  }
-
-  /// \brief Returns iterator for the "y" field
-  inline sensor_msgs::PointCloud2Iterator<float32_t> & y_it()
-  {
-    return m_its[1];
-  }
-
-  /// \brief Returns iterator for the "z" field
-  inline sensor_msgs::PointCloud2Iterator<float32_t> & z_it()
-  {
-    return m_its[2];
-  }
-
-  /// \brief Returns iterator for the "intensity" field
-  sensor_msgs::PointCloud2Iterator<float32_t> & intensity_it()
-  {
-    return m_its[3];
-  }
-
-private:
-  /// Internal storage of the iterators
-  ::std::vector<sensor_msgs::PointCloud2Iterator<float32_t>> m_its;
-};
-
 /// \brief Compute minimum safe length of point cloud access
 /// \param[in] msg The point cloud message to validate
 /// \return Byte index of one past the end of the last point ok to access
@@ -176,11 +132,6 @@ LIDAR_UTILS_PUBLIC bool8_t add_point_to_cloud_raw(
   sensor_msgs::msg::PointCloud2 & cloud,
   const autoware::common::types::PointXYZIF & pt,
   uint32_t point_cloud_idx);
-
-LIDAR_UTILS_PUBLIC bool8_t add_point_to_cloud(
-  PointCloudIts & cloud_its,
-  const autoware::common::types::PointXYZIF & pt,
-  uint32_t & point_cloud_idx);
 
 LIDAR_UTILS_PUBLIC bool8_t add_point_to_cloud(
   sensor_msgs::msg::PointCloud2 & cloud,

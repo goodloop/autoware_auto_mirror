@@ -133,35 +133,6 @@ bool8_t has_intensity_and_throw_if_no_xyz(
   return ret;
 }
 
-PointCloudIts::PointCloudIts() {m_its.reserve(4);}
-
-void PointCloudIts::reset(sensor_msgs::msg::PointCloud2 & cloud, uint32_t idx)
-{
-  // Destroy the old iterators
-  m_its.clear();
-
-  // Create new iterators
-  m_its.emplace_back(cloud, "x");
-  m_its.emplace_back(cloud, "y");
-  m_its.emplace_back(cloud, "z");
-  m_its.emplace_back(cloud, "intensity");
-
-  // Advance iterators to given index
-  // TODO(vrichard) replace explicit check by safe_cast
-  // See https://gitlab.com/autowarefoundation/autoware.auto/AutowareAuto/-/issues/1027
-  if (idx > static_cast<uint32_t>(std::numeric_limits<int>::max())) {
-    // prevent future access to random memory value or segmentation fault
-    throw std::runtime_error(
-            "converting " + std::to_string(
-              idx) + " to int would change sign of value");
-  }
-  const int i = static_cast<int>(idx);
-  x_it() += i;
-  y_it() += i;
-  z_it() += i;
-  intensity_it() += i;
-}
-
 std::size_t index_after_last_safe_byte_index(const sensor_msgs::msg::PointCloud2 & msg) noexcept
 {
   // Count expected amount of data from various source of truths
@@ -228,48 +199,6 @@ bool8_t add_point_to_cloud_raw(
   if (one_past_last_modified_address <= vector_one_past_last_address) {
     // add the point data
     std::copy(casted_point_ptr, casted_point_ptr + copy_size, cloud_insertion_slot);
-    ret = true;
-  }
-  return ret;
-}
-
-bool8_t add_point_to_cloud(
-  PointCloudIts & cloud_its,
-  const autoware::common::types::PointXYZIF & pt,
-  uint32_t & point_cloud_idx)
-{
-  bool8_t ret = false;
-
-  auto & x_it = cloud_its.x_it();
-  auto & y_it = cloud_its.y_it();
-  auto & z_it = cloud_its.z_it();
-  auto & intensity_it = cloud_its.intensity_it();
-
-  // Actual size is 20 due to padding by compilers for the memory alignment boundary.
-  // This check is to make sure that when we do a insert of 16 bytes, we will not stride
-  // past the bounds of the structure.
-  static_assert(
-    sizeof(autoware::common::types::PointXYZIF) >= ((4U * sizeof(float32_t)) + sizeof(uint16_t)),
-    "PointXYZF is not expected size: ");
-
-  if (x_it != x_it.end() &&
-    y_it != y_it.end() &&
-    z_it != z_it.end() &&
-    intensity_it != intensity_it.end())
-  {
-    // add the point data
-    *x_it = pt.x;
-    *y_it = pt.y;
-    *z_it = pt.z;
-    *intensity_it = pt.intensity;
-
-    // increment the index to keep track of the pointcloud's size
-    x_it += 1;
-    y_it += 1;
-    z_it += 1;
-    intensity_it += 1;
-    ++point_cloud_idx;
-
     ret = true;
   }
   return ret;
