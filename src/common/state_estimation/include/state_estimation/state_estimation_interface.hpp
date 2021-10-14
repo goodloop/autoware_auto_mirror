@@ -22,6 +22,7 @@
 #include <helper_functions/crtp.hpp>
 #include <state_estimation/measurement/measurement_interface.hpp>
 #include <state_estimation/visibility_control.hpp>
+#include <state_vector/generic_state.hpp>
 
 #include <chrono>
 
@@ -45,58 +46,44 @@ public:
   ///
   /// @brief      Predict the state by dt into the future.
   ///
-  /// @param[in]  dt    Time for prediction.
+  /// @param[in]  state   The state before prediction.
+  /// @param[in]  dt      Time for prediction.
+  ///
+  /// @tparam     StateT  Type of the state.
   ///
   /// @return     A new predicted state.
   ///
-  auto predict(const std::chrono::nanoseconds & dt) {return this->impl().crtp_predict(dt);}
+  template<typename StateT>
+  state_vector::CovarianceAnd<StateT> predict(
+    const state_vector::CovarianceAnd<StateT> & state,
+    const std::chrono::nanoseconds & dt) const
+  {
+    return this->impl().crtp_predict(state, dt);
+  }
 
   ///
   /// @brief      Correct the state with a measurement.
   ///
   /// @note       It is expected that prediction step was called before-wise.
   ///
+  /// @param[in]  state         The state before correction
   /// @param[in]  measurement   The measurement
   ///
+  /// @tparam     StateT        The type of the state.
   /// @tparam     MeasurementT  Measurement type
   ///
   /// @return     A corrected state.
   ///
-  template<typename MeasurementT>
-  auto correct(const MeasurementT & measurement)
+  template<typename StateT, typename MeasurementT>
+  state_vector::CovarianceAnd<StateT> correct(
+    const state_vector::CovarianceAnd<StateT> state,
+    const MeasurementT & measurement) const
   {
     static_assert(
       std::is_base_of<MeasurementInterface<MeasurementT>, MeasurementT>::value,
       "\n\nMeasurement must inherit from MeasurementInterface\n\n");
-    return this->impl().template crtp_correct<MeasurementT>(measurement);
+    return this->impl().template crtp_correct<StateT, MeasurementT>(state, measurement);
   }
-
-  ///
-  /// @brief      Reset the internal state of the vector to the given state and covariance.
-  ///
-  /// @param[in]  state       The new state
-  /// @param[in]  covariance  The new covariance
-  ///
-  /// @tparam     StateT      The state type. It must match the one already stored in the filter.
-  ///
-  template<typename StateT>
-  void reset(const StateT & state, const typename StateT::Matrix & covariance)
-  {
-    static_assert(
-      std::is_same<typename Derived::State, StateT>::value,
-      "\n\nProvided type StateT must match the filter implementation State type.\n\n");
-    this->impl().template crtp_reset(state, covariance);
-  }
-
-  /// @brief      Return current state.
-  auto & state() {return this->impl().crtp_state();}
-  /// @brief      Return current state.
-  const auto & state() const {return this->impl().crtp_state();}
-
-  /// @brief      Return current covariance.
-  auto & covariance() {return this->impl().crtp_covariance();}
-  /// @brief      Return current covariance.
-  const auto & covariance() const {return this->impl().crtp_covariance();}
 };
 
 
