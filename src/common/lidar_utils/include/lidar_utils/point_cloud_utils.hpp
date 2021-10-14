@@ -127,11 +127,6 @@ LIDAR_UTILS_PUBLIC bool8_t add_point_to_cloud(
   const autoware::common::types::PointXYZIF & pt,
   uint32_t & point_cloud_idx);
 
-LIDAR_UTILS_PUBLIC bool8_t add_point_to_cloud(
-  sensor_msgs::msg::PointCloud2 & cloud,
-  const autoware::common::types::PointXYZF & pt,
-  uint32_t & point_cloud_idx);
-
 LIDAR_UTILS_PUBLIC void reset_pcl_msg(
   sensor_msgs::msg::PointCloud2 & msg,
   const std::size_t size,

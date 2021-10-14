@@ -222,50 +222,6 @@ bool8_t add_point_to_cloud(
   return ret;
 }
 
-bool8_t add_point_to_cloud(
-  sensor_msgs::msg::PointCloud2 & cloud,
-  const autoware::common::types::PointXYZF & pt,
-  uint32_t & point_cloud_idx)
-{
-  bool8_t ret = false;
-
-  sensor_msgs::PointCloud2Iterator<float32_t> x_it(cloud, "x");
-  sensor_msgs::PointCloud2Iterator<float32_t> y_it(cloud, "y");
-  sensor_msgs::PointCloud2Iterator<float32_t> z_it(cloud, "z");
-
-  // TODO(vrichard) replace explicit check by safe_cast
-  // See https://gitlab.com/autowarefoundation/autoware.auto/AutowareAuto/-/issues/1027
-  if (point_cloud_idx > static_cast<uint32_t>(std::numeric_limits<int>::max())) {
-    // prevent future access to random memory value or segmentation fault
-    throw std::runtime_error(
-            "converting " + std::to_string(
-              point_cloud_idx) + " to int would change sign of value");
-  }
-  const int idx = static_cast<int>(point_cloud_idx);
-  x_it += idx;
-  y_it += idx;
-  z_it += idx;
-
-  static_assert(
-    sizeof(autoware::common::types::PointXYZIF) >= ((3U * sizeof(float32_t)) + sizeof(uint16_t)),
-    "PointXYZF is not expected size: ");
-
-  if (x_it != x_it.end() &&
-    y_it != y_it.end() &&
-    z_it != z_it.end())
-  {
-    // add the point data
-    *x_it = pt.x;
-    *y_it = pt.y;
-    *z_it = pt.z;
-
-    // increment the index to keep track of the pointcloud's size
-    ++point_cloud_idx;
-    ret = true;
-  }
-  return ret;
-}
-
 /////////////////////////////////////////////////////////////////////////////////////////
 
 void reset_pcl_msg(
