@@ -88,7 +88,6 @@ void NDTMapPublisherNode::init(
   const std::string & viz_map_topic)
 {
   m_ndt_map_ptr = std::make_unique<ndt::DynamicNDTMap>(*m_map_config_ptr);
-
   using autoware::common::types::PointXYZI;
   point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZI> initializer{
     m_source_pc, map_frame};
