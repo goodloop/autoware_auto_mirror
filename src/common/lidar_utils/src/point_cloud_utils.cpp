@@ -16,7 +16,6 @@
 
 #include <common/types.hpp>
 #include <helper_functions/float_comparisons.hpp>
-#include <point_cloud_msg_wrapper/point_cloud_msg_wrapper.hpp>
 #include <sensor_msgs/point_cloud2_iterator.hpp>
 
 #include <algorithm>
@@ -164,10 +163,12 @@ void init_pcl_msg(
   const std::string & frame_id,
   const std::size_t size)
 {
-  using autoware::common::types::PointXYZI;
-  point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZI> modifier{msg, frame_id};
-  modifier.clear();
-  modifier.reserve(size);
+  init_pcl_msg(
+    msg, frame_id, size, 4U,
+    "x", 1U, sensor_msgs::msg::PointField::FLOAT32,
+    "y", 1U, sensor_msgs::msg::PointField::FLOAT32,
+    "z", 1U, sensor_msgs::msg::PointField::FLOAT32,
+    "intensity", 1U, sensor_msgs::msg::PointField::FLOAT32);
 }
 
 bool8_t add_point_to_cloud(
