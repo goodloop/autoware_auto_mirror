@@ -71,11 +71,11 @@ class TRACKING_PUBLIC Associated
 {
 public:
   explicit Associated(const MsgT & objects)
-  : m_objects{objects}, m_associations(detail::get_size(objects), {Matched::kNothing, 0UL}) {}
+  : m_objects{objects}, m_associations(detail::get_size(m_objects), {Matched::kNothing, 0UL}) {}
 
   explicit Associated(MsgT && objects)
   : m_objects{std::move(objects)},
-    m_associations(detail::get_size(objects), {Matched::kNothing, 0UL}) {}
+    m_associations(detail::get_size(m_objects), {Matched::kNothing, 0UL}) {}
 
   const MsgT & objects() const noexcept {return m_objects;}
 
