@@ -86,9 +86,9 @@ public:
   /// \return Returns Associator result struct
   Associations assign(const ObjectsWithAssociations & detections, const TrackedObjects & tracks);
 
-  const std::vector<std::size_t> & unassigned_tracks() const noexcept
+  const Associations & track_associations() const noexcept
   {
-    return m_unassigned_tracks;
+    return m_track_associations;
   }
 
 private:
@@ -117,7 +117,7 @@ private:
   size_t m_num_tracks;
   size_t m_num_detections;
   bool m_had_errors = false;
-  std::vector<std::size_t> m_unassigned_tracks;
+  Associations m_track_associations;
 };
 
 

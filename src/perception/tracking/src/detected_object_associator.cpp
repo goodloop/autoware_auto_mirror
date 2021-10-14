@@ -56,6 +56,7 @@ Associations DetectedObjectAssociator::assign(
             "Cannot associate tracks with detections - they are in different frames");
   }
   reset();
+  m_track_associations = Associations(tracks.objects.size(), {Matched::kNothing, 0UL});
   m_num_detections = detections.objects().objects.size();
   m_num_tracks = tracks.objects.size();
   m_are_tracks_rows = (m_num_tracks <= m_num_detections);
@@ -84,8 +85,6 @@ void DetectedObjectAssociator::reset()
   m_num_detections = 0U;
 
   m_had_errors = false;
-
-  m_unassigned_tracks.clear();
 }
 
 void DetectedObjectAssociator::compute_weights(
@@ -218,8 +217,7 @@ Associations DetectedObjectAssociator::extract_result(
         (initial_object_associations[detection_index].matched == Matched::kNothing);
       if (track_got_assigned && detection_has_no_assignment) {
         object_associations[detection_index] = {Matched::kExistingTrack, track_index};
-      } else {
-        m_unassigned_tracks.push_back(track_index);
+        m_track_associations[track_index] = {Matched::kOtherDetection, detection_index};
       }
     }
   } else {
@@ -231,8 +229,7 @@ Associations DetectedObjectAssociator::extract_result(
         (initial_object_associations[detection_index].matched == Matched::kNothing);
       if (track_got_assigned && detection_has_no_assignment) {
         object_associations[detection_index] = {Matched::kExistingTrack, track_index};
-      } else {
-        m_unassigned_tracks.push_back(track_index);
+        m_track_associations[track_index] = {Matched::kOtherDetection, detection_index};
       }
     }
   }

@@ -25,6 +25,7 @@
 
 #include <autoware_auto_msgs/msg/classified_roi_array.hpp>
 #include <autoware_auto_msgs/msg/detected_objects.hpp>
+#include <autoware_auto_msgs/msg/tracked_objects.hpp>
 #include <tracking/visibility_control.hpp>
 
 #include <utility>
@@ -52,6 +53,7 @@ inline std::size_t get_size(const autoware_auto_msgs::msg::DetectedObjects & msg
 enum class Matched
 {
   kNothing,
+  kOtherDetection,
   kExistingTrack,
   kNewTrack
 };
@@ -90,6 +92,7 @@ private:
 
 using ObjectsWithAssociations = Associated<autoware_auto_msgs::msg::DetectedObjects>;
 using RoisWithAssociations = Associated<autoware_auto_msgs::msg::ClassifiedRoiArray>;
+using TracksWithAssociations = Associated<autoware_auto_msgs::msg::ClassifiedRoiArray>;
 
 }  // namespace tracking
 }  // namespace perception

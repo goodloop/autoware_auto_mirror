@@ -161,7 +161,14 @@ TEST_F(AssociationTester, MoreTracksLessObjects)
   tracking::ObjectsWithAssociations objects_with_associations{detections_msg};
   const auto associations = m_associator.assign(objects_with_associations, tracks);
 
-  EXPECT_EQ(m_associator.unassigned_tracks().size(), num_tracks - num_associated_dets);
+  EXPECT_EQ(m_associator.track_associations().size(), num_tracks);
+  const auto & track_associations = m_associator.track_associations();
+  const auto unassigned_track_count = std::count_if(
+    track_associations.begin(), track_associations.end(),
+    [](const auto association) {
+      return association.matched == tracking::Matched::kNothing;
+    });
+  EXPECT_EQ(unassigned_track_count, num_tracks - num_associated_dets);
   ASSERT_EQ(associations.size(), 5UL);
   for (const auto & association : associations) {
     EXPECT_EQ(association.matched, tracking::Matched::kExistingTrack);

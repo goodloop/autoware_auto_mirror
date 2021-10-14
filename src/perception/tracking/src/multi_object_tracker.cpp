@@ -260,8 +260,12 @@ DetectedObjectsUpdateResult MultiObjectTracker<TrackCreatorT>::update(
       m_tracks.objects[matched_track_index].update(detection);
     }
   }
-  for (const size_t track_idx : m_object_associator.unassigned_tracks()) {
-    m_tracks.objects[track_idx].no_update();
+  const auto & track_associations = m_object_associator.track_associations();
+  for (auto idx = 0U; idx < m_object_associator.track_associations().size(); ++idx) {
+    const auto & association = track_associations[idx];
+    if (association.matched == Matched::kNothing) {
+      m_tracks.objects[idx].no_update();
+    }
   }
 
   // ==================================
