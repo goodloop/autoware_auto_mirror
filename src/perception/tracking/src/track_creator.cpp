@@ -120,6 +120,7 @@ void LidarClusterIfVisionPolicy::create_using_cache(
   creator_ret.maybe_roi_stamps->push_back(vision_msg.header.stamp);
 
   for (auto cluster_idx = 0U; cluster_idx < msg.associations().size(); ++cluster_idx) {
+    if (creator_ret.associations[cluster_idx].matched != Matched::kNothing) {continue;}
     if (association_result.track_assignments[cluster_idx] != AssociatorResult::UNASSIGNED) {
       creator_ret.tracks.emplace_back(
         msg.objects().objects[cluster_idx],

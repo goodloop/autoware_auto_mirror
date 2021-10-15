@@ -261,11 +261,14 @@ void MultiObjectTrackerNode::clusters_callback(const ClustersMsg::ConstSharedPtr
     DetectedObjects detections_from_clusters;
     detections_from_clusters.header = objs->header;
     detections_from_clusters.objects.reserve(clusters_msg_view.size());
-    for (std::uint32_t idx = 0U; idx < clusters_msg_view.size(); ++idx) {
+    for (const auto idx : result.unassigned_clusters_indices) {
+      if (idx >= clusters_msg_view.size()) {
+        throw std::runtime_error("Wrong cluster idx");
+      }
       autoware_auto_msgs::msg::DetectedObject detected_object;
       detected_object.existence_probability = 1.0F;
       // Set shape as a convex hull of the cluster.
-      auto cluster_view = clusters_msg_view[idx];
+      auto cluster_view = clusters_msg_view[static_cast<std::uint32_t>(idx)];
       std::list<ClustersMsg::_points_type::value_type> point_list{
         cluster_view.begin(), cluster_view.end()};
       const auto hull_end_iter = common::geometry::convex_hull(point_list);

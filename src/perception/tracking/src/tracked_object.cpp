@@ -128,7 +128,7 @@ TrackedObject::TrackedObject(
   m_msg.kinematics.orientation_availability = detection.kinematics.orientation_availability;
   m_msg.kinematics.orientation = detection.kinematics.orientation;
   // Kinematics are owned by the EKF and only filled in in the msg() getter
-  m_classifier.update(detection.classification);
+  m_classifier.update(override_classification);
 }
 
 TrackedObject::TrackedObject(
