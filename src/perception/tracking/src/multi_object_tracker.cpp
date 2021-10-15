@@ -50,6 +50,7 @@ using autoware::common::types::float64_t;
 using geometry_msgs::build;
 using geometry_msgs::msg::Point32;
 using autoware_auto_msgs::msg::DetectedObjects;
+using autoware_auto_msgs::msg::DetectedObjectKinematics;
 using nav_msgs::msg::Odometry;
 using TrackedObjectsMsg = autoware_auto_msgs::msg::TrackedObjects;
 
@@ -104,7 +105,7 @@ DetectedObjects transform(
   // Hoisted outside the loop
   Eigen::Vector3d centroid_detection = Eigen::Vector3d::Zero();
 
-  DetectedObjectsMsg result;
+  DetectedObjects result;
   result.header = detections.header;
   result.header.frame_id = target_frame_id;
   result.objects.reserve(detections.objects.size());
@@ -200,7 +201,7 @@ DetectedObjectsUpdateResult MultiObjectTracker<TrackCreatorT>::update(
       iter_pair.first, iter_pair.second, boxes_in_detection_frame.boxes.back());
   }
 
-  DetectedObjectsMsg detections;
+  DetectedObjects detections;
   detections.objects.reserve(boxes_in_detection_frame.boxes.size());
   detections.header = boxes_in_detection_frame.header;
   std::transform(
@@ -214,7 +215,7 @@ DetectedObjectsUpdateResult MultiObjectTracker<TrackCreatorT>::update(
 
 template<class TrackCreatorT>
 DetectedObjectsUpdateResult MultiObjectTracker<TrackCreatorT>::update(
-  const DetectedObjectsMsg & detections,
+  const DetectedObjects & detections,
   const nav_msgs::msg::Odometry & detection_frame_odometry)
 {
   DetectedObjectsUpdateResult result;
@@ -337,7 +338,7 @@ void MultiObjectTracker<TrackCreatorT>::update(const ClassifiedRoiArrayMsg & roi
 
 template<class TrackCreatorT>
 TrackerUpdateStatus MultiObjectTracker<TrackCreatorT>::validate(
-  const DetectedObjectsMsg & detections,
+  const DetectedObjects & detections,
   const nav_msgs::msg::Odometry & detection_frame_odometry)
 {
   const auto target_time = time_utils::from_message(detections.header.stamp);
