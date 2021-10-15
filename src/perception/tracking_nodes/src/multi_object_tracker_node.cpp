@@ -293,6 +293,11 @@ void MultiObjectTrackerNode::clusters_callback(const ClustersMsg::ConstSharedPtr
       detected_object.kinematics.centroid_position.x = static_cast<double>(centroid.x);
       detected_object.kinematics.centroid_position.y = static_cast<double>(centroid.y);
       detected_object.kinematics.centroid_position.z = static_cast<double>(centroid.z);
+      for (auto & point : detected_object.shape.polygon.points) {
+        // We assume here a zero orientation as we don't care about the orientation of the convex
+        // hull. This then becomes a poor man's transformation into the object-local coordinates.
+        point = common::geometry::minus_2d(point, centroid);
+      }
 
       // Compute the classification
       autoware_auto_msgs::msg::ObjectClassification label;
