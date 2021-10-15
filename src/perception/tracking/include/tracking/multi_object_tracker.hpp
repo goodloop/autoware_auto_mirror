@@ -86,7 +86,7 @@ struct TRACKING_PUBLIC DetectedObjectsUpdateResult
   /// Indicates the success or failure, and kind of failure, of the tracking operation.
   TrackerUpdateStatus status;
   /// Timestamps of ROI msgs used for track creation. Useful for debugging purposes.
-  MaybeRoiStampsT maybe_roi_stamps;
+  builtin_interfaces::msg::Time related_rois_stamp;
 };
 
 /// \brief Options for object tracking, with sensible defaults.

@@ -276,7 +276,7 @@ DetectedObjectsUpdateResult MultiObjectTracker<TrackCreatorT>::update(
     m_tracks.objects.end(),
     std::make_move_iterator(track_creation_result.tracks.begin()),
     std::make_move_iterator(track_creation_result.tracks.end()));
-  result.maybe_roi_stamps = track_creation_result.maybe_roi_stamps;
+  result.related_rois_stamp = track_creation_result.related_rois_stamp;
   // Set all the unassigned cluster indices to the output.
   for (auto i = 0U; i < track_creation_result.associations.size(); ++i) {
     if (track_creation_result.associations[i].matched == Matched::kNothing) {

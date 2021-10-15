@@ -114,10 +114,9 @@ void LidarClusterIfVisionPolicy::create_using_cache(
   const auto & vision_msg = *vision_msg_matches.back();
   const auto association_result = m_associator.assign(vision_msg, msg.objects());
 
-  if (!creator_ret.maybe_roi_stamps) {
-    creator_ret.maybe_roi_stamps = std::vector<builtin_interfaces::msg::Time>{};
-  }
-  creator_ret.maybe_roi_stamps->push_back(vision_msg.header.stamp);
+  // This is not entirely correct as the images from different cameras might have different
+  // timestamps but we assume they will be close enough.
+  creator_ret.related_rois_stamp = vision_msg.header.stamp;
 
   for (auto cluster_idx = 0U; cluster_idx < msg.associations().size(); ++cluster_idx) {
     if (creator_ret.associations[cluster_idx].matched != Matched::kNothing) {continue;}

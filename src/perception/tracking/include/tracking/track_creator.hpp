@@ -50,8 +50,6 @@ struct TRACKING_PUBLIC VisionPolicyConfig
   std::chrono::milliseconds max_vision_lidar_timestamp_diff{20};
 };
 
-using MaybeRoiStampsT = std::experimental::optional<std::vector<builtin_interfaces::msg::Time>>;
-
 /// Struct to be used as the return value from track creation process
 struct TRACKING_PUBLIC TrackCreationResult
 {
@@ -60,7 +58,7 @@ struct TRACKING_PUBLIC TrackCreationResult
   /// List of detection that was not associated and not used to create tracks
   Associations associations;
   /// Timestamps of msgs from each of the ClassifiedROIArray topics used for track creation
-  MaybeRoiStampsT maybe_roi_stamps = std::experimental::nullopt;
+  builtin_interfaces::msg::Time related_rois_stamp;
 };
 
 // Class implementing LidarOnly track creation policy

@@ -254,7 +254,7 @@ void MultiObjectTrackerNode::clusters_callback(const ClustersMsg::ConstSharedPtr
   }
   const auto result = m_tracker.update(
     *objs, *get_closest_match(matched_msgs, objs->header.stamp));
-  if (result.status == TrackerUpdateStatus::Ok && result.maybe_roi_stamps) {
+  if (result.status == TrackerUpdateStatus::Ok) {
     m_track_publisher->publish(result.tracks);
 
     common::lidar_utils::PointClustersView clusters_msg_view{*objs};
@@ -303,6 +303,7 @@ void MultiObjectTrackerNode::clusters_callback(const ClustersMsg::ConstSharedPtr
       detections_from_clusters.objects.push_back(detected_object);
     }
     m_leftover_publisher->publish(detections_from_clusters);
+    maybe_visualize(result.related_rois_stamp, detections_from_clusters);
   } else {
     RCLCPP_WARN(
       get_logger(), "Tracker update for 3D detection at time %d.%d failed. Reason: %s",
@@ -334,10 +335,10 @@ void MultiObjectTrackerNode::detected_objects_callback(const DetectedObjects::Co
   }
   const auto result = m_tracker.update(
     *objs, *get_closest_match(matched_msgs, objs->header.stamp));
-  if (result.status == TrackerUpdateStatus::Ok && result.maybe_roi_stamps) {
+  if (result.status == TrackerUpdateStatus::Ok) {
     m_track_publisher->publish(result.tracks);
-    // m_leftover_publisher->publish(result.unassigned_clusters);
-    // maybe_visualize(*(result.maybe_roi_stamps), *objs);
+    // m_leftover_publisher->publish(result.unassigned_clusters_indices);
+    maybe_visualize(result.related_rois_stamp, *objs);
   } else {
     RCLCPP_WARN(
       get_logger(), "Tracker update for 3D detection at time %d.%d failed. Reason: %s",
@@ -352,17 +353,15 @@ void MultiObjectTrackerNode::classified_roi_callback(const ClassifiedRoiArray::C
 }
 
 void MultiObjectTrackerNode::maybe_visualize(
-  const perception::tracking::MaybeRoiStampsT::value_type & roi_stamps,
+  const builtin_interfaces::msg::Time & rois_stamp,
   DetectedObjects all_objects)
 {
   if (!m_visualize_track_creation) {
     return;
   }
   // Align the detections on time with the rois they are associated to.
-  for (const auto & stamp : roi_stamps) {
-    all_objects.header.stamp = stamp;
-    m_track_creating_clusters_pub->publish(all_objects);
-  }
+  all_objects.header.stamp = rois_stamp;
+  m_track_creating_clusters_pub->publish(all_objects);
 }
 }  // namespace tracking_nodes
 }  // namespace autoware

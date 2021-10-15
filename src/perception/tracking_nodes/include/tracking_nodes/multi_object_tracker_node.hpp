@@ -99,7 +99,7 @@ private:
 
   // Visualization variables & functions
   void maybe_visualize(
-    const perception::tracking::MaybeRoiStampsT::value_type & roi_stamps,
+    const builtin_interfaces::msg::Time & rois_stamp,
     DetectedObjects all_objects);
 
   bool8_t m_visualize_track_creation = false;
