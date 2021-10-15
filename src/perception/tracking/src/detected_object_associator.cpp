@@ -207,15 +207,15 @@ Associations DetectedObjectAssociator::extract_result(
   const Associations & initial_object_associations)
 {
   auto object_associations = initial_object_associations;
-
   if (m_are_tracks_rows) {
     for (size_t track_index = 0U; track_index < m_num_tracks; track_index++) {
       const auto detection_index =
         static_cast<size_t>(m_assigner.get_assignment(static_cast<assigner_idx_t>(track_index)));
-      const auto track_got_assigned = (track_index != Assigner::UNASSIGNED);
-      const auto detection_has_no_assignment =
-        (initial_object_associations[detection_index].matched == Matched::kNothing);
-      if (track_got_assigned && detection_has_no_assignment) {
+      const auto track_has_detection_assigned = (detection_index != Assigner::UNASSIGNED);
+      if (!track_has_detection_assigned) {continue;}
+      const auto detection_has_no_assignment_yet =
+        (object_associations[detection_index].matched == Matched::kNothing);
+      if (detection_has_no_assignment_yet) {
         object_associations[detection_index] = {Matched::kExistingTrack, track_index};
         m_track_associations[track_index] = {Matched::kOtherDetection, detection_index};
       }
@@ -226,7 +226,7 @@ Associations DetectedObjectAssociator::extract_result(
         m_assigner.get_assignment(static_cast<assigner_idx_t>(detection_index)));
       const auto track_got_assigned = (track_index != Assigner::UNASSIGNED);
       const auto detection_has_no_assignment =
-        (initial_object_associations[detection_index].matched == Matched::kNothing);
+        (object_associations[detection_index].matched == Matched::kNothing);
       if (track_got_assigned && detection_has_no_assignment) {
         object_associations[detection_index] = {Matched::kExistingTrack, track_index};
         m_track_associations[track_index] = {Matched::kOtherDetection, detection_index};

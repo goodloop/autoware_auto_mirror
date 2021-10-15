@@ -122,11 +122,10 @@ void LidarClusterIfVisionPolicy::create_using_cache(
   for (auto cluster_idx = 0U; cluster_idx < msg.associations().size(); ++cluster_idx) {
     if (association_result.track_assignments[cluster_idx] != AssociatorResult::UNASSIGNED) {
       creator_ret.tracks.emplace_back(
-        TrackedObject{
-              msg.objects().objects[cluster_idx],
-              vision_msg.rois[association_result.track_assignments[cluster_idx]].classifications,
-              m_default_variance,
-              m_noise_variance});
+        msg.objects().objects[cluster_idx],
+        vision_msg.rois[association_result.track_assignments[cluster_idx]].classifications,
+        m_default_variance,
+        m_noise_variance);
       const auto created_track_index = creator_ret.tracks.size() - 1UL;
       creator_ret.associations[cluster_idx] = {Matched::kNewTrack, created_track_index};
     }

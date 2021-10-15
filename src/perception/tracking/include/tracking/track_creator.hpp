@@ -142,7 +142,7 @@ public:
   }
 
 private:
-  std::shared_ptr<PolicyT> m_policy;
+  std::shared_ptr<PolicyT> m_policy{};
 };
 
 }  // namespace tracking
