@@ -150,6 +150,7 @@ void TrackedObject::update(const DetectedObjectMsg & detection)
   m_ticks_since_last_seen = 0;
   // Update the shape
   m_msg.shape = {detection.shape};
+  m_msg.kinematics.centroid_position.z = detection.kinematics.centroid_position.z;
   m_msg.kinematics.orientation = detection.kinematics.orientation;
 
   // It needs to be determined which parts of the DetectedObject message are set, and can be used
