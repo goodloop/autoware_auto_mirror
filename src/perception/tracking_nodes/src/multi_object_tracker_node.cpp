@@ -91,10 +91,6 @@ auto init_tracker(
 
   GreedyRoiAssociatorConfig vision_config{};
 
-  MultiObjectTrackerOptions options{
-    {max_distance, max_area_ratio, consider_edge_for_big_detections}, vision_config,
-    pruning_time_threshold, pruning_ticks_threshold, frame};
-
   if (use_vision) {
     using Policy = LidarClusterIfVisionPolicy;
     using VisionTrackCreator = TrackCreator<LidarClusterIfVisionPolicy>;
@@ -128,6 +124,9 @@ auto init_tracker(
     auto policy = std::make_shared<Policy>(
       vision_policy_cfg, default_variance, noise_variance, tf_buffer);
     VisionTrackCreator track_creator{policy};
+    MultiObjectTrackerOptions options{
+      {max_distance, max_area_ratio, consider_edge_for_big_detections}, vision_config,
+      pruning_time_threshold, pruning_ticks_threshold, frame};
     return MultiObjectTracker<VisionTrackCreator>{options, track_creator, tf_buffer};
   }
   throw std::runtime_error("Only vision tracker supported right now.");

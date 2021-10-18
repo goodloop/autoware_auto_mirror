@@ -93,7 +93,7 @@ AssociatorResult GreedyRoiAssociator::assign(
   }
   const details::ShapeTransformer transformer{tf_roi_from_track.transform};
   for (auto track_idx = 0U; track_idx < tracks.objects.size(); ++track_idx) {
-    const auto matched_detection_idx = project_and_match_detection(
+    const auto matched_roi_index = project_and_match_detection(
       transformer(
         tracks.objects[track_idx].shape(),
         geometry_msgs::build<geometry_msgs::msg::Point>()
@@ -101,10 +101,8 @@ AssociatorResult GreedyRoiAssociator::assign(
         .y(tracks.objects[track_idx].centroid().y())
         .z(tracks.objects[track_idx].z()),
         tracks.objects[track_idx].orientation()),
-      result
-      .unassigned_detection_indices, rois);
-
-    handle_matching_output(matched_detection_idx, track_idx, result);
+      result.unassigned_detection_indices, rois);
+    handle_matching_output(matched_roi_index, track_idx, result);
   }
 
   return result;
@@ -128,11 +126,12 @@ AssociatorResult GreedyRoiAssociator::assign(
 
   for (auto object_idx = 0U; object_idx < objects.objects.size(); ++object_idx) {
     auto & object = objects.objects[object_idx];
-    auto detection_idx = project_and_match_detection(
-      transformer(object.shape, object.kinematics.centroid_position, object.kinematics.orientation),
+    auto matched_roi_index = project_and_match_detection(
+      transformer(
+        object.shape, object.kinematics.centroid_position, object.kinematics.orientation),
       result.unassigned_detection_indices, rois);
 
-    handle_matching_output(detection_idx, object_idx, result);
+    handle_matching_output(matched_roi_index, object_idx, result);
   }
 
   return result;
@@ -193,7 +192,6 @@ std::vector<geometry_msgs::msg::Point32> ShapeTransformer::operator()(
 {
   std::vector<Point32> result;
   result.reserve(2U * shape.polygon.points.size());
-
   const auto corners = common::geometry::bounding_box::details::get_transformed_corners(
     shape, centroid, orientation);
 
@@ -210,6 +208,7 @@ std::vector<geometry_msgs::msg::Point32> ShapeTransformer::operator()(
 
   return result;
 }
+
 }  // namespace details
 }  // namespace tracking
 }  // namespace perception
