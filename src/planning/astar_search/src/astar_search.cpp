@@ -91,7 +91,9 @@ geometry_msgs::msg::Pose calcRelativePose(
 int discretizeAngle(const double theta, const size_t theta_size)
 {
   const double one_angle_range = 2.0 * M_PI / static_cast<double>(theta_size);
-  return static_cast<int>(normalizeRadian(theta, 0.0, 2.0 * M_PI) / one_angle_range) % static_cast<int>(theta_size);
+  return static_cast<int>(normalizeRadian(
+           theta, 0.0,
+           2.0 * M_PI) / one_angle_range) % static_cast<int>(theta_size);
 }
 
 geometry_msgs::msg::Pose global2local(
@@ -122,8 +124,9 @@ IndexXYT pose2index(
   const nav_msgs::msg::OccupancyGrid & costmap, const geometry_msgs::msg::Pose & pose_local,
   const size_t theta_size)
 {
-  const int index_x = static_cast<int>(std::floor(pose_local.position.x / static_cast<double>(costmap.info.resolution)));
-  const int index_y = static_cast<int>(std::floor(pose_local.position.y / static_cast<double>(costmap.info.resolution)));
+  const auto resolution = static_cast<double>(costmap.info.resolution);
+  const int index_x = static_cast<int>(std::floor(pose_local.position.x / resolution));
+  const int index_y = static_cast<int>(std::floor(pose_local.position.y / resolution));
   const int index_theta = discretizeAngle(tf2::getYaw(pose_local.orientation), theta_size);
   return {index_x, index_y, index_theta};
 }
@@ -275,7 +278,8 @@ bool AstarSearch::setStartNode()
   AstarNode * start_node = getNodeRef(index);
   start_node->x = start_pose_.position.x;
   start_node->y = start_pose_.position.y;
-  start_node->theta = 2.0 * M_PI / static_cast<double>(astar_param_.theta_size) * static_cast<double>(index.theta);
+  start_node->theta = 2.0 * M_PI / static_cast<double>(astar_param_.theta_size) *
+    static_cast<double>(index.theta);
   start_node->gc = 0;
   start_node->hc = estimateCost(start_pose_);
   start_node->is_back = false;
@@ -475,7 +479,8 @@ bool AstarSearch::isOutOfRange(const IndexXYT & index) const
 
 bool AstarSearch::isObs(const IndexXYT & index) const
 {
-  return nodes_[static_cast<size_t>(index.y)][static_cast<size_t>(index.x)][0].status == NodeStatus::Obstacle;
+  return nodes_[static_cast<size_t>(index.y)][static_cast<size_t>(index.x)][0].status ==
+         NodeStatus::Obstacle;
 }
 
 bool AstarSearch::isGoal(const AstarNode & node) const
@@ -492,7 +497,8 @@ bool AstarSearch::isGoal(const AstarNode & node) const
   }
 
   if (std::fabs(relative_pose.position.x) > longitudinal_goal_range ||
-      std::fabs(relative_pose.position.y) > lateral_goal_range) {
+    std::fabs(relative_pose.position.y) > lateral_goal_range)
+  {
     return false;
   }
 
@@ -504,6 +510,12 @@ bool AstarSearch::isGoal(const AstarNode & node) const
   return true;
 }
 
-}  // namespace autoware
-}  // namespace planning
+AstarNode * AstarSearch::getNodeRef(const IndexXYT & index)
+{
+  return &nodes_[static_cast<size_t>(index.y)][static_cast<size_t>(index.x)][
+    static_cast<size_t>(index.theta)];
+}
+
 }  // namespace astar_search
+}  // namespace planning
+}  // namespace autoware

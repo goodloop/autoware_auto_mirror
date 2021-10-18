@@ -14,24 +14,22 @@
 //
 // Co-developed by Tier IV, Inc. and Robotec.AI sp. z o.o.
 
-
 #ifndef ASTAR_SEARCH__ASTAR_SEARCH_HPP_
 #define ASTAR_SEARCH__ASTAR_SEARCH_HPP_
 
 #include <astar_search/visibility_control.hpp>
 
-#include <cmath>
-#include <functional>
-#include <iostream>
-#include <queue>
-#include <string>
-#include <tuple>
-#include <vector>
-
 #include <geometry_msgs/msg/pose_array.hpp>
 #include <nav_msgs/msg/occupancy_grid.hpp>
 #include <nav_msgs/msg/path.hpp>
 #include <std_msgs/msg/header.hpp>
+
+#include <cmath>
+#include <functional>
+#include <queue>
+#include <string>
+#include <tuple>
+#include <vector>
 
 
 namespace autoware
@@ -137,26 +135,40 @@ struct ASTAR_SEARCH_PUBLIC RobotShape
 struct ASTAR_SEARCH_PUBLIC AstarParam
 {
   // base configs
-  bool use_back;                     ///< Indicate if should search for solutions in backward direction
-  bool only_behind_solutions;        ///< Indicate if solutions should be exclusively behind the goal
-  double time_limit;                 ///< Planning time limit [msec]
+  /// Indicate if should search for solutions in backward direction
+  bool use_back;
+  /// Indicate if solutions should be exclusively behind the goal
+  bool only_behind_solutions;
+  /// Planning time limit [msec]
+  double time_limit;
 
   // robot configs
-  RobotShape robot_shape;            ///< Definition of robot shape
-  double minimum_turning_radius;     ///< Minimum possible turning radius to plan trajectory [m]
-  double maximum_turning_radius;     ///< Maximum possible turning radius to plan trajectory [m]
-  size_t turning_radius_size;        ///< Number of levels of discretization between minimum and maximum turning radius [-]
+  /// Definition of robot shape
+  RobotShape robot_shape;
+  /// Minimum possible turning radius to plan trajectory [m]
+  double minimum_turning_radius;
+  /// Maximum possible turning radius to plan trajectory [m]
+  double maximum_turning_radius;
+  /// Number of levels of discretization between minimum and maximum turning radius [-]
+  size_t turning_radius_size;
 
   // search configs
-  size_t theta_size;                 ///< Number of possible headings, discretized between <0, 2pi> [-]
-  double reverse_weight;             ///< Cost of changing moving direction [-]
-  double distance_heuristic_weight;  ///< Distance weight for trajectory cost estimation
-  double lateral_goal_range;         ///< Reaching threshold, lateral error [m]
-  double longitudinal_goal_range;    ///< Reaching threshold, longitudinal error [m]
-  double angle_goal_range;           ///< Reaching threshold, angle error [deg]
+  /// Number of possible headings, discretized between <0, 2pi> [-]
+  size_t theta_size;
+  /// Cost of changing moving direction [-]
+  double reverse_weight;
+  /// Distance weight for trajectory cost estimation
+  double distance_heuristic_weight;
+  /// Reaching threshold, lateral error [m]
+  double lateral_goal_range;
+  /// Reaching threshold, longitudinal error [m]
+  double longitudinal_goal_range;
+  /// Reaching threshold, angle error [deg]
+  double angle_goal_range;
 
   // costmap configs
-  int64_t obstacle_threshold;        ///< Threshold value of costmap cell to be regarded as an obstacle [-]
+  /// Threshold value of costmap cell to be regarded as an obstacle [-]
+  int64_t obstacle_threshold;
 };
 
 /// \brief Possible planning results
@@ -170,7 +182,8 @@ enum class SearchStatus
 };
 
 /// \brief Determines if passed status is a success status
-bool ASTAR_SEARCH_PUBLIC isSuccess(const SearchStatus & status) {
+bool ASTAR_SEARCH_PUBLIC isSuccess(const SearchStatus & status)
+{
   return status == SearchStatus::SUCCESS;
 }
 
@@ -197,8 +210,9 @@ public:
   /// \param[in] start_pose Start position
   /// \param[in] goal_pose Goal position
   /// \return SearchStatus flag showing if planning succeeded or not
-  SearchStatus makePlan(const geometry_msgs::msg::Pose & start_pose,
-                        const geometry_msgs::msg::Pose & goal_pose);
+  SearchStatus makePlan(
+    const geometry_msgs::msg::Pose & start_pose,
+    const geometry_msgs::msg::Pose & goal_pose);
 
   /// \brief Check if there will be collision on generated trajectory
   /// \param[in] trajectory Generated trajectory
@@ -221,8 +235,7 @@ private:
   bool isObs(const IndexXYT & index) const;
   bool isGoal(const AstarNode & node) const;
 
-  AstarNode * getNodeRef(const IndexXYT & index)
-    {return &nodes_[static_cast<size_t>(index.y)][static_cast<size_t>(index.x)][static_cast<size_t>(index.theta)];}
+  AstarNode * getNodeRef(const IndexXYT & index);
 
   AstarParam astar_param_;
 
@@ -242,9 +255,8 @@ private:
   AstarWaypoints waypoints_;
 };
 
-}  // namespace autoware
-}  // namespace planning
 }  // namespace astar_search
-
+}  // namespace planning
+}  // namespace autoware
 
 #endif  // ASTAR_SEARCH__ASTAR_SEARCH_HPP_
