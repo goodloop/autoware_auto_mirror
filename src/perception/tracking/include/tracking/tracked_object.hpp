@@ -110,6 +110,8 @@ public:
       m_ekf.state().at<autoware::common::state_vector::variable::Y>()};
   }
 
+  inline double z() const noexcept {return m_msg.kinematics.centroid_position.z;}
+
   /// Getter for shape
   inline const ShapeMsg & shape() const
   {

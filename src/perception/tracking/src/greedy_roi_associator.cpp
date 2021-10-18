@@ -16,6 +16,7 @@
 
 #include <common/types.hpp>
 #include <geometry/bounding_box/bounding_box_common.hpp>
+#include <geometry_msgs/msg/point.hpp>
 #include <time_utils/time_utils.hpp>
 #include <tracking/detected_object_associator.hpp>
 #include <tracking/greedy_roi_associator.hpp>
@@ -95,10 +96,12 @@ AssociatorResult GreedyRoiAssociator::assign(
     const auto matched_detection_idx = project_and_match_detection(
       transformer(
         tracks.objects[track_idx].shape(),
-        geometry_msgs::msg::Point{}.set__x(
-          tracks.objects[track_idx].centroid().x()).set__y(
-          tracks.objects[track_idx].centroid().y()),
-        tracks.objects[track_idx].orientation()), result
+        geometry_msgs::build<geometry_msgs::msg::Point>()
+        .x(tracks.objects[track_idx].centroid().x())
+        .y(tracks.objects[track_idx].centroid().y())
+        .z(tracks.objects[track_idx].z()),
+        tracks.objects[track_idx].orientation()),
+      result
       .unassigned_detection_indices, rois);
 
     handle_matching_output(matched_detection_idx, track_idx, result);
@@ -184,7 +187,8 @@ ShapeTransformer::ShapeTransformer(const geometry_msgs::msg::Transform & tf)
 }
 
 std::vector<geometry_msgs::msg::Point32> ShapeTransformer::operator()(
-  const autoware_auto_msgs::msg::Shape & shape, const geometry_msgs::msg::Point & centroid,
+  const autoware_auto_msgs::msg::Shape & shape,
+  const geometry_msgs::msg::Point & centroid,
   const geometry_msgs::msg::Quaternion & orientation) const
 {
   std::vector<Point32> result;

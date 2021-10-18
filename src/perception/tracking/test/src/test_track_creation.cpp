@@ -229,116 +229,131 @@ TEST_F(TestTrackCreator, TestLidarIfVision2NewTracks)
 }
 
 // Test lidar and vision but no match between them
-// TEST_F(TestTrackCreator, TestLidarIfVisionNoNewTrack)
-// {
-//   TrackCreator creator{
-//     {CreationPolicies::LidarClusterIfVision, 1.0, 1.0, this->vision_policy_cfg}, tf_buffer};
-//   auto now_time = time_utils::to_message(
-//     std::chrono::system_clock::time_point{std::chrono::system_clock::now()});
+TEST_F(TestTrackCreator, TestLidarIfVisionNoNewTrack)
+{
+  auto policy =
+    std::make_shared<LidarClusterIfVisionPolicy>(this->vision_policy_cfg, 1.0, 1.0, tf_buffer);
+  TrackCreator<LidarClusterIfVisionPolicy> creator{policy};
+  auto now_time = time_utils::to_message(
+    std::chrono::system_clock::time_point{std::chrono::system_clock::now()});
 
-//   // Add lidar
-//   DetectedObject lidar_detection;
-//   DetectedObjects lidar_detections;
-//   lidar_detections.header.frame_id = "base_link";
-//   lidar_detections.header.stamp = now_time;
-//   const int num_objects = 10;
-//   for (int i = 0; i < num_objects; ++i) {
-//     lidar_detection.shape.height = i;  // use index as height to differentiate between detections
-//     lidar_detections.objects.push_back(lidar_detection);
-//   }
-//   AssociatorResult lidar_track_assignment;
-//   lidar_track_assignment.unassigned_detection_indices = {0, 2, 4};
-//   lidar_detections.objects[0] = this->object_roi_pairs[0].first;
-//   lidar_detections.objects[2] = this->object_roi_pairs[1].first;
-//   lidar_detections.objects[4] = this->object_roi_pairs[2].first;
-//   creator.add_objects(lidar_detections, lidar_track_assignment);
+  // Add lidar
+  DetectedObject lidar_detection;
+  DetectedObjects lidar_detections;
+  lidar_detections.header.frame_id = "base_link";
+  lidar_detections.header.stamp = now_time;
+  const int num_objects = 10;
+  for (int i = 0; i < num_objects; ++i) {
+    lidar_detection.shape.height = i;  // use index as height to differentiate between detections
+    lidar_detections.objects.push_back(lidar_detection);
+  }
+  lidar_detections.objects[0] = this->object_roi_pairs[0].first;
+  lidar_detections.objects[2] = this->object_roi_pairs[1].first;
+  lidar_detections.objects[4] = this->object_roi_pairs[2].first;
+  ObjectsWithAssociations objects_with_associations{lidar_detections};
+  for (auto & association : objects_with_associations.associations()) {
+    association.matched = Matched::kExistingTrack;
+  }
+  objects_with_associations.associations()[0].matched = Matched::kNothing;
+  objects_with_associations.associations()[2].matched = Matched::kNothing;
+  objects_with_associations.associations()[4].matched = Matched::kNothing;
 
-//   // Add vision
-//   ClassifiedRoi vision_detection;
-//   ClassifiedRoiArray vision_detections;
-//   vision_detections.header.stamp = time_utils::to_message(
-//     time_utils::from_message(now_time) - std::chrono::milliseconds(15));
-//   vision_detections.header.frame_id = "camera";
-//   const int num_vision_detections = 5;
-//   for (int i = 0; i < num_vision_detections; ++i) {
-//     vision_detections.rois.push_back(vision_detection);
-//   }
-//   AssociatorResult vision_track_assignment;
-//   vision_track_assignment.unassigned_detection_indices = {1, 3};
-//   vision_detections.rois[1] = this->unmatched_rois[0];
-//   vision_detections.rois[3] = this->unmatched_rois[1];
+  // Add vision
+  ClassifiedRoi vision_detection;
+  ClassifiedRoiArray vision_detections;
+  vision_detections.header.stamp = time_utils::to_message(
+    time_utils::from_message(now_time) - std::chrono::milliseconds(15));
+  vision_detections.header.frame_id = "camera";
+  const int num_vision_detections = 5;
+  for (int i = 0; i < num_vision_detections; ++i) {
+    vision_detections.rois.push_back(vision_detection);
+  }
+  AssociatorResult vision_track_assignment;
+  vision_track_assignment.unassigned_detection_indices = {1, 3};
+  vision_detections.rois[1] = this->unmatched_rois[0];
+  vision_detections.rois[3] = this->unmatched_rois[1];
 
-//   // Add vision that are older than the previous one
-//   ClassifiedRoiArray vision_detections_old1;
-//   vision_detections_old1.header.stamp = time_utils::to_message(
-//     time_utils::from_message(now_time) - std::chrono::milliseconds(17));
-//   vision_detections.header.frame_id = "camera";
+  // Add vision that are older than the previous one
+  ClassifiedRoiArray vision_detections_old1;
+  vision_detections_old1.header.stamp = time_utils::to_message(
+    time_utils::from_message(now_time) - std::chrono::milliseconds(17));
+  vision_detections.header.frame_id = "camera";
 
-//   // Add vision that is out of range
-//   ClassifiedRoiArray vision_detections_old2;
-//   vision_detections_old1.header.stamp = time_utils::to_message(
-//     time_utils::from_message(now_time) - std::chrono::milliseconds(27));
-//   vision_detections.header.frame_id = "camera";
+  // Add vision that is out of range
+  ClassifiedRoiArray vision_detections_old2;
+  vision_detections_old1.header.stamp = time_utils::to_message(
+    time_utils::from_message(now_time) - std::chrono::milliseconds(27));
+  vision_detections.header.frame_id = "camera";
 
-//   creator.add_objects(vision_detections_old2, AssociatorResult{});
-//   creator.add_objects(vision_detections_old1, AssociatorResult{});
-//   creator.add_objects(vision_detections, vision_track_assignment);
+  creator.add_objects(vision_detections_old2, AssociatorResult{});
+  creator.add_objects(vision_detections_old1, AssociatorResult{});
+  creator.add_objects(vision_detections, vision_track_assignment);
 
-//   const auto tf = create_identity_transform(
-//     vision_detections.header.frame_id,
-//     lidar_detections.header.frame_id,
-//     vision_detections.header.stamp);
-//   tf_buffer.setTransform(tf, "test_authority", kIsStatic);
+  const auto tf = create_identity_transform(
+    vision_detections.header.frame_id,
+    lidar_detections.header.frame_id,
+    vision_detections.header.stamp);
+  tf_buffer.setTransform(tf, "test_authority", kIsStatic);
 
-//   // Test
-//   const auto ret = creator.create_tracks();
-//   EXPECT_EQ(ret.tracks.size(), 0U);
-//   EXPECT_EQ(ret.detections_leftover_indices.size(), 3U);
-// }
+  // Test
+  const auto ret = creator.create_tracks(objects_with_associations);
+  EXPECT_EQ(ret.tracks.size(), 0U);
+  ASSERT_EQ(ret.associations.size(), objects_with_associations.objects().objects.size());
+  const auto leftover_objects_count = std::count_if(
+    ret.associations.begin(), ret.associations.end(), [](const auto & association) {
+      return association.matched == Matched::kNothing;
+    });
+  EXPECT_EQ(leftover_objects_count, 3U);
+}
 
-// // No vision message within time range
-// TEST_F(TestTrackCreator, TestLidarIfVisionOutOfTimeRange)
-// {
-//   TrackCreator creator{
-//     {CreationPolicies::LidarClusterIfVision, 1.0, 1.0, this->vision_policy_cfg}, tf_buffer};
-//   auto now_time = time_utils::to_message(
-//     std::chrono::system_clock::time_point{std::chrono::system_clock::now()});
+// No vision message within time range
+TEST_F(TestTrackCreator, TestLidarIfVisionOutOfTimeRange)
+{
+  auto policy =
+    std::make_shared<LidarClusterIfVisionPolicy>(this->vision_policy_cfg, 1.0, 1.0, tf_buffer);
+  TrackCreator<LidarClusterIfVisionPolicy> creator{policy};
+  auto now_time = time_utils::to_message(
+    std::chrono::system_clock::time_point{std::chrono::system_clock::now()});
 
-//   // Add lidar
-//   DetectedObject lidar_detection;
-//   DetectedObjects lidar_detections;
-//   lidar_detections.header.frame_id = "base_link";
-//   lidar_detections.header.stamp = now_time;
-//   const int num_objects = 10;
-//   for (int i = 0; i < num_objects; ++i) {
-//     lidar_detection.shape.height = i;  // use index as height to differentiate between detections
-//     lidar_detections.objects.push_back(lidar_detection);
-//   }
-//   AssociatorResult lidar_track_assignment;
-//   lidar_track_assignment.unassigned_detection_indices = {0, 2, 4};
-//   creator.add_objects(lidar_detections, lidar_track_assignment);
+  // Add lidar
+  DetectedObject lidar_detection;
+  DetectedObjects lidar_detections;
+  lidar_detections.header.frame_id = "base_link";
+  lidar_detections.header.stamp = now_time;
+  const int num_objects = 10;
+  for (int i = 0; i < num_objects; ++i) {
+    lidar_detection.shape.height = i;  // use index as height to differentiate between detections
+    lidar_detections.objects.push_back(lidar_detection);
+  }
+  ObjectsWithAssociations objects_with_associations{lidar_detections};
+  for (auto & association : objects_with_associations.associations()) {
+    association.matched = Matched::kExistingTrack;
+  }
+  objects_with_associations.associations()[0].matched = Matched::kNothing;
+  objects_with_associations.associations()[2].matched = Matched::kNothing;
+  objects_with_associations.associations()[4].matched = Matched::kNothing;
 
-//   // Add vision
-//   ClassifiedRoi vision_detection;
-//   ClassifiedRoiArray vision_detections;
-//   vision_detections.header.stamp = time_utils::to_message(
-//     time_utils::from_message(now_time) + std::chrono::milliseconds(555));
-//   vision_detections.header.frame_id = "camera";
-//   const int num_vision_detections = 5;
-//   for (int i = 0; i < num_vision_detections; ++i) {
-//     vision_detections.rois.push_back(vision_detection);
-//   }
-//   AssociatorResult vision_track_assignment;
-//   vision_track_assignment.unassigned_detection_indices = {1, 3};
-//   creator.add_objects(vision_detections, vision_track_assignment);
+  // Add vision
+  ClassifiedRoi vision_detection;
+  ClassifiedRoiArray vision_detections;
+  vision_detections.header.stamp = time_utils::to_message(
+    time_utils::from_message(now_time) + std::chrono::milliseconds(555));
+  vision_detections.header.frame_id = "camera";
+  const int num_vision_detections = 5;
+  for (int i = 0; i < num_vision_detections; ++i) {
+    vision_detections.rois.push_back(vision_detection);
+  }
+  AssociatorResult vision_track_assignment;
+  vision_track_assignment.unassigned_detection_indices = {1, 3};
+  creator.add_objects(vision_detections, vision_track_assignment);
 
-//   const auto tf = create_identity_transform(
-//     vision_detections.header.frame_id,
-//     lidar_detections.header.frame_id,
-//     vision_detections.header.stamp);
-//   tf_buffer.setTransform(tf, "test_authority", kIsStatic);
+  const auto tf = create_identity_transform(
+    vision_detections.header.frame_id,
+    lidar_detections.header.frame_id,
+    vision_detections.header.stamp);
+  tf_buffer.setTransform(tf, "test_authority", kIsStatic);
 
-//   // Test
-//   const auto ret = creator.create_tracks();
-//   EXPECT_EQ(ret.tracks.size(), 0U);
-// }
+  // Test
+  const auto ret = creator.create_tracks(objects_with_associations);
+  EXPECT_EQ(ret.tracks.size(), 0U);
+}
