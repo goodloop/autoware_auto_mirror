@@ -159,12 +159,12 @@ struct ASTAR_SEARCH_PUBLIC AstarParam
   double reverse_weight;
   /// Distance weight for trajectory cost estimation
   double distance_heuristic_weight;
-  /// Reaching threshold, lateral error [m]
-  double lateral_goal_range;
-  /// Reaching threshold, longitudinal error [m]
-  double longitudinal_goal_range;
-  /// Reaching threshold, angle error [deg]
-  double angle_goal_range;
+  /// Lateral tolerance of goal pose [m]
+  double goal_lateral_tolerance;
+  /// Longitudinal tolerance of goal pose [m]
+  double goal_longitudinal_tolerance;
+  /// Angular tolerance of goal pose [rad]
+  double goal_angular_tolerance;
 
   // costmap configs
   /// Threshold value of costmap cell to be regarded as an obstacle [-]

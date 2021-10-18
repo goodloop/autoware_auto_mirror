@@ -60,21 +60,21 @@ on action service basis. Operation of the node can be described by the following
 
 The following parameters are taken from `yaml` parameter file.
 
-| Parameter                   | Type   | Unit | Description                                             |
-| --------------------------- | ------ | ---- | ------------------------------------------------------- |
-| `use_back`                  | bool   | -    | whether using backward trajectory                       |
-| `only_behind_solutions`     | bool   | -    | whether restricting the solutions to be behind the goal |
-| `time_limit`                | double | ms   | time limit of planning                                  |
-| `maximum_turning_radius`    | double | m    | maximum turning radius of robot                         |
-| `turning_radius_size`       | double | -    | the number of possible turning radiuses discretization  |
-| `theta_size`                | double | -    | the number of angle's discretization                    |
-| `lateral_goal_range`        | double | m    | goal range of lateral position                          |
-| `longitudinal_goal_range`   | double | m    | goal range of longitudinal position                     |
-| `angle_goal_range`          | double | rad  | goal range of angle                                     |
-| `curve_weight`              | double | -    | additional cost factor for curve actions                |
-| `reverse_weight`            | double | -    | additional cost factor for reverse actions              |
-| `obstacle_threshold`        | double | -    | threshold for regarding a certain grid as obstacle      |
-| `distance_heuristic_weight` | double | -    | heuristic weight for estimating node's cost             |
+| Parameter                     | Type   | Unit | Description                                             |
+| ----------------------------- | ------ | ---- | ------------------------------------------------------- |
+| `use_back`                    | bool   | -    | whether using backward trajectory                       |
+| `only_behind_solutions`       | bool   | -    | whether restricting the solutions to be behind the goal |
+| `time_limit`                  | double | ms   | time limit of planning                                  |
+| `maximum_turning_radius`      | double | m    | maximum turning radius of robot                         |
+| `turning_radius_size`         | double | -    | the number of possible turning radiuses discretization  |
+| `theta_size`                  | double | -    | the number of angle's discretization                    |
+| `goal_lateral_tolerance`      | double | m    | lateral tolerance of goal pose                          |
+| `goal_longitudinal_tolerance` | double | m    | longitudinal tolerance of goal pose                     |
+| `goal_angular_tolerance`      | double | rad  | angular tolerance of goal pose                          |
+| `curve_weight`                | double | -    | additional cost factor for curve actions                |
+| `reverse_weight`              | double | -    | additional cost factor for reverse actions              |
+| `obstacle_threshold`          | double | -    | threshold for regarding a certain grid as obstacle      |
+| `distance_heuristic_weight`   | double | -    | heuristic weight for estimating node's cost             |
 
 ### Vehicle specific parameters
 

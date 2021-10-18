@@ -485,10 +485,6 @@ bool AstarSearch::isObs(const IndexXYT & index) const
 
 bool AstarSearch::isGoal(const AstarNode & node) const
 {
-  const double lateral_goal_range = astar_param_.lateral_goal_range / 2.0;
-  const double longitudinal_goal_range = astar_param_.longitudinal_goal_range / 2.0;
-  const double goal_angle = deg2rad(astar_param_.angle_goal_range / 2.0);
-
   const auto relative_pose = calcRelativePose(goal_pose_, node2pose(node));
 
   // Check conditions
@@ -496,14 +492,14 @@ bool AstarSearch::isGoal(const AstarNode & node) const
     return false;
   }
 
-  if (std::fabs(relative_pose.position.x) > longitudinal_goal_range ||
-    std::fabs(relative_pose.position.y) > lateral_goal_range)
+  if (std::fabs(relative_pose.position.x) > astar_param_.goal_longitudinal_tolerance ||
+    std::fabs(relative_pose.position.y) > astar_param_.goal_lateral_tolerance)
   {
     return false;
   }
 
   const auto angle_diff = normalizeRadian(tf2::getYaw(relative_pose.orientation));
-  if (std::abs(angle_diff) > goal_angle) {
+  if (std::abs(angle_diff) > astar_param_.goal_angular_tolerance) {
     return false;
   }
 

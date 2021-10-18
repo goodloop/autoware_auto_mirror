@@ -119,10 +119,6 @@ FreespacePlannerNode::FreespacePlannerNode(const rclcpp::NodeOptions & node_opti
       }
     };
 
-  auto rad_to_deg = [](double radians) {
-      return radians * (180.0 / M_PI);
-    };
-
   // NodeParam
   {
     node_param_.waypoints_velocity = declare_parameter("waypoints_velocity", 5.0);
@@ -155,10 +151,10 @@ FreespacePlannerNode::FreespacePlannerNode(const rclcpp::NodeOptions & node_opti
     auto th_size = declare_parameter("theta_size", 48);
     throw_if_negative(th_size, "theta_size");
     astar_param_.theta_size = static_cast<size_t>(th_size);
-    astar_param_.angle_goal_range = rad_to_deg(declare_parameter("angle_goal_range", 0.10472));
     astar_param_.reverse_weight = declare_parameter("reverse_weight", 2.00);
-    astar_param_.lateral_goal_range = declare_parameter("lateral_goal_range", 0.5);
-    astar_param_.longitudinal_goal_range = declare_parameter("longitudinal_goal_range", 2.0);
+    astar_param_.goal_lateral_tolerance = declare_parameter("goal_lateral_tolerance", 0.25);
+    astar_param_.goal_longitudinal_tolerance = declare_parameter("goal_longitudinal_tolerance", 1.0);
+    astar_param_.goal_angular_tolerance = declare_parameter("goal_angular_tolerance", 0.05236);
 
     // costmap configs
     astar_param_.obstacle_threshold = declare_parameter("obstacle_threshold", 100);

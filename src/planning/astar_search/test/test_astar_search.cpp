@@ -77,8 +77,9 @@ lateralError(const geometry_msgs::msg::Pose & actual, const geometry_msgs::msg::
   return lateral_error_m;
 }
 
-double
-longitudalError(const geometry_msgs::msg::Pose & actual, const geometry_msgs::msg::Pose & desired)
+double longitudinalError(
+  const geometry_msgs::msg::Pose & actual,
+  const geometry_msgs::msg::Pose & desired)
 {
   // compute heading normal of desired point
   const auto nx = (desired.orientation.w * desired.orientation.w) -
@@ -151,9 +152,9 @@ protected:
     params.theta_size = 48;
     params.reverse_weight = 2.0;
     params.distance_heuristic_weight = 1.0;
-    params.lateral_goal_range = 0.5;
-    params.longitudinal_goal_range = 2.0;
-    params.angle_goal_range = 6;  // in degrees
+    params.goal_lateral_tolerance = 0.25;
+    params.goal_longitudinal_tolerance = 1.0;
+    params.goal_angular_tolerance = 0.05236;  // in radians
 
     params.obstacle_threshold = 100;
 
@@ -309,7 +310,7 @@ TEST_F(AstarSearchTest, PlanningSuccessfulOnEmptyCostmap) {
   testPoseEquality(astar_search->getWaypoints().waypoints.front().pose.pose, start_pose);
 
   // calculate errors
-  auto longitudal_error = longitudalError(
+  auto longitudinal_error = longitudinalError(
     astar_search->getWaypoints().waypoints.back().pose.pose, goal_pose);
   auto lateral_error = lateralError(
     astar_search->getWaypoints().waypoints.back().pose.pose, goal_pose);
@@ -317,9 +318,9 @@ TEST_F(AstarSearchTest, PlanningSuccessfulOnEmptyCostmap) {
     astar_search->getWaypoints().waypoints.back().pose.pose.orientation, goal_pose.orientation);
 
   // check goal pose
-  EXPECT_LE(longitudal_error, astar_param->longitudinal_goal_range / 2.0);
-  EXPECT_LE(lateral_error, astar_param->lateral_goal_range / 2.0);
-  EXPECT_LE(angular_error, (astar_param->angle_goal_range / 2.0) / 180.0 * M_PI);
+  EXPECT_LE(longitudinal_error, astar_param->goal_longitudinal_tolerance);
+  EXPECT_LE(lateral_error, astar_param->goal_lateral_tolerance);
+  EXPECT_LE(angular_error, astar_param->goal_angular_tolerance);
 }
 
 TEST_F(AstarSearchTest, PlanningSuccessfulOnCostmapWithObstacles) {
@@ -349,7 +350,7 @@ TEST_F(AstarSearchTest, PlanningSuccessfulOnCostmapWithObstacles) {
   testPoseEquality(astar_search->getWaypoints().waypoints.front().pose.pose, start_pose);
 
   // calculate errors
-  auto longitudal_error = longitudalError(
+  auto longitudinal_error = longitudinalError(
     astar_search->getWaypoints().waypoints.back().pose.pose, goal_pose);
   auto lateral_error = lateralError(
     astar_search->getWaypoints().waypoints.back().pose.pose, goal_pose);
@@ -357,9 +358,9 @@ TEST_F(AstarSearchTest, PlanningSuccessfulOnCostmapWithObstacles) {
     astar_search->getWaypoints().waypoints.back().pose.pose.orientation, goal_pose.orientation);
 
   // check goal pose
-  EXPECT_LE(longitudal_error, astar_param->longitudinal_goal_range / 2.0);
-  EXPECT_LE(lateral_error, astar_param->lateral_goal_range / 2.0);
-  EXPECT_LE(angular_error, (astar_param->angle_goal_range / 2.0) / 180.0 * M_PI);
+  EXPECT_LE(longitudinal_error, astar_param->goal_longitudinal_tolerance);
+  EXPECT_LE(lateral_error, astar_param->goal_lateral_tolerance);
+  EXPECT_LE(angular_error, astar_param->goal_angular_tolerance);
 }
 
 TEST_F(AstarSearchTest, BackwardsPlanningSuccessfulOnEmptyCostmap) {
@@ -387,7 +388,7 @@ TEST_F(AstarSearchTest, BackwardsPlanningSuccessfulOnEmptyCostmap) {
   testPoseEquality(astar_search->getWaypoints().waypoints.front().pose.pose, start_pose);
 
   // calculate errors
-  auto longitudal_error = longitudalError(
+  auto longitudinal_error = longitudinalError(
     astar_search->getWaypoints().waypoints.back().pose.pose, goal_pose);
   auto lateral_error = lateralError(
     astar_search->getWaypoints().waypoints.back().pose.pose, goal_pose);
@@ -395,7 +396,7 @@ TEST_F(AstarSearchTest, BackwardsPlanningSuccessfulOnEmptyCostmap) {
     astar_search->getWaypoints().waypoints.back().pose.pose.orientation, goal_pose.orientation);
 
   // check goal pose
-  EXPECT_LE(longitudal_error, astar_param->longitudinal_goal_range / 2.0);
-  EXPECT_LE(lateral_error, astar_param->lateral_goal_range / 2.0);
-  EXPECT_LE(angular_error, (astar_param->angle_goal_range / 2.0) / 180.0 * M_PI);
+  EXPECT_LE(longitudinal_error, astar_param->goal_longitudinal_tolerance);
+  EXPECT_LE(lateral_error, astar_param->goal_lateral_tolerance);
+  EXPECT_LE(angular_error, astar_param->goal_angular_tolerance);
 }

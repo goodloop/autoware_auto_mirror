@@ -29,22 +29,22 @@ Planning does not return the planned trajectory, but it can be accessed by the a
 
 ## Configuration
 
-| Parameter                   | Type   | Unit | Description                                                                                    |
-| --------------------------- | ------ | ---- | ---------------------------------------------------------------------------------------------- |
-| `use_back`                  | bool   | -    | whether using backward trajectory                                                              |
-| `only_behind_solutions`     | bool   | -    | whether restricting the solutions to be behind the goal                                        |
-| `time_limit`                | double | ms   | time limit of planning                                                                         |
-| `robot_length`              | double | m    | robot length                                                                                   |
-| `robot_width`               | double | m    | robot width                                                                                    |
-| `minimum_turning_radius`    | double | m    | minimum turning radius of robot                                                                |
-| `theta_size`                | double | -    | the number of angle's discretization                                                           |
-| `lateral_goal_range`        | double | m    | goal range of lateral position                                                                 |
-| `longitudinal_goal_range`   | double | m    | goal range of longitudinal position                                                            |
-| `angle_goal_range`          | double | deg  | goal range of angle                                                                            |
-| `curve_weight`              | double | -    | additional cost factor for curve actions                                                       |
-| `reverse_weight`            | double | -    | additional cost factor increasing trajectory cost when changing <br> move direction to reverse |
-| `obstacle_threshold`        | double | -    | threshold for regarding a certain grid cell as obstacle                                        |
-| `distance_heuristic_weight` | double | -    | heuristic weight for estimating node's cost                                                    |
+| Parameter                     | Type   | Unit | Description                                                                                    |
+| ----------------------------- | ------ | ---- | ---------------------------------------------------------------------------------------------- |
+| `use_back`                    | bool   | -    | whether using backward trajectory                                                              |
+| `only_behind_solutions`       | bool   | -    | whether restricting the solutions to be behind the goal                                        |
+| `time_limit`                  | double | ms   | time limit of planning                                                                         |
+| `robot_length`                | double | m    | robot length                                                                                   |
+| `robot_width`                 | double | m    | robot width                                                                                    |
+| `minimum_turning_radius`      | double | m    | minimum turning radius of robot                                                                |
+| `theta_size`                  | double | -    | the number of angle's discretization                                                           |
+| `goal_lateral_tolerance`      | double | m    | lateral tolerance of goal pose                                                                 |
+| `goal_longitudinal_tolerance` | double | m    | longitudinal tolerance of goal pose                                                            |
+| `goal_angular_tolerance`      | double | rad  | angular tolerance of goal pose                                                                 |
+| `curve_weight`                | double | -    | additional cost factor for curve actions                                                       |
+| `reverse_weight`              | double | -    | additional cost factor increasing trajectory cost when changing <br> move direction to reverse |
+| `obstacle_threshold`          | double | -    | threshold for regarding a certain grid cell as obstacle                                        |
+| `distance_heuristic_weight`   | double | -    | heuristic weight for estimating node's cost                                                    |
 
 # References / External Links
 
