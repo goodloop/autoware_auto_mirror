@@ -59,16 +59,27 @@ public:
   using ShapeMsg = autoware_auto_msgs::msg::Shape;
 
   /// Constructor
-  /// \param detection A detection from which to initialize this object. Must have a pose.
-  /// \param default_variance All variables will initially have this variance where the detection
-  /// does not contain one.
-  /// \param noise_variance The sigma for the acceleration noise
-  /// \throws std::runtime_error if the detection does not have a pose.
+  ///
+  /// @param      detection         A detection from which to initialize this object. Must have a
+  ///                               pose.
+  /// @param      default_variance  All variables will initially have this variance where the
+  ///                               detection does not contain one.
+  /// @param      noise_variance    The sigma for the acceleration noise
+  /// @throws     std::runtime_error  if the detection does not have a pose.
+  ///
   explicit TrackedObject(
     const DetectedObjectMsg & detection,
     common::types::float64_t default_variance,
     common::types::float64_t noise_variance);
 
+  ///
+  /// @brief      A constructor with an explicit classification.
+  ///
+  /// @param[in]  detection                The detection
+  /// @param[in]  override_classification  The classification that overrides one in the detection
+  /// @param[in]  default_variance         The default variance
+  /// @param[in]  noise_variance           The noise variance
+  ///
   explicit TrackedObject(
     const DetectedObjectMsg & detection,
     const DetectedObjectMsg::_classification_type & override_classification,

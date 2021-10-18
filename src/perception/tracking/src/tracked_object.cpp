@@ -131,6 +131,7 @@ TrackedObject::TrackedObject(
   m_classifier.update(override_classification);
 }
 
+/// \relates autoware::perception::tracking::TrackedObject
 TrackedObject::TrackedObject(
   const DetectedObjectMsg & detection,
   float64_t default_variance,

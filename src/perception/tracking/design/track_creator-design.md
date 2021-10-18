@@ -7,15 +7,11 @@ Object tracking for an autonomous driving system involves associating new detect
 
 # Design
 
-[TrackCreator](@ref autoware::perception::tracking::TrackCreator) will initialize the appropriate the [CreationPolicyBase](@ref autoware::perception::tracking::CreationPolicyBase) interface and act as the interface for the tracker to create new tracks from detections that were not associated with any of the existing tracks.
-
-Each track creation policy will need to derive from the [CreationPolicyBase](@ref autoware::perception::tracking::CreationPolicyBase) class and implement the `create()` function. Every policy implementation will also implement the `add_objects` function which is used to store the detections to be considered for track creation. 
-
-This module is designed to be triggered to create new tracks after every new lidar clusters message. Hence it returns a `DetectedObjects` msg containing detections that are not used for creating new tracks (because of lack of association with objects from other modalities)
+TODO - to be rewritten before merging
 
 ## Inner-workings / Algorithms
 
-The logic used to create new tracks is controlled by [TrackCreationPolicy](@ref autoware::perception::tracking::TrackCreationPolicy).  
+TODO - to be rewritten before merging
 
 ### LidarClusterOnly  
 - Call `add_objects()` with the lidar clusters message and result from the lidar-track association. This method will go through every lidar cluster that was not associated to a track and store it internally  

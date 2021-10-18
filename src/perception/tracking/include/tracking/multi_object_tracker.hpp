@@ -58,7 +58,7 @@ namespace tracking
 
 
 /// \brief A return code for the tracker update.
-enum class TRACKING_PUBLIC TrackerUpdateStatus
+enum class TrackerUpdateStatus
 {
   /// Success.
   Ok,
