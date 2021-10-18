@@ -79,6 +79,13 @@ public:
   VehicleKinematicState::SharedPtr current_state_;
 };
 
+/**
+ * @brief Generate a VehicleControlCommand message
+ * @param [in] t timestamp
+ * @param [in] steer [rad] steering
+ * @param [in] vel [m/s] velocity
+ * @param [in] acc [m/s²] acceleration
+ */
 VehicleControlCommand cmdGen(
   const builtin_interfaces::msg::Time & t, float32_t steer, float32_t vel, float32_t acc)
 {
@@ -90,6 +97,13 @@ VehicleControlCommand cmdGen(
   return cmd;
 }
 
+/**
+ * @brief Generate an AckermannControlCommand message
+ * @param [in] t timestamp
+ * @param [in] steer [rad] steering
+ * @param [in] vel [m/s] velocity
+ * @param [in] acc [m/s²] acceleration
+ */
 AckermannControlCommand ackermannCmdGen(
   const builtin_interfaces::msg::Time & t, float32_t steer, float32_t vel, float32_t acc)
 {
@@ -132,6 +146,12 @@ void sendGear(
   }
 }
 
+/**
+ * @brief publish the given command message
+ * @param [in] cmd command to publish
+ * @param [in] sim_node pointer to the simulation node
+ * @param [in] pub_sub_node pointer to the node used for communication
+ */
 void sendCommand(
   const VehicleControlCommand & cmd, rclcpp::Node::SharedPtr sim_node,
   std::shared_ptr<PubSubNode> pub_sub_node)
@@ -144,6 +164,12 @@ void sendCommand(
   }
 }
 
+/**
+ * @brief publish the given command message
+ * @param [in] cmd command to publish
+ * @param [in] sim_node pointer to the simulation node
+ * @param [in] pub_sub_node pointer to the node used for communication
+ */
 void sendCommand(
   const AckermannControlCommand & cmd, rclcpp::Node::SharedPtr sim_node,
   std::shared_ptr<PubSubNode> pub_sub_node)
