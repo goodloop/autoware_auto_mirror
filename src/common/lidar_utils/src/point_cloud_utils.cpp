@@ -158,7 +158,92 @@ SafeCloudIndices sanitize_point_cloud(const sensor_msgs::msg::PointCloud2 & msg)
   return SafeCloudIndices{num_floats * sizeof(float32_t), index_after_last_safe_byte_index(msg)};
 }
 
+void init_pcl_msg(
+  sensor_msgs::msg::PointCloud2 & msg,
+  const std::string & frame_id,
+  const std::size_t size)
+{
+  init_pcl_msg(
+    msg, frame_id, size, 4U,
+    "x", 1U, sensor_msgs::msg::PointField::FLOAT32,
+    "y", 1U, sensor_msgs::msg::PointField::FLOAT32,
+    "z", 1U, sensor_msgs::msg::PointField::FLOAT32,
+    "intensity", 1U, sensor_msgs::msg::PointField::FLOAT32);
+}
+
+bool8_t add_point_to_cloud(
+  sensor_msgs::msg::PointCloud2 & cloud,
+  const autoware::common::types::PointXYZIF & pt,
+  uint32_t & point_cloud_idx)
+{
+  bool8_t ret = false;
+
+  sensor_msgs::PointCloud2Iterator<float32_t> x_it(cloud, "x");
+  sensor_msgs::PointCloud2Iterator<float32_t> y_it(cloud, "y");
+  sensor_msgs::PointCloud2Iterator<float32_t> z_it(cloud, "z");
+  sensor_msgs::PointCloud2Iterator<float32_t> intensity_it(cloud, "intensity");
+
+  // TODO(vrichard) replace explicit check by safe_cast
+  // See https://gitlab.com/autowarefoundation/autoware.auto/AutowareAuto/-/issues/1027
+  if (point_cloud_idx > static_cast<uint32_t>(std::numeric_limits<int>::max())) {
+    // prevent future access to random memory value or segmentation fault
+    throw std::runtime_error(
+            "converting " + std::to_string(
+              point_cloud_idx) + " to int would change sign of value");
+  }
+  const int idx = static_cast<int>(point_cloud_idx);
+  x_it += idx;
+  y_it += idx;
+  z_it += idx;
+  intensity_it += idx;
+
+  // Actual size is 20 due to padding by compilers for the memory alignment boundary.
+  // This check is to make sure that when we do a insert of 16 bytes, we will not stride
+  // past the bounds of the structure.
+  static_assert(
+    sizeof(autoware::common::types::PointXYZIF) >= ((4U * sizeof(float32_t)) + sizeof(uint16_t)),
+    "PointXYZF is not expected size: ");
+
+  if (x_it != x_it.end() &&
+    y_it != y_it.end() &&
+    z_it != z_it.end() &&
+    intensity_it != intensity_it.end())
+  {
+    // add the point data
+    *x_it = pt.x;
+    *y_it = pt.y;
+    *z_it = pt.z;
+    *intensity_it = pt.intensity;
+
+    // increment the index to keep track of the pointcloud's size
+    ++point_cloud_idx;
+    ret = true;
+  }
+  return ret;
+}
+
 /////////////////////////////////////////////////////////////////////////////////////////
+
+void reset_pcl_msg(
+  sensor_msgs::msg::PointCloud2 & msg,
+  const std::size_t size,
+  uint32_t & point_cloud_idx)
+{
+  sensor_msgs::PointCloud2Modifier pc_modifier(msg);
+  pc_modifier.clear();
+  point_cloud_idx = 0;
+  pc_modifier.resize(size);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+
+void resize_pcl_msg(
+  sensor_msgs::msg::PointCloud2 & msg,
+  const std::size_t new_size)
+{
+  sensor_msgs::PointCloud2Modifier pc_modifier(msg);
+  pc_modifier.resize(new_size);
+}
 
 DistanceFilter::DistanceFilter(float32_t min_radius, float32_t max_radius)
 : m_min_r2(min_radius * min_radius), m_max_r2(max_radius * max_radius)

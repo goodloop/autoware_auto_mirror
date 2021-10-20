@@ -20,6 +20,7 @@
 #include <point_cloud_msg_wrapper/point_cloud_msg_wrapper.hpp>
 #include <sensor_msgs/msg/point_cloud2.hpp>
 #include <sensor_msgs/point_cloud2_iterator.hpp>
+#include <common/types.hpp>
 
 #include <algorithm>
 #include <limits>
@@ -35,16 +36,6 @@ sensor_msgs::msg::PointCloud2 create_point_cloud_through_wrapper(const std::size
   using autoware::common::types::PointXYZIF;
   point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZIF> modifier{msg, "frame_id"};
   modifier.resize(size);
-  return msg;
-}
-
-sensor_msgs::msg::PointCloud2 create_point_cloud_through_utils(const std::size_t kCloudSize)
-{
-  sensor_msgs::msg::PointCloud2 msg;
-  using autoware::common::types::PointXYZIF;
-  point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZIF> modifier{msg, "frame_id"};
-  modifier.reserve(kCloudSize);
-  modifier.clear();
   return msg;
 }
 

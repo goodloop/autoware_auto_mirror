@@ -98,11 +98,7 @@ void read_from_pcd(const std::string & file_name, sensor_msgs::msg::PointCloud2 
   // Set up a new point cloud with the correct fields
   sensor_msgs::msg::PointCloud2 adjusted_cloud;
   const size_t num_points = cloud.data.size() / cloud.point_step;
-
-  using autoware::common::types::PointXYZI;
-  point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZI> modifier{
-    adjusted_cloud, msg->header.frame_id};
-  modifier.reserve(num_points);
+  common::lidar_utils::init_pcl_msg(adjusted_cloud, msg->header.frame_id, num_points);
 
   // Copy x, y, z into it
   for (size_t i = 0; i < num_points; ++i) {
