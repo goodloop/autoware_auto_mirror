@@ -15,25 +15,24 @@
 # Co-developed by Tier IV, Inc. and Robotec.AI sp. z o.o.
 
 
-
 import ament_index_python
 import launch
 import launch_ros.actions
 
 
 def generate_launch_description():
-    """Launch costmap_generator with default configuration."""
+    """Launch costmap_generator node with default configuration."""
     # -------------------------------- Nodes-----------------------------------
     costmap_generator_node = launch_ros.actions.Node(
-        package='costmap_generator',
+        package='costmap_generator_nodes',
         executable='costmap_generator_node_exe',
-        name='costmap_generator',
+        name='costmap_generator_node',
         namespace='planning',
         output='screen',
         parameters=[
             "{}/param/defaults.param.yaml".format(
                 ament_index_python.get_package_share_directory(
-                    "costmap_generator"
+                    "costmap_generator_nodes"
                 )
             ),
         ],

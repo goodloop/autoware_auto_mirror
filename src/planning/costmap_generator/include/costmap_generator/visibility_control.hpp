@@ -14,29 +14,27 @@
 //
 // Co-developed by Tier IV, Inc. and Robotec.AI sp. z o.o.
 
-
 #ifndef COSTMAP_GENERATOR__VISIBILITY_CONTROL_HPP_
 #define COSTMAP_GENERATOR__VISIBILITY_CONTROL_HPP_
 
 #if defined(__WIN32)
-  #if defined(COSTMAP_GENERATOR_BUILDING_DLL) || \
-  defined(COSTMAP_GENERATOR_EXPORTS)
-    #define COSTMAP_GENERATOR_PUBLIC __declspec(dllexport)
-    #define COSTMAP_GENERATOR_LOCAL
-  #else
+#if defined(COSTMAP_GENERATOR_BUILDING_DLL) || defined(COSTMAP_GENERATOR_EXPORTS)
+#define COSTMAP_GENERATOR_PUBLIC __declspec(dllexport)
+#define COSTMAP_GENERATOR_LOCAL
+#else
 // defined(COSTMAP_GENERATOR_BUILDING_DLL) || defined(COSTMAP_GENERATOR_EXPORTS)
-    #define COSTMAP_GENERATOR_PUBLIC __declspec(dllimport)
-    #define COSTMAP_GENERATOR_LOCAL
-  #endif
+#define COSTMAP_GENERATOR_PUBLIC __declspec(dllimport)
+#define COSTMAP_GENERATOR_LOCAL
+#endif
 // defined(COSTMAP_GENERATOR_BUILDING_DLL) || defined(COSTMAP_GENERATOR_EXPORTS)
 #elif defined(__linux__)
-  #define COSTMAP_GENERATOR_PUBLIC __attribute__((visibility("default")))
-  #define COSTMAP_GENERATOR_LOCAL __attribute__((visibility("hidden")))
+#define COSTMAP_GENERATOR_PUBLIC __attribute__((visibility("default")))
+#define COSTMAP_GENERATOR_LOCAL __attribute__((visibility("hidden")))
 #elif defined(__APPLE__)
-  #define COSTMAP_GENERATOR_PUBLIC __attribute__((visibility("default")))
-  #define COSTMAP_GENERATOR_LOCAL __attribute__((visibility("hidden")))
+#define COSTMAP_GENERATOR_PUBLIC __attribute__((visibility("default")))
+#define COSTMAP_GENERATOR_LOCAL __attribute__((visibility("hidden")))
 #else  // defined(_LINUX)
-  #error "Unsupported Build Configuration"
+#error "Unsupported Build Configuration"
 #endif  // defined(_WINDOWS)
 
 #endif  // COSTMAP_GENERATOR__VISIBILITY_CONTROL_HPP_

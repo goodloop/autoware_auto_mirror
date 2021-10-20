@@ -44,8 +44,7 @@ void fillPolygonAreas(
   const std::vector<std::vector<geometry_msgs::msg::Point>> & in_area_points,
   const std::string & in_grid_layer_name, const int in_layer_background_value,
   const int in_layer_min_value, const int in_fill_color, const int in_layer_max_value,
-  const std::string & in_tf_target_frame, const std::string & in_tf_source_frame,
-  const tf2_ros::Buffer & in_tf_buffer)
+  const geometry_msgs::msg::TransformStamped & in_transform)
 {
   if (!out_grid_map.exists(in_grid_layer_name)) {
     out_grid_map.add(in_grid_layer_name);
@@ -58,11 +57,6 @@ void fillPolygonAreas(
     original_image);
 
   cv::Mat merged_filled_image = original_image.clone();
-
-  geometry_msgs::msg::TransformStamped transform;
-  transform = in_tf_buffer.lookupTransform(
-    in_tf_target_frame, in_tf_source_frame, rclcpp::Time(0), rclcpp::Duration::from_seconds(1.0));
-
 
   // calculate out_grid_map position
   grid_map::Position map_pos = out_grid_map.getPosition();
@@ -77,7 +71,7 @@ void fillPolygonAreas(
       geometry_msgs::msg::Point transformed_point;
       geometry_msgs::msg::PointStamped output_stamped, input_stamped;
       input_stamped.point = p;
-      tf2::doTransform(input_stamped, output_stamped, transform);
+      tf2::doTransform(input_stamped, output_stamped, in_transform);
       transformed_point = output_stamped.point;
 
       // coordinate conversion for cv image

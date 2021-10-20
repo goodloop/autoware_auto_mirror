@@ -20,38 +20,33 @@
 #include <string>
 #include <vector>
 
+#include "grid_map_cv/grid_map_cv.hpp"
+#include "grid_map_msgs/msg/grid_map.hpp"
+#include "grid_map_ros/grid_map_ros.hpp"
 #include "rclcpp/rclcpp.hpp"
-
 #include "tf2_geometry_msgs/tf2_geometry_msgs.h"
 #include "tf2_ros/buffer.h"
 #include "tf2_ros/transform_listener.h"
-#include "grid_map_cv/grid_map_cv.hpp"
-#include "grid_map_ros/grid_map_ros.hpp"
-
-#include "grid_map_msgs/msg/grid_map.hpp"
 
 namespace object_map
 {
 /*!
- * Projects the in_area_points forming the road, stores the result in out_grid_map.
- * @param[out] out_grid_map GridMap object to add the road grid
- * @param[in] in_area_points Array of points containing the wayareas
- * @param[in] in_grid_layer_name Name to assign to the layer
- * @param[in] in_layer_background_value Empty state value
- * @param[in] in_fill_color Value to fill on wayareas
- * @param[in] in_layer_min_value Minimum value in the layer
- * @param[in] in_layer_max_value Maximum value in the later
- * @param[in] in_tf_target_frame Target frame to transform the wayarea points
- * @param[in] in_tf_source_frame Source frame, where the points are located
- * @param[in] in_tf_buffer Valid buffer to handle the transformation
- */
+  * Projects the in_area_points forming the road, stores the result in out_grid_map.
+  * @param[out] out_grid_map GridMap object to add the road grid
+  * @param[in] in_area_points Array of points containing the wayareas
+  * @param[in] in_grid_layer_name Name to assign to the layer
+  * @param[in] in_layer_background_value Empty state value
+  * @param[in] in_fill_color Value to fill on wayareas
+  * @param[in] in_layer_min_value Minimum value in the layer
+  * @param[in] in_layer_max_value Maximum value in the later
+  * @param[in] in_transform Most recent transform for wayarea points (from map to costmap frame)
+  */
 void fillPolygonAreas(
   grid_map::GridMap & out_grid_map,
   const std::vector<std::vector<geometry_msgs::msg::Point>> & in_area_points,
   const std::string & in_grid_layer_name, const int in_layer_background_value,
   const int in_fill_color, const int in_layer_min_value, const int in_layer_max_value,
-  const std::string & in_tf_target_frame, const std::string & in_tf_source_frame,
-  const tf2_ros::Buffer & in_tf_buffer);
+  const geometry_msgs::msg::TransformStamped & in_transform);
 
 }  // namespace object_map
 

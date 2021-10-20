@@ -206,9 +206,9 @@ def generate_launch_description():
         remappings=[('HAD_Map_Service', '/had_maps/HAD_Map_Service')]
     )
     costmap_generator = Node(
-        package='costmap_generator',
+        package='costmap_generator_nodes',
         executable='costmap_generator_node_exe',
-        name='costmap_generator',
+        name='costmap_generator_node',
         namespace='planning',
         output='screen',
         parameters=[

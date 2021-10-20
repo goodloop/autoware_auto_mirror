@@ -25,6 +25,7 @@ generation process.
 - Parking planner
   - @subpage astar-search
   - @subpage costmap-generator
+  - @subpage costmap-generator-nodes
   - @subpage freespace-planner
 - RecordReplay planner
   - @subpage recordreplay-planner
