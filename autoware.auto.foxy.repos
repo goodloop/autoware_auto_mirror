@@ -12,7 +12,3 @@ repositories:
     type: git
     url: https://github.com/ANYbotics/grid_map.git
     version: foxy-devel
-  src/external/AutowareArchitectureProposal_msgs:
-    type: git
-    url: https://github.com/tier4/AutowareArchitectureProposal_msgs.git
-    version: sync-with-internal-main

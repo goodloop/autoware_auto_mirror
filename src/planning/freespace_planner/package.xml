@@ -18,7 +18,6 @@
   <depend>rclcpp_action</depend>
 
   <depend>astar_search</depend>
-  <depend>autoware_planning_msgs</depend>
   <depend>geometry_msgs</depend>
   <depend>nav_msgs</depend>
   <depend>tf2</depend>

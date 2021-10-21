@@ -37,7 +37,6 @@
 #include <vehicle_constants_manager/vehicle_constants_manager.hpp>
 #include <nav_msgs/msg/occupancy_grid.hpp>
 #include <geometry_msgs/msg/pose_stamped.hpp>
-#include <autoware_planning_msgs/msg/route.hpp>
 #include <autoware_auto_msgs/msg/trajectory.hpp>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 #include <autoware_auto_msgs/action/planner_costmap.hpp>
