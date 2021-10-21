@@ -84,7 +84,8 @@ void BehaviorPlannerNode::init()
   // wait until action clients are ready
   while (!m_lane_planner_client->wait_for_action_server(1s)) {
     if (!rclcpp::ok()) {
-      RCLCPP_ERROR(get_logger(), "Interrupted while waiting for action server 'plan_lane_trajectory'.");
+      RCLCPP_ERROR(
+        get_logger(), "Interrupted while waiting for action server 'plan_lane_trajectory'.");
       rclcpp::shutdown();
       return;
     }
@@ -92,7 +93,8 @@ void BehaviorPlannerNode::init()
   }
   while (!m_parking_planner_client->wait_for_action_server(1s)) {
     if (!rclcpp::ok()) {
-      RCLCPP_ERROR(get_logger(), "Interrupted while waiting for action server 'plan_parking_trajectory'.");
+      RCLCPP_ERROR(
+        get_logger(), "Interrupted while waiting for action server 'plan_parking_trajectory'.");
       rclcpp::shutdown();
       return;
     }
@@ -289,10 +291,11 @@ void BehaviorPlannerNode::on_ego_state(const State::SharedPtr & msg)
 
   const auto desired_gear = m_planner->get_desired_gear(m_ego_state);
   if (desired_gear != m_current_gear) {
-    auto& clock = *this->get_clock();
-    RCLCPP_INFO_THROTTLE(get_logger(), clock, 3000,
-                         "Trying to change gear, current gear is %d, desired gear is %d.",
-                         static_cast<int>(m_current_gear), static_cast<int>(desired_gear));
+    auto & clock = *this->get_clock();
+    RCLCPP_INFO_THROTTLE(
+      get_logger(), clock, 3000,
+      "Trying to change gear, current gear is %d, desired gear is %d.",
+      static_cast<int>(m_current_gear), static_cast<int>(desired_gear));
 
     VehicleStateCommand gear_command;
     gear_command.gear = desired_gear;
@@ -409,7 +412,8 @@ void BehaviorPlannerNode::map_response(rclcpp::Client<HADMapService>::SharedFutu
   m_debug_checkpoints_pub->publish(checkpoints);
 }
 
-void BehaviorPlannerNode::visualize_global_path(const HADMapRoute & route) {
+void BehaviorPlannerNode::visualize_global_path(const HADMapRoute & route)
+{
   auto debug_global_path = geometry_msgs::msg::PoseArray();
 
   debug_global_path.header.stamp = rclcpp::Time();

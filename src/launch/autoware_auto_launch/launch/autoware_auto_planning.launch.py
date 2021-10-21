@@ -53,7 +53,6 @@ def generate_launch_description():
     vehicle_constants_manager_param_file = os.path.join(
         autoware_auto_launch_pkg_prefix, 'param/lexus_rx_hybrid_2016.param.yaml')
 
-
     # Arguments
     with_obstacles_param = DeclareLaunchArgument(
         'with_obstacles',

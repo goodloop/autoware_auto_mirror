@@ -108,6 +108,7 @@ TEST(TestVehicleConstantsManager, TestGetVehicleConstants) {
   params.emplace_back(ns_vehicle + "tire_cornering_stiffness_rear", 0.1);
   params.emplace_back(ns_vehicle + "mass_vehicle", 2120.0);
   params.emplace_back(ns_vehicle + "inertia_yaw_kg_m2", 12.0);
+  params.emplace_back(ns_vehicle + "maximum_turning_angle_rad", 0.53);
 
   rclcpp::NodeOptions node_options;
   node_options.parameter_overrides(params);
