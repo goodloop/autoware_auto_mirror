@@ -23,6 +23,8 @@
     distance_heuristic_weight: 1.0
 
     # vehicle characteristics for vehicle_constants_manager operation
+    # when launching the whole system these parameters should not be part of this package's params
+    # however to be able to run the node standalone these parameters are required
     vehicle:
       wheel_radius: 0.37 # Measured from SVL
       wheel_width: 0.27 # Measured from SVL

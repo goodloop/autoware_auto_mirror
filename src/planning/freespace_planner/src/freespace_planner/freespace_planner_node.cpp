@@ -48,13 +48,13 @@ geometry_msgs::msg::Pose transformPose(
   return transformed_pose.pose;
 }
 
-astar_search::AstarWaypoints adjustWaypointsSize(const astar_search::AstarWaypoints & astar_waypoints)
+astar_search::AstarWaypoints adjustWaypointsSize(
+  const astar_search::AstarWaypoints & astar_waypoints)
 {
   auto max_length = Trajectory::CAPACITY;
   auto input_length = astar_waypoints.waypoints.size();
 
-  if (input_length > max_length)
-  {
+  if (input_length > max_length) {
     astar_search::AstarWaypoints resized_vector;
     resized_vector.header = astar_waypoints.header;
 
@@ -74,7 +74,8 @@ astar_search::AstarWaypoints adjustWaypointsSize(const astar_search::AstarWaypoi
     }
 
     // copy rest of waypoints
-    resized_vector.waypoints.insert(resized_vector.waypoints.end(), waypoints_iter, astar_waypoints.waypoints.end());
+    resized_vector.waypoints.insert(
+      resized_vector.waypoints.end(), waypoints_iter, astar_waypoints.waypoints.end());
     return resized_vector;
   }
 
@@ -82,7 +83,8 @@ astar_search::AstarWaypoints adjustWaypointsSize(const astar_search::AstarWaypoi
 }
 
 autoware_auto_msgs::msg::Trajectory createTrajectory(
-  const geometry_msgs::msg::PoseStamped & current_pose, const astar_search::AstarWaypoints & astar_waypoints,
+  const geometry_msgs::msg::PoseStamped & current_pose,
+  const astar_search::AstarWaypoints & astar_waypoints,
   const float & velocity)
 {
   Trajectory trajectory;
@@ -97,7 +99,8 @@ autoware_auto_msgs::msg::Trajectory createTrajectory(
     point.heading = from_quat<geometry_msgs::msg::Quaternion>(awp.pose.pose.orientation);
 
     // switch sign by forward/backward
-    point.longitudinal_velocity_mps = (awp.is_back ? -1.0f : 1.0f) * (velocity / 3.6f);  // velocity = const
+    // velocity = const
+    point.longitudinal_velocity_mps = (awp.is_back ? -1.0f : 1.0f) * (velocity / 3.6f);
 
     trajectory.points.push_back(point);
   }
@@ -136,7 +139,8 @@ FreespacePlannerNode::FreespacePlannerNode(const rclcpp::NodeOptions & node_opti
     astar_param_.robot_shape.length = vehicle_constants.vehicle_length + vehicle_dimension_margin;
     astar_param_.robot_shape.width = vehicle_constants.vehicle_width + vehicle_dimension_margin;
     astar_param_.robot_shape.cg2back =
-      vehicle_constants.cg_to_rear + vehicle_constants.overhang_rear + (vehicle_dimension_margin / 2.0);
+      vehicle_constants.cg_to_rear + vehicle_constants.overhang_rear +
+      (vehicle_dimension_margin / 2.0);
     astar_param_.minimum_turning_radius = vehicle_constants.minimum_turning_radius;
 
     astar_param_.maximum_turning_radius = declare_parameter("maximum_turning_radius", 6.0);
@@ -153,7 +157,8 @@ FreespacePlannerNode::FreespacePlannerNode(const rclcpp::NodeOptions & node_opti
     astar_param_.theta_size = static_cast<size_t>(th_size);
     astar_param_.reverse_weight = declare_parameter("reverse_weight", 2.00);
     astar_param_.goal_lateral_tolerance = declare_parameter("goal_lateral_tolerance", 0.25);
-    astar_param_.goal_longitudinal_tolerance = declare_parameter("goal_longitudinal_tolerance", 1.0);
+    astar_param_.goal_longitudinal_tolerance =
+      declare_parameter("goal_longitudinal_tolerance", 1.0);
     astar_param_.goal_angular_tolerance = declare_parameter("goal_angular_tolerance", 0.05236);
 
     // costmap configs
@@ -179,25 +184,25 @@ FreespacePlannerNode::FreespacePlannerNode(const rclcpp::NodeOptions & node_opti
   // Action client
   {
     map_client_ = rclcpp_action::create_client<PlannerCostmapAction>(
-    this->get_node_base_interface(),
-    this->get_node_graph_interface(),
-    this->get_node_logging_interface(),
-    this->get_node_waitables_interface(),
-    "generate_costmap");
+      this->get_node_base_interface(),
+      this->get_node_graph_interface(),
+      this->get_node_logging_interface(),
+      this->get_node_waitables_interface(),
+      "generate_costmap");
 
     while (!map_client_->wait_for_action_server(1s)) {
-    if (!rclcpp::ok()) {
-      RCLCPP_ERROR(get_logger(), "Interrupted while waiting for map server.");
-      rclcpp::shutdown();
-      return;
-    }
-    RCLCPP_INFO(get_logger(), "Waiting for costmap generator action service...");
+      if (!rclcpp::ok()) {
+        RCLCPP_ERROR(get_logger(), "Interrupted while waiting for map server.");
+        rclcpp::shutdown();
+        return;
+      }
+      RCLCPP_INFO(get_logger(), "Waiting for costmap generator action service...");
     }
   }
 
   // Action service
   {
-    plan_trajectory_srv_ =rclcpp_action::create_server<PlanTrajectoryAction>(
+    plan_trajectory_srv_ = rclcpp_action::create_server<PlanTrajectoryAction>(
       this->get_node_base_interface(),
       this->get_node_clock_interface(),
       this->get_node_logging_interface(),
@@ -217,8 +222,8 @@ FreespacePlannerNode::FreespacePlannerNode(const rclcpp::NodeOptions & node_opti
 }
 
 rclcpp_action::GoalResponse FreespacePlannerNode::handleGoal(
-    const rclcpp_action::GoalUUID &,
-    const std::shared_ptr<const PlanTrajectoryAction::Goal>)
+  const rclcpp_action::GoalUUID &,
+  const std::shared_ptr<const PlanTrajectoryAction::Goal>)
 {
   if (isPlanning()) {
     RCLCPP_WARN(get_logger(), "Planner is already planning. Rejecting new goal.");
@@ -303,7 +308,8 @@ void FreespacePlannerNode::goalResponseCallback(
   RCLCPP_INFO(get_logger(), "Costmap generator action goal accepted.");
 }
 
-void FreespacePlannerNode::resultCallback(const PlannerCostmapGoalHandle::WrappedResult & costmap_result)
+void FreespacePlannerNode::resultCallback(
+  const PlannerCostmapGoalHandle::WrappedResult & costmap_result)
 {
   auto planning_result = std::make_shared<PlanTrajectoryAction::Result>();
 
@@ -357,10 +363,12 @@ bool FreespacePlannerNode::planTrajectory()
   } else {
     switch (search_status) {
       case astar_search::SearchStatus::FAILURE_COLLISION_AT_START:
-        RCLCPP_ERROR(get_logger(), "Cannot find plan because collision was detected in start position.");
+        RCLCPP_ERROR(
+          get_logger(), "Cannot find plan because collision was detected in start position.");
         break;
       case astar_search::SearchStatus::FAILURE_COLLISION_AT_GOAL:
-        RCLCPP_ERROR(get_logger(), "Cannot find plan because collision was detected in goal position.");
+        RCLCPP_ERROR(
+          get_logger(), "Cannot find plan because collision was detected in goal position.");
         break;
       case astar_search::SearchStatus::FAILURE_TIMEOUT_EXCEEDED:
         RCLCPP_ERROR(get_logger(), "Cannot find plan because timeout exceeded.");
@@ -408,13 +416,13 @@ geometry_msgs::msg::TransformStamped FreespacePlannerNode::getTransform(
   return tf;
 }
 
-void FreespacePlannerNode::visualizeTrajectory() {
+void FreespacePlannerNode::visualizeTrajectory()
+{
   auto debug_pose_array_trajectory = geometry_msgs::msg::PoseArray();
 
   debug_pose_array_trajectory.header = trajectory_.header;
 
-  for (const auto & trajectory_pose : trajectory_.points)
-  {
+  for (const auto & trajectory_pose : trajectory_.points) {
     auto pose = geometry_msgs::msg::Pose();
     pose.position.x = trajectory_pose.x;
     pose.position.y = trajectory_pose.y;

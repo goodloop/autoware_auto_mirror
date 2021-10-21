@@ -17,31 +17,30 @@
 #ifndef FREESPACE_PLANNER__FREESPACE_PLANNER_HPP_
 #define FREESPACE_PLANNER__FREESPACE_PLANNER_HPP_
 
-#include <deque>
-#include <iostream>
-#include <memory>
-#include <string>
-#include <math.h>
-#include <vector>
-
-
-#include <freespace_planner/visibility_control.hpp>
-#include <astar_search/astar_search.hpp>
-
 #include <tf2_ros/buffer.h>
-#include <rclcpp/rclcpp.hpp>
 #include <tf2_ros/transform_listener.h>
-#include <rclcpp_action/rclcpp_action.hpp>
-#include <motion_common/motion_common.hpp>
+#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 
+#include <rclcpp/rclcpp.hpp>
+#include <rclcpp_action/rclcpp_action.hpp>
+
+#include <motion_common/motion_common.hpp>
+#include <astar_search/astar_search.hpp>
 #include <vehicle_constants_manager/vehicle_constants_manager.hpp>
+
 #include <nav_msgs/msg/occupancy_grid.hpp>
 #include <geometry_msgs/msg/pose_stamped.hpp>
 #include <autoware_auto_msgs/msg/trajectory.hpp>
-#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 #include <autoware_auto_msgs/action/planner_costmap.hpp>
 #include <autoware_auto_msgs/action/plan_trajectory.hpp>
 #include <geometry_msgs/msg/pose_array.hpp>
+
+#include <freespace_planner/visibility_control.hpp>
+
+#include <deque>
+#include <memory>
+#include <string>
+#include <vector>
 
 
 namespace autoware
@@ -109,8 +108,9 @@ private:
   void handleAccepted(const std::shared_ptr<GoalHandle> goal_handle);
 
   void goalResponseCallback(std::shared_future<PlannerCostmapGoalHandle::SharedPtr> future);
-  void feedbackCallback(PlannerCostmapGoalHandle::SharedPtr,
-                        const std::shared_ptr<const PlannerCostmapAction::Feedback>) {}
+  void feedbackCallback(
+    PlannerCostmapGoalHandle::SharedPtr,
+    const std::shared_ptr<const PlannerCostmapAction::Feedback>) {}
   void resultCallback(const PlannerCostmapGoalHandle::WrappedResult & result);
 
   // functions
