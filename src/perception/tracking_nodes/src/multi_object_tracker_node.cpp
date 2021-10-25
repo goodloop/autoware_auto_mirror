@@ -62,76 +62,6 @@ constexpr std::chrono::milliseconds kMaxVisionEgoStateStampDiff{100};
 constexpr std::int64_t kDefaultHistoryDepth{20};
 constexpr std::int64_t kDefaultPoseHistoryDepth{100};
 
-auto init_tracker(
-  rclcpp::Node & node,
-  const bool8_t use_vision,
-  tf2::BufferCore & tf_buffer)
-{
-  const float32_t max_distance =
-    static_cast<float32_t>(node.declare_parameter(
-      "object_association.max_distance").get<float64_t>());
-  const float32_t max_area_ratio =
-    static_cast<float32_t>(node.declare_parameter(
-      "object_association.max_area_ratio").get<float64_t>());
-  const bool consider_edge_for_big_detections = node.declare_parameter(
-    "object_association.consider_edge_for_big_detection").get<bool>();
-
-  const auto default_variance = node.declare_parameter(
-    "ekf_default_variance").get<float64_t>();
-  const auto noise_variance = node.declare_parameter(
-    "ekf_noise_variance").get<float64_t>();
-  const std::chrono::nanoseconds pruning_time_threshold =
-    std::chrono::milliseconds(
-    node.declare_parameter(
-      "pruning_time_threshold_ms").get<int64_t>());
-  const std::size_t pruning_ticks_threshold =
-    static_cast<std::size_t>(node.declare_parameter(
-      "pruning_ticks_threshold").get<int64_t>());
-  const std::string frame = node.declare_parameter("track_frame_id", "odom");
-
-  GreedyRoiAssociatorConfig vision_config{};
-
-  if (use_vision) {
-    using Policy = LidarClusterIfVisionPolicy;
-    using VisionTrackCreator = TrackCreator<LidarClusterIfVisionPolicy>;
-    // There is no reason to have vision and use LidarClusterOnly policy. So, update the policy
-    vision_config.intrinsics = {
-      static_cast<std::size_t>(node.declare_parameter(
-        "vision_association.intrinsics.width").get<int64_t>()),
-      static_cast<std::size_t>(node.declare_parameter(
-        "vision_association.intrinsics.height").get<int64_t>()),
-      static_cast<float32_t>(node.declare_parameter(
-        "vision_association.intrinsics.fx").get<float32_t>()),
-      static_cast<float32_t>(node.declare_parameter(
-        "vision_association.intrinsics.fy").get<float32_t>()),
-      static_cast<float32_t>(node.declare_parameter(
-        "vision_association.intrinsics.ox").get<float32_t>()),
-      static_cast<float32_t>(node.declare_parameter(
-        "vision_association.intrinsics.oy").get<float32_t>()),
-      static_cast<float32_t>(node.declare_parameter(
-        "vision_association.intrinsics.skew").get<float32_t>())
-    };
-
-
-    vision_config.iou_threshold = static_cast<float32_t>(node.declare_parameter(
-        "vision_association.iou_threshold").get<float32_t>());
-
-    VisionPolicyConfig vision_policy_cfg;
-    vision_policy_cfg.associator_cfg = vision_config;
-    vision_policy_cfg.max_vision_lidar_timestamp_diff = std::chrono::milliseconds(
-      node.declare_parameter(
-        "vision_association.timestamp_diff_ms").get<int64_t>());
-    auto policy = std::make_shared<Policy>(
-      vision_policy_cfg, default_variance, noise_variance, tf_buffer);
-    VisionTrackCreator track_creator{policy};
-    MultiObjectTrackerOptions options{
-      {max_distance, max_area_ratio, consider_edge_for_big_detections}, vision_config,
-      pruning_time_threshold, pruning_ticks_threshold, frame};
-    return MultiObjectTracker<VisionTrackCreator>{options, track_creator, tf_buffer};
-  }
-  throw std::runtime_error("Only vision tracker supported right now.");
-}
-
 std::string status_to_string(TrackerUpdateStatus status)
 {
   // Use a switch statement without default since it warns when not all cases are handled.
@@ -179,7 +109,7 @@ MultiObjectTrackerNode::MultiObjectTrackerNode(const rclcpp::NodeOptions & optio
   m_history_depth{static_cast<std::size_t>(
       declare_parameter("history_depth", kDefaultHistoryDepth))},
   m_tf_listener{m_tf_buffer},
-  m_tracker{init_tracker(*this, m_use_vision, m_tf_buffer)},
+  m_tracker{init_tracker(m_use_vision)},
   m_track_publisher{create_publisher<TrackedObjects>("tracked_objects", m_history_depth)},
   m_leftover_publisher{create_publisher<DetectedObjects>("leftover_clusters", m_history_depth)},
   m_visualize_track_creation{this->declare_parameter("visualize_track_creation", false)}
@@ -238,6 +168,80 @@ MultiObjectTrackerNode::MultiObjectTrackerNode(const rclcpp::NodeOptions & optio
   }
 }
 
+MultiObjectTrackerNode::TrackerVariant MultiObjectTrackerNode::init_tracker(
+  const common::types::bool8_t use_vision)
+{
+  const float32_t max_distance =
+    static_cast<float32_t>(declare_parameter(
+      "object_association.max_distance").get<float64_t>());
+  const float32_t max_area_ratio =
+    static_cast<float32_t>(declare_parameter(
+      "object_association.max_area_ratio").get<float64_t>());
+  const bool consider_edge_for_big_detections = declare_parameter(
+    "object_association.consider_edge_for_big_detection").get<bool>();
+
+  const auto default_variance = declare_parameter(
+    "ekf_default_variance").get<float64_t>();
+  const auto noise_variance = declare_parameter(
+    "ekf_noise_variance").get<float64_t>();
+  const std::chrono::nanoseconds pruning_time_threshold =
+    std::chrono::milliseconds(
+    declare_parameter(
+      "pruning_time_threshold_ms").get<int64_t>());
+  const std::size_t pruning_ticks_threshold =
+    static_cast<std::size_t>(declare_parameter(
+      "pruning_ticks_threshold").get<int64_t>());
+  const std::string frame = declare_parameter("track_frame_id", "odom");
+
+  GreedyRoiAssociatorConfig vision_config{};
+  std::cerr << "use_vision: " << use_vision << std::endl;
+  if (use_vision) {
+    // There is no reason to have vision and use LidarClusterOnly policy. So, update the policy
+    vision_config.intrinsics = {
+      static_cast<std::size_t>(declare_parameter(
+        "vision_association.intrinsics.width").get<int64_t>()),
+      static_cast<std::size_t>(declare_parameter(
+        "vision_association.intrinsics.height").get<int64_t>()),
+      static_cast<float32_t>(declare_parameter(
+        "vision_association.intrinsics.fx").get<float32_t>()),
+      static_cast<float32_t>(declare_parameter(
+        "vision_association.intrinsics.fy").get<float32_t>()),
+      static_cast<float32_t>(declare_parameter(
+        "vision_association.intrinsics.ox").get<float32_t>()),
+      static_cast<float32_t>(declare_parameter(
+        "vision_association.intrinsics.oy").get<float32_t>()),
+      static_cast<float32_t>(declare_parameter(
+        "vision_association.intrinsics.skew").get<float32_t>())
+    };
+
+
+    vision_config.iou_threshold = static_cast<float32_t>(declare_parameter(
+        "vision_association.iou_threshold").get<float32_t>());
+
+    VisionPolicyConfig vision_policy_cfg;
+    vision_policy_cfg.associator_cfg = vision_config;
+    vision_policy_cfg.max_vision_lidar_timestamp_diff = std::chrono::milliseconds(
+      declare_parameter(
+        "vision_association.timestamp_diff_ms").get<int64_t>());
+    auto track_creation_policy = std::make_shared<LidarClusterIfVisionPolicy>(
+      vision_policy_cfg, default_variance, noise_variance, m_tf_buffer);
+    TrackCreator<LidarClusterIfVisionPolicy> track_creator{track_creation_policy};
+    MultiObjectTrackerOptions options{
+      {max_distance, max_area_ratio, consider_edge_for_big_detections}, vision_config,
+      pruning_time_threshold, pruning_ticks_threshold, frame};
+    std::cerr << __FILE__ << " : " << __LINE__ << std::endl;
+    return TrackerVariant{Tracker<LidarClusterIfVisionPolicy>{options, track_creator, m_tf_buffer}};
+  }
+  auto track_creation_policy =
+    std::make_shared<LidarOnlyPolicy>(default_variance, noise_variance, m_tf_buffer);
+  TrackCreator<LidarOnlyPolicy> track_creator{track_creation_policy};
+  MultiObjectTrackerOptions options{
+    {max_distance, max_area_ratio, consider_edge_for_big_detections}, vision_config,
+    pruning_time_threshold, pruning_ticks_threshold, frame};
+  std::cerr << __FILE__ << " : " << __LINE__ << std::endl;
+  return TrackerVariant{Tracker<LidarOnlyPolicy>{options, track_creator, m_tf_buffer}};
+}
+
 void MultiObjectTrackerNode::clusters_callback(const ClustersMsg::ConstSharedPtr objs)
 {
   using geometry_msgs::msg::Point32;
@@ -251,11 +255,15 @@ void MultiObjectTrackerNode::clusters_callback(const ClustersMsg::ConstSharedPtr
     RCLCPP_WARN(get_logger(), "No matching odom msgs received for clusters msg");
     return;
   }
-  const auto result = m_tracker.update(
-    *objs, *get_closest_match(matched_msgs, objs->header.stamp));
+
+  DetectedObjectsUpdateResult result;
+  mpark::visit(
+    [&objs, &matched_msgs, &result](auto & tracker) {
+      result = tracker.update(*objs, *get_closest_match(matched_msgs, objs->header.stamp));
+    }, m_tracker);
+
   if (result.status == TrackerUpdateStatus::Ok) {
     m_track_publisher->publish(result.tracks);
-
     common::lidar_utils::PointClustersView clusters_msg_view{*objs};
     DetectedObjects detections_from_clusters;
     detections_from_clusters.header = objs->header;
@@ -337,8 +345,13 @@ void MultiObjectTrackerNode::detected_objects_callback(const DetectedObjects::Co
     RCLCPP_WARN(get_logger(), "No matching odom msg received for obj msg");
     return;
   }
-  const auto result = m_tracker.update(
-    *objs, *get_closest_match(matched_msgs, objs->header.stamp));
+
+  DetectedObjectsUpdateResult result;
+  mpark::visit(
+    [&objs, &matched_msgs, &result](auto & tracker) {
+      result = tracker.update(*objs, *get_closest_match(matched_msgs, objs->header.stamp));
+    }, m_tracker);
+
   if (result.status == TrackerUpdateStatus::Ok) {
     m_track_publisher->publish(result.tracks);
     // m_leftover_publisher->publish(result.unassigned_clusters_indices);
@@ -353,7 +366,7 @@ void MultiObjectTrackerNode::detected_objects_callback(const DetectedObjects::Co
 
 void MultiObjectTrackerNode::classified_roi_callback(const ClassifiedRoiArray::ConstSharedPtr rois)
 {
-  m_tracker.update(*rois);
+  mpark::visit([&rois](auto & tracker) {tracker.update(*rois);}, m_tracker);
 }
 
 void MultiObjectTrackerNode::maybe_visualize(

@@ -142,8 +142,8 @@ def generate_launch_description():
             {
                 'use_ndt': False,
                 'track_frame_id': "odom",
-                "use_vision": True,
-                "num_vision_topics": 1
+                'use_vision': True,
+                'num_vision_topics': 1
             }
         ],
         remappings=[
@@ -166,8 +166,8 @@ def generate_launch_description():
             {
                 'use_ndt': True,
                 'track_frame_id': "map",
-                "use_vision": True,
-                "num_vision_topics": 1
+                'use_vision': True,
+                'num_vision_topics': 1
             }
         ],
         remappings=[

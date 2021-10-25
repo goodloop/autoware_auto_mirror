@@ -60,16 +60,27 @@ class TRACKING_NODES_PUBLIC MultiObjectTrackerNode : public rclcpp::Node
   using PoseMsg = geometry_msgs::msg::PoseWithCovarianceStamped;
   using OdomCache = message_filters::Cache<OdometryMsg>;
 
+  template<class TrackCreationPolicyT>
+  using Tracker = autoware::perception::tracking::MultiObjectTracker<
+    autoware::perception::tracking::TrackCreator<TrackCreationPolicyT>>;
+
+  using TrackerVariant = mpark::variant<
+    Tracker<autoware::perception::tracking::LidarOnlyPolicy>,
+    Tracker<autoware::perception::tracking::LidarClusterIfVisionPolicy>>;
+
 public:
   /// \brief Constructor
   explicit MultiObjectTrackerNode(const rclcpp::NodeOptions & options);
 
 private:
+  TrackerVariant TRACKING_NODES_LOCAL init_tracker(const common::types::bool8_t use_vision);
+
   void TRACKING_NODES_LOCAL clusters_callback(const ClustersMsg::ConstSharedPtr msg);
   void TRACKING_NODES_LOCAL odometry_callback(const OdometryMsg::ConstSharedPtr msg);
   void TRACKING_NODES_LOCAL pose_callback(const PoseMsg::ConstSharedPtr msg);
   void TRACKING_NODES_LOCAL detected_objects_callback(const DetectedObjects::ConstSharedPtr msg);
   void TRACKING_NODES_LOCAL classified_roi_callback(const ClassifiedRoiArray::ConstSharedPtr msg);
+
 
   common::types::bool8_t m_use_ndt{true};
   common::types::bool8_t m_use_vision{true};
@@ -79,9 +90,7 @@ private:
   tf2_ros::TransformListener m_tf_listener;
 
   /// The actual tracker implementation.
-  autoware::perception::tracking::MultiObjectTracker<
-    autoware::perception::tracking::TrackCreator<
-      autoware::perception::tracking::LidarClusterIfVisionPolicy>> m_tracker;
+  TrackerVariant m_tracker;
 
   rclcpp::Subscription<PoseMsg>::SharedPtr m_pose_subscription{};
   rclcpp::Subscription<OdometryMsg>::SharedPtr m_odom_subscription{};
