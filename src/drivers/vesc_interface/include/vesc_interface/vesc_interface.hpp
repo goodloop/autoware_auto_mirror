@@ -59,7 +59,7 @@ using std_msgs::msg::Float64;
 
 namespace autoware
 {
-/// \brief TODO(jacobjj): Document namespaces!
+/// \brief A namespace to implement all functions to interface with VESC.
 namespace vesc_interface
 // Inherit from vehicle_interface::platform_interface
 {
