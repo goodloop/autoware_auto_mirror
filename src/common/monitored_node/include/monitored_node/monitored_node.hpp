@@ -39,7 +39,7 @@ namespace monitored_node
 {
 
 /// \brief Main interface to create monitored node. MonitoredNode inherits from rclcpp::Node and
-///        overwrites the publisher and subscription creation functions.
+///        provide its own monitored publisher and subscription creation functions.
 class MONITORED_NODE_PUBLIC MonitoredNode : public rclcpp::Node
 {
 public:
@@ -49,7 +49,7 @@ public:
   /// \param[in] node_name Node name for this node.
   /// \param[in] node_options Node options for this node.
   MonitoredNode(
-    std::string node_name,
+    const std::string & node_name,
     const rclcpp::NodeOptions & node_options = rclcpp::NodeOptions())
   : Node(node_name, node_options)
   {
@@ -69,6 +69,7 @@ public:
   /// \brief Create a monitored subscription. Callback frequency and callback duration will be
   ///        monitored. This interface mirrors that of the rclcpp:Node API except that it asks for
   ///        an extra parameter for max callback duration.
+  /// \tparam MessageT Message type.
   /// \param[in] topic_name topic name to subscribe to
   /// \param[in] qos quality of service
   /// \param[in] callback user defined callback function invoked when a message is received
@@ -84,20 +85,16 @@ public:
     auto max_callback_duration_parameter_value = declare_parameter(
       topic_name + "." + m_max_callback_duration_param_name, 0);
 
-    // if run time parameter specificed, overwrite the compile time value of
+    // if a parameter was specificed, overwrite the compile time value of
     // max_callback_duration
     if (max_callback_duration_parameter_value != 0) {
       max_callback_duration = std::chrono::milliseconds(max_callback_duration_parameter_value);
     }
 
     // create a monitored subscription object
-    auto monitored_sub = std::make_shared<MonitoredSubscription<MessageT>>(
+    return std::make_shared<MonitoredSubscription<MessageT>>(
       topic_name, qos, std::move(callback), max_callback_duration,
       m_safety_monitor_interface, this, m_subscription_callback_group);
-
-    m_monitored_subs.push_back(monitored_sub);
-
-    return monitored_sub;
   }
 
   /// \brief Create a monitored publisher. The min and max publishing intervals are propagated to
@@ -106,6 +103,9 @@ public:
   /// \details The min/max_publish_interval parameters can be of std::chrono::milliseconds type or a
   ///          std::shared_future object obtained obtained from a MonitoredSubscription using the
   ///          get_min/max_interval_future() API. The 2 parameters have to be of the same type.
+  /// \tparam MessageT Message type.
+  /// \tparam PublishIntervalT Type of the publishing intervals. They can either be
+  ///         std::chrono::milliseconds or std::shared_future<std::chrono::milliseconds>.
   /// \param[in] topic_name topic name to subscribe to
   /// \param[in] qos quality of service
   /// \param[in] min_publish_interval minimum interval between 2 messages in ms. This parameter can
@@ -131,8 +131,6 @@ public:
     auto min_publish_interval_parameter_value =
       declare_parameter(topic_name + "." + m_min_publish_interval_param_name, 0);
 
-    MonitoredPublisher<MessageT> * monitored_pub{nullptr};
-
     // parameters always overwrite hard coded values
     if (min_publish_interval_parameter_value != 0 &&
       max_publish_interval_parameter_value != 0)
@@ -142,37 +140,28 @@ public:
       auto overwrite_max_publish_interval =
         std::chrono::milliseconds(max_publish_interval_parameter_value);
 
-      monitored_pub = new MonitoredPublisher<MessageT>(
+      return std::make_shared<MonitoredPublisher<MessageT>>(
         topic_name, qos, overwrite_min_publish_interval,
         overwrite_max_publish_interval, this);
-    } else {
-      monitored_pub = new MonitoredPublisher<MessageT>(
-        topic_name, qos, min_publish_interval,
-        max_publish_interval, this);
     }
 
-    m_monitored_pubs.push_back(std::shared_ptr<void>(monitored_pub));
-
-    return monitored_pub->get_pub_shared_ptr();
+    return std::make_shared<MonitoredPublisher<MessageT>>(
+      topic_name, qos, min_publish_interval,
+      max_publish_interval, this);
   }
 
 private:
-  // vectors to store share pointers to monitored publisher/subscription objects so they don't drop
-  // out of scope
-  std::vector<std::shared_ptr<void>> m_monitored_pubs{};
-  std::vector<std::shared_ptr<void>> m_monitored_subs{};
-
   // store a shared pointer to the safety monitor interface
-  std::shared_ptr<SafetyMonitorInterface> m_safety_monitor_interface{nullptr};
+  std::shared_ptr<SafetyMonitorInterface> m_safety_monitor_interface{};
 
   // hard coded parameter names for a monitored node
-  const std::string m_min_publish_interval_param_name{"min_publish_interval_ms"};
-  const std::string m_max_publish_interval_param_name{"max_publish_interval_ms"};
-  const std::string m_max_callback_duration_param_name{"max_callback_duration_ms"};
+  static constexpr const char * m_min_publish_interval_param_name{"min_publish_interval_ms"};
+  static constexpr const char * m_max_publish_interval_param_name{"max_publish_interval_ms"};
+  static constexpr const char * m_max_callback_duration_param_name{"max_callback_duration_ms"};
 
   // shared pointers to callback groups to be used with timers and subscriptions
-  rclcpp::callback_group::CallbackGroup::SharedPtr m_timer_callback_group{nullptr};
-  rclcpp::callback_group::CallbackGroup::SharedPtr m_subscription_callback_group{nullptr};
+  rclcpp::callback_group::CallbackGroup::SharedPtr m_timer_callback_group{};
+  rclcpp::callback_group::CallbackGroup::SharedPtr m_subscription_callback_group{};
 };
 
 }  // namespace monitored_node

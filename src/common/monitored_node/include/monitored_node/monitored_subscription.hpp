@@ -37,6 +37,7 @@ namespace monitored_node
 {
 
 /// \brief Wrapper of a rclcpp::subscription class to implement monitoring functionalities
+/// \tparam MessageT Message type.
 template<typename MessageT>
 class MONITORED_NODE_PUBLIC MonitoredSubscription
 {
@@ -66,8 +67,8 @@ public:
     m_max_callback_duration(max_callback_duration)
   {
     // define a subscription option with the specified callback group
-    auto subscription_option = rclcpp::SubscriptionOptions();
-    subscription_option.callback_group = subscription_callback_group;
+    auto subscription_options = rclcpp::SubscriptionOptions();
+    subscription_options.callback_group = subscription_callback_group;
 
     // create the subscription using the normal rclcpp interface but passing in callback_wrapper
     // instead of the user callback
@@ -75,7 +76,7 @@ public:
       topic_name, qos,
       std::bind(
         &MonitoredSubscription::callback_wrapper, this,
-        std::placeholders::_1), subscription_option);
+        std::placeholders::_1), subscription_options);
 
     // obtain publishing interval information from the publisher to the topic
     m_min_interval_future = m_min_interval_promise.get_future();
@@ -94,7 +95,7 @@ public:
             throw e;
           }
         }
-      }, subscription_option);
+      }, subscription_options);
   }
 
   /// \brief Getter for the shared pointer of the main subscription object
@@ -112,9 +113,9 @@ private:
   // User define callback. Called from the callback wrapper.
   CallbackT m_callback{};
   // Shared pointer of the rclcpp subscription object pointint to the main user defined topic
-  typename rclcpp::Subscription<MessageT>::SharedPtr m_sub{nullptr};
+  typename rclcpp::Subscription<MessageT>::SharedPtr m_sub{};
   // Shared pointer of the rclcpp subscription object pointing to the interval topic
-  rclcpp::Subscription<IntervalTopicType>::SharedPtr m_publish_interval_sub{nullptr};
+  rclcpp::Subscription<IntervalTopicType>::SharedPtr m_publish_interval_sub{};
   // Name of the topic being subscribed.
   std::string m_topic_name{};
   // Promise and futures to set/get the interval properties of the topic being subscribed.
@@ -125,7 +126,7 @@ private:
   // The maximum allowable time taken in the user callback
   std::chrono::milliseconds m_max_callback_duration{};
   // Shared pointer to the safety monitor interface
-  SafetyMonitorInterface::SharedPtr m_safety_monitor_interface;
+  SafetyMonitorInterface::SharedPtr m_safety_monitor_interface{};
 
   /// \brief Wraps the user defined callback in order to insert monitoring function calls around it.
   void callback_wrapper(const typename MessageT::SharedPtr msg) const

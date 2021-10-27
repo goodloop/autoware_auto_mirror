@@ -19,6 +19,7 @@
 #include <std_msgs/msg/u_int64_multi_array.hpp>
 
 #include <chrono>
+#include <memory>
 #include <string>
 
 #include "monitored_node/visibility_control.hpp"
@@ -33,10 +34,12 @@ namespace monitored_node
 {
 
 /// \brief Wrapper of a rclcpp::publisher class to implement monitoring functionalities
+/// \tparam MessageT Message type.
 template<typename MessageT>
 class MONITORED_NODE_PUBLIC MonitoredPublisher
 {
 public:
+  using SharedPtr = std::shared_ptr<MonitoredPublisher<MessageT>>;
   using IntervalTopicType = std_msgs::msg::UInt64MultiArray;
 
   /// \brief Constructor
@@ -75,17 +78,17 @@ public:
     std::shared_future<std::chrono::milliseconds> min_publishing_interval_future,
     std::shared_future<std::chrono::milliseconds> max_publishing_interval_future,
     rclcpp::Node * parent_node)
-  : m_min_publish_interval_future(min_publishing_interval_future),
-    m_max_publish_interval_future(max_publishing_interval_future)
   {
-    // create the publisher on the main user suppied topic
+    // create the publisher on the main user supplied topic
     m_main_publisher = parent_node->create_publisher<MessageT>(topic_name, qos);
 
     // create timer to periodically check the readiness of the futures
     m_wall_timer = parent_node->create_wall_timer(
-      100ms, [this, topic_name, parent_node]() {
-        if (this->m_max_publish_interval_future.wait_for(0s) == std::future_status::ready &&
-        this->m_min_publish_interval_future.wait_for(0s) == std::future_status::ready)
+      100ms,
+      [this, topic_name, parent_node, min_publishing_interval_future,
+      max_publishing_interval_future]() {
+        if (max_publishing_interval_future.wait_for(0s) == std::future_status::ready &&
+        min_publishing_interval_future.wait_for(0s) == std::future_status::ready)
         {
           // clean up the timer
           this->m_wall_timer->cancel();
@@ -93,8 +96,8 @@ public:
 
           // initialise interval publishers
           this->init_interval_publishers(
-            std::chrono::milliseconds(this->m_min_publish_interval_future.get()),
-            std::chrono::milliseconds(this->m_max_publish_interval_future.get()),
+            std::chrono::milliseconds(min_publishing_interval_future.get()),
+            std::chrono::milliseconds(max_publishing_interval_future.get()),
             parent_node, topic_name);
         }
       });
@@ -111,13 +114,8 @@ private:
   // Shared pointer to rclcpp:Publisher object for the min/max interval topic
   rclcpp::Publisher<IntervalTopicType>::SharedPtr m_interval_publisher{};
 
-  // Shared future for the min/max publishing intervals if they are supplied as future to the
-  // contructor.
-  std::shared_future<std::chrono::milliseconds> m_max_publish_interval_future;
-  std::shared_future<std::chrono::milliseconds> m_min_publish_interval_future;
-
   // Shared pointer to a timer used to resolve publishing interval futures.
-  rclcpp::TimerBase::SharedPtr m_wall_timer{nullptr};
+  rclcpp::TimerBase::SharedPtr m_wall_timer{};
 
   /// \brief Initialise the min/max interval publisher and publish the min/max interval messages
   /// \param[in] min_publishing_interval The minimum publishing interval for this publisher in ms.
@@ -130,7 +128,7 @@ private:
     rclcpp::Node * parent_node,
     std::string topic_name)
   {
-    if (max_publishing_interval > 0ms && max_publishing_interval >= 0ms) {
+    if (max_publishing_interval > 0ms && min_publishing_interval >= 0ms) {
       // create the interval publisher
       m_interval_publisher = parent_node->create_publisher<IntervalTopicType>(
         get_publish_interval_topic_name(topic_name), get_latched_qos_profile());
@@ -146,7 +144,7 @@ private:
   /// \brief Get the topic name of the publishing interval topic
   /// \param[in] topic_name The name of the main publishing topic
   /// \return String topic name of the publishing interval topic for this publisher
-  static auto get_publish_interval_topic_name(std::string topic_name)
+  static auto get_publish_interval_topic_name(const std::string & topic_name)
   {
     return topic_name + "/min_max_publish_interval";
   }
