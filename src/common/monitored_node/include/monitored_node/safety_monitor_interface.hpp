@@ -95,7 +95,7 @@ public:
             // remove the timer
             this->m_timers_mutex.lock();
             if (m_timers.find(event_name) != m_timers.end()) {
-              std::get<0>(m_timers[event_name])->cancel();
+              m_timers[event_name].wall_timer->cancel();
               m_timers.erase(event_name);
             } else {
               RCLCPP_ERROR(
@@ -129,9 +129,12 @@ public:
           }, m_timer_callback_group);
 
         // save timer and other useful information in a class member
-        m_timers[event_name] = std::make_tuple(
-          wall_timer_ptr, min_time, max_time,
-          m_parent_node->now());
+        m_timers[event_name] = {
+          wall_timer_ptr,
+          min_time,
+          max_time,
+          m_parent_node->now()
+        };
       } else {
         RCLCPP_ERROR(
           m_parent_node->get_logger(), "already waiting for event %s, no new timer created.",
@@ -173,13 +176,13 @@ public:
     // If a timer for this event exist and is not expired, we should cancel the timer and check the
     // min_time criteria for this event.
     this->m_timers_mutex.lock();
-    if (m_timers.find(event_name) != m_timers.end() && !std::get<0>(
-        m_timers[event_name])->is_ready())
+    if (m_timers.find(event_name) != m_timers.end() &&
+      !m_timers[event_name].wall_timer->is_ready())
     {
       // cancel timer
-      std::get<0>(m_timers[event_name])->cancel();
-      auto min_time = std::get<1>(m_timers[event_name]);
-      auto elapsed_time = event_timestamp - std::get<3>(m_timers[event_name]);
+      m_timers[event_name].wall_timer->cancel();
+      auto min_time = m_timers[event_name].min_time;
+      auto elapsed_time = event_timestamp - m_timers[event_name].timestamp;
       m_timers.erase(event_name);
 
       // check if the event actually arrived too early
@@ -209,20 +212,25 @@ public:
   }
 
 private:
+  /// \brief Structure containing timer-related information to be stored in other class members.
+  struct TimerInfo
+  {
+    rclcpp::TimerBase::SharedPtr wall_timer;
+    std::chrono::milliseconds min_time;
+    std::chrono::milliseconds max_time;
+    rclcpp::Time timestamp;
+  };
+
   // publisher to publish diagnostic message
-  rclcpp::Publisher<diagnostic_msgs::msg::DiagnosticStatus>::SharedPtr m_diagnostic_publisher{
-    nullptr};
+  rclcpp::Publisher<diagnostic_msgs::msg::DiagnosticStatus>::SharedPtr m_diagnostic_publisher{};
   // pointer to the ros node under monitoring
-  rclcpp::Node * m_parent_node{nullptr};
-  // structure to keep track of all the started timers index by the event name
-  std::map<std::string,
-    std::tuple<rclcpp::TimerBase::SharedPtr, std::chrono::milliseconds,
-    std::chrono::milliseconds, rclcpp::Time>>
-  m_timers;
+  rclcpp::Node * m_parent_node{};
+  // structure to keep track of all the started timers indexed by the event name
+  std::map<std::string, TimerInfo> m_timers{};
   // Mutex to control multi threaded access to the timers
   std::mutex m_timers_mutex{};
   // Shared pointer to the callback group used to invoke timer callbacks.
-  rclcpp::callback_group::CallbackGroup::SharedPtr m_timer_callback_group{nullptr};
+  rclcpp::callback_group::CallbackGroup::SharedPtr m_timer_callback_group{};
 
   /// \brief get the diagnostic message's "name" field. This is a combination of a hard-coded
   ///        prefix and the parent node's name

@@ -58,7 +58,7 @@ public:
           static_cast<uint32_t>(msg->data) << std::endl;
         if (msg->data == 10) {
           msg->data += 1;
-          this->m_down_stream_publisher->publish(*msg);
+          this->m_down_stream_publisher->get_pub_shared_ptr()->publish(*msg);
         }
 
         rclcpp::sleep_for(subscription_callback_actual_delay);
@@ -92,7 +92,7 @@ public:
         std::cout << "publishing" << std::endl;
         std_msgs::msg::UInt8 msg;
         msg.data = 10;
-        this->m_publisher->publish(msg);
+        this->m_publisher->get_pub_shared_ptr()->publish(msg);
 
         if (m_subscriber->get_max_interval_future().wait_for(0s) == std::future_status::ready) {
           std::cout << "subscriber interval ready" << std::endl;
@@ -141,14 +141,14 @@ public:
   }
 
 private:
-  rclcpp::Publisher<std_msgs::msg::UInt8>::SharedPtr m_publisher{nullptr};
-  rclcpp::Publisher<std_msgs::msg::UInt8>::SharedPtr m_down_stream_publisher{nullptr};
+  MonitoredPublisher<std_msgs::msg::UInt8>::SharedPtr m_publisher{};
+  MonitoredPublisher<std_msgs::msg::UInt8>::SharedPtr m_down_stream_publisher{};
 
   MonitoredSubscription<std_msgs::msg::UInt8>::SharedPtr m_subscriber{};
   MonitoredSubscription<std_msgs::msg::UInt8>::SharedPtr m_down_stream_subscriber{};
   MonitoredSubscription<diagnostic_msgs::msg::DiagnosticStatus>::SharedPtr
     m_diagnostic_subscriber{};
-  rclcpp::TimerBase::SharedPtr m_wall_timer{nullptr};
+  rclcpp::TimerBase::SharedPtr m_wall_timer{};
   std::vector<std::string> m_expected_events{};
 
   bool value_propagation_success{false};
