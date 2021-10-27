@@ -31,6 +31,7 @@ namespace perception
 namespace tracking
 {
 
+using autoware_auto_msgs::msg::DetectedObjects;
 using autoware::common::state_vector::variable::X;
 using autoware::common::state_vector::variable::Y;
 using autoware::common::types::float32_t;
@@ -49,24 +50,24 @@ DetectedObjectAssociator::DetectedObjectAssociator(const DataAssociationConfig &
 : m_association_cfg(association_cfg) {}
 
 Associations DetectedObjectAssociator::assign(
-  const ObjectsWithAssociations & detections, const TrackedObjects & tracks)
+  const DetectedObjects & detections, const TrackedObjects & tracks)
 {
-  if (tracks.frame_id != detections.objects().header.frame_id) {
+  if (tracks.frame_id != detections.header.frame_id) {
     throw std::runtime_error(
             "Cannot associate tracks with detections - they are in different frames");
   }
   reset();
   m_track_associations = Associations(tracks.objects.size(), {Matched::kNothing, 0UL});
-  m_num_detections = detections.objects().objects.size();
+  m_num_detections = detections.objects.size();
   m_num_tracks = tracks.objects.size();
   m_are_tracks_rows = (m_num_tracks <= m_num_detections);
   if (m_are_tracks_rows) {
     m_assigner.set_size(
       static_cast<assigner_idx_t>(tracks.objects.size()),
-      static_cast<assigner_idx_t>(detections.objects().objects.size()));
+      static_cast<assigner_idx_t>(detections.objects.size()));
   } else {
     m_assigner.set_size(
-      static_cast<assigner_idx_t>(detections.objects().objects.size()),
+      static_cast<assigner_idx_t>(detections.objects.size()),
       static_cast<assigner_idx_t>(tracks.objects.size()));
   }
   compute_weights(detections, tracks);
@@ -74,7 +75,7 @@ Associations DetectedObjectAssociator::assign(
   //  return true
   (void)m_assigner.assign();
 
-  return extract_result(detections.associations());
+  return extract_result();
 }
 
 void DetectedObjectAssociator::reset()
@@ -88,19 +89,14 @@ void DetectedObjectAssociator::reset()
 }
 
 void DetectedObjectAssociator::compute_weights(
-  const ObjectsWithAssociations & detections,
-  const TrackedObjects & tracks)
+  const DetectedObjects & detections, const TrackedObjects & tracks)
 {
-  for (size_t detection_index = 0U; detection_index < detections.objects().objects.size();
+  for (size_t detection_index = 0U; detection_index < detections.objects.size();
     ++detection_index)
   {
-    if (detections.associations()[detection_index].matched != Matched::kNothing) {
-      // Detection already matched to something else.
-      continue;
-    }
     for (size_t track_index = 0U; track_index < tracks.objects.size(); ++track_index) {
       const auto & track = tracks.objects[track_index];
-      const auto & detection = detections.objects().objects[detection_index];
+      const auto & detection = detections.objects[detection_index];
 
       try {
         if (consider_associating(detection, track)) {
@@ -203,10 +199,9 @@ void DetectedObjectAssociator::set_weight(
   }
 }
 
-Associations DetectedObjectAssociator::extract_result(
-  const Associations & initial_object_associations)
+Associations DetectedObjectAssociator::extract_result()
 {
-  auto object_associations = initial_object_associations;
+  auto object_associations = Associations(m_num_detections, {Matched::kNothing, 0UL});
   if (m_are_tracks_rows) {
     for (size_t track_index = 0U; track_index < m_num_tracks; track_index++) {
       const auto detection_index =

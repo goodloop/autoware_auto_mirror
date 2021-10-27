@@ -227,15 +227,14 @@ DetectedObjectsUpdateResult MultiObjectTracker<TrackCreatorT>::update(
   // ==================================
   // Transform detections
   // ==================================
-  ObjectsWithAssociations detections_with_associations{
+  DetectedObjects detections_in_tracker_frame{
     transform(m_options.frame, detections, detection_frame_odometry)};
 
   // ==================================
   // Predict tracks forward
   // ==================================
   // TODO(nikolai.morin): Simplify after #1002
-  const auto target_time = time_utils::from_message(
-    detections_with_associations.objects().header.stamp);
+  const auto target_time = time_utils::from_message(detections.header.stamp);
   const auto dt = target_time - m_last_update;
   for (auto & object : m_tracks.objects) {
     object.predict(dt);
@@ -244,8 +243,10 @@ DetectedObjectsUpdateResult MultiObjectTracker<TrackCreatorT>::update(
   // ==================================
   // Associate observations with tracks
   // ==================================
-  detections_with_associations.associations() =
-    m_object_associator.assign(detections_with_associations, this->m_tracks);
+  const auto detection_associations =
+    m_object_associator.assign(detections_in_tracker_frame, this->m_tracks);
+  ObjectsWithAssociations detections_with_associations{
+    detections_in_tracker_frame, detection_associations};
 
   // ==================================
   // Update tracks with observations

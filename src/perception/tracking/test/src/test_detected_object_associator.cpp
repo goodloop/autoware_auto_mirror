@@ -112,8 +112,7 @@ TEST_F(AssociationTester, Basic)
   objects_msg.header.frame_id = kTrackerFrame;  // Set to the same frame as the tracker.
 
   tracking::TrackedObjects tracks{tracked_object_vec, kTrackerFrame};
-  tracking::ObjectsWithAssociations objects_with_associations{objects_msg};
-  const auto associations = m_associator.assign(objects_with_associations, tracks);
+  const auto associations = m_associator.assign(objects_msg, tracks);
   ASSERT_EQ(associations.size(), 2UL);
   EXPECT_EQ(associations[0U].matched, tracking::Matched::kNothing);
   EXPECT_EQ(associations[1U].matched, tracking::Matched::kExistingTrack);
@@ -158,8 +157,7 @@ TEST_F(AssociationTester, MoreTracksLessObjects)
   detections_msg.header.frame_id = kTrackerFrame;  // Set to the same frame as the tracker.
 
   tracking::TrackedObjects tracks{tracked_object_vec, kTrackerFrame};
-  tracking::ObjectsWithAssociations objects_with_associations{detections_msg};
-  const auto associations = m_associator.assign(objects_with_associations, tracks);
+  const auto associations = m_associator.assign(detections_msg, tracks);
 
   EXPECT_EQ(m_associator.track_associations().size(), num_tracks);
   const auto & track_associations = m_associator.track_associations();
@@ -228,8 +226,7 @@ TEST_F(AssociationTester, AreaGatingFails)
   detections_msg.header.frame_id = kTrackerFrame;  // Set to the same frame as the tracker.
 
   tracking::TrackedObjects tracks{tracked_object_vec, kTrackerFrame};
-  tracking::ObjectsWithAssociations objects_with_associations{detections_msg};
-  const auto associations = m_associator.assign(objects_with_associations, tracks);
+  const auto associations = m_associator.assign(detections_msg, tracks);
 
   // Verify unassigned tracks
   const auto unassigned_track_count = std::count_if(

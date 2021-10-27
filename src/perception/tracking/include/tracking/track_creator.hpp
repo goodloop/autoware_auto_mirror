@@ -55,7 +55,7 @@ struct TRACKING_PUBLIC TrackCreationResult
 {
   /// List of newly created tracks
   std::vector<TrackedObject> tracks;
-  /// List of detection that was not associated and not used to create tracks
+  /// List of associations that matches an association to each track
   Associations associations;
   /// Timestamps of msgs from each of the ClassifiedROIArray topics used for track creation
   builtin_interfaces::msg::Time related_rois_stamp;

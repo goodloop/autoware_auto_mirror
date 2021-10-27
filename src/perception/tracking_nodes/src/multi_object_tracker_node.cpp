@@ -289,7 +289,6 @@ MultiObjectTrackerNode::TrackerVariant MultiObjectTrackerNode::init_tracker(
     MultiObjectTrackerOptions options{
       {max_distance, max_area_ratio, consider_edge_for_big_detections}, vision_config,
       pruning_time_threshold, pruning_ticks_threshold, frame};
-    std::cerr << __FILE__ << " : " << __LINE__ << std::endl;
     return TrackerVariant{Tracker<LidarClusterIfVisionPolicy>{options, track_creator, m_tf_buffer}};
   }
   auto track_creation_policy =
@@ -298,7 +297,6 @@ MultiObjectTrackerNode::TrackerVariant MultiObjectTrackerNode::init_tracker(
   MultiObjectTrackerOptions options{
     {max_distance, max_area_ratio, consider_edge_for_big_detections}, vision_config,
     pruning_time_threshold, pruning_ticks_threshold, frame};
-  std::cerr << __FILE__ << " : " << __LINE__ << std::endl;
   return TrackerVariant{Tracker<LidarOnlyPolicy>{options, track_creator, m_tf_buffer}};
 }
 

@@ -14,11 +14,6 @@
 //
 // Co-developed by Tier IV, Inc. and Apex.AI, Inc.
 
-/// \copyright Copyright 2021 The Autoware Foundation
-/// \file
-/// \brief This file defines the multi_object_tracking class.
-
-
 #ifndef TRACKING__OBJECTS_WITH_ASSOCIATIONS_HPP_
 #define TRACKING__OBJECTS_WITH_ASSOCIATIONS_HPP_
 
@@ -50,14 +45,21 @@ inline std::size_t get_size(const autoware_auto_msgs::msg::DetectedObjects & msg
 }
 }  // namespace detail
 
+///
+/// @brief      This enum holds various values that signify a match to a certain modality.
+///
 enum class Matched
 {
-  kNothing,
-  kOtherDetection,
-  kExistingTrack,
-  kNewTrack
+  kNothing,  ///< Nothing was matched.
+  kOtherDetection,  ///< Matched another detection.
+  kExistingTrack,  ///< Matched an existing track.
+  kNewTrack  ///< Matched a new track.
 };
 
+///
+/// @brief      A struct that represents an association. It holds an enum that indicates the type of
+///             a match and an index of an object to which this association is matched.
+///
 struct Association
 {
   Matched matched;
@@ -66,10 +68,26 @@ struct Association
 
 using Associations = std::vector<Association>;
 
+///
+/// @brief      This class describes an associated object array of a certain message type.
+///
+/// @details    It assumes that the MsgT has a number of messages in it that all must be associated
+///             with some other instances.
+///
+/// @tparam     MsgT  Type of message that is associated with some other instances.
+///
 template<class MsgT>
 class TRACKING_PUBLIC Associated
 {
 public:
+  explicit Associated(const MsgT & objects, const Associations & associations)
+  : m_objects{objects}, m_associations{associations}
+  {
+    if (detail::get_size(m_objects) != m_associations.size()) {
+      throw std::runtime_error("Objects number must match the associations number");
+    }
+  }
+
   explicit Associated(const MsgT & objects)
   : m_objects{objects}, m_associations(detail::get_size(m_objects), {Matched::kNothing, 0UL}) {}
 
@@ -79,11 +97,11 @@ public:
 
   const MsgT & objects() const noexcept {return m_objects;}
 
-  const std::vector<Association> & associations() const noexcept
+  const Associations & associations() const noexcept
   {
     return m_associations;
   }
-  std::vector<Association> & associations() noexcept{return m_associations;}
+  Associations & associations() noexcept {return m_associations;}
 
 private:
   MsgT m_objects;
