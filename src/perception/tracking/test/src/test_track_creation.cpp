@@ -199,9 +199,13 @@ TEST_F(TestTrackCreator, TestLidarIfVision2NewTracks)
   lidar_detections.objects[0] = this->object_roi_pairs[0].first;
   lidar_detections.objects[2] = this->object_roi_pairs[1].first;
   lidar_detections.objects[4] = this->unmatched_objects[1];
-  AssociatorResult lidar_track_assignment;
-  lidar_track_assignment.unassigned_detection_indices = {0, 2, 4};
   ObjectsWithAssociations objects_with_associations{lidar_detections};
+  objects_with_associations.associations() =
+    Associations(num_objects, {Matched::kExistingTrack, 0});
+  // Only 0, 2, 4 are unmatched
+  objects_with_associations.associations()[0].matched = Matched::kNothing;
+  objects_with_associations.associations()[2].matched = Matched::kNothing;
+  objects_with_associations.associations()[4].matched = Matched::kNothing;
 
   const auto tf = create_identity_transform(
     vision_detections.header.frame_id,
@@ -211,7 +215,7 @@ TEST_F(TestTrackCreator, TestLidarIfVision2NewTracks)
 
   // Test
   const auto ret = creator.create_tracks(objects_with_associations);
-  EXPECT_EQ(ret.tracks.size(), 2U);
+  ASSERT_EQ(ret.tracks.size(), 2U);
   EXPECT_TRUE(
     std::find_if(
       ret.tracks.begin(), ret.tracks.end(), [this](const TrackedObject & t) {
@@ -223,9 +227,11 @@ TEST_F(TestTrackCreator, TestLidarIfVision2NewTracks)
         return t.shape() == this->object_roi_pairs[1].first.shape;
       }) != ret.tracks.end());
 
-  // EXPECT_EQ(ret.detections_leftover_indices.size(), 1U);
-  // EXPECT_EQ(ret.detections_leftover_indices.objects[0U], lidar_detections.objects[4]);
-  // EXPECT_EQ(ret.detections_leftover_indices.objects[0U].shape, this->unmatched_objects[1].shape);
+  const auto leftover_objects_count = std::count_if(
+    ret.associations.begin(), ret.associations.end(), [](const auto & association) {
+      return association.matched == Matched::kNothing;
+    });
+  EXPECT_EQ(leftover_objects_count, 1U);
 }
 
 // Test lidar and vision but no match between them

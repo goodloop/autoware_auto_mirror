@@ -98,7 +98,7 @@ private:
   using VisionCache = message_filters::Cache<autoware_auto_msgs::msg::ClassifiedRoiArray>;
 
   void create_using_cache(
-    const ObjectsWithAssociations & msg,
+    const ObjectsWithAssociations & objects,
     const VisionCache & vision_cache,
     TrackCreationResult & result) const;
 

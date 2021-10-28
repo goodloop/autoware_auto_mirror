@@ -94,14 +94,14 @@ void LidarClusterIfVisionPolicy::add_objects(
 }
 
 void LidarClusterIfVisionPolicy::create_using_cache(
-  const ObjectsWithAssociations & msg,
+  const ObjectsWithAssociations & objects,
   const VisionCache & vision_cache,
   TrackCreationResult & creator_ret) const
 {
   // For foxy time has to be initialized explicitly with sec, nanosec constructor to use the
   // correct clock source when querying message_filters::cache.
   // Refer: https://github.com/ros2/message_filters/issues/32
-  const rclcpp::Time t{msg.objects().header.stamp.sec, msg.objects().header.stamp.nanosec};
+  const rclcpp::Time t{objects.objects().header.stamp.sec, objects.objects().header.stamp.nanosec};
   const auto before = t - m_cfg.max_vision_lidar_timestamp_diff;
   const auto after = t + m_cfg.max_vision_lidar_timestamp_diff;
   const auto vision_msg_matches = vision_cache.getInterval(before, after);
@@ -112,17 +112,17 @@ void LidarClusterIfVisionPolicy::create_using_cache(
   }
 
   const auto & vision_msg = *vision_msg_matches.back();
-  const auto association_result = m_associator.assign(vision_msg, msg.objects());
+  const auto association_result = m_associator.assign(vision_msg, objects.objects());
 
   // This is not entirely correct as the images from different cameras might have different
   // timestamps but we assume they will be close enough.
   creator_ret.related_rois_stamp = vision_msg.header.stamp;
 
-  for (auto cluster_idx = 0U; cluster_idx < msg.associations().size(); ++cluster_idx) {
+  for (auto cluster_idx = 0U; cluster_idx < objects.associations().size(); ++cluster_idx) {
     if (creator_ret.associations[cluster_idx].matched != Matched::kNothing) {continue;}
     if (association_result.track_assignments[cluster_idx] != AssociatorResult::UNASSIGNED) {
       creator_ret.tracks.emplace_back(
-        msg.objects().objects[cluster_idx],
+        objects.objects().objects[cluster_idx],
         vision_msg.rois[association_result.track_assignments[cluster_idx]].classifications,
         m_default_variance,
         m_noise_variance);
