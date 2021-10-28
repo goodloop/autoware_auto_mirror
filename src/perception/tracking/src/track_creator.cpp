@@ -43,12 +43,12 @@ LidarOnlyPolicy::LidarOnlyPolicy(
 : m_default_variance{default_variance}, m_noise_variance{noise_variance}, m_tf_buffer{tf_buffer} {}
 
 TrackCreationResult LidarOnlyPolicy::create(
-  const ObjectsWithAssociations & msg) const
+  const ObjectsWithAssociations & objects) const
 {
   TrackCreationResult retval;
-  retval.associations = msg.associations();
+  retval.associations = objects.associations();
   for (auto i = 0U; i < retval.associations.size(); ++i) {
-    const auto & object = msg.objects().objects[i];
+    const auto & object = objects.objects().objects[i];
     auto & association = retval.associations[i];
     if (association.matched == Matched::kNothing) {
       // This object was not associated with anything before. It is now.
@@ -132,12 +132,13 @@ void LidarClusterIfVisionPolicy::create_using_cache(
   }
 }
 
-TrackCreationResult LidarClusterIfVisionPolicy::create(const ObjectsWithAssociations & msg) const
+TrackCreationResult LidarClusterIfVisionPolicy::create(
+  const ObjectsWithAssociations & objects) const
 {
   TrackCreationResult retval;
-  retval.associations = msg.associations();
+  retval.associations = objects.associations();
   for (const auto & frame_cache : m_vision_cache_map) {
-    create_using_cache(msg, frame_cache.second, retval);
+    create_using_cache(objects, frame_cache.second, retval);
   }
   return retval;
 }

@@ -70,7 +70,7 @@ public:
     const common::types::float64_t noise_variance,
     const tf2::BufferCore & tf_buffer);
 
-  TrackCreationResult create(const ObjectsWithAssociations & msg) const;
+  TrackCreationResult create(const ObjectsWithAssociations & objects) const;
 
 private:
   common::types::float64_t m_default_variance;
@@ -88,7 +88,7 @@ public:
     const common::types::float64_t noise_variance,
     const tf2::BufferCore & tf_buffer);
 
-  TrackCreationResult create(const ObjectsWithAssociations & msg) const;
+  TrackCreationResult create(const ObjectsWithAssociations & objects) const;
 
   void add_objects(
     const autoware_auto_msgs::msg::ClassifiedRoiArray & vision_rois,
@@ -125,9 +125,9 @@ public:
   /// \brief Create new tracks based on the policy and unassociated detections. Call the
   ///        appropriate add_unassigned_* functions before calling this.
   /// \return vector of newly created TrackedObject objects
-  inline TrackCreationResult create_tracks(const ObjectsWithAssociations & msg)
+  inline TrackCreationResult create_tracks(const ObjectsWithAssociations & objects)
   {
-    return m_policy->create(msg);
+    return m_policy->create(objects);
   }
 
   /// Function to add unassigned detections. This function just passes through the arguments.

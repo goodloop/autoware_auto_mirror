@@ -213,6 +213,7 @@ DetectedObjectsUpdateResult MultiObjectTracker<TrackCreatorT>::update(
   return update(detections, detection_frame_odometry);
 }
 
+/// \relates autoware::perception::tracking::MultiObjectTracker
 template<class TrackCreatorT>
 DetectedObjectsUpdateResult MultiObjectTracker<TrackCreatorT>::update(
   const DetectedObjects & detections,

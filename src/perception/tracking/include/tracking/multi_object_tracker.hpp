@@ -123,18 +123,36 @@ public:
     TrackCreatorT track_creator,
     const tf2::BufferCore & tf2_buffer);
 
-  /// \brief Update the tracks with the specified detections and return the tracks at the current
-  /// timestamp.
-  /// \param[in] detections An array of detections.
-  /// \param[in] detection_frame_odometry An odometry message for the detection frame in the
-  /// tracking frame, which is defined in MultiObjectTrackerOptions.
-  /// \return A result object containing tracks, unless an error occurred.
+  ///
+  /// @brief      Update the tracks with the specified detections and return the tracks at the
+  ///             current timestamp.
+  ///
+  /// @warning    For now these detections are assumed to have come from clusters. A different set
+  ///             of messages is needed to change this right now.
+  ///
+  /// @param[in]  detections                An array of detections.
+  /// @param[in]  detection_frame_odometry  An odometry message for the detection frame in the
+  ///                                       tracking frame, which is defined in
+  ///                                       MultiObjectTrackerOptions.
+  ///
+  /// @return     A result object containing tracks, unless an error occurred.
+  ///
   DetectedObjectsUpdateResult update(
     const DetectedObjectsMsg & detections,
     const nav_msgs::msg::Odometry & detection_frame_odometry);
 
+  ///
+  /// @brief      Update the tracks from incoming clusters
+  ///
+  /// @param[in]  incoming_clusters         The incoming clusters
+  /// @param[in]  detection_frame_odometry  An odometry message for the clusters frame in the
+  ///                                       tracking frame, which is defined in
+  ///                                       MultiObjectTrackerOptions.
+  ///
+  /// @return     A result object containing tracks, unless an error occurred.
+  ///
   DetectedObjectsUpdateResult update(
-    const ClustersMsg & detections,
+    const ClustersMsg & incoming_clusters,
     const nav_msgs::msg::Odometry & detection_frame_odometry);
 
   /// \brief Update the tracks with the specified detections
