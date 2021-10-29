@@ -84,7 +84,7 @@ Creating a simulation configuration takes only a few clicks in the browser. The 
 
 The goal is to create a map configuration for the AutonomouStuff parking lot. If that map is already available on the first launch of the simulation, nothings needs to be done.
 
-Else follow the [LGSVL instructions](https://www.lgsvlsimulator.com/docs/maps-tab/#where-to-find-maps), click the `Add new` button and enter a name (e.g. `AutonomouStuff parking lot`) and the link to the asset bundle from [this site](https://content.lgsvlsimulator.com/maps/autonomoustuff/) containing the map data:
+Else follow the [LGSVL instructions](https://www.svlsimulator.com/docs/archive/2020.06/maps-tab/#how-to-add-a-map), click the `Add new` button and enter a name (e.g. `AutonomouStuff parking lot`) and the link to the asset bundle from [this site](https://content.lgsvlsimulator.com/maps/autonomoustuff/) containing the map data:
 
 `https://assets.lgsvlsimulator.com/ec057870762b5a967a451c93444b67d0b64e9656/environment_AutonomouStuff`
 
@@ -95,7 +95,7 @@ Once submitted, this will download the map automatically.
 ### Configuring a vehicle {#lgsvl-configuring-vehicle}
 The goal is to create a vehicle configuration for the AutonomouStuff parking lot.
 
-Follow the [LGSVL instructions](https://www.lgsvlsimulator.com/docs/vehicles-tab/#how-to-add-a-vehicle),
+Follow the [LGSVL instructions](https://www.svlsimulator.com/docs/archive/2020.06/vehicles-tab/#how-to-add-a-vehicle),
 to configure the Lexus model: click the vehicles tab, then `Add new` and enter
 `Lexus2016RXHybrid` as name and
 
@@ -116,7 +116,7 @@ The `Ros2NativeBridge` is a special bridge type which does not require a websock
 When a simulation is started, the topics should be published in ROS 2 automatically.
 
 The above steps are a modified version of the
-[LGSVL documentation](https://www.lgsvlsimulator.com/docs/autoware-auto-instructions/#run-simulator-alongside-autowareauto)
+[LGSVL documentation](https://www.svlsimulator.com/docs/archive/2020.06/autoware-auto-instructions/#run-simulator-alongside-autoware-auto)
 
 ### Choosing/creating a simulation
 
