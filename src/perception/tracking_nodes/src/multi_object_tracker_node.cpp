@@ -189,13 +189,21 @@ MultiObjectTrackerNode::MultiObjectTrackerNode(const rclcpp::NodeOptions & optio
   }
 
   const auto use_detected_objects = this->declare_parameter("use_detected_objects", true);
+  const auto use_raw_clusters = this->declare_parameter("use_raw_clusters", true);
+
+  if (use_raw_clusters && use_detected_objects) {
+    std::runtime_error(
+      "Cannot use raw clusters and detected objects interfaces at the same time for now.\n"
+      "It will be possible later, but for now both inputs are generated from the clustering node.\n"
+      "As of now, only one of those should be used.");
+  }
+
   if (use_detected_objects) {
     m_detected_objects_subscription = create_subscription<DetectedObjects>(
       "detected_objects", rclcpp::QoS{m_history_depth},
       std::bind(&MultiObjectTrackerNode::detected_objects_callback, this, std::placeholders::_1));
   }
 
-  const auto use_raw_clusters = this->declare_parameter("use_raw_clusters", true);
   if (use_raw_clusters) {
     m_clusters_subscription = create_subscription<ClustersMsg>(
       "clusters", rclcpp::QoS{m_history_depth},
