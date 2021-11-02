@@ -126,7 +126,7 @@ Notice that there is already an `Autoware.Auto` configuration. To make sure that
 - Confirm.
 
 In the configuration edit view:
-- Click `< >` symbol near preview window.
+- Click `{...}` symbol near Visual Editor (preview) window.
 - Paste contents of [avp-sensors.json](https://gitlab.com/autowarefoundation/autoware.auto/AutowareAuto/-/blob/master/src/launch/autoware_demos/config/svl/avp-sensors.json) file inside edit window. `Configurator` window should populate with bunch of sensors now. 
 - Click `Save` to save configuration.
 
