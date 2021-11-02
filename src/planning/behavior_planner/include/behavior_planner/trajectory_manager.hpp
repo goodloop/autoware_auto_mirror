@@ -24,6 +24,7 @@
 #include <common/types.hpp>
 #include <autoware_auto_msgs/msg/had_map_route.hpp>
 #include <autoware_auto_msgs/msg/trajectory.hpp>
+#include <autoware_auto_msgs/msg/trajectory_point.hpp>
 #include <autoware_auto_msgs/msg/vehicle_kinematic_state.hpp>
 
 #include <iostream>
@@ -50,6 +51,8 @@ struct BEHAVIOR_PLANNER_PUBLIC PlannerConfig
   float32_t subroute_goal_offset_lane2parking;
   float32_t subroute_goal_offset_parking2lane;
   float32_t cg_to_vehicle_center;
+  bool8_t include_current_state;
+  float32_t prepend_distance;
 };
 
 
@@ -72,8 +75,25 @@ public:
 private:
   void set_sub_trajectories();
   std::size_t get_closest_state(const State & state, const Trajectory & trajectory);
-  Trajectory crop_from_current_state(const Trajectory & trajectory, const State & state);
-  void set_time_from_start(Trajectory * trajectory);
+  void set_time_from_start(Trajectory * trajectory, const size_t start_index);
+
+  /// \brief Generate trajectory points before the given index with up to prepend_distance
+  /// \param [in] from_index generate points before this index
+  /// \param [out] previous_points calculated previous points
+  /// \return length along the previous points (starting from from_index)
+  float32_t generate_previous_points(
+    const size_t from_index,
+    std::vector<TrajectoryPoint> & previous_points);
+
+  /// \brief Create an extrapolated point behind the trajectory
+  /// \param [in] first_index first index of the trajectory
+  /// \param [in] previous_points points before the first point of the trajectory
+  /// \param [in] extra_dist distance to extrapolate
+  /// \param [out] extra_point resulting extrapolated point
+  /// \return true if the extrapolation was successful, false otherwise
+  bool extrapolate(
+    const size_t first_index, const std::vector<TrajectoryPoint> & previous_points,
+    const float32_t extra_dist, TrajectoryPoint & extra_point);
 
   // parameters
   const PlannerConfig m_config;

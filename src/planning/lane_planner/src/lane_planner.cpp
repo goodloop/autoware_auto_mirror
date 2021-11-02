@@ -175,7 +175,9 @@ TrajectoryPoints LanePlanner::generate_base_trajectory(
     lanelet::Participants::Vehicle);
 
   // set position and velocity
-  trajectory_points.push_back(trajectory_start_point);
+  if (m_planner_config.include_start_point) {
+    trajectory_points.push_back(trajectory_start_point);
+  }
   for (size_t i = start_index; i < lanelets.size(); i++) {
     const auto & lanelet = lanelets.at(i);
     const auto & centerline = autoware::common::had_map_utils::generateFineCenterline(
