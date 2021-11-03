@@ -69,6 +69,12 @@ ade$ sudo apt remove mesa-vulkan-drivers
 ```
 and launch the simulator again.
 
+
+If point cloud data or image data is not being visualized in rviz but other data such as bounding box is visible run the following command inside ade,
+```{bash}
+ade$ sudo apt update ; sudo apt dist-upgrade
+```
+
 ## Configure the cluster
 
 You need to make your ADE environment a valid SVL cluster in order to launch any simulations. This is a one time configuration step. 
