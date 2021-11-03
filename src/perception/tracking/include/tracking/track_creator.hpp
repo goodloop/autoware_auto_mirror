@@ -17,8 +17,8 @@
 #ifndef TRACKING__TRACK_CREATOR_HPP_
 #define TRACKING__TRACK_CREATOR_HPP_
 
-#include <autoware_auto_msgs/msg/classified_roi_array.hpp>
-#include <autoware_auto_msgs/msg/detected_objects.hpp>
+#include <autoware_auto_perception_msgs/msg/classified_roi_array.hpp>
+#include <autoware_auto_perception_msgs/msg/detected_objects.hpp>
 #include <common/types.hpp>
 #include <message_filters/cache.h>
 #include <tf2/buffer_core.h>
@@ -72,7 +72,7 @@ struct TRACKING_PUBLIC TrackCreationResult
   /// List of newly created tracks
   std::vector<TrackedObject> tracks;
   /// List of detection that was not associated and not used to create tracks
-  autoware_auto_msgs::msg::DetectedObjects detections_leftover;
+  autoware_auto_perception_msgs::msg::DetectedObjects detections_leftover;
   /// Timestamps of msgs from each of the ClassifiedROIArray topics used for track creation
   MaybeRoiStampsT maybe_roi_stamps = std::experimental::nullopt;
 };
@@ -99,14 +99,14 @@ public:
   /// \param associator_result Struct containing indices of clusters that do not have track
   ///                          association
   virtual void add_objects(
-    const autoware_auto_msgs::msg::DetectedObjects & clusters,
+    const autoware_auto_perception_msgs::msg::DetectedObjects & clusters,
     const AssociatorResult & associator_result) = 0;
   /// \brief Keep tracks of all unassigned vision detections
   /// \param vision_rois msg output by the vision detector
   /// \param associator_result Struct containing indices of detections that do not have track
   ///                          association
   virtual void add_objects(
-    const autoware_auto_msgs::msg::ClassifiedRoiArray & vision_rois,
+    const autoware_auto_perception_msgs::msg::ClassifiedRoiArray & vision_rois,
     const AssociatorResult & associator_result) = 0;
 
   /// Helper function to be used by derived classes to extract unassigned lidar detections
@@ -115,15 +115,15 @@ public:
   /// \param associator_result Struct containing indices of detections that do not have track
   ///                          association
   /// \return DetectedObjects with header copied and only unassociated objects copied
-  static autoware_auto_msgs::msg::DetectedObjects populate_unassigned_lidar_detections(
-    const autoware_auto_msgs::msg::DetectedObjects & clusters,
+  static autoware_auto_perception_msgs::msg::DetectedObjects populate_unassigned_lidar_detections(
+    const autoware_auto_perception_msgs::msg::DetectedObjects & clusters,
     const AssociatorResult & associator_result);
 
 protected:
   float64_t m_default_variance;
   float64_t m_noise_variance;
   const tf2::BufferCore & m_tf_buffer;
-  autoware_auto_msgs::msg::DetectedObjects m_debug_objects;
+  autoware_auto_perception_msgs::msg::DetectedObjects m_debug_objects;
 };
 
 // Class implementing LidarOnly track creation policy
@@ -136,18 +136,18 @@ public:
   TrackCreationResult create() override;
 
   void add_objects(
-    const autoware_auto_msgs::msg::DetectedObjects & clusters,
+    const autoware_auto_perception_msgs::msg::DetectedObjects & clusters,
     const AssociatorResult & associator_result) override;
 
   inline void add_objects(
-    const autoware_auto_msgs::msg::ClassifiedRoiArray &,
+    const autoware_auto_perception_msgs::msg::ClassifiedRoiArray &,
     const AssociatorResult &) override
   {
     throw std::domain_error("LidarOnly policy cannot handle ClassifiedRoiArray");
   }
 
 private:
-  autoware_auto_msgs::msg::DetectedObjects m_lidar_clusters;
+  autoware_auto_perception_msgs::msg::DetectedObjects m_lidar_clusters;
 };
 
 /// Class implementing LidarIfVision track creation policy
@@ -160,15 +160,15 @@ public:
   TrackCreationResult create() override;
 
   void add_objects(
-    const autoware_auto_msgs::msg::DetectedObjects & clusters,
+    const autoware_auto_perception_msgs::msg::DetectedObjects & clusters,
     const AssociatorResult & associator_result) override;
 
   void add_objects(
-    const autoware_auto_msgs::msg::ClassifiedRoiArray & vision_rois,
+    const autoware_auto_perception_msgs::msg::ClassifiedRoiArray & vision_rois,
     const AssociatorResult & associator_result) override;
 
 private:
-  using VisionCache = message_filters::Cache<autoware_auto_msgs::msg::ClassifiedRoiArray>;
+  using VisionCache = message_filters::Cache<autoware_auto_perception_msgs::msg::ClassifiedRoiArray>;
 
   void create_using_cache(const VisionCache & vision_cache, TrackCreationResult & creator_ret);
 
@@ -178,7 +178,7 @@ private:
   GreedyRoiAssociator m_associator;
 
   std::unordered_map<std::string, VisionCache> m_vision_cache_map;
-  autoware_auto_msgs::msg::DetectedObjects m_lidar_clusters;
+  autoware_auto_perception_msgs::msg::DetectedObjects m_lidar_clusters;
 };
 
 /// \brief Class to create new tracks based on a predefined policy and unassociated detections

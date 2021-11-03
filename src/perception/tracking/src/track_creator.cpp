@@ -35,11 +35,11 @@ CreationPolicyBase::CreationPolicyBase(
   const tf2::BufferCore & tf_buffer)
 : m_default_variance{default_variance}, m_noise_variance{noise_variance}, m_tf_buffer{tf_buffer} {}
 
-autoware_auto_msgs::msg::DetectedObjects CreationPolicyBase::populate_unassigned_lidar_detections(
-  const autoware_auto_msgs::msg::DetectedObjects & clusters,
+autoware_auto_perception_msgs::msg::DetectedObjects CreationPolicyBase::populate_unassigned_lidar_detections(
+  const autoware_auto_perception_msgs::msg::DetectedObjects & clusters,
   const AssociatorResult & associator_result)
 {
-  autoware_auto_msgs::msg::DetectedObjects retval;
+  autoware_auto_perception_msgs::msg::DetectedObjects retval;
   retval.header = clusters.header;
   for (const auto & unassigned_idx : associator_result.unassigned_detection_indices) {
     retval.objects.push_back(clusters.objects[unassigned_idx]);
@@ -53,7 +53,7 @@ LidarOnlyPolicy::LidarOnlyPolicy(
 : CreationPolicyBase(default_variance, noise_variance, tf_buffer) {}
 
 void LidarOnlyPolicy::add_objects(
-  const autoware_auto_msgs::msg::DetectedObjects & clusters,
+  const autoware_auto_perception_msgs::msg::DetectedObjects & clusters,
   const AssociatorResult & associator_result)
 {
   m_lidar_clusters = populate_unassigned_lidar_detections(clusters, associator_result);
@@ -81,18 +81,18 @@ LidarClusterIfVisionPolicy::LidarClusterIfVisionPolicy(
 }
 
 void LidarClusterIfVisionPolicy::add_objects(
-  const autoware_auto_msgs::msg::DetectedObjects & clusters,
+  const autoware_auto_perception_msgs::msg::DetectedObjects & clusters,
   const AssociatorResult & associator_result)
 {
   m_lidar_clusters = populate_unassigned_lidar_detections(clusters, associator_result);
 }
 
 void LidarClusterIfVisionPolicy::add_objects(
-  const autoware_auto_msgs::msg::ClassifiedRoiArray & vision_rois,
+  const autoware_auto_perception_msgs::msg::ClassifiedRoiArray & vision_rois,
   const AssociatorResult & associator_result)
 {
-  autoware_auto_msgs::msg::ClassifiedRoiArray::SharedPtr vision_rois_msg =
-    std::make_shared<autoware_auto_msgs::msg::ClassifiedRoiArray>();
+  autoware_auto_perception_msgs::msg::ClassifiedRoiArray::SharedPtr vision_rois_msg =
+    std::make_shared<autoware_auto_perception_msgs::msg::ClassifiedRoiArray>();
   vision_rois_msg->header = vision_rois.header;
   for (const auto & unassigned_idx : associator_result.unassigned_detection_indices) {
     vision_rois_msg->rois.push_back(vision_rois.rois[unassigned_idx]);

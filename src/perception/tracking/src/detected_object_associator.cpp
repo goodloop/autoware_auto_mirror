@@ -49,7 +49,7 @@ DetectedObjectAssociator::DetectedObjectAssociator(const DataAssociationConfig &
 : m_association_cfg(association_cfg) {}
 
 AssociatorResult DetectedObjectAssociator::assign(
-  const autoware_auto_msgs::msg::DetectedObjects & detections,
+  const autoware_auto_perception_msgs::msg::DetectedObjects & detections,
   const TrackedObjects & tracks)
 {
   if (tracks.frame_id != detections.header.frame_id) {
@@ -88,7 +88,7 @@ void DetectedObjectAssociator::reset()
 }
 
 void DetectedObjectAssociator::compute_weights(
-  const autoware_auto_msgs::msg::DetectedObjects & detections,
+  const autoware_auto_perception_msgs::msg::DetectedObjects & detections,
   const TrackedObjects & tracks)
 {
   for (size_t det_idx = 0U; det_idx < detections.objects.size(); ++det_idx) {
@@ -123,7 +123,7 @@ void DetectedObjectAssociator::compute_weights(
 }
 
 bool DetectedObjectAssociator::consider_associating(
-  const autoware_auto_msgs::msg::DetectedObject & detection,
+  const autoware_auto_perception_msgs::msg::DetectedObject & detection,
   const TrackedObject & track) const
 {
   const auto get_shortest_edge_size_squared = [&]() -> float32_t {
