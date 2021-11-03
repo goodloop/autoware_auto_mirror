@@ -67,7 +67,7 @@ were not added; such as `Vector3`, `Point`, or ported in this commit ros/geometr
 The non-stamped data with `toMsg` and `fromMsg` are `Quaternion`, `Transform`. `Pose` has the
 modified `toMsg` and not used by `PoseStamped`.
 
-## Plan for autoware_auto_msgs::msg::BoundingBoxArray
+## Plan for autoware_auto_perception_msgs::msg::BoundingBoxArray
 
 The initial rough plan was to implement some of the common tf2 functions like `toMsg`, `fromMsg`,
 and `doTransform`, as needed for all the underlying data types in `BoundingBoxArray`. Examples
@@ -104,14 +104,14 @@ inline void doTransform(
   geometry_msgs::msg::Point32 & t_out,
   const geometry_msgs::msg::TransformStamped & transform)
 ```
-* `Quarternion32` (`autoware_auto_msgs`)
+* `Quarternion32` (`autoware_auto_geometry_msgs`)
 ```
 inline void doTransform(
-  const autoware_auto_msgs::msg::Quaternion32 & t_in,
-  autoware_auto_msgs::msg::Quaternion32 & t_out,
+  const autoware_auto_geometry_msgs::msg::Quaternion32 & t_in,
+  autoware_auto_geometry_msgs::msg::Quaternion32 & t_out,
   const geometry_msgs::msg::TransformStamped & transform)
 ```
-* `BoundingBox` (`autoware_auto_msgs`)
+* `BoundingBox` (`autoware_auto_perception_msgs`)
 ```
 inline void doTransform(
   const BoundingBox & t_in, BoundingBox & t_out,

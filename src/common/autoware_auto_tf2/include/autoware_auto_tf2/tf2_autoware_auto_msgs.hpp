@@ -20,10 +20,10 @@
 #include <tf2/convert.h>
 #include <tf2/time.h>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
-#include <autoware_auto_msgs/msg/bounding_box_array.hpp>
-#include <autoware_auto_msgs/msg/bounding_box.hpp>
+#include <autoware_auto_perception_msgs/msg/bounding_box_array.hpp>
+#include <autoware_auto_perception_msgs/msg/bounding_box.hpp>
 #include <geometry_msgs/msg/transform_stamped.hpp>
-#include <autoware_auto_msgs/msg/quaternion32.hpp>
+#include <autoware_auto_geometry_msgs/msg/quaternion32.hpp>
 #include <geometry_msgs/msg/polygon.hpp>
 #include <geometry_msgs/msg/point32.hpp>
 #include <kdl/frames.hpp>
@@ -33,8 +33,8 @@
 
 using autoware::common::types::float32_t;
 using autoware::common::types::float64_t;
-using BoundingBoxArray = autoware_auto_msgs::msg::BoundingBoxArray;
-using BoundingBox = autoware_auto_msgs::msg::BoundingBox;
+using BoundingBoxArray = autoware_auto_perception_msgs::msg::BoundingBoxArray;
+using BoundingBox = autoware_auto_perception_msgs::msg::BoundingBox;
 
 namespace tf2
 {
@@ -96,7 +96,8 @@ void doTransform(
 /** Quaternion32 **/
 /******************/
 
-/** \brief Apply a geometry_msgs TransformStamped to an autoware_auto_msgs Quaternion32 type.
+/** \brief Apply a geometry_msgs TransformStamped
+ *         to an autoware_auto_geometry_msgs Quaternion32 type.
  * This function is a specialization of the doTransform template defined in tf2/convert.h.
  * \param t_in The Quaternion32 message to transform.
  * \param t_out The transformed Quaternion32 message.
@@ -105,8 +106,8 @@ void doTransform(
 template<>
 inline
 void doTransform(
-  const autoware_auto_msgs::msg::Quaternion32 & t_in,
-  autoware_auto_msgs::msg::Quaternion32 & t_out,
+  const autoware_auto_geometry_msgs::msg::Quaternion32 & t_in,
+  autoware_auto_geometry_msgs::msg::Quaternion32 & t_out,
   const geometry_msgs::msg::TransformStamped & transform)
 {
   KDL::Rotation r_in = KDL::Rotation::Quaternion(t_in.x, t_in.y, t_in.z, t_in.w);
@@ -125,7 +126,8 @@ void doTransform(
 /** BoundingBox **/
 /******************/
 
-/** \brief Apply a geometry_msgs TransformStamped to an autoware_auto_msgs BoundingBox type.
+/** \brief Apply a geometry_msgs TransformStamped
+ *         to an autoware_auto_perception_msgs BoundingBox type.
  * This function is a specialization of the doTransform template defined in tf2/convert.h.
  * \param t_in The BoundingBox message to transform.
  * \param t_out The transformed BoundingBox message.
@@ -173,7 +175,8 @@ template<>
 inline
 std::string getFrameId(const BoundingBoxArray & t) {return t.header.frame_id;}
 
-/** \brief Apply a geometry_msgs TransformStamped to an autoware_auto_msgs BoundingBoxArray type.
+/** \brief Apply a geometry_msgs TransformStamped
+ *         to an autoware_auto_perception_msgs BoundingBoxArray type.
  * This function is a specialization of the doTransform template defined in tf2/convert.h.
  * \param t_in The BoundingBoxArray to transform, as a timestamped BoundingBoxArray message.
  * \param t_out The transformed BoundingBoxArray, as a timestamped BoundingBoxArray message.
