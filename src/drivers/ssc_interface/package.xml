@@ -13,14 +13,14 @@
 
   <depend>automotive_platform_msgs</depend>
   <depend>autoware_auto_common</depend>
-  <depend>autoware_auto_msgs</depend>
+  <depend>autoware_auto_vehicle_msgs</depend>
   <depend>rclcpp</depend>
   <depend>rclcpp_components</depend>
   <depend>time_utils</depend>
   <depend>vehicle_interface</depend>
 
   <exec_depend>ament_index_python</exec_depend>
-  
+
   <test_depend>ament_cmake_gtest</test_depend>
   <test_depend>ament_index_python</test_depend>
   <test_depend>ament_lint_auto</test_depend>
