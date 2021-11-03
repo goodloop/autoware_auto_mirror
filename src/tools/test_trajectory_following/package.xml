@@ -9,10 +9,10 @@
   <license>Apache License 2.0</license>
   <author email="jit.ray.c@gmail.com">Jit Ray Chowdhury</author>
 
-  <buildtool_depend>ament_cmake_auto</buildtool_depend> 
+  <buildtool_depend>ament_cmake_auto</buildtool_depend>
 
   <exec_depend>ament_index_python</exec_depend>
-  <exec_depend>autoware_auto_msgs</exec_depend>
+  <exec_depend>autoware_auto_planning_msgs</exec_depend>
   <exec_depend>geometry_msgs</exec_depend>
   <exec_depend>launch_ros</exec_depend>
   <exec_depend>lgsvl_interface</exec_depend>

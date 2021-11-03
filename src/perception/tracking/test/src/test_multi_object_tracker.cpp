@@ -15,7 +15,7 @@
 // Co-developed by Tier IV, Inc. and Apex.AI, Inc.
 
 #include "gtest/gtest.h"
-#include "autoware_auto_msgs/msg/detected_objects.hpp"
+#include "autoware_auto_perception_msgs/msg/detected_objects.hpp"
 #include "nav_msgs/msg/odometry.hpp"
 #include "tracking/multi_object_tracker.hpp"
 
@@ -23,7 +23,7 @@ using Tracker = autoware::perception::tracking::MultiObjectTracker;
 using CreationPolicies = autoware::perception::tracking::TrackCreationPolicy;
 using Options = autoware::perception::tracking::MultiObjectTrackerOptions;
 using Status = autoware::perception::tracking::TrackerUpdateStatus;
-using DetectedObjects = autoware_auto_msgs::msg::DetectedObjects;
+using DetectedObjects = autoware_auto_perception_msgs::msg::DetectedObjects;
 using Odometry = nav_msgs::msg::Odometry;
 
 class MultiObjectTrackerTest : public ::testing::Test

@@ -23,15 +23,21 @@ The purpose of this simulator is for the integration test of planning and contro
 
 
 **input**
+<<<<<<< HEAD
  - input/vehicle_control_command [`autoware_auto_msgs/msg/VehicleControlCommand`] : target command to drive a vehicle.
  - input/ackermann_control_command [`autoware_auto_msgs/msg/AckermannControlCommand`] : target command to drive a vehicle.
  - input/vehicle_state_command [`autoware_auto_msgs/msg/VehicleStateCommand`] : target state command (e.g. gear).
  - /initialpose [`geometry_msgs/msg/PoseWithCovarianceStamped`] : for initial pose
+=======
+ - /vehicle/vehicle_command [`autoware_auto_vehicle_msgs/msg/VehicleControlCommand`] : target command to drive a vehicle.
+ - /vehicle/state_command [`autoware_auto_vehicle_msgs/msg/VehicleStateCommand`] : target state command (e.g. gear).
+ - /localization/initialpose [`geometry_msgs/msg/PoseWithCovarianceStamped`] : for initial pose
+>>>>>>> Update message in tools
 
 **output**
  - /tf [`tf2_msgs/msg/TFMessage`] : simulated vehicle pose (base_link)
- - /vehicle/vehicle_kinematic_state [`autoware_auto_msgs/msg/VehicleKinematicState`] : simulated kinematic state (defined in CoM)
- - /vehicle/state_report [`autoware_auto_msgs/msg/VehicleStateReport`] : current vehicle state (e.g. gear, mode, etc.)
+ - /vehicle/vehicle_kinematic_state [`autoware_auto_vehicle_msgs/msg/VehicleKinematicState`] : simulated kinematic state (defined in CoM)
+ - /vehicle/state_report [`autoware_auto_vehicle_msgs/msg/VehicleStateReport`] : current vehicle state (e.g. gear, mode, etc.)
 
 
 ## Inner-workings / Algorithms

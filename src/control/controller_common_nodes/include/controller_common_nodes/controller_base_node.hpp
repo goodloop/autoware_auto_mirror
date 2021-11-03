@@ -15,9 +15,6 @@
 #define CONTROLLER_COMMON_NODES__CONTROLLER_BASE_NODE_HPP_
 
 #include <controller_common_nodes/visibility_control.hpp>
-#include <autoware_auto_msgs/msg/control_diagnostic.hpp>
-#include <autoware_auto_msgs/msg/trajectory.hpp>
-#include <autoware_auto_msgs/msg/vehicle_kinematic_state.hpp>
 #include <controller_common/controller_base.hpp>
 #include <tf2/buffer_core.h>
 #include <tf2_msgs/msg/tf_message.hpp>

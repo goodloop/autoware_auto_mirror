@@ -27,9 +27,9 @@
 #include <tracking/tracked_object.hpp>
 #include <tracking/visibility_control.hpp>
 
-#include <autoware_auto_msgs/msg/detected_object.hpp>
-#include <autoware_auto_msgs/msg/tracked_object.hpp>
-#include <autoware_auto_msgs/msg/tracked_objects.hpp>
+#include <autoware_auto_perception_msgs/msg/detected_object.hpp>
+#include <autoware_auto_perception_msgs/msg/tracked_object.hpp>
+#include <autoware_auto_perception_msgs/msg/tracked_objects.hpp>
 #include <common/types.hpp>
 #include <geometry_msgs/msg/transform_stamped.hpp>
 #include <motion_model/linear_motion_model.hpp>
@@ -79,9 +79,9 @@ enum class TrackerUpdateStatus
 struct TRACKING_PUBLIC DetectedObjectsUpdateResult
 {
   /// The existing tracks output.
-  autoware_auto_msgs::msg::TrackedObjects tracks;
+  autoware_auto_perception_msgs::msg::TrackedObjects tracks;
   /// Any unassigned clusters left after the update.
-  autoware_auto_msgs::msg::DetectedObjects unassigned_clusters;
+  autoware_auto_perception_msgs::msg::DetectedObjects unassigned_clusters;
   /// Indicates the success or failure, and kind of failure, of the tracking operation.
   TrackerUpdateStatus status;
   /// Timestamps of ROI msgs used for track creation. Useful for debugging purposes.
@@ -109,10 +109,10 @@ struct TRACKING_PUBLIC MultiObjectTrackerOptions
 class TRACKING_PUBLIC MultiObjectTracker
 {
 private:
-  using DetectedObjectsMsg = autoware_auto_msgs::msg::DetectedObjects;
-  using DetectedObjectKinematics = autoware_auto_msgs::msg::DetectedObjectKinematics;
-  using ClassifiedRoiArrayMsg = autoware_auto_msgs::msg::ClassifiedRoiArray;
-  using TrackedObjectsMsg = autoware_auto_msgs::msg::TrackedObjects;
+  using DetectedObjectsMsg = autoware_auto_perception_msgs::msg::DetectedObjects;
+  using DetectedObjectKinematics = autoware_auto_perception_msgs::msg::DetectedObjectKinematics;
+  using ClassifiedRoiArrayMsg = autoware_auto_perception_msgs::msg::ClassifiedRoiArray;
+  using TrackedObjectsMsg = autoware_auto_perception_msgs::msg::TrackedObjects;
 
 public:
   /// Constructor

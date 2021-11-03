@@ -61,7 +61,7 @@ if(BUILD_TESTING)
   target_compile_options(${TEST_TRAJECTORY_SPOOFER_EXE} PRIVATE -Wno-double-promotion -Wno-float-conversion)
   ament_target_dependencies(${TEST_TRAJECTORY_SPOOFER_EXE}
     "autoware_auto_common"
-    "autoware_auto_msgs"
+    "autoware_auto_planning_msgs"
     "time_utils"
   )
   target_link_libraries(
