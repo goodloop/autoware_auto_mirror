@@ -353,9 +353,9 @@ bool8_t LgsvlInterface::send_control_command(
   raw_msg.throttle = 0;
   raw_msg.brake = 0;
 
-  if (msg.longitudinal.acceleration >= decltype(msg.longitudinal.acceleration){}) {
-    raw_msg.throttle =
-      static_cast<decltype(raw_msg.throttle)>(m_throttle_table.lookup(msg.longitudinal.acceleration));
+  if (msg.longitudinal.acceleration >= decltype(msg.longitudinal.acceleration) {}) {
+    raw_msg.throttle = static_cast<decltype(raw_msg.throttle)>(
+      m_throttle_table.lookup(msg.longitudinal.acceleration));
   } else {
     raw_msg.brake =
       static_cast<decltype(raw_msg.brake)>(m_brake_table.lookup(msg.longitudinal.acceleration));
