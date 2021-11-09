@@ -360,7 +360,8 @@ void SscInterface::on_vel_accel_report(const VelocityAccelCov::SharedPtr & msg)
 void SscInterface::kinematic_bicycle_model(
   float32_t dt, float32_t l_r, float32_t l_f, VehicleKinematicState * vks)
 {
-  float32_t yaw = ::motion::motion_common::to_angle(vks->state.pose.orientation);
+  float32_t yaw =
+    static_cast<float32_t>(::motion::motion_common::to_angle(vks->state.pose.orientation));
   if (yaw < 0) {
     yaw += TAU;
   }

@@ -71,7 +71,7 @@ MotionTestingPublisher::MotionTestingPublisher(
     auto s = motion_testing::make_state(
       static_cast<Real>(x0),
       static_cast<Real>(y0),
-      yaw0,
+      static_cast<Real>(yaw0),
       v0,
       prof_s0.state.acceleration_mps2,
       prof_s0.state.heading_rate_rps,

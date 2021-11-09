@@ -808,7 +808,7 @@ void NERaptorInterface::kinematic_bicycle_model(
 
   // convert to yaw – copied from trajectory_spoofer.cpp
   // The below formula could probably be simplified if it would be derived directly for heading
-  float32_t yaw = motion::motion_common::to_angle(vks->state.pose.orientation);
+  auto yaw = static_cast<float32_t>(motion::motion_common::to_angle(vks->state.pose.orientation));
   if (yaw < 0) {
     yaw += TAU;
   }

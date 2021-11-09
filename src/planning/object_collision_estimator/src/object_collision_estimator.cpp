@@ -12,19 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <geometry/intersection.hpp>
-#include <motion_common/motion_common.hpp>
-#include <motion_common/config.hpp>
-#include <geometry_msgs/msg/point32.hpp>
-#include <geometry/bounding_box/bounding_box_common.hpp>
-#include <geometry/bounding_box/rotating_calipers.hpp>
-#include <common/types.hpp>
+#include "object_collision_estimator/object_collision_estimator.hpp"
 
 #include <algorithm>
 #include <list>
 #include <vector>
 
-#include "object_collision_estimator/object_collision_estimator.hpp"
+#include "common/types.hpp"
+#include "geometry/bounding_box/bounding_box_common.hpp"
+#include "geometry/bounding_box/rotating_calipers.hpp"
+#include "geometry/intersection.hpp"
+#include "geometry_msgs/msg/point32.hpp"
+#include "motion_common/config.hpp"
+#include "motion_common/motion_common.hpp"
 
 namespace motion
 {
@@ -59,7 +59,8 @@ BoundingBox waypointToBox(
   float32_t lf = vehicle_param.length_cg_front_axel() + vehicle_param.front_overhang();
   float32_t lr = vehicle_param.length_cg_rear_axel() + vehicle_param.rear_overhang();
   float32_t wh = vehicle_param.width() * 0.5f;
-  const float32_t heading = ::motion::motion_common::to_angle(pt.pose.orientation);
+  const float32_t heading =
+    static_cast<float32_t>(::motion::motion_common::to_angle(pt.pose.orientation));
   const float32_t ch = std::cos(heading);
   const float32_t sh = std::sin(heading);
   const float32_t pt_x = static_cast<float32_t>(pt.pose.position.x);

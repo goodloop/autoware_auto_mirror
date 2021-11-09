@@ -125,8 +125,8 @@ TEST(Interpolation, Slerp2d)
   const auto test_case_dual_path = [ = ](Orientation a, Orientation b, Real t, double tol)
     {
       // Compute result using angles
-      const auto th_a = to_angle(a);
-      const auto th_b = to_angle(b);
+      const auto th_a = static_cast<Real>(to_angle(a));
+      const auto th_b = static_cast<Real>(to_angle(b));
       const auto ab = angle_distance(th_a, th_b);
       const auto t_ = motion::motion_common::clamp(t, 0.0F, 1.0F);
       const auto th_t = th_a + (t_ * ab);
@@ -184,7 +184,7 @@ TEST(Interpolation, AngleArithmetic)
       const auto qa = from_angle(a);
       const auto qb = from_angle(b);
       const auto dq = qa - qb;
-      const auto dth = to_angle(dq);
+      const auto dth = static_cast<decltype(res)>(to_angle(dq));
       EXPECT_LT(std::fabs(dth - res), tol) << a << ", " << b << ", " << res << ", " << dth;
     };
   const auto TOL = 1.0E-3F;

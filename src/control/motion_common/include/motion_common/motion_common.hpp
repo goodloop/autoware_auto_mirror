@@ -41,6 +41,7 @@ using State = autoware_auto_vehicle_msgs::msg::VehicleKinematicState;
 using Trajectory = autoware_auto_planning_msgs::msg::Trajectory;
 using Heading = decltype(decltype(State::state)::heading);
 using Orientation = geometry_msgs::msg::Quaternion;
+using Double = decltype(Orientation::x);
 using Index = decltype(Trajectory::points)::size_type;
 using Point = decltype(Trajectory::points)::value_type;
 
@@ -52,7 +53,7 @@ MOTION_COMMON_PUBLIC bool is_past_point(
   const Point & state, const Point & current_pt, const Point & next_pt) noexcept;
 /// Given a normal, determine if state is past a point
 MOTION_COMMON_PUBLIC
-bool is_past_point(const Point & state, const Point & pt, double nx, double ny) noexcept;
+bool is_past_point(const Point & state, const Point & pt, Double nx, Double ny) noexcept;
 
 /// Advance to the first trajectory point past state according to criterion is_past_point
 template<typename IsPastPointF>
@@ -101,7 +102,7 @@ MOTION_COMMON_PUBLIC void doTransform(
 /// Converts 2D quaternion to simple heading representation
 MOTION_COMMON_PUBLIC Real to_angle(Heading heading) noexcept;
 /// Converts 3D quaternion to simple heading representation
-MOTION_COMMON_PUBLIC Real to_angle(Orientation orientation) noexcept;
+MOTION_COMMON_PUBLIC Double to_angle(Orientation orientation) noexcept;
 
 /// Basic conversion
 template<typename RealT>
@@ -114,13 +115,29 @@ Heading heading_from_angle(RealT angle) noexcept
   return ret;
 }
 
+/// \brief Converts angles into a corresponding Orientation
+/// \tparam RealT a floating point type
+/// \param[in] roll angle to use as roll of the Orientation [radians]
+/// \param[in] pitch angle to use as pitch of the Orientation [radians]
+/// \param[in] yaw angle to use as yaw of the Orientation [radians]
+/// \returns A converted Orientation object
 template<typename RealT>
-Orientation from_angle(RealT angle) noexcept
+Orientation from_angles(RealT roll, RealT pitch, RealT yaw) noexcept
 {
   static_assert(std::is_floating_point<RealT>::value, "angle must be floating point");
   tf2::Quaternion quat;
-  quat.setRPY(0.0, 0.0, angle);
+  quat.setRPY(roll, pitch, yaw);
   return tf2::toMsg(quat);
+}
+
+/// \brief Converts a heading angle into a corresponding Orientation
+/// \tparam RealT a floating point type
+/// \param[in] angle heading angle to use as yaw of the Orientation [radians]
+/// \returns A converted Orientation object
+template<typename RealT>
+Orientation from_angle(RealT angle) noexcept
+{
+  return from_angles(RealT{}, RealT{}, angle);
 }
 
 /// \brief Converts a quaternion-like object to a simple heading representation

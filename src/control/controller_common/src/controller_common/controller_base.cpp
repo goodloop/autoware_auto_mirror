@@ -253,7 +253,7 @@ Point ControllerBase::predict(const Point & point, std::chrono::nanoseconds dt) 
   state.at<Y>() = static_cast<Real>(point.pose.position.y);
   state.at<XY_VELOCITY>() = point.longitudinal_velocity_mps;
   state.at<XY_ACCELERATION>() = point.acceleration_mps2;
-  state.at<YAW>() = motion_common::to_angle(point.pose.orientation);
+  state.at<YAW>() = static_cast<Real>(motion_common::to_angle(point.pose.orientation));
   state.at<YAW_CHANGE_RATE>() = point.heading_rate_rps;
   state = m_model.predict(state, dt);
   // Get result

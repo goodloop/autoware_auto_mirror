@@ -175,7 +175,7 @@ TEST(TestLongitudinalControllerUtils, calcElevationAngle) {
 
 TEST(TestLongitudinalControllerUtils, calcPoseAfterTimeDelay) {
   using geometry_msgs::msg::Pose;
-  const double abs_err = 1e-7;
+  const double abs_err = 1e-15;
   Pose current_pose;
   current_pose.position.x = 0.0;
   current_pose.position.y = 0.0;

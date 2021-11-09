@@ -296,14 +296,13 @@ std::pair<float32_t, float32_t> PurePursuit::compute_relative_xy_offset(
   const TrajectoryPoint & current,
   const TrajectoryPoint & target) const
 {
-  using autoware::common::types::float64_t;
-  const float32_t diff_x = static_cast<float32_t>(target.pose.position.x - current.pose.position.x);
-  const float32_t diff_y = static_cast<float32_t>(target.pose.position.y - current.pose.position.y);
+  const auto diff_x = target.pose.position.x - current.pose.position.x;
+  const auto diff_y = target.pose.position.y - current.pose.position.y;
   const auto yaw = ::motion::motion_common::to_angle(current.pose.orientation);
   const auto cos_pose = std::cos(yaw);
   const auto sin_pose = std::sin(yaw);
-  const float32_t relative_x = (cos_pose * diff_x) + (sin_pose * diff_y);
-  const float32_t relative_y = (-sin_pose * diff_x) + (cos_pose * diff_y);
+  const auto relative_x = static_cast<float32_t>((cos_pose * diff_x) + (sin_pose * diff_y));
+  const auto relative_y = static_cast<float32_t>((-sin_pose * diff_x) + (cos_pose * diff_y));
   const std::pair<float32_t, float32_t> relative_xy(relative_x, relative_y);
   return relative_xy;
 }

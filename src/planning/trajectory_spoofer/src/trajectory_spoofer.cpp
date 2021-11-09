@@ -89,8 +89,7 @@ Trajectory TrajectorySpoofer::spoof_straight_trajectory(
   straight_trajectory.points[0].longitudinal_velocity_mps = target_speed_;
 
 
-  const auto yaw_angle = static_cast<float64_t>(
-    ::motion::motion_common::to_angle(starting_state.state.pose.orientation));
+  const auto yaw_angle = ::motion::motion_common::to_angle(starting_state.state.pose.orientation);
   const float64_t seg_len =
     static_cast<float64_t>(length) / static_cast<float64_t>(num_of_points - 1);
   const auto start_time = time_utils::from_message(straight_trajectory.points[0].time_from_start);

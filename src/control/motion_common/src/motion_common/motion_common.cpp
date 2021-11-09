@@ -29,11 +29,11 @@ namespace motion_common
 ////////////////////////////////////////////////////////////////////////////////
 bool is_past_point(const Point & state, const Point & pt) noexcept
 {
-  const auto w = static_cast<Real>(pt.pose.orientation.w);
-  const auto z = static_cast<Real>(pt.pose.orientation.z);
+  const auto w = pt.pose.orientation.w;
+  const auto z = pt.pose.orientation.z;
   // double angle rule
   const auto c = (w + z) * (w - z);
-  const auto s = 2.0F * w * z;
+  const auto s = 2.0 * w * z;
 
   return is_past_point(state, pt, c, s);
 }
@@ -54,14 +54,14 @@ bool is_past_point(
 bool is_past_point(
   const Point & state,
   const Point & pt,
-  const double nx,
-  const double ny) noexcept
+  const Double nx,
+  const Double ny) noexcept
 {
   const auto dx = (state.pose.position.x - pt.pose.position.x);
   const auto dy = (state.pose.position.y - pt.pose.position.y);
 
   // Check if state is past last_pt when projected onto the ray defined by heading
-  return ((nx * dx) + (ny * dy)) >= -std::numeric_limits<double>::epsilon();
+  return ((nx * dx) + (ny * dy)) >= -std::numeric_limits<Double>::epsilon();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -134,9 +134,9 @@ Real to_angle(Heading heading) noexcept
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-Real to_angle(Orientation orientation) noexcept
+Double to_angle(Orientation orientation) noexcept
 {
-  return static_cast<Real>(tf2::getYaw(orientation));
+  return tf2::getYaw(orientation);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -203,7 +203,8 @@ void error(const Point & state, const Point & ref, Diagnostic & out) noexcept
   out.acceleration_error_mps2 = state.acceleration_mps2 - ref.acceleration_mps2;
 
   using autoware::common::helper_functions::wrap_angle;
-  out.yaw_error_rad = wrap_angle(to_angle(state.pose.orientation) - to_angle(ref.pose.orientation));
+  out.yaw_error_rad = static_cast<decltype(out.yaw_error_rad)>(
+    wrap_angle(to_angle(state.pose.orientation) - to_angle(ref.pose.orientation)));
   out.yaw_rate_error_rps = state.heading_rate_rps - ref.heading_rate_rps;
 }
 }  // namespace motion_common

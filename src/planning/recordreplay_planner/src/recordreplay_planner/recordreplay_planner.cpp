@@ -222,8 +222,8 @@ std::size_t RecordReplayPlanner::get_closest_state(const State & current_state)
       return (s1.pose.position.x - s2.pose.position.x) * (s1.pose.position.x - s2.pose.position.x) +
              (s1.pose.position.y - s2.pose.position.y) * (s1.pose.position.y - s2.pose.position.y) +
              m_heading_weight * std::abs(
-        static_cast<float64_t>(::motion::motion_common::to_angle(
-          s1.pose.orientation - s2.pose.orientation)));
+        ::motion::motion_common::to_angle(
+          s1.pose.orientation - s2.pose.orientation));
     };
   const auto comparison_function =
     [&distance_from_current_state](State & one, State & two)
@@ -393,8 +393,8 @@ bool8_t RecordReplayPlanner::reached_goal(
   const auto distance2d = std::hypot(
     ego_state.pose.position.x - goal_state.pose.position.x,
     ego_state.pose.position.y - goal_state.pose.position.y);
-  const auto angle_diff_rad = static_cast<float64_t>(std::abs(
-      ::motion::motion_common::to_angle(ego_state.pose.orientation - goal_state.pose.orientation)));
+  const auto angle_diff_rad = std::abs(
+    ::motion::motion_common::to_angle(ego_state.pose.orientation - goal_state.pose.orientation));
   if (distance2d < distance_thresh &&
     angle_diff_rad < angle_thresh)
   {
