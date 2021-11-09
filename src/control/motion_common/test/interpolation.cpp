@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#include <apex_test_tools/apex_test_tools.hpp>
 
+#include <apex_test_tools/apex_test_tools.hpp>
 #include <motion_common/motion_common.hpp>
 #include <motion_testing/motion_testing.hpp>
 #include <time_utils/time_utils.hpp>
@@ -21,7 +21,10 @@
 #include <limits>
 
 using motion::motion_common::Command;
+using motion::motion_common::Double;
+using motion::motion_common::Orientation;
 using motion::motion_common::Point;
+using motion::motion_common::Real;
 using motion::motion_common::State;
 using motion::motion_common::Trajectory;
 using motion::motion_common::from_angle;
@@ -104,31 +107,23 @@ TEST(Interpolation, Interpolation)
 
 TEST(Interpolation, Slerp2d)
 {
-  using motion::motion_common::Orientation;
-  using motion::motion_common::Real;
-  const auto angle_distance = [](Real a, Real b) -> Real
-    {
-      // https://stackoverflow.com/questions/1878907/the-smallest-difference-between-2-angles?rq=1
-      const auto d = a - b;
-      return std::atan2(std::sin(d), std::cos(d));
-    };
   // Plain check
-  const auto test_case = [ = ](Orientation a, Orientation b, Real t, Orientation res, Real tol)
+  const auto test_case = [ = ](Orientation a, Orientation b, Double t, Orientation res, Double tol)
     {
       using motion::motion_common::slerp;
       const auto ret = slerp(a, b, t);
       EXPECT_LT(
-        std::fabs(to_angle(ret) - to_angle(res)),
+        std::fabs(to_angle(ret - res)),
         tol) << to_angle(ret) << ", " << to_angle(res);
     };
   // Check using alternate computation path
-  const auto test_case_dual_path = [ = ](Orientation a, Orientation b, Real t, double tol)
+  const auto test_case_dual_path = [ = ](Orientation a, Orientation b, Double t, Double tol)
     {
       // Compute result using angles
-      const auto th_a = static_cast<Real>(to_angle(a));
-      const auto th_b = static_cast<Real>(to_angle(b));
-      const auto ab = angle_distance(th_a, th_b);
-      const auto t_ = motion::motion_common::clamp(t, 0.0F, 1.0F);
+      const auto th_a = to_angle(a);
+      const auto th_b = to_angle(b);
+      const auto ab = to_angle(b - a);
+      const auto t_ = motion::motion_common::clamp(t, 0.0, 1.0);
       const auto th_t = th_a + (t_ * ab);
       const auto res_th = from_angle(th_t);
       using motion::motion_common::slerp;
@@ -140,40 +135,38 @@ TEST(Interpolation, Slerp2d)
       }
     };
   const auto test_suite =
-    [ = ](Orientation a, Orientation b, Real tol, Real tol2, bool b_snap = false)
+    [ = ](Orientation a, Orientation b, Double tol, Double tol2, bool b_snap = false)
     {
-      constexpr auto lim = std::numeric_limits<Real>::max();
+      constexpr auto lim = std::numeric_limits<Double>::max();
       // If you do something crazy, make b less crazy wrt a
       if (!b_snap) {
         test_case(a, b, lim, b, tol);
       }
       test_case(a, b, -lim, a, tol);
       if (!b_snap) {
-        test_case(a, b, 1.0F, b, tol);
+        test_case(a, b, 1.0, b, tol);
       }
-      test_case(a, b, 0.0F, a, tol);
-      test_case_dual_path(a, b, 0.25F, tol2);
-      test_case_dual_path(a, b, 0.5F, tol2);
-      test_case_dual_path(a, b, 0.75F, tol2);
+      test_case(a, b, 0.0, a, tol);
+      test_case_dual_path(a, b, 0.25, tol2);
+      test_case_dual_path(a, b, 0.5, tol2);
+      test_case_dual_path(a, b, 0.75, tol2);
     };
-  constexpr auto TOL = 1.0E-5F;
-  apex_test_tools::memory_test::start();
+  constexpr auto TOL = 1.0E-5;
   // 0 - 180 -> 90
-  test_case(from_angle(0.0), from_angle(M_PI_2), 0.5F, from_angle(M_PI_4), TOL);
+  test_case(from_angle(0.0), from_angle(M_PI_2), 0.5, from_angle(M_PI_4), TOL);
   // 0 - -180 -> -90
-  test_case(from_angle(0.0), from_angle(-M_PI_2), 0.5F, from_angle(-M_PI_4), TOL);
+  test_case(from_angle(0.0), from_angle(-M_PI_2), 0.5, from_angle(-M_PI_4), TOL);
   // Commutivity
-  test_case(from_angle(M_PI_2), from_angle(0.0), 0.5F, from_angle(M_PI_4), TOL);
-  test_case(from_angle(-M_PI_2), from_angle(0.0), 0.5F, from_angle(-M_PI_4), TOL);
+  test_case(from_angle(M_PI_2), from_angle(0.0), 0.5, from_angle(M_PI_4), TOL);
+  test_case(from_angle(-M_PI_2), from_angle(0.0), 0.5, from_angle(-M_PI_4), TOL);
   // test suite
-  test_suite(from_angle(0.0), from_angle(M_PI_2), TOL, 0.07F);
-  test_suite(from_angle(0.0), from_angle(-M_PI_2), TOL, 0.07F);
+  test_suite(from_angle(0.0), from_angle(M_PI_2), TOL, 0.07);
+  test_suite(from_angle(0.0), from_angle(-M_PI_2), TOL, 0.07);
   test_suite(from_angle(0.0), from_angle(M_PI), TOL, TOL, true);
   test_suite(from_angle(M_PI_2), from_angle(-M_PI_2), TOL, TOL, true);
-  apex_test_tools::memory_test::stop();
   // Test case below doesn't work, but I'm pretty sure it's more because the test doesn't work for
   // crazy angles
-  // test_suite(make(-cs45, -cs45), make(-cs45, cs45), TOL, TOL);
+  test_suite(from_angle(3 * -M_PI_4), from_angle(3 * M_PI_4), TOL, TOL);
   // TODO(c.ho) harder cases past the limits of 180, -180
 }
 // TODO(c.ho) point interpolation sanity check
@@ -201,7 +194,7 @@ TEST(Interpolation, AngleArithmetic)
 }
 
 // These are generic and/or not represented by the CATR model
-void generic_checks(const Point & s, const Point & p, std::chrono::nanoseconds dt, float TOL)
+void generic_checks(const Point & s, const Point & p, std::chrono::nanoseconds dt, Real TOL)
 {
   EXPECT_LT(std::fabs(s.lateral_velocity_mps - p.lateral_velocity_mps), TOL);
   EXPECT_LT(std::fabs(s.front_wheel_angle_rad - p.front_wheel_angle_rad), TOL);
@@ -230,7 +223,9 @@ TEST(Interpolation, TrajectorySubsample)
     constexpr auto TOL = 1.0E-3F;
     EXPECT_LT(std::fabs(pt.pose.position.x - ref.pose.position.x), static_cast<double>(TOL));
     EXPECT_LT(std::fabs(pt.pose.position.y - ref.pose.position.y), static_cast<double>(TOL));
+    apex_test_tools::memory_test::pause();
     EXPECT_LT(std::fabs(to_angle(pt.pose.orientation) - to_angle(ref.pose.orientation)), TOL);
+    apex_test_tools::memory_test::resume();
     EXPECT_LT(std::fabs(pt.longitudinal_velocity_mps - ref.longitudinal_velocity_mps), TOL);
     EXPECT_LT(std::fabs(pt.acceleration_mps2 - ref.acceleration_mps2), TOL);
     EXPECT_LT(std::fabs(pt.heading_rate_rps - ref.heading_rate_rps), TOL);
@@ -258,14 +253,16 @@ TEST(Interpolation, TrajectorySupersample)
     const auto & ref = t_res.points[idx];
     // Check...
     constexpr auto TOL = 1.0E-3F;
-    EXPECT_LT(std::fabs(pt.pose.position.x - ref.pose.position.x), static_cast<double>(TOL));
-    EXPECT_LT(std::fabs(pt.pose.position.y - ref.pose.position.y), static_cast<double>(TOL));
+    EXPECT_LT(std::fabs(pt.pose.position.x - ref.pose.position.x), static_cast<Double>(TOL));
+    EXPECT_LT(std::fabs(pt.pose.position.y - ref.pose.position.y), static_cast<Double>(TOL));
+    apex_test_tools::memory_test::pause();
     EXPECT_LT(std::fabs(to_angle(pt.pose.orientation) - to_angle(ref.pose.orientation)), TOL);
+    apex_test_tools::memory_test::resume();
     EXPECT_LT(std::fabs(pt.longitudinal_velocity_mps - ref.longitudinal_velocity_mps), TOL);
     EXPECT_LT(std::fabs(pt.acceleration_mps2 - ref.acceleration_mps2), TOL);
     EXPECT_LT(std::fabs(pt.heading_rate_rps - ref.heading_rate_rps), TOL);
     const auto dt_err = (dt * idx) - from_message(pt.time_from_start);
     generic_checks(pt, ref, dt_err, TOL);
   }
-  apex_test_tools::memory_test::start();
+  apex_test_tools::memory_test::stop();
 }

@@ -165,11 +165,12 @@ Heading nlerp(Heading a, Heading b, Real t)
 ////////////////////////////////////////////////////////////////////////////////
 Orientation slerp(const Orientation & a, const Orientation & b, const Real t)
 {
+  const auto t_ = clamp(t, 0.0F, 1.0F);
   tf2::Quaternion quat_a;
   tf2::Quaternion quat_b;
   tf2::fromMsg(a, quat_a);
   tf2::fromMsg(b, quat_b);
-  return tf2::toMsg(quat_a.slerp(quat_b, t));
+  return tf2::toMsg(quat_a.slerp(quat_b, t_));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
