@@ -99,6 +99,12 @@ private:
   rclcpp::Publisher<nav_msgs::msg::OccupancyGrid>::SharedPtr debug_occupancy_grid_publisher_;
   rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr debug_local_had_map_publisher_;
 
+  // service would be more appropriate than action in terms of design
+  // however it is quite inconvinient to synchronously call
+  // a service in the callback function of another service
+  // it would require using MultiThreadedExecutor and CallbackGroupType::MutuallyExclusive
+  // therefore for now we use an action here
+  // TODO(danielm1405): use service when synchronous call is available
   rclcpp_action::Server<autoware_auto_msgs::action::PlannerCostmap>::SharedPtr
     costmap_action_server_;
   std::shared_ptr<rclcpp_action::ServerGoalHandle<autoware_auto_msgs::action::PlannerCostmap>>
