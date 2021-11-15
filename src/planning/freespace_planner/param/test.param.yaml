@@ -1,5 +1,30 @@
 /**:
   ros__parameters:
+    # -- Node Configurations --
+    waypoints_velocity: 5.0
+
+    # -- A* search Configurations --
+    # base configs
+    use_back: true
+    only_behind_solutions: false
+    time_limit: 30000.0
+    # robot configs
+    maximum_turning_radius: 20.0
+    turning_radius_size: 5
+    vehicle_dimension_margin: 0.0
+    # search configs
+    theta_size: 48
+    goal_angular_tolerance: 0.05236
+    reverse_weight: 2.0
+    goal_lateral_tolerance: 0.25
+    goal_longitudinal_tolerance: 1.0
+    # costmap configs
+    obstacle_threshold: 100
+    distance_heuristic_weight: 1.0
+
+    # vehicle characteristics for vehicle_constants_manager operation
+    # when launching the whole system these parameters should not be part of this package's params
+    # however to be able to run the node standalone these parameters are required
     vehicle:
       wheel_radius: 0.37 # Measured from SVL
       wheel_width: 0.27 # Measured from SVL
@@ -16,5 +41,3 @@
       mass_vehicle: 2120.0 # Measured from SVL
       inertia_yaw_kg_m2: 12.0  # Taken from AVP demo params, can't verify
       maximum_turning_angle_rad: 0.53
-
-
