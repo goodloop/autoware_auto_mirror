@@ -178,7 +178,8 @@ autoware_auto_perception_msgs::msg::DetectedObject GEOMETRY_PUBLIC make_detected
 /// \return corners transformed such that their centroid and orientation correspond to the
 ///         given inputs
 std::vector<geometry_msgs::msg::Point32> GEOMETRY_PUBLIC get_transformed_corners(
-  const autoware_auto_perception_msgs::msg::Shape & shape_msg, const geometry_msgs::msg::Point & centroid,
+  const autoware_auto_perception_msgs::msg::Shape & shape_msg,
+  const geometry_msgs::msg::Point & centroid,
   const geometry_msgs::msg::Quaternion & orientation);
 
 }  // namespace details

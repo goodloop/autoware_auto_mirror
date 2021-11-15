@@ -68,7 +68,8 @@ private:
 
   message_filters::Subscriber<sensor_msgs::msg::CompressedImage> m_image_sub;
   message_filters::Subscriber<autoware_auto_perception_msgs::msg::ClassifiedRoiArray> m_roi_sub;
-  message_filters::Subscriber<autoware_auto_perception_msgs::msg::ClassifiedRoiArray> m_projection_sub;
+  message_filters::Subscriber<autoware_auto_perception_msgs::msg::ClassifiedRoiArray>
+  m_projection_sub;
   std::unique_ptr<message_filters::Synchronizer<ApproximatePolicy>> m_approximate_sync_ptr{};
   std::unique_ptr<message_filters::Synchronizer<ExactPolicy>> m_exact_sync_ptr{};
   rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr m_image_pub;

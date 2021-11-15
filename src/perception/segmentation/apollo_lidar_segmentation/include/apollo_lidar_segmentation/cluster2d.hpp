@@ -107,7 +107,8 @@ public:
   /// \brief Transform an obstacle from the internal representation to the external one.
   /// \param[in] in_obstacle
   /// \return Output obstacle.
-  autoware_auto_perception_msgs::msg::BoundingBox obstacleToObject(const Obstacle & in_obstacle) const;
+  autoware_auto_perception_msgs::msg::BoundingBox obstacleToObject(const Obstacle & in_obstacle)
+  const;
 
 private:
   const int32_t rows_;

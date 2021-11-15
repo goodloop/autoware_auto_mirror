@@ -71,7 +71,8 @@ namespace autoware
 namespace ground_truth_detections
 {
 
-autoware_auto_perception_msgs::msg::ObjectClassification make_classification(const std::string & label)
+autoware_auto_perception_msgs::msg::ObjectClassification make_classification(
+  const std::string & label)
 {
   autoware_auto_perception_msgs::msg::ObjectClassification obj_classification;
   obj_classification.probability = 1.0;
@@ -137,7 +138,8 @@ autoware_auto_perception_msgs::msg::DetectedObjectKinematics make_kinematics(
          .position_covariance({})
          .has_position_covariance(false)
          .orientation(detection.bbox.position.orientation)
-         .orientation_availability(autoware_auto_perception_msgs::msg::DetectedObjectKinematics::AVAILABLE)
+         .orientation_availability(
+    autoware_auto_perception_msgs::msg::DetectedObjectKinematics::AVAILABLE)
          .twist(twist)
          .has_twist(true)
          .has_twist_covariance(false);

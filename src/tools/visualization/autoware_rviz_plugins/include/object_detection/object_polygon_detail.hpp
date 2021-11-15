@@ -53,9 +53,11 @@ const std::map<autoware_auto_perception_msgs::msg::ObjectClassification::_classi
 kDefaultObjectPropertyValues = {
   {autoware_auto_perception_msgs::msg::ObjectClassification::UNKNOWN, {"UNKNOWN", {255, 255, 255}}},
   {autoware_auto_perception_msgs::msg::ObjectClassification::CAR, {"CAR", {0, 0, 142}}},
-  {autoware_auto_perception_msgs::msg::ObjectClassification::PEDESTRIAN, {"PEDESTRIAN", {220, 20, 60}}},
+  {autoware_auto_perception_msgs::msg::ObjectClassification::PEDESTRIAN,
+    {"PEDESTRIAN", {220, 20, 60}}},
   {autoware_auto_perception_msgs::msg::ObjectClassification::BICYCLE, {"CYCLIST", {119, 11, 32}}},
-  {autoware_auto_perception_msgs::msg::ObjectClassification::MOTORCYCLE, {"MOTORCYCLE", {0, 0, 230}}},
+  {autoware_auto_perception_msgs::msg::ObjectClassification::MOTORCYCLE,
+    {"MOTORCYCLE", {0, 0, 230}}},
   {autoware_auto_perception_msgs::msg::ObjectClassification::TRAILER, {"TRAILER", {0, 80, 100}}},
   {autoware_auto_perception_msgs::msg::ObjectClassification::TRUCK, {"TRUCK", {0, 0, 70}}}
 };
@@ -103,7 +105,8 @@ inline AUTOWARE_RVIZ_PLUGINS_PUBLIC geometry_msgs::msg::Point to_point(
 /// \param logger_name Name to use for logger in case of a warning (if labels is empty)
 /// \return Id of the best classification, Unknown if there is no best label
 template<typename ClassificationContainerT>
-AUTOWARE_RVIZ_PLUGINS_PUBLIC autoware_auto_perception_msgs::msg::ObjectClassification::_classification_type
+AUTOWARE_RVIZ_PLUGINS_PUBLIC autoware_auto_perception_msgs::msg::ObjectClassification::
+_classification_type
 get_best_label(
   ClassificationContainerT labels, const std::string & logger_name)
 {

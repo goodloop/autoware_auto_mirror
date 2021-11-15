@@ -345,7 +345,8 @@ int64_t calcNearestIndex(
 }
 
 int64_t calcNearestIndex(
-  const autoware_auto_planning_msgs::msg::Trajectory & traj, const geometry_msgs::msg::Pose & self_pose)
+  const autoware_auto_planning_msgs::msg::Trajectory & traj,
+  const geometry_msgs::msg::Pose & self_pose)
 {
   if (traj.points.empty()) {
     return -1;

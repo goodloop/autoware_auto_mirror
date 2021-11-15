@@ -121,7 +121,8 @@ ObjectCollisionEstimatorNode::ObjectCollisionEstimatorNode(const rclcpp::NodeOpt
   // Set up service interface for collision_detection
   m_service_interface = create_service<autoware_auto_planning_msgs::srv::ModifyTrajectory>(
     "estimate_collision",
-    [this](const std::shared_ptr<autoware_auto_planning_msgs::srv::ModifyTrajectory::Request> request,
+    [this](const std::shared_ptr<autoware_auto_planning_msgs::srv::ModifyTrajectory::Request>
+    request,
     std::shared_ptr<autoware_auto_planning_msgs::srv::ModifyTrajectory::Response> response) {
       estimate_collision(request, response);
     });

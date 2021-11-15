@@ -214,7 +214,8 @@ void Cluster2D::classify(const float32_t * inferred_data)
   }
 }
 
-autoware_auto_perception_msgs::msg::BoundingBox Cluster2D::obstacleToObject(const Obstacle & in_obstacle) const
+autoware_auto_perception_msgs::msg::BoundingBox Cluster2D::obstacleToObject(
+  const Obstacle & in_obstacle) const
 {
   auto in_points = in_obstacle.cloud_ptr->points;
 

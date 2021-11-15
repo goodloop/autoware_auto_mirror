@@ -45,7 +45,8 @@ namespace ground_truth_detections
  * @param label The label of an detection assumed to come from SVL
  * @return the classification
  */
-autoware_auto_perception_msgs::msg::ObjectClassification GROUND_TRUTH_DETECTIONS_PUBLIC make_classification(
+autoware_auto_perception_msgs::msg::ObjectClassification GROUND_TRUTH_DETECTIONS_PUBLIC
+make_classification(
   const std::string & label);
 
 /**
@@ -63,7 +64,8 @@ geometry_msgs::msg::Polygon GROUND_TRUTH_DETECTIONS_PUBLIC make_polygon(
  *
  * @param detection The 3D input detection
  */
-autoware_auto_perception_msgs::msg::DetectedObjectKinematics GROUND_TRUTH_DETECTIONS_PUBLIC make_kinematics(
+autoware_auto_perception_msgs::msg::DetectedObjectKinematics GROUND_TRUTH_DETECTIONS_PUBLIC
+make_kinematics(
   const lgsvl_msgs::msg::Detection3D & detection);
 
 /**

@@ -63,7 +63,9 @@ TEST(ClassificaitonTrackerTest, TestSingleUpdate) {
     {{autoware_auto_perception_msgs::msg::ObjectClassification::CAR, 0.8F}});
   ClassificationTracker tracker;
   tracker.update(object.classification);
-  EXPECT_EQ(autoware_auto_perception_msgs::msg::ObjectClassification::CAR, tracker.most_likely_class());
+  EXPECT_EQ(
+    autoware_auto_perception_msgs::msg::ObjectClassification::CAR,
+    tracker.most_likely_class());
   const auto resulting_classification = tracker.object_classification_vector();
   EXPECT_EQ(
     resulting_classification[autoware_auto_perception_msgs::msg::ObjectClassification::UNKNOWN].classification,
@@ -78,7 +80,8 @@ TEST(ClassificaitonTrackerTest, TestSingleUpdate) {
     resulting_classification[autoware_auto_perception_msgs::msg::ObjectClassification::CAR].probability,
     tracker.state()[autoware_auto_perception_msgs::msg::ObjectClassification::CAR]);
   EXPECT_GT(
-    resulting_classification[autoware_auto_perception_msgs::msg::ObjectClassification::CAR].probability, 0.7F);
+    resulting_classification[autoware_auto_perception_msgs::msg::ObjectClassification::CAR].probability,
+    0.7F);
 }
 
 TEST(ClassificaitonTrackerTest, TestMultipleUpdates) {
@@ -90,23 +93,33 @@ TEST(ClassificaitonTrackerTest, TestMultipleUpdates) {
     {{autoware_auto_perception_msgs::msg::ObjectClassification::UNKNOWN, 1.0F}});
   ClassificationTracker tracker;
   tracker.update(car.classification);
-  EXPECT_EQ(autoware_auto_perception_msgs::msg::ObjectClassification::CAR, tracker.most_likely_class());
+  EXPECT_EQ(
+    autoware_auto_perception_msgs::msg::ObjectClassification::CAR,
+    tracker.most_likely_class());
   tracker.update(truck.classification);
   tracker.update(truck.classification);
-  EXPECT_EQ(autoware_auto_perception_msgs::msg::ObjectClassification::TRUCK, tracker.most_likely_class());
+  EXPECT_EQ(
+    autoware_auto_perception_msgs::msg::ObjectClassification::TRUCK,
+    tracker.most_likely_class());
   // Perform updates with a very high covariance. These should play near to no role.
   tracker.update(car.classification, 100.0F);
   tracker.update(car.classification, 100.0F);
   tracker.update(car.classification, 100.0F);
-  EXPECT_EQ(autoware_auto_perception_msgs::msg::ObjectClassification::TRUCK, tracker.most_likely_class());
+  EXPECT_EQ(
+    autoware_auto_perception_msgs::msg::ObjectClassification::TRUCK,
+    tracker.most_likely_class());
   // Perform updates with a normal covariance. These should change the most likely class.
   tracker.update(car.classification);
   tracker.update(car.classification);
-  EXPECT_EQ(autoware_auto_perception_msgs::msg::ObjectClassification::CAR, tracker.most_likely_class());
+  EXPECT_EQ(
+    autoware_auto_perception_msgs::msg::ObjectClassification::CAR,
+    tracker.most_likely_class());
   tracker.update(unknown_object.classification);
   tracker.update(unknown_object.classification);
   tracker.update(unknown_object.classification);
-  EXPECT_EQ(autoware_auto_perception_msgs::msg::ObjectClassification::UNKNOWN, tracker.most_likely_class());
+  EXPECT_EQ(
+    autoware_auto_perception_msgs::msg::ObjectClassification::UNKNOWN,
+    tracker.most_likely_class());
 }
 
 TEST(ClassificaitonTrackerTest, TestMultipleUpdatesInOneObject) {
@@ -122,10 +135,13 @@ TEST(ClassificaitonTrackerTest, TestMultipleUpdatesInOneObject) {
   });
   ClassificationTracker tracker;
   tracker.update(more_car.classification);
-  EXPECT_EQ(autoware_auto_perception_msgs::msg::ObjectClassification::CAR, tracker.most_likely_class());
+  EXPECT_EQ(
+    autoware_auto_perception_msgs::msg::ObjectClassification::CAR,
+    tracker.most_likely_class());
   tracker.update(more_pedestrian.classification);
   EXPECT_EQ(
-    autoware_auto_perception_msgs::msg::ObjectClassification::PEDESTRIAN, tracker.most_likely_class());
+    autoware_auto_perception_msgs::msg::ObjectClassification::PEDESTRIAN,
+    tracker.most_likely_class());
   EXPECT_LT(
     tracker.state()[autoware_auto_perception_msgs::msg::ObjectClassification::UNKNOWN],
     tracker.default_observation_covariance());
@@ -138,7 +154,9 @@ TEST(ClassificaitonTrackerTest, TestUncartainObject) {
     {{autoware_auto_perception_msgs::msg::ObjectClassification::CAR, 0.1F}});
   ClassificationTracker tracker;
   tracker.update(certain_car.classification);
-  EXPECT_EQ(autoware_auto_perception_msgs::msg::ObjectClassification::CAR, tracker.most_likely_class());
+  EXPECT_EQ(
+    autoware_auto_perception_msgs::msg::ObjectClassification::CAR,
+    tracker.most_likely_class());
   tracker.update(uncertain_car.classification);
   EXPECT_EQ(
     autoware_auto_perception_msgs::msg::ObjectClassification::UNKNOWN, tracker.most_likely_class());

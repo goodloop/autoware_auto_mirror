@@ -29,7 +29,8 @@ namespace emergency_handler
 using namespace std::chrono_literals;
 
 diagnostic_msgs::msg::DiagnosticArray convertHazardStatusToDiagnosticArray(
-  rclcpp::Clock::SharedPtr clock, const autoware_auto_system_msgs::msg::HazardStatus & hazard_status)
+  rclcpp::Clock::SharedPtr clock,
+  const autoware_auto_system_msgs::msg::HazardStatus & hazard_status)
 {
   diagnostic_msgs::msg::DiagnosticArray diag_array;
   diag_array.header.stamp = clock->now();
@@ -83,7 +84,8 @@ EmergencyHandlerNode::EmergencyHandlerNode(const rclcpp::NodeOptions & node_opti
   sub_driving_capability_ = create_subscription<autoware_auto_system_msgs::msg::DrivingCapability>(
     "input/driving_capability", rclcpp::QoS{1},
     std::bind(&EmergencyHandlerNode::onDrivingCapability, this, _1));
-  sub_prev_control_command_ = create_subscription<autoware_auto_vehicle_msgs::msg::VehicleControlCommand>(
+  sub_prev_control_command_ =
+    create_subscription<autoware_auto_vehicle_msgs::msg::VehicleControlCommand>(
     "input/prev_control_command", rclcpp::QoS{1},
     std::bind(&EmergencyHandlerNode::onPrevControlCommand, this, _1));
   sub_state_report_ = create_subscription<autoware_auto_vehicle_msgs::msg::VehicleStateReport>(

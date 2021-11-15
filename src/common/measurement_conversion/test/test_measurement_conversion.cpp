@@ -67,7 +67,8 @@ geometry_msgs::msg::PoseWithCovarianceStamped create_pose_msg() noexcept
   return msg;
 }
 
-autoware_auto_geometry_msgs::msg::RelativePositionWithCovarianceStamped create_relative_pos_msg() noexcept
+autoware_auto_geometry_msgs::msg::RelativePositionWithCovarianceStamped create_relative_pos_msg()
+noexcept
 {
   const auto pose_msg = create_pose_msg();
   autoware_auto_geometry_msgs::msg::RelativePositionWithCovarianceStamped msg{};

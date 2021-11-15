@@ -83,9 +83,12 @@ private:
   rclcpp::Subscription<autoware_auto_vehicle_msgs::msg::VehicleKinematicState>::SharedPtr
     m_sub_current_state;
   rclcpp::Subscription<autoware_auto_planning_msgs::msg::Trajectory>::SharedPtr m_sub_trajectory;
-  rclcpp::Publisher<autoware_auto_control_msgs::msg::LongitudinalCommand>::SharedPtr m_pub_control_cmd;
-  rclcpp::Publisher<autoware_auto_system_msgs::msg::Float32MultiArrayDiagnostic>::SharedPtr m_pub_slope;
-  rclcpp::Publisher<autoware_auto_system_msgs::msg::Float32MultiArrayDiagnostic>::SharedPtr m_pub_debug;
+  rclcpp::Publisher<autoware_auto_control_msgs::msg::LongitudinalCommand>::SharedPtr
+    m_pub_control_cmd;
+  rclcpp::Publisher<autoware_auto_system_msgs::msg::Float32MultiArrayDiagnostic>::SharedPtr
+    m_pub_slope;
+  rclcpp::Publisher<autoware_auto_system_msgs::msg::Float32MultiArrayDiagnostic>::SharedPtr
+    m_pub_debug;
   rclcpp::TimerBase::SharedPtr m_timer_control;
 
   rclcpp::Subscription<tf2_msgs::msg::TFMessage>::SharedPtr m_tf_sub;
@@ -97,7 +100,8 @@ private:
     const std::vector<rclcpp::Parameter> & parameters);
 
   // pointers for ros topic
-  std::shared_ptr<autoware_auto_vehicle_msgs::msg::VehicleKinematicState> m_current_state_ptr{nullptr};
+  std::shared_ptr<autoware_auto_vehicle_msgs::msg::VehicleKinematicState> m_current_state_ptr{
+    nullptr};
   std::shared_ptr<autoware_auto_vehicle_msgs::msg::VehicleKinematicState> m_prev_state_ptr{nullptr};
   std::shared_ptr<autoware_auto_planning_msgs::msg::Trajectory> m_trajectory_ptr{nullptr};
 
@@ -319,7 +323,8 @@ private:
    * @param [in] nearest_idx index of the trajectory point nearest to the vehicle position
    */
   autoware_auto_planning_msgs::msg::TrajectoryPoint calcInterpolatedTargetValue(
-    const autoware_auto_planning_msgs::msg::Trajectory & traj, const geometry_msgs::msg::Point & point,
+    const autoware_auto_planning_msgs::msg::Trajectory & traj,
+    const geometry_msgs::msg::Point & point,
     const size_t nearest_idx) const;
 
   /**

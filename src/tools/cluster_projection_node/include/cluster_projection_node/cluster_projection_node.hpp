@@ -48,8 +48,10 @@ public:
     autoware_auto_perception_msgs::msg::DetectedObjects::ConstSharedPtr objects_msg);
 
 private:
-  rclcpp::Subscription<autoware_auto_perception_msgs::msg::DetectedObjects>::SharedPtr m_clusters_sub;
-  rclcpp::Publisher<autoware_auto_perception_msgs::msg::ClassifiedRoiArray>::SharedPtr m_projection_pub;
+  rclcpp::Subscription<autoware_auto_perception_msgs::msg::DetectedObjects>::SharedPtr
+    m_clusters_sub;
+  rclcpp::Publisher<autoware_auto_perception_msgs::msg::ClassifiedRoiArray>::SharedPtr
+    m_projection_pub;
   autoware::perception::tracking::CameraModel m_camera_model;
   tf2::BufferCore m_buffer;
   tf2_ros::TransformListener m_tf_listener;

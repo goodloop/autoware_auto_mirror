@@ -164,12 +164,14 @@ void ParkingPlannerNode::init(
     "parking_debug_obstacles",
     rclcpp::QoS(rclcpp::KeepLast(5U)).transient_local());
 
-  m_debug_trajectory_publisher = this->create_publisher<autoware_auto_planning_msgs::msg::Trajectory>(
+  m_debug_trajectory_publisher =
+    this->create_publisher<autoware_auto_planning_msgs::msg::Trajectory>(
     "parking_debug_trajectory",
     rclcpp::QoS(rclcpp::KeepLast(5U)).transient_local());
 
 
-  m_debug_start_end_publisher = this->create_publisher<autoware_auto_perception_msgs::msg::BoundingBoxArray>(
+  m_debug_start_end_publisher =
+    this->create_publisher<autoware_auto_perception_msgs::msg::BoundingBoxArray>(
     "parking_debug_start_end",
     rclcpp::QoS(rclcpp::KeepLast(5U)).transient_local());
 }

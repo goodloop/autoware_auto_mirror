@@ -63,7 +63,8 @@ private:
   void onAutowareState(const autoware_auto_system_msgs::msg::AutowareState::ConstSharedPtr msg);
   /// \brief The DrivingCapability callback that saves a received message
   /// \param[in] msg is a received message
-  void onDrivingCapability(const autoware_auto_system_msgs::msg::DrivingCapability::ConstSharedPtr msg);
+  void onDrivingCapability(
+    const autoware_auto_system_msgs::msg::DrivingCapability::ConstSharedPtr msg);
   /// \brief The VehicleControlCommand callback that saves a received message
   /// \param[in] msg is a received message
   void onPrevControlCommand(
@@ -133,9 +134,11 @@ private:
   // Publishers
   rclcpp::Publisher<autoware_auto_vehicle_msgs::msg::VehicleControlCommand>::SharedPtr
     pub_control_command_;
-  rclcpp::Publisher<autoware_auto_vehicle_msgs::msg::VehicleStateCommand>::SharedPtr pub_state_command_;
+  rclcpp::Publisher<autoware_auto_vehicle_msgs::msg::VehicleStateCommand>::SharedPtr
+    pub_state_command_;
   rclcpp::Publisher<autoware_auto_system_msgs::msg::EmergencyState>::SharedPtr pub_is_emergency_;
-  rclcpp::Publisher<autoware_auto_system_msgs::msg::HazardStatusStamped>::SharedPtr pub_hazard_status_;
+  rclcpp::Publisher<autoware_auto_system_msgs::msg::HazardStatusStamped>::SharedPtr
+    pub_hazard_status_;
   rclcpp::Publisher<diagnostic_msgs::msg::DiagnosticArray>::SharedPtr pub_diagnostics_err_;
 
   // Subscribers
@@ -144,7 +147,8 @@ private:
     sub_driving_capability_;
   rclcpp::Subscription<autoware_auto_vehicle_msgs::msg::VehicleControlCommand>::SharedPtr
     sub_prev_control_command_;
-  rclcpp::Subscription<autoware_auto_vehicle_msgs::msg::VehicleStateReport>::SharedPtr sub_state_report_;
+  rclcpp::Subscription<autoware_auto_vehicle_msgs::msg::VehicleStateReport>::SharedPtr
+    sub_state_report_;
   rclcpp::Subscription<autoware_auto_vehicle_msgs::msg::VehicleOdometry>::SharedPtr sub_odometry_;
 
   autoware_auto_system_msgs::msg::AutowareState::ConstSharedPtr autoware_state_;

@@ -148,7 +148,8 @@ LateralController::LateralController(const rclcpp::NodeOptions & node_options)
     create_publisher<autoware_auto_control_msgs::msg::AckermannLateralCommand>(
     "output/lateral/control_cmd", 1);
   m_pub_predicted_traj =
-    create_publisher<autoware_auto_planning_msgs::msg::Trajectory>("output/lateral/predicted_trajectory", 1);
+    create_publisher<autoware_auto_planning_msgs::msg::Trajectory>(
+    "output/lateral/predicted_trajectory", 1);
   m_pub_diagnostic =
     create_publisher<autoware_auto_system_msgs::msg::Float32MultiArrayDiagnostic>(
     "output/lateral/diagnostic", 1);
@@ -259,7 +260,8 @@ bool8_t LateralController::checkData() const
   return true;
 }
 
-void LateralController::onTrajectory(const autoware_auto_planning_msgs::msg::Trajectory::SharedPtr msg)
+void LateralController::onTrajectory(
+  const autoware_auto_planning_msgs::msg::Trajectory::SharedPtr msg)
 {
   m_current_trajectory_ptr = msg;
 
@@ -324,12 +326,14 @@ bool8_t LateralController::updateCurrentPose()
   return true;
 }
 
-void LateralController::onState(const autoware_auto_vehicle_msgs::msg::VehicleKinematicState::SharedPtr msg)
+void LateralController::onState(
+  const autoware_auto_vehicle_msgs::msg::VehicleKinematicState::SharedPtr msg)
 {
   m_current_state_ptr = msg;
 }
 
-autoware_auto_control_msgs::msg::AckermannLateralCommand LateralController::getStopControlCommand() const
+autoware_auto_control_msgs::msg::AckermannLateralCommand LateralController::getStopControlCommand()
+const
 {
   autoware_auto_control_msgs::msg::AckermannLateralCommand cmd;
   cmd.steering_tire_angle = static_cast<decltype(cmd.steering_tire_angle)>(m_steer_cmd_prev);
@@ -337,7 +341,8 @@ autoware_auto_control_msgs::msg::AckermannLateralCommand LateralController::getS
   return cmd;
 }
 
-autoware_auto_control_msgs::msg::AckermannLateralCommand LateralController::getInitialControlCommand() const
+autoware_auto_control_msgs::msg::AckermannLateralCommand LateralController::getInitialControlCommand()
+const
 {
   autoware_auto_control_msgs::msg::AckermannLateralCommand cmd;
   cmd.steering_tire_angle = m_current_state_ptr->state.front_wheel_angle_rad;
@@ -377,14 +382,16 @@ bool8_t LateralController::isStoppedState() const
   }
 }
 
-void LateralController::publishCtrlCmd(autoware_auto_control_msgs::msg::AckermannLateralCommand ctrl_cmd)
+void LateralController::publishCtrlCmd(
+  autoware_auto_control_msgs::msg::AckermannLateralCommand ctrl_cmd)
 {
   ctrl_cmd.stamp = this->now();
   m_pub_ctrl_cmd->publish(ctrl_cmd);
   m_steer_cmd_prev = ctrl_cmd.steering_tire_angle;
 }
 
-void LateralController::publishPredictedTraj(autoware_auto_planning_msgs::msg::Trajectory & predicted_traj)
+void LateralController::publishPredictedTraj(
+  autoware_auto_planning_msgs::msg::Trajectory & predicted_traj)
 const
 {
   predicted_traj.header.stamp = this->now();
@@ -511,7 +518,8 @@ rcl_interfaces::msg::SetParametersResult LateralController::paramCallback(
   return result;
 }
 
-bool8_t LateralController::isValidTrajectory(const autoware_auto_planning_msgs::msg::Trajectory & traj) const
+bool8_t LateralController::isValidTrajectory(
+  const autoware_auto_planning_msgs::msg::Trajectory & traj) const
 {
   for (const auto & p : traj.points) {
     if (

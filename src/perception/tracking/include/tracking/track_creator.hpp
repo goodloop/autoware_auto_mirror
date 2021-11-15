@@ -95,7 +95,8 @@ public:
     const AssociatorResult & associator_result);
 
 private:
-  using VisionCache = message_filters::Cache<autoware_auto_perception_msgs::msg::ClassifiedRoiArray>;
+  using VisionCache =
+    message_filters::Cache<autoware_auto_perception_msgs::msg::ClassifiedRoiArray>;
 
   void create_using_cache(
     const ObjectsWithAssociations & objects,

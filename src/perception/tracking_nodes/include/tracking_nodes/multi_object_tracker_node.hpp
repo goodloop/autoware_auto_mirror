@@ -102,9 +102,11 @@ private:
   std::unique_ptr<OdomCache> m_odom_cache{};
 
   /// A Publisher for tracked objects.
-  rclcpp::Publisher<autoware_auto_perception_msgs::msg::TrackedObjects>::SharedPtr m_track_publisher{};
+  rclcpp::Publisher<autoware_auto_perception_msgs::msg::TrackedObjects>::SharedPtr m_track_publisher
+  {};
   /// A publisher for all the leftover objects.
-  rclcpp::Publisher<autoware_auto_perception_msgs::msg::DetectedObjects>::SharedPtr m_leftover_publisher{};
+  rclcpp::Publisher<autoware_auto_perception_msgs::msg::DetectedObjects>::SharedPtr
+    m_leftover_publisher{};
 
   // Visualization variables & functions
   void maybe_visualize(

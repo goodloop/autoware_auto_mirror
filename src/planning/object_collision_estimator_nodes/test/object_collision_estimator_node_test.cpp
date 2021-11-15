@@ -116,7 +116,8 @@ void object_collision_estimator_node_test(
   // create a client node to call the service interface of the collision estimator node
   std::shared_ptr<rclcpp::Node> estimate_collision_client_node = rclcpp::Node::make_shared(
     "estimate_collision_client");
-  rclcpp::Client<autoware_auto_planning_msgs::srv::ModifyTrajectory>::SharedPtr estimate_collision_client =
+  rclcpp::Client<autoware_auto_planning_msgs::srv::ModifyTrajectory>::SharedPtr
+    estimate_collision_client =
     estimate_collision_client_node->create_client<autoware_auto_planning_msgs::srv::ModifyTrajectory>(
     "estimate_collision");
 

@@ -55,7 +55,8 @@ public:
   using EKF = autoware::common::state_estimation::KalmanFilter<MotionModel, NoiseModel>;
   using TrackedObjectMsg = autoware_auto_perception_msgs::msg::TrackedObject;
   using DetectedObjectMsg = autoware_auto_perception_msgs::msg::DetectedObject;
-  using ObjectClassifications = autoware_auto_perception_msgs::msg::TrackedObject::_classification_type;
+  using ObjectClassifications =
+    autoware_auto_perception_msgs::msg::TrackedObject::_classification_type;
   using ShapeMsg = autoware_auto_perception_msgs::msg::Shape;
 
   /// Constructor

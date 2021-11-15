@@ -91,7 +91,9 @@ get_cluster(autoware_auto_perception_msgs::msg::PointClusters & clusters, const 
 LIDAR_UTILS_PUBLIC
 std::pair<autoware_auto_perception_msgs::msg::PointClusters::_points_type::const_iterator,
   autoware_auto_perception_msgs::msg::PointClusters::_points_type::const_iterator>
-get_cluster(const autoware_auto_perception_msgs::msg::PointClusters & clusters, const std::size_t cls_id);
+get_cluster(
+  const autoware_auto_perception_msgs::msg::PointClusters & clusters,
+  const std::size_t cls_id);
 
 
 /// Check that the pointcloud msg has x, y, z of type float32_t as the first three fields,

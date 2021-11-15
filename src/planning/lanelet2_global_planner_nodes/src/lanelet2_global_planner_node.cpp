@@ -88,7 +88,8 @@ Lanelet2GlobalPlannerNode::Lanelet2GlobalPlannerNode(
     "global_path", rclcpp::QoS(10));
 
   // Create map client
-  map_client = this->create_client<autoware_auto_mapping_msgs::srv::HADMapService>("HAD_Map_Client");
+  map_client =
+    this->create_client<autoware_auto_mapping_msgs::srv::HADMapService>("HAD_Map_Client");
 
   // Request binary map from the map loader node
   this->request_osm_binary_map();
@@ -198,7 +199,8 @@ void Lanelet2GlobalPlannerNode::current_pose_cb(
 void Lanelet2GlobalPlannerNode::send_global_path(
   const std::vector<lanelet::Id> & route,
   const autoware_auto_planning_msgs::msg::TrajectoryPoint & start_point,
-  const autoware_auto_planning_msgs::msg::TrajectoryPoint & end_point, const std_msgs::msg::Header & header)
+  const autoware_auto_planning_msgs::msg::TrajectoryPoint & end_point,
+  const std_msgs::msg::Header & header)
 {
   // the maximum of PlanTrajectory message is 100
   if (route.size() > 100) {

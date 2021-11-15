@@ -119,7 +119,8 @@ DetectedObjects convert_unassigned_clusters_to_detected_objects(
     detected_object.existence_probability = 1.0F;
     // Set shape as a convex hull of the cluster.
     auto cluster_view = clusters_msg_view[static_cast<std::uint32_t>(idx)];
-    std::list<autoware_auto_perception_msgs::msg::PointClusters::_points_type::value_type> point_list{
+    std::list<autoware_auto_perception_msgs::msg::PointClusters::_points_type::value_type>
+    point_list{
       cluster_view.begin(), cluster_view.end()};
     const auto hull_end_iter = common::geometry::convex_hull(point_list);
 

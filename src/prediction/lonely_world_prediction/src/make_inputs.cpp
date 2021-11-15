@@ -49,7 +49,8 @@ autoware_auto_perception_msgs::msg::TrackedObjectKinematics make()
          .centroid_position(geometry_msgs::msg::Point())
          .position_covariance({})
          .orientation(geometry_msgs::msg::Quaternion())
-         .orientation_availability(autoware_auto_perception_msgs::msg::TrackedObjectKinematics::AVAILABLE)
+         .orientation_availability(
+    autoware_auto_perception_msgs::msg::TrackedObjectKinematics::AVAILABLE)
          .twist(twist)
          .acceleration(acceleration)
          .is_stationary(false);
@@ -63,10 +64,12 @@ autoware_auto_perception_msgs::msg::TrackedObjects make()
     .classification(autoware_auto_perception_msgs::msg::ObjectClassification::UNKNOWN)
     .probability(1.0);
 
-  const auto shape = autoware_auto_perception_msgs::build<autoware_auto_perception_msgs::msg::Shape>()
+  const auto shape =
+    autoware_auto_perception_msgs::build<autoware_auto_perception_msgs::msg::Shape>()
     .polygon(make<geometry_msgs::msg::Polygon>())
     .height(2.3F);
-  auto object = autoware_auto_perception_msgs::build<autoware_auto_perception_msgs::msg::TrackedObject>()
+  auto object =
+    autoware_auto_perception_msgs::build<autoware_auto_perception_msgs::msg::TrackedObject>()
     .object_id(134)
     .existence_probability(1.0F)
     .classification({classification})

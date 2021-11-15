@@ -216,7 +216,8 @@ void LongitudinalController::callbackCurrentState(
   if (m_current_state_ptr) {
     m_prev_state_ptr = m_current_state_ptr;
   }
-  m_current_state_ptr = std::make_shared<autoware_auto_vehicle_msgs::msg::VehicleKinematicState>(*msg);
+  m_current_state_ptr = std::make_shared<autoware_auto_vehicle_msgs::msg::VehicleKinematicState>(
+    *msg);
 }
 
 void LongitudinalController::callbackTrajectory(
@@ -813,8 +814,10 @@ float64_t LongitudinalController::applySlopeCompensation(
   return compensated_acc;
 }
 
-autoware_auto_planning_msgs::msg::TrajectoryPoint LongitudinalController::calcInterpolatedTargetValue(
-  const autoware_auto_planning_msgs::msg::Trajectory & traj, const geometry_msgs::msg::Point & point,
+autoware_auto_planning_msgs::msg::TrajectoryPoint LongitudinalController::
+calcInterpolatedTargetValue(
+  const autoware_auto_planning_msgs::msg::Trajectory & traj,
+  const geometry_msgs::msg::Point & point,
   const size_t nearest_idx) const
 {
   if (traj.points.size() == 1) {

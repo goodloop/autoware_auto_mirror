@@ -56,11 +56,13 @@ public:
 
   /// \brief Callback for the client call
   /// \param msg The BoundingBoxArray message containing obstacles
-  void map_response(const rclcpp::Client<autoware_auto_mapping_msgs::srv::HADMapService>::SharedFuture msg);
+  void map_response(
+    const rclcpp::Client<autoware_auto_mapping_msgs::srv::HADMapService>::SharedFuture msg);
 
   /// \brief The main callback of this node
   /// \param msg The BoundingBoxArray message containing obstacles
-  void process_bounding_boxes(const autoware_auto_perception_msgs::msg::BoundingBoxArray::SharedPtr msg) const;
+  void process_bounding_boxes(
+    const autoware_auto_perception_msgs::msg::BoundingBoxArray::SharedPtr msg) const;
 
 private:
   /// The actual filter implementation – this will be nullptr before the map has arrived.

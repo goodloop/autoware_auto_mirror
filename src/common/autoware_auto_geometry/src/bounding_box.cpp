@@ -124,7 +124,8 @@ autoware_auto_perception_msgs::msg::DetectedObject make_detected_object(const Bo
 }
 
 std::vector<geometry_msgs::msg::Point32> GEOMETRY_PUBLIC get_transformed_corners(
-  const autoware_auto_perception_msgs::msg::Shape & shape_msg, const geometry_msgs::msg::Point & centroid,
+  const autoware_auto_perception_msgs::msg::Shape & shape_msg,
+  const geometry_msgs::msg::Point & centroid,
   const geometry_msgs::msg::Quaternion & orientation)
 {
   std::vector<geometry_msgs::msg::Point32> retval(shape_msg.polygon.points.size());

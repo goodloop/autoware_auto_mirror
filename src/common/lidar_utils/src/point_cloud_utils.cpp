@@ -64,7 +64,9 @@ get_cluster(autoware_auto_perception_msgs::msg::PointClusters & clusters, const 
 
 std::pair<autoware_auto_perception_msgs::msg::PointClusters::_points_type::const_iterator,
   autoware_auto_perception_msgs::msg::PointClusters::_points_type::const_iterator>
-get_cluster(const autoware_auto_perception_msgs::msg::PointClusters & clusters, const std::size_t cls_id)
+get_cluster(
+  const autoware_auto_perception_msgs::msg::PointClusters & clusters,
+  const std::size_t cls_id)
 {
   if (cls_id >= clusters.cluster_boundary.size()) {
     return {clusters.points.end(), clusters.points.end()};

@@ -74,7 +74,8 @@ public:
 
 private:
   //!< @brief topic publisher for control command
-  rclcpp::Publisher<autoware_auto_control_msgs::msg::AckermannLateralCommand>::SharedPtr m_pub_ctrl_cmd;
+  rclcpp::Publisher<autoware_auto_control_msgs::msg::AckermannLateralCommand>::SharedPtr
+    m_pub_ctrl_cmd;
   //!< @brief topic publisher for predicted trajectory
   rclcpp::Publisher<autoware_auto_planning_msgs::msg::Trajectory>::SharedPtr m_pub_predicted_traj;
   //!< @brief topic publisher for control diagnostic
@@ -83,7 +84,8 @@ private:
   //!< @brief topic subscription for reference waypoints
   rclcpp::Subscription<autoware_auto_planning_msgs::msg::Trajectory>::SharedPtr m_sub_ref_path;
   //!< @brief subscription for current state
-  rclcpp::Subscription<autoware_auto_vehicle_msgs::msg::VehicleKinematicState>::SharedPtr m_sub_steering;
+  rclcpp::Subscription<autoware_auto_vehicle_msgs::msg::VehicleKinematicState>::SharedPtr
+    m_sub_steering;
   //!< @brief timer to update after a given interval
   rclcpp::TimerBase::SharedPtr m_timer;
   //!< @brief subscription for transform messages
@@ -185,7 +187,8 @@ private:
    * @brief publish diagnostic message
    * @param [in] diagnostic published diagnostic
    */
-  void publishDiagnostic(autoware_auto_system_msgs::msg::Float32MultiArrayDiagnostic & diagnostic) const;
+  void publishDiagnostic(autoware_auto_system_msgs::msg::Float32MultiArrayDiagnostic & diagnostic)
+  const;
 
   /**
    * @brief get stop command

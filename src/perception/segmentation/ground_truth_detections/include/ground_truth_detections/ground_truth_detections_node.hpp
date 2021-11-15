@@ -53,11 +53,13 @@ private:
   /// @param msg Input message
   void on_detection(const lgsvl_msgs::msg::Detection3DArray & msg);
 
-  rclcpp::Publisher<autoware_auto_perception_msgs::msg::ClassifiedRoiArray>::SharedPtr m_detection2d_pub{};
+  rclcpp::Publisher<autoware_auto_perception_msgs::msg::ClassifiedRoiArray>::SharedPtr
+    m_detection2d_pub{};
   rclcpp::Subscription<lgsvl_msgs::msg::Detection2DArray>::SharedPtr m_detection2d_sub{};
   std::string m_vision_frame_id;
 
-  rclcpp::Publisher<autoware_auto_perception_msgs::msg::DetectedObjects>::SharedPtr m_detection3d_pub{};
+  rclcpp::Publisher<autoware_auto_perception_msgs::msg::DetectedObjects>::SharedPtr
+    m_detection3d_pub{};
   rclcpp::Subscription<lgsvl_msgs::msg::Detection3DArray>::SharedPtr m_detection3d_sub{};
   static constexpr char kFrameId3d[] = "base_link";
 };

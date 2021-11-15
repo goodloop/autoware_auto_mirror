@@ -94,7 +94,9 @@ AutowareStateMonitorNode::AutowareStateMonitorNode(const rclcpp::NodeOptions & n
 
   // Publisher
   pub_autoware_state_ =
-    this->create_publisher<autoware_auto_system_msgs::msg::AutowareState>("output/autoware_state", 1);
+    this->create_publisher<autoware_auto_system_msgs::msg::AutowareState>(
+    "output/autoware_state",
+    1);
 
   // Timer
   auto timer_callback = std::bind(&AutowareStateMonitorNode::onTimer, this);
@@ -149,7 +151,9 @@ bool AutowareStateMonitorNode::onShutdownService(
   constexpr double timeout = 3.0;
 
   while (rclcpp::ok()) {
-    if (state_machine_->getCurrentState() == autoware_auto_system_msgs::msg::AutowareState::FINALIZING) {
+    if (state_machine_->getCurrentState() ==
+      autoware_auto_system_msgs::msg::AutowareState::FINALIZING)
+    {
       response->success = true;
       response->message = "Shutdown Autoware.";
       return true;

@@ -40,7 +40,8 @@ namespace tracking
 namespace
 {
 using Classification = autoware_auto_perception_msgs::msg::ObjectClassification;
-using ClassificationsType = autoware_auto_perception_msgs::msg::DetectedObject::_classification_type;
+using ClassificationsType =
+  autoware_auto_perception_msgs::msg::DetectedObject::_classification_type;
 static const ClassificationsType kUnknownClass = {
   Classification{}.set__classification(Classification::UNKNOWN).set__probability(1.0F)};
 static constexpr float32_t KLidarClassificationCovariance = 1.0F;

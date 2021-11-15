@@ -37,7 +37,8 @@ using namespace std::chrono_literals;
 namespace
 {
 autoware_auto_vehicle_msgs::msg::VehicleKinematicState convert_baselink_to_com(
-  const autoware_auto_vehicle_msgs::msg::VehicleKinematicState & in, const float32_t baselink_to_com)
+  const autoware_auto_vehicle_msgs::msg::VehicleKinematicState & in,
+  const float32_t baselink_to_com)
 {
   autoware_auto_vehicle_msgs::msg::VehicleKinematicState out = in;
 

@@ -46,16 +46,19 @@ public:
 
 private:
   // \brief Callback for the lateral control command
-  void latCtrlCmdCallback(const autoware_auto_control_msgs::msg::AckermannLateralCommand::SharedPtr msg);
+  void latCtrlCmdCallback(
+    const autoware_auto_control_msgs::msg::AckermannLateralCommand::SharedPtr msg);
   // \brief Callback for the longitudinal control command
-  void lonCtrlCmdCallback(const autoware_auto_control_msgs::msg::LongitudinalCommand::SharedPtr msg);
+  void lonCtrlCmdCallback(
+    const autoware_auto_control_msgs::msg::LongitudinalCommand::SharedPtr msg);
   // \brief Publish the combined control command message
   void publishCmd();
   // \brief Check that the received messages are not too old
   // \return bool True if the stored messages timed out
   bool checkTimeout();
 
-  rclcpp::Publisher<autoware_auto_control_msgs::msg::AckermannControlCommand>::SharedPtr m_control_cmd_pub;
+  rclcpp::Publisher<autoware_auto_control_msgs::msg::AckermannControlCommand>::SharedPtr
+    m_control_cmd_pub;
   rclcpp::Subscription<autoware_auto_control_msgs::msg::AckermannLateralCommand>::SharedPtr
     m_lat_control_cmd_sub;
   rclcpp::Subscription<autoware_auto_control_msgs::msg::LongitudinalCommand>::SharedPtr

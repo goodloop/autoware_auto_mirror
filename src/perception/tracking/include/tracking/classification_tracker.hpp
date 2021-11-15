@@ -118,7 +118,8 @@ public:
       // Any gap in the total probability mass contributes to the likelihood of an unknown state.
       std::cerr << "WARNING: Sum of all classification probabilities is less than one. "
         "Assigning the missing probability to the UNKNOWN class." << std::endl;
-      measurement.state()[autoware_auto_perception_msgs::msg::ObjectClassification::UNKNOWN] = 1.0F - sum;
+      measurement.state()[autoware_auto_perception_msgs::msg::ObjectClassification::UNKNOWN] =
+        1.0F - sum;
     }
     m_tracker.correct(measurement);
   }
@@ -141,7 +142,8 @@ public:
   ///
   /// @return     The object classification vector.
   ///
-  autoware_auto_perception_msgs::msg::DetectedObject::_classification_type object_classification_vector() const
+  autoware_auto_perception_msgs::msg::DetectedObject::_classification_type
+  object_classification_vector() const
   {
     autoware_auto_perception_msgs::msg::DetectedObject::_classification_type classification_vector;
     for (uint8_t label = 0U; label < ClassificationStateT::size(); ++label) {
