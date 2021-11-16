@@ -46,7 +46,8 @@ static_assert(
   "We expect the PoseWithCovariance covariance matrix to have 36 entries.");
 static_assert(
   std::tuple_size<
-    autoware_auto_geometry_msgs::msg::RelativePositionWithCovarianceStamped::_covariance_type>::value ==
+    autoware_auto_geometry_msgs::msg::RelativePositionWithCovarianceStamped::_covariance_type
+  >::value ==
   kCovarianceMatrixRowsRelativePosSquared,
   "We expect the RelativePositionWithCovarianceStamped covariance matrix to have 9 entries.");
 }  // namespace

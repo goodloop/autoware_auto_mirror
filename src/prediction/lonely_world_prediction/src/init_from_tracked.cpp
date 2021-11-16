@@ -98,7 +98,8 @@ autoware_auto_perception_msgs::msg::PredictedObject from_tracked(
 autoware_auto_perception_msgs::msg::PredictedObjectKinematics from_tracked(
   const autoware_auto_perception_msgs::msg::TrackedObjectKinematics & tracked)
 {
-  return autoware_auto_perception_msgs::build<autoware_auto_perception_msgs::msg::PredictedObjectKinematics>()
+  return autoware_auto_perception_msgs::build<
+    autoware_auto_perception_msgs::msg::PredictedObjectKinematics>()
          .initial_pose(make_pose(tracked))
          .initial_twist(tracked.twist)
          .initial_acceleration(tracked.acceleration)

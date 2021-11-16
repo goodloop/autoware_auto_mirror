@@ -341,7 +341,8 @@ const
   return cmd;
 }
 
-autoware_auto_control_msgs::msg::AckermannLateralCommand LateralController::getInitialControlCommand()
+autoware_auto_control_msgs::msg::AckermannLateralCommand
+LateralController::getInitialControlCommand()
 const
 {
   autoware_auto_control_msgs::msg::AckermannLateralCommand cmd;

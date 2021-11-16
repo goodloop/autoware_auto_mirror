@@ -92,7 +92,8 @@ TEST(TestTrackedObject, TestOptionalCovariance) {
   EXPECT_EQ(object.msg().kinematics.twist.covariance[35], 0.0);
   ASSERT_FALSE(object.msg().classification.empty());
   EXPECT_FLOAT_EQ(
-    object.msg().classification[autoware_auto_perception_msgs::msg::ObjectClassification::CAR].probability,
+    object.msg().classification[
+      autoware_auto_perception_msgs::msg::ObjectClassification::CAR].probability,
     1.0);
 }
 

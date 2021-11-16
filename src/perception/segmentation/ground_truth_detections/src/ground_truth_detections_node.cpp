@@ -55,7 +55,8 @@ void GroundTruthDetectionsNode::on_detection(const lgsvl_msgs::msg::Detection2DA
   std::transform(
     msg.detections.begin(), msg.detections.end(), roi_array.rois.begin(),
     [](const lgsvl_msgs::msg::Detection2D & detection) {
-      return autoware_auto_perception_msgs::build<autoware_auto_perception_msgs::msg::ClassifiedRoi>()
+      return autoware_auto_perception_msgs::build<
+        autoware_auto_perception_msgs::msg::ClassifiedRoi>()
       .classifications({make_classification(detection.label)})
       .polygon(make_polygon(detection));
     });
@@ -71,7 +72,8 @@ void GroundTruthDetectionsNode::on_detection(const lgsvl_msgs::msg::Detection3DA
   detected_objects.objects.resize(msg.detections.size());
   const auto create_detected_object =
     [](const lgsvl_msgs::msg::Detection3D & detection) {
-      return autoware_auto_perception_msgs::build<autoware_auto_perception_msgs::msg::DetectedObject>()
+      return autoware_auto_perception_msgs::build<
+        autoware_auto_perception_msgs::msg::DetectedObject>()
              .existence_probability(1.0F)
              .classification({make_classification(detection.label)})
              .kinematics(make_kinematics(detection))

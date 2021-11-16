@@ -167,7 +167,8 @@ private:
   VEHICLE_INTERFACE_LOCAL void state_machine_report();
 
   rclcpp::TimerBase::SharedPtr m_read_timer{nullptr};
-  rclcpp::Publisher<autoware_auto_vehicle_msgs::msg::VehicleOdometry>::SharedPtr m_odom_pub{nullptr};
+  rclcpp::Publisher<autoware_auto_vehicle_msgs::msg::VehicleOdometry>::SharedPtr m_odom_pub{
+    nullptr};
   rclcpp::Publisher<autoware_auto_vehicle_msgs::msg::VehicleStateReport>::SharedPtr m_state_pub{
     nullptr};
   rclcpp::Subscription<autoware_auto_vehicle_msgs::msg::VehicleStateCommand>::SharedPtr

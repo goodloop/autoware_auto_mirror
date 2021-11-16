@@ -118,8 +118,8 @@ void object_collision_estimator_node_test(
     "estimate_collision_client");
   rclcpp::Client<autoware_auto_planning_msgs::srv::ModifyTrajectory>::SharedPtr
     estimate_collision_client =
-    estimate_collision_client_node->create_client<autoware_auto_planning_msgs::srv::ModifyTrajectory>(
-    "estimate_collision");
+    estimate_collision_client_node->create_client<
+    autoware_auto_planning_msgs::srv::ModifyTrajectory>("estimate_collision");
 
   // create a executor and add all nodes to it
   rclcpp::executors::SingleThreadedExecutor exec;

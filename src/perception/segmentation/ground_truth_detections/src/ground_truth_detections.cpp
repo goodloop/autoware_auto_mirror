@@ -133,7 +133,8 @@ autoware_auto_perception_msgs::msg::DetectedObjectKinematics make_kinematics(
 {
   geometry_msgs::msg::TwistWithCovariance twist;
 
-  return autoware_auto_perception_msgs::build<autoware_auto_perception_msgs::msg::DetectedObjectKinematics>()
+  return autoware_auto_perception_msgs::build<
+    autoware_auto_perception_msgs::msg::DetectedObjectKinematics>()
          .centroid_position(detection.bbox.position.position)
          .position_covariance({})
          .has_position_covariance(false)

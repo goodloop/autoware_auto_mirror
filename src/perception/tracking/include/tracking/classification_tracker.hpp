@@ -78,7 +78,8 @@ public:
   /// @param[in]  classification_vector  A vector of classifications with their probabilities.
   ///
   void update(
-    const autoware_auto_perception_msgs::msg::DetectedObject::_classification_type & classification_vector)
+    const autoware_auto_perception_msgs::msg::DetectedObject::_classification_type &
+    classification_vector)
   {
     update(classification_vector, m_default_observation_covariance);
   }
@@ -94,7 +95,8 @@ public:
   /// @param[in]  observation_covariance  A custom observation covariance.
   ///
   void update(
-    const autoware_auto_perception_msgs::msg::DetectedObject::_classification_type & classification_vector,
+    const autoware_auto_perception_msgs::msg::DetectedObject::_classification_type &
+    classification_vector,
     const common::types::float32_t observation_covariance)
   {
     auto measurement =

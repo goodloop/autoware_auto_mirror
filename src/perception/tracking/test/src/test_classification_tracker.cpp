@@ -55,7 +55,8 @@ DetectedObject create_object(
 TEST(ClassificaitonTrackerTest, TestInit) {
   ClassificationTracker tracker;
   EXPECT_EQ(
-    autoware_auto_perception_msgs::msg::ObjectClassification::UNKNOWN, tracker.most_likely_class());
+    autoware_auto_perception_msgs::msg::ObjectClassification::UNKNOWN,
+    tracker.most_likely_class());
 }
 
 TEST(ClassificaitonTrackerTest, TestSingleUpdate) {
@@ -68,19 +69,24 @@ TEST(ClassificaitonTrackerTest, TestSingleUpdate) {
     tracker.most_likely_class());
   const auto resulting_classification = tracker.object_classification_vector();
   EXPECT_EQ(
-    resulting_classification[autoware_auto_perception_msgs::msg::ObjectClassification::UNKNOWN].classification,
+    resulting_classification[
+      autoware_auto_perception_msgs::msg::ObjectClassification::UNKNOWN].classification,
     autoware_auto_perception_msgs::msg::ObjectClassification::UNKNOWN);
   EXPECT_FLOAT_EQ(
-    resulting_classification[autoware_auto_perception_msgs::msg::ObjectClassification::UNKNOWN].probability,
+    resulting_classification[
+      autoware_auto_perception_msgs::msg::ObjectClassification::UNKNOWN].probability,
     tracker.state()[autoware_auto_perception_msgs::msg::ObjectClassification::UNKNOWN]);
   EXPECT_EQ(
-    resulting_classification[autoware_auto_perception_msgs::msg::ObjectClassification::CAR].classification,
+    resulting_classification[
+      autoware_auto_perception_msgs::msg::ObjectClassification::CAR].classification,
     autoware_auto_perception_msgs::msg::ObjectClassification::CAR);
   EXPECT_FLOAT_EQ(
-    resulting_classification[autoware_auto_perception_msgs::msg::ObjectClassification::CAR].probability,
+    resulting_classification[
+      autoware_auto_perception_msgs::msg::ObjectClassification::CAR].probability,
     tracker.state()[autoware_auto_perception_msgs::msg::ObjectClassification::CAR]);
   EXPECT_GT(
-    resulting_classification[autoware_auto_perception_msgs::msg::ObjectClassification::CAR].probability,
+    resulting_classification[
+      autoware_auto_perception_msgs::msg::ObjectClassification::CAR].probability,
     0.7F);
 }
 

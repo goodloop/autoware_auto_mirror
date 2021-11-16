@@ -142,7 +142,8 @@ private:
   rclcpp::Publisher<diagnostic_msgs::msg::DiagnosticArray>::SharedPtr pub_diagnostics_err_;
 
   // Subscribers
-  rclcpp::Subscription<autoware_auto_system_msgs::msg::AutowareState>::SharedPtr sub_autoware_state_;
+  rclcpp::Subscription<
+    autoware_auto_system_msgs::msg::AutowareState>::SharedPtr sub_autoware_state_;
   rclcpp::Subscription<autoware_auto_system_msgs::msg::DrivingCapability>::SharedPtr
     sub_driving_capability_;
   rclcpp::Subscription<autoware_auto_vehicle_msgs::msg::VehicleControlCommand>::SharedPtr

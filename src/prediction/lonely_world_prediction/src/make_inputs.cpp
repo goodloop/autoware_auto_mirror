@@ -45,7 +45,8 @@ autoware_auto_perception_msgs::msg::TrackedObjectKinematics make()
   geometry_msgs::msg::AccelWithCovariance acceleration;
   acceleration.accel.linear.x = 0.2;
 
-  return autoware_auto_perception_msgs::build<autoware_auto_perception_msgs::msg::TrackedObjectKinematics>()
+  return autoware_auto_perception_msgs::build<
+    autoware_auto_perception_msgs::msg::TrackedObjectKinematics>()
          .centroid_position(geometry_msgs::msg::Point())
          .position_covariance({})
          .orientation(geometry_msgs::msg::Quaternion())

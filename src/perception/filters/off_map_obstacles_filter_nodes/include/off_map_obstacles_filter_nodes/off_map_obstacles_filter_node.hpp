@@ -71,7 +71,8 @@ private:
   const rclcpp::Subscription<autoware_auto_perception_msgs::msg::BoundingBoxArray>::SharedPtr
     m_sub_ptr;
   /// Output
-  const rclcpp::Publisher<autoware_auto_perception_msgs::msg::BoundingBoxArray>::SharedPtr m_pub_ptr;
+  const rclcpp::Publisher<
+    autoware_auto_perception_msgs::msg::BoundingBoxArray>::SharedPtr m_pub_ptr;
   /// Client for getting the map. Only used once.
   const rclcpp::Client<autoware_auto_mapping_msgs::srv::HADMapService>::SharedPtr m_map_client_ptr;
   /// Debugging publisher

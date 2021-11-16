@@ -116,8 +116,8 @@ class EuclideanClusterNodeOutputFormatter(OutputFormatter):
         Save a new text files containing all the detection using the kitti object detection format.
 
         This function is a callback for the euclidean_cluster_node output topic node.
-        Each autoware_auto_perception_msgs.msg.BoundingBoxArray message received creates a text file whose
-        name is incremental.
+        Each autoware_auto_perception_msgs.msg.BoundingBoxArray message received creates a text
+        file whose name is incremental.
         In this function the output of the node is transformed and formatted into the format
         expected by the kitti object detection SDK.
         The kitti SDK expects data in camera rectified reference frame for the 3d data and it

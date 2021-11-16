@@ -68,7 +68,8 @@ private:
   std::string m_child_frame_id{};
   /// Output message publisher.
   rclcpp::Publisher<
-    autoware_auto_geometry_msgs::msg::RelativePositionWithCovarianceStamped>::SharedPtr m_publisher{};
+    autoware_auto_geometry_msgs::msg::RelativePositionWithCovarianceStamped
+  >::SharedPtr m_publisher{};
   /// Input message subscription.
   rclcpp::Subscription<sensor_msgs::msg::NavSatFix>::SharedPtr m_gnss_nav_fix_subscription{};
   /// Covariances to set in the output message as a diagonal.
