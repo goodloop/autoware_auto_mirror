@@ -35,6 +35,9 @@
 #elif defined(__APPLE__)
   #define EUCLIDEAN_CLUSTER_NODES_PUBLIC __attribute__((visibility("default")))
   #define EUCLIDEAN_CLUSTER_NODES_LOCAL __attribute__((visibility("hidden")))
+#elif defined(__QNXNTO__)
+  #define EUCLIDEAN_CLUSTER_NODES_PUBLIC __attribute__((visibility("default")))
+  #define EUCLIDEAN_CLUSTER_NODES_LOCAL __attribute__((visibility("hidden")))
 #else  // defined(_LINUX)
   #error "Unsupported Build Configuration"
 #endif  // defined(_WINDOWS)

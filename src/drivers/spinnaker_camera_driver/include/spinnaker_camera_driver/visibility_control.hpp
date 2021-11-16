@@ -30,6 +30,9 @@
 #elif defined(__APPLE__)
   #define SPINNAKER_CAMERA_PUBLIC __attribute__((visibility("default")))
   #define SPINNAKER_CAMERA_LOCAL __attribute__((visibility("hidden")))
+#elif defined(__QNXNTO__)
+  #define SPINNAKER_CAMERA_PUBLIC __attribute__((visibility("default")))
+  #define SPINNAKER_CAMERA_LOCAL __attribute__((visibility("hidden")))
 #else  // defined(_LINUX)
   #error "Unsupported Build Configuration"
 #endif  // defined(_WINDOWS)

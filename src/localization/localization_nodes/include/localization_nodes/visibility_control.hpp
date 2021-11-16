@@ -28,10 +28,13 @@
     #define LOCALIZATION_NODES_LOCAL
   #endif  // defined(LOCALIZATION_NODES_BUILDING_DLL) || defined(LOCALIZATION_NODES_EXPORTS)
 #elif defined(__linux__)
-#define LOCALIZATION_NODES_PUBLIC __attribute__((visibility("default")))
+  #define LOCALIZATION_NODES_PUBLIC __attribute__((visibility("default")))
   #define LOCALIZATION_NODES_LOCAL __attribute__((visibility("hidden")))
 #elif defined(__APPLE__)
-#define LOCALIZATION_NODES_PUBLIC __attribute__((visibility("default")))
+  #define LOCALIZATION_NODES_PUBLIC __attribute__((visibility("default")))
+  #define LOCALIZATION_NODES_LOCAL __attribute__((visibility("hidden")))
+#elif defined(__QNXNTO__)
+  #define LOCALIZATION_NODES_PUBLIC __attribute__((visibility("default")))
   #define LOCALIZATION_NODES_LOCAL __attribute__((visibility("hidden")))
 #else  // defined(_LINUX)
 #error "Unsupported Build Configuration"

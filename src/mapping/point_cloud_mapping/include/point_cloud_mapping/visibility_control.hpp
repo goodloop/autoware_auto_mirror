@@ -28,10 +28,13 @@
     #define POINT_CLOUD_MAPPING_LOCAL
   #endif  // defined(POINT_CLOUD_MAPPING_BUILDING_DLL) || defined(POINT_CLOUD_MAPPING_EXPORTS)
 #elif defined(__linux__)
-#define POINT_CLOUD_MAPPING_PUBLIC __attribute__((visibility("default")))
+  #define POINT_CLOUD_MAPPING_PUBLIC __attribute__((visibility("default")))
   #define POINT_CLOUD_MAPPING_LOCAL __attribute__((visibility("hidden")))
 #elif defined(__APPLE__)
-#define POINT_CLOUD_MAPPING_PUBLIC __attribute__((visibility("default")))
+  #define POINT_CLOUD_MAPPING_PUBLIC __attribute__((visibility("default")))
+  #define POINT_CLOUD_MAPPING_LOCAL __attribute__((visibility("hidden")))
+#elif defined(__QNXNTO__)
+  #define POINT_CLOUD_MAPPING_PUBLIC __attribute__((visibility("default")))
   #define POINT_CLOUD_MAPPING_LOCAL __attribute__((visibility("hidden")))
 #else  // defined(_LINUX)
 #error "Unsupported Build Configuration"

@@ -4,7 +4,7 @@
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//     http://www.apache.org/licenses/LICENSE-2.0
+//     http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -34,7 +34,12 @@ int32_t main(const int32_t argc, char ** const argv)
   try {
     rclcpp::init(argc, argv);
 
-    const auto run = [](const auto & nd_ptr) {nd_ptr->run();};
+    const auto run = [](const auto & nd_ptr) {
+        while (rclcpp::ok()) {
+          rclcpp::spin(nd_ptr);
+        }
+        rclcpp::shutdown();
+      };
 
     const auto * arg = rcutils_cli_get_option(argv, &argv[argc], "--model");
     if (arg != nullptr) {
@@ -46,15 +51,21 @@ int32_t main(const int32_t argc, char ** const argv)
       if (model == "vlp16") {
         run(
           std::make_shared<
-            autoware::drivers::velodyne_nodes::VLP16DriverNode>("vlp16_driver_node"));
+            autoware::drivers::velodyne_nodes::VLP16DriverNode>(
+            "vlp16_driver_node",
+            rclcpp::NodeOptions{}));
       } else if (model == "vlp32c") {
         run(
           std::make_shared<
-            autoware::drivers::velodyne_nodes::VLP32CDriverNode>("vlp32c_driver_node"));
+            autoware::drivers::velodyne_nodes::VLP32CDriverNode>(
+            "vlp32c_driver_node",
+            rclcpp::NodeOptions{}));
       } else if (model == "vls128") {
         run(
           std::make_shared<
-            autoware::drivers::velodyne_nodes::VLS128DriverNode>("vls128_driver_node"));
+            autoware::drivers::velodyne_nodes::VLS128DriverNode>(
+            "vls128_driver_node",
+            rclcpp::NodeOptions{}));
       } else {
         throw std::runtime_error("Model " + model + " is not supperted.");
       }

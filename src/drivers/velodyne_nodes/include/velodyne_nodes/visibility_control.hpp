@@ -32,6 +32,9 @@
 #elif defined(__APPLE__)
   #define VELODYNE_NODES_PUBLIC __attribute__((visibility("default")))
   #define VELODYNE_NODES_LOCAL __attribute__((visibility("hidden")))
+#elif defined(__QNXNTO__)
+  #define VELODYNE_NODES_PUBLIC __attribute__((visibility("default")))
+  #define VELODYNE_NODES_LOCAL __attribute__((visibility("hidden")))
 #else  // defined(LINUX)
   #error "Unsupported Build Configuration"
 #endif  // defined(WINDOWS)

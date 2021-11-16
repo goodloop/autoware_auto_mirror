@@ -32,6 +32,9 @@
 #elif defined(__APPLE__)
   #define PURE_PURSUIT_PUBLIC __attribute__((visibility("default")))
   #define PURE_PURSUIT_LOCAL __attribute__((visibility("hidden")))
+#elif defined(__QNXNTO__)
+  #define PURE_PURSUIT_PUBLIC __attribute__((visibility("default")))
+  #define PURE_PURSUIT_LOCAL __attribute__((visibility("hidden")))
 #else  // defined(LINUX)
   #error "Unsupported Build Configuration"
 #endif  // defined(WINDOWS)

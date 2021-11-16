@@ -30,6 +30,9 @@
 #elif defined(__APPLE__)
   #define TRAJECTORY_SMOOTHER_PUBLIC __attribute__((visibility("default")))
   #define TRAJECTORY_SMOOTHER_LOCAL __attribute__((visibility("hidden")))
+#elif defined(__QNXNTO__)
+  #define TRAJECTORY_SMOOTHER_PUBLIC __attribute__((visibility("default")))
+  #define TRAJECTORY_SMOOTHER_LOCAL __attribute__((visibility("hidden")))
 #else
   #error "Unsupported Build Configuration"
 #endif

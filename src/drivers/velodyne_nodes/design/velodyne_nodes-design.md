@@ -52,4 +52,4 @@ for fusion coordination.
 # Related issues
 
 - #4 - Implement velodyne driver
-
+- #1309 - Update the driver for changes in ros udp driver 1.0

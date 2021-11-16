@@ -32,6 +32,9 @@
 #elif defined(__APPLE__)
   #define LANELET2_GLOBAL_PLANNER_NODES_PUBLIC __attribute__((visibility("default")))
   #define LANELET2_GLOBAL_PLANNER_NODES_LOCAL __attribute__((visibility("hidden")))
+#elif defined(__QNXNTO__)
+  #define LANELET2_GLOBAL_PLANNER_NODES_PUBLIC __attribute__((visibility("default")))
+  #define LANELET2_GLOBAL_PLANNER_NODES_LOCAL __attribute__((visibility("hidden")))
 #else
   #error "Unsupported Build Configuration"
 #endif

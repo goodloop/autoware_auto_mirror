@@ -33,7 +33,7 @@
 #elif defined(__APPLE__)
   #define GEOMETRY_PUBLIC __attribute__((visibility("default")))
   #define GEOMETRY_LOCAL __attribute__((visibility("hidden")))
-#elif defined(QNX)
+#elif defined(__QNXNTO__)
   #define GEOMETRY_PUBLIC __attribute__((visibility("default")))
   #define GEOMETRY_LOCAL __attribute__((visibility("hidden")))
 #else  // defined(__linux__)

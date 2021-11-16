@@ -33,6 +33,9 @@
 #elif defined(__APPLE__)
   #define STATE_ESTIMATION_NODES_PUBLIC __attribute__((visibility("default")))
   #define STATE_ESTIMATION_NODES_LOCAL __attribute__((visibility("hidden")))
+#elif defined(__QNXNTO__)
+  #define STATE_ESTIMATION_NODES_PUBLIC __attribute__((visibility("default")))
+  #define STATE_ESTIMATION_NODES_LOCAL __attribute__((visibility("hidden")))
 #else  // defined(__linux__)
   #error "Unsupported Build Configuration"
 #endif  // defined(__WIN32)

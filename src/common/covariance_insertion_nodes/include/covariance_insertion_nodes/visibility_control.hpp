@@ -32,6 +32,9 @@
 #elif defined(__APPLE__)
   #define COVARIANCE_INSERTION_NODES_PUBLIC __attribute__((visibility("default")))
   #define MESSAGE_MODIFYING_NODE_LOCAL __attribute__((visibility("hidden")))
+#elif defined(__QNXNTO__)
+  #define COVARIANCE_INSERTION_NODES_PUBLIC __attribute__((visibility("default")))
+  #define MESSAGE_MODIFYING_NODE_LOCAL __attribute__((visibility("hidden")))
 #else
   #error "Unsupported Build Configuration"
 #endif

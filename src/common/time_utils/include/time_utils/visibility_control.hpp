@@ -29,7 +29,10 @@
 #elif defined(__APPLE__)
   #define TIME_UTILS_PUBLIC __attribute__((visibility("default")))
   #define TIME_UTILS_LOCAL __attribute__((visibility("hidden")))
-#else  // defined(_LINUX)
+#elif defined(__QNXNTO__)
+  #define TIME_UTILS_PUBLIC __attribute__((visibility("default")))
+  #define TIME_UTILS_LOCAL __attribute__((visibility("hidden")))
+#else  // defined(__QNXNTO__)
   #error "Unsupported Build Configuration"
 #endif  // defined(_WINDOWS)
 

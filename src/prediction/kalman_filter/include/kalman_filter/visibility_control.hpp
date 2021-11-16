@@ -33,6 +33,9 @@
 #elif defined(__APPLE__)
   #define KALMAN_FILTER_PUBLIC __attribute__((visibility("default")))
   #define KALMAN_FILTER_LOCAL __attribute__((visibility("hidden")))
+#elif defined(__QNXNTO__)
+  #define KALMAN_FILTER_PUBLIC __attribute__((visibility("default")))
+  #define KALMAN_FILTER_LOCAL __attribute__((visibility("hidden")))
 #else  // defined(__linux__)
   #error "Unsupported Build Configuration"
 #endif  // defined(__WIN32)
