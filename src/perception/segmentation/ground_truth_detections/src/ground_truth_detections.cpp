@@ -132,7 +132,6 @@ autoware_auto_perception_msgs::msg::DetectedObjectKinematics make_kinematics(
   const lgsvl_msgs::msg::Detection3D & detection)
 {
   geometry_msgs::msg::TwistWithCovariance twist;
-  twist.twist = detection.velocity;
   geometry_msgs::msg::PoseWithCovariance pose;
   pose.pose.position = detection.bbox.position.position;
   pose.pose.orientation = detection.bbox.position.orientation;
