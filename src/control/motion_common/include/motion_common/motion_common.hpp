@@ -15,8 +15,9 @@
 #define MOTION_COMMON__MOTION_COMMON_HPP_
 
 #include <motion_common/visibility_control.hpp>
-#include <autoware_auto_system_msgs/msg/control_diagnostic.hpp>
+#include <autoware_auto_geometry_msgs/msg/complex32.hpp>
 #include <autoware_auto_planning_msgs/msg/trajectory.hpp>
+#include <autoware_auto_system_msgs/msg/control_diagnostic.hpp>
 #include <autoware_auto_vehicle_msgs/msg/vehicle_control_command.hpp>
 #include <autoware_auto_vehicle_msgs/msg/vehicle_kinematic_state.hpp>
 #include <geometry_msgs/msg/transform_stamped.hpp>
@@ -34,12 +35,12 @@ namespace motion
 namespace motion_common
 {
 // Use same representation as message type
-using Real = decltype(autoware_auto_planning_msgs::msg::TrajectoryPoint::x);
+using Real = decltype(autoware_auto_planning_msgs::msg::TrajectoryPoint::longitudinal_velocity_mps);
 using Command = autoware_auto_vehicle_msgs::msg::VehicleControlCommand;
 using Diagnostic = autoware_auto_system_msgs::msg::ControlDiagnostic;
 using State = autoware_auto_vehicle_msgs::msg::VehicleKinematicState;
 using Trajectory = autoware_auto_planning_msgs::msg::Trajectory;
-using Heading = decltype(decltype(State::state)::heading);
+using Heading = autoware_auto_geometry_msgs::msg::Complex32;
 using Orientation = geometry_msgs::msg::Quaternion;
 using Double = decltype(Orientation::x);
 using Index = decltype(Trajectory::points)::size_type;

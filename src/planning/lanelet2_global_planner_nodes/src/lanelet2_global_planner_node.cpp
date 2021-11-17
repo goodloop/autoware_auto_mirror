@@ -24,6 +24,7 @@
 #include <motion_common/motion_common.hpp>
 
 #include <autoware_auto_geometry_msgs/msg/complex32.hpp>
+#include <autoware_auto_planning_msgs/msg/route_point.hpp>
 #include <geometry_msgs/msg/quaternion.hpp>
 #include <lanelet2_global_planner_nodes/lanelet2_global_planner_node.hpp>
 #include <std_msgs/msg/string.hpp>
@@ -213,7 +214,6 @@ void Lanelet2GlobalPlannerNode::send_global_path(
   start_route_point.heading.imag = static_cast<float32_t>(start_point.pose.orientation.z);
 
   autoware_auto_planning_msgs::msg::RoutePoint end_route_point;
-  autoware_auto_msgs::msg::RoutePoint end_route_point;
   end_route_point.position = end_point.pose.position;
   end_route_point.heading.real = static_cast<float32_t>(end_point.pose.orientation.w);
   end_route_point.heading.imag = static_cast<float32_t>(end_point.pose.orientation.z);
