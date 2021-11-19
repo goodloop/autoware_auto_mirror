@@ -8,7 +8,7 @@ usage_exit() {
   exit 1
 }
 
-COVERAGE_FLAGS="-fprofile-arcs -ftest-coverage -DCOVERAGE_RUN=1"
+COVERAGE_FLAGS="--coverage -DCOVERAGE_RUN=1"
 SKIP_BUILD=0
 SKIP_TEST=0
 FLAG_U=0
