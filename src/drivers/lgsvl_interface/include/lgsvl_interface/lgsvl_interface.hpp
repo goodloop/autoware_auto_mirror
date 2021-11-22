@@ -84,7 +84,7 @@ constexpr bool NO_PUBLISH = false;
 using VSC = autoware_auto_vehicle_msgs::msg::VehicleStateCommand;
 using VSD = lgsvl_msgs::msg::VehicleStateData;
 using WIPER_TYPE = decltype(VSC::wiper);
-using GEAR_TYPE = decltype(VSC::gear);
+using GEAR_TYPE = uint8_t;
 using MODE_TYPE = decltype(VSC::mode);
 
 /// Platform interface implementation for LGSVL. Bridges data to and from the simulator
@@ -141,7 +141,7 @@ public:
 private:
   // Mappings from Autoware to LGSVL values
   static const std::unordered_map<WIPER_TYPE, WIPER_TYPE> autoware_to_lgsvl_wiper;
-  static const std::unordered_map<GEAR_TYPE, GEAR_TYPE> autoware_to_lgsvl_gear;
+  static const std::unordered_map<uint8_t, uint8_t> autoware_to_lgsvl_gear;
   static const std::unordered_map<MODE_TYPE, MODE_TYPE> autoware_to_lgsvl_mode;
 
   // Convert odometry into vehicle kinematic state and pose

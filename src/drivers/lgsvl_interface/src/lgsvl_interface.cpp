@@ -64,12 +64,12 @@ const std::unordered_map<WIPER_TYPE, WIPER_TYPE> LgsvlInterface::autoware_to_lgs
 };
 
 const std::unordered_map<GEAR_TYPE, GEAR_TYPE> LgsvlInterface::autoware_to_lgsvl_gear {
-  {VSC::GEAR_NO_COMMAND, static_cast<GEAR_TYPE>(VSD::GEAR_NEUTRAL)},
-  {VSC::GEAR_DRIVE, static_cast<GEAR_TYPE>(VSD::GEAR_DRIVE)},
-  {VSC::GEAR_REVERSE, static_cast<GEAR_TYPE>(VSD::GEAR_REVERSE)},
-  {VSC::GEAR_PARK, static_cast<GEAR_TYPE>(VSD::GEAR_PARKING)},
-  {VSC::GEAR_LOW, static_cast<GEAR_TYPE>(VSD::GEAR_LOW)},
-  {VSC::GEAR_NEUTRAL, static_cast<GEAR_TYPE>(VSD::GEAR_NEUTRAL)},
+  {static_cast<GEAR_TYPE>(GearReport::NONE), static_cast<GEAR_TYPE>(VSD::GEAR_NEUTRAL)},
+  {static_cast<GEAR_TYPE>(GearReport::DRIVE_1), static_cast<GEAR_TYPE>(VSD::GEAR_DRIVE)},
+  {static_cast<GEAR_TYPE>(GearReport::REVERSE), static_cast<GEAR_TYPE>(VSD::GEAR_REVERSE)},
+  {static_cast<GEAR_TYPE>(GearReport::PARK), static_cast<GEAR_TYPE>(VSD::GEAR_PARKING)},
+  {static_cast<GEAR_TYPE>(GearReport::LOW), static_cast<GEAR_TYPE>(VSD::GEAR_LOW)},
+  {static_cast<GEAR_TYPE>(GearReport::NEUTRAL), static_cast<GEAR_TYPE>(VSD::GEAR_NEUTRAL)},
 };
 
 const std::unordered_map<MODE_TYPE, MODE_TYPE> LgsvlInterface::autoware_to_lgsvl_mode {
