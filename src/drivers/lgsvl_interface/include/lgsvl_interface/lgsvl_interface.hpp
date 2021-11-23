@@ -141,7 +141,7 @@ public:
 private:
   // Mappings from Autoware to LGSVL values
   static const std::unordered_map<WIPER_TYPE, WIPER_TYPE> autoware_to_lgsvl_wiper;
-  static const std::unordered_map<uint8_t, uint8_t> autoware_to_lgsvl_gear;
+  static const std::unordered_map<GEAR_TYPE, GEAR_TYPE> autoware_to_lgsvl_gear;
   static const std::unordered_map<MODE_TYPE, MODE_TYPE> autoware_to_lgsvl_mode;
 
   // Convert odometry into vehicle kinematic state and pose
