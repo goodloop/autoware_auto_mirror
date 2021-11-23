@@ -329,8 +329,8 @@ void VehicleInterfaceNode::init(
   }
 
 //  if (m_enabled_features.find(ViFeature::GEAR) != m_enabled_features.end()) {
-    m_gear_rpt_pub = create_publisher<autoware_auto_vehicle_msgs::msg::GearReport>(
-      "gear_report", rclcpp::QoS{10U});
+  m_gear_rpt_pub = create_publisher<autoware_auto_vehicle_msgs::msg::GearReport>(
+    "gear_report", rclcpp::QoS{10U});
 //  }
 
   // State machine boilerplate for better errors
