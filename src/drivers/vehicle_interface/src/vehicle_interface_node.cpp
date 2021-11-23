@@ -458,6 +458,7 @@ void VehicleInterfaceNode::read_and_publish()
   // Publish data from interface
   m_odom_pub->publish(m_interface->get_odometry());
   m_state_pub->publish(m_interface->get_state_report());
+  m_gear_rpt_pub->publish(m_interface->get_gear_report());
 
   // Publish feature reports
   if (m_headlights_rpt_pub) {

@@ -147,7 +147,10 @@ private:
   // Convert odometry into vehicle kinematic state and pose
   void on_odometry(const nav_msgs::msg::Odometry & msg);
 
-  // store state_report with gear value correction
+  // store gear_report with gear value correction
+  void on_gear_report(const autoware_auto_vehicle_msgs::msg::GearReport & msg);
+
+  // store state_report with blinker value correction
   void on_state_report(const autoware_auto_vehicle_msgs::msg::VehicleStateReport & msg);
 
   rclcpp::Publisher<lgsvl_msgs::msg::VehicleControlData>::SharedPtr m_cmd_pub{};
