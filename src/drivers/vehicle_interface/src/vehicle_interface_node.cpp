@@ -328,10 +328,10 @@ void VehicleInterfaceNode::init(
       {m_interface->send_wipers_command(*msg);});
   }
 
-//  if (m_enabled_features.find(ViFeature::GEAR) != m_enabled_features.end()) {
-  m_gear_rpt_pub = create_publisher<autoware_auto_vehicle_msgs::msg::GearReport>(
-    "gear_report", rclcpp::QoS{10U});
-//  }
+  if (m_enabled_features.find(ViFeature::GEAR) != m_enabled_features.end()) {
+    m_gear_rpt_pub = create_publisher<autoware_auto_vehicle_msgs::msg::GearReport>(
+      "gear_report", rclcpp::QoS{10U});
+  }
 
   // State machine boilerplate for better errors
   const auto state_machine = [&state_machine_config]() -> auto {
@@ -458,9 +458,12 @@ void VehicleInterfaceNode::read_and_publish()
   // Publish data from interface
   m_odom_pub->publish(m_interface->get_odometry());
   m_state_pub->publish(m_interface->get_state_report());
-  m_gear_rpt_pub->publish(m_interface->get_gear_report());
 
   // Publish feature reports
+  if (m_gear_rpt_pub) {
+    m_gear_rpt_pub->publish(m_interface->get_gear_report());
+  }
+
   if (m_headlights_rpt_pub) {
     m_headlights_rpt_pub->publish(m_interface->get_headlights_report());
   }
