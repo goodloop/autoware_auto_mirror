@@ -84,7 +84,8 @@ constexpr bool NO_PUBLISH = false;
 using VSC = autoware_auto_vehicle_msgs::msg::VehicleStateCommand;
 using VSD = lgsvl_msgs::msg::VehicleStateData;
 using WIPER_TYPE = decltype(VSC::wiper);
-using GEAR_TYPE = uint8_t;
+using GEAR_TYPE =
+  std::remove_const<decltype(autoware_auto_vehicle_msgs::msg::GearReport::DRIVE_1)>::type;
 using MODE_TYPE = decltype(VSC::mode);
 
 /// Platform interface implementation for LGSVL. Bridges data to and from the simulator
