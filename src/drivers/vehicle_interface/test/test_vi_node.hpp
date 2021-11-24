@@ -177,7 +177,7 @@ public:
       .append_parameter_override("state_machine.state_transition_timeout_ms",
         static_cast<int64_t>(3000LL))
       .append_parameter_override("state_machine.gear_shift_accel_deadzone_mps2", 0.5F)
-      .append_parameter_override("features", std::vector<std::string> {"headlights", "wipers"})
+      .append_parameter_override("features", std::vector<std::string> {"headlights", "wipers", "gear"})
   }
   {
     // sketchy, but this is because the PlatformInterface generally shouldn't be exposed
