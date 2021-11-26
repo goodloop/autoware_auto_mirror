@@ -70,6 +70,7 @@ To run the perception stack, sensor data will need to be generated and publish a
 7. Publish the robot state description: 
   ```{bash}
   $ ade enter
+  ade$ source /opt/AutowareAuto/setup.bash
   ade$ ros2 run robot_state_publisher robot_state_publisher /opt/AutowareAuto/share/lexus_rx_450h_description/urdf/lexus_rx_450h_pcap.urdf
   ```
 
