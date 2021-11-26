@@ -39,7 +39,7 @@ autoware_set_compile_options(behavior_planner_node)
 
 # TODO(mfc): RCLCPP_ERROR_THROTTLE() has built-in old-style casts.
 # TODO(mfc): Temporary workaround until this is fixed.
-target_compile_options(${NODE_NAME} PRIVATE -Wno-old-style-cast)
+target_compile_options(behavior_planner_node PRIVATE -Wno-old-style-cast)
 
 rclcpp_components_register_node(behavior_planner_node
   PLUGIN "autoware::behavior_planner_nodes::BehaviorPlannerNode"
