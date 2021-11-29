@@ -210,13 +210,13 @@ void Lanelet2GlobalPlannerNode::send_global_path(
 
   autoware_auto_planning_msgs::msg::RoutePoint start_route_point;
   start_route_point.position = start_point.pose.position;
-  start_route_point.heading.real = static_cast<float32_t>(start_point.pose.orientation.w);
-  start_route_point.heading.imag = static_cast<float32_t>(start_point.pose.orientation.z);
+  start_route_point.heading = motion::motion_common::heading_from_angle(
+      motion::motion_common::to_angle(start_point.pose.orientation));
 
   autoware_auto_planning_msgs::msg::RoutePoint end_route_point;
   end_route_point.position = end_point.pose.position;
-  end_route_point.heading.real = static_cast<float32_t>(end_point.pose.orientation.w);
-  end_route_point.heading.imag = static_cast<float32_t>(end_point.pose.orientation.z);
+  end_route_point.heading = motion::motion_common::heading_from_angle(
+      motion::motion_common::to_angle(end_point.pose.orientation));
 
   global_route.start_point = start_route_point;
   global_route.goal_point = end_route_point;

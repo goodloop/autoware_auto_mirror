@@ -13,6 +13,7 @@
 // limitations under the License.
 #include <gtest/gtest.h>
 #include <controller_common_nodes/controller_base_node.hpp>
+#include <motion_common/motion_common.hpp>
 #include <motion_testing/motion_testing.hpp>
 #include <motion_testing_nodes/motion_testing_publisher.hpp>
 #include <motion_testing_nodes/wait_for_matched.hpp>
@@ -197,8 +198,7 @@ TEST_F(Transforms, StaticDynamicTfs)
       EXPECT_EQ(state.header.frame_id, "odom");
       EXPECT_EQ(state.state.pose.position.x, -1.0);
       EXPECT_EQ(state.state.pose.position.y, -6.0);
-      EXPECT_EQ(state.state.pose.orientation.w, 1.0);
-      EXPECT_EQ(state.state.pose.orientation.z, 0.0);
+      EXPECT_EQ(motion::motion_common::to_angle(state.state.pose.orientation), 0.0);
       EXPECT_FLOAT_EQ(state.state.longitudinal_velocity_mps, 3.0F);
       EXPECT_FLOAT_EQ(state.state.lateral_velocity_mps, 0.0F);
     }

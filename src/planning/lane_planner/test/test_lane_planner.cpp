@@ -162,8 +162,8 @@ TEST_F(LanePlannerTest, PlanSimpleTrajectory)
 
   TrajectoryPoint trajectory_start_point;
   trajectory_start_point.pose.position = had_map_route.start_point.position;
-  trajectory_start_point.pose.orientation.w = had_map_route.start_point.heading.real;
-  trajectory_start_point.pose.orientation.z = had_map_route.start_point.heading.imag;
+  trajectory_start_point.pose.orientation = motion::motion_common::from_angle(
+    motion::motion_common::to_angle(had_map_route.start_point.heading));
 
   // start point of trajectory should be same as start point
   const auto distance = autoware::lane_planner::distance2d(

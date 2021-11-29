@@ -400,13 +400,13 @@ void BehaviorPlannerNode::map_response(rclcpp::Client<HADMapService>::SharedFutu
   for (const auto subroute : subroutes) {
     TrajectoryPoint trajectory_start_point;
     trajectory_start_point.pose.position = subroute.route.start_point.position;
-    trajectory_start_point.pose.orientation.w = subroute.route.start_point.heading.real;
-    trajectory_start_point.pose.orientation.z = subroute.route.start_point.heading.imag;
+    trajectory_start_point.pose.orientation = motion::motion_common::from_angle(
+      motion::motion_common::to_angle(subroute.route.start_point.heading));
 
     TrajectoryPoint trajectory_goal_point;
     trajectory_goal_point.pose.position = subroute.route.goal_point.position;
-    trajectory_goal_point.pose.orientation.w = subroute.route.goal_point.heading.real;
-    trajectory_goal_point.pose.orientation.z = subroute.route.goal_point.heading.imag;
+    trajectory_goal_point.pose.orientation = motion::motion_common::from_angle(
+      motion::motion_common::to_angle(subroute.route.goal_point.heading));
 
     checkpoints.points.push_back(trajectory_start_point);
     checkpoints.points.push_back(trajectory_goal_point);

@@ -13,6 +13,7 @@
 // limitations under the License.
 #include <gtest/gtest.h>
 #include <controller_common_nodes/controller_base_node.hpp>
+#include <motion_common/motion_common.hpp>
 #include <motion_testing/motion_testing.hpp>
 #include <motion_testing_nodes/motion_testing_publisher.hpp>
 #include <motion_testing_nodes/wait_for_matched.hpp>
@@ -276,7 +277,7 @@ TEST_F(SanityCheck, Basic)
       EXPECT_LT(fabs(s.state.pose.position.y), TOL);
       // Heading is assumed to be 0
       EXPECT_LT(fabs(s.state.pose.orientation.w - 1.0), TOL);
-      EXPECT_LT(fabs(s.state.pose.orientation.z), TOL);
+      EXPECT_DOUBLE_EQ(motion::motion_common::to_angle(s.state.pose.orientation), 0.0);
       // velocity etc
     }
     // diagnostics: just a coarse check, got _something_

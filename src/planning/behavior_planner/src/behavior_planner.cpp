@@ -113,10 +113,7 @@ RoutePoint get_closest_point_on_lane(
       closest_point_on_lane.position = plus_2d(prev_pt.position, times_2d(direction_vector, ratio));
       const float32_t angle = std::atan2(
         static_cast<float32_t>(direction_vector.y), static_cast<float32_t>(direction_vector.x));
-      closest_point_on_lane.heading.real =
-        static_cast<float32_t>(motion::motion_common::from_angle(angle).w);
-      closest_point_on_lane.heading.imag =
-        static_cast<float32_t>(motion::motion_common::from_angle(angle).z);
+      closest_point_on_lane.heading = motion::motion_common::heading_from_angle(angle);
     }
     accumulated_length += distance;
   }
@@ -261,8 +258,8 @@ RouteWithType BehaviorPlanner::get_current_subroute(const State & ego_state)
   updated_subroute.route.header = ego_state.header;
   if (updated_subroute.planner_type == PlannerType::LANE) {
     RoutePoint start_point;
-    start_point.heading.real = static_cast<float32_t>(ego_state.state.pose.orientation.w);
-    start_point.heading.imag = static_cast<float32_t>(ego_state.state.pose.orientation.z);
+    start_point.heading = motion::motion_common::heading_from_angle(
+      motion::motion_common::to_angle(ego_state.state.pose.orientation));
     start_point.position.x = ego_state.state.pose.position.x;
     start_point.position.y = ego_state.state.pose.position.y;
     updated_subroute.route.start_point = start_point;
@@ -327,9 +324,8 @@ bool8_t BehaviorPlanner::has_arrived_goal(const State & state)
 
   const auto & route = m_subroutes.back().route;
   RoutePoint state_route_point;
-  using Real = decltype(state_route_point.heading.imag);
-  state_route_point.heading.real = static_cast<Real>(state.state.pose.orientation.w);
-  state_route_point.heading.imag = static_cast<Real>(state.state.pose.orientation.z);
+  state_route_point.heading = motion::motion_common::heading_from_angle(
+    motion::motion_common::to_angle(state.state.pose.orientation));
   state_route_point.position.x = state.state.pose.position.x;
   state_route_point.position.y = state.state.pose.position.y;
   const auto distance = norm_2d(minus_2d(route.goal_point.position, state_route_point.position));
@@ -344,9 +340,8 @@ bool8_t BehaviorPlanner::has_arrived_subroute_goal(const State & state)
 
   const auto & route = get_current_subroute().route;
   RoutePoint state_route_point;
-  using Real = decltype(state_route_point.heading.imag);
-  state_route_point.heading.real = static_cast<Real>(state.state.pose.orientation.w);
-  state_route_point.heading.imag = static_cast<Real>(state.state.pose.orientation.z);
+  state_route_point.heading = motion::motion_common::heading_from_angle(
+    motion::motion_common::to_angle(state.state.pose.orientation));
   state_route_point.position.x = state.state.pose.position.x;
   state_route_point.position.y = state.state.pose.position.y;
   const auto distance = norm_2d(minus_2d(route.goal_point.position, state_route_point.position));
@@ -384,9 +379,8 @@ void BehaviorPlanner::set_trajectory(const Trajectory & trajectory)
   const auto & last_point = trajectory.points.back();
   const auto & route = get_current_subroute().route;
   RoutePoint last_route_point;
-  using Real = decltype(last_route_point.heading.imag);
-  last_route_point.heading.real = static_cast<Real>(last_point.pose.orientation.w);
-  last_route_point.heading.imag = static_cast<Real>(last_point.pose.orientation.z);
+  last_route_point.heading = motion::motion_common::heading_from_angle(
+    motion::motion_common::to_angle(last_point.pose.orientation));
   last_route_point.position.x = last_point.pose.position.x;
   last_route_point.position.y = last_point.pose.position.y;
   const auto distance = norm_2d(minus_2d(route.goal_point.position, last_route_point.position));
