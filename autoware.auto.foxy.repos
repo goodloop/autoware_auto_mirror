@@ -2,7 +2,7 @@ repositories:
   src/external/autoware_auto_msgs:
     type: git
     url: https://gitlab.com/autowarefoundation/autoware.auto/autoware_auto_msgs.git
-    version: 6c4fc68d959ae5073cbe9b6b2c703499feadf3ff
+    version: f561985c62a7278a05761c3524dc170885fde7de
   src/external/rosbridge_suite:
     type: git
     url: https://github.com/RobotWebTools/rosbridge_suite.git
