@@ -42,7 +42,6 @@ using autoware::common::types::float32_t;
 using autoware::common::types::float64_t;
 using autoware::common::types::TAU;
 using autoware::planning::lanelet2_global_planner::Lanelet2GlobalPlanner;
-using autoware_auto_geometry_msgs::msg::Complex32;
 using std::placeholders::_1;
 
 namespace autoware
