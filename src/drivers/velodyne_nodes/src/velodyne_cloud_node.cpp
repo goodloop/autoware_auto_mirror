@@ -175,9 +175,17 @@ VLS128DriverNode::VLS128DriverNode(const rclcpp::NodeOptions & node_options)
 VelodyneCloudWrapperNode::VelodyneCloudWrapperNode(const rclcpp::NodeOptions & node_options)
 : rclcpp::Node("velodyne_cloud_node_wrapper", node_options)
 {
-  vlp16_driver_node_ptr_ = std::make_shared<VelodyneCloudNode<velodyne_driver::VLP16Data>>("vlp16_driver_node", node_options);
-  vlp32c_driver_node_ptr_ = std::make_shared<VelodyneCloudNode<velodyne_driver::VLP32CData>>("vlp32c_driver_node", node_options);
-  vls128_driver_node_ptr_ = std::make_shared<VelodyneCloudNode<velodyne_driver::VLS128Data>>("vls128_driver_node", node_options);
+  std::string model = declare_parameter("model").get<std::string>();
+
+  if (model == "vlp16") {
+    vlp16_driver_node_ptr_ = std::make_shared<VelodyneCloudNode<velodyne_driver::VLP16Data>>("vlp16_driver_node", node_options);
+  } else if (model == "vlp32c") {
+    vlp32c_driver_node_ptr_ = std::make_shared<VelodyneCloudNode<velodyne_driver::VLP32CData>>("vlp32c_driver_node", node_options);
+  } else if (model == "vls128") {
+    vls128_driver_node_ptr_ = std::make_shared<VelodyneCloudNode<velodyne_driver::VLS128Data>>("vls128_driver_node", node_options);
+  } else {
+    throw std::runtime_error("Model " + model + " is not supported.");
+  }
 }
 
 }  // namespace velodyne_nodes

@@ -100,7 +100,7 @@ public:
   explicit VelodyneCloudWrapperNode(const rclcpp::NodeOptions & node_options);
 };
 
-class VELODYNE_NODES_PUBLIC VLP16DriverNode : public rclcpp::Node
+class VELODYNE_NODES_PUBLIC VLP16DriverNode : public VelodyneCloudNode<velodyne_driver::VLP16Data>
 {
 private:
   VelodyneCloudNode<velodyne_driver::VLP16Data>::SharedPtr vlp16_driver_node_ptr_;
