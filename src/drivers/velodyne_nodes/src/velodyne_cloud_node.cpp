@@ -61,7 +61,6 @@ VelodyneCloudNode<T>::VelodyneCloudNode(
     throw std::runtime_error("VelodyneCloudNode: cloud_size must be > PointBlock::CAPACITY");
   }
 
-
   init_udp_driver();
   init_output(m_pc2_msg);
 }
@@ -94,7 +93,7 @@ void VelodyneCloudNode<T>::receiver_callback(const std::vector<uint8_t> & buffer
     // And then just continue running
   } catch (...) {
     // Something really weird happened and I can't handle it here
-    RCLCPP_WARN(this->get_logger(), "Unknown exception occured in VelodynceCloudNode");
+    RCLCPP_WARN(this->get_logger(), "Unknown exception occured in VelodyneCloudNode");
     throw;
   }
 }
@@ -173,6 +172,14 @@ VLP32CDriverNode::VLP32CDriverNode(const rclcpp::NodeOptions & node_options)
 VLS128DriverNode::VLS128DriverNode(const rclcpp::NodeOptions & node_options)
 : VelodyneCloudNode<velodyne_driver::VLS128Data>("vls128_driver_node", node_options) {}
 
+VelodyneCloudWrapperNode::VelodyneCloudWrapperNode(const rclcpp::NodeOptions & node_options)
+: rclcpp::Node("velodyne_cloud_node_wrapper", node_options)
+{
+  vlp16_driver_node_ptr_ = std::make_shared<VelodyneCloudNode<velodyne_driver::VLP16Data>>("vlp16_driver_node", node_options);
+  vlp32c_driver_node_ptr_ = std::make_shared<VelodyneCloudNode<velodyne_driver::VLP32CData>>("vlp32c_driver_node", node_options);
+  vls128_driver_node_ptr_ = std::make_shared<VelodyneCloudNode<velodyne_driver::VLS128Data>>("vls128_driver_node", node_options);
+}
+
 }  // namespace velodyne_nodes
 }  // namespace drivers
 }  // namespace autoware
@@ -180,3 +187,4 @@ VLS128DriverNode::VLS128DriverNode(const rclcpp::NodeOptions & node_options)
 RCLCPP_COMPONENTS_REGISTER_NODE(autoware::drivers::velodyne_nodes::VLP16DriverNode)
 RCLCPP_COMPONENTS_REGISTER_NODE(autoware::drivers::velodyne_nodes::VLP32CDriverNode)
 RCLCPP_COMPONENTS_REGISTER_NODE(autoware::drivers::velodyne_nodes::VLS128DriverNode)
+RCLCPP_COMPONENTS_REGISTER_NODE(autoware::drivers::velodyne_nodes::VelodyneCloudWrapperNode)
