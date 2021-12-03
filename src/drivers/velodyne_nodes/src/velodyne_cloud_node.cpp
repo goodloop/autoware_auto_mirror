@@ -24,7 +24,7 @@
 #include "sensor_msgs/point_cloud2_iterator.hpp"
 #include "velodyne_nodes/velodyne_cloud_node.hpp"
 
-#include <rclcpp_components/register_node_macro.hpp>
+#include "rclcpp_components/register_node_macro.hpp"
 
 using autoware::common::types::bool8_t;
 using autoware::common::types::float32_t;
