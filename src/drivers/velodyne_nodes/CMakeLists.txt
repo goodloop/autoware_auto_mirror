@@ -85,9 +85,7 @@ if(BUILD_TESTING)
     )
 
     find_package(autoware_testing REQUIRED)
-    add_smoke_test(${PROJECT_NAME} ${CLOUD_EXEC}
-      EXECUTABLE_ARGUMENTS "--model vlp16"
-    )
+    add_smoke_test(${PROJECT_NAME} vlp16_driver_node_exe)
 endif()
 
 ## install stuff
