@@ -166,9 +166,12 @@ bool8_t VelodyneCloudNode<T>::get_output_remainder(sensor_msgs::msg::PointCloud2
   return false;
 }
 
-VLP16DriverNode::VLP16DriverNode(const rclcpp::NodeOptions & node_options) : VelodyneCloudNode<velodyne_driver::VLP16Data>("vlp16_driver_node", node_options) {}
-VLP32CDriverNode::VLP32CDriverNode(const rclcpp::NodeOptions & node_options) : VelodyneCloudNode<velodyne_driver::VLP32CData>("vlp32c_driver_node", node_options) {}
-VLS128DriverNode::VLS128DriverNode(const rclcpp::NodeOptions & node_options) : VelodyneCloudNode<velodyne_driver::VLS128Data>("vls128_driver_node", node_options) {}
+VLP16DriverNode::VLP16DriverNode(const rclcpp::NodeOptions & node_options)
+: VelodyneCloudNode<velodyne_driver::VLP16Data>("vlp16_driver_node", node_options) {}
+VLP32CDriverNode::VLP32CDriverNode(const rclcpp::NodeOptions & node_options)
+: VelodyneCloudNode<velodyne_driver::VLP32CData>("vlp32c_driver_node", node_options) {}
+VLS128DriverNode::VLS128DriverNode(const rclcpp::NodeOptions & node_options)
+: VelodyneCloudNode<velodyne_driver::VLS128Data>("vls128_driver_node", node_options) {}
 
 }  // namespace velodyne_nodes
 }  // namespace drivers
