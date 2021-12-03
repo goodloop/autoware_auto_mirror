@@ -89,8 +89,22 @@ private:
   const std::uint32_t m_cloud_size;
 };  // class VelodyneCloudNode
 
-class VELODYNE_NODES_PUBLIC VLP16DriverNode : public VelodyneCloudNode<velodyne_driver::VLP16Data>
+class VELODYNE_NODES_PUBLIC VelodyneCloudWrapperNode : public rclcpp::Node
 {
+private:
+  VelodyneCloudNode<velodyne_driver::VLP16Data>::SharedPtr vlp16_driver_node_ptr_ = nullptr;
+  VelodyneCloudNode<velodyne_driver::VLP32CData>::SharedPtr vlp32c_driver_node_ptr_ = nullptr;
+  VelodyneCloudNode<velodyne_driver::VLS128Data>::SharedPtr vls128_driver_node_ptr_ = nullptr;
+
+public:
+  explicit VelodyneCloudWrapperNode(const rclcpp::NodeOptions & node_options);
+};
+
+class VELODYNE_NODES_PUBLIC VLP16DriverNode : public rclcpp::Node
+{
+private:
+  VelodyneCloudNode<velodyne_driver::VLP16Data>::SharedPtr vlp16_driver_node_ptr_;
+
 public:
   explicit VLP16DriverNode(const rclcpp::NodeOptions & node_options);
 };

@@ -32,6 +32,11 @@ autoware_set_compile_options(${CLOUD_LIB})
 
 # generate library
 rclcpp_components_register_node(velodyne_cloud_node
+  PLUGIN "autoware::drivers::velodyne_nodes::VelodyneCloudWrapperNode"
+  EXECUTABLE velodyne_cloud_node_exe
+)
+
+rclcpp_components_register_node(velodyne_cloud_node
   PLUGIN "autoware::drivers::velodyne_nodes::VLP16DriverNode"
   EXECUTABLE vlp16_driver_node_exe
 )
@@ -86,6 +91,12 @@ if(BUILD_TESTING)
 
     find_package(autoware_testing REQUIRED)
     add_smoke_test(${PROJECT_NAME} vlp16_driver_node_exe)
+
+    find_package(autoware_testing REQUIRED)
+    add_smoke_test(${PROJECT_NAME} vlp32c_driver_node_exe)
+
+    find_package(autoware_testing REQUIRED)
+    add_smoke_test(${PROJECT_NAME} vls128_driver_node_exe)
 endif()
 
 ## install stuff
