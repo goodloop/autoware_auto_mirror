@@ -417,14 +417,20 @@ void BehaviorPlannerNode::visualize_global_path(const HADMapRoute & route)
 
   auto start_pose = geometry_msgs::msg::Pose();
   start_pose.position = route.start_point.position;
-  start_pose.orientation = motion::motion_common::to_quat<geometry_msgs::msg::Quaternion>(
-    route.start_point.heading);
+  // to_quat has been removed
+  start_pose.orientation.x = 0;
+  start_pose.orientation.y = 0;
+  start_pose.orientation.z = static_cast<double>(route.start_point.heading.imag);
+  start_pose.orientation.w = static_cast<double>(route.start_point.heading.real);
   debug_global_path.poses.push_back(start_pose);
 
   auto goal_pose = geometry_msgs::msg::Pose();
   goal_pose.position = route.goal_point.position;
-  goal_pose.orientation = motion::motion_common::to_quat<geometry_msgs::msg::Quaternion>(
-    route.goal_point.heading);
+  // to_quat has been removed
+  goal_pose.orientation.x = 0;
+  goal_pose.orientation.y = 0;
+  goal_pose.orientation.z = static_cast<double>(route.goal_point.heading.imag);
+  goal_pose.orientation.w = static_cast<double>(route.goal_point.heading.real);
   debug_global_path.poses.push_back(goal_pose);
 
   m_debug_global_path_pub->publish(debug_global_path);

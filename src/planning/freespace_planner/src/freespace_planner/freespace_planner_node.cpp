@@ -30,7 +30,6 @@ namespace planning
 namespace freespace_planner
 {
 
-using motion::motion_common::to_quat;
 using motion::motion_common::from_quat;
 using autoware_auto_planning_msgs::action::PlannerCostmap;
 using autoware_auto_planning_msgs::msg::Trajectory;
@@ -93,10 +92,10 @@ autoware_auto_planning_msgs::msg::Trajectory createTrajectory(
   for (const auto & awp : astar_waypoints.waypoints) {
     autoware_auto_planning_msgs::msg::TrajectoryPoint point;
 
-    point.x = static_cast<float>(awp.pose.pose.position.x);
-    point.y = static_cast<float>(awp.pose.pose.position.y);
-    point.z = static_cast<float>(current_pose.pose.position.z);  // height = const
-    point.heading = from_quat<geometry_msgs::msg::Quaternion>(awp.pose.pose.orientation);
+    point.pose.position.x = awp.pose.pose.position.x;
+    point.pose.position.y = awp.pose.pose.position.y;
+    point.pose.position.z = current_pose.pose.position.z;  // height = const
+    point.pose.orientation = awp.pose.pose.orientation;
 
     // switch sign by forward/backward
     // velocity = const
@@ -260,15 +259,19 @@ void FreespacePlannerNode::handleAccepted(
   // acquire start and goal position from action request
   start_pose_.header = goal_handle->get_goal()->sub_route.header;
   start_pose_.pose.position = goal_handle->get_goal()->sub_route.start_point.position;
-  start_pose_.pose.orientation =
-    to_quat<geometry_msgs::msg::Quaternion>(
-    goal_handle->get_goal()->sub_route.start_point.heading);
+  // to_quat has been removed
+  start_pose_.pose.orientation.x = 0;
+  start_pose_.pose.orientation.y = 0;
+  start_pose_.pose.orientation.z = static_cast<double>(goal_handle->get_goal()->sub_route.start_point.heading.imag);
+  start_pose_.pose.orientation.w = static_cast<double>(goal_handle->get_goal()->sub_route.start_point.heading.real);
 
   goal_pose_.header = goal_handle->get_goal()->sub_route.header;
   goal_pose_.pose.position = goal_handle->get_goal()->sub_route.goal_point.position;
-  goal_pose_.pose.orientation =
-    to_quat<geometry_msgs::msg::Quaternion>(
-    goal_handle->get_goal()->sub_route.goal_point.heading);
+  // to_quat has been removed
+  goal_pose_.pose.orientation.x = 0;
+  goal_pose_.pose.orientation.y = 0;
+  goal_pose_.pose.orientation.z = static_cast<double>(goal_handle->get_goal()->sub_route.goal_point.heading.imag);
+  goal_pose_.pose.orientation.w = static_cast<double>(goal_handle->get_goal()->sub_route.goal_point.heading.real);
 
   // request costmap and plan trajectory
   auto action_goal = PlannerCostmapAction::Goal();
@@ -423,11 +426,7 @@ void FreespacePlannerNode::visualizeTrajectory()
   debug_pose_array_trajectory.header = trajectory_.header;
 
   for (const auto & trajectory_pose : trajectory_.points) {
-    auto pose = geometry_msgs::msg::Pose();
-    pose.position.x = trajectory_pose.x;
-    pose.position.y = trajectory_pose.y;
-    pose.position.z = trajectory_pose.z;
-    pose.orientation = to_quat<geometry_msgs::msg::Quaternion>(trajectory_pose.heading);
+    auto pose = trajectory_pose.pose;
     debug_pose_array_trajectory.poses.push_back(pose);
   }
 
