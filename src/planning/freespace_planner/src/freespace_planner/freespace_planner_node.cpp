@@ -262,16 +262,20 @@ void FreespacePlannerNode::handleAccepted(
   // to_quat has been removed
   start_pose_.pose.orientation.x = 0;
   start_pose_.pose.orientation.y = 0;
-  start_pose_.pose.orientation.z = static_cast<double>(goal_handle->get_goal()->sub_route.start_point.heading.imag);
-  start_pose_.pose.orientation.w = static_cast<double>(goal_handle->get_goal()->sub_route.start_point.heading.real);
+  start_pose_.pose.orientation.z = static_cast<double>(
+    goal_handle->get_goal()->sub_route.start_point.heading.imag);
+  start_pose_.pose.orientation.w = static_cast<double>(
+    goal_handle->get_goal()->sub_route.start_point.heading.real);
 
   goal_pose_.header = goal_handle->get_goal()->sub_route.header;
   goal_pose_.pose.position = goal_handle->get_goal()->sub_route.goal_point.position;
   // to_quat has been removed
   goal_pose_.pose.orientation.x = 0;
   goal_pose_.pose.orientation.y = 0;
-  goal_pose_.pose.orientation.z = static_cast<double>(goal_handle->get_goal()->sub_route.goal_point.heading.imag);
-  goal_pose_.pose.orientation.w = static_cast<double>(goal_handle->get_goal()->sub_route.goal_point.heading.real);
+  goal_pose_.pose.orientation.z = static_cast<double>(
+    goal_handle->get_goal()->sub_route.goal_point.heading.imag);
+  goal_pose_.pose.orientation.w = static_cast<double>(
+    goal_handle->get_goal()->sub_route.goal_point.heading.real);
 
   // request costmap and plan trajectory
   auto action_goal = PlannerCostmapAction::Goal();

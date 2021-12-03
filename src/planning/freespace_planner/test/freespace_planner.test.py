@@ -168,12 +168,12 @@ class TestBasicUsage(unittest.TestCase):
         self.assertTrue(len(result.trajectory.points) > 1)
 
     def assert_start_and_goal_positions_correct(self, result, goal):
-        planned_start = result.trajectory.points[0]
+        planned_start = result.trajectory.points[0].pose.position
         requested_start = goal.sub_route.start_point.position
         START_MARGIN = 0.1  # arbitrary margin
         self.assertTrue(are_positions_close(planned_start, requested_start, START_MARGIN))
 
-        planned_goal = result.trajectory.points[-1]
+        planned_goal = result.trajectory.points[-1].pose.position
         requested_goal = goal.sub_route.goal_point.position
         GOAL_MARGIN = 1.25  # arbitrary margin based on current params
         self.assertTrue(are_positions_close(planned_goal, requested_goal, GOAL_MARGIN))
