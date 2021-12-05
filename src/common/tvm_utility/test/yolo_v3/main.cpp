@@ -12,8 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <opencv2/opencv.hpp>
+#include <autoware_auto_perception_msgs/msg/bounding_box.hpp>
 
+#include <opencv2/opencv.hpp>
 #include <algorithm>
 #include <string>
 #include <utility>
@@ -23,8 +24,6 @@
 #include "gtest/gtest.h"
 #include "tvm_utility/model_zoo.hpp"
 #include "tvm_utility/pipeline.hpp"
-#include <autoware_auto_perception_msgs/msg/bounding_box.hpp>
-
 
 // network input dimensions
 #define NETWORK_INPUT_WIDTH 416
@@ -43,30 +42,32 @@
 #define NETWORK_OUTPUT_HEIGHT_3 52
 #define NETWORK_OUTPUT_WIDTH_3 52
 
+// minimum confidence score by which to filter the output detections
+#define SCORE_THRESHOLD 0.5
+
+#define NMS_THRESHOLD 0.45
+
 /// Struct for storing detections in image with confidence scores
 struct BoundingBox
 {
-
   float xmin;
   float ymin;
   float xmax;
   float ymax;
   float conf;
 
-  BoundingBox(float x_min, float y_min, float x_max, float y_max, float conf_) : xmin(x_min), ymin(y_min), xmax(x_max), ymax(y_max), conf(conf_){};
+  BoundingBox(float x_min, float y_min, float x_max, float y_max, float conf_)
+  : xmin(x_min), ymin(y_min), xmax(x_max), ymax(y_max), conf(conf_) {}
 };
 
 /// Map for storing the class and detections in the image
 std::map<int, std::vector<BoundingBox>> bbox_map{};
 static const int NETWORK_OUTPUT_WIDTH[3] = {NETWORK_OUTPUT_WIDTH_1, NETWORK_OUTPUT_WIDTH_2,
-                                            NETWORK_OUTPUT_WIDTH_3};
+  NETWORK_OUTPUT_WIDTH_3};
+
 static const int NETWORK_OUTPUT_HEIGHT[3] = {NETWORK_OUTPUT_HEIGHT_1, NETWORK_OUTPUT_HEIGHT_2,
-                                              NETWORK_OUTPUT_HEIGHT_3};
+  NETWORK_OUTPUT_HEIGHT_3};
 
-// minimum confidence score by which to filter the output detections
-#define SCORE_THRESHOLD 0.5
-
-#define NMS_THRESHOLD 0.45
 
 using model_zoo::perception::camera_obstacle_detection::yolo_v3::tensorflow_fp32_coco::config;
 // using BoundingBox = autoware_auto_perception_msgs::msg::BoundingBox;
@@ -226,12 +227,16 @@ public:
 
   /// \brief gets the IoU between the two bounding boxes
   /// \return returns the IoU
-  float bbox_iou(const BoundingBox &box1, 
-                 const BoundingBox &box2) {
-    float intersect_w = interval_overlap(std::make_pair(box1.xmin, box1.xmax),
-                                         std::make_pair(box2.xmin, box2.xmax));
-    float intersect_h = interval_overlap(std::make_pair(box1.ymin, box1.ymax),
-                                         std::make_pair(box2.ymin, box2.ymax));
+  float bbox_iou(
+    const BoundingBox & box1,
+    const BoundingBox & box2)
+  {
+    float intersect_w = interval_overlap(
+      std::make_pair(box1.xmin, box1.xmax),
+      std::make_pair(box2.xmin, box2.xmax));
+    float intersect_h = interval_overlap(
+      std::make_pair(box1.ymin, box1.ymax),
+      std::make_pair(box2.ymin, box2.ymax));
 
     float intersect = intersect_w * intersect_h;
 
@@ -250,25 +255,22 @@ public:
   /// \brief removes the duplicate detections with lower confidence scores for the same object
   void do_nms()
   {
-    for (auto &entry : bbox_map)
-    {
-      sort(entry.second.begin(), entry.second.end(), [](const BoundingBox &left_bbox,
-                                                        const BoundingBox &right_bbox)
-          { return (left_bbox.conf > right_bbox.conf); });
+    for (auto & entry : bbox_map) {
+      sort(
+        entry.second.begin(), entry.second.end(), [](const BoundingBox & left_bbox,
+        const BoundingBox & right_bbox)
+        {return left_bbox.conf > right_bbox.conf;});
     }
 
-    for (auto &entry : bbox_map)
-    {
-      auto &bboxes = entry.second;
-      for (int i = 0; i < bboxes.size(); i++)
-      {
-        if (bboxes[i].conf == 0)
+    for (auto & entry : bbox_map) {
+      auto & bboxes = entry.second;
+      for (int i = 0; i < bboxes.size(); i++) {
+        if (bboxes[i].conf == 0) {
           continue;
+        }
 
-        for (int j = i + 1; j < bboxes.size(); j++)
-        {
-          if (bbox_iou(bboxes[i], bboxes[j]) >= NMS_THRESHOLD)
-          {
+        for (int j = i + 1; j < bboxes.size(); j++) {
+          if (bbox_iou(bboxes[i], bboxes[j]) >= NMS_THRESHOLD) {
             bboxes[j].conf = 0;
           }
         }
@@ -284,8 +286,9 @@ public:
     // this is also the output of this (schedule) function
     std::vector<float> scores_above_threshold{};
     // Loop to run through the multiple outputs generated for different scale
-    for (auto& y : input) {
-      int64_t shape_y[] = {1, NETWORK_OUTPUT_WIDTH[scale], NETWORK_OUTPUT_HEIGHT[scale], NETWORK_OUTPUT_DEPTH};
+    for (auto & y : input) {
+      int64_t shape_y[] = {1, NETWORK_OUTPUT_WIDTH[scale], NETWORK_OUTPUT_HEIGHT[scale],
+        NETWORK_OUTPUT_DEPTH};
       auto l_h = shape_y[1];           // layer height
       auto l_w = shape_y[2];           // layer width
       auto n_classes = labels.size();  // total number of classes
@@ -294,36 +297,33 @@ public:
       auto nudetections = n_classes * n_anchors * l_w * l_h;
 
       // assert data is stored row-majored in y and the dtype is float
-      assert(y.strides == nullptr);
-      assert(y.dtype.bits == sizeof(float) * 8);
+      assert(y.getArray()->strides == nullptr);
+      assert(y.getArray()->dtype.bits == sizeof(float) * 8);
 
       // get a pointer to the output data
-      float *data_ptr = reinterpret_cast<float *>(reinterpret_cast<uint8_t *>(y.getArray()->data) +
-                                                  y.getArray()->byte_offset);
+      float * data_ptr = reinterpret_cast<float *>(reinterpret_cast<uint8_t *>(y.getArray()->data) +
+        y.getArray()->byte_offset);
 
       // utility function to return data from y given index
       auto get_output_data = [data_ptr, shape_y, n_classes, n_anchors,
-                              n_coords](auto row_i, auto col_j, auto anchor_k,
-                                        auto offset)
-      {
-        auto box_index = (row_i * shape_y[2] + col_j) * shape_y[3];
-        auto index = box_index + anchor_k * (n_classes + n_coords + 1);
-        return data_ptr[index + offset];
-      };
+          n_coords](auto row_i, auto col_j, auto anchor_k,
+          auto offset)
+        {
+          auto box_index = (row_i * shape_y[2] + col_j) * shape_y[3];
+          auto index = box_index + anchor_k * (n_classes + n_coords + 1);
+          return data_ptr[index + offset];
+        };
 
       // sigmoid function
       auto sigmoid = [](float x)
-      { return static_cast<float>(1.0 / (1.0 + std::exp(-x))); };
-
-      
+        {return static_cast<float>(1.0 / (1.0 + std::exp(-x)));};
 
       // Parse results into detections. Loop over each detection cell in the model
       // output
-      for (size_t i = 0; i < l_w; i++)
-      {
-        for (size_t j = 0; j < l_h; j++)
-        {
-          for (size_t anchor_k = scale * n_anchors; anchor_k < (scale + 1) * n_anchors; anchor_k++)
+      for (size_t i = 0; i < l_w; i++) {
+        for (size_t j = 0; j < l_h; j++) {
+          for (size_t anchor_k = scale * n_anchors; anchor_k < (scale + 1) * n_anchors;
+            anchor_k++)
           {
             float anchor_w = anchors[anchor_k].first;
             float anchor_h = anchors[anchor_k].second;
@@ -350,11 +350,9 @@ public:
             // find maximum probability of all classes
             float max_p = 0.0f;
             int max_ind = -1;
-            for (int i_class = 0; i_class < n_classes; i_class++)
-            {
+            for (int i_class = 0; i_class < n_classes; i_class++) {
               auto class_p = get_output_data(i, j, anchor_k, 5 + i_class);
-              if (max_p < class_p)
-              {
+              if (max_p < class_p) {
                 max_p = class_p;
                 max_ind = i_class;
               }
@@ -363,8 +361,7 @@ public:
             // decode and copy class probabilities
             std::vector<float> class_probabilities{};
             float p_total = 0;
-            for (size_t i_class = 0; i_class < n_classes; i_class++)
-            {
+            for (size_t i_class = 0; i_class < n_classes; i_class++) {
               auto class_p = get_output_data(i, j, anchor_k, 5 + i_class);
               class_probabilities.push_back(std::exp(class_p - max_p));
               p_total += class_probabilities[i_class];
@@ -373,17 +370,31 @@ public:
             // Find the most likely score
             auto max_score = class_probabilities[max_ind] * p_0 / p_total;
 
-            if (max_score > 0.3)
-            {
-              if (bbox_map.count(max_ind) == 0)
-              {
-                scores_above_threshold.push_back(max_score);
+            if (max_score > SCORE_THRESHOLD) {
+              if (bbox_map.count(max_ind) == 0) {
+                bbox_map[max_ind] = std::vector<BoundingBox>{};
               }
+              bbox_map[max_ind].push_back(
+                BoundingBox(
+                  x_coord - w / 2,
+                  y_coord - h / 2,
+                  x_coord + w / 2,
+                  y_coord + h / 2,
+                  max_score));
             }
           }
         }
       }
       scale++;
+    }
+    do_nms();
+    for (const auto & entry : bbox_map) {
+      for (const auto & bbox : entry.second) {
+        if (bbox.conf == 0) {
+          continue;
+        }
+        scores_above_threshold.push_back(bbox.conf);
+      }
     }
     return scores_above_threshold;
   }
@@ -412,10 +423,7 @@ TEST(PipelineExamples, SimplePipeline) {
   auto output = pipeline.schedule(IMAGE_FILENAME);
 
   // Define reference vector containing expected values, expressed as hexadecimal integers
-  std::vector<int32_t> int_output{
-    0x3eb64594, 0x3f435656, 0x3ece1600, 0x3e99d381,
-    0x3f1cd6bc, 0x3f14f4dd, 0x3ed8065f, 0x3ee9f4fa,
-    0x3ec1b5e8, 0x3f4e7c6c, 0x3f136af1};
+  std::vector<int32_t> int_output{0x3f7ebc1f, 0x3f79feeb, 0x3f7fd391};
 
   std::vector<float> expected_output(int_output.size());
 
