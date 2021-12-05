@@ -25,94 +25,6 @@
 #include "tvm_utility/model_zoo.hpp"
 #include "tvm_utility/pipeline.hpp"
 
-// network input dimensions
-#define NETWORK_INPUT_WIDTH 416
-#define NETWORK_INPUT_HEIGHT 416
-
-// network output dimensions
-#define NETWORK_OUTPUT_HEIGHT_1 13
-#define NETWORK_OUTPUT_WIDTH_1 13
-#define NETWORK_OUTPUT_DEPTH 255
-
-// network output dimensions
-#define NETWORK_OUTPUT_HEIGHT_2 26
-#define NETWORK_OUTPUT_WIDTH_2 26
-
-// network output dimensions
-#define NETWORK_OUTPUT_HEIGHT_3 52
-#define NETWORK_OUTPUT_WIDTH_3 52
-
-// minimum confidence score by which to filter the output detections
-#define SCORE_THRESHOLD 0.5
-
-#define NMS_THRESHOLD 0.45
-
-/// Struct for storing detections in image with confidence scores
-struct BoundingBox
-{
-  float xmin;
-  float ymin;
-  float xmax;
-  float ymax;
-  float conf;
-
-  BoundingBox(float x_min, float y_min, float x_max, float y_max, float conf_)
-  : xmin(x_min), ymin(y_min), xmax(x_max), ymax(y_max), conf(conf_) {}
-};
-
-/// Map for storing the class and detections in the image
-std::map<int, std::vector<BoundingBox>> bbox_map{};
-static const int NETWORK_OUTPUT_WIDTH[3] = {NETWORK_OUTPUT_WIDTH_1, NETWORK_OUTPUT_WIDTH_2,
-  NETWORK_OUTPUT_WIDTH_3};
-
-static const int NETWORK_OUTPUT_HEIGHT[3] = {NETWORK_OUTPUT_HEIGHT_1, NETWORK_OUTPUT_HEIGHT_2,
-  NETWORK_OUTPUT_HEIGHT_3};
-
-
-// network input dimensions
-#define NETWORK_INPUT_WIDTH 416
-#define NETWORK_INPUT_HEIGHT 416
-
-// network output dimensions
-#define NETWORK_OUTPUT_HEIGHT_1 13
-#define NETWORK_OUTPUT_WIDTH_1 13
-#define NETWORK_OUTPUT_DEPTH 255
-
-// network output dimensions
-#define NETWORK_OUTPUT_HEIGHT_2 26
-#define NETWORK_OUTPUT_WIDTH_2 26
-
-// network output dimensions
-#define NETWORK_OUTPUT_HEIGHT_3 52
-#define NETWORK_OUTPUT_WIDTH_3 52
-
-// minimum confidence score by which to filter the output detections
-#define SCORE_THRESHOLD 0.5
-
-#define NMS_THRESHOLD 0.45
-
-/// Struct for storing detections in image with confidence scores
-struct BoundingBox
-{
-  float xmin;
-  float ymin;
-  float xmax;
-  float ymax;
-  float conf;
-
-  BoundingBox(float x_min, float y_min, float x_max, float y_max, float conf_)
-  : xmin(x_min), ymin(y_min), xmax(x_max), ymax(y_max), conf(conf_) {}
-};
-
-/// Map for storing the class and detections in the image
-std::map<int, std::vector<BoundingBox>> bbox_map{};
-static const int NETWORK_OUTPUT_WIDTH[3] = {NETWORK_OUTPUT_WIDTH_1, NETWORK_OUTPUT_WIDTH_2,
-  NETWORK_OUTPUT_WIDTH_3};
-
-static const int NETWORK_OUTPUT_HEIGHT[3] = {NETWORK_OUTPUT_HEIGHT_1, NETWORK_OUTPUT_HEIGHT_2,
-  NETWORK_OUTPUT_HEIGHT_3};
-
-
 using model_zoo::perception::camera_obstacle_detection::yolo_v3::tensorflow_fp32_coco::config;
 // using BoundingBox = autoware_auto_perception_msgs::msg::BoundingBox;
 
@@ -213,7 +125,9 @@ class PostProcessorYoloV3 : public tvm_utility::pipeline::PostProcessor<std::vec
 public:
   PostProcessorYoloV3(
     tvm_utility::pipeline::InferenceEngineTVMConfig config)
-  : network_output_width(config.network_outputs[0].second[1]),
+  : network_input_width(config.network_inputs[0].second[1]),
+    network_input_height(config.network_inputs[0].second[2]),
+    network_output_width(config.network_outputs[0].second[1]),
     network_output_height(config.network_outputs[0].second[2]),
     network_output_depth(config.network_outputs[0].second[3])
   {
@@ -243,6 +157,153 @@ public:
       anchors.push_back(std::make_pair(std::atof(first.c_str()), std::atof(second.c_str())));
     }
   }
+
+  std::vector<float>
+  schedule(const tvm_utility::pipeline::TVMArrayContainerVector & input)
+  {
+    int scale = 0;
+    // Vector used to check if the result is accurate,
+    // this is also the output of this (schedule) function
+    std::vector<float> scores_above_threshold{};
+    // Loop to run through the multiple outputs generated for different scale
+    for (auto & y : input) {
+      int64_t shape_y[] = {1, config.network_outputs[scale].second[1],
+        config.network_outputs[scale].second[2],
+        network_output_depth};
+      auto l_h = shape_y[1];           // layer height
+      auto l_w = shape_y[2];           // layer width
+      auto n_classes = labels.size();  // total number of classes
+      auto n_anchors = anchors.size()/config.network_outputs.size();    // total number of anchors
+      auto n_coords = 4;               // number of coordinates in a single anchor box
+      auto nudetections = n_classes * n_anchors * l_w * l_h;
+
+      // assert data is stored row-majored in y and the dtype is float
+      assert(y.getArray()->strides == nullptr);
+      assert(y.getArray()->dtype.bits == sizeof(float) * 8);
+
+      // get a pointer to the output data
+      float * data_ptr = reinterpret_cast<float *>(reinterpret_cast<uint8_t *>(y.getArray()->data) +
+        y.getArray()->byte_offset);
+
+      // utility function to return data from y given index
+      auto get_output_data = [data_ptr, shape_y, n_classes, n_anchors,
+          n_coords](auto row_i, auto col_j, auto anchor_k,
+          auto offset)
+        {
+          auto box_index = (row_i * shape_y[2] + col_j) * shape_y[3];
+          auto index = box_index + anchor_k * (n_classes + n_coords + 1);
+          return data_ptr[index + offset];
+        };
+
+      // sigmoid function
+      auto sigmoid = [](float x)
+        {return static_cast<float>(1.0 / (1.0 + std::exp(-x)));};
+
+      // Parse results into detections. Loop over each detection cell in the model
+      // output
+      for (size_t i = 0; i < l_w; i++) {
+        for (size_t j = 0; j < l_h; j++) {
+          for (size_t anchor_k = scale * n_anchors; anchor_k < (scale + 1) * n_anchors;
+            anchor_k++)
+          {
+            float anchor_w = anchors[anchor_k].first;
+            float anchor_h = anchors[anchor_k].second;
+
+            // Compute property indices
+            auto box_x = get_output_data(i, j, anchor_k, 0);
+            auto box_y = get_output_data(i, j, anchor_k, 1);
+            auto box_w = get_output_data(i, j, anchor_k, 2);
+            auto box_h = get_output_data(i, j, anchor_k, 3);
+            auto box_p = get_output_data(i, j, anchor_k, 4);
+
+            // Transform log-space predicted coordinates to absolute space + offset
+            // Transform bounding box position from offset to absolute (ratio)
+            auto x_coord = (sigmoid(box_x) + j) / l_w;
+            auto y_coord = (sigmoid(box_y) + i) / l_h;
+
+            // Transform bounding box height and width from log to absolute space
+            auto w = anchor_w * exp(box_w) / network_input_width;
+            auto h = anchor_h * exp(box_h) / network_input_height;
+
+            // Decode the confidence of detection in this anchor box
+            auto p_0 = sigmoid(box_p);
+
+            // find maximum probability of all classes
+            float max_p = 0.0f;
+            int max_ind = -1;
+            for (int i_class = 0; i_class < n_classes; i_class++) {
+              auto class_p = get_output_data(i, j, anchor_k, 5 + i_class);
+              if (max_p < class_p) {
+                max_p = class_p;
+                max_ind = i_class;
+              }
+            }
+
+            // decode and copy class probabilities
+            std::vector<float> class_probabilities{};
+            float p_total = 0;
+            for (size_t i_class = 0; i_class < n_classes; i_class++) {
+              auto class_p = get_output_data(i, j, anchor_k, 5 + i_class);
+              class_probabilities.push_back(std::exp(class_p - max_p));
+              p_total += class_probabilities[i_class];
+            }
+
+            // Find the most likely score
+            auto max_score = class_probabilities[max_ind] * p_0 / p_total;
+
+            if (max_score > 0.5) {
+              if (bbox_map.count(max_ind) == 0) {
+                bbox_map[max_ind] = std::vector<BoundingBox>{};
+              }
+              bbox_map[max_ind].push_back(
+                BoundingBox(
+                  x_coord - w / 2,
+                  y_coord - h / 2,
+                  x_coord + w / 2,
+                  y_coord + h / 2,
+                  max_score));
+            }
+          }
+        }
+      }
+      scale++;
+    }
+    do_nms();
+    for (const auto & entry : bbox_map) {
+      for (const auto & bbox : entry.second) {
+        if (bbox.conf == 0) {
+          continue;
+        }
+        scores_above_threshold.push_back(bbox.conf);
+      }
+    }
+    return scores_above_threshold;
+  }
+
+private:
+  int64_t network_input_width;
+  int64_t network_input_height;
+  int64_t network_output_width;
+  int64_t network_output_height;
+  int64_t network_output_depth;
+  std::vector<std::string> labels{};
+  std::vector<std::pair<float, float>> anchors{};
+
+  /// Struct for storing detections in image with confidence scores
+  struct BoundingBox
+  {
+    float xmin;
+    float ymin;
+    float xmax;
+    float ymax;
+    float conf;
+
+    BoundingBox(float x_min, float y_min, float x_max, float y_max, float conf_)
+    : xmin(x_min), ymin(y_min), xmax(x_max), ymax(y_max), conf(conf_) {}
+  };
+
+  /// Map for storing the class and detections in the image
+  std::map<int, std::vector<BoundingBox>> bbox_map{};
 
   /// \brief gets the amount of overlap between the two bounding boxes
   /// \return returns the overlap amount
@@ -314,144 +375,16 @@ public:
         }
 
         for (int j = i + 1; j < bboxes.size(); j++) {
-          if (bbox_iou(bboxes[i], bboxes[j]) >= NMS_THRESHOLD) {
+          if (bbox_iou(bboxes[i], bboxes[j]) >= 0.45) {
             bboxes[j].conf = 0;
           }
         }
       }
     }
   }
-
-  std::vector<float>
-  schedule(const tvm_utility::pipeline::TVMArrayContainerVector & input)
-  {
-    int scale = 0;
-    // Vector used to check if the result is accurate,
-    // this is also the output of this (schedule) function
-    std::vector<float> scores_above_threshold{};
-    // Loop to run through the multiple outputs generated for different scale
-    for (auto & y : input) {
-      int64_t shape_y[] = {1, NETWORK_OUTPUT_WIDTH[scale], NETWORK_OUTPUT_HEIGHT[scale],
-        NETWORK_OUTPUT_DEPTH};
-      auto l_h = shape_y[1];           // layer height
-      auto l_w = shape_y[2];           // layer width
-      auto n_classes = labels.size();  // total number of classes
-      auto n_anchors = 3;              // total number of anchors
-      auto n_coords = 4;               // number of coordinates in a single anchor box
-      auto nudetections = n_classes * n_anchors * l_w * l_h;
-
-      // assert data is stored row-majored in y and the dtype is float
-      assert(y.getArray()->strides == nullptr);
-      assert(y.getArray()->dtype.bits == sizeof(float) * 8);
-
-      // get a pointer to the output data
-      float * data_ptr = reinterpret_cast<float *>(reinterpret_cast<uint8_t *>(y.getArray()->data) +
-        y.getArray()->byte_offset);
-
-      // utility function to return data from y given index
-      auto get_output_data = [data_ptr, shape_y, n_classes, n_anchors,
-          n_coords](auto row_i, auto col_j, auto anchor_k,
-          auto offset)
-        {
-          auto box_index = (row_i * shape_y[2] + col_j) * shape_y[3];
-          auto index = box_index + anchor_k * (n_classes + n_coords + 1);
-          return data_ptr[index + offset];
-        };
-
-      // sigmoid function
-      auto sigmoid = [](float x)
-        {return static_cast<float>(1.0 / (1.0 + std::exp(-x)));};
-
-      // Parse results into detections. Loop over each detection cell in the model
-      // output
-      for (size_t i = 0; i < l_w; i++) {
-        for (size_t j = 0; j < l_h; j++) {
-          for (size_t anchor_k = scale * n_anchors; anchor_k < (scale + 1) * n_anchors;
-            anchor_k++)
-          {
-            float anchor_w = anchors[anchor_k].first;
-            float anchor_h = anchors[anchor_k].second;
-
-            // Compute property indices
-            auto box_x = get_output_data(i, j, anchor_k, 0);
-            auto box_y = get_output_data(i, j, anchor_k, 1);
-            auto box_w = get_output_data(i, j, anchor_k, 2);
-            auto box_h = get_output_data(i, j, anchor_k, 3);
-            auto box_p = get_output_data(i, j, anchor_k, 4);
-
-            // Transform log-space predicted coordinates to absolute space + offset
-            // Transform bounding box position from offset to absolute (ratio)
-            auto x_coord = (sigmoid(box_x) + j) / l_w;
-            auto y_coord = (sigmoid(box_y) + i) / l_h;
-
-            // Transform bounding box height and width from log to absolute space
-            auto w = anchor_w * exp(box_w) / NETWORK_INPUT_WIDTH;
-            auto h = anchor_h * exp(box_h) / NETWORK_INPUT_HEIGHT;
-
-            // Decode the confidence of detection in this anchor box
-            auto p_0 = sigmoid(box_p);
-
-            // find maximum probability of all classes
-            float max_p = 0.0f;
-            int max_ind = -1;
-            for (int i_class = 0; i_class < n_classes; i_class++) {
-              auto class_p = get_output_data(i, j, anchor_k, 5 + i_class);
-              if (max_p < class_p) {
-                max_p = class_p;
-                max_ind = i_class;
-              }
-            }
-
-            // decode and copy class probabilities
-            std::vector<float> class_probabilities{};
-            float p_total = 0;
-            for (size_t i_class = 0; i_class < n_classes; i_class++) {
-              auto class_p = get_output_data(i, j, anchor_k, 5 + i_class);
-              class_probabilities.push_back(std::exp(class_p - max_p));
-              p_total += class_probabilities[i_class];
-            }
-
-            // Find the most likely score
-            auto max_score = class_probabilities[max_ind] * p_0 / p_total;
-
-            if (max_score > SCORE_THRESHOLD) {
-              if (bbox_map.count(max_ind) == 0) {
-                bbox_map[max_ind] = std::vector<BoundingBox>{};
-              }
-              bbox_map[max_ind].push_back(
-                BoundingBox(
-                  x_coord - w / 2,
-                  y_coord - h / 2,
-                  x_coord + w / 2,
-                  y_coord + h / 2,
-                  max_score));
-            }
-          }
-        }
-      }
-      scale++;
-    }
-    do_nms();
-    for (const auto & entry : bbox_map) {
-      for (const auto & bbox : entry.second) {
-        if (bbox.conf == 0) {
-          continue;
-        }
-        scores_above_threshold.push_back(bbox.conf);
-      }
-    }
-    return scores_above_threshold;
-  }
-
-private:
-  int64_t network_output_width;
-  int64_t network_output_height;
-  int64_t network_output_depth;
-  std::vector<std::string> labels{};
-  std::vector<std::pair<float, float>> anchors{};
 };
 
-TEST(PipelineExamples, SimplePipeline) {
+TEST(PipelineExamplesYoloV3, SimplePipelineYoloV3) {
   // Instantiate the pipeline
   using PrePT = PreProcessorYoloV3;
   using IET = tvm_utility::pipeline::InferenceEngineTVM;
