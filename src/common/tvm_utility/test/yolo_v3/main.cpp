@@ -24,8 +24,6 @@
 #include "gtest/gtest.h"
 #include "tvm_utility/model_zoo.hpp"
 #include "tvm_utility/pipeline.hpp"
-#include <autoware_auto_perception_msgs/msg/bounding_box.hpp>
-
 
 // network input dimensions
 #define NETWORK_INPUT_WIDTH 416
@@ -44,30 +42,32 @@
 #define NETWORK_OUTPUT_HEIGHT_3 52
 #define NETWORK_OUTPUT_WIDTH_3 52
 
+// minimum confidence score by which to filter the output detections
+#define SCORE_THRESHOLD 0.5
+
+#define NMS_THRESHOLD 0.45
+
 /// Struct for storing detections in image with confidence scores
 struct BoundingBox
 {
-
   float xmin;
   float ymin;
   float xmax;
   float ymax;
   float conf;
 
-  BoundingBox(float x_min, float y_min, float x_max, float y_max, float conf_) : xmin(x_min), ymin(y_min), xmax(x_max), ymax(y_max), conf(conf_){};
+  BoundingBox(float x_min, float y_min, float x_max, float y_max, float conf_)
+  : xmin(x_min), ymin(y_min), xmax(x_max), ymax(y_max), conf(conf_) {}
 };
 
 /// Map for storing the class and detections in the image
 std::map<int, std::vector<BoundingBox>> bbox_map{};
 static const int NETWORK_OUTPUT_WIDTH[3] = {NETWORK_OUTPUT_WIDTH_1, NETWORK_OUTPUT_WIDTH_2,
-                                            NETWORK_OUTPUT_WIDTH_3};
+  NETWORK_OUTPUT_WIDTH_3};
+
 static const int NETWORK_OUTPUT_HEIGHT[3] = {NETWORK_OUTPUT_HEIGHT_1, NETWORK_OUTPUT_HEIGHT_2,
-                                              NETWORK_OUTPUT_HEIGHT_3};
+  NETWORK_OUTPUT_HEIGHT_3};
 
-// minimum confidence score by which to filter the output detections
-#define SCORE_THRESHOLD 0.5
-
-#define NMS_THRESHOLD 0.45
 
 // network input dimensions
 #define NETWORK_INPUT_WIDTH 416
