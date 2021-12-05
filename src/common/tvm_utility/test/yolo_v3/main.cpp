@@ -310,7 +310,7 @@ private:
 
   float interval_overlap(std::pair<float, float> interval_a, std::pair<float, float> interval_b)
   {
-    float x1 = interval_a.firs;
+    float x1 = interval_a.first;
     float x2 = interval_a.second;
     float x3 = interval_b.first;
     float x4 = interval_b.second;
