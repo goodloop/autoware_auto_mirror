@@ -34,7 +34,13 @@ ament_auto_add_library(behavior_planner_node SHARED
   ${BEHAVIOR_PLANNER_NODE_HEADERS}
 )
 set(NODE_NAME behavior_planner_node_exe)
+
 autoware_set_compile_options(behavior_planner_node)
+
+# TODO(mfc): RCLCPP_ERROR_THROTTLE() has built-in old-style casts.
+# TODO(mfc): Temporary workaround until this is fixed.
+target_compile_options(behavior_planner_node PRIVATE -Wno-old-style-cast)
+
 rclcpp_components_register_node(behavior_planner_node
   PLUGIN "autoware::behavior_planner_nodes::BehaviorPlannerNode"
   EXECUTABLE ${NODE_NAME}
