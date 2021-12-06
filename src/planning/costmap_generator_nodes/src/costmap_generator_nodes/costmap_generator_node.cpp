@@ -255,19 +255,19 @@ HADMapService::Request CostmapGeneratorNode::createMapRequest(
 
   // x
   request.geom_upper_bound.push_back(
-    std::fmax(route.start_point.position.x, route.goal_point.position.x) + route_box_padding_);
+    std::fmax(route.start_pose.position.x, route.goal_pose.position.x) + route_box_padding_);
   // y
   request.geom_upper_bound.push_back(
-    std::fmax(route.start_point.position.y, route.goal_point.position.y) + route_box_padding_);
+    std::fmax(route.start_pose.position.y, route.goal_pose.position.y) + route_box_padding_);
   // z (ignored)
   request.geom_upper_bound.push_back(0.0);
 
   // x
   request.geom_lower_bound.push_back(
-    std::fmin(route.start_point.position.x, route.goal_point.position.x) - route_box_padding_);
+    std::fmin(route.start_pose.position.x, route.goal_pose.position.x) - route_box_padding_);
   // y
   request.geom_lower_bound.push_back(
-    std::fmin(route.start_point.position.y, route.goal_point.position.y) - route_box_padding_);
+    std::fmin(route.start_pose.position.y, route.goal_pose.position.y) - route_box_padding_);
   // z (ignored)
   request.geom_lower_bound.push_back(0.0);
 

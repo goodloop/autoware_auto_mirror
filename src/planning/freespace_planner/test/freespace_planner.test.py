@@ -169,12 +169,12 @@ class TestBasicUsage(unittest.TestCase):
 
     def assert_start_and_goal_positions_correct(self, result, goal):
         planned_start = result.trajectory.points[0].pose.position
-        requested_start = goal.sub_route.start_point.position
+        requested_start = goal.sub_route.start_pose.position
         START_MARGIN = 0.1  # arbitrary margin
         self.assertTrue(are_positions_close(planned_start, requested_start, START_MARGIN))
 
         planned_goal = result.trajectory.points[-1].pose.position
-        requested_goal = goal.sub_route.goal_point.position
+        requested_goal = goal.sub_route.goal_pose.position
         GOAL_MARGIN = 1.25  # arbitrary margin based on current params
         self.assertTrue(are_positions_close(planned_goal, requested_goal, GOAL_MARGIN))
 
@@ -186,10 +186,10 @@ class TestBasicUsage(unittest.TestCase):
         goal = PlanTrajectory.Goal()
         goal.sub_route.header.stamp = costmap_generator.get_clock().now().to_msg()
         goal.sub_route.header.frame_id = "map"
-        goal.sub_route.start_point.position.x = 10.0
-        goal.sub_route.start_point.position.y = 12.5
-        goal.sub_route.goal_point.position.x = 15.0
-        goal.sub_route.goal_point.position.y = 12.5
+        goal.sub_route.start_pose.position.x = 10.0
+        goal.sub_route.start_pose.position.y = 12.5
+        goal.sub_route.goal_pose.position.x = 15.0
+        goal.sub_route.goal_pose.position.y = 12.5
 
         result = self.send_goal_and_wait_for_result(goal,
                                                     plan_trajectory_client,
@@ -207,10 +207,10 @@ class TestBasicUsage(unittest.TestCase):
         goal = PlanTrajectory.Goal()
         goal.sub_route.header.stamp = costmap_generator.get_clock().now().to_msg()
         goal.sub_route.header.frame_id = "map"
-        goal.sub_route.start_point.position.x = 4.0
-        goal.sub_route.start_point.position.y = 2.5
-        goal.sub_route.goal_point.position.x = 96.0
-        goal.sub_route.goal_point.position.y = 2.5
+        goal.sub_route.start_pose.position.x = 4.0
+        goal.sub_route.start_pose.position.y = 2.5
+        goal.sub_route.goal_pose.position.x = 96.0
+        goal.sub_route.goal_pose.position.y = 2.5
 
         result = self.send_goal_and_wait_for_result(goal,
                                                     plan_trajectory_client,

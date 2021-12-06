@@ -415,23 +415,8 @@ void BehaviorPlannerNode::visualize_global_path(const HADMapRoute & route)
   debug_global_path.header.stamp = rclcpp::Time();
   debug_global_path.header.frame_id = "map";
 
-  auto start_pose = geometry_msgs::msg::Pose();
-  start_pose.position = route.start_point.position;
-  // to_quat has been removed
-  start_pose.orientation.x = 0;
-  start_pose.orientation.y = 0;
-  start_pose.orientation.z = static_cast<double>(route.start_point.heading.imag);
-  start_pose.orientation.w = static_cast<double>(route.start_point.heading.real);
-  debug_global_path.poses.push_back(start_pose);
-
-  auto goal_pose = geometry_msgs::msg::Pose();
-  goal_pose.position = route.goal_point.position;
-  // to_quat has been removed
-  goal_pose.orientation.x = 0;
-  goal_pose.orientation.y = 0;
-  goal_pose.orientation.z = static_cast<double>(route.goal_point.heading.imag);
-  goal_pose.orientation.w = static_cast<double>(route.goal_point.heading.real);
-  debug_global_path.poses.push_back(goal_pose);
+  debug_global_path.poses.push_back(route.start_pose);
+  debug_global_path.poses.push_back(route.goal_pose);
 
   m_debug_global_path_pub->publish(debug_global_path);
 }

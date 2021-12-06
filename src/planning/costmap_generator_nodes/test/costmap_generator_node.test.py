@@ -202,10 +202,10 @@ class TestBasicUsage(unittest.TestCase):
         goal.route.header.stamp = generate_costmap_client.get_clock().now().to_msg()
         goal.route.header.frame_id = "map"
         # short route because mocked lanelet is very small
-        goal.route.start_point.position.x = 10.0
-        goal.route.start_point.position.y = 12.5
-        goal.route.goal_point.position.x = 11.0
-        goal.route.goal_point.position.y = 12.5
+        goal.route.start_pose.position.x = 10.0
+        goal.route.start_pose.position.y = 12.5
+        goal.route.goal_pose.position.x = 11.0
+        goal.route.goal_pose.position.y = 12.5
 
         generate_costmap_client.send_goal(goal)
 
