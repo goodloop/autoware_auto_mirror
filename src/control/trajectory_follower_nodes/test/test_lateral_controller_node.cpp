@@ -17,6 +17,7 @@
 
 #include <memory>
 #include <stdexcept>
+#include <string>
 #include <vector>
 
 #include "ament_index_cpp/get_package_share_directory.hpp"
@@ -42,14 +43,27 @@ using VehicleKinematicState = autoware_auto_vehicle_msgs::msg::VehicleKinematicS
 using FakeNodeFixture = autoware::tools::testing::FakeTestNode;
 
 const rclcpp::Duration one_second(1, 0);
+constexpr char const * lateral_ns = "/test_lateral_controller_node";
+class FakeNodeFixtureWithNamespace : public FakeNodeFixture
+{
+public:
+  FakeNodeFixtureWithNamespace() {set_namespace(std::string(lateral_ns));}
+};
 
 std::shared_ptr<LateralController> makeLateralNode()
 {
-  // Pass default parameter file to the node
   const auto share_dir = ament_index_cpp::get_package_share_directory("trajectory_follower_nodes");
   rclcpp::NodeOptions node_options;
   node_options.arguments(
-    {"--ros-args", "--params-file", share_dir + "/param/lateral_controller_defaults.yaml"});
+    {"--ros-args",
+      // Pass default parameter file to the node
+      "--params-file",
+      share_dir + "/param/lateral_controller_defaults.yaml",
+      // Set node namespace
+      "-r", "__ns:=" + std::string(lateral_ns),
+      // Remap tf and tf_static so that they use the node namespace
+      "-r", "/tf:=tf",
+      "-r", "/tf_static:=tf_static"});
   std::shared_ptr<LateralController> node = std::make_shared<LateralController>(node_options);
 
   // Enable all logging in the node
@@ -59,7 +73,7 @@ std::shared_ptr<LateralController> makeLateralNode()
   return node;
 }
 
-TEST_F(FakeNodeFixture, no_input)
+TEST_F(FakeNodeFixtureWithNamespace, no_input)
 {
   // Data to test
   LateralCommand::SharedPtr cmd_msg;
@@ -89,7 +103,7 @@ TEST_F(FakeNodeFixture, no_input)
   ASSERT_FALSE(received_lateral_command);
 }
 
-TEST_F(FakeNodeFixture, empty_trajectory)
+TEST_F(FakeNodeFixtureWithNamespace, empty_trajectory)
 {
   // Data to test
   LateralCommand::SharedPtr cmd_msg;
@@ -134,7 +148,7 @@ TEST_F(FakeNodeFixture, empty_trajectory)
   ASSERT_FALSE(received_lateral_command);
 }
 
-TEST_F(FakeNodeFixture, straight_trajectory)
+TEST_F(FakeNodeFixtureWithNamespace, straight_trajectory)
 {
   // Data to test
   LateralCommand::SharedPtr cmd_msg;
@@ -197,7 +211,7 @@ TEST_F(FakeNodeFixture, straight_trajectory)
   EXPECT_GT(rclcpp::Time(cmd_msg->stamp), rclcpp::Time(traj_msg.header.stamp));
 }
 
-TEST_F(FakeNodeFixture, right_turn)
+TEST_F(FakeNodeFixtureWithNamespace, right_turn)
 {
   // Data to test
   LateralCommand::SharedPtr cmd_msg;
@@ -261,7 +275,7 @@ TEST_F(FakeNodeFixture, right_turn)
   EXPECT_GT(rclcpp::Time(cmd_msg->stamp), rclcpp::Time(traj_msg.header.stamp));
 }
 
-TEST_F(FakeNodeFixture, left_turn)
+TEST_F(FakeNodeFixtureWithNamespace, left_turn)
 {
   // Data to test
   LateralCommand::SharedPtr cmd_msg;
@@ -325,7 +339,7 @@ TEST_F(FakeNodeFixture, left_turn)
   EXPECT_GT(rclcpp::Time(cmd_msg->stamp), rclcpp::Time(traj_msg.header.stamp));
 }
 
-TEST_F(FakeNodeFixture, stopped)
+TEST_F(FakeNodeFixtureWithNamespace, stopped)
 {
   // Data to test
   LateralCommand::SharedPtr cmd_msg;
@@ -391,7 +405,7 @@ TEST_F(FakeNodeFixture, stopped)
 }
 
 // TODO(Maxime CLEMENT): disabled as this test crashes in the CI but works locally
-TEST_F(FakeNodeFixture, DISABLED_set_lateral_param_smoke_test)
+TEST_F(FakeNodeFixtureWithNamespace, DISABLED_set_lateral_param_smoke_test)
 {
   // Node
   std::shared_ptr<LateralController> node = makeLateralNode();
