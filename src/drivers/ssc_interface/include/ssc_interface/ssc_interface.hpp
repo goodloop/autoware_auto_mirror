@@ -166,7 +166,7 @@ private:
   float32_t m_rear_axle_to_cog;
   float32_t m_accel_limit;
   float32_t m_decel_limit;
-  float32_t m_max_yaw_rate;
+  // float32_t m_max_yaw_rate; // avoid warning -Wunused-private-field
   std::unique_ptr<DbwStateMachine> m_dbw_state_machine;
 
   // The vehicle kinematic state is stored because it needs information from
