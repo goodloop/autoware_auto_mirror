@@ -59,9 +59,6 @@ using autoware::common::state_estimation::set_from_matrix;
 using autoware::common::state_estimation::slice;
 
 constexpr auto kCovarianceMatrixRows = 6U;
-// constexpr auto kIndexX = 0U; // avoid warning -Wunused-const-variable
-// constexpr auto kIndexY = kCovarianceMatrixRows + 1U; // avoid warning -Wunused-const-variable
-// constexpr auto kIndexZ = 2U * kCovarianceMatrixRows + 2U; // avoid warning -Wunused-const-variable
 constexpr auto kDefaultChildFrameId = "base_link";
 constexpr auto kCovarianceMatrixRowsSquared = kCovarianceMatrixRows * kCovarianceMatrixRows;
 static_assert(

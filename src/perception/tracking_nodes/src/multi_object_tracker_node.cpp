@@ -58,8 +58,6 @@ using std::placeholders::_2;
 namespace
 {
 constexpr std::chrono::milliseconds kMaxLidarEgoStateStampDiff{100};
-// constexpr std::chrono::milliseconds kMaxVisionEgoStateStampDiff{100};
-// avoid warning -Wunused-const-variable
 constexpr std::int64_t kDefaultHistoryDepth{20};
 constexpr std::int64_t kDefaultPoseHistoryDepth{100};
 

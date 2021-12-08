@@ -114,14 +114,10 @@ private:
   std::shared_ptr<rclcpp::Publisher<OdomMsgT>> m_publisher{};
   std::shared_ptr<rclcpp::Publisher<TfMsgT>> m_tf_publisher{};
 
-  // std::chrono::system_clock::duration m_init_timeout{}; // avoid warning -Wunused-private-field
-  // std::chrono::system_clock::duration m_expected_time_between_publish_requests{}; // avoid warning -Wunused-private-field
-  // std::chrono::system_clock::duration m_history_length{}; // avoid warning -Wunused-private-field
   std::chrono::system_clock::time_point m_time_of_last_publish{};
 
   rclcpp::TimerBase::SharedPtr m_wall_timer{};
 
-  // common::types::bool8_t m_filter_initialized{}; // avoid warning -Wunused-private-field
   common::types::bool8_t m_publish_data_driven{};
   common::types::float64_t m_publish_frequency{};
 

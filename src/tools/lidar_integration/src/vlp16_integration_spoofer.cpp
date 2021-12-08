@@ -51,11 +51,6 @@ void Vlp16IntegrationSpoofer::stop()
   m_spoofer.stop();
 }
 
-/// rpm min speed
-// static constexpr float32_t MIN_RPM = 300.0F; // avoid warning -Wunused-const-variable
-/// rpm max speed
-// static constexpr float32_t MAX_RPM = 1200.0F; // avoid warning -Wunused-const-variable
-
 Vlp16IntegrationSpoofer::SpoofTask::SpoofTask(
   const char8_t * const ip,
   const uint16_t port,

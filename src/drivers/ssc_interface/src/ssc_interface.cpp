@@ -40,7 +40,6 @@ SscInterface::SscInterface(
   m_rear_axle_to_cog{rear_axle_to_cog},
   m_accel_limit{max_accel_mps2},
   m_decel_limit{max_decel_mps2},
-  // m_max_yaw_rate{max_yaw_rate_rad}, // avoid warning -Wunused-private-field
   m_dbw_state_machine(new DbwStateMachine{3})
 {
   (void)max_yaw_rate_rad;  // avoid warning -Wunused-parameter
