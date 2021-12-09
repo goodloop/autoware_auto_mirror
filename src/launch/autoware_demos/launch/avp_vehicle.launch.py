@@ -111,14 +111,14 @@ def generate_launch_description():
 
     vlp16_front = Node(
         package='velodyne_nodes',
-        executable='vlp16_driver_node_exe',
+        executable='velodyne_cloud_node_exe',
         namespace='lidar_front',
         parameters=[LaunchConfiguration('vlp16_front_param_file')],
         condition=IfCondition(LaunchConfiguration('with_lidars'))
     )
     vlp16_rear = Node(
         package='velodyne_nodes',
-        executable='vlp16_driver_node_exe',
+        executable='velodyne_cloud_node_exe',
         namespace='lidar_rear',
         parameters=[LaunchConfiguration('vlp16_rear_param_file')],
         condition=IfCondition(LaunchConfiguration('with_lidars'))

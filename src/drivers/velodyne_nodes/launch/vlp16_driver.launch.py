@@ -40,7 +40,7 @@ def generate_launch_description():
     vlp16_node = launch_ros.actions.Node(
         package='velodyne_nodes',
         namespace="lidar_front",
-        executable='vlp16_driver_node_exe',
+        executable='velodyne_cloud_node_exe',
         parameters=[LaunchConfiguration('vlp16_node_param_file')],
         remappings=[("topic", "points_xyzi")])
 

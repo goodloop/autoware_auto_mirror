@@ -28,7 +28,7 @@ def generate_test_description():
     # The nodes under test:
     velodyne_block_node = launch_ros.actions.Node(
         package="velodyne_nodes",
-        executable="vlp16_driver_node_exe",
+        executable="velodyne_cloud_node_exe",
         name="vlp16_driver_node",
         namespace="lidar_front",
         parameters=[
