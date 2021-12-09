@@ -42,7 +42,7 @@ TEST(VelodyneNode, Constructor)
   velodyne_params.emplace_back("rpm", 600);
   velodyne_params.emplace_back("topic", "blah");
   // TODO(esteve): replace this with std::format once we migrate to Galactic
-  rclcpp::NodeOptions velodyne_options = rclcpp::NodeOptions().arguments({"__node:=" + name});
+  rclcpp::NodeOptions velodyne_options = rclcpp::NodeOptions().arguments({"-r __node:=" + name});
   velodyne_options.parameter_overrides(velodyne_params);
 
   using VelodyneCloudNode = autoware::drivers::velodyne_nodes::VLP16DriverNode;
@@ -97,7 +97,7 @@ TEST_P(VelodyneNodeIntegration, Test)
   velodyne_params.emplace_back("rpm", static_cast<int>(config.get_rpm()));
   velodyne_params.emplace_back("topic", topic);
   // TODO(esteve): replace this with std::format once we migrate to Galactic
-  rclcpp::NodeOptions velodyne_options = rclcpp::NodeOptions().arguments({"__node:=" + name});
+  rclcpp::NodeOptions velodyne_options = rclcpp::NodeOptions().arguments({"-r __node:=" + name});
   velodyne_options.parameter_overrides(velodyne_params);
 
   // Node
