@@ -21,9 +21,9 @@ repositories:
     version: 9bc29c9aee5e98d4d99e6a410c04b153b8f7feef
   src/external/slam_toolbox:
     type: git
-    url: https://github.com/mitsudome-r/slam_toolbox
+    url: https://github.com/mitsudome-r/slam_toolbox.git
     version: use_scan_range_for_data_size
   src/external/svl_robot_bringup:
     type: git
-    url: https://github.com/lgsvl/svl_robot_bringup
+    url: https://github.com/lgsvl/svl_robot_bringup.git
     version: master
