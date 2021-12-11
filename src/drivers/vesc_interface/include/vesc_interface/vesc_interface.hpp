@@ -80,6 +80,8 @@ public:
     rclcpp::Node & node,
     float64_t speed_to_erpm_gain,
     float64_t speed_to_erpm_offset,
+    float64_t max_erpm_positive_delta,
+    float64_t max_erpm_negative_delta,
     float64_t steering_to_servo_gain,
     float64_t steering_to_servo_offset
   );
@@ -125,6 +127,7 @@ private:
   rclcpp::Logger m_logger;
   // conversion and gain offsets
   float64_t speed_to_erpm_gain_, speed_to_erpm_offset_;
+  float64_t max_erpm_positive_delta_, max_erpm_negative_delta_;
   float64_t steering_to_servo_gain_, steering_to_servo_offset_;
   Float64::SharedPtr last_servo_cmd;
 
