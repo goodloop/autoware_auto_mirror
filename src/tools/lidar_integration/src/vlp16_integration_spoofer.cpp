@@ -106,29 +106,6 @@ void Vlp16IntegrationSpoofer::SpoofTask::task_function()
   }
 }
 
-// static constexpr uint32_t RAY_SIZE = 16U; // avoid warning -Wunused-const-variable
-// SENSOR SPECIFIC CONSTANTS
-/// resolution of azimuth angle: number of points in a full rotation
-// static constexpr uint16_t AZIMUTH_ROTATION_RESOLUTION = 36000U;
-// avoid warning -Wunused-const-variable
-/// conversion from a degree (vlp) to idx
-// static constexpr float32_t DEG2IDX =
-//   static_cast<float32_t>(AZIMUTH_ROTATION_RESOLUTION) / 360.0F;
-// avoid warning -Wunused-const-variable
-/// how intensity is quantized: 1 byte = 256 possible values
-// static constexpr uint32_t NUM_INTENSITY_VALUES = 256U; // avoid warning -Wunused-const-variable
-
-/// All of these hardcoded values should remain fixed unless the VLP16 packet spec changes ///
-/// number of data blocks per data packet
-// static constexpr uint16_t NUM_BLOCKS_PER_PACKET = 12U; // avoid warning -Wunused-const-variable
-/// number of points stored in a data block
-// static constexpr uint16_t NUM_POINTS_PER_BLOCK = 32U; // avoid warning -Wunused-const-variable
-
-/// full (16 point) fire sequence takes this long to cycle
-// static constexpr float32_t FIRE_SEQ_OFFSET_US = 55.296F; // avoid warning -Wunused-const-variable
-/// one laser fires for this long
-// static constexpr float32_t FIRE_DURATION_US = 2.304F; // avoid warning -Wunused-const-variable
-
 void Vlp16IntegrationSpoofer::SpoofTask::uint16_to_bytes(const uint16_t val, uint8_t arr[])
 {
   arr[0U] = static_cast<uint8_t>(val & 0xFFU);
