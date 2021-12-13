@@ -176,7 +176,7 @@ void RecordReplayPlannerNode::on_ego(const State::SharedPtr & msg)
   State msg_world = *msg;
   if (m_planner->is_recording() || m_planner->is_replaying()) {
     tf_map2odom = tf_buffer_->lookupTransform(
-      recording_frame, "odom",
+      recording_frame, msg->header.frame_id,
       tf2::TimePointZero);
     motion::motion_common::doTransform(*msg, msg_world, tf_map2odom);
     msg_world.header.frame_id = recording_frame;
