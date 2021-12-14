@@ -378,7 +378,11 @@ void LongitudinalController::callbackTimerControl()
   autoware_auto_planning_msgs::msg::TrajectoryPoint current_state_tf;
   ::motion::motion_common::doTransform(m_current_state_ptr->state, current_state_tf, tf);
   // calculate current pose and control data
-  const geometry_msgs::msg::Pose & current_pose = current_state_tf.pose;
+  geometry_msgs::msg::Pose current_pose;
+  current_pose.position.x = tf.transform.translation.x;
+  current_pose.position.y = tf.transform.translation.y;
+  current_pose.position.z = tf.transform.translation.z;
+  current_pose.orientation = tf.transform.rotation;
 
 
   const auto control_data = getControlData(current_pose);
