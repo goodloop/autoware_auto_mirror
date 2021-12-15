@@ -11,8 +11,8 @@
 
     # -- path smoothing --
     enable_path_smoothing: true # flag for path smoothing
-    path_filter_moving_ave_num: 25 # param of moving average filter for path smoothing
-    curvature_smoothing_num: 15    # point-to-point index distance used in curvature calculation : curvature is calculated from three points p(i-num), p(i), p(i+num)
+    path_filter_moving_ave_num: 20 # param of moving average filter for path smoothing
+    curvature_smoothing_num: 10    # point-to-point index distance used in curvature calculation : curvature is calculated from three points p(i-num), p(i), p(i+num)
 
     # -- mpc optimization --
     qp_solver_type: "osqp"                       # optimization solver option (unconstraint_fast or osqp)
