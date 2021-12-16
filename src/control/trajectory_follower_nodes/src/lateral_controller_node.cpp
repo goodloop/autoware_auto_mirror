@@ -274,6 +274,9 @@ void LateralController::onTrajectory(
     return;
   }
 
+  // removing first point of the trajectory since this controller
+  // does not expect current vehicle pose as the first point of the trajectory
+  // TODO(Maxime CLEMENT): remove this when #1298 is merged
   m_current_trajectory_ptr->points.erase(m_current_trajectory_ptr->points.begin());
   m_mpc.setReferenceTrajectory(
     *m_current_trajectory_ptr,
