@@ -20,10 +20,8 @@ project(autoware_auto_geometry)
 
 ## dependencies
 find_package(ament_cmake_auto REQUIRED)
+
 ament_auto_find_build_dependencies()
-add_executable(speed_test.exe src/speed_test.cpp)
-add_executable(boost_intersection.exe src/boost_intersection.cpp)
-add_executable(correct_boost_intersection.exe src/correct_boost_intersection.cpp)
 
 # includes
 ament_auto_add_library(${PROJECT_NAME} SHARED
@@ -37,8 +35,9 @@ autoware_set_compile_options(${PROJECT_NAME})
 if(BUILD_TESTING)
   # run linters
   find_package(ament_lint_auto REQUIRED)
+  find_package(Boost 1.68 REQUIRED)
   find_package(CGAL)
-
+  find_package(benchmark REQUIRED)
 
   ament_lint_auto_find_test_dependencies()
   # gtest
@@ -51,6 +50,7 @@ if(BUILD_TESTING)
     test/src/test_area.cpp
     test/src/test_common_2d.cpp
           test/src/test_intersection.cpp
+          test/src/test_boost_intersection.cpp
   )
   ament_add_gtest(${GEOMETRY_GTEST} ${GEOMETRY_SRC})
   autoware_set_compile_options(${GEOMETRY_GTEST})
@@ -64,7 +64,11 @@ if(BUILD_TESTING)
     "geometry_msgs"
     "osrf_testing_tools_cpp")
   target_link_libraries(${GEOMETRY_GTEST} ${PROJECT_NAME})
-  target_link_libraries(speed_test.exe CGAL::CGAL)
+
+  ament_add_google_benchmark(bench_intersection test/bench/bench_intersection.cpp)
+  target_link_libraries(bench_intersection ${PROJECT_NAME})
+
+
 endif()
 
 # Ament Exporting
