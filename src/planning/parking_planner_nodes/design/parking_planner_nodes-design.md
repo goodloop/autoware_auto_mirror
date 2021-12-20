@@ -1,6 +1,8 @@
 Parking planner nodes {#parking-planner-nodes}
 ==========================
 
+> Note: this package is **deprecated**, the current parking planner nodes are in package @ref freespace-planner.
+
 # Purpose / Use cases
 
 This package provides a ROS2 node for the computational package `parking_planner`. 

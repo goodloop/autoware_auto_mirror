@@ -1,6 +1,8 @@
 Parking Planner Design {#parking-planner}
 ================================================
 
+> Note: this package is **deprecated**, the current parking planner library is in package @ref astar-search.
+
 # Purpose
 The purpose of the parking planner is to plan complex maneuvers for moving a vehicle into and out of parking spots, avoiding obstacles along the way.
 

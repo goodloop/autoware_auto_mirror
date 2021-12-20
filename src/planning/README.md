@@ -27,6 +27,8 @@ generation process.
   - @subpage costmap-generator
   - @subpage costmap-generator-nodes
   - @subpage freespace-planner
+  - @subpage parking-planner (deprecated)
+  - @subpage parking-planner-nodes (deprecated)
 - RecordReplay planner
   - @subpage recordreplay-planner
   - @subpage recordreplay-planner-nodes
