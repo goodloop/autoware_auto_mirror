@@ -76,6 +76,15 @@ const std::unordered_map<GEAR_TYPE, GEAR_TYPE> LgsvlInterface::autoware_to_lgsvl
   {GearReport::NEUTRAL, VSD::GEAR_NEUTRAL},
 };
 
+const std::unordered_map<GEAR_TYPE, GEAR_TYPE> LgsvlInterface::vsc_to_lgsvl_gear {
+  {VSC::GEAR_NEUTRAL, VSD::GEAR_NEUTRAL},
+  {VSC::GEAR_DRIVE, VSD::GEAR_DRIVE},
+  {VSC::GEAR_REVERSE, VSD::GEAR_REVERSE},
+  {VSC::GEAR_PARK, VSD::GEAR_PARKING},
+  {VSC::GEAR_LOW, VSD::GEAR_LOW},
+  {VSC::GEAR_NO_COMMAND, VSD::GEAR_NEUTRAL},
+};
+
 const std::unordered_map<MODE_TYPE, MODE_TYPE> LgsvlInterface::autoware_to_lgsvl_mode {
   {VSC::MODE_NO_COMMAND, static_cast<MODE_TYPE>(VSD::VEHICLE_MODE_COMPLETE_MANUAL)},
   {VSC::MODE_AUTONOMOUS, static_cast<MODE_TYPE>(VSD::VEHICLE_MODE_COMPLETE_AUTO_DRIVE)},
@@ -227,7 +236,8 @@ LgsvlInterface::LgsvlInterface(
     rclcpp::QoS{10},
     [this](lgsvl_msgs::msg::VehicleOdometry::SharedPtr msg) {
       odometry().set__stamp(msg->header.stamp);
-      odometry().set__velocity_mps(msg->velocity);
+      odometry().set__velocity_mps(
+        msg->velocity * (gear_report().report == GearReport::REVERSE ? -1.0f : 1.0f));
       odometry().set__rear_wheel_angle_rad(msg->rear_wheel_angle);
       odometry().set__front_wheel_angle_rad(msg->front_wheel_angle);
     });
@@ -285,17 +295,16 @@ bool8_t LgsvlInterface::send_state_command(
     msg_corrected.blinker = get_state_report().blinker;
   }
   msg_corrected.blinker--;
-
   // Correcting gears
-  auto const gear_iter = autoware_to_lgsvl_gear.find(msg.gear);
+  auto const gear_iter = vsc_to_lgsvl_gear.find(msg.gear);
 
-  if (gear_iter != autoware_to_lgsvl_gear.end()) {
+  if (gear_iter != vsc_to_lgsvl_gear.end()) {
     msg_corrected.gear = gear_iter->second;
   } else {
     msg_corrected.gear = static_cast<uint8_t>(VSD::GEAR_DRIVE);
     RCLCPP_WARN(m_logger, "Unsupported gear value in state command, defaulting to Drive");
   }
-
+  RCLCPP_WARN(m_logger, "send_state_cmd converted gear : %d", static_cast<int>(msg_corrected.gear));
   // Correcting wipers
   auto const wiper_iter = autoware_to_lgsvl_wiper.find(msg.wiper);
 
@@ -339,9 +348,9 @@ bool8_t LgsvlInterface::send_control_command(
   raw_msg.throttle = 0;
   raw_msg.brake = 0;
 
-  using VSR = autoware_auto_vehicle_msgs::msg::VehicleStateReport;
-  const auto directional_accel = get_state_report().gear ==
-    VSR::GEAR_REVERSE ? -msg.long_accel_mps2 : msg.long_accel_mps2;
+  // using VSR = autoware_auto_vehicle_msgs::msg::VehicleStateReport;
+  const auto directional_accel = get_gear_report().report ==
+    GearReport::REVERSE ? -msg.long_accel_mps2 : msg.long_accel_mps2;
 
   if (directional_accel >= decltype(msg.long_accel_mps2) {}) {
     // TODO(c.ho)  cast to double...
