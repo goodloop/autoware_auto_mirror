@@ -314,11 +314,12 @@ void BehaviorPlannerNode::on_ego_state(const State::SharedPtr & msg)
         get_logger(), clock, 3000,
         "Send command to convert desired_gear %d to %d",
         static_cast<int>(desired_gear), static_cast<int>(it->second));
-      gear_command.gear = it->second;
-      gear_command.mode = VehicleStateCommand::MODE_AUTONOMOUS;
+      GearCommand gear_command;
+      gear_command.gear_status = desired_gear;
       gear_command.stamp = msg->header.stamp;
-      m_vehicle_state_command_pub->publish(gear_command);
-    } else {
+      m_gear_command_pub->publish(gear_command);
+    }
+    else {
       RCLCPP_INFO_THROTTLE(
         get_logger(), clock, 3000,
         "Unable to match desired_gear %d", static_cast<int>(desired_gear));

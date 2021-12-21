@@ -67,6 +67,7 @@ using autoware_auto_planning_msgs::msg::HADMapRoute;
 using autoware_auto_vehicle_msgs::msg::VehicleStateCommand;
 using autoware_auto_vehicle_msgs::msg::VehicleStateReport;
 using autoware_auto_vehicle_msgs::msg::GearReport;
+using autoware_auto_vehicle_msgs::msg::GearCommand;
 using GEAR_TYPE =
   std::remove_const<decltype(autoware_auto_vehicle_msgs::msg::GearReport::DRIVE_1)>::type;
 using State = autoware_auto_vehicle_msgs::msg::VehicleKinematicState;
