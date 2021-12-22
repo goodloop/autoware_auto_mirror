@@ -59,7 +59,6 @@ void GlobalVelocityPlannerNode::init()
 //    std::cout << vehicle_param.front_cornering_stiffness() << std::endl;
 
   velocity_planner = std::make_unique<GlobalVelocityPlanner>(vehicle_param, planner_config);
-  std::cout << "Started" << std::endl;
 
   // Setup Tf Buffer with listener
   rclcpp::Clock::SharedPtr clock = std::make_shared<rclcpp::Clock>(RCL_ROS_TIME);
@@ -143,7 +142,7 @@ void GlobalVelocityPlannerNode::state_callback(const State::SharedPtr & msg)
   if (velocity_planner->is_route_ready && !velocity_planner->is_route_empty()) {
     if (velocity_planner->is_route_over()) {
       velocity_planner->is_route_ready = false;
-      std::cout << "Route over" << std::endl;
+      RCLCPP_INFO(get_logger(), "Route over");
       velocity_planner->clear_route();
       return;
     }
