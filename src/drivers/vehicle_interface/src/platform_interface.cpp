@@ -90,6 +90,13 @@ autoware_auto_vehicle_msgs::msg::GearReport & PlatformInterface::gear_report() n
   return m_gear_report;
 }
 
+void PlatformInterface::send_gear_command(
+  const autoware_auto_vehicle_msgs::msg::GearCommand & msg)
+{
+  (void)msg;
+  throw std::runtime_error("GearCommand not supported by this vehicle interface");
+}
+
 void PlatformInterface::send_headlights_command(
   const autoware_auto_vehicle_msgs::msg::HeadlightsCommand & msg)
 {

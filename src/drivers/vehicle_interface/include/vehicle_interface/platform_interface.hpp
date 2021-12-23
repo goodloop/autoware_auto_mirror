@@ -45,6 +45,7 @@
 
 using autoware::common::types::bool8_t;
 
+using autoware_auto_vehicle_msgs::msg::GearCommand;
 using autoware_auto_vehicle_msgs::msg::GearReport;
 using autoware_auto_vehicle_msgs::msg::HandBrakeCommand;
 using autoware_auto_vehicle_msgs::msg::HandBrakeReport;
@@ -143,6 +144,13 @@ public:
   /// \brief Get the most recent state of the gear feature.
   /// \return A GearReport message intended to be published.
   const GearReport & get_gear_report() const noexcept;
+
+
+    /// \brief Send the gear control command to the vehicle platform.
+  /// If this is not implemented for a specific vehicle but is called,
+  /// a runtime error will be thrown.
+  /// \param[in] msg The control command to send to the vehicle.
+  virtual void send_gear_command(const GearCommand & msg);
 
   /// \brief Send the hand_brake control command to the vehicle platform.
   /// If this is not implemented for a specific vehicle but is called,

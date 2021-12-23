@@ -295,10 +295,10 @@ void VehicleInterfaceNode::init(
     odometry.topic,
     rclcpp::QoS{10U});
   // Make subordinate subscriber TODO(c.ho) parameterize time better
-  using VSC = autoware_auto_vehicle_msgs::msg::VehicleStateCommand;
-  m_state_sub = create_subscription<VSC>(
-    state_command.topic, rclcpp::QoS{10U},
-    [this](VSC::SharedPtr msg) {m_last_state_command = *msg;});
+  // using VSC = autoware_auto_vehicle_msgs::msg::VehicleStateCommand;
+  // m_state_sub = create_subscription<VSC>(
+  //   state_command.topic, rclcpp::QoS{10U},
+  //   [this](VSC::SharedPtr msg) {m_last_state_command = *msg;});
 
   // Feature subscriptions/publishers
   if (m_enabled_features.find(ViFeature::HEADLIGHTS) != m_enabled_features.end()) {
@@ -331,6 +331,10 @@ void VehicleInterfaceNode::init(
   if (m_enabled_features.find(ViFeature::GEAR) != m_enabled_features.end()) {
     m_gear_rpt_pub = create_publisher<autoware_auto_vehicle_msgs::msg::GearReport>(
       "gear_report", rclcpp::QoS{10U});
+    m_gear_cmd_sub = create_subscription<autoware_auto_vehicle_msgs::msg::GearCommand>(
+      "gear_command", rclcpp::QoS{10U},
+      [this](autoware_auto_vehicle_msgs::msg::GearCommand::SHaredPtr msg)
+      {m_interface->send_gear_command(*msg);});
   }
 
   // State machine boilerplate for better errors

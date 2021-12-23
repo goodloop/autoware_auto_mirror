@@ -134,6 +134,8 @@ public:
   /// Respond to request for changing autonomy mode. For LGSVL, this means nothing.
   bool handle_mode_change_request(
     autoware_auto_vehicle_msgs::srv::AutonomyModeChange_Request::SharedPtr request) override;
+  /// Send gear command data.
+  void send_gear_command(const autoware_auto_vehicle_msgs::msg::GearCommand & msg) override;
   /// Send headlights command data.
   void send_headlights_command(const autoware_auto_vehicle_msgs::msg::HeadlightsCommand & msg)
   override;

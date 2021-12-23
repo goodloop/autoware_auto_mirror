@@ -69,7 +69,7 @@ const std::unordered_map<WIPER_TYPE, WIPER_TYPE> LgsvlInterface::autoware_to_lgs
 
 const std::unordered_map<GEAR_TYPE, GEAR_TYPE> LgsvlInterface::autoware_to_lgsvl_gear {
   {GearReport::NONE, VSD::GEAR_NEUTRAL},
-  {GearReport::DRIVE_1, VSD::GEAR_DRIVE},
+  {GearReport::DRIVE, VSD::GEAR_DRIVE},
   {GearReport::REVERSE, VSD::GEAR_REVERSE},
   {GearReport::PARK, VSD::GEAR_PARKING},
   {GearReport::LOW, VSD::GEAR_LOW},
@@ -304,7 +304,7 @@ bool8_t LgsvlInterface::send_state_command(
     msg_corrected.gear = static_cast<uint8_t>(VSD::GEAR_DRIVE);
     RCLCPP_WARN(m_logger, "Unsupported gear value in state command, defaulting to Drive");
   }
-  RCLCPP_WARN(m_logger, "send_state_cmd converted gear : %d", static_cast<int>(msg_corrected.gear));
+  // RCLCPP_WARN(m_logger, "send_state_cmd converted gear : %d", static_cast<int>(msg_corrected.gear));
   // Correcting wipers
   auto const wiper_iter = autoware_to_lgsvl_wiper.find(msg.wiper);
 
@@ -412,6 +412,20 @@ bool8_t LgsvlInterface::handle_mode_change_request(
   // mimic a real vehicle and allow commanding the vehicle to be disabled
   (void)request;
   return true;
+}
+
+void LgsvlInterface::send_gear_command(const autoware_auto_vehicle_msgs::msg::GearCommand & msg)
+{
+  auto msg_corrected = msg;
+  auto const gear_iter = vsc_to_lgsvl_gear.find(msg.gear);
+  if (gear_iter != vsc_to_lgsvl_gear.end()) {
+    msg_corrected.gear = gear_iter->second;
+  } else {
+    msg_corrected.gear = static_cast<uint8_t>(VSD::GEAR_DRIVE);
+    RCLCPP_WARN(m_logger, "Unsupported gear value in state command, defaulting to Drive");
+  }
+  m_lgsvl_state.set__current_gear(msg_corrected.gear);
+  m_state_pub->publish(m_lgsvl_state);
 }
 
 void LgsvlInterface::send_headlights_command(

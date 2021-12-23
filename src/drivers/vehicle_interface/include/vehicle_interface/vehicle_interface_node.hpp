@@ -172,8 +172,8 @@ private:
     nullptr};
   rclcpp::Publisher<autoware_auto_vehicle_msgs::msg::VehicleStateReport>::SharedPtr m_state_pub{
     nullptr};
-  rclcpp::Subscription<autoware_auto_vehicle_msgs::msg::VehicleStateCommand>::SharedPtr
-    m_state_sub{nullptr};
+  // rclcpp::Subscription<autoware_auto_vehicle_msgs::msg::VehicleStateCommand>::SharedPtr
+  //   m_state_sub{nullptr};
   rclcpp::Publisher<GearReport>::SharedPtr m_gear_rpt_pub{nullptr};
   rclcpp::Publisher<HeadlightsReport>::SharedPtr m_headlights_rpt_pub{nullptr};
   rclcpp::Subscription<HeadlightsCommand>::SharedPtr m_headlights_cmd_sub{nullptr};
@@ -181,6 +181,7 @@ private:
   rclcpp::Subscription<HornCommand>::SharedPtr m_horn_cmd_sub{nullptr};
   rclcpp::Publisher<WipersReport>::SharedPtr m_wipers_rpt_pub{nullptr};
   rclcpp::Subscription<WipersCommand>::SharedPtr m_wipers_cmd_sub{nullptr};
+  rclcpp::Subscription<GearCommand>::SharedPtr m_gear_cmd_sub{nullptr};
   rclcpp::Service<autoware_auto_vehicle_msgs::srv::AutonomyModeChange>::SharedPtr m_mode_service{
     nullptr};
 
