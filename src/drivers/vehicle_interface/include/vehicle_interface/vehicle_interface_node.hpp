@@ -179,7 +179,6 @@ private:
   rclcpp::Subscription<HornCommand>::SharedPtr m_horn_cmd_sub{nullptr};
   rclcpp::Publisher<WipersReport>::SharedPtr m_wipers_rpt_pub{nullptr};
   rclcpp::Subscription<WipersCommand>::SharedPtr m_wipers_cmd_sub{nullptr};
-  rclcpp::Subscription<GearCommand>::SharedPtr m_gear_cmd_sub{nullptr};
   rclcpp::Service<autoware_auto_vehicle_msgs::srv::AutonomyModeChange>::SharedPtr m_mode_service{
     nullptr};
 
