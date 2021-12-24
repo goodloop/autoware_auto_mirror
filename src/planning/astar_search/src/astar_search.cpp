@@ -206,8 +206,7 @@ double AstarSearch::estimateCost(const geometry_msgs::msg::Pose & pose) const
 
 void AstarSearch::setOccupancyGrid(const nav_msgs::msg::OccupancyGrid & costmap)
 {
-  costmap_ = costmap;
-
+  BasePlanningAlgorithm::setOccupancyGrid(costmap);
   const auto height = costmap_.info.height;
   const auto width = costmap_.info.width;
 
@@ -216,21 +215,8 @@ void AstarSearch::setOccupancyGrid(const nav_msgs::msg::OccupancyGrid & costmap)
   nodes_.resize(height);
   for (size_t i = 0; i < height; i++) {
     nodes_[i].resize(width);
-  }
-  for (size_t i = 0; i < height; i++) {
     for (size_t j = 0; j < width; j++) {
       nodes_[i][j].resize(astar_param_.theta_size);
-    }
-  }
-
-  // Initialize status
-  for (size_t i = 0; i < height; i++) {
-    for (size_t j = 0; j < width; j++) {
-      const int cost = costmap_.data[i * width + j];
-
-      if (cost < 0 || astar_param_.obstacle_threshold <= cost) {
-        nodes_[i][j][0].status = NodeStatus::Obstacle;
-      }
     }
   }
 }
@@ -305,12 +291,6 @@ bool AstarSearch::isOutOfRange(const IndexXYT & index) const
   if (index.x < 0 || static_cast<int>(costmap_.info.width) <= index.x) {return true;}
   if (index.y < 0 || static_cast<int>(costmap_.info.height) <= index.y) {return true;}
   return false;
-}
-
-bool AstarSearch::isObs(const IndexXYT & index) const
-{
-  return nodes_[static_cast<size_t>(index.y)][static_cast<size_t>(index.x)][0].status ==
-         NodeStatus::Obstacle;
 }
 
 void AstarSearch::setPath(const AstarNode & goal_node)
