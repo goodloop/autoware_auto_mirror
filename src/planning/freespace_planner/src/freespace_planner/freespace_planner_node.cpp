@@ -166,7 +166,7 @@ FreespacePlannerNode::FreespacePlannerNode(const rclcpp::NodeOptions & node_opti
 
   // Hybrid A* implementation
   {
-    astar_ = std::make_unique<astar_search::AstarSearch>(astar_param_);
+    algo_ = std::make_unique<astar_search::AstarSearch>(astar_param_);
   }
 
   // Publisher
@@ -330,7 +330,7 @@ bool FreespacePlannerNode::planTrajectory()
   reset();
 
   // Supply latest costmap to planning algorithm
-  astar_->setOccupancyGrid(*occupancy_grid_.get());
+  algo_->setOccupancyGrid(*occupancy_grid_.get());
 
   // Calculate poses in costmap frame
   const auto start_pose_in_costmap_frame = transformPose(
@@ -342,14 +342,14 @@ bool FreespacePlannerNode::planTrajectory()
 
   // execute astar search
   const rclcpp::Time start = get_clock()->now();
-  auto search_status = astar_->makePlan(start_pose_in_costmap_frame, goal_pose_in_costmap_frame);
+  auto search_status = algo_->makePlan(start_pose_in_costmap_frame, goal_pose_in_costmap_frame);
   const rclcpp::Time end = get_clock()->now();
 
   RCLCPP_INFO(get_logger(), "Astar planning took %f [s]", (end - start).seconds());
 
   if (astar_search::isSuccess(search_status)) {
     RCLCPP_INFO(get_logger(), "Plan found.");
-    auto waypoints = adjustWaypointsSize(astar_->getWaypoints());
+    auto waypoints = adjustWaypointsSize(algo_->getWaypoints());
     trajectory_ =
       createTrajectory(start_pose_, waypoints, static_cast<float>(node_param_.waypoints_velocity));
   } else {
