@@ -22,6 +22,7 @@
 
 #include <autoware_auto_control_msgs/msg/ackermann_control_command.hpp>
 
+#include <autoware_auto_vehicle_msgs/msg/gear_command.hpp>
 #include <autoware_auto_vehicle_msgs/msg/gear_report.hpp>
 #include <autoware_auto_vehicle_msgs/msg/hand_brake_command.hpp>
 #include <autoware_auto_vehicle_msgs/msg/hand_brake_report.hpp>

@@ -22,6 +22,7 @@
 
 #include <autoware_auto_control_msgs/msg/ackermann_control_command.hpp>
 
+#include <autoware_auto_vehicle_msgs/msg/gear_command.hpp>
 #include <autoware_auto_vehicle_msgs/msg/gear_report.hpp>
 #include <autoware_auto_vehicle_msgs/msg/hand_brake_command.hpp>
 #include <autoware_auto_vehicle_msgs/msg/hand_brake_report.hpp>
@@ -145,8 +146,7 @@ public:
   /// \return A GearReport message intended to be published.
   const GearReport & get_gear_report() const noexcept;
 
-
-    /// \brief Send the gear control command to the vehicle platform.
+  /// \brief Send the gear control command to the vehicle platform.
   /// If this is not implemented for a specific vehicle but is called,
   /// a runtime error will be thrown.
   /// \param[in] msg The control command to send to the vehicle.

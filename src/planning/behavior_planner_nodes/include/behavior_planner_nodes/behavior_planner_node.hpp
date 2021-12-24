@@ -33,6 +33,7 @@
 #include <autoware_auto_planning_msgs/msg/trajectory_point.hpp>
 #include <autoware_auto_vehicle_msgs/msg/vehicle_kinematic_state.hpp>
 #include <autoware_auto_vehicle_msgs/msg/gear_report.hpp>
+#include <autoware_auto_vehicle_msgs/msg/gear_command.hpp>
 #include <autoware_auto_vehicle_msgs/msg/vehicle_state_report.hpp>
 // #include <autoware_auto_vehicle_msgs/msg/vehicle_state_command.hpp>
 #include <autoware_auto_mapping_msgs/srv/had_map_service.hpp>

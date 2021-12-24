@@ -141,7 +141,6 @@ private:
   // Helper function called in constructors
   VEHICLE_INTERFACE_LOCAL void init(
     const TopicNumMatches & control_command,
-    const TopicNumMatches & state_command,
     const TopicNumMatches & odometry,
     const TopicNumMatches & state_report,
     const std::experimental::optional<StateMachineConfig> & state_machine_config,
@@ -172,8 +171,7 @@ private:
     nullptr};
   rclcpp::Publisher<autoware_auto_vehicle_msgs::msg::VehicleStateReport>::SharedPtr m_state_pub{
     nullptr};
-  // rclcpp::Subscription<autoware_auto_vehicle_msgs::msg::VehicleStateCommand>::SharedPtr
-  //   m_state_sub{nullptr};
+  rclcpp::Subscription<GearCommand>::SharedPtr m_gear_cmd_sub{nullptr};
   rclcpp::Publisher<GearReport>::SharedPtr m_gear_rpt_pub{nullptr};
   rclcpp::Publisher<HeadlightsReport>::SharedPtr m_headlights_rpt_pub{nullptr};
   rclcpp::Subscription<HeadlightsCommand>::SharedPtr m_headlights_cmd_sub{nullptr};
