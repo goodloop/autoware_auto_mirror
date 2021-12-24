@@ -69,7 +69,7 @@ const std::unordered_map<WIPER_TYPE, WIPER_TYPE> LgsvlInterface::autoware_to_lgs
 
 const std::unordered_map<GEAR_TYPE, GEAR_TYPE> LgsvlInterface::autoware_to_lgsvl_gear {
   {GearReport::NONE, VSD::GEAR_NEUTRAL},
-  {GearReport::DRIVE, VSD::GEAR_DRIVE},
+  {GearReport::DRIVE_1, VSD::GEAR_DRIVE},
   {GearReport::REVERSE, VSD::GEAR_REVERSE},
   {GearReport::PARK, VSD::GEAR_PARKING},
   {GearReport::LOW, VSD::GEAR_LOW},
