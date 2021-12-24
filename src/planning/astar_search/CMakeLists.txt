@@ -1,12 +1,28 @@
 cmake_minimum_required(VERSION 3.5)
 project(astar_search)
-
 find_package(ament_cmake_auto REQUIRED)
 ament_auto_find_build_dependencies()
 
+# set(REEDS_SHEPP_LIB reeds_shepp)
+# ament_auto_add_library(${REEDS_SHEPP_LIB} SHARED
+#   src/reeds_shepp.cpp
+# )
+
+# set(PLANNER_BASE_LIB planner_base)
+# ament_auto_add_library(${PLANNER_BASE_LIB} SHARED
+#   src/base_planning_algorithm.cpp
+# )
+
 set(ASTAR_SEARCH_LIB astar_search)
 ament_auto_add_library(${ASTAR_SEARCH_LIB} SHARED
+        src/base_planning_algorithm.cpp
         src/astar_search.cpp)
+
+# target_link_libraries(${ASTAR_SEARCH_LIB}
+# ${PLANNER_BASE_LIB}
+# ${REEDS_SHEPP_LIB}
+# )
+
 autoware_set_compile_options(${ASTAR_SEARCH_LIB})
 
 if(BUILD_TESTING)
