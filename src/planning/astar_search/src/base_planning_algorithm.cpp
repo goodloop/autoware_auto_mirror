@@ -105,6 +105,28 @@ geometry_msgs::msg::Pose index2pose(
   return pose_local;
 }
 
+void BasePlanningAlgorithm::setOccupancyGrid(const nav_msgs::msg::OccupancyGrid & costmap)
+{
+  costmap_ = costmap;
+  const auto height = costmap_.info.height;
+  const auto width = costmap_.info.width;
+
+  // Initialize status
+  std::vector<std::vector<bool>> is_obstacle_table;
+  is_obstacle_table.resize(height);
+  for (uint32_t i = 0; i < height; i++) {
+    is_obstacle_table.at(i).resize(width);
+    for (uint32_t j = 0; j < width; j++) {
+      const int cost = costmap_.data[i * width + j];
+
+      if (cost < 0 || astar_param_.obstacle_threshold <= cost) {
+        is_obstacle_table[i][j] = true;
+      }
+    }
+  }
+  is_obstacle_table_ = is_obstacle_table;
+}
+
 
 bool BasePlanningAlgorithm::hasObstacleOnTrajectory(const geometry_msgs::msg::PoseArray & trajectory) const
 {

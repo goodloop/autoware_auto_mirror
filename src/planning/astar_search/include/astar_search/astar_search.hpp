@@ -133,7 +133,6 @@ private:
 
 
   bool isOutOfRange(const IndexXYT & index) const override;
-  bool isObs(const IndexXYT & index) const override;
   bool isGoal(const AstarNode & node) const;
 
   AstarNode * getNodeRef(const IndexXYT & index);

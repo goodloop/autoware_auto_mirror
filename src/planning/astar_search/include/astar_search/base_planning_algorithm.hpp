@@ -163,7 +163,7 @@ public:
 
   /// \brief Set occupancy grid for planning
   /// \param[in] costmap nav_msgs::msg::OccupancyGrid type object
-  virtual void setOccupancyGrid(const nav_msgs::msg::OccupancyGrid & costmap) = 0;
+  virtual void setOccupancyGrid(const nav_msgs::msg::OccupancyGrid & costmap);
 
   /// \brief Create trajectory plan
   /// \param[in] start_pose Start position
@@ -187,12 +187,22 @@ public:
 protected:
   bool detectCollision(const IndexXYT & index) const;
   virtual bool isOutOfRange(const IndexXYT & index) const = 0;
-  virtual bool isObs(const IndexXYT & index) const = 0;
+
+  inline bool isObs(const IndexXYT & index) const
+  {
+    // NOTE: Accessing by .at() instead makes 1.2 times slower here.
+    // Also, boundary check is already done in isOutOfRange before calling this function.
+    // So, basically .at() is not necessary.
+    return is_obstacle_table_[static_cast<size_t>(index.y)][static_cast<size_t>(index.x)];
+  }
 
   AstarParam astar_param_;
 
   // costmap as occupancy grid
   nav_msgs::msg::OccupancyGrid costmap_;
+
+  // is_obstacle's table
+  std::vector<std::vector<bool>> is_obstacle_table_;
 
   // pose in costmap frame
   geometry_msgs::msg::Pose start_pose_;
