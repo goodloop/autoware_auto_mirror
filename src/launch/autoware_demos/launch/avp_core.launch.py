@@ -259,7 +259,8 @@ def generate_launch_description():
             ('vehicle_state', '/vehicle/vehicle_kinematic_state'),
             ('route', 'global_path'),
             ('gear_report', '/vehicle/gear_report'),
-            ('vehicle_state_command', '/vehicle/state_command')
+            ('gear_command', '/vehicle/gear_command')
+            # ('vehicle_state_command', '/vehicle/state_command')
         ]
     )
     off_map_obstacles_filter = Node(
