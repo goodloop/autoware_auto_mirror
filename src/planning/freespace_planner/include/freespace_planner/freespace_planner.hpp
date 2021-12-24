@@ -92,7 +92,7 @@ private:
   FreespacePlannerState state_;
 
   // variables
-  std::unique_ptr<astar_search::AstarSearch> astar_;
+  std::unique_ptr<astar_search::BasePlanningAlgorithm> algo_;
   std::shared_ptr<GoalHandle> planning_goal_handle_{nullptr};
   geometry_msgs::msg::PoseStamped start_pose_;
   geometry_msgs::msg::PoseStamped goal_pose_;
