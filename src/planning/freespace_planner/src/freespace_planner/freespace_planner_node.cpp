@@ -222,6 +222,7 @@ parking::AstarParam FreespacePlannerNode::getAstarParam()
 {
   parking::AstarParam param;
   param.use_back = declare_parameter("astar.use_back", true);
+  param.use_reeds_shepp = declare_parameter("astar.use_reeds_shepp", true);
   param.only_behind_solutions = declare_parameter("astar.only_behind_solutions", false);
   param.distance_heuristic_weight = declare_parameter("astar.distance_heuristic_weight", 1.0);
   return param;

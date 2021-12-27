@@ -3,10 +3,10 @@ project(astar_search)
 find_package(ament_cmake_auto REQUIRED)
 ament_auto_find_build_dependencies()
 
-# set(REEDS_SHEPP_LIB reeds_shepp)
-# ament_auto_add_library(${REEDS_SHEPP_LIB} SHARED
-#   src/reeds_shepp.cpp
-# )
+set(REEDS_SHEPP_LIB reeds_shepp)
+ament_auto_add_library(${REEDS_SHEPP_LIB} SHARED
+  src/reeds_shepp.cpp
+)
 
 # set(PLANNER_BASE_LIB planner_base)
 # ament_auto_add_library(${PLANNER_BASE_LIB} SHARED
@@ -18,24 +18,24 @@ ament_auto_add_library(${ASTAR_SEARCH_LIB} SHARED
         src/base_planning_algorithm.cpp
         src/astar_search.cpp)
 
-# target_link_libraries(${ASTAR_SEARCH_LIB}
+target_link_libraries(${ASTAR_SEARCH_LIB}
 # ${PLANNER_BASE_LIB}
-# ${REEDS_SHEPP_LIB}
-# )
+${REEDS_SHEPP_LIB}
+)
 
 autoware_set_compile_options(${ASTAR_SEARCH_LIB})
 
 if(BUILD_TESTING)
-  # # run linters
-  # find_package(ament_lint_auto REQUIRED)
+  # run linters
+  find_package(ament_lint_auto REQUIRED)
 
-  # ament_lint_auto_find_test_dependencies()
+  ament_lint_auto_find_test_dependencies()
 
-  # # Unit tests
-  # find_package(ament_cmake_gtest REQUIRED)
-  # ament_add_gtest(${ASTAR_SEARCH_LIB}_test test/test_astar_search.cpp TIMEOUT 600)
-  # autoware_set_compile_options(${ASTAR_SEARCH_LIB}_test)
-  # target_link_libraries(${ASTAR_SEARCH_LIB}_test ${ASTAR_SEARCH_LIB})
+  # Unit tests
+  find_package(ament_cmake_gtest REQUIRED)
+  ament_add_gtest(${ASTAR_SEARCH_LIB}_test test/test_astar_search.cpp TIMEOUT 600)
+  autoware_set_compile_options(${ASTAR_SEARCH_LIB}_test)
+  target_link_libraries(${ASTAR_SEARCH_LIB}_test ${ASTAR_SEARCH_LIB})
 endif()
 
 ament_auto_package(INSTALL_TO_SHARE)
