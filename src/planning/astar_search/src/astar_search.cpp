@@ -27,7 +27,7 @@ namespace autoware
 {
 namespace planning
 {
-namespace astar_search
+namespace parking
 {
 
 constexpr double deg2rad(const double deg) {return deg * M_PI / 180.0;}
@@ -130,12 +130,15 @@ AstarSearch::TransitionTable createTransitionTable(
   return transition_table;
 }
 
-AstarSearch::AstarSearch(const AstarParam & astar_param)
-: BasePlanningAlgorithm(astar_param)
+AstarSearch::AstarSearch(
+  const PlannerCommonParam & planner_common_param, const AstarParam & astar_param
+)
+: BasePlanningAlgorithm(planner_common_param),
+  astar_param_(astar_param)
 {
   transition_table_ = createTransitionTable(
-    astar_param_.minimum_turning_radius, astar_param_.maximum_turning_radius,
-    astar_param_.turning_radius_size, astar_param_.theta_size, astar_param_.use_back);
+    planner_common_param_.minimum_turning_radius, planner_common_param_.maximum_turning_radius,
+    planner_common_param_.turning_radius_size, planner_common_param_.theta_size, astar_param_.use_back);
 }
 
 SearchStatus AstarSearch::makePlan(
@@ -157,7 +160,7 @@ SearchStatus AstarSearch::makePlan(
 
 bool AstarSearch::setStartNode()
 {
-  const auto index = pose2index(costmap_, start_pose_, astar_param_.theta_size);
+  const auto index = pose2index(costmap_, start_pose_, planner_common_param_.theta_size);
 
   if (detectCollision(index)) {
     return false;
@@ -167,7 +170,7 @@ bool AstarSearch::setStartNode()
   AstarNode * start_node = getNodeRef(index);
   start_node->x = start_pose_.position.x;
   start_node->y = start_pose_.position.y;
-  start_node->theta = 2.0 * M_PI / static_cast<double>(astar_param_.theta_size) *
+  start_node->theta = 2.0 * M_PI / static_cast<double>(planner_common_param_.theta_size) *
     static_cast<double>(index.theta);
   start_node->gc = 0;
   start_node->hc = estimateCost(start_pose_);
@@ -183,7 +186,7 @@ bool AstarSearch::setStartNode()
 
 bool AstarSearch::setGoalNode() const
 {
-  const auto index = pose2index(costmap_, goal_pose_, astar_param_.theta_size);
+  const auto index = pose2index(costmap_, goal_pose_, planner_common_param_.theta_size);
 
   if (detectCollision(index)) {
     return false;
@@ -194,6 +197,7 @@ bool AstarSearch::setGoalNode() const
 
 double AstarSearch::estimateCost(const geometry_msgs::msg::Pose & pose) const
 {
+  //TODO copy reeds-shepp
   double total_cost = 0.0;
 
   // euclidean distance
@@ -216,7 +220,7 @@ void AstarSearch::setOccupancyGrid(const nav_msgs::msg::OccupancyGrid & costmap)
   for (size_t i = 0; i < height; i++) {
     nodes_[i].resize(width);
     for (size_t j = 0; j < width; j++) {
-      nodes_[i][j].resize(astar_param_.theta_size);
+      nodes_[i][j].resize(planner_common_param_.theta_size);
     }
   }
 }
@@ -230,7 +234,7 @@ SearchStatus AstarSearch::search()
     // Check time and terminate if the search reaches the time limit
     const rclcpp::Time now = rclcpp::Clock(RCL_ROS_TIME).now();
     const double msec = (now - begin).seconds() * 1000.0;
-    if (msec > astar_param_.time_limit) {
+    if (msec > planner_common_param_.time_limit) {
       return SearchStatus::FAILURE_TIMEOUT_EXCEEDED;
     }
 
@@ -245,20 +249,20 @@ SearchStatus AstarSearch::search()
     }
 
     // Transit
-    const auto index_theta = discretizeAngle(current_node->theta, astar_param_.theta_size);
+    const auto index_theta = discretizeAngle(current_node->theta, planner_common_param_.theta_size);
     for (const auto & transition : transition_table_[static_cast<size_t>(index_theta)]) {
       const bool is_turning_point = transition.is_back != current_node->is_back;
 
       // TODO(T.Horibe): change step to distance (just rename)
       const double move_cost =
-        is_turning_point ? astar_param_.reverse_weight * transition.step : transition.step;
+        is_turning_point ? planner_common_param_.reverse_weight * transition.step : transition.step;
 
       // Calculate index of the next state
       geometry_msgs::msg::Pose next_pose;
       next_pose.position.x = current_node->x + transition.shift_x;
       next_pose.position.y = current_node->y + transition.shift_y;
       next_pose.orientation = makeQuaternionWithYaw(current_node->theta + transition.shift_theta);
-      const auto next_index = pose2index(costmap_, next_pose, astar_param_.theta_size);
+      const auto next_index = pose2index(costmap_, next_pose, planner_common_param_.theta_size);
 
       if (detectCollision(next_index)) {
         continue;
@@ -303,11 +307,11 @@ void AstarSearch::setPath(const AstarNode & goal_node)
     pose.header = header;
     pose.pose = local2global(costmap_, node2pose(*node));
 
-    // AstarWaypoints
-    AstarWaypoint aw;
-    aw.pose = pose;
-    aw.is_back = node->is_back;
-    waypoints_.waypoints.push_back(aw);
+    // PlannerWaypoints
+    PlannerWaypoint pw;
+    pw.pose = pose;
+    pw.is_back = node->is_back;
+    waypoints_.waypoints.push_back(pw);
 
     // To the next node
     node = node->parent;
@@ -331,14 +335,14 @@ bool AstarSearch::isGoal(const AstarNode & node) const
     return false;
   }
 
-  if (std::fabs(relative_pose.position.x) > astar_param_.goal_longitudinal_tolerance ||
-    std::fabs(relative_pose.position.y) > astar_param_.goal_lateral_tolerance)
+  if (std::fabs(relative_pose.position.x) > planner_common_param_.goal_longitudinal_tolerance ||
+    std::fabs(relative_pose.position.y) > planner_common_param_.goal_lateral_tolerance)
   {
     return false;
   }
 
   const auto angle_diff = normalizeRadian(tf2::getYaw(relative_pose.orientation));
-  if (std::abs(angle_diff) > astar_param_.goal_angular_tolerance) {
+  if (std::abs(angle_diff) > planner_common_param_.goal_angular_tolerance) {
     return false;
   }
 
@@ -351,6 +355,6 @@ AstarNode * AstarSearch::getNodeRef(const IndexXYT & index)
     static_cast<size_t>(index.theta)];
 }
 
-}  // namespace astar_search
+}  // namespace parking
 }  // namespace planning
 }  // namespace autoware

@@ -12,7 +12,7 @@ goal pose respecting kinematic constrains of the vehicle.
 
 A* search needs a representation of an environment in order to plan a trajectory.
 It is provided in form of [nav_msgs::msg::OccupancyGrid](http://docs.ros.org/en/noetic/api/nav_msgs/html/msg/OccupancyGrid.html) costmap.
-Algorithm outputs custom `AstarWaypoints` object which definition can be found in code docs.
+Algorithm outputs custom `PlannerWaypoints` object which definition can be found in code docs.
 
 Having the costmap A* search can create smooth and kinematically feasible trajectories that avoid obstacles using Hybrid
 A* algorithm.

@@ -38,13 +38,11 @@ namespace autoware
 {
 namespace planning
 {
-namespace astar_search
+namespace parking
 {
 double normalizeRadian(
   const double rad, const double min_rad = -M_PI, const double max_rad = M_PI);
 int discretizeAngle(const double theta, const size_t theta_size);
-
-enum class NodeStatus : uint8_t { None, Open, Closed, Obstacle };
 
 struct IndexXYT
 {
@@ -72,8 +70,8 @@ geometry_msgs::msg::Pose global2local(
 geometry_msgs::msg::Pose local2global(
   const nav_msgs::msg::OccupancyGrid & costmap, const geometry_msgs::msg::Pose & pose_local);
 
-/// \brief Definition of essential robot dimensions
-struct ASTAR_SEARCH_PUBLIC RobotShape
+/// \brief Definition of essential vehicle dimensions
+struct ASTAR_SEARCH_PUBLIC VehicleShape
 {
   double length;     ///< Robot's length (bound with X axis direction) [m]
   double width;      ///< Robot's length (bound with Y axis direction)  [m]
@@ -81,19 +79,15 @@ struct ASTAR_SEARCH_PUBLIC RobotShape
 };
 
 /// \brief Parameters defining algorithm configuration
-struct ASTAR_SEARCH_PUBLIC AstarParam
+struct ASTAR_SEARCH_PUBLIC PlannerCommonParam
 {
   // base configs
-  /// Indicate if should search for solutions in backward direction
-  bool use_back;
-  /// Indicate if solutions should be exclusively behind the goal
-  bool only_behind_solutions;
   /// Planning time limit [msec]
   double time_limit;
 
   // robot configs
   /// Definition of robot shape
-  RobotShape robot_shape;
+  VehicleShape vehicle_shape;
   /// Minimum possible turning radius to plan trajectory [m]
   double minimum_turning_radius;
   /// Maximum possible turning radius to plan trajectory [m]
@@ -106,8 +100,6 @@ struct ASTAR_SEARCH_PUBLIC AstarParam
   size_t theta_size;
   /// Cost of changing moving direction [-]
   double reverse_weight;
-  /// Distance weight for trajectory cost estimation
-  double distance_heuristic_weight;
   /// Lateral tolerance of goal pose [m]
   double goal_lateral_tolerance;
   /// Longitudinal tolerance of goal pose [m]
@@ -120,17 +112,17 @@ struct ASTAR_SEARCH_PUBLIC AstarParam
   int64_t obstacle_threshold;
 };
 
-struct AstarWaypoint
+struct PlannerWaypoint
 {
   geometry_msgs::msg::PoseStamped pose;
   bool is_back = false;
 };
 
 /// \brief Trajectory points representation as an algorithms output
-struct ASTAR_SEARCH_PUBLIC AstarWaypoints
+struct ASTAR_SEARCH_PUBLIC PlannerWaypoints
 {
   std_msgs::msg::Header header;           ///< Mostly timestamp and frame information
-  std::vector<AstarWaypoint> waypoints;   ///< Vector of trajectory waypoints
+  std::vector<PlannerWaypoint> waypoints;   ///< Vector of trajectory waypoints
 };
 
 /// \brief Possible planning results
@@ -153,13 +145,13 @@ inline bool ASTAR_SEARCH_PUBLIC isSuccess(const SearchStatus & status)
 class BasePlanningAlgorithm
 {
 public:
-  explicit BasePlanningAlgorithm(const AstarParam & astar_param)
-  : astar_param_(astar_param)
+  explicit BasePlanningAlgorithm(const PlannerCommonParam & planner_common_param)
+  : planner_common_param_(planner_common_param)
   {
   }
   /// \brief Robot dimensions setter
-  /// \param[in] robot_shape RobotShape object
-  virtual void setRobotShape(const RobotShape & robot_shape) {astar_param_.robot_shape = robot_shape;}
+  /// \param[in] vehicle_shape VehicleShape object
+  virtual void setVehicleShape(const VehicleShape & vehicle_shape) {planner_common_param_.vehicle_shape = vehicle_shape;}
 
   /// \brief Set occupancy grid for planning
   /// \param[in] costmap nav_msgs::msg::OccupancyGrid type object
@@ -179,8 +171,8 @@ public:
   bool hasObstacleOnTrajectory(const geometry_msgs::msg::PoseArray & trajectory) const;
 
   /// \brief Fetch algorithm solution
-  /// \return AstarWaypoints created trajectory
-  const AstarWaypoints & getWaypoints() const {return waypoints_;}
+  /// \return PlannerWaypoints created trajectory
+  const PlannerWaypoints & getWaypoints() const {return waypoints_;}
 
   virtual ~BasePlanningAlgorithm() {}
 
@@ -202,7 +194,7 @@ protected:
     return is_obstacle_table_[static_cast<size_t>(index.y)][static_cast<size_t>(index.x)];
   }
 
-  AstarParam astar_param_;
+  PlannerCommonParam planner_common_param_;
 
   // costmap as occupancy grid
   nav_msgs::msg::OccupancyGrid costmap_;
@@ -218,11 +210,11 @@ protected:
   geometry_msgs::msg::Pose goal_pose_;
 
   // result path
-  AstarWaypoints waypoints_;
+  PlannerWaypoints waypoints_;
 
 };
 
-}  // namespace astar_search
+}  // namespace parking
 }  // namespace planning
 }  // namespace autoware
 

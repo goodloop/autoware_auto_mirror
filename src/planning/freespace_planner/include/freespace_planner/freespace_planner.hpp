@@ -59,6 +59,7 @@ enum class FreespacePlannerState
 
 struct NodeParam
 {
+  std::string planning_algorithm;
   double waypoints_velocity;  // constant velocity on planned waypoints [km/h]
 };
 
@@ -88,11 +89,11 @@ private:
 
   // params
   NodeParam node_param_;
-  astar_search::AstarParam astar_param_;
+  parking::PlannerCommonParam planner_common_param_;
   FreespacePlannerState state_;
 
   // variables
-  std::unique_ptr<astar_search::BasePlanningAlgorithm> algo_;
+  std::unique_ptr<parking::BasePlanningAlgorithm> algo_;
   std::shared_ptr<GoalHandle> planning_goal_handle_{nullptr};
   geometry_msgs::msg::PoseStamped start_pose_;
   geometry_msgs::msg::PoseStamped goal_pose_;
@@ -123,6 +124,9 @@ private:
     const std::string & from, const std::string & to);
 
   void visualizeTrajectory();
+  void initializePlanningAlgorithm();
+  parking::AstarParam getAstarParam();
+
 };
 
 }  // namespace freespace_planner
