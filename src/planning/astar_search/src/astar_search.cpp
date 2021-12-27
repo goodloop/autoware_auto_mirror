@@ -286,13 +286,6 @@ SearchStatus AstarSearch::search()
   return SearchStatus::FAILURE_NO_PATH_FOUND;
 }
 
-bool AstarSearch::isOutOfRange(const IndexXYT & index) const
-{
-  if (index.x < 0 || static_cast<int>(costmap_.info.width) <= index.x) {return true;}
-  if (index.y < 0 || static_cast<int>(costmap_.info.height) <= index.y) {return true;}
-  return false;
-}
-
 void AstarSearch::setPath(const AstarNode & goal_node)
 {
   std_msgs::msg::Header header;

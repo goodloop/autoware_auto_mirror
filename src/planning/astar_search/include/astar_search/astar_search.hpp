@@ -132,7 +132,6 @@ private:
   double estimateCost(const geometry_msgs::msg::Pose & pose) const;
 
 
-  bool isOutOfRange(const IndexXYT & index) const override;
   bool isGoal(const AstarNode & node) const;
 
   AstarNode * getNodeRef(const IndexXYT & index);
