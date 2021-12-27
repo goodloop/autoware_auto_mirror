@@ -38,8 +38,20 @@ namespace autoware
 {
 namespace planning
 {
-namespace astar_search
+namespace parking
 {
+enum class NodeStatus : uint8_t { None, Open, Closed, Obstacle };
+
+struct ASTAR_SEARCH_PUBLIC AstarParam
+{
+  /// Indicate if should search for solutions in backward direction
+  bool use_back;
+  /// Indicate if solutions should be exclusively behind the goal
+  bool only_behind_solutions;
+  /// Distance weight for trajectory cost estimation
+  double distance_heuristic_weight;
+};
+
 struct AstarNode
 {
   NodeStatus status = NodeStatus::None;  // node status
@@ -105,11 +117,12 @@ public:
 
   /// \brief Default and only constructor for AstarSearch class
   /// \param[in] astar_param Hybrid A* algorithm configuration parameters
-  explicit AstarSearch(const AstarParam & astar_param);
+  explicit AstarSearch(
+    const PlannerCommonParam & planner_common_param, const AstarParam & astar_param);
 
   /// \brief Robot dimensions setter
-  /// \param[in] robot_shape RobotShape object
-  // void setRobotShape(const RobotShape & robot_shape) {astar_param_.robot_shape = robot_shape;}
+  /// \param[in] vehicle_shape VehicleShape object
+  // void setVehicleShape(const VehicleShape & vehicle_shape) {astar_param_.vehicle_shape = vehicle_shape;}
 
   /// \brief Set occupancy grid for planning
   /// \param[in] costmap nav_msgs::msg::OccupancyGrid type object
@@ -123,26 +136,28 @@ public:
     const geometry_msgs::msg::Pose & start_pose,
     const geometry_msgs::msg::Pose & goal_pose) override;
 
-
 private:
   SearchStatus search();
   void setPath(const AstarNode & goal);
   bool setStartNode();
   bool setGoalNode() const;
   double estimateCost(const geometry_msgs::msg::Pose & pose) const;
-
-
   bool isGoal(const AstarNode & node) const;
 
   AstarNode * getNodeRef(const IndexXYT & index);
+
+  // Algorithm specific param
+  AstarParam astar_param_;
 
   // hybrid astar variables
   TransitionTable transition_table_;
   std::vector<std::vector<std::vector<AstarNode>>> nodes_;
   std::priority_queue<AstarNode *, std::vector<AstarNode *>, NodeComparison> openlist_;
+
+  //TODO add use reeds shepp flag
 };
 
-}  // namespace astar_search
+}  // namespace parking
 }  // namespace planning
 }  // namespace autoware
 

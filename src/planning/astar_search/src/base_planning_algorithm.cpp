@@ -22,7 +22,7 @@ namespace autoware
 {
 namespace planning
 {
-namespace astar_search
+namespace parking
 {
 double normalizeRadian(
   const double rad, const double min_rad, const double max_rad)
@@ -119,7 +119,7 @@ void BasePlanningAlgorithm::setOccupancyGrid(const nav_msgs::msg::OccupancyGrid 
     for (uint32_t j = 0; j < width; j++) {
       const int cost = costmap_.data[i * width + j];
 
-      if (cost < 0 || astar_param_.obstacle_threshold <= cost) {
+      if (cost < 0 || planner_common_param_.obstacle_threshold <= cost) {
         is_obstacle_table[i][j] = true;
       }
     }
@@ -128,7 +128,7 @@ void BasePlanningAlgorithm::setOccupancyGrid(const nav_msgs::msg::OccupancyGrid 
 
   // construct collision indexes table
   coll_indexes_table_.clear();
-  for (int i = 0; i < static_cast<int>(astar_param_.theta_size); i++) {
+  for (int i = 0; i < static_cast<int>(planner_common_param_.theta_size); i++) {
     std::vector<IndexXY> indexes_2d;
     computeCollisionIndexes(i, indexes_2d);
     coll_indexes_table_.push_back(indexes_2d);
@@ -140,7 +140,7 @@ bool BasePlanningAlgorithm::hasObstacleOnTrajectory(const geometry_msgs::msg::Po
 {
   for (const auto & pose : trajectory.poses) {
     const auto pose_local = global2local(costmap_, pose);
-    const auto index = pose2index(costmap_, pose_local, astar_param_.theta_size);
+    const auto index = pose2index(costmap_, pose_local, planner_common_param_.theta_size);
 
     if (detectCollision(index)) {
       return true;
@@ -153,15 +153,15 @@ bool BasePlanningAlgorithm::hasObstacleOnTrajectory(const geometry_msgs::msg::Po
 void BasePlanningAlgorithm::computeCollisionIndexes(int theta_index, std::vector<IndexXY> & indexes_2d)
 {
   IndexXYT base_index{0, 0, theta_index};
-  const RobotShape & robot_shape = astar_param_.robot_shape;
+  const VehicleShape & vehicle_shape = planner_common_param_.vehicle_shape;
 
   // Define the robot as rectangle
-  const double back = -1.0 * robot_shape.cg2back;
-  const double front = robot_shape.length - robot_shape.cg2back;
-  const double right = -1.0 * robot_shape.width / 2.0;
-  const double left = robot_shape.width / 2.0;
+  const double back = -1.0 * vehicle_shape.cg2back;
+  const double front = vehicle_shape.length - vehicle_shape.cg2back;
+  const double right = -1.0 * vehicle_shape.width / 2.0;
+  const double left = vehicle_shape.width / 2.0;
 
-  const auto base_pose = index2pose(costmap_, base_index, astar_param_.theta_size);
+  const auto base_pose = index2pose(costmap_, base_index, planner_common_param_.theta_size);
   const auto base_theta = tf2::getYaw(base_pose.orientation);
 
   // Convert each point to index and check if the node is Obstacle
@@ -176,7 +176,7 @@ void BasePlanningAlgorithm::computeCollisionIndexes(int theta_index, std::vector
       pose_local.position.x = base_pose.position.x + offset_x;
       pose_local.position.y = base_pose.position.y + offset_y;
 
-      const auto index = pose2index(costmap_, pose_local, astar_param_.theta_size);
+      const auto index = pose2index(costmap_, pose_local, planner_common_param_.theta_size);
       const auto index_2d = IndexXY{index.x, index.y};
       indexes_2d.push_back(index_2d);
     }
@@ -201,6 +201,6 @@ bool BasePlanningAlgorithm::detectCollision(const IndexXYT & base_index) const
 }
 
 
-}  // namespace astar_search
+}  // namespace parking
 }  // namespace planning
 }  // namespace autoware
