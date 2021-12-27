@@ -185,8 +185,14 @@ public:
   virtual ~BasePlanningAlgorithm() {}
 
 protected:
-  bool detectCollision(const IndexXYT & index) const;
-  virtual bool isOutOfRange(const IndexXYT & index) const = 0;
+  void computeCollisionIndexes(int theta_index, std::vector<IndexXY> & indexes);
+  bool detectCollision(const IndexXYT & base_index) const;
+  inline bool isOutOfRange(const IndexXYT & index) const
+  {
+    if (index.x < 0 || static_cast<int>(costmap_.info.width) <= index.x) {return true;}
+    if (index.y < 0 || static_cast<int>(costmap_.info.height) <= index.y) {return true;}
+    return false;
+  }
 
   inline bool isObs(const IndexXYT & index) const
   {
@@ -200,6 +206,9 @@ protected:
 
   // costmap as occupancy grid
   nav_msgs::msg::OccupancyGrid costmap_;
+
+  // collision indexes cache
+  std::vector<std::vector<IndexXY>> coll_indexes_table_;
 
   // is_obstacle's table
   std::vector<std::vector<bool>> is_obstacle_table_;
