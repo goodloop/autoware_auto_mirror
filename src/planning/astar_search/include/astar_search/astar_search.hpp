@@ -18,6 +18,8 @@
 #define ASTAR_SEARCH__ASTAR_SEARCH_HPP_
 
 #include <astar_search/visibility_control.hpp>
+#include <astar_search/base_planning_algorithm.hpp>
+#include <astar_search/reeds_shepp.hpp>
 
 #include <geometry_msgs/msg/pose_array.hpp>
 #include <nav_msgs/msg/occupancy_grid.hpp>
@@ -30,9 +32,6 @@
 #include <string>
 #include <tuple>
 #include <vector>
-
-#include "astar_search/base_planning_algorithm.hpp"
-#include "astar_search/reeds_shepp.hpp"
 
 namespace autoware
 {
@@ -122,10 +121,6 @@ public:
   explicit AstarSearch(
     const PlannerCommonParam & planner_common_param, const AstarParam & astar_param);
 
-  /// \brief Robot dimensions setter
-  /// \param[in] vehicle_shape VehicleShape object
-  // void setVehicleShape(const VehicleShape & vehicle_shape) {astar_param_.vehicle_shape = vehicle_shape;}
-
   /// \brief Set occupancy grid for planning
   /// \param[in] costmap nav_msgs::msg::OccupancyGrid type object
   void setOccupancyGrid(const nav_msgs::msg::OccupancyGrid & costmap) override;
@@ -155,8 +150,6 @@ private:
   TransitionTable transition_table_;
   std::vector<std::vector<std::vector<AstarNode>>> nodes_;
   std::priority_queue<AstarNode *, std::vector<AstarNode *>, NodeComparison> openlist_;
-
-  //TODO add use reeds shepp flag
 };
 
 }  // namespace parking

@@ -14,9 +14,9 @@
 //
 // Co-developed by Tier IV, Inc. and Robotec.AI sp. z o.o.
 
-#include <vector>
-
 #include "astar_search/base_planning_algorithm.hpp"
+
+#include <vector>
 
 namespace autoware
 {
@@ -24,8 +24,7 @@ namespace planning
 {
 namespace parking
 {
-double normalizeRadian(
-  const double rad, const double min_rad, const double max_rad)
+double normalizeRadian(const double rad, const double min_rad, const double max_rad)
 {
   const auto value = std::fmod(rad, 2 * M_PI);
   if (min_rad < value && value <= max_rad) {
@@ -37,9 +36,8 @@ double normalizeRadian(
 int discretizeAngle(const double theta, const size_t theta_size)
 {
   const double one_angle_range = 2.0 * M_PI / static_cast<double>(theta_size);
-  return static_cast<int>(normalizeRadian(
-           theta, 0.0,
-           2.0 * M_PI) / one_angle_range) % static_cast<int>(theta_size);
+  return static_cast<int>(normalizeRadian(theta, 0.0, 2.0 * M_PI) / one_angle_range) %
+         static_cast<int>(theta_size);
 }
 
 geometry_msgs::msg::Pose transformPose(
@@ -78,7 +76,8 @@ geometry_msgs::msg::Pose local2global(
 }
 
 IndexXYT pose2index(
-  const nav_msgs::msg::OccupancyGrid & costmap, const geometry_msgs::msg::Pose & pose_local,
+  const nav_msgs::msg::OccupancyGrid & costmap,
+  const geometry_msgs::msg::Pose & pose_local,
   const size_t theta_size)
 {
   const auto resolution = static_cast<double>(costmap.info.resolution);
@@ -136,7 +135,8 @@ void BasePlanningAlgorithm::setOccupancyGrid(const nav_msgs::msg::OccupancyGrid 
 }
 
 
-bool BasePlanningAlgorithm::hasObstacleOnTrajectory(const geometry_msgs::msg::PoseArray & trajectory) const
+bool BasePlanningAlgorithm::hasObstacleOnTrajectory(
+  const geometry_msgs::msg::PoseArray & trajectory) const
 {
   for (const auto & pose : trajectory.poses) {
     const auto pose_local = global2local(costmap_, pose);
@@ -150,7 +150,8 @@ bool BasePlanningAlgorithm::hasObstacleOnTrajectory(const geometry_msgs::msg::Po
   return false;
 }
 
-void BasePlanningAlgorithm::computeCollisionIndexes(int theta_index, std::vector<IndexXY> & indexes_2d)
+void BasePlanningAlgorithm::computeCollisionIndexes(
+  int theta_index, std::vector<IndexXY> & indexes_2d)
 {
   IndexXYT base_index{0, 0, theta_index};
   const VehicleShape & vehicle_shape = planner_common_param_.vehicle_shape;
