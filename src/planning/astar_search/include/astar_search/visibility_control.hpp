@@ -19,8 +19,7 @@
 #define ASTAR_SEARCH__VISIBILITY_CONTROL_HPP_
 
 #if defined(__WIN32)
-  #if defined(ASTAR_SEARCH_BUILDING_DLL) || \
-  defined(ASTAR_SEARCH_EXPORTS)
+  #if defined(ASTAR_SEARCH_BUILDING_DLL) || defined(ASTAR_SEARCH_EXPORTS)
     #define ASTAR_SEARCH_PUBLIC __declspec(dllexport)
     #define ASTAR_SEARCH_LOCAL
   #else

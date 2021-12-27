@@ -31,8 +31,8 @@
 #include <tuple>
 #include <vector>
 
-#include "tf2_geometry_msgs/tf2_geometry_msgs.h"
 #include "tf2/utils.h"
+#include "tf2_geometry_msgs/tf2_geometry_msgs.h"
 
 namespace autoware
 {
@@ -40,8 +40,7 @@ namespace planning
 {
 namespace parking
 {
-double normalizeRadian(
-  const double rad, const double min_rad = -M_PI, const double max_rad = M_PI);
+double normalizeRadian(const double rad, const double min_rad = -M_PI, const double max_rad = M_PI);
 int discretizeAngle(const double theta, const size_t theta_size);
 
 struct IndexXYT
@@ -61,7 +60,8 @@ geometry_msgs::msg::Pose transformPose(
   const geometry_msgs::msg::Pose & pose, const geometry_msgs::msg::TransformStamped & transform);
 
 IndexXYT pose2index(
-  const nav_msgs::msg::OccupancyGrid & costmap, const geometry_msgs::msg::Pose & pose_local,
+  const nav_msgs::msg::OccupancyGrid & costmap,
+  const geometry_msgs::msg::Pose & pose_local,
   const size_t theta_size);
 geometry_msgs::msg::Pose index2pose(
   const nav_msgs::msg::OccupancyGrid & costmap, const IndexXYT & index, const size_t theta_size);
@@ -73,9 +73,9 @@ geometry_msgs::msg::Pose local2global(
 /// \brief Definition of essential vehicle dimensions
 struct ASTAR_SEARCH_PUBLIC VehicleShape
 {
-  double length;     ///< Robot's length (bound with X axis direction) [m]
-  double width;      ///< Robot's length (bound with Y axis direction)  [m]
-  double cg2back;    ///< Robot's distance from center of gravity to back [m]
+  double length;   ///< Robot's length (bound with X axis direction) [m]
+  double width;    ///< Robot's length (bound with Y axis direction)  [m]
+  double cg2back;  ///< Robot's distance from center of gravity to back [m]
 };
 
 /// \brief Parameters defining algorithm configuration
@@ -121,18 +121,18 @@ struct PlannerWaypoint
 /// \brief Trajectory points representation as an algorithms output
 struct ASTAR_SEARCH_PUBLIC PlannerWaypoints
 {
-  std_msgs::msg::Header header;           ///< Mostly timestamp and frame information
-  std::vector<PlannerWaypoint> waypoints;   ///< Vector of trajectory waypoints
+  std_msgs::msg::Header header;            ///< Mostly timestamp and frame information
+  std::vector<PlannerWaypoint> waypoints;  ///< Vector of trajectory waypoints
 };
 
 /// \brief Possible planning results
 enum class SearchStatus
 {
-  SUCCESS,                      ///< Planning successful
-  FAILURE_COLLISION_AT_START,   ///< Collision at start position detected
-  FAILURE_COLLISION_AT_GOAL,    ///< Collision at goal position detected
-  FAILURE_TIMEOUT_EXCEEDED,     ///< Planning timeout exceeded
-  FAILURE_NO_PATH_FOUND         ///< Planner didn't manage to find path
+  SUCCESS,                     ///< Planning successful
+  FAILURE_COLLISION_AT_START,  ///< Collision at start position detected
+  FAILURE_COLLISION_AT_GOAL,   ///< Collision at goal position detected
+  FAILURE_TIMEOUT_EXCEEDED,    ///< Planning timeout exceeded
+  FAILURE_NO_PATH_FOUND        ///< Planner didn't manage to find path
 };
 
 /// \brief Determines if passed status is a success status
@@ -151,7 +151,10 @@ public:
   }
   /// \brief Robot dimensions setter
   /// \param[in] vehicle_shape VehicleShape object
-  virtual void setVehicleShape(const VehicleShape & vehicle_shape) {planner_common_param_.vehicle_shape = vehicle_shape;}
+  virtual void setVehicleShape(const VehicleShape & vehicle_shape)
+  {
+    planner_common_param_.vehicle_shape = vehicle_shape;
+  }
 
   /// \brief Set occupancy grid for planning
   /// \param[in] costmap nav_msgs::msg::OccupancyGrid type object
@@ -162,8 +165,7 @@ public:
   /// \param[in] goal_pose Goal position
   /// \return SearchStatus flag showing if planning succeeded or not
   virtual SearchStatus makePlan(
-    const geometry_msgs::msg::Pose & start_pose,
-    const geometry_msgs::msg::Pose & goal_pose) = 0;
+    const geometry_msgs::msg::Pose & start_pose, const geometry_msgs::msg::Pose & goal_pose) = 0;
 
   /// \brief Check if there will be collision on generated trajectory
   /// \param[in] trajectory Generated trajectory
@@ -181,8 +183,12 @@ protected:
   bool detectCollision(const IndexXYT & base_index) const;
   inline bool isOutOfRange(const IndexXYT & index) const
   {
-    if (index.x < 0 || static_cast<int>(costmap_.info.width) <= index.x) {return true;}
-    if (index.y < 0 || static_cast<int>(costmap_.info.height) <= index.y) {return true;}
+    if (index.x < 0 || static_cast<int>(costmap_.info.width) <= index.x) {
+      return true;
+    }
+    if (index.y < 0 || static_cast<int>(costmap_.info.height) <= index.y) {
+      return true;
+    }
     return false;
   }
 
@@ -211,7 +217,6 @@ protected:
 
   // result path
   PlannerWaypoints waypoints_;
-
 };
 
 }  // namespace parking

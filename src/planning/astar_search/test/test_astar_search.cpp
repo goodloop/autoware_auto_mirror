@@ -15,7 +15,6 @@
 // Co-developed by Tier IV, Inc. and Robotec.AI sp. z o.o.
 
 #include <gtest/gtest.h>
-
 #include <tf2/LinearMath/Quaternion.h>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 
@@ -24,11 +23,11 @@
 #include "astar_search/astar_search.hpp"
 
 
-using autoware::planning::parking::AstarSearch;
 using autoware::planning::parking::AstarParam;
+using autoware::planning::parking::AstarSearch;
 using autoware::planning::parking::PlannerCommonParam;
-using autoware::planning::parking::VehicleShape;
 using autoware::planning::parking::SearchStatus;
+using autoware::planning::parking::VehicleShape;
 
 using nav_msgs::msg::OccupancyGrid;
 
@@ -47,21 +46,21 @@ OccupancyGrid createOccupancyGridWithFrame()
 
   // vertical segments
   for (unsigned int i = 0; i < out.info.height; ++i) {
-    out.data[i * out.info.width] = 100;  // left segment
+    out.data[i * out.info.width] = 100;                         // left segment
     out.data[i * out.info.width + (out.info.width - 1)] = 100;  // right segment
   }
 
   // horizontal segments
   for (unsigned int i = 0; i < out.info.width; ++i) {
-    out.data[i] = 100;  // upper segment
+    out.data[i] = 100;                                           // upper segment
     out.data[(out.info.width - 1) * out.info.height + i] = 100;  // bottom segment
   }
 
   return out;
 }
 
-double
-lateralError(const geometry_msgs::msg::Pose & actual, const geometry_msgs::msg::Pose & desired)
+double lateralError(
+  const geometry_msgs::msg::Pose & actual, const geometry_msgs::msg::Pose & desired)
 {
   // compute heading normal of desired point
   const auto nx = (desired.orientation.w * desired.orientation.w) -
@@ -79,8 +78,7 @@ lateralError(const geometry_msgs::msg::Pose & actual, const geometry_msgs::msg::
 }
 
 double longitudinalError(
-  const geometry_msgs::msg::Pose & actual,
-  const geometry_msgs::msg::Pose & desired)
+  const geometry_msgs::msg::Pose & actual, const geometry_msgs::msg::Pose & desired)
 {
   // compute heading normal of desired point
   const auto nx = (desired.orientation.w * desired.orientation.w) -
@@ -98,8 +96,7 @@ double longitudinalError(
 }
 
 double angularError(
-  const geometry_msgs::msg::Quaternion & actual,
-  const geometry_msgs::msg::Quaternion & desired)
+  const geometry_msgs::msg::Quaternion & actual, const geometry_msgs::msg::Quaternion & desired)
 {
   tf2::Quaternion actual_tf, desired_tf;
 
@@ -109,8 +106,8 @@ double angularError(
   return actual_tf.angleShortestPath(desired_tf);
 }
 
-void
-testPoseEquality(const geometry_msgs::msg::Pose & actual, const geometry_msgs::msg::Pose & desired)
+void testPoseEquality(
+  const geometry_msgs::msg::Pose & actual, const geometry_msgs::msg::Pose & desired)
 {
   EXPECT_DOUBLE_EQ(actual.position.x, desired.position.x);
   EXPECT_DOUBLE_EQ(actual.position.y, desired.position.y);
@@ -129,7 +126,8 @@ public:
   {
     astar_param = std::make_unique<AstarParam>(generateExampleAstarParameters());
     planner_common_param = std::make_unique<PlannerCommonParam>(generateExampleCommonParameters());
-    astar_search = std::make_unique<AstarSearch>(*(planner_common_param.get()), *(astar_param.get()));
+    astar_search =
+      std::make_unique<AstarSearch>(*(planner_common_param.get()), *(astar_param.get()));
   }
 
 protected:
@@ -195,7 +193,8 @@ protected:
 };
 
 
-TEST_F(AstarSearchTest, ObstacleOnStartPose) {
+TEST_F(AstarSearchTest, ObstacleOnStartPose)
+{
   astar_search->setOccupancyGrid(createOccupancyGridWithFrame());
 
   // start pose touches frame
@@ -213,7 +212,8 @@ TEST_F(AstarSearchTest, ObstacleOnStartPose) {
   EXPECT_EQ(astar_search->getWaypoints().waypoints.size(), 0U);
 }
 
-TEST_F(AstarSearchTest, StartPoseOutOfCostmap) {
+TEST_F(AstarSearchTest, StartPoseOutOfCostmap)
+{
   astar_search->setOccupancyGrid(createOccupancyGridWithFrame());
 
   // start pose out of costmap bound
@@ -231,7 +231,8 @@ TEST_F(AstarSearchTest, StartPoseOutOfCostmap) {
   EXPECT_EQ(astar_search->getWaypoints().waypoints.size(), 0U);
 }
 
-TEST_F(AstarSearchTest, ObstacleOnGoalPose) {
+TEST_F(AstarSearchTest, ObstacleOnGoalPose)
+{
   astar_search->setOccupancyGrid(createOccupancyGridWithFrame());
 
   auto start_pose = geometry_msgs::msg::Pose();
@@ -249,7 +250,8 @@ TEST_F(AstarSearchTest, ObstacleOnGoalPose) {
   EXPECT_EQ(astar_search->getWaypoints().waypoints.size(), 0U);
 }
 
-TEST_F(AstarSearchTest, GoalPoseOutOfCostmap) {
+TEST_F(AstarSearchTest, GoalPoseOutOfCostmap)
+{
   astar_search->setOccupancyGrid(createOccupancyGridWithFrame());
 
   auto start_pose = geometry_msgs::msg::Pose();
@@ -267,7 +269,8 @@ TEST_F(AstarSearchTest, GoalPoseOutOfCostmap) {
   EXPECT_EQ(astar_search->getWaypoints().waypoints.size(), 0U);
 }
 
-TEST_F(AstarSearchTest, TimeLimitUnmeetable) {
+TEST_F(AstarSearchTest, TimeLimitUnmeetable)
+{
   astar_search = std::make_unique<AstarSearch>(
     generateCommonParametersWithUnmeetableTimeLimit(), generateExampleAstarParameters());
 
@@ -287,7 +290,8 @@ TEST_F(AstarSearchTest, TimeLimitUnmeetable) {
   EXPECT_EQ(astar_search->getWaypoints().waypoints.size(), 0U);
 }
 
-TEST_F(AstarSearchTest, GoalUnreachable) {
+TEST_F(AstarSearchTest, GoalUnreachable)
+{
   auto occupancy_grid = createOccupancyGridWithFrame();
 
   // create horizontal wall of obstacles
@@ -311,7 +315,8 @@ TEST_F(AstarSearchTest, GoalUnreachable) {
   EXPECT_EQ(astar_search->getWaypoints().waypoints.size(), 0U);
 }
 
-TEST_F(AstarSearchTest, PlanningSuccessfulOnEmptyCostmap) {
+TEST_F(AstarSearchTest, PlanningSuccessfulOnEmptyCostmap)
+{
   astar_search->setOccupancyGrid(createOccupancyGridWithFrame());
 
   auto start_pose = geometry_msgs::msg::Pose();
@@ -331,10 +336,10 @@ TEST_F(AstarSearchTest, PlanningSuccessfulOnEmptyCostmap) {
   testPoseEquality(astar_search->getWaypoints().waypoints.front().pose.pose, start_pose);
 
   // calculate errors
-  auto longitudinal_error = longitudinalError(
-    astar_search->getWaypoints().waypoints.back().pose.pose, goal_pose);
-  auto lateral_error = lateralError(
-    astar_search->getWaypoints().waypoints.back().pose.pose, goal_pose);
+  auto longitudinal_error =
+    longitudinalError(astar_search->getWaypoints().waypoints.back().pose.pose, goal_pose);
+  auto lateral_error =
+    lateralError(astar_search->getWaypoints().waypoints.back().pose.pose, goal_pose);
   auto angular_error = angularError(
     astar_search->getWaypoints().waypoints.back().pose.pose.orientation, goal_pose.orientation);
 
@@ -344,7 +349,8 @@ TEST_F(AstarSearchTest, PlanningSuccessfulOnEmptyCostmap) {
   EXPECT_LE(angular_error, planner_common_param->goal_angular_tolerance);
 }
 
-TEST_F(AstarSearchTest, PlanningSuccessfulOnEmptyCostmapWithReedsShepp) {
+TEST_F(AstarSearchTest, PlanningSuccessfulOnEmptyCostmapWithReedsShepp)
+{
   astar_search = std::make_unique<AstarSearch>(
     generateExampleCommonParameters(), generateAstarParametersWithReedsShepp());
 
@@ -367,10 +373,10 @@ TEST_F(AstarSearchTest, PlanningSuccessfulOnEmptyCostmapWithReedsShepp) {
   testPoseEquality(astar_search->getWaypoints().waypoints.front().pose.pose, start_pose);
 
   // calculate errors
-  auto longitudinal_error = longitudinalError(
-    astar_search->getWaypoints().waypoints.back().pose.pose, goal_pose);
-  auto lateral_error = lateralError(
-    astar_search->getWaypoints().waypoints.back().pose.pose, goal_pose);
+  auto longitudinal_error =
+    longitudinalError(astar_search->getWaypoints().waypoints.back().pose.pose, goal_pose);
+  auto lateral_error =
+    lateralError(astar_search->getWaypoints().waypoints.back().pose.pose, goal_pose);
   auto angular_error = angularError(
     astar_search->getWaypoints().waypoints.back().pose.pose.orientation, goal_pose.orientation);
 
@@ -380,7 +386,8 @@ TEST_F(AstarSearchTest, PlanningSuccessfulOnEmptyCostmapWithReedsShepp) {
   EXPECT_LE(angular_error, planner_common_param->goal_angular_tolerance);
 }
 
-TEST_F(AstarSearchTest, PlanningSuccessfulOnCostmapWithObstacles) {
+TEST_F(AstarSearchTest, PlanningSuccessfulOnCostmapWithObstacles)
+{
   auto occupancy_grid = createOccupancyGridWithFrame();
 
   // create horizontal wall of obstacles
@@ -407,10 +414,10 @@ TEST_F(AstarSearchTest, PlanningSuccessfulOnCostmapWithObstacles) {
   testPoseEquality(astar_search->getWaypoints().waypoints.front().pose.pose, start_pose);
 
   // calculate errors
-  auto longitudinal_error = longitudinalError(
-    astar_search->getWaypoints().waypoints.back().pose.pose, goal_pose);
-  auto lateral_error = lateralError(
-    astar_search->getWaypoints().waypoints.back().pose.pose, goal_pose);
+  auto longitudinal_error =
+    longitudinalError(astar_search->getWaypoints().waypoints.back().pose.pose, goal_pose);
+  auto lateral_error =
+    lateralError(astar_search->getWaypoints().waypoints.back().pose.pose, goal_pose);
   auto angular_error = angularError(
     astar_search->getWaypoints().waypoints.back().pose.pose.orientation, goal_pose.orientation);
 
@@ -420,7 +427,8 @@ TEST_F(AstarSearchTest, PlanningSuccessfulOnCostmapWithObstacles) {
   EXPECT_LE(angular_error, planner_common_param->goal_angular_tolerance);
 }
 
-TEST_F(AstarSearchTest, BackwardsPlanningSuccessfulOnEmptyCostmap) {
+TEST_F(AstarSearchTest, BackwardsPlanningSuccessfulOnEmptyCostmap)
+{
   astar_search->setOccupancyGrid(createOccupancyGridWithFrame());
 
   tf2::Quaternion backwards_quaternion;
@@ -445,10 +453,10 @@ TEST_F(AstarSearchTest, BackwardsPlanningSuccessfulOnEmptyCostmap) {
   testPoseEquality(astar_search->getWaypoints().waypoints.front().pose.pose, start_pose);
 
   // calculate errors
-  auto longitudinal_error = longitudinalError(
-    astar_search->getWaypoints().waypoints.back().pose.pose, goal_pose);
-  auto lateral_error = lateralError(
-    astar_search->getWaypoints().waypoints.back().pose.pose, goal_pose);
+  auto longitudinal_error =
+    longitudinalError(astar_search->getWaypoints().waypoints.back().pose.pose, goal_pose);
+  auto lateral_error =
+    lateralError(astar_search->getWaypoints().waypoints.back().pose.pose, goal_pose);
   auto angular_error = angularError(
     astar_search->getWaypoints().waypoints.back().pose.pose.orientation, goal_pose.orientation);
 

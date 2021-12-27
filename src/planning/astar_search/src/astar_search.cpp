@@ -15,9 +15,9 @@
 // Co-developed by Tier IV, Inc. and Robotec.AI sp. z o.o.
 
 
-#include <vector>
-
 #include "astar_search/astar_search.hpp"
+
+#include <vector>
 
 #include "tf2/utils.h"
 #include "tf2_geometry_msgs/tf2_geometry_msgs.h"
@@ -29,8 +29,10 @@ namespace planning
 {
 namespace parking
 {
-
-constexpr double deg2rad(const double deg) {return deg * M_PI / 180.0;}
+constexpr double deg2rad(const double deg)
+{
+  return deg * M_PI / 180.0;
+}
 
 double calcReedsSheppDistance(
   const geometry_msgs::msg::Pose & p1, const geometry_msgs::msg::Pose & p2, double radius)
@@ -91,8 +93,11 @@ geometry_msgs::msg::Pose node2pose(const AstarNode & node)
 }
 
 AstarSearch::TransitionTable createTransitionTable(
-  const double minimum_turning_radius, const double maximum_turning_radius,
-  const size_t turning_radius_size, const size_t theta_size, const bool use_back)
+  const double minimum_turning_radius,
+  const double maximum_turning_radius,
+  const size_t turning_radius_size,
+  const size_t theta_size,
+  const bool use_back)
 {
   // Vehicle moving for each angle
   AstarSearch::TransitionTable transition_table;
@@ -138,14 +143,15 @@ AstarSearch::TransitionTable createTransitionTable(
 }
 
 AstarSearch::AstarSearch(
-  const PlannerCommonParam & planner_common_param, const AstarParam & astar_param
-)
-: BasePlanningAlgorithm(planner_common_param),
-  astar_param_(astar_param)
+  const PlannerCommonParam & planner_common_param, const AstarParam & astar_param)
+: BasePlanningAlgorithm(planner_common_param), astar_param_(astar_param)
 {
   transition_table_ = createTransitionTable(
-    planner_common_param_.minimum_turning_radius, planner_common_param_.maximum_turning_radius,
-    planner_common_param_.turning_radius_size, planner_common_param_.theta_size, astar_param_.use_back);
+    planner_common_param_.minimum_turning_radius,
+    planner_common_param_.maximum_turning_radius,
+    planner_common_param_.turning_radius_size,
+    planner_common_param_.theta_size,
+    astar_param_.use_back);
 }
 
 SearchStatus AstarSearch::makePlan(
@@ -208,13 +214,12 @@ double AstarSearch::estimateCost(const geometry_msgs::msg::Pose & pose) const
   // Temporarily, until reeds_shepp gets stable.
   if (astar_param_.use_reeds_shepp) {
     double radius = (planner_common_param_.minimum_turning_radius +
-                     planner_common_param_.maximum_turning_radius) *
-                    0.5;
+      planner_common_param_.maximum_turning_radius) *
+      0.5;
     total_cost +=
       calcReedsSheppDistance(pose, goal_pose_, radius) * astar_param_.distance_heuristic_weight;
   } else {
-    total_cost +=
-      calcDistance2d(pose, goal_pose_) * astar_param_.distance_heuristic_weight;
+    total_cost += calcDistance2d(pose, goal_pose_) * astar_param_.distance_heuristic_weight;
   }
   return total_cost;
 }
@@ -346,7 +351,8 @@ bool AstarSearch::isGoal(const AstarNode & node) const
     return false;
   }
 
-  if (std::fabs(relative_pose.position.x) > planner_common_param_.goal_longitudinal_tolerance ||
+  if (
+    std::fabs(relative_pose.position.x) > planner_common_param_.goal_longitudinal_tolerance ||
     std::fabs(relative_pose.position.y) > planner_common_param_.goal_lateral_tolerance)
   {
     return false;
@@ -362,8 +368,8 @@ bool AstarSearch::isGoal(const AstarNode & node) const
 
 AstarNode * AstarSearch::getNodeRef(const IndexXYT & index)
 {
-  return &nodes_[static_cast<size_t>(index.y)][static_cast<size_t>(index.x)][
-    static_cast<size_t>(index.theta)];
+  return &nodes_[static_cast<size_t>(index.y)][static_cast<size_t>(index.x)]
+         [static_cast<size_t>(index.theta)];
 }
 
 }  // namespace parking
