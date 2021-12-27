@@ -24,10 +24,11 @@
 #include "astar_search/astar_search.hpp"
 
 
-using autoware::planning::astar_search::AstarSearch;
-using autoware::planning::astar_search::AstarParam;
-using autoware::planning::astar_search::RobotShape;
-using autoware::planning::astar_search::SearchStatus;
+using autoware::planning::parking::AstarSearch;
+using autoware::planning::parking::AstarParam;
+using autoware::planning::parking::PlannerCommonParam;
+using autoware::planning::parking::VehicleShape;
+using autoware::planning::parking::SearchStatus;
 
 using nav_msgs::msg::OccupancyGrid;
 
@@ -126,32 +127,30 @@ class AstarSearchTest : public ::testing::Test
 public:
   AstarSearchTest()
   {
-    astar_param = std::make_unique<AstarParam>(generateExampleParameters());
-    astar_search = std::make_unique<AstarSearch>(*(astar_param.get()));
+    astar_param = std::make_unique<AstarParam>(generateExampleAstarParameters());
+    planner_common_param = std::make_unique<PlannerCommonParam>(generateExampleCommonParameters());
+    astar_search = std::make_unique<AstarSearch>(*(planner_common_param.get()), *(astar_param.get()));
   }
 
 protected:
-  AstarParam generateExampleParameters()
+  PlannerCommonParam generateExampleCommonParameters()
   {
-    auto params = AstarParam();
+    auto params = PlannerCommonParam();
 
-    auto robot_shape = RobotShape();
-    robot_shape.length = 4.0;
-    robot_shape.width = 2.0;
-    robot_shape.cg2back = 2.0;
+    auto vehicle_shape = VehicleShape();
+    vehicle_shape.length = 4.0;
+    vehicle_shape.width = 2.0;
+    vehicle_shape.cg2back = 2.0;
 
-    params.use_back = true;
-    params.only_behind_solutions = false;
     params.time_limit = 300000;
 
-    params.robot_shape = robot_shape;
+    params.vehicle_shape = vehicle_shape;
     params.minimum_turning_radius = 9.0;
     params.maximum_turning_radius = 20.0;
     params.turning_radius_size = 5;
 
     params.theta_size = 48;
     params.reverse_weight = 2.0;
-    params.distance_heuristic_weight = 1.0;
     params.goal_lateral_tolerance = 0.25;
     params.goal_longitudinal_tolerance = 1.0;
     params.goal_angular_tolerance = 0.05236;  // in radians
@@ -161,16 +160,37 @@ protected:
     return params;
   }
 
-  AstarParam generateParametersWithUnmeetableTimeLimit()
+  AstarParam generateExampleAstarParameters()
   {
-    auto params = generateExampleParameters();
+    auto params = AstarParam();
+    params.use_back = true;
+    params.only_behind_solutions = false;
+    params.distance_heuristic_weight = 1.0;
+    params.use_reeds_shepp = false;
+    return params;
+  }
+
+
+  PlannerCommonParam generateCommonParametersWithUnmeetableTimeLimit()
+  {
+    auto params = generateExampleCommonParameters();
 
     params.time_limit = 1;
 
     return params;
   }
 
+  AstarParam generateAstarParametersWithReedsShepp()
+  {
+    auto params = generateExampleAstarParameters();
+
+    params.use_reeds_shepp = true;
+
+    return params;
+  }
+
   std::unique_ptr<AstarParam> astar_param;
+  std::unique_ptr<PlannerCommonParam> planner_common_param;
   std::unique_ptr<AstarSearch> astar_search;
 };
 
@@ -248,7 +268,8 @@ TEST_F(AstarSearchTest, GoalPoseOutOfCostmap) {
 }
 
 TEST_F(AstarSearchTest, TimeLimitUnmeetable) {
-  astar_search = std::make_unique<AstarSearch>(generateParametersWithUnmeetableTimeLimit());
+  astar_search = std::make_unique<AstarSearch>(
+    generateCommonParametersWithUnmeetableTimeLimit(), generateExampleAstarParameters());
 
   astar_search->setOccupancyGrid(createOccupancyGridWithFrame());
 
@@ -318,9 +339,45 @@ TEST_F(AstarSearchTest, PlanningSuccessfulOnEmptyCostmap) {
     astar_search->getWaypoints().waypoints.back().pose.pose.orientation, goal_pose.orientation);
 
   // check goal pose
-  EXPECT_LE(longitudinal_error, astar_param->goal_longitudinal_tolerance);
-  EXPECT_LE(lateral_error, astar_param->goal_lateral_tolerance);
-  EXPECT_LE(angular_error, astar_param->goal_angular_tolerance);
+  EXPECT_LE(longitudinal_error, planner_common_param->goal_longitudinal_tolerance);
+  EXPECT_LE(lateral_error, planner_common_param->goal_lateral_tolerance);
+  EXPECT_LE(angular_error, planner_common_param->goal_angular_tolerance);
+}
+
+TEST_F(AstarSearchTest, PlanningSuccessfulOnEmptyCostmapWithReedsShepp) {
+  astar_search = std::make_unique<AstarSearch>(
+    generateExampleCommonParameters(), generateAstarParametersWithReedsShepp());
+
+  astar_search->setOccupancyGrid(createOccupancyGridWithFrame());
+
+  auto start_pose = geometry_msgs::msg::Pose();
+  start_pose.position.x = 4.0;
+  start_pose.position.y = 4.0;
+
+  auto goal_pose = geometry_msgs::msg::Pose();
+  goal_pose.position.x = 16.0;
+  goal_pose.position.y = 16.0;
+
+  auto status = astar_search->makePlan(start_pose, goal_pose);
+
+  EXPECT_EQ(status, SearchStatus::SUCCESS);
+  ASSERT_GE(astar_search->getWaypoints().waypoints.size(), 2U);
+
+  // check start pose
+  testPoseEquality(astar_search->getWaypoints().waypoints.front().pose.pose, start_pose);
+
+  // calculate errors
+  auto longitudinal_error = longitudinalError(
+    astar_search->getWaypoints().waypoints.back().pose.pose, goal_pose);
+  auto lateral_error = lateralError(
+    astar_search->getWaypoints().waypoints.back().pose.pose, goal_pose);
+  auto angular_error = angularError(
+    astar_search->getWaypoints().waypoints.back().pose.pose.orientation, goal_pose.orientation);
+
+  // check goal pose
+  EXPECT_LE(longitudinal_error, planner_common_param->goal_longitudinal_tolerance);
+  EXPECT_LE(lateral_error, planner_common_param->goal_lateral_tolerance);
+  EXPECT_LE(angular_error, planner_common_param->goal_angular_tolerance);
 }
 
 TEST_F(AstarSearchTest, PlanningSuccessfulOnCostmapWithObstacles) {
@@ -358,9 +415,9 @@ TEST_F(AstarSearchTest, PlanningSuccessfulOnCostmapWithObstacles) {
     astar_search->getWaypoints().waypoints.back().pose.pose.orientation, goal_pose.orientation);
 
   // check goal pose
-  EXPECT_LE(longitudinal_error, astar_param->goal_longitudinal_tolerance);
-  EXPECT_LE(lateral_error, astar_param->goal_lateral_tolerance);
-  EXPECT_LE(angular_error, astar_param->goal_angular_tolerance);
+  EXPECT_LE(longitudinal_error, planner_common_param->goal_longitudinal_tolerance);
+  EXPECT_LE(lateral_error, planner_common_param->goal_lateral_tolerance);
+  EXPECT_LE(angular_error, planner_common_param->goal_angular_tolerance);
 }
 
 TEST_F(AstarSearchTest, BackwardsPlanningSuccessfulOnEmptyCostmap) {
@@ -396,7 +453,7 @@ TEST_F(AstarSearchTest, BackwardsPlanningSuccessfulOnEmptyCostmap) {
     astar_search->getWaypoints().waypoints.back().pose.pose.orientation, goal_pose.orientation);
 
   // check goal pose
-  EXPECT_LE(longitudinal_error, astar_param->goal_longitudinal_tolerance);
-  EXPECT_LE(lateral_error, astar_param->goal_lateral_tolerance);
-  EXPECT_LE(angular_error, astar_param->goal_angular_tolerance);
+  EXPECT_LE(longitudinal_error, planner_common_param->goal_longitudinal_tolerance);
+  EXPECT_LE(lateral_error, planner_common_param->goal_lateral_tolerance);
+  EXPECT_LE(angular_error, planner_common_param->goal_angular_tolerance);
 }
