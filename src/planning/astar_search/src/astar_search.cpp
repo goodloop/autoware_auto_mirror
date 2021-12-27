@@ -32,7 +32,14 @@ namespace parking
 
 constexpr double deg2rad(const double deg) {return deg * M_PI / 180.0;}
 
-
+double calcReedsSheppDistance(
+  const geometry_msgs::msg::Pose & p1, const geometry_msgs::msg::Pose & p2, double radius)
+{
+  auto rs_space = ReedsSheppStateSpace(radius);
+  ReedsSheppStateSpace::StateXYT pose0{p1.position.x, p1.position.y, tf2::getYaw(p1.orientation)};
+  ReedsSheppStateSpace::StateXYT pose1{p2.position.x, p2.position.y, tf2::getYaw(p2.orientation)};
+  return rs_space.distance(pose0, pose1);
+}
 
 double calcDistance2d(const geometry_msgs::msg::Point & p1, const geometry_msgs::msg::Point & p2)
 {
@@ -197,14 +204,18 @@ bool AstarSearch::setGoalNode() const
 
 double AstarSearch::estimateCost(const geometry_msgs::msg::Pose & pose) const
 {
-  //TODO copy reeds-shepp
   double total_cost = 0.0;
-
-  // euclidean distance
-  total_cost += calcDistance2d(pose, goal_pose_) * astar_param_.distance_heuristic_weight;
-
-  // TODO(Kenji Miyake): Add more costs
-
+  // Temporarily, until reeds_shepp gets stable.
+  if (astar_param_.use_reeds_shepp) {
+    double radius = (planner_common_param_.minimum_turning_radius +
+                     planner_common_param_.maximum_turning_radius) *
+                    0.5;
+    total_cost +=
+      calcReedsSheppDistance(pose, goal_pose_, radius) * astar_param_.distance_heuristic_weight;
+  } else {
+    total_cost +=
+      calcDistance2d(pose, goal_pose_) * astar_param_.distance_heuristic_weight;
+  }
   return total_cost;
 }
 

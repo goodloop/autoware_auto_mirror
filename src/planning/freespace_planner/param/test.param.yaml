@@ -2,6 +2,7 @@
   ros__parameters:
     # -- Node Configurations --
     planning_algorithm: "astar"
+    use_reeds_shepp: true
     waypoints_velocity: 5.0
 
     # -- A* search Configurations --

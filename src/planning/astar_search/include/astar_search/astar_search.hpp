@@ -32,7 +32,7 @@
 #include <vector>
 
 #include "astar_search/base_planning_algorithm.hpp"
-// #include "astar_search/reeds_shepp.hpp"
+#include "astar_search/reeds_shepp.hpp"
 
 namespace autoware
 {
@@ -48,6 +48,8 @@ struct ASTAR_SEARCH_PUBLIC AstarParam
   bool use_back;
   /// Indicate if solutions should be exclusively behind the goal
   bool only_behind_solutions;
+  /// Indicate if cost should be calculated with a use of Reeds_shepp algorithm
+  bool use_reeds_shepp;
   /// Distance weight for trajectory cost estimation
   double distance_heuristic_weight;
 };
