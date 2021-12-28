@@ -175,7 +175,7 @@ class TestBasicUsage(unittest.TestCase):
 
         planned_goal = result.trajectory.points[-1].pose.position
         requested_goal = goal.sub_route.goal_pose.position
-        GOAL_MARGIN = 1.25  # arbitrary margin based on current params
+        GOAL_MARGIN = 2.0  # arbitrary margin based on current params
         self.assertTrue(are_positions_close(planned_goal, requested_goal, GOAL_MARGIN))
 
     def test_basic_case_works(self, freespace_planner_node):
