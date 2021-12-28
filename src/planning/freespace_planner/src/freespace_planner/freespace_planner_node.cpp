@@ -14,13 +14,13 @@
 //
 // Co-developed by Tier IV, Inc. and Robotec.AI sp. z o.o.
 
-#include "freespace_planner/freespace_planner.hpp"
-
 #include <algorithm>
 #include <deque>
 #include <memory>
 #include <string>
 #include <utility>
+
+#include "freespace_planner/freespace_planner.hpp"
 
 
 namespace autoware
@@ -29,7 +29,6 @@ namespace planning
 {
 namespace freespace_planner
 {
-
 using autoware_auto_planning_msgs::action::PlannerCostmap;
 using autoware_auto_planning_msgs::msg::Trajectory;
 using common::vehicle_constants_manager::declare_and_get_vehicle_constants;
@@ -46,8 +45,7 @@ geometry_msgs::msg::Pose transformPose(
   return transformed_pose.pose;
 }
 
-parking::PlannerWaypoints adjustWaypointsSize(
-  const parking::PlannerWaypoints & planner_waypoints)
+parking::PlannerWaypoints adjustWaypointsSize(const parking::PlannerWaypoints & planner_waypoints)
 {
   auto max_length = Trajectory::CAPACITY;
   auto input_length = planner_waypoints.waypoints.size();
@@ -114,9 +112,7 @@ FreespacePlannerNode::FreespacePlannerNode(const rclcpp::NodeOptions & node_opti
 
   auto throw_if_negative = [](int64_t number, const std::string & name) {
       if (number < 0) {
-        throw std::runtime_error(
-                name + " = " + std::to_string(number) +
-                " shouldn't be negative.");
+        throw std::runtime_error(name + " = " + std::to_string(number) + " shouldn't be negative.");
       }
     };
 
@@ -128,7 +124,7 @@ FreespacePlannerNode::FreespacePlannerNode(const rclcpp::NodeOptions & node_opti
 
   // PlannerCommonParam
   {
-  auto & param = planner_common_param_;
+    auto & param = planner_common_param_;
     // base configs
     param.time_limit = declare_parameter("time_limit", 5000.0);
 
@@ -136,15 +132,13 @@ FreespacePlannerNode::FreespacePlannerNode(const rclcpp::NodeOptions & node_opti
     auto vehicle_constants = declare_and_get_vehicle_constants(*this);
     param.vehicle_shape.length = vehicle_constants.vehicle_length + vehicle_dimension_margin;
     param.vehicle_shape.width = vehicle_constants.vehicle_width + vehicle_dimension_margin;
-    param.vehicle_shape.cg2back =
-      vehicle_constants.cg_to_rear + vehicle_constants.overhang_rear +
+    param.vehicle_shape.cg2back = vehicle_constants.cg_to_rear + vehicle_constants.overhang_rear +
       (vehicle_dimension_margin / 2.0);
     param.minimum_turning_radius = vehicle_constants.minimum_turning_radius;
 
     param.maximum_turning_radius = declare_parameter("maximum_turning_radius", 6.0);
-    param.maximum_turning_radius = std::max(
-      param.maximum_turning_radius,
-      param.minimum_turning_radius);
+    param.maximum_turning_radius =
+      std::max(param.maximum_turning_radius, param.minimum_turning_radius);
     auto tr_size = declare_parameter("turning_radius_size", 11);
     throw_if_negative(tr_size, "turning_radius_size");
     param.turning_radius_size = static_cast<size_t>(tr_size);
@@ -155,8 +149,7 @@ FreespacePlannerNode::FreespacePlannerNode(const rclcpp::NodeOptions & node_opti
     param.theta_size = static_cast<size_t>(th_size);
     param.reverse_weight = declare_parameter("reverse_weight", 2.00);
     param.goal_lateral_tolerance = declare_parameter("goal_lateral_tolerance", 0.25);
-    param.goal_longitudinal_tolerance =
-      declare_parameter("goal_longitudinal_tolerance", 1.0);
+    param.goal_longitudinal_tolerance = declare_parameter("goal_longitudinal_tolerance", 1.0);
     param.goal_angular_tolerance = declare_parameter("goal_angular_tolerance", 0.05236);
 
     // costmap configs
@@ -229,8 +222,7 @@ parking::AstarParam FreespacePlannerNode::getAstarParam()
 }
 
 rclcpp_action::GoalResponse FreespacePlannerNode::handleGoal(
-  const rclcpp_action::GoalUUID &,
-  const std::shared_ptr<const PlanTrajectoryAction::Goal>)
+  const rclcpp_action::GoalUUID &, const std::shared_ptr<const PlanTrajectoryAction::Goal>)
 {
   if (isPlanning()) {
     RCLCPP_WARN(get_logger(), "Planner is already planning. Rejecting new goal.");
@@ -254,8 +246,7 @@ rclcpp_action::CancelResponse FreespacePlannerNode::handleCancel(
   return rclcpp_action::CancelResponse::ACCEPT;
 }
 
-void FreespacePlannerNode::handleAccepted(
-  const std::shared_ptr<GoalHandle> goal_handle)
+void FreespacePlannerNode::handleAccepted(const std::shared_ptr<GoalHandle> goal_handle)
 {
   using std::placeholders::_1;
   using std::placeholders::_2;
@@ -276,19 +267,11 @@ void FreespacePlannerNode::handleAccepted(
   action_goal.route = goal_handle->get_goal()->sub_route;
 
   auto send_goal_options = rclcpp_action::Client<PlannerCostmapAction>::SendGoalOptions();
-  send_goal_options.goal_response_callback = std::bind(
-    &FreespacePlannerNode::goalResponseCallback,
-    this,
-    _1);
-  send_goal_options.feedback_callback = std::bind(
-    &FreespacePlannerNode::feedbackCallback,
-    this,
-    _1,
-    _2);
-  send_goal_options.result_callback = std::bind(
-    &FreespacePlannerNode::resultCallback,
-    this,
-    _1);
+  send_goal_options.goal_response_callback =
+    std::bind(&FreespacePlannerNode::goalResponseCallback, this, _1);
+  send_goal_options.feedback_callback =
+    std::bind(&FreespacePlannerNode::feedbackCallback, this, _1, _2);
+  send_goal_options.result_callback = std::bind(&FreespacePlannerNode::resultCallback, this, _1);
 
   map_client_->async_send_goal(action_goal, send_goal_options);
   RCLCPP_INFO(get_logger(), "Costmap generator action goal sent.");
@@ -343,8 +326,7 @@ bool FreespacePlannerNode::planTrajectory()
 
   // Calculate poses in costmap frame
   const auto start_pose_in_costmap_frame = transformPose(
-    start_pose_.pose,
-    getTransform(occupancy_grid_->header.frame_id, start_pose_.header.frame_id));
+    start_pose_.pose, getTransform(occupancy_grid_->header.frame_id, start_pose_.header.frame_id));
 
   const auto goal_pose_in_costmap_frame = transformPose(
     goal_pose_.pose, getTransform(occupancy_grid_->header.frame_id, goal_pose_.header.frame_id));
@@ -442,7 +424,7 @@ void FreespacePlannerNode::initializePlanningAlgorithm()
     algo_.reset(new parking::AstarSearch(planner_common_param_, algorithm_param));
   } else {
     throw std::runtime_error(
-      "No such algorithm named " + node_param_.planning_algorithm + " exists.");
+            "No such algorithm named " + node_param_.planning_algorithm + " exists.");
   }
 }
 
