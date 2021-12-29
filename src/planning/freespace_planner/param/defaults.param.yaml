@@ -2,7 +2,6 @@
   ros__parameters:
     # -- Node Configurations --
     planning_algorithm: "astar"
-    use_reeds_shepp: true
     waypoints_velocity: 5.0
 
     # -- A* search Configurations --
@@ -24,7 +23,7 @@
 
     astar:
       use_back: true
-      use_reeds_shepp: false
+      use_reeds_shepp: true
       only_behind_solutions: false
       distance_heuristic_weight: 1.0
 

@@ -1,0 +1,799 @@
+// Copyright 2021 The Autoware Foundation
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+// Co-developed by Tier IV, Inc. and Robotec.AI sp. z o.o.
+/*
+ *
+ * Software License Agreement (BSD License)
+ *
+ * Copyright (c) 2016, Guan-Horng Liu.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ *  * Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ *  * Redistributions in binary form must reproduce the above
+ *    copyright notice, this list of conditions and the following
+ *    disclaimer in the documentation and/or other materials provided
+ *    with the distribution.
+ *  * Neither the name of the the copyright holder nor the names of its
+ *    contributors may be used to endorse or promote products derived
+ *    from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+ * FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+ * COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+ * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ *
+ * Author:  Guan-Horng Liu
+ */
+/*********************************************************************
+ * Software License Agreement (BSD License)
+ *
+ *  Copyright (c) 2010, Rice University
+ *  All rights reserved.
+ *
+ *  Redistribution and use in source and binary forms, with or without
+ *  modification, are permitted provided that the following conditions
+ *  are met:
+ *
+ *   * Redistributions of source code must retain the above copyright
+ *     notice, this list of conditions and the following disclaimer.
+ *   * Redistributions in binary form must reproduce the above
+ *     copyright notice, this list of conditions and the following
+ *     disclaimer in the documentation and/or other materials provided
+ *     with the distribution.
+ *   * Neither the name of the Rice University nor the names of its
+ *     contributors may be used to endorse or promote products derived
+ *     from this software without specific prior written permission.
+ *
+ *  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ *  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ *  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+ *  FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+ *  COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+ *  INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ *  BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ *  LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ *  CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+ *  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ *  POSSIBILITY OF SUCH DAMAGE.
+ *********************************************************************/
+
+#include "astar_search/reeds_shepp.hpp"
+
+#include <algorithm>
+#include <cmath>
+#include <limits>
+
+
+// The comments, variable names, etc. use the nomenclature from the Reeds & Shepp paper.
+
+namespace
+{
+using autoware::planning::parking::ReedsSheppStateSpace;
+using autoware::planning::parking::ReedsSheppNode;
+
+
+const double PI = M_PI;
+const double EPSILON = 1e-6;
+const double NUMERIC_ZERO = 10.0 * std::numeric_limits<double>::epsilon();
+
+inline double remainderOfDoublePiDivision(double value)
+{
+  const double twopi = 2.0 * PI;
+  double remainder = std::fmod(value, twopi);
+  if (remainder < -PI) {
+    remainder += twopi;
+  } else if (remainder > PI) {
+    remainder -= twopi;
+  }
+  return remainder;
+}
+
+inline void toPolarCoordinates(double x, double y, double & radius, double & theta)
+{
+  radius = std::hypot(x, y);
+  theta = std::atan2(y, x);
+}
+
+inline void calculateTauAndOmega(
+  double u, double v, double xi, double eta, double phi, double & tau, double & omega)
+{
+  double delta = remainderOfDoublePiDivision(u - v);
+
+  double A = std::sin(u) - std::sin(delta);
+  double B = std::cos(u) - std::cos(delta) - 1.0;
+
+  double t1 = std::atan2(eta * A - xi * B, xi * A + eta * B);
+  double t2 = 2.0 * (std::cos(delta) - std::cos(v) - std::cos(u)) + 3.0;
+
+  tau = (t2 < 0) ? remainderOfDoublePiDivision(t1 + PI) : remainderOfDoublePiDivision(t1);
+  omega = remainderOfDoublePiDivision(tau - u + v - phi);
+}
+
+// formula 8.1 in Reeds-Shepp paper
+// TODO convert x, y, phi to some state struct
+inline bool LpSpLp(ReedsSheppNode node, double & t, double & u, double & v)
+{
+  toPolarCoordinates(node.x - std::sin(node.phi), node.y - 1. + std::cos(node.phi), u, t);
+  if (t >= -NUMERIC_ZERO) {
+    v = remainderOfDoublePiDivision(node.phi - t);
+    if (v >= -NUMERIC_ZERO) {
+      assert(std::abs(u * std::cos(t) + std::sin(node.phi) - node.x) < EPSILON);
+      assert(std::abs(u * std::sin(t) - std::cos(node.phi) + 1.0 - node.y) < EPSILON);
+      assert(std::abs(remainderOfDoublePiDivision(t + v - node.phi)) < EPSILON);
+      return true;
+    }
+  }
+  return false;
+}
+// formula 8.2
+inline bool LpSpRp(ReedsSheppNode node, double & t, double & u, double & v)
+{
+  double t1, u1;
+  toPolarCoordinates(node.x + std::sin(node.phi), node.y - 1. - std::cos(node.phi), u1, t1);
+  u1 = std::pow(u1, 2.0);
+  if (u1 >= 4.0) {
+    double theta;
+    u = sqrt(u1 - 4.);
+    theta = std::atan2(2., u);
+    t = remainderOfDoublePiDivision(t1 + theta);
+    v = remainderOfDoublePiDivision(t - node.phi);
+
+    assert(std::abs(2.0 * std::sin(t) + u * std::cos(t) - std::sin(node.phi) - node.x) < EPSILON);
+    assert(std::abs(-2.0 * std::cos(t) + u * std::sin(t) + std::cos(node.phi) + 1.0 - node.y) < EPSILON);
+    assert(std::abs(remainderOfDoublePiDivision(t - v - node.phi)) < EPSILON);
+    return t >= -NUMERIC_ZERO && v >= -NUMERIC_ZERO;
+  }
+  return false;
+}
+void CSC(ReedsSheppNode node, ReedsSheppStateSpace::ReedsSheppPath & path)
+{
+  double L_min = path.length();
+  double t = 0.0;
+  double u = 0.0;
+  double v = 0.0;
+  double L = 0.0;
+  // TODO change to function lengthFromParameters()
+  if (LpSpLp(node, t, u, v) && L_min > (L = std::abs(t) + std::abs(u) + std::abs(v))) {
+    path =
+      ReedsSheppStateSpace::ReedsSheppPath(ReedsSheppStateSpace::reedsSheppPathType[14], t, u, v);
+    L_min = L;
+  }
+  if (
+    LpSpLp(node.timeflipped(), t, u, v) &&
+    L_min > (L = std::abs(t) + std::abs(u) + std::abs(v)))  // time flip
+  {
+    path = ReedsSheppStateSpace::ReedsSheppPath(
+      ReedsSheppStateSpace::reedsSheppPathType[14], -t, -u, -v);
+    L_min = L;
+  }
+  if (
+    LpSpLp(node.reflected(), t, u, v) &&
+    L_min > (L = std::abs(t) + std::abs(u) + std::abs(v)))  // reflect
+  {
+    path =
+      ReedsSheppStateSpace::ReedsSheppPath(ReedsSheppStateSpace::reedsSheppPathType[15], t, u, v);
+    L_min = L;
+  }
+  if (
+    LpSpLp(node.timeflipped().reflected(), t, u, v) &&
+    L_min > (L = std::abs(t) + std::abs(u) + std::abs(v)))  // time flip + reflect
+  {
+    path = ReedsSheppStateSpace::ReedsSheppPath(
+      ReedsSheppStateSpace::reedsSheppPathType[15], -t, -u, -v);
+    L_min = L;
+  }
+  if (LpSpRp(node, t, u, v) && L_min > (L = std::abs(t) + std::abs(u) + std::abs(v))) {
+    path =
+      ReedsSheppStateSpace::ReedsSheppPath(ReedsSheppStateSpace::reedsSheppPathType[12], t, u, v);
+    L_min = L;
+  }
+  if (
+    LpSpRp(node.timeflipped(), t, u, v) &&
+    L_min > (L = std::abs(t) + std::abs(u) + std::abs(v)))  // time flip
+  {
+    path = ReedsSheppStateSpace::ReedsSheppPath(
+      ReedsSheppStateSpace::reedsSheppPathType[12], -t, -u, -v);
+    L_min = L;
+  }
+  if (
+    LpSpRp(node.reflected(), t, u, v) &&
+    L_min > (L = std::abs(t) + std::abs(u) + std::abs(v)))  // reflect
+  {
+    path =
+      ReedsSheppStateSpace::ReedsSheppPath(ReedsSheppStateSpace::reedsSheppPathType[13], t, u, v);
+    L_min = L;
+  }
+  if (
+    LpSpRp(node.timeflipped().reflected(), t, u, v) &&
+    L_min > (L = std::abs(t) + std::abs(u) + std::abs(v)))  // time flip + reflect
+  {
+    path = ReedsSheppStateSpace::ReedsSheppPath(
+      ReedsSheppStateSpace::reedsSheppPathType[13], -t, -u, -v);
+  }
+}
+// formula 8.3 / 8.4  *** TYPO IN PAPER ***
+inline bool LpRmL(ReedsSheppNode node, double & t, double & u, double & v)
+{
+  double xi = node.x - std::sin(node.phi);
+  double eta = node.y - 1. + std::cos(node.phi);
+  double u1 = 0.0;
+  double theta = 0.0;
+  toPolarCoordinates(xi, eta, u1, theta);
+  if (u1 <= 4.0) {
+    u = -2. * std::asin(.25 * u1);
+    t = remainderOfDoublePiDivision(theta + .5 * u + PI);
+    v = remainderOfDoublePiDivision(node.phi - t + u);
+
+    assert(std::abs(2 * (sin(t) - std::sin(t - u)) + std::sin(node.phi) - node.x) < EPSILON);
+    assert(std::abs(2 * (-cos(t) + std::cos(t - u)) - std::cos(node.phi) + 1 - node.y) < EPSILON);
+    assert(std::abs(remainderOfDoublePiDivision(t - u + v - node.phi)) < EPSILON);
+    return t >= -NUMERIC_ZERO && u <= NUMERIC_ZERO;
+  }
+  return false;
+}
+void CCC(ReedsSheppNode node, ReedsSheppStateSpace::ReedsSheppPath & path)
+{
+  double L_min = path.length();
+  double t = 0.0;
+  double u = 0.0;
+  double v = 0.0;
+  double L = 0.0;
+  if (LpRmL(node, t, u, v) && L_min > (L = std::abs(t) + std::abs(u) + std::abs(v))) {
+    path =
+      ReedsSheppStateSpace::ReedsSheppPath(ReedsSheppStateSpace::reedsSheppPathType[0], t, u, v);
+    L_min = L;
+  }
+  if (LpRmL(node.timeflipped(), t, u, v) && L_min > (L = std::abs(t) + std::abs(u) + std::abs(v))) {
+    // time flip
+    path =
+      ReedsSheppStateSpace::ReedsSheppPath(ReedsSheppStateSpace::reedsSheppPathType[0], -t, -u, -v);
+    L_min = L;
+  }
+  if (
+    LpRmL(node.reflected(), t, u, v) &&
+    L_min > (L = std::abs(t) + std::abs(u) + std::abs(v)))  // reflect
+  {
+    path =
+      ReedsSheppStateSpace::ReedsSheppPath(ReedsSheppStateSpace::reedsSheppPathType[1], t, u, v);
+    L_min = L;
+  }
+  if (
+    LpRmL(node.timeflipped().reflected(), t, u, v) &&
+    L_min > (L = std::abs(t) + std::abs(u) + std::abs(v)))  // time flip + reflect
+  {
+    path =
+      ReedsSheppStateSpace::ReedsSheppPath(ReedsSheppStateSpace::reedsSheppPathType[1], -t, -u, -v);
+    L_min = L;
+  }
+
+  // backwards
+  ReedsSheppNode backward_node{
+    node.x * std::cos(node.phi) + node.y * std::sin(node.phi),
+    node.x * std::sin(node.phi) - node.y * std::cos(node.phi),
+    node.phi
+  };
+
+  if (LpRmL(backward_node, t, u, v) && L_min > (L = std::abs(t) + std::abs(u) + std::abs(v))) {
+    path =
+      ReedsSheppStateSpace::ReedsSheppPath(ReedsSheppStateSpace::reedsSheppPathType[0], v, u, t);
+    L_min = L;
+  }
+  if (
+    LpRmL(backward_node.timeflipped(), t, u, v) &&
+    L_min > (L = std::abs(t) + std::abs(u) + std::abs(v)))  // time flip
+  {
+    path =
+      ReedsSheppStateSpace::ReedsSheppPath(ReedsSheppStateSpace::reedsSheppPathType[0], -v, -u, -t);
+    L_min = L;
+  }
+  if (
+    LpRmL(backward_node.reflected(), t, u, v) &&
+    L_min > (L = std::abs(t) + std::abs(u) + std::abs(v)))  // reflect
+  {
+    path =
+      ReedsSheppStateSpace::ReedsSheppPath(ReedsSheppStateSpace::reedsSheppPathType[1], v, u, t);
+    L_min = L;
+  }
+  if (
+    LpRmL(backward_node.timeflipped().reflected(), t, u, v) &&
+    L_min > (L = std::abs(t) + std::abs(u) + std::abs(v)))  // time flip + reflect
+  {
+    path =
+      ReedsSheppStateSpace::ReedsSheppPath(ReedsSheppStateSpace::reedsSheppPathType[1], -v, -u, -t);
+  }
+}
+// formula 8.7
+inline bool LpRupLumRm(ReedsSheppNode node, double & t, double & u, double & v)
+{
+  double xi = node.x + std::sin(node.phi);
+  double eta = node.y - 1.0 - std::cos(node.phi);
+  double rho = 0.25 * (2.0 + std::hypot(xi, eta));
+  if (rho <= 1.0) {
+    u = acos(rho);
+    calculateTauAndOmega(u, -u, xi, eta, node.phi, t, v);
+    assert(
+      std::abs(2 * (sin(t) - std::sin(t - u) + std::sin(t - 2 * u)) - std::sin(node.phi) - node.x) < EPSILON);
+    assert(
+      std::abs(2 * (-cos(t) + std::cos(t - u) - std::cos(t - 2 * u)) + std::cos(phi) + 1.0 - node.y) <
+      EPSILON);
+    assert(std::abs(remainderOfDoublePiDivision(t - 2 * u - v - node.phi)) < EPSILON);
+    return t >= -NUMERIC_ZERO && v <= NUMERIC_ZERO;
+  }
+  return false;
+}
+// formula 8.8
+inline bool LpRumLumRp(ReedsSheppNode node, double & t, double & u, double & v)
+{
+  double xi = node.x + std::sin(node.phi);
+  double eta = node.y - 1.0 - std::cos(node.phi);
+  double rho = (20.0 - std::pow(xi, 2.0) - std::pow(eta, 2.0)) / 16.0;
+  if (rho >= 0 && rho <= 1) {
+    u = -acos(rho);
+    if (u >= -0.5 * PI) {
+      calculateTauAndOmega(u, u, xi, eta, node.phi, t, v);
+      assert(std::abs(4 * std::sin(t) - 2 * std::sin(t - u) - std::sin(node.phi) - node.x) < EPSILON);
+      assert(std::abs(-4 * std::cos(t) + 2 * std::cos(t - u) + std::cos(node.hi) + 1.0 - node.y) < EPSILON);
+      assert(std::abs(remainderOfDoublePiDivision(t - v - node.phi)) < EPSILON);
+      return t >= -NUMERIC_ZERO && v >= -NUMERIC_ZERO;
+    }
+  }
+  return false;
+}
+void CCCC(ReedsSheppNode node, ReedsSheppStateSpace::ReedsSheppPath & path)
+{
+  double L_min = path.length();
+  double t = 0.0;
+  double u = 0.0;
+  double v = 0.0;
+  double L = 0.0;
+  if (
+    LpRupLumRm(node, t, u, v) && L_min > (L = std::abs(t) + 2. * std::abs(u) + std::abs(v)))
+  {
+    path = ReedsSheppStateSpace::ReedsSheppPath(
+      ReedsSheppStateSpace::reedsSheppPathType[2], t, u, -u, v);
+    L_min = L;
+  }
+  if (
+    LpRupLumRm(node.timeflipped(), t, u, v) &&
+    L_min > (L = std::abs(t) + 2. * std::abs(u) + std::abs(v)))  // time flip
+  {
+    path = ReedsSheppStateSpace::ReedsSheppPath(
+      ReedsSheppStateSpace::reedsSheppPathType[2], -t, -u, u, -v);
+    L_min = L;
+  }
+  if (
+    LpRupLumRm(node.reflected(), t, u, v) &&
+    L_min > (L = std::abs(t) + 2. * std::abs(u) + std::abs(v)))  // reflect
+  {
+    path = ReedsSheppStateSpace::ReedsSheppPath(
+      ReedsSheppStateSpace::reedsSheppPathType[3], t, u, -u, v);
+    L_min = L;
+  }
+  if (
+    LpRupLumRm(node.timeflipped().reflected(), t, u, v) &&
+    L_min > (L = std::abs(t) + 2. * std::abs(u) + std::abs(v)))  // time flip + reflect
+  {
+    path = ReedsSheppStateSpace::ReedsSheppPath(
+      ReedsSheppStateSpace::reedsSheppPathType[3], -t, -u, u, -v);
+    L_min = L;
+  }
+
+  if (
+    LpRumLumRp(node, t, u, v) && L_min > (L = std::abs(t) + 2. * std::abs(u) + std::abs(v)))
+  {
+    path =
+      ReedsSheppStateSpace::ReedsSheppPath(ReedsSheppStateSpace::reedsSheppPathType[2], t, u, u, v);
+    L_min = L;
+  }
+  if (
+    LpRumLumRp(node.timeflipped(), t, u, v) &&
+    L_min > (L = std::abs(t) + 2. * std::abs(u) + std::abs(v)))  // time flip
+  {
+    path = ReedsSheppStateSpace::ReedsSheppPath(
+      ReedsSheppStateSpace::reedsSheppPathType[2], -t, -u, -u, -v);
+    L_min = L;
+  }
+  if (
+    LpRumLumRp(node.reflected(), t, u, v) &&
+    L_min > (L = std::abs(t) + 2. * std::abs(u) + std::abs(v)))  // reflect
+  {
+    path =
+      ReedsSheppStateSpace::ReedsSheppPath(ReedsSheppStateSpace::reedsSheppPathType[3], t, u, u, v);
+    L_min = L;
+  }
+  if (
+    LpRumLumRp(node.timeflipped().reflected(), t, u, v) &&
+    L_min > (L = std::abs(t) + 2. * std::abs(u) + std::abs(v)))  // time flip + reflect
+  {
+    path = ReedsSheppStateSpace::ReedsSheppPath(
+      ReedsSheppStateSpace::reedsSheppPathType[3], -t, -u, -u, -v);
+  }
+}
+// formula 8.9
+inline bool LpRmSmLm(ReedsSheppNode node, double & t, double & u, double & v)
+{
+  double rho = 0.0;
+  double theta = 0.0;
+  double xi = node.x - std::sin(node.phi);
+  double eta = node.y - 1.0 + std::cos(node.phi);
+  toPolarCoordinates(xi, eta, rho, theta);
+
+  if (rho >= 2.) {
+    double r = sqrt(rho * rho - 4.0);
+    u = 2.0 - r;
+
+    t = remainderOfDoublePiDivision(theta + std::atan2(r, -2.0));
+    v = remainderOfDoublePiDivision(node.phi - 0.5 * PI - t);
+
+    assert(std::abs(2.0 * (sin(t) - std::cos(t)) - u * std::sin(t) + std::sin(node.phi) - node.x) < EPSILON);
+    assert(
+      std::abs(-2.0 * (sin(t) + std::cos(t)) + u * std::cos(t) - std::cos(node.phi) + 1 - node.y) < EPSILON);
+    assert(std::abs(remainderOfDoublePiDivision(t + PI / 2.0 + v - node.phi)) < EPSILON);
+    return t >= -NUMERIC_ZERO && u <= NUMERIC_ZERO && v <= NUMERIC_ZERO;
+  }
+  return false;
+}
+// formula 8.10
+inline bool LpRmSmRm(ReedsSheppNode node, double & t, double & u, double & v)
+{
+  double rho = 0.0;
+  double theta = 0.0;
+  double xi = node.x + std::sin(node.phi);
+  double eta = node.y - 1.0 - std::cos(node.phi);
+  toPolarCoordinates(-eta, xi, rho, theta);
+
+  if (rho >= 2.0) {
+    t = theta;
+    u = 2.0 - rho;
+    v = remainderOfDoublePiDivision(t + 0.5 * PI - node.phi);
+
+    assert(std::abs(2 * std::sin(t) - std::cos(t - v) - u * std::sin(t) - node.x) < EPSILON);
+    assert(std::abs(-2 * std::cos(t) - std::sin(t - v) + u * std::cos(t) + 1.0 - node.y) < EPSILON);
+    assert(std::abs(remainderOfDoublePiDivision(t + PI / 2.0 - v - node.phi)) < EPSILON);
+    return t >= -NUMERIC_ZERO && u <= NUMERIC_ZERO && v <= NUMERIC_ZERO;
+  }
+  return false;
+}
+void CCSC(ReedsSheppNode node, ReedsSheppStateSpace::ReedsSheppPath & path)
+{
+  double L_min = path.length() - 0.5 * PI;
+  double t = 0.0;
+  double u = 0.0;
+  double v = 0.0;
+  double L = 0.0;
+  if (LpRmSmLm(node, t, u, v) && L_min > (L = std::abs(t) + std::abs(u) + std::abs(v))) {
+    path = ReedsSheppStateSpace::ReedsSheppPath(
+      ReedsSheppStateSpace::reedsSheppPathType[4], t, -0.5 * PI, u, v);
+    L_min = L;
+  }
+  if (
+    LpRmSmLm(node.timeflipped(), t, u, v) &&
+    L_min > (L = std::abs(t) + std::abs(u) + std::abs(v)))  // time flip
+  {
+    path = ReedsSheppStateSpace::ReedsSheppPath(
+      ReedsSheppStateSpace::reedsSheppPathType[4], -t, 0.5 * PI, -u, -v);
+    L_min = L;
+  }
+  if (
+    LpRmSmLm(node.reflected(), t, u, v) &&
+    L_min > (L = std::abs(t) + std::abs(u) + std::abs(v)))  // reflect
+  {
+    path = ReedsSheppStateSpace::ReedsSheppPath(
+      ReedsSheppStateSpace::reedsSheppPathType[5], t, -0.5 * PI, u, v);
+    L_min = L;
+  }
+  if (
+    LpRmSmLm(node.timeflipped().reflected(), t, u, v) &&
+    L_min > (L = std::abs(t) + std::abs(u) + std::abs(v)))  // time flip + reflect
+  {
+    path = ReedsSheppStateSpace::ReedsSheppPath(
+      ReedsSheppStateSpace::reedsSheppPathType[5], -t, 0.5 * PI, -u, -v);
+    L_min = L;
+  }
+
+  if (LpRmSmRm(node, t, u, v) && L_min > (L = std::abs(t) + std::abs(u) + std::abs(v))) {
+    path = ReedsSheppStateSpace::ReedsSheppPath(
+      ReedsSheppStateSpace::reedsSheppPathType[8], t, -0.5 * PI, u, v);
+    L_min = L;
+  }
+  if (
+    LpRmSmRm(node.timeflipped(), t, u, v) &&
+    L_min > (L = std::abs(t) + std::abs(u) + std::abs(v)))  // time flip
+  {
+    path = ReedsSheppStateSpace::ReedsSheppPath(
+      ReedsSheppStateSpace::reedsSheppPathType[8], -t, 0.5 * PI, -u, -v);
+    L_min = L;
+  }
+  if (
+    LpRmSmRm(node.reflected(), t, u, v) &&
+    L_min > (L = std::abs(t) + std::abs(u) + std::abs(v)))  // reflect
+  {
+    path = ReedsSheppStateSpace::ReedsSheppPath(
+      ReedsSheppStateSpace::reedsSheppPathType[9], t, -0.5 * PI, u, v);
+    L_min = L;
+  }
+  if (
+    LpRmSmRm(node.timeflipped().reflected(), t, u, v) &&
+    L_min > (L = std::abs(t) + std::abs(u) + std::abs(v)))  // time flip + reflect
+  {
+    path = ReedsSheppStateSpace::ReedsSheppPath(
+      ReedsSheppStateSpace::reedsSheppPathType[9], -t, 0.5 * PI, -u, -v);
+    L_min = L;
+  }
+
+  // backwards
+  ReedsSheppNode backward_node{
+    node.x * std::cos(node.phi) + node.y * std::sin(node.phi),
+    node.x * std::sin(node.phi) - node.y * std::cos(node.phi),
+    node.phi
+  };
+
+  if (LpRmSmLm(backward_node, t, u, v) && L_min > (L = std::abs(t) + std::abs(u) + std::abs(v))) {
+    path = ReedsSheppStateSpace::ReedsSheppPath(
+      ReedsSheppStateSpace::reedsSheppPathType[6], v, u, -0.5 * PI, t);
+    L_min = L;
+  }
+  if (
+    LpRmSmLm(backward_node.timeflipped(), t, u, v) &&
+    L_min > (L = std::abs(t) + std::abs(u) + std::abs(v)))  // time flip
+  {
+    path = ReedsSheppStateSpace::ReedsSheppPath(
+      ReedsSheppStateSpace::reedsSheppPathType[6], -v, -u, 0.5 * PI, -t);
+    L_min = L;
+  }
+  if (
+    LpRmSmLm(backward_node.reflected(), t, u, v) &&
+    L_min > (L = std::abs(t) + std::abs(u) + std::abs(v)))  // reflect
+  {
+    path = ReedsSheppStateSpace::ReedsSheppPath(
+      ReedsSheppStateSpace::reedsSheppPathType[7], v, u, -0.5 * PI, t);
+    L_min = L;
+  }
+  if (
+    LpRmSmLm(backward_node.timeflipped().reflected(), t, u, v) &&
+    L_min > (L = std::abs(t) + std::abs(u) + std::abs(v)))  // time flip + reflect
+  {
+    path = ReedsSheppStateSpace::ReedsSheppPath(
+      ReedsSheppStateSpace::reedsSheppPathType[7], -v, -u, 0.5 * PI, -t);
+    L_min = L;
+  }
+
+  if (LpRmSmRm(backward_node, t, u, v) && L_min > (L = std::abs(t) + std::abs(u) + std::abs(v))) {
+    path = ReedsSheppStateSpace::ReedsSheppPath(
+      ReedsSheppStateSpace::reedsSheppPathType[10], v, u, -0.5 * PI, t);
+    L_min = L;
+  }
+  if (
+    LpRmSmRm(backward_node.timeflipped(), t, u, v) &&
+    L_min > (L = std::abs(t) + std::abs(u) + std::abs(v)))  // time flip
+  {
+    path = ReedsSheppStateSpace::ReedsSheppPath(
+      ReedsSheppStateSpace::reedsSheppPathType[10], -v, -u, 0.5 * PI, -t);
+    L_min = L;
+  }
+  if (
+    LpRmSmRm(backward_node.reflected(), t, u, v) &&
+    L_min > (L = std::abs(t) + std::abs(u) + std::abs(v)))  // reflect
+  {
+    path = ReedsSheppStateSpace::ReedsSheppPath(
+      ReedsSheppStateSpace::reedsSheppPathType[11], v, u, -0.5 * PI, t);
+    L_min = L;
+  }
+  if (
+    LpRmSmRm(backward_node.timeflipped().reflected(), t, u, v) &&
+    L_min > (L = std::abs(t) + std::abs(u) + std::abs(v)))  // time flip + reflect
+  {
+    path = ReedsSheppStateSpace::ReedsSheppPath(
+      ReedsSheppStateSpace::reedsSheppPathType[11], -v, -u, 0.5 * PI, -t);
+  }
+}
+// formula 8.11 *** TYPO IN PAPER ***
+inline bool LpRmSLmRp(ReedsSheppNode node, double & t, double & u, double & v)
+{
+  double rho = 0.0;
+  double theta = 0.0;
+  double xi = node.x + std::sin(node.phi);
+  double eta = node.y - 1.0 - std::cos(node.phi);
+  toPolarCoordinates(xi, eta, rho, theta);
+
+  if (rho >= 2.0) {
+    u = 4.0 - sqrt(rho * rho - 4.0);
+    if (u <= NUMERIC_ZERO) {
+      t = remainderOfDoublePiDivision(atan2((4.0 - u) * xi - 2 * eta, -2.0 * xi + (u - 4.0) * eta));
+      v = remainderOfDoublePiDivision(t - node.phi);
+      assert(
+        std::abs(4.0 * std::sin(t) - 2.0 * std::cos(t) - u * std::sin(t) - std::sin(node.phi) - node.x) < EPSILON);
+      assert(
+        std::abs(-4.0 * std::cos(t) - 2.0 * std::sin(t) + u * std::cos(t) + std::cos(node.phi) + 1.0 - node.y) <
+        EPSILON);
+      assert(std::abs(remainderOfDoublePiDivision(t - v - node.phi)) < EPSILON);
+      return t >= -NUMERIC_ZERO && v >= -NUMERIC_ZERO;
+    }
+  }
+  return false;
+}
+void CCSCC(ReedsSheppNode node, ReedsSheppStateSpace::ReedsSheppPath & path)
+{
+  double L_min = path.length() - PI;
+  double t = 0.0;
+  double u = 0.0;
+  double v = 0.0;
+  double L = 0.0;
+  if (LpRmSLmRp(node, t, u, v) && L_min > (L = std::abs(t) + std::abs(u) + std::abs(v))) {
+    path = ReedsSheppStateSpace::ReedsSheppPath(
+      ReedsSheppStateSpace::reedsSheppPathType[16], t, -0.5 * PI, u, -0.5 * PI, v);
+    L_min = L;
+  }
+  if (
+    LpRmSLmRp(node.timeflipped(), t, u, v) &&
+    L_min > (L = std::abs(t) + std::abs(u) + std::abs(v)))  // time flip
+  {
+    path = ReedsSheppStateSpace::ReedsSheppPath(
+      ReedsSheppStateSpace::reedsSheppPathType[16], -t, 0.5 * PI, -u, 0.5 * PI, -v);
+    L_min = L;
+  }
+  if (
+    LpRmSLmRp(node.reflected(), t, u, v) &&
+    L_min > (L = std::abs(t) + std::abs(u) + std::abs(v)))  // reflect
+  {
+    path = ReedsSheppStateSpace::ReedsSheppPath(
+      ReedsSheppStateSpace::reedsSheppPathType[17], t, -0.5 * PI, u, -0.5 * PI, v);
+    L_min = L;
+  }
+  if (
+    LpRmSLmRp(node.timeflipped().reflected(), t, u, v) &&
+    L_min > (L = std::abs(t) + std::abs(u) + std::abs(v)))  // time flip + reflect
+  {
+    path = ReedsSheppStateSpace::ReedsSheppPath(
+      ReedsSheppStateSpace::reedsSheppPathType[17], -t, 0.5 * PI, -u, 0.5 * PI, -v);
+  }
+}
+
+ReedsSheppStateSpace::ReedsSheppPath reedsShepp(ReedsSheppNode node)
+{
+  ReedsSheppStateSpace::ReedsSheppPath path;
+  CSC(node, path);
+  CCC(node, path);
+  CCCC(node, path);
+  CCSC(node, path);
+  CCSCC(node, path);
+  return path;
+}
+}  // namespace
+
+namespace autoware
+{
+namespace planning
+{
+namespace parking
+{
+const ReedsSheppStateSpace::ReedsSheppPathSegmentType
+ReedsSheppStateSpace::reedsSheppPathType[18][5] = {
+  {COUNTERCLOCKWISE, CLOCKWISE, COUNTERCLOCKWISE, NO_OPERATION, NO_OPERATION},           // 0
+  {CLOCKWISE, COUNTERCLOCKWISE, CLOCKWISE, NO_OPERATION, NO_OPERATION},          // 1
+  {COUNTERCLOCKWISE, CLOCKWISE, COUNTERCLOCKWISE, CLOCKWISE, NO_OPERATION},         // 2
+  {CLOCKWISE, COUNTERCLOCKWISE, CLOCKWISE, COUNTERCLOCKWISE, NO_OPERATION},         // 3
+  {COUNTERCLOCKWISE, CLOCKWISE, STRAIGHT, COUNTERCLOCKWISE, NO_OPERATION},      // 4
+  {CLOCKWISE, COUNTERCLOCKWISE, STRAIGHT, CLOCKWISE, NO_OPERATION},     // 5
+  {COUNTERCLOCKWISE, STRAIGHT, CLOCKWISE, COUNTERCLOCKWISE, NO_OPERATION},      // 6
+  {CLOCKWISE, STRAIGHT, COUNTERCLOCKWISE, CLOCKWISE, NO_OPERATION},     // 7
+  {COUNTERCLOCKWISE, CLOCKWISE, STRAIGHT, CLOCKWISE, NO_OPERATION},     // 8
+  {CLOCKWISE, COUNTERCLOCKWISE, STRAIGHT, COUNTERCLOCKWISE, NO_OPERATION},      // 9
+  {CLOCKWISE, STRAIGHT, CLOCKWISE, COUNTERCLOCKWISE, NO_OPERATION},     // 10
+  {COUNTERCLOCKWISE, STRAIGHT, COUNTERCLOCKWISE, CLOCKWISE, NO_OPERATION},      // 11
+  {COUNTERCLOCKWISE, STRAIGHT, CLOCKWISE, NO_OPERATION, NO_OPERATION},       // 12
+  {CLOCKWISE, STRAIGHT, COUNTERCLOCKWISE, NO_OPERATION, NO_OPERATION},       // 13
+  {COUNTERCLOCKWISE, STRAIGHT, COUNTERCLOCKWISE, NO_OPERATION, NO_OPERATION},        // 14
+  {CLOCKWISE, STRAIGHT, CLOCKWISE, NO_OPERATION, NO_OPERATION},      // 15
+  {COUNTERCLOCKWISE, CLOCKWISE, STRAIGHT, COUNTERCLOCKWISE, CLOCKWISE},    // 16
+  {CLOCKWISE, COUNTERCLOCKWISE, STRAIGHT, CLOCKWISE, COUNTERCLOCKWISE}     // 17
+};
+
+ReedsSheppStateSpace::ReedsSheppPath::ReedsSheppPath(
+  const ReedsSheppPathSegmentType * type, double t, double u, double v, double w, double x)
+: type_(type)
+{
+  length_[0] = t;
+  length_[1] = u;
+  length_[2] = v;
+  length_[3] = w;
+  length_[4] = x;
+  totalLength_ = std::abs(t) + std::abs(u) + std::abs(v) + std::abs(w) + std::abs(x);
+}
+
+double ReedsSheppStateSpace::distance(const StateXYT & s0, const StateXYT & s1)
+{
+  return turning_radius_ * reedsShepp(s0, s1).length();
+}
+
+ReedsSheppStateSpace::ReedsSheppPath ReedsSheppStateSpace::reedsShepp(
+  const StateXYT & s0, const StateXYT & s1)
+{
+  double dx = s1.x - s0.x;
+  double dy = s1.y - s0.y;
+  double dth = s1.yaw - s0.yaw;
+  double cos_yaw = std::cos(s0.yaw);
+  double sin_yaw = std::sin(s0.yaw);
+
+  double x = cos_yaw * dx + sin_yaw * dy;
+  double y = -sin_yaw * dx + cos_yaw * dy;
+  return ::reedsShepp(ReedsSheppNode{x / turning_radius_, y / turning_radius_, dth});
+}
+
+void ReedsSheppStateSpace::interpolate(
+  const StateXYT & s0, ReedsSheppPath & path, double seg, StateXYT & s_out)
+{
+  if (seg < 0.0) {
+    seg = 0.0;
+  }
+  if (seg > path.length()) {
+    seg = path.length();
+  }
+
+  double phi, v;
+
+  s_out.x = s_out.y = 0.0;
+  s_out.yaw = s0.yaw;
+
+  for (unsigned int i = 0; i < 5 && seg > 0; ++i) {
+    if (path.length_[i] < 0) {
+      v = std::max(-seg, path.length_[i]);
+      seg += v;
+    } else {
+      v = std::min(seg, path.length_[i]);
+      seg -= v;
+    }
+    phi = s_out.yaw;
+    switch (path.type_[i]) {
+      case COUNTERCLOCKWISE:
+        s_out.x += (sin(phi + v) - std::sin(phi));
+        s_out.y += (-cos(phi + v) + std::cos(phi));
+        s_out.yaw = phi + v;
+        break;
+      case CLOCKWISE:
+        s_out.x += (-sin(phi - v) + std::sin(phi));
+        s_out.y += (cos(phi - v) - std::cos(phi));
+        s_out.yaw = phi - v;
+        break;
+      case STRAIGHT:
+        s_out.x += (v * std::cos(phi));
+        s_out.y += (v * std::sin(phi));
+        break;
+      case NO_OPERATION:
+        break;
+    }
+  }
+
+  s_out.x = s_out.x * turning_radius_ + s0.x;
+  s_out.y = s_out.y * turning_radius_ + s0.y;
+}
+
+}  // namespace parking
+}  // namespace planning
+}  // namespace autoware
