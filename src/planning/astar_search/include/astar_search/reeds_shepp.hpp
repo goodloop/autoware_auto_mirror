@@ -94,6 +94,10 @@ namespace planning
 namespace parking
 {
 
+/** \brief The Reeds-Shepp path segment types */
+enum ReedsSheppPathSegmentType {NO_OPERATION, COUNTERCLOCKWISE, STRAIGHT, CLOCKWISE};
+
+
 struct ReedsSheppNode
 {
   double x;
@@ -117,6 +121,10 @@ struct ReedsSheppNode
   }
 };
 
+///? TODO change to vector (attention line 116)
+/** \brief Reeds-Shepp path types */
+extern const ReedsSheppPathSegmentType RP_PATH_TYPE[18][5];
+
 // struct ReedsSheppPathParameter
 // {
 //   double t = std::numeric_limits<double>::max();
@@ -136,46 +144,41 @@ struct ReedsSheppNode
 //   }
 // }
 
+/** \brief Complete description of a ReedsShepp path */
+class ReedsSheppPath
+{
+public:
+  static const size_t SEGMENT_LENGTHS = 5;
+
+  ReedsSheppPath(
+    const ReedsSheppPathSegmentType * type = RP_PATH_TYPE[0],
+    double t = std::numeric_limits<double>::max(),
+    double u = 0.0,
+    double v = 0.0,
+    double w = 0.0,
+    double x = 0.0);
+
+  double length() const {return totalLength_;}
+
+  /** Path segment types */
+  const ReedsSheppPathSegmentType * type_;
+  /** Path segment lengths */
+  double length_[SEGMENT_LENGTHS];
+  /** Total length */
+  double totalLength_;
+
+};
+
+struct StateXYT
+{
+  double x;
+  double y;
+  double yaw;
+};
+
 class ReedsSheppStateSpace
 {
 public:
-  /** \brief The Reeds-Shepp path segment types */
-  enum ReedsSheppPathSegmentType {NO_OPERATION, COUNTERCLOCKWISE, STRAIGHT, CLOCKWISE};
-
-  ///? TODO change to vector (attention line 116)
-  /** \brief Reeds-Shepp path types */
-  static const ReedsSheppPathSegmentType reedsSheppPathType[18][5];
-
-  /** \brief Complete description of a ReedsShepp path */
-  class ReedsSheppPath
-  {
-public:
-    ReedsSheppPath(
-      const ReedsSheppPathSegmentType * type = reedsSheppPathType[0],
-      double t = std::numeric_limits<double>::max(),
-      double u = 0.0,
-      double v = 0.0,
-      double w = 0.0,
-      double x = 0.0);
-
-    double length() const {return totalLength_;}
-
-    /** Path segment types */
-    const ReedsSheppPathSegmentType * type_;
-    /** Path segment lengths */
-    /// TODO why is it fixed length
-    double length_[5];
-    /** Total length */
-    double totalLength_;
-  };
-
-  struct StateXYT
-  {
-    double x;
-    double y;
-    double yaw;
-  };
-
   explicit ReedsSheppStateSpace(double turningRadius)
   : turning_radius_(turningRadius) {}
 
