@@ -38,8 +38,8 @@ double calcReedsSheppDistance(
   const geometry_msgs::msg::Pose & p1, const geometry_msgs::msg::Pose & p2, double radius)
 {
   auto rs_space = ReedsSheppStateSpace(radius);
-  ReedsSheppStateSpace::StateXYT pose0{p1.position.x, p1.position.y, tf2::getYaw(p1.orientation)};
-  ReedsSheppStateSpace::StateXYT pose1{p2.position.x, p2.position.y, tf2::getYaw(p2.orientation)};
+  StateXYT pose0{p1.position.x, p1.position.y, tf2::getYaw(p1.orientation)};
+  StateXYT pose1{p2.position.x, p2.position.y, tf2::getYaw(p2.orientation)};
   return rs_space.distance(pose0, pose1);
 }
 
