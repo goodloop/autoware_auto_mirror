@@ -95,6 +95,7 @@ namespace planning
 {
 namespace parking
 {
+/// \brief Input position and orientation representation
 struct ASTAR_SEARCH_PUBLIC StateXYT
 {
   double x;
@@ -102,15 +103,28 @@ struct ASTAR_SEARCH_PUBLIC StateXYT
   double yaw;
 };
 
+/// \class ReedsShepp
+/// \brief Class calculating shortest path on plane, considering arc and straight, forward and
+/// backward movements.
+///        The algorithm analysis a sufficient subset of situations where robot can move clockwise,
+///        counterclockwise, straight in forward or backward direction.The clockwise and
+///        counterclockwise turns can be generalized by substituting the left/right nomenclature
+///        with an arc movement marked by the 'C' character. A straight movement can be marked as
+///        the 'S'. The situation "(...)CC(...)" means a change in the direction of the turn,
+///        regardless of whether the first turn is counterclockwise or clockwise. This class uses
+///        implementation of algorithm described by J. A. REEDS and L. A. SHEPP. For more detailed
+///        info please refer to "Optimal paths for a car that goes both forwards and backwards"
+///        paper.
 class ASTAR_SEARCH_PUBLIC ReedsShepp
 {
 public:
   explicit ReedsShepp(double turningRadius)
   : turning_radius_(turningRadius) {}
 
+  /// \brief Return the shortest distance between state 1 and state 2
   double distance(const StateXYT & s0, const StateXYT & s1);
 
-  /** \brief Return the shortest Reeds-Shepp path from SE(2) state state1 to SE(2) state state2 */
+  /// \brief Return the shortest Reeds-Shepp path from state 1 to state 2
   ReedsSheppPath reedsShepp(const StateXYT & s0, const StateXYT & s1);
 
 protected:

@@ -17,6 +17,8 @@ Algorithm outputs custom `PlannerWaypoints` object which definition can be found
 Having the costmap A* search can create smooth and kinematically feasible trajectories that avoid obstacles using Hybrid
 A* algorithm.
 
+Additionally the algorithm has implemented a Reeds-Shepp cost estimation algorithm, which makes the found paths smooth and optimal.
+
 Planning returns a boolean that indicates if planning succeeded and one of the following statuses for better verbosity:
 * `SUCCESS` - planning succeeded
 * `FAILURE_COLLISION_AT_START` - planning failed because of an obstacle inside vehicle's footprint at the starting
@@ -49,3 +51,5 @@ Planning does not return the planned trajectory, but it can be accessed by the a
 # References / External Links
 
 [Hybrid A* paper](https://ai.stanford.edu/~ddolgov/papers/dolgov_gpp_stair08.pdf)
+
+[Reeds-Shepp paper](https://projecteuclid.org/journals/pacific-journal-of-mathematics/volume-145/issue-2/Optimal-paths-for-a-car-that-goes-both-forwards-and/pjm/1102645450.full?tab=ArticleLink)
