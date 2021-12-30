@@ -78,7 +78,7 @@ struct ASTAR_SEARCH_PUBLIC VehicleShape
   double cg2back;  ///< Robot's distance from center of gravity to back [m]
 };
 
-/// \brief Parameters defining algorithm configuration
+/// \brief Parameters defining common algorithm configuration
 struct ASTAR_SEARCH_PUBLIC PlannerCommonParam
 {
   // base configs
@@ -141,14 +141,18 @@ inline bool ASTAR_SEARCH_PUBLIC isSuccess(const SearchStatus & status)
   return status == SearchStatus::SUCCESS;
 }
 
-
-class BasePlanningAlgorithm
+/// \class BasePlanningAlgorithm
+/// \brief Planning algorithm base class
+class ASTAR_SEARCH_PUBLIC BasePlanningAlgorithm
 {
 public:
+  /// \brief Class constructor
+  /// \param[in] planner_common_param PlannerCommonParam object
   explicit BasePlanningAlgorithm(const PlannerCommonParam & planner_common_param)
   : planner_common_param_(planner_common_param)
   {
   }
+
   /// \brief Robot dimensions setter
   /// \param[in] vehicle_shape VehicleShape object
   virtual void setVehicleShape(const VehicleShape & vehicle_shape)
@@ -196,19 +200,12 @@ protected:
   {
     // NOTE: Accessing by .at() instead makes 1.2 times slower here.
     // Also, boundary check is already done in isOutOfRange before calling this function.
-    // So, basically .at() is not necessary.
     return is_obstacle_table_[static_cast<size_t>(index.y)][static_cast<size_t>(index.x)];
   }
 
   PlannerCommonParam planner_common_param_;
-
-  // costmap as occupancy grid
   nav_msgs::msg::OccupancyGrid costmap_;
-
-  // collision indexes cache
   std::vector<std::vector<IndexXY>> coll_indexes_table_;
-
-  // is_obstacle's table
   std::vector<std::vector<bool>> is_obstacle_table_;
 
   // pose in costmap frame
