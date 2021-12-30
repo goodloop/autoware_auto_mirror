@@ -1,12 +1,12 @@
 cmake_minimum_required(VERSION 3.5)
-project(freespace_planner)
+project(freespace_planner_nodes)
 
 find_package(ament_cmake_auto REQUIRED)
 ament_auto_find_build_dependencies()
 
 set(FREESPACE_PLANNER_NODE_LIB freespace_planner_node)
 ament_auto_add_library(${FREESPACE_PLANNER_NODE_LIB} SHARED
-  src/freespace_planner/freespace_planner_node.cpp)
+  src/freespace_planner_nodes/freespace_planner_node.cpp)
 autoware_set_compile_options(${FREESPACE_PLANNER_NODE_LIB})
 
 
