@@ -44,13 +44,13 @@ geometry_msgs::msg::Pose transformPose(
   return transformed_pose.pose;
 }
 
-parking::PlannerWaypoints adjustWaypointsSize(const parking::PlannerWaypoints & planner_waypoints)
+PlannerWaypoints adjustWaypointsSize(const PlannerWaypoints & planner_waypoints)
 {
   auto max_length = Trajectory::CAPACITY;
   auto input_length = planner_waypoints.waypoints.size();
 
   if (input_length > max_length) {
-    parking::PlannerWaypoints resized_vector;
+    PlannerWaypoints resized_vector;
     resized_vector.header = planner_waypoints.header;
 
     // input_length substraction to handle handle max_length multiplicity
@@ -79,7 +79,7 @@ parking::PlannerWaypoints adjustWaypointsSize(const parking::PlannerWaypoints & 
 
 autoware_auto_planning_msgs::msg::Trajectory createTrajectory(
   const geometry_msgs::msg::PoseStamped & current_pose,
-  const parking::PlannerWaypoints & planner_waypoints,
+  const PlannerWaypoints & planner_waypoints,
   const float & velocity)
 {
   Trajectory trajectory;
@@ -210,9 +210,9 @@ FreespacePlannerNode::FreespacePlannerNode(const rclcpp::NodeOptions & node_opti
   }
 }
 
-parking::AstarParam FreespacePlannerNode::getAstarParam()
+AstarParam FreespacePlannerNode::getAstarParam()
 {
-  parking::AstarParam param;
+  AstarParam param;
   param.use_back = declare_parameter("astar.use_back", true);
   param.use_reeds_shepp = declare_parameter("astar.use_reeds_shepp", true);
   param.only_behind_solutions = declare_parameter("astar.only_behind_solutions", false);
@@ -337,25 +337,25 @@ bool FreespacePlannerNode::planTrajectory()
 
   RCLCPP_INFO(get_logger(), "Astar planning took %f [s]", (end - start).seconds());
 
-  if (parking::isSuccess(search_status)) {
+  if (isSuccess(search_status)) {
     RCLCPP_INFO(get_logger(), "Plan found.");
     auto waypoints = adjustWaypointsSize(algo_->getWaypoints());
     trajectory_ =
       createTrajectory(start_pose_, waypoints, static_cast<float>(node_param_.waypoints_velocity));
   } else {
     switch (search_status) {
-      case parking::SearchStatus::FAILURE_COLLISION_AT_START:
+      case SearchStatus::FAILURE_COLLISION_AT_START:
         RCLCPP_ERROR(
           get_logger(), "Cannot find plan because collision was detected in start position.");
         break;
-      case parking::SearchStatus::FAILURE_COLLISION_AT_GOAL:
+      case SearchStatus::FAILURE_COLLISION_AT_GOAL:
         RCLCPP_ERROR(
           get_logger(), "Cannot find plan because collision was detected in goal position.");
         break;
-      case parking::SearchStatus::FAILURE_TIMEOUT_EXCEEDED:
+      case SearchStatus::FAILURE_TIMEOUT_EXCEEDED:
         RCLCPP_ERROR(get_logger(), "Cannot find plan because timeout exceeded.");
         break;
-      case parking::SearchStatus::FAILURE_NO_PATH_FOUND:
+      case SearchStatus::FAILURE_NO_PATH_FOUND:
         RCLCPP_ERROR(get_logger(), "Cannot find plan.");
         break;
       default:
@@ -364,7 +364,7 @@ bool FreespacePlannerNode::planTrajectory()
     }
   }
 
-  return parking::isSuccess(search_status);
+  return isSuccess(search_status);
 }
 
 bool FreespacePlannerNode::isPlanning() const
@@ -420,7 +420,7 @@ void FreespacePlannerNode::initializePlanningAlgorithm()
 {
   if (node_param_.planning_algorithm == "astar") {
     auto algorithm_param = getAstarParam();
-    algo_.reset(new parking::AstarSearch(planner_common_param_, algorithm_param));
+    algo_.reset(new AstarSearch(planner_common_param_, algorithm_param));
   } else {
     throw std::runtime_error(
             "No such algorithm named " + node_param_.planning_algorithm + " exists.");

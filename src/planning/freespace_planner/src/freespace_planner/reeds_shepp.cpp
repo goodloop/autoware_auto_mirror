@@ -83,7 +83,7 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  *********************************************************************/
 
-#include "astar_search/reeds_shepp.hpp"
+#include "freespace_planner/reeds_shepp.hpp"
 
 #include <cmath>
 
@@ -91,7 +91,7 @@ namespace autoware
 {
 namespace planning
 {
-namespace parking
+namespace freespace_planner
 {
 ReedsSheppPath ReedsShepp::reedsShepp(const StateXYT & state_0, const StateXYT & state_1)
 {
@@ -123,6 +123,6 @@ double ReedsShepp::distance(const StateXYT & state_0, const StateXYT & state_1)
   return turning_radius_ * reedsShepp(state_0, state_1).length();
 }
 
-}  // namespace parking
+}  // namespace freespace_planner
 }  // namespace planning
 }  // namespace autoware

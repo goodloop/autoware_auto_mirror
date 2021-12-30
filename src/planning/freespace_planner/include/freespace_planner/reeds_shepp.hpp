@@ -82,21 +82,21 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  *********************************************************************/
-#ifndef ASTAR_SEARCH__REEDS_SHEPP_HPP_
-#define ASTAR_SEARCH__REEDS_SHEPP_HPP_
+#ifndef FREESPACE_PLANNER__REEDS_SHEPP_HPP_
+#define FREESPACE_PLANNER__REEDS_SHEPP_HPP_
 
-#include <astar_search/reeds_shepp_impl.hpp>
-#include <astar_search/visibility_control.hpp>
+#include <freespace_planner/reeds_shepp_impl.hpp>
+#include <freespace_planner/visibility_control.hpp>
 
 
 namespace autoware
 {
 namespace planning
 {
-namespace parking
+namespace freespace_planner
 {
 /// \brief Input position and orientation representation
-struct ASTAR_SEARCH_PUBLIC StateXYT
+struct FREESPACE_PLANNER_PUBLIC StateXYT
 {
   double x;
   double y;
@@ -115,7 +115,7 @@ struct ASTAR_SEARCH_PUBLIC StateXYT
 ///        implementation of algorithm described by J. A. REEDS and L. A. SHEPP. For more detailed
 ///        info please refer to "Optimal paths for a car that goes both forwards and backwards"
 ///        paper.
-class ASTAR_SEARCH_PUBLIC ReedsShepp
+class FREESPACE_PLANNER_PUBLIC ReedsShepp
 {
 public:
   explicit ReedsShepp(double turningRadius)
@@ -134,8 +134,8 @@ protected:
   double turning_radius_;
 };
 
-}  // namespace parking
+}  // namespace freespace_planner
 }  // namespace planning
 }  // namespace autoware
 
-#endif  // ASTAR_SEARCH__REEDS_SHEPP_HPP_
+#endif  // FREESPACE_PLANNER__REEDS_SHEPP_HPP_

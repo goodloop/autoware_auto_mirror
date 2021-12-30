@@ -21,7 +21,7 @@
 #include <tf2_ros/buffer.h>
 #include <tf2_ros/transform_listener.h>
 
-#include <astar_search/astar_search.hpp>
+#include <freespace_planner/astar_search.hpp>
 #include <freespace_planner_nodes/visibility_control.hpp>
 #include <motion_common/motion_common.hpp>
 #include <rclcpp/rclcpp.hpp>
@@ -81,11 +81,11 @@ private:
 
   // params
   NodeParam node_param_;
-  parking::PlannerCommonParam planner_common_param_;
+  PlannerCommonParam planner_common_param_;
   FreespacePlannerState state_;
 
   // variables
-  std::unique_ptr<parking::BasePlanningAlgorithm> algo_;
+  std::unique_ptr<BasePlanningAlgorithm> algo_;
   std::shared_ptr<GoalHandle> planning_goal_handle_{nullptr};
   geometry_msgs::msg::PoseStamped start_pose_;
   geometry_msgs::msg::PoseStamped goal_pose_;
@@ -117,7 +117,7 @@ private:
 
   void visualizeTrajectory();
   void initializePlanningAlgorithm();
-  parking::AstarParam getAstarParam();
+  AstarParam getAstarParam();
 };
 
 }  // namespace freespace_planner

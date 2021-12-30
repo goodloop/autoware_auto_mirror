@@ -82,10 +82,10 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  *********************************************************************/
-#ifndef ASTAR_SEARCH__REEDS_SHEPP_IMPL_HPP_
-#define ASTAR_SEARCH__REEDS_SHEPP_IMPL_HPP_
+#ifndef FREESPACE_PLANNER__REEDS_SHEPP_IMPL_HPP_
+#define FREESPACE_PLANNER__REEDS_SHEPP_IMPL_HPP_
 
-#include <astar_search/visibility_control.hpp>
+#include <freespace_planner/visibility_control.hpp>
 
 #include <array>
 #include <limits>
@@ -94,7 +94,7 @@ namespace autoware
 {
 namespace planning
 {
-namespace parking
+namespace freespace_planner
 {
 /// \brief The Reeds-Shepp path segment types
 enum ReedsSheppPathSegmentType { NO_OPERATION, COUNTERCLOCKWISE, STRAIGHT, CLOCKWISE };
@@ -103,7 +103,7 @@ enum ReedsSheppPathSegmentType { NO_OPERATION, COUNTERCLOCKWISE, STRAIGHT, CLOCK
 extern const ReedsSheppPathSegmentType RP_PATH_TYPE[18][5];
 
 /// \brief Complete description of a ReedsShepp parametrized path
-class ASTAR_SEARCH_PUBLIC ReedsSheppPath
+class FREESPACE_PLANNER_PUBLIC ReedsSheppPath
 {
 public:
   /// \brief Class constructor
@@ -127,7 +127,7 @@ public:
 };
 
 /// \brief Definition of car's position and orientation in ReedsShepp state space
-struct ASTAR_SEARCH_PUBLIC ReedsSheppNode
+struct FREESPACE_PLANNER_PUBLIC ReedsSheppNode
 {
   double x;
   double y;
@@ -179,8 +179,8 @@ void CCSC(ReedsSheppNode node, ReedsSheppPath & path);
 /// \param[out] path ReedsSheppPath object
 void CCSCC(ReedsSheppNode node, ReedsSheppPath & path);
 }  // namespace reeds_shepp
-}  // namespace parking
+}  // namespace freespace_planner
 }  // namespace planning
 }  // namespace autoware
 
-#endif  // ASTAR_SEARCH__REEDS_SHEPP_IMPL_HPP_
+#endif  // FREESPACE_PLANNER__REEDS_SHEPP_IMPL_HPP_

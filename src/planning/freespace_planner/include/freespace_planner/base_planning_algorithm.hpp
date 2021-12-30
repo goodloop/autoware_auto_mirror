@@ -14,10 +14,10 @@
 //
 // Co-developed by Tier IV, Inc. and Robotec.AI sp. z o.o.
 
-#ifndef ASTAR_SEARCH__BASE_PLANNING_ALGORITHM_HPP_
-#define ASTAR_SEARCH__BASE_PLANNING_ALGORITHM_HPP_
+#ifndef FREESPACE_PLANNER__BASE_PLANNING_ALGORITHM_HPP_
+#define FREESPACE_PLANNER__BASE_PLANNING_ALGORITHM_HPP_
 
-#include <astar_search/visibility_control.hpp>
+#include <freespace_planner/visibility_control.hpp>
 
 #include <geometry_msgs/msg/pose_array.hpp>
 #include <nav_msgs/msg/occupancy_grid.hpp>
@@ -38,7 +38,7 @@ namespace autoware
 {
 namespace planning
 {
-namespace parking
+namespace freespace_planner
 {
 double normalizeRadian(const double rad, const double min_rad = -M_PI, const double max_rad = M_PI);
 int discretizeAngle(const double theta, const size_t theta_size);
@@ -71,7 +71,7 @@ geometry_msgs::msg::Pose local2global(
   const nav_msgs::msg::OccupancyGrid & costmap, const geometry_msgs::msg::Pose & pose_local);
 
 /// \brief Definition of essential vehicle dimensions
-struct ASTAR_SEARCH_PUBLIC VehicleShape
+struct FREESPACE_PLANNER_PUBLIC VehicleShape
 {
   double length;   ///< Robot's length (bound with X axis direction) [m]
   double width;    ///< Robot's length (bound with Y axis direction)  [m]
@@ -79,7 +79,7 @@ struct ASTAR_SEARCH_PUBLIC VehicleShape
 };
 
 /// \brief Parameters defining common algorithm configuration
-struct ASTAR_SEARCH_PUBLIC PlannerCommonParam
+struct FREESPACE_PLANNER_PUBLIC PlannerCommonParam
 {
   // base configs
   /// Planning time limit [msec]
@@ -119,7 +119,7 @@ struct PlannerWaypoint
 };
 
 /// \brief Trajectory points representation as an algorithms output
-struct ASTAR_SEARCH_PUBLIC PlannerWaypoints
+struct FREESPACE_PLANNER_PUBLIC PlannerWaypoints
 {
   std_msgs::msg::Header header;            ///< Mostly timestamp and frame information
   std::vector<PlannerWaypoint> waypoints;  ///< Vector of trajectory waypoints
@@ -136,14 +136,14 @@ enum class SearchStatus
 };
 
 /// \brief Determines if passed status is a success status
-inline bool ASTAR_SEARCH_PUBLIC isSuccess(const SearchStatus & status)
+inline bool FREESPACE_PLANNER_PUBLIC isSuccess(const SearchStatus & status)
 {
   return status == SearchStatus::SUCCESS;
 }
 
 /// \class BasePlanningAlgorithm
 /// \brief Planning algorithm base class
-class ASTAR_SEARCH_PUBLIC BasePlanningAlgorithm
+class FREESPACE_PLANNER_PUBLIC BasePlanningAlgorithm
 {
 public:
   /// \brief Class constructor
@@ -216,8 +216,8 @@ protected:
   PlannerWaypoints waypoints_;
 };
 
-}  // namespace parking
+}  // namespace freespace_planner
 }  // namespace planning
 }  // namespace autoware
 
-#endif  // ASTAR_SEARCH__BASE_PLANNING_ALGORITHM_HPP_
+#endif  // FREESPACE_PLANNER__BASE_PLANNING_ALGORITHM_HPP_
