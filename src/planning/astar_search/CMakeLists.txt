@@ -6,6 +6,7 @@ ament_auto_find_build_dependencies()
 set(REEDS_SHEPP_LIB reeds_shepp)
 ament_auto_add_library(${REEDS_SHEPP_LIB} SHARED
   src/reeds_shepp.cpp
+  src/reeds_shepp_impl.cpp
 )
 
 # set(PLANNER_BASE_LIB planner_base)
