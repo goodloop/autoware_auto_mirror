@@ -14,15 +14,15 @@
 //
 // Co-developed by Tier IV, Inc. and Robotec.AI sp. z o.o.
 
-#ifndef FREESPACE_PLANNER__FREESPACE_PLANNER_HPP_
-#define FREESPACE_PLANNER__FREESPACE_PLANNER_HPP_
+#ifndef FREESPACE_PLANNER_NODES_FREESPACE_PLANNER_NODE_HPP_
+#define FREESPACE_PLANNER_NODES_FREESPACE_PLANNER_NODE_HPP_
 
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 #include <tf2_ros/buffer.h>
 #include <tf2_ros/transform_listener.h>
 
 #include <astar_search/astar_search.hpp>
-#include <freespace_planner/visibility_control.hpp>
+#include <freespace_planner_nodes/visibility_control.hpp>
 #include <motion_common/motion_common.hpp>
 #include <rclcpp/rclcpp.hpp>
 #include <rclcpp_action/rclcpp_action.hpp>
@@ -124,4 +124,4 @@ private:
 }  // namespace planning
 }  // namespace autoware
 
-#endif  // FREESPACE_PLANNER__FREESPACE_PLANNER_HPP_
+#endif  // ReedsSheppFREESPACE_PLANNER_NODES__FREESPACE_PLANNER_HPP_

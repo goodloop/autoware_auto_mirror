@@ -14,14 +14,13 @@
 //
 // Co-developed by Tier IV, Inc. and Robotec.AI sp. z o.o.
 
+#include <freespace_planner_nodes/freespace_planner_node.hpp>
+
 #include <algorithm>
 #include <deque>
 #include <memory>
 #include <string>
 #include <utility>
-
-#include "freespace_planner/freespace_planner.hpp"
-
 
 namespace autoware
 {
