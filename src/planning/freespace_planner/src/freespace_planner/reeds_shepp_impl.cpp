@@ -83,7 +83,7 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  *********************************************************************/
 
-#include "astar_search/reeds_shepp_impl.hpp"
+#include "freespace_planner/reeds_shepp_impl.hpp"
 
 #include <cassert>
 #include <cmath>
@@ -137,7 +137,7 @@ namespace autoware
 {
 namespace planning
 {
-namespace parking
+namespace freespace_planner
 {
 const ReedsSheppPathSegmentType RP_PATH_TYPE[18][5] = {
   {COUNTERCLOCKWISE, CLOCKWISE, COUNTERCLOCKWISE, NO_OPERATION, NO_OPERATION},  // 0
@@ -672,6 +672,6 @@ void CCSCC(ReedsSheppNode node, ReedsSheppPath & path)
 }
 
 }  // namespace reeds_shepp
-}  // namespace parking
+}  // namespace freespace_planner
 }  // namespace planning
 }  // namespace autoware

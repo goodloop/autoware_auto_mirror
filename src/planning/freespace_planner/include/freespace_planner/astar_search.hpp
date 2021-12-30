@@ -14,12 +14,12 @@
 //
 // Co-developed by Tier IV, Inc. and Robotec.AI sp. z o.o.
 
-#ifndef ASTAR_SEARCH__ASTAR_SEARCH_HPP_
-#define ASTAR_SEARCH__ASTAR_SEARCH_HPP_
+#ifndef FREESPACE_PLANNER__ASTAR_SEARCH_HPP_
+#define FREESPACE_PLANNER__ASTAR_SEARCH_HPP_
 
-#include <astar_search/visibility_control.hpp>
-#include <astar_search/base_planning_algorithm.hpp>
-#include <astar_search/reeds_shepp.hpp>
+#include <freespace_planner/visibility_control.hpp>
+#include <freespace_planner/base_planning_algorithm.hpp>
+#include <freespace_planner/reeds_shepp.hpp>
 
 #include <geometry_msgs/msg/pose_array.hpp>
 #include <nav_msgs/msg/occupancy_grid.hpp>
@@ -33,11 +33,11 @@ namespace autoware
 {
 namespace planning
 {
-namespace parking
+namespace freespace_planner
 {
 enum class NodeStatus : uint8_t { None, Open, Closed, Obstacle };
 
-struct ASTAR_SEARCH_PUBLIC AstarParam
+struct FREESPACE_PLANNER_PUBLIC AstarParam
 {
   /// Indicate if should search for solutions in backward direction
   bool use_back;
@@ -107,7 +107,7 @@ struct NodeUpdate
 
 /// \class AstarSearch
 /// \brief A* Hybrid algorithm implementation using ROS2 typical structures
-class ASTAR_SEARCH_PUBLIC AstarSearch : public BasePlanningAlgorithm
+class FREESPACE_PLANNER_PUBLIC AstarSearch : public BasePlanningAlgorithm
 {
 public:
   using TransitionTable = std::vector<std::vector<NodeUpdate>>;
@@ -149,8 +149,8 @@ private:
   std::priority_queue<AstarNode *, std::vector<AstarNode *>, NodeComparison> openlist_;
 };
 
-}  // namespace parking
+}  // namespace freespace_planner
 }  // namespace planning
 }  // namespace autoware
 
-#endif  // ASTAR_SEARCH__ASTAR_SEARCH_HPP_
+#endif  // FREESPACE_PLANNER__ASTAR_SEARCH_HPP_

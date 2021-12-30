@@ -15,7 +15,7 @@
 // Co-developed by Tier IV, Inc. and Robotec.AI sp. z o.o.
 
 
-#include "astar_search/astar_search.hpp"
+#include "freespace_planner/astar_search.hpp"
 
 #include <vector>
 
@@ -27,7 +27,7 @@ namespace autoware
 {
 namespace planning
 {
-namespace parking
+namespace freespace_planner
 {
 constexpr double deg2rad(const double deg)
 {
@@ -372,6 +372,6 @@ AstarNode * AstarSearch::getNodeRef(const IndexXYT & index)
          [static_cast<size_t>(index.theta)];
 }
 
-}  // namespace parking
+}  // namespace freespace_planner
 }  // namespace planning
 }  // namespace autoware

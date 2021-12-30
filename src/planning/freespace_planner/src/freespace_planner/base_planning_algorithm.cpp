@@ -14,7 +14,7 @@
 //
 // Co-developed by Tier IV, Inc. and Robotec.AI sp. z o.o.
 
-#include "astar_search/base_planning_algorithm.hpp"
+#include "freespace_planner/base_planning_algorithm.hpp"
 
 #include <vector>
 
@@ -22,7 +22,7 @@ namespace autoware
 {
 namespace planning
 {
-namespace parking
+namespace freespace_planner
 {
 double normalizeRadian(const double rad, const double min_rad, const double max_rad)
 {
@@ -202,6 +202,6 @@ bool BasePlanningAlgorithm::detectCollision(const IndexXYT & base_index) const
 }
 
 
-}  // namespace parking
+}  // namespace freespace_planner
 }  // namespace planning
 }  // namespace autoware
