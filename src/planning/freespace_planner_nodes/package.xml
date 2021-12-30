@@ -17,7 +17,7 @@
   <depend>rclcpp_components</depend>
   <depend>rclcpp_action</depend>
 
-  <depend>astar_search</depend>
+  <depend>freespace_planner</depend>
   <depend>geometry_msgs</depend>
   <depend>nav_msgs</depend>
   <depend>tf2</depend>

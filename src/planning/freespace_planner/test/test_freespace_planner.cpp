@@ -20,14 +20,14 @@
 
 #include <memory>
 
-#include "astar_search/astar_search.hpp"
+#include "freespace_planner/astar_search.hpp"
 
 
-using autoware::planning::parking::AstarParam;
-using autoware::planning::parking::AstarSearch;
-using autoware::planning::parking::PlannerCommonParam;
-using autoware::planning::parking::SearchStatus;
-using autoware::planning::parking::VehicleShape;
+using autoware::planning::freespace_planner::AstarParam;
+using autoware::planning::freespace_planner::AstarSearch;
+using autoware::planning::freespace_planner::PlannerCommonParam;
+using autoware::planning::freespace_planner::SearchStatus;
+using autoware::planning::freespace_planner::VehicleShape;
 
 using nav_msgs::msg::OccupancyGrid;
 

@@ -23,7 +23,7 @@ if(BUILD_TESTING)
   add_smoke_test(${PROJECT_NAME} ${FREESPACE_PLANNER_NODE_LIB}_exe)
 
   add_ros_test(
-    test/freespace_planner.test.py
+    test/freespace_planner_node.test.py
     TIMEOUT "15"
   )
 endif()
