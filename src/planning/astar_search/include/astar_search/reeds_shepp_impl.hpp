@@ -144,25 +144,6 @@ struct ReedsSheppNode
   }
 };
 
-// struct ReedsSheppPathParameter
-// {
-//   double t = std::numeric_limits<double>::max();
-//   double u = 0.0;
-//   double v = 0.0;
-//   double w = 0.0;
-//   double x = 0.0;
-
-//   ReedsSheppPathParameter timeflipped() const
-//   {
-//     ReedsSheppPathParameter parameters = *this;
-//   }
-
-//   ReedsSheppPathParameter reflected() const
-//   {
-
-//   }
-// }
-
 namespace reeds_shepp
 {
 void CSC(ReedsSheppNode node, ReedsSheppPath & path);

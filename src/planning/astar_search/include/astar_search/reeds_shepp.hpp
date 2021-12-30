@@ -113,7 +113,6 @@ public:
 
 protected:
   ReedsSheppPath reedsShepp(ReedsSheppNode node);
-  void interpolate(const StateXYT & s0, ReedsSheppPath & path, double seg, StateXYT & s_out);
 
   /** \brief Turning radius */
   double turning_radius_;
