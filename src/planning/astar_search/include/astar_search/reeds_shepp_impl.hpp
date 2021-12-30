@@ -83,6 +83,8 @@
 #ifndef ASTAR_SEARCH__REEDS_SHEPP_IMPL_HPP_
 #define ASTAR_SEARCH__REEDS_SHEPP_IMPL_HPP_
 
+#include <astar_search/visibility_control.hpp>
+
 #include <limits>
 #include <array>
 
@@ -100,7 +102,7 @@ enum ReedsSheppPathSegmentType {NO_OPERATION, COUNTERCLOCKWISE, STRAIGHT, CLOCKW
 extern const ReedsSheppPathSegmentType RP_PATH_TYPE[18][5];
 
 /** \brief Complete description of a ReedsShepp path */
-class ReedsSheppPath
+class ASTAR_SEARCH_PUBLIC ReedsSheppPath
 {
 public:
   ReedsSheppPath(
@@ -121,7 +123,7 @@ public:
   double totalLength_;
 };
 
-struct ReedsSheppNode
+struct ASTAR_SEARCH_PUBLIC ReedsSheppNode
 {
   double x;
   double y;
