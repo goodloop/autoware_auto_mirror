@@ -26,12 +26,8 @@
 #include <nav_msgs/msg/path.hpp>
 #include <std_msgs/msg/header.hpp>
 
-#include <cmath>
-#include <functional>
-#include <queue>
-#include <string>
-#include <tuple>
 #include <vector>
+#include <queue>
 
 namespace autoware
 {
