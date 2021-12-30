@@ -93,8 +93,7 @@ namespace planning
 {
 namespace parking
 {
-ReedsSheppPath ReedsShepp::reedsShepp(
-  const StateXYT & state_0, const StateXYT & state_1)
+ReedsSheppPath ReedsShepp::reedsShepp(const StateXYT & state_0, const StateXYT & state_1)
 {
   double dx = state_1.x - state_0.x;
   double dy = state_1.y - state_0.y;
