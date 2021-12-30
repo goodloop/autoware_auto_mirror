@@ -14,8 +14,8 @@
 //
 // Co-developed by Tier IV, Inc. and Robotec.AI sp. z o.o.
 
-#ifndef FREESPACE_PLANNER_NODES_FREESPACE_PLANNER_NODE_HPP_
-#define FREESPACE_PLANNER_NODES_FREESPACE_PLANNER_NODE_HPP_
+#ifndef FREESPACE_PLANNER_NODES__FREESPACE_PLANNER_NODE_HPP_
+#define FREESPACE_PLANNER_NODES__FREESPACE_PLANNER_NODE_HPP_
 
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 #include <tf2_ros/buffer.h>
@@ -124,4 +124,4 @@ private:
 }  // namespace planning
 }  // namespace autoware
 
-#endif  // ReedsSheppFREESPACE_PLANNER_NODES__FREESPACE_PLANNER_HPP_
+#endif  // FREESPACE_PLANNER_NODES__FREESPACE_PLANNER_NODE_HPP_
