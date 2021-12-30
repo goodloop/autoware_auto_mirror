@@ -1,4 +1,4 @@
-// Copyright 2021 Tier IV, Inc. All rights reserved.
+// Copyright 2021 The Autoware Foundation
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// Co-developed by Tier IV, Inc. and Robotec.AI sp. z o.o.
 /*
  *
  * Software License Agreement (BSD License)
@@ -85,8 +87,8 @@
 
 #include <astar_search/visibility_control.hpp>
 
-#include <limits>
 #include <array>
+#include <limits>
 
 namespace autoware
 {
@@ -96,7 +98,7 @@ namespace parking
 {
 // structs
 /** \brief The Reeds-Shepp path segment types */
-enum ReedsSheppPathSegmentType {NO_OPERATION, COUNTERCLOCKWISE, STRAIGHT, CLOCKWISE};
+enum ReedsSheppPathSegmentType { NO_OPERATION, COUNTERCLOCKWISE, STRAIGHT, CLOCKWISE };
 
 /** \brief Reeds-Shepp path configurations */
 extern const ReedsSheppPathSegmentType RP_PATH_TYPE[18][5];
@@ -158,4 +160,4 @@ void CCSCC(ReedsSheppNode node, ReedsSheppPath & path);
 }  // namespace planning
 }  // namespace autoware
 
-#endif  // ASTAR_SEARCH__REEDS_SHEPP_HPP_
+#endif  // ASTAR_SEARCH__REEDS_SHEPP_IMPL_HPP_

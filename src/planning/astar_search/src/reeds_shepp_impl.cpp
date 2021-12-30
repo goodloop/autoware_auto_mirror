@@ -140,24 +140,24 @@ namespace planning
 namespace parking
 {
 const ReedsSheppPathSegmentType RP_PATH_TYPE[18][5] = {
-  {COUNTERCLOCKWISE, CLOCKWISE, COUNTERCLOCKWISE, NO_OPERATION, NO_OPERATION},           // 0
-  {CLOCKWISE, COUNTERCLOCKWISE, CLOCKWISE, NO_OPERATION, NO_OPERATION},          // 1
-  {COUNTERCLOCKWISE, CLOCKWISE, COUNTERCLOCKWISE, CLOCKWISE, NO_OPERATION},         // 2
-  {CLOCKWISE, COUNTERCLOCKWISE, CLOCKWISE, COUNTERCLOCKWISE, NO_OPERATION},         // 3
+  {COUNTERCLOCKWISE, CLOCKWISE, COUNTERCLOCKWISE, NO_OPERATION, NO_OPERATION},  // 0
+  {CLOCKWISE, COUNTERCLOCKWISE, CLOCKWISE, NO_OPERATION, NO_OPERATION},         // 1
+  {COUNTERCLOCKWISE, CLOCKWISE, COUNTERCLOCKWISE, CLOCKWISE, NO_OPERATION},     // 2
+  {CLOCKWISE, COUNTERCLOCKWISE, CLOCKWISE, COUNTERCLOCKWISE, NO_OPERATION},     // 3
   {COUNTERCLOCKWISE, CLOCKWISE, STRAIGHT, COUNTERCLOCKWISE, NO_OPERATION},      // 4
-  {CLOCKWISE, COUNTERCLOCKWISE, STRAIGHT, CLOCKWISE, NO_OPERATION},     // 5
+  {CLOCKWISE, COUNTERCLOCKWISE, STRAIGHT, CLOCKWISE, NO_OPERATION},             // 5
   {COUNTERCLOCKWISE, STRAIGHT, CLOCKWISE, COUNTERCLOCKWISE, NO_OPERATION},      // 6
-  {CLOCKWISE, STRAIGHT, COUNTERCLOCKWISE, CLOCKWISE, NO_OPERATION},     // 7
-  {COUNTERCLOCKWISE, CLOCKWISE, STRAIGHT, CLOCKWISE, NO_OPERATION},     // 8
+  {CLOCKWISE, STRAIGHT, COUNTERCLOCKWISE, CLOCKWISE, NO_OPERATION},             // 7
+  {COUNTERCLOCKWISE, CLOCKWISE, STRAIGHT, CLOCKWISE, NO_OPERATION},             // 8
   {CLOCKWISE, COUNTERCLOCKWISE, STRAIGHT, COUNTERCLOCKWISE, NO_OPERATION},      // 9
-  {CLOCKWISE, STRAIGHT, CLOCKWISE, COUNTERCLOCKWISE, NO_OPERATION},     // 10
+  {CLOCKWISE, STRAIGHT, CLOCKWISE, COUNTERCLOCKWISE, NO_OPERATION},             // 10
   {COUNTERCLOCKWISE, STRAIGHT, COUNTERCLOCKWISE, CLOCKWISE, NO_OPERATION},      // 11
-  {COUNTERCLOCKWISE, STRAIGHT, CLOCKWISE, NO_OPERATION, NO_OPERATION},       // 12
-  {CLOCKWISE, STRAIGHT, COUNTERCLOCKWISE, NO_OPERATION, NO_OPERATION},       // 13
-  {COUNTERCLOCKWISE, STRAIGHT, COUNTERCLOCKWISE, NO_OPERATION, NO_OPERATION},        // 14
-  {CLOCKWISE, STRAIGHT, CLOCKWISE, NO_OPERATION, NO_OPERATION},      // 15
-  {COUNTERCLOCKWISE, CLOCKWISE, STRAIGHT, COUNTERCLOCKWISE, CLOCKWISE},    // 16
-  {CLOCKWISE, COUNTERCLOCKWISE, STRAIGHT, CLOCKWISE, COUNTERCLOCKWISE}     // 17
+  {COUNTERCLOCKWISE, STRAIGHT, CLOCKWISE, NO_OPERATION, NO_OPERATION},          // 12
+  {CLOCKWISE, STRAIGHT, COUNTERCLOCKWISE, NO_OPERATION, NO_OPERATION},          // 13
+  {COUNTERCLOCKWISE, STRAIGHT, COUNTERCLOCKWISE, NO_OPERATION, NO_OPERATION},   // 14
+  {CLOCKWISE, STRAIGHT, CLOCKWISE, NO_OPERATION, NO_OPERATION},                 // 15
+  {COUNTERCLOCKWISE, CLOCKWISE, STRAIGHT, COUNTERCLOCKWISE, CLOCKWISE},         // 16
+  {CLOCKWISE, COUNTERCLOCKWISE, STRAIGHT, CLOCKWISE, COUNTERCLOCKWISE}          // 17
 };
 
 ReedsSheppPath::ReedsSheppPath(
@@ -204,7 +204,8 @@ bool LpSpRp(ReedsSheppNode node, double & t, double & u, double & v)
     v = remainderOfDoublePiDivision(t - node.phi);
 
     assert(std::abs(2.0 * std::sin(t) + u * std::cos(t) - std::sin(node.phi) - node.x) < EPSILON);
-    assert(std::abs(-2.0 * std::cos(t) + u * std::sin(t) + std::cos(node.phi) + 1.0 - node.y) < EPSILON);
+    assert(
+      std::abs(-2.0 * std::cos(t) + u * std::sin(t) + std::cos(node.phi) + 1.0 - node.y) < EPSILON);
     assert(std::abs(remainderOfDoublePiDivision(t - v - node.phi)) < EPSILON);
     return t >= -NUMERIC_ZERO && v >= -NUMERIC_ZERO;
   }
@@ -245,9 +246,11 @@ bool LpRupLumRm(ReedsSheppNode node, double & t, double & u, double & v)
     u = acos(rho);
     calculateTauAndOmega(u, -u, xi, eta, node.phi, t, v);
     assert(
-      std::abs(2 * (sin(t) - std::sin(t - u) + std::sin(t - 2 * u)) - std::sin(node.phi) - node.x) < EPSILON);
+      std::abs(2 * (sin(t) - std::sin(t - u) + std::sin(t - 2 * u)) - std::sin(node.phi) - node.x) <
+      EPSILON);
     assert(
-      std::abs(2 * (-cos(t) + std::cos(t - u) - std::cos(t - 2 * u)) + std::cos(phi) + 1.0 - node.y) <
+      std::abs(
+        2 * (-cos(t) + std::cos(t - u) - std::cos(t - 2 * u)) + std::cos(phi) + 1.0 - node.y) <
       EPSILON);
     assert(std::abs(remainderOfDoublePiDivision(t - 2 * u - v - node.phi)) < EPSILON);
     return t >= -NUMERIC_ZERO && v <= NUMERIC_ZERO;
@@ -266,8 +269,11 @@ bool LpRumLumRp(ReedsSheppNode node, double & t, double & u, double & v)
     u = -acos(rho);
     if (u >= -0.5 * PI) {
       calculateTauAndOmega(u, u, xi, eta, node.phi, t, v);
-      assert(std::abs(4 * std::sin(t) - 2 * std::sin(t - u) - std::sin(node.phi) - node.x) < EPSILON);
-      assert(std::abs(-4 * std::cos(t) + 2 * std::cos(t - u) + std::cos(node.phi) + 1.0 - node.y) < EPSILON);
+      assert(
+        std::abs(4 * std::sin(t) - 2 * std::sin(t - u) - std::sin(node.phi) - node.x) < EPSILON);
+      assert(
+        std::abs(-4 * std::cos(t) + 2 * std::cos(t - u) + std::cos(node.phi) + 1.0 - node.y) <
+        EPSILON);
       assert(std::abs(remainderOfDoublePiDivision(t - v - node.phi)) < EPSILON);
       return t >= -NUMERIC_ZERO && v >= -NUMERIC_ZERO;
     }
@@ -275,7 +281,7 @@ bool LpRumLumRp(ReedsSheppNode node, double & t, double & u, double & v)
   return false;
 }
 
-// formula 8.9 in Reeds-Shepp paper
+//  formula 8.9 in Reeds-Shepp paper
 /// \brief Function used in CCSC variant
 bool LpRmSmLm(ReedsSheppNode node, double & t, double & u, double & v)
 {
@@ -292,9 +298,12 @@ bool LpRmSmLm(ReedsSheppNode node, double & t, double & u, double & v)
     t = remainderOfDoublePiDivision(theta + std::atan2(r, -2.0));
     v = remainderOfDoublePiDivision(node.phi - 0.5 * PI - t);
 
-    assert(std::abs(2.0 * (sin(t) - std::cos(t)) - u * std::sin(t) + std::sin(node.phi) - node.x) < EPSILON);
     assert(
-      std::abs(-2.0 * (sin(t) + std::cos(t)) + u * std::cos(t) - std::cos(node.phi) + 1 - node.y) < EPSILON);
+      std::abs(2.0 * (sin(t) - std::cos(t)) - u * std::sin(t) + std::sin(node.phi) - node.x) <
+      EPSILON);
+    assert(
+      std::abs(-2.0 * (sin(t) + std::cos(t)) + u * std::cos(t) - std::cos(node.phi) + 1 - node.y) <
+      EPSILON);
     assert(std::abs(remainderOfDoublePiDivision(t + PI / 2.0 + v - node.phi)) < EPSILON);
     return t >= -NUMERIC_ZERO && u <= NUMERIC_ZERO && v <= NUMERIC_ZERO;
   }
@@ -341,17 +350,20 @@ bool LpRmSLmRp(ReedsSheppNode node, double & t, double & u, double & v)
       t = remainderOfDoublePiDivision(atan2((4.0 - u) * xi - 2 * eta, -2.0 * xi + (u - 4.0) * eta));
       v = remainderOfDoublePiDivision(t - node.phi);
       assert(
-        std::abs(4.0 * std::sin(t) - 2.0 * std::cos(t) - u * std::sin(t) - std::sin(node.phi) - node.x) < EPSILON);
-      assert(
-        std::abs(-4.0 * std::cos(t) - 2.0 * std::sin(t) + u * std::cos(t) + std::cos(node.phi) + 1.0 - node.y) <
+        std::abs(
+          4.0 * std::sin(t) - 2.0 * std::cos(t) - u * std::sin(t) - std::sin(node.phi) - node.x) <
         EPSILON);
+      assert(
+        std::abs(
+          -4.0 * std::cos(t) - 2.0 * std::sin(t) + u * std::cos(t) + std::cos(node.phi) + 1.0 -
+          node.y) < EPSILON);
       assert(std::abs(remainderOfDoublePiDivision(t - v - node.phi)) < EPSILON);
       return t >= -NUMERIC_ZERO && v >= -NUMERIC_ZERO;
     }
   }
   return false;
 }
-} // namespace
+}  // namespace
 
 void CSC(ReedsSheppNode node, ReedsSheppPath & path)
 {
@@ -361,61 +373,41 @@ void CSC(ReedsSheppNode node, ReedsSheppPath & path)
   double v = 0.0;
   double L = 0.0;
   if (LpSpLp(node, t, u, v) && L_min > (L = lengthFromParameters(t, u, v))) {
-    path =
-      ReedsSheppPath(RP_PATH_TYPE[14], t, u, v);
+    path = ReedsSheppPath(RP_PATH_TYPE[14], t, u, v);
     L_min = L;
   }
-  if (
-    LpSpLp(node.timeflipped(), t, u, v) &&
-    L_min > (L = lengthFromParameters(t, u, v)))  // time flip
-  {
-    path = ReedsSheppPath(
-      RP_PATH_TYPE[14], -t, -u, -v);
+  if (LpSpLp(node.timeflipped(), t, u, v) && L_min > (L = lengthFromParameters(t, u, v))) {
+    path = ReedsSheppPath(RP_PATH_TYPE[14], -t, -u, -v);
     L_min = L;
   }
-  if (
-    LpSpLp(node.reflected(), t, u, v) &&
-    L_min > (L = lengthFromParameters(t, u, v)))  // reflect
-  {
-    path =
-      ReedsSheppPath(RP_PATH_TYPE[15], t, u, v);
+  if (LpSpLp(node.reflected(), t, u, v) && L_min > (L = lengthFromParameters(t, u, v))) {
+    path = ReedsSheppPath(RP_PATH_TYPE[15], t, u, v);
     L_min = L;
   }
   if (
     LpSpLp(node.timeflipped().reflected(), t, u, v) &&
-    L_min > (L = lengthFromParameters(t, u, v)))  // time flip + reflect
+    L_min > (L = lengthFromParameters(t, u, v)))
   {
-    path = ReedsSheppPath(
-      RP_PATH_TYPE[15], -t, -u, -v);
+    path = ReedsSheppPath(RP_PATH_TYPE[15], -t, -u, -v);
     L_min = L;
   }
   if (LpSpRp(node, t, u, v) && L_min > (L = lengthFromParameters(t, u, v))) {
-    path =
-      ReedsSheppPath(RP_PATH_TYPE[12], t, u, v);
+    path = ReedsSheppPath(RP_PATH_TYPE[12], t, u, v);
     L_min = L;
   }
-  if (
-    LpSpRp(node.timeflipped(), t, u, v) &&
-    L_min > (L = lengthFromParameters(t, u, v)))  // time flip
-  {
-    path = ReedsSheppPath(
-      RP_PATH_TYPE[12], -t, -u, -v);
+  if (LpSpRp(node.timeflipped(), t, u, v) && L_min > (L = lengthFromParameters(t, u, v))) {
+    path = ReedsSheppPath(RP_PATH_TYPE[12], -t, -u, -v);
     L_min = L;
   }
-  if (
-    LpSpRp(node.reflected(), t, u, v) &&
-    L_min > (L = lengthFromParameters(t, u, v)))  // reflect
-  {
-    path =
-      ReedsSheppPath(RP_PATH_TYPE[13], t, u, v);
+  if (LpSpRp(node.reflected(), t, u, v) && L_min > (L = lengthFromParameters(t, u, v))) {
+    path = ReedsSheppPath(RP_PATH_TYPE[13], t, u, v);
     L_min = L;
   }
   if (
     LpSpRp(node.timeflipped().reflected(), t, u, v) &&
-    L_min > (L = lengthFromParameters(t, u, v)))  // time flip + reflect
+    L_min > (L = lengthFromParameters(t, u, v)))
   {
-    path = ReedsSheppPath(
-      RP_PATH_TYPE[13], -t, -u, -v);
+    path = ReedsSheppPath(RP_PATH_TYPE[13], -t, -u, -v);
   }
 }
 
@@ -427,30 +419,23 @@ void CCC(ReedsSheppNode node, ReedsSheppPath & path)
   double v = 0.0;
   double L = 0.0;
   if (LpRmL(node, t, u, v) && L_min > (L = lengthFromParameters(t, u, v))) {
-    path =
-      ReedsSheppPath(RP_PATH_TYPE[0], t, u, v);
+    path = ReedsSheppPath(RP_PATH_TYPE[0], t, u, v);
     L_min = L;
   }
   if (LpRmL(node.timeflipped(), t, u, v) && L_min > (L = lengthFromParameters(t, u, v))) {
     // time flip
-    path =
-      ReedsSheppPath(RP_PATH_TYPE[0], -t, -u, -v);
+    path = ReedsSheppPath(RP_PATH_TYPE[0], -t, -u, -v);
     L_min = L;
   }
-  if (
-    LpRmL(node.reflected(), t, u, v) &&
-    L_min > (L = lengthFromParameters(t, u, v)))  // reflect
-  {
-    path =
-      ReedsSheppPath(RP_PATH_TYPE[1], t, u, v);
+  if (LpRmL(node.reflected(), t, u, v) && L_min > (L = lengthFromParameters(t, u, v))) {
+    path = ReedsSheppPath(RP_PATH_TYPE[1], t, u, v);
     L_min = L;
   }
   if (
     LpRmL(node.timeflipped().reflected(), t, u, v) &&
-    L_min > (L = lengthFromParameters(t, u, v)))  // time flip + reflect
+    L_min > (L = lengthFromParameters(t, u, v)))
   {
-    path =
-      ReedsSheppPath(RP_PATH_TYPE[1], -t, -u, -v);
+    path = ReedsSheppPath(RP_PATH_TYPE[1], -t, -u, -v);
     L_min = L;
   }
 
@@ -458,36 +443,31 @@ void CCC(ReedsSheppNode node, ReedsSheppPath & path)
   ReedsSheppNode backward_node{
     node.x * std::cos(node.phi) + node.y * std::sin(node.phi),
     node.x * std::sin(node.phi) - node.y * std::cos(node.phi),
-    node.phi
-  };
+    node.phi};
 
   if (LpRmL(backward_node, t, u, v) && L_min > (L = lengthFromParameters(t, u, v))) {
-    path =
-      ReedsSheppPath(RP_PATH_TYPE[0], v, u, t);
+    path = ReedsSheppPath(RP_PATH_TYPE[0], v, u, t);
     L_min = L;
   }
   if (
     LpRmL(backward_node.timeflipped(), t, u, v) &&
-    L_min > (L = lengthFromParameters(t, u, v)))  // time flip
+    L_min > (L = lengthFromParameters(t, u, v)))
   {
-    path =
-      ReedsSheppPath(RP_PATH_TYPE[0], -v, -u, -t);
+    path = ReedsSheppPath(RP_PATH_TYPE[0], -v, -u, -t);
     L_min = L;
   }
   if (
     LpRmL(backward_node.reflected(), t, u, v) &&
-    L_min > (L = lengthFromParameters(t, u, v)))  // reflect
+    L_min > (L = lengthFromParameters(t, u, v)))
   {
-    path =
-      ReedsSheppPath(RP_PATH_TYPE[1], v, u, t);
+    path = ReedsSheppPath(RP_PATH_TYPE[1], v, u, t);
     L_min = L;
   }
   if (
     LpRmL(backward_node.timeflipped().reflected(), t, u, v) &&
-    L_min > (L = lengthFromParameters(t, u, v)))  // time flip + reflect
+    L_min > (L = lengthFromParameters(t, u, v)))
   {
-    path =
-      ReedsSheppPath(RP_PATH_TYPE[1], -v, -u, -t);
+    path = ReedsSheppPath(RP_PATH_TYPE[1], -v, -u, -t);
   }
 }
 
@@ -498,67 +478,55 @@ void CCCC(ReedsSheppNode node, ReedsSheppPath & path)
   double u = 0.0;
   double v = 0.0;
   double L = 0.0;
-  if (
-    LpRupLumRm(node, t, u, v) && L_min > (L = lengthFromParameters(t + 2.0, u, v)))
-  {
-    path = ReedsSheppPath(
-      RP_PATH_TYPE[2], t, u, -u, v);
+  if (LpRupLumRm(node, t, u, v) && L_min > (L = lengthFromParameters(t + 2.0, u, v))) {
+    path = ReedsSheppPath(RP_PATH_TYPE[2], t, u, -u, v);
     L_min = L;
   }
   if (
     LpRupLumRm(node.timeflipped(), t, u, v) &&
-    L_min > (L = lengthFromParameters(t + 2.0, u, v)))  // time flip
+    L_min > (L = lengthFromParameters(t + 2.0, u, v)))
   {
-    path = ReedsSheppPath(
-      RP_PATH_TYPE[2], -t, -u, u, -v);
+    path = ReedsSheppPath(RP_PATH_TYPE[2], -t, -u, u, -v);
     L_min = L;
   }
   if (
     LpRupLumRm(node.reflected(), t, u, v) &&
-    L_min > (L = lengthFromParameters(t + 2.0, u, v)))  // reflect
+    L_min > (L = lengthFromParameters(t + 2.0, u, v)))
   {
-    path = ReedsSheppPath(
-      RP_PATH_TYPE[3], t, u, -u, v);
+    path = ReedsSheppPath(RP_PATH_TYPE[3], t, u, -u, v);
     L_min = L;
   }
   if (
     LpRupLumRm(node.timeflipped().reflected(), t, u, v) &&
-    L_min > (L = lengthFromParameters(t + 2.0, u, v)))  // time flip + reflect
+    L_min > (L = lengthFromParameters(t + 2.0, u, v)))
   {
-    path = ReedsSheppPath(
-      RP_PATH_TYPE[3], -t, -u, u, -v);
+    path = ReedsSheppPath(RP_PATH_TYPE[3], -t, -u, u, -v);
     L_min = L;
   }
 
-  if (
-    LpRumLumRp(node, t, u, v) && L_min > (L = lengthFromParameters(t + 2.0, u, v)))
-  {
-    path =
-      ReedsSheppPath(RP_PATH_TYPE[2], t, u, u, v);
+  if (LpRumLumRp(node, t, u, v) && L_min > (L = lengthFromParameters(t + 2.0, u, v))) {
+    path = ReedsSheppPath(RP_PATH_TYPE[2], t, u, u, v);
     L_min = L;
   }
   if (
     LpRumLumRp(node.timeflipped(), t, u, v) &&
-    L_min > (L = lengthFromParameters(t + 2.0, u, v)))  // time flip
+    L_min > (L = lengthFromParameters(t + 2.0, u, v)))
   {
-    path = ReedsSheppPath(
-      RP_PATH_TYPE[2], -t, -u, -u, -v);
+    path = ReedsSheppPath(RP_PATH_TYPE[2], -t, -u, -u, -v);
     L_min = L;
   }
   if (
     LpRumLumRp(node.reflected(), t, u, v) &&
-    L_min > (L = lengthFromParameters(t + 2.0, u, v)))  // reflect
+    L_min > (L = lengthFromParameters(t + 2.0, u, v)))
   {
-    path =
-      ReedsSheppPath(RP_PATH_TYPE[3], t, u, u, v);
+    path = ReedsSheppPath(RP_PATH_TYPE[3], t, u, u, v);
     L_min = L;
   }
   if (
     LpRumLumRp(node.timeflipped().reflected(), t, u, v) &&
-    L_min > (L = lengthFromParameters(t + 2.0, u, v)))  // time flip + reflect
+    L_min > (L = lengthFromParameters(t + 2.0, u, v)))
   {
-    path = ReedsSheppPath(
-      RP_PATH_TYPE[3], -t, -u, -u, -v);
+    path = ReedsSheppPath(RP_PATH_TYPE[3], -t, -u, -u, -v);
   }
 }
 
@@ -570,62 +538,46 @@ void CCSC(ReedsSheppNode node, ReedsSheppPath & path)
   double v = 0.0;
   double L = 0.0;
   if (LpRmSmLm(node, t, u, v) && L_min > (L = lengthFromParameters(t, u, v))) {
-    path = ReedsSheppPath(
-      RP_PATH_TYPE[4], t, -0.5 * PI, u, v);
+    path = ReedsSheppPath(RP_PATH_TYPE[4], t, -0.5 * PI, u, v);
+    L_min = L;
+  }
+  if (LpRmSmLm(node.timeflipped(), t, u, v) && L_min > (L = lengthFromParameters(t, u, v))) {
+    path = ReedsSheppPath(RP_PATH_TYPE[4], -t, 0.5 * PI, -u, -v);
     L_min = L;
   }
   if (
-    LpRmSmLm(node.timeflipped(), t, u, v) &&
-    L_min > (L = lengthFromParameters(t, u, v)))  // time flip
+    LpRmSmLm(node.reflected(), t, u, v) && L_min > (L = lengthFromParameters(t, u, v)))
   {
-    path = ReedsSheppPath(
-      RP_PATH_TYPE[4], -t, 0.5 * PI, -u, -v);
-    L_min = L;
-  }
-  if (
-    LpRmSmLm(node.reflected(), t, u, v) &&
-    L_min > (L = lengthFromParameters(t, u, v)))  // reflect
-  {
-    path = ReedsSheppPath(
-      RP_PATH_TYPE[5], t, -0.5 * PI, u, v);
+    path = ReedsSheppPath(RP_PATH_TYPE[5], t, -0.5 * PI, u, v);
     L_min = L;
   }
   if (
     LpRmSmLm(node.timeflipped().reflected(), t, u, v) &&
-    L_min > (L = lengthFromParameters(t, u, v)))  // time flip + reflect
+    L_min > (L = lengthFromParameters(t, u, v)))
   {
-    path = ReedsSheppPath(
-      RP_PATH_TYPE[5], -t, 0.5 * PI, -u, -v);
+    path = ReedsSheppPath(RP_PATH_TYPE[5], -t, 0.5 * PI, -u, -v);
     L_min = L;
   }
 
   if (LpRmSmRm(node, t, u, v) && L_min > (L = lengthFromParameters(t, u, v))) {
-    path = ReedsSheppPath(
-      RP_PATH_TYPE[8], t, -0.5 * PI, u, v);
+    path = ReedsSheppPath(RP_PATH_TYPE[8], t, -0.5 * PI, u, v);
+    L_min = L;
+  }
+  if (LpRmSmRm(node.timeflipped(), t, u, v) && L_min > (L = lengthFromParameters(t, u, v))) {
+    path = ReedsSheppPath(RP_PATH_TYPE[8], -t, 0.5 * PI, -u, -v);
     L_min = L;
   }
   if (
-    LpRmSmRm(node.timeflipped(), t, u, v) &&
-    L_min > (L = lengthFromParameters(t, u, v)))  // time flip
+    LpRmSmRm(node.reflected(), t, u, v) && L_min > (L = lengthFromParameters(t, u, v)))
   {
-    path = ReedsSheppPath(
-      RP_PATH_TYPE[8], -t, 0.5 * PI, -u, -v);
-    L_min = L;
-  }
-  if (
-    LpRmSmRm(node.reflected(), t, u, v) &&
-    L_min > (L = lengthFromParameters(t, u, v)))  // reflect
-  {
-    path = ReedsSheppPath(
-      RP_PATH_TYPE[9], t, -0.5 * PI, u, v);
+    path = ReedsSheppPath(RP_PATH_TYPE[9], t, -0.5 * PI, u, v);
     L_min = L;
   }
   if (
     LpRmSmRm(node.timeflipped().reflected(), t, u, v) &&
-    L_min > (L = lengthFromParameters(t, u, v)))  // time flip + reflect
+    L_min > (L = lengthFromParameters(t, u, v)))
   {
-    path = ReedsSheppPath(
-      RP_PATH_TYPE[9], -t, 0.5 * PI, -u, -v);
+    path = ReedsSheppPath(RP_PATH_TYPE[9], -t, 0.5 * PI, -u, -v);
     L_min = L;
   }
 
@@ -633,66 +585,57 @@ void CCSC(ReedsSheppNode node, ReedsSheppPath & path)
   ReedsSheppNode backward_node{
     node.x * std::cos(node.phi) + node.y * std::sin(node.phi),
     node.x * std::sin(node.phi) - node.y * std::cos(node.phi),
-    node.phi
-  };
+    node.phi};
 
   if (LpRmSmLm(backward_node, t, u, v) && L_min > (L = lengthFromParameters(t, u, v))) {
-    path = ReedsSheppPath(
-      RP_PATH_TYPE[6], v, u, -0.5 * PI, t);
+    path = ReedsSheppPath(RP_PATH_TYPE[6], v, u, -0.5 * PI, t);
     L_min = L;
   }
   if (
     LpRmSmLm(backward_node.timeflipped(), t, u, v) &&
-    L_min > (L = lengthFromParameters(t, u, v)))  // time flip
+    L_min > (L = lengthFromParameters(t, u, v)))
   {
-    path = ReedsSheppPath(
-      RP_PATH_TYPE[6], -v, -u, 0.5 * PI, -t);
+    path = ReedsSheppPath(RP_PATH_TYPE[6], -v, -u, 0.5 * PI, -t);
     L_min = L;
   }
   if (
     LpRmSmLm(backward_node.reflected(), t, u, v) &&
-    L_min > (L = lengthFromParameters(t, u, v)))  // reflect
+    L_min > (L = lengthFromParameters(t, u, v)))
   {
-    path = ReedsSheppPath(
-      RP_PATH_TYPE[7], v, u, -0.5 * PI, t);
+    path = ReedsSheppPath(RP_PATH_TYPE[7], v, u, -0.5 * PI, t);
     L_min = L;
   }
   if (
     LpRmSmLm(backward_node.timeflipped().reflected(), t, u, v) &&
-    L_min > (L = lengthFromParameters(t, u, v)))  // time flip + reflect
+    L_min > (L = lengthFromParameters(t, u, v)))
   {
-    path = ReedsSheppPath(
-      RP_PATH_TYPE[7], -v, -u, 0.5 * PI, -t);
+    path = ReedsSheppPath(RP_PATH_TYPE[7], -v, -u, 0.5 * PI, -t);
     L_min = L;
   }
 
   if (LpRmSmRm(backward_node, t, u, v) && L_min > (L = lengthFromParameters(t, u, v))) {
-    path = ReedsSheppPath(
-      RP_PATH_TYPE[10], v, u, -0.5 * PI, t);
+    path = ReedsSheppPath(RP_PATH_TYPE[10], v, u, -0.5 * PI, t);
     L_min = L;
   }
   if (
     LpRmSmRm(backward_node.timeflipped(), t, u, v) &&
-    L_min > (L = lengthFromParameters(t, u, v)))  // time flip
+    L_min > (L = lengthFromParameters(t, u, v)))
   {
-    path = ReedsSheppPath(
-      RP_PATH_TYPE[10], -v, -u, 0.5 * PI, -t);
+    path = ReedsSheppPath(RP_PATH_TYPE[10], -v, -u, 0.5 * PI, -t);
     L_min = L;
   }
   if (
     LpRmSmRm(backward_node.reflected(), t, u, v) &&
-    L_min > (L = lengthFromParameters(t, u, v)))  // reflect
+    L_min > (L = lengthFromParameters(t, u, v)))
   {
-    path = ReedsSheppPath(
-      RP_PATH_TYPE[11], v, u, -0.5 * PI, t);
+    path = ReedsSheppPath(RP_PATH_TYPE[11], v, u, -0.5 * PI, t);
     L_min = L;
   }
   if (
     LpRmSmRm(backward_node.timeflipped().reflected(), t, u, v) &&
-    L_min > (L = lengthFromParameters(t, u, v)))  // time flip + reflect
+    L_min > (L = lengthFromParameters(t, u, v)))
   {
-    path = ReedsSheppPath(
-      RP_PATH_TYPE[11], -v, -u, 0.5 * PI, -t);
+    path = ReedsSheppPath(RP_PATH_TYPE[11], -v, -u, 0.5 * PI, -t);
   }
 }
 
@@ -704,32 +647,27 @@ void CCSCC(ReedsSheppNode node, ReedsSheppPath & path)
   double v = 0.0;
   double L = 0.0;
   if (LpRmSLmRp(node, t, u, v) && L_min > (L = lengthFromParameters(t, u, v))) {
-    path = ReedsSheppPath(
-      RP_PATH_TYPE[16], t, -0.5 * PI, u, -0.5 * PI, v);
+    path = ReedsSheppPath(RP_PATH_TYPE[16], t, -0.5 * PI, u, -0.5 * PI, v);
     L_min = L;
   }
   if (
     LpRmSLmRp(node.timeflipped(), t, u, v) &&
     L_min > (L = lengthFromParameters(t, u, v)))  // time flip
   {
-    path = ReedsSheppPath(
-      RP_PATH_TYPE[16], -t, 0.5 * PI, -u, 0.5 * PI, -v);
+    path = ReedsSheppPath(RP_PATH_TYPE[16], -t, 0.5 * PI, -u, 0.5 * PI, -v);
     L_min = L;
   }
   if (
-    LpRmSLmRp(node.reflected(), t, u, v) &&
-    L_min > (L = lengthFromParameters(t, u, v)))  // reflect
+    LpRmSLmRp(node.reflected(), t, u, v) && L_min > (L = lengthFromParameters(t, u, v)))
   {
-    path = ReedsSheppPath(
-      RP_PATH_TYPE[17], t, -0.5 * PI, u, -0.5 * PI, v);
+    path = ReedsSheppPath(RP_PATH_TYPE[17], t, -0.5 * PI, u, -0.5 * PI, v);
     L_min = L;
   }
   if (
     LpRmSLmRp(node.timeflipped().reflected(), t, u, v) &&
-    L_min > (L = lengthFromParameters(t, u, v)))  // time flip + reflect
+    L_min > (L = lengthFromParameters(t, u, v)))
   {
-    path = ReedsSheppPath(
-      RP_PATH_TYPE[17], -t, 0.5 * PI, -u, 0.5 * PI, -v);
+    path = ReedsSheppPath(RP_PATH_TYPE[17], -t, 0.5 * PI, -u, 0.5 * PI, -v);
   }
 }
 
