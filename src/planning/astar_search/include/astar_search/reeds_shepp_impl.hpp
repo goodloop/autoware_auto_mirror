@@ -96,17 +96,17 @@ namespace planning
 {
 namespace parking
 {
-// structs
-/** \brief The Reeds-Shepp path segment types */
+/// \brief The Reeds-Shepp path segment types
 enum ReedsSheppPathSegmentType { NO_OPERATION, COUNTERCLOCKWISE, STRAIGHT, CLOCKWISE };
 
-/** \brief Reeds-Shepp path configurations */
+/// \brief Reeds-Shepp path configurations
 extern const ReedsSheppPathSegmentType RP_PATH_TYPE[18][5];
 
-/** \brief Complete description of a ReedsShepp path */
+/// \brief Complete description of a ReedsShepp parametrized path
 class ASTAR_SEARCH_PUBLIC ReedsSheppPath
 {
 public:
+  /// \brief Class constructor
   ReedsSheppPath(
     const ReedsSheppPathSegmentType * type = RP_PATH_TYPE[0],
     double t = std::numeric_limits<double>::max(),
@@ -115,22 +115,25 @@ public:
     double w = 0.0,
     double x = 0.0);
 
+  /// \brief Return full path length
   double length() const {return totalLength_;}
 
-  /** Path segment types */
+  /// \brief Path segment types
   const ReedsSheppPathSegmentType * type_;
-  /** Path segment lengths */
+  /// \brief Path segment lengths. Equals the number of parameters
   std::array<double, 5> length_;
-  /** Total length */
+  /// \brief Full path length
   double totalLength_;
 };
 
+/// \brief Definition of car's position and orientation in ReedsShepp state space
 struct ASTAR_SEARCH_PUBLIC ReedsSheppNode
 {
   double x;
   double y;
   double phi;
 
+  /// \brief Definition of timeflip transform regarding ReedsShepp state space
   ReedsSheppNode timeflipped() const
   {
     ReedsSheppNode node = *this;
@@ -139,6 +142,7 @@ struct ASTAR_SEARCH_PUBLIC ReedsSheppNode
     return node;
   }
 
+  /// \brief Definition of reflect transform regarding ReedsShepp state space
   ReedsSheppNode reflected() const
   {
     ReedsSheppNode node = *this;
@@ -150,10 +154,29 @@ struct ASTAR_SEARCH_PUBLIC ReedsSheppNode
 
 namespace reeds_shepp
 {
+/// \brief Considering arc-straight-arc movement solution
+/// \param[in] node ReedsSheppNode object
+/// \param[out] path ReedsSheppPath object
 void CSC(ReedsSheppNode node, ReedsSheppPath & path);
+
+/// \brief Considering arc-arc-arc movement solution
+/// \param[in] node ReedsSheppNode object
+/// \param[out] path ReedsSheppPath object
 void CCC(ReedsSheppNode node, ReedsSheppPath & path);
+
+/// \brief Considering arc-arc-arc-arc movement solution
+/// \param[in] node ReedsSheppNode object
+/// \param[out] path ReedsSheppPath object
 void CCCC(ReedsSheppNode node, ReedsSheppPath & path);
+
+/// \brief Considering arc-arc-straigth-arc movement solution
+/// \param[in] node ReedsSheppNode object
+/// \param[out] path ReedsSheppPath object
 void CCSC(ReedsSheppNode node, ReedsSheppPath & path);
+
+/// \brief Considering arc-arc-straigth-arc-arc movement solution
+/// \param[in] node ReedsSheppNode object
+/// \param[out] path ReedsSheppPath object
 void CCSCC(ReedsSheppNode node, ReedsSheppPath & path);
 }  // namespace reeds_shepp
 }  // namespace parking

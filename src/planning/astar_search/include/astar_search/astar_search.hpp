@@ -113,6 +113,7 @@ public:
   using TransitionTable = std::vector<std::vector<NodeUpdate>>;
 
   /// \brief Default and only constructor for AstarSearch class
+  /// \param[in] planner_common_param General planning algorithm configuration parameters
   /// \param[in] astar_param Hybrid A* algorithm configuration parameters
   explicit AstarSearch(
     const PlannerCommonParam & planner_common_param, const AstarParam & astar_param);
