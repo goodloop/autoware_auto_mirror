@@ -84,6 +84,8 @@
 #define ASTAR_SEARCH__REEDS_SHEPP_HPP_
 
 #include <astar_search/reeds_shepp_impl.hpp>
+#include <astar_search/visibility_control.hpp>
+
 
 
 namespace autoware
@@ -93,14 +95,14 @@ namespace planning
 namespace parking
 {
 
-struct StateXYT
+struct ASTAR_SEARCH_PUBLIC StateXYT
 {
   double x;
   double y;
   double yaw;
 };
 
-class ReedsShepp
+class ASTAR_SEARCH_PUBLIC ReedsShepp
 {
 public:
   explicit ReedsShepp(double turningRadius)
