@@ -124,56 +124,6 @@ double ReedsShepp::distance(const StateXYT & state_0, const StateXYT & state_1)
   return turning_radius_ * reedsShepp(state_0, state_1).length();
 }
 
-
-void ReedsShepp::interpolate(
-  const StateXYT & state_0, ReedsSheppPath & path, double seg, StateXYT & s_out)
-{
-  if (seg < 0.0) {
-    seg = 0.0;
-  }
-  if (seg > path.length()) {
-    seg = path.length();
-  }
-
-  s_out.x = 0.0;
-  s_out.y = 0.0;
-  s_out.yaw = state_0.yaw;
-
-  for (unsigned int i = 0; i < path.length_.size() && seg > 0; ++i) {
-    double v = 0.0;
-    if (path.length_[i] < 0) {
-      v = std::max(-seg, path.length_[i]);
-      seg += v;
-    } else {
-      v = std::min(seg, path.length_[i]);
-      seg -= v;
-    }
-
-    double phi = s_out.yaw;
-    switch (path.type_[i]) {
-      case COUNTERCLOCKWISE:
-        s_out.x += (sin(phi + v) - std::sin(phi));
-        s_out.y += (-cos(phi + v) + std::cos(phi));
-        s_out.yaw = phi + v;
-        break;
-      case CLOCKWISE:
-        s_out.x += (-sin(phi - v) + std::sin(phi));
-        s_out.y += (cos(phi - v) - std::cos(phi));
-        s_out.yaw = phi - v;
-        break;
-      case STRAIGHT:
-        s_out.x += (v * std::cos(phi));
-        s_out.y += (v * std::sin(phi));
-        break;
-      case NO_OPERATION:
-        break;
-    }
-  }
-
-  s_out.x = s_out.x * turning_radius_ + state_0.x;
-  s_out.y = s_out.y * turning_radius_ + state_0.y;
-}
-
 }  // namespace parking
 }  // namespace planning
 }  // namespace autoware
