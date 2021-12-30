@@ -128,10 +128,10 @@ class PlanTrajectoryClientMock(rclpy.node.Node):
 
 def generate_test_description():
     freespace_planner_node = launch_ros.actions.Node(
-        package='freespace_planner',
+        package='freespace_planner_nodes',
         executable='freespace_planner_node_exe',
         parameters=[os.path.join(
-            get_package_share_directory('freespace_planner'),
+            get_package_share_directory('freespace_planner_nodes'),
             'param/test.param.yaml'
         )]
     )

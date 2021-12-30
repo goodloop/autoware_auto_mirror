@@ -14,27 +14,30 @@
 //
 // Co-developed by Tier IV, Inc. and Robotec.AI sp. z o.o.
 
-#ifndef ReedsSheppFREESPACE_PLANNER_NODES__VISIBILITY_CONTROL_HPP_
-#define ReedsSheppFREESPACE_PLANNER_NODES__VISIBILITY_CONTROL_HPP_
+#ifndef FREESPACE_PLANNER_NODES__VISIBILITY_CONTROL_HPP_
+#define FREESPACE_PLANNER_NODES__VISIBILITY_CONTROL_HPP_
 
 #if defined(__WIN32)
-  #if defined(ReedsSheppFREESPACE_PLANNER_NODES_BUILDING_DLL) || defined(ReedsSheppFREESPACE_PLANNER_NODES_EXPORTS)
-    #define ReedsSheppFREESPACE_PLANNER_NODES_PUBLIC __declspec(dllexport)
-    #define ReedsSheppFREESPACE_PLANNER_NODES_LOCAL
+  #if defined(FREESPACE_PLANNER_NODES_BUILDING_DLL) || \
+  defined(FREESPACE_PLANNER_NODES_EXPORTS)
+    #define FREESPACE_PLANNER_NODES_PUBLIC __declspec(dllexport)
+    #define FREESPACE_PLANNER_NODES_LOCAL
   #else
-// defined(ReedsSheppFREESPACE_PLANNER_NODES_BUILDING_DLL) || defined(ReedsSheppFREESPACE_PLANNER_NODES_EXPORTS)
-    #define ReedsSheppFREESPACE_PLANNER_NODES_PUBLIC __declspec(dllimport)
-    #define ReedsSheppFREESPACE_PLANNER_NODES_LOCAL
+// defined(FREESPACE_PLANNER_NODES_BUILDING_DLL) ||
+// defined(FREESPACE_PLANNER_NODES_EXPORTS)
+    #define FREESPACE_PLANNER_NODES_PUBLIC __declspec(dllimport)
+    #define FREESPACE_PLANNER_NODES_LOCAL
   #endif
-// defined(ReedsSheppFREESPACE_PLANNER_NODES_BUILDING_DLL) || defined(ReedsSheppFREESPACE_PLANNER_NODES_EXPORTS)
+// defined(FREESPACE_PLANNER_NODES_BUILDING_DLL) ||
+// defined(FREESPACE_PLANNER_NODES_EXPORTS)
 #elif defined(__linux__)
-  #define ReedsSheppFREESPACE_PLANNER_NODES_PUBLIC __attribute__((visibility("default")))
-  #define ReedsSheppFREESPACE_PLANNER_NODES_LOCAL __attribute__((visibility("hidden")))
+  #define FREESPACE_PLANNER_NODES_PUBLIC __attribute__((visibility("default")))
+  #define FREESPACE_PLANNER_NODES_LOCAL __attribute__((visibility("hidden")))
 #elif defined(__APPLE__)
-  #define ReedsSheppFREESPACE_PLANNER_NODES_PUBLIC __attribute__((visibility("default")))
-  #define ReedsSheppFREESPACE_PLANNER_NODES_LOCAL __attribute__((visibility("hidden")))
+  #define FREESPACE_PLANNER_NODES_PUBLIC __attribute__((visibility("default")))
+  #define FREESPACE_PLANNER_NODES_LOCAL __attribute__((visibility("hidden")))
 #else  // defined(_LINUX)
   #error "Unsupported Build Configuration"
 #endif  // defined(_WINDOWS)
 
-#endif  // ReedsSheppFREESPACE_PLANNER_NODES__VISIBILITY_CONTROL_HPP_
+#endif  // FREESPACE_PLANNER_NODES__VISIBILITY_CONTROL_HPP_
