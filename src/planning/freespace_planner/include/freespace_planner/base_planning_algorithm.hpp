@@ -31,6 +31,7 @@
 #include <tuple>
 #include <vector>
 
+#include "helper_functions/angle_utils.hpp"
 #include "tf2/utils.h"
 #include "tf2_geometry_msgs/tf2_geometry_msgs.h"
 
@@ -40,7 +41,9 @@ namespace planning
 {
 namespace freespace_planner
 {
-double normalizeRadian(const double rad, const double min_rad = -M_PI, const double max_rad = M_PI);
+// Wrap angle to the [min_rad, min_rad + 2PI] range.
+double normalizeRadian(const double rad, const double min_rad = -M_PI);
+
 int discretizeAngle(const double theta, const size_t theta_size);
 
 struct IndexXYT
@@ -60,11 +63,11 @@ geometry_msgs::msg::Pose transformPose(
   const geometry_msgs::msg::Pose & pose, const geometry_msgs::msg::TransformStamped & transform);
 
 IndexXYT pose2index(
-  const nav_msgs::msg::OccupancyGrid & costmap,
   const geometry_msgs::msg::Pose & pose_local,
+  const float & costmap_resolution,
   const size_t theta_size);
 geometry_msgs::msg::Pose index2pose(
-  const nav_msgs::msg::OccupancyGrid & costmap, const IndexXYT & index, const size_t theta_size);
+  const IndexXYT & index, const float & costmap_resolution, const size_t theta_size);
 geometry_msgs::msg::Pose global2local(
   const nav_msgs::msg::OccupancyGrid & costmap, const geometry_msgs::msg::Pose & pose_global);
 geometry_msgs::msg::Pose local2global(

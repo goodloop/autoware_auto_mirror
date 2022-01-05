@@ -17,7 +17,7 @@ Algorithm outputs custom `PlannerWaypoints` object which definition can be found
 Having the costmap A* search can create smooth and kinematically feasible trajectories that avoid obstacles using Hybrid
 A* algorithm.
 
-Additionally the algorithm has implemented a Reeds-Shepp cost estimation algorithm, which makes the found paths smooth and optimal.
+Additionally the algorithm has implemented the Reeds-Shepp cost estimation algorithm, which makes the found paths smooth and optimal.
 
 Planning returns a boolean that indicates if planning succeeded and one of the following statuses for better verbosity:
 * `SUCCESS` - planning succeeded

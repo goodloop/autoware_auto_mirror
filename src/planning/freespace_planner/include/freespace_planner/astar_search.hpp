@@ -43,7 +43,7 @@ struct FREESPACE_PLANNER_PUBLIC AstarParam
   bool use_back;
   /// Indicate if solutions should be exclusively behind the goal
   bool only_behind_solutions;
-  /// Indicate if cost should be calculated with a use of Reeds_shepp algorithm
+  /// Indicate if cost should be calculated with a use of Reeds-Shepp algorithm
   bool use_reeds_shepp;
   /// Distance weight for trajectory cost estimation
   double distance_heuristic_weight;

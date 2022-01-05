@@ -173,7 +173,8 @@ SearchStatus AstarSearch::makePlan(
 
 bool AstarSearch::setStartNode()
 {
-  const auto index = pose2index(costmap_, start_pose_, planner_common_param_.theta_size);
+  const auto index = pose2index(
+    start_pose_, costmap_.info.resolution, planner_common_param_.theta_size);
 
   if (detectCollision(index)) {
     return false;
@@ -199,7 +200,8 @@ bool AstarSearch::setStartNode()
 
 bool AstarSearch::setGoalNode() const
 {
-  const auto index = pose2index(costmap_, goal_pose_, planner_common_param_.theta_size);
+  const auto index = pose2index(
+    goal_pose_, costmap_.info.resolution, planner_common_param_.theta_size);
 
   if (detectCollision(index)) {
     return false;
@@ -278,7 +280,8 @@ SearchStatus AstarSearch::search()
       next_pose.position.x = current_node->x + transition.shift_x;
       next_pose.position.y = current_node->y + transition.shift_y;
       next_pose.orientation = makeQuaternionWithYaw(current_node->theta + transition.shift_theta);
-      const auto next_index = pose2index(costmap_, next_pose, planner_common_param_.theta_size);
+      const auto next_index = pose2index(
+        next_pose, costmap_.info.resolution, planner_common_param_.theta_size);
 
       if (detectCollision(next_index)) {
         continue;
