@@ -13,75 +13,72 @@
 // limitations under the License.
 //
 // Co-developed by Tier IV, Inc. and Robotec.AI sp. z o.o.
-/*
- *
- * Software License Agreement (BSD License)
- *
- * Copyright (c) 2016, Guan-Horng Liu.
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
- *
- *  * Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
- *  * Redistributions in binary form must reproduce the above
- *    copyright notice, this list of conditions and the following
- *    disclaimer in the documentation and/or other materials provided
- *    with the distribution.
- *  * Neither the name of the the copyright holder nor the names of its
- *    contributors may be used to endorse or promote products derived
- *    from this software without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
- * FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
- * COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
- * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
- * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
- * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
- * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
- * POSSIBILITY OF SUCH DAMAGE.
- *
- * Author:  Guan-Horng Liu
- */
-/*********************************************************************
- * Software License Agreement (BSD License)
- *
- *  Copyright (c) 2010, Rice University
- *  All rights reserved.
- *
- *  Redistribution and use in source and binary forms, with or without
- *  modification, are permitted provided that the following conditions
- *  are met:
- *
- *   * Redistributions of source code must retain the above copyright
- *     notice, this list of conditions and the following disclaimer.
- *   * Redistributions in binary form must reproduce the above
- *     copyright notice, this list of conditions and the following
- *     disclaimer in the documentation and/or other materials provided
- *     with the distribution.
- *   * Neither the name of the Rice University nor the names of its
- *     contributors may be used to endorse or promote products derived
- *     from this software without specific prior written permission.
- *
- *  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- *  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- *  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
- *  FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
- *  COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
- *  INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
- *  BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- *  LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- *  CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
- *  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
- *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
- *  POSSIBILITY OF SUCH DAMAGE.
- *********************************************************************/
+
+// Software License Agreement (BSD License)
+//
+// Copyright (c) 2016, Guan-Horng Liu.
+// All rights reserved.
+//
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions
+// are met:
+//
+//  * Redistributions of source code must retain the above copyright
+//    notice, this list of conditions and the following disclaimer.
+//  * Redistributions in binary form must reproduce the above
+//    copyright notice, this list of conditions and the following
+//    disclaimer in the documentation and/or other materials provided
+//    with the distribution.
+//  * Neither the name of the the copyright holder nor the names of its
+//    contributors may be used to endorse or promote products derived
+//    from this software without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+// FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+// COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+// INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+// BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+// LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+// CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+// LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+// ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+// POSSIBILITY OF SUCH DAMAGE.
+//
+// Author:  Guan-Horng Liu
+
+// Software License Agreement (BSD License)
+//
+//  Copyright (c) 2010, Rice University
+//  All rights reserved.
+//
+//  Redistribution and use in source and binary forms, with or without
+//  modification, are permitted provided that the following conditions
+//  are met:
+//
+//   * Redistributions of source code must retain the above copyright
+//     notice, this list of conditions and the following disclaimer.
+//   * Redistributions in binary form must reproduce the above
+//     copyright notice, this list of conditions and the following
+//     disclaimer in the documentation and/or other materials provided
+//     with the distribution.
+//   * Neither the name of the Rice University nor the names of its
+//     contributors may be used to endorse or promote products derived
+//     from this software without specific prior written permission.
+//
+//  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+//  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+//  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+//  FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+//  COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+//  INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+//  BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+//  LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+//  CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+//  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+//  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+//  POSSIBILITY OF SUCH DAMAGE.
 
 #include "freespace_planner/reeds_shepp_impl.hpp"
 
@@ -95,18 +92,6 @@ const double PI = M_PI;
 const double EPSILON = 1e-6;
 const double NUMERIC_ZERO = 10.0 * std::numeric_limits<double>::epsilon();
 
-double remainderOfDoublePiDivision(double value)
-{
-  const double twopi = 2.0 * PI;
-  double remainder = std::fmod(value, twopi);
-  if (remainder < -PI) {
-    remainder += twopi;
-  } else if (remainder > PI) {
-    remainder -= twopi;
-  }
-  return remainder;
-}
-
 void toPolarCoordinates(double x, double y, double & radius, double & theta)
 {
   radius = std::hypot(x, y);
@@ -116,7 +101,7 @@ void toPolarCoordinates(double x, double y, double & radius, double & theta)
 void calculateTauAndOmega(
   double u, double v, double xi, double eta, double phi, double & tau, double & omega)
 {
-  double delta = remainderOfDoublePiDivision(u - v);
+  double delta = autoware::common::helper_functions::wrap_angle(u - v);
 
   double A = std::sin(u) - std::sin(delta);
   double B = std::cos(u) - std::cos(delta) - 1.0;
@@ -124,8 +109,10 @@ void calculateTauAndOmega(
   double t1 = std::atan2(eta * A - xi * B, xi * A + eta * B);
   double t2 = 2.0 * (std::cos(delta) - std::cos(v) - std::cos(u)) + 3.0;
 
-  tau = (t2 < 0) ? remainderOfDoublePiDivision(t1 + PI) : remainderOfDoublePiDivision(t1);
-  omega = remainderOfDoublePiDivision(tau - u + v - phi);
+  tau = (t2 < 0.0) ?
+    autoware::common::helper_functions::wrap_angle(t1 + PI) :
+    autoware::common::helper_functions::wrap_angle(t1);
+  omega = autoware::common::helper_functions::wrap_angle(tau - u + v - phi);
 }
 
 double lengthFromParameters(double param_t, double param_u, double param_v)
@@ -176,13 +163,14 @@ namespace
 /// \brief Function used in CSC variant
 bool LpSpLp(ReedsSheppNode node, double & t, double & u, double & v)
 {
-  toPolarCoordinates(node.x - std::sin(node.phi), node.y - 1. + std::cos(node.phi), u, t);
+  toPolarCoordinates(node.x - std::sin(node.phi), node.y - 1.0 + std::cos(node.phi), u, t);
   if (t >= -NUMERIC_ZERO) {
-    v = remainderOfDoublePiDivision(node.phi - t);
+    v = autoware::common::helper_functions::wrap_angle(node.phi - t);
     if (v >= -NUMERIC_ZERO) {
       assert(std::abs(u * std::cos(t) + std::sin(node.phi) - node.x) < EPSILON);
       assert(std::abs(u * std::sin(t) - std::cos(node.phi) + 1.0 - node.y) < EPSILON);
-      assert(std::abs(remainderOfDoublePiDivision(t + v - node.phi)) < EPSILON);
+      assert(
+        std::abs(autoware::common::helper_functions::wrap_angle(t + v - node.phi)) < EPSILON);
       return true;
     }
   }
@@ -194,19 +182,20 @@ bool LpSpLp(ReedsSheppNode node, double & t, double & u, double & v)
 bool LpSpRp(ReedsSheppNode node, double & t, double & u, double & v)
 {
   double t1, u1;
-  toPolarCoordinates(node.x + std::sin(node.phi), node.y - 1. - std::cos(node.phi), u1, t1);
+  toPolarCoordinates(node.x + std::sin(node.phi), node.y - 1.0 - std::cos(node.phi), u1, t1);
   u1 = std::pow(u1, 2.0);
   if (u1 >= 4.0) {
     double theta;
-    u = sqrt(u1 - 4.);
-    theta = std::atan2(2., u);
-    t = remainderOfDoublePiDivision(t1 + theta);
-    v = remainderOfDoublePiDivision(t - node.phi);
+    u = std::sqrt(u1 - 4.);
+    theta = std::atan2(2.0, u);
+    t = autoware::common::helper_functions::wrap_angle(t1 + theta);
+    v = autoware::common::helper_functions::wrap_angle(t - node.phi);
 
     assert(std::abs(2.0 * std::sin(t) + u * std::cos(t) - std::sin(node.phi) - node.x) < EPSILON);
     assert(
       std::abs(-2.0 * std::cos(t) + u * std::sin(t) + std::cos(node.phi) + 1.0 - node.y) < EPSILON);
-    assert(std::abs(remainderOfDoublePiDivision(t - v - node.phi)) < EPSILON);
+    assert(
+      std::abs(autoware::common::helper_functions::wrap_angle(t - v - node.phi)) < EPSILON);
     return t >= -NUMERIC_ZERO && v >= -NUMERIC_ZERO;
   }
   return false;
@@ -222,13 +211,17 @@ bool LpRmL(ReedsSheppNode node, double & t, double & u, double & v)
   double theta = 0.0;
   toPolarCoordinates(xi, eta, u1, theta);
   if (u1 <= 4.0) {
-    u = -2. * std::asin(.25 * u1);
-    t = remainderOfDoublePiDivision(theta + .5 * u + PI);
-    v = remainderOfDoublePiDivision(node.phi - t + u);
+    u = -2.0 * std::asin(.25 * u1);
+    t = autoware::common::helper_functions::wrap_angle(theta + 0.5 * u + PI);
+    v = autoware::common::helper_functions::wrap_angle(node.phi - t + u);
 
-    assert(std::abs(2 * (sin(t) - std::sin(t - u)) + std::sin(node.phi) - node.x) < EPSILON);
-    assert(std::abs(2 * (-cos(t) + std::cos(t - u)) - std::cos(node.phi) + 1 - node.y) < EPSILON);
-    assert(std::abs(remainderOfDoublePiDivision(t - u + v - node.phi)) < EPSILON);
+    assert(std::abs(2.0 * (std::sin(t) - std::sin(t - u)) + std::sin(node.phi) - node.x) < EPSILON);
+    assert(
+      std::abs(2.0 * (-std::cos(t) + std::cos(t - u)) - std::cos(node.phi) + 1.0 - node.y) <
+      EPSILON);
+    assert(
+      std::abs(autoware::common::helper_functions::wrap_angle(t - u + v - node.phi)) <
+      EPSILON);
     return t >= -NUMERIC_ZERO && u <= NUMERIC_ZERO;
   }
   return false;
@@ -243,16 +236,20 @@ bool LpRupLumRm(ReedsSheppNode node, double & t, double & u, double & v)
   double eta = node.y - 1.0 - std::cos(node.phi);
   double rho = 0.25 * (2.0 + std::hypot(xi, eta));
   if (rho <= 1.0) {
-    u = acos(rho);
+    u = std::acos(rho);
     calculateTauAndOmega(u, -u, xi, eta, node.phi, t, v);
     assert(
-      std::abs(2 * (sin(t) - std::sin(t - u) + std::sin(t - 2 * u)) - std::sin(node.phi) - node.x) <
-      EPSILON);
+      std::abs(
+        2.0 * (std::sin(t) - std::sin(t - u) + std::sin(t - 2.0 * u)) -
+        std::sin(node.phi) - node.x) < EPSILON);
     assert(
       std::abs(
-        2 * (-cos(t) + std::cos(t - u) - std::cos(t - 2 * u)) + std::cos(phi) + 1.0 - node.y) <
-      EPSILON);
-    assert(std::abs(remainderOfDoublePiDivision(t - 2 * u - v - node.phi)) < EPSILON);
+        2.0 * (-std::cos(t) + std::cos(t - u) - std::cos(t - 2.0 * u)) +
+        std::cos(node.phi) + 1.0 - node.y) < EPSILON);
+    assert(
+      std::abs(
+        autoware::common::helper_functions::wrap_angle(
+          t - 2.0 * u - v - node.phi)) < EPSILON);
     return t >= -NUMERIC_ZERO && v <= NUMERIC_ZERO;
   }
   return false;
@@ -265,16 +262,17 @@ bool LpRumLumRp(ReedsSheppNode node, double & t, double & u, double & v)
   double xi = node.x + std::sin(node.phi);
   double eta = node.y - 1.0 - std::cos(node.phi);
   double rho = (20.0 - std::pow(xi, 2.0) - std::pow(eta, 2.0)) / 16.0;
-  if (rho >= 0 && rho <= 1) {
-    u = -acos(rho);
+  if (rho >= 0.0 && rho <= 1.0) {
+    u = -std::acos(rho);
     if (u >= -0.5 * PI) {
       calculateTauAndOmega(u, u, xi, eta, node.phi, t, v);
       assert(
-        std::abs(4 * std::sin(t) - 2 * std::sin(t - u) - std::sin(node.phi) - node.x) < EPSILON);
-      assert(
-        std::abs(-4 * std::cos(t) + 2 * std::cos(t - u) + std::cos(node.phi) + 1.0 - node.y) <
+        std::abs(4.0 * std::sin(t) - 2.0 * std::sin(t - u) - std::sin(node.phi) - node.x) <
         EPSILON);
-      assert(std::abs(remainderOfDoublePiDivision(t - v - node.phi)) < EPSILON);
+      assert(
+        std::abs(-4.0 * std::cos(t) + 2.0 * std::cos(t - u) + std::cos(node.phi) + 1.0 - node.y) <
+        EPSILON);
+      assert(std::abs(autoware::common::helper_functions::wrap_angle(t - v - node.phi)) < EPSILON);
       return t >= -NUMERIC_ZERO && v >= -NUMERIC_ZERO;
     }
   }
@@ -291,20 +289,25 @@ bool LpRmSmLm(ReedsSheppNode node, double & t, double & u, double & v)
   double eta = node.y - 1.0 + std::cos(node.phi);
   toPolarCoordinates(xi, eta, rho, theta);
 
-  if (rho >= 2.) {
-    double r = sqrt(rho * rho - 4.0);
+  if (rho >= 2.0) {
+    double r = std::sqrt(rho * rho - 4.0);
     u = 2.0 - r;
 
-    t = remainderOfDoublePiDivision(theta + std::atan2(r, -2.0));
-    v = remainderOfDoublePiDivision(node.phi - 0.5 * PI - t);
+    t = autoware::common::helper_functions::wrap_angle(theta + std::atan2(r, -2.0));
+    v = autoware::common::helper_functions::wrap_angle(node.phi - 0.5 * PI - t);
 
     assert(
-      std::abs(2.0 * (sin(t) - std::cos(t)) - u * std::sin(t) + std::sin(node.phi) - node.x) <
+      std::abs(2.0 * (std::sin(t) - std::cos(t)) - u * std::sin(t) + std::sin(node.phi) - node.x) <
       EPSILON);
     assert(
-      std::abs(-2.0 * (sin(t) + std::cos(t)) + u * std::cos(t) - std::cos(node.phi) + 1 - node.y) <
+      std::abs(
+        -2.0 * (std::sin(t) + std::cos(t)) + u * std::cos(t) - std::cos(node.phi) + 1.0 -
+        node.y) <
       EPSILON);
-    assert(std::abs(remainderOfDoublePiDivision(t + PI / 2.0 + v - node.phi)) < EPSILON);
+    assert(
+      std::abs(
+        autoware::common::helper_functions::wrap_angle(
+          t + PI / 2.0 + v - node.phi)) < EPSILON);
     return t >= -NUMERIC_ZERO && u <= NUMERIC_ZERO && v <= NUMERIC_ZERO;
   }
   return false;
@@ -323,11 +326,14 @@ bool LpRmSmRm(ReedsSheppNode node, double & t, double & u, double & v)
   if (rho >= 2.0) {
     t = theta;
     u = 2.0 - rho;
-    v = remainderOfDoublePiDivision(t + 0.5 * PI - node.phi);
+    v = autoware::common::helper_functions::wrap_angle(t + 0.5 * PI - node.phi);
 
     assert(std::abs(2 * std::sin(t) - std::cos(t - v) - u * std::sin(t) - node.x) < EPSILON);
     assert(std::abs(-2 * std::cos(t) - std::sin(t - v) + u * std::cos(t) + 1.0 - node.y) < EPSILON);
-    assert(std::abs(remainderOfDoublePiDivision(t + PI / 2.0 - v - node.phi)) < EPSILON);
+    assert(
+      std::abs(
+        autoware::common::helper_functions::wrap_angle(
+          t + PI / 2.0 - v - node.phi)) < EPSILON);
     return t >= -NUMERIC_ZERO && u <= NUMERIC_ZERO && v <= NUMERIC_ZERO;
   }
   return false;
@@ -345,10 +351,14 @@ bool LpRmSLmRp(ReedsSheppNode node, double & t, double & u, double & v)
   toPolarCoordinates(xi, eta, rho, theta);
 
   if (rho >= 2.0) {
-    u = 4.0 - sqrt(rho * rho - 4.0);
+    u = 4.0 - std::sqrt(rho * rho - 4.0);
     if (u <= NUMERIC_ZERO) {
-      t = remainderOfDoublePiDivision(atan2((4.0 - u) * xi - 2 * eta, -2.0 * xi + (u - 4.0) * eta));
-      v = remainderOfDoublePiDivision(t - node.phi);
+      t =
+        autoware::common::helper_functions::wrap_angle(
+        std::atan2(
+          (4.0 - u) * xi - 2 * eta,
+          -2.0 * xi + (u - 4.0) * eta));
+      v = autoware::common::helper_functions::wrap_angle(t - node.phi);
       assert(
         std::abs(
           4.0 * std::sin(t) - 2.0 * std::cos(t) - u * std::sin(t) - std::sin(node.phi) - node.x) <
@@ -357,7 +367,7 @@ bool LpRmSLmRp(ReedsSheppNode node, double & t, double & u, double & v)
         std::abs(
           -4.0 * std::cos(t) - 2.0 * std::sin(t) + u * std::cos(t) + std::cos(node.phi) + 1.0 -
           node.y) < EPSILON);
-      assert(std::abs(remainderOfDoublePiDivision(t - v - node.phi)) < EPSILON);
+      assert(std::abs(autoware::common::helper_functions::wrap_angle(t - v - node.phi)) < EPSILON);
       return t >= -NUMERIC_ZERO && v >= -NUMERIC_ZERO;
     }
   }

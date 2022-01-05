@@ -3,21 +3,12 @@ project(freespace_planner)
 find_package(ament_cmake_auto REQUIRED)
 ament_auto_find_build_dependencies()
 
-set(REEDS_SHEPP_LIB reeds_shepp)
-ament_auto_add_library(${REEDS_SHEPP_LIB} SHARED
-  src/freespace_planner/reeds_shepp.cpp
-  src/freespace_planner/reeds_shepp_impl.cpp
-)
-
 set(FREESPACE_PLANNER_LIB freespace_planner)
 ament_auto_add_library(${FREESPACE_PLANNER_LIB} SHARED
-        src/freespace_planner/base_planning_algorithm.cpp
-        src/freespace_planner/astar_search.cpp)
-
-target_link_libraries(${FREESPACE_PLANNER_LIB}
-# ${PLANNER_BASE_LIB}
-${REEDS_SHEPP_LIB}
-)
+  src/freespace_planner/base_planning_algorithm.cpp
+  src/freespace_planner/astar_search.cpp
+  src/freespace_planner/reeds_shepp.cpp
+  src/freespace_planner/reeds_shepp_impl.cpp)
 
 autoware_set_compile_options(${FREESPACE_PLANNER_LIB})
 

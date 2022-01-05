@@ -16,8 +16,8 @@
     goal_angular_tolerance: 0.05236
     curve_weight: 1.2
     reverse_weight: 2.0
-    goal_lateral_tolerance: 0.5
-    goal_longitudinal_tolerance: 2.0
+    goal_lateral_tolerance: 0.25
+    goal_longitudinal_tolerance: 1.0
     # costmap configs
     obstacle_threshold: 100
 
