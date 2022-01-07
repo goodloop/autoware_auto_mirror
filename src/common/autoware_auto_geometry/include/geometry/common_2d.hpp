@@ -481,7 +481,7 @@ bool all_ordered(const IT begin, const IT end) noexcept
     // Check if 3 points starting from current point are in clockwise direction
     const bool is_ccw = comparison::abs_lte(
       check_point_position_to_line_2d(*line_start, *line_end, *query_point),
-      0.0F, std::numeric_limits<float32_t>::epsilon()
+      0.0F, std::numeric_limits<float32_t>::min()
     );
     if (is_ccw) {
       if (line_start == begin) {
