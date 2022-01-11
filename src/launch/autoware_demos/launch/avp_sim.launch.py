@@ -51,7 +51,6 @@ def generate_launch_description():
     latlon_muxer_param_file = os.path.join(
         avp_demo_pkg_prefix, 'param/avp/latlon_muxer.param.yaml')
 
-
     urdf_pkg_prefix = get_package_share_directory('lexus_rx_450h_description')
     urdf_path = os.path.join(urdf_pkg_prefix, 'urdf/lexus_rx_450h.urdf')
     with open(urdf_path, 'r') as infp:
@@ -99,7 +98,6 @@ def generate_launch_description():
         default_value=latlon_muxer_param_file,
         description='Path to config file for lateral and longitudinal control commands muxer'
     )
-
 
     # Nodes
 
@@ -170,12 +168,12 @@ def generate_launch_description():
             LaunchConfiguration('lat_control_param_file'),
             LaunchConfiguration('vehicle_characteristics_param_file'),
         ],
-       remappings=[
+        remappings=[
            ("input/reference_trajectory", "/planning/trajectory"),
            ("input/current_kinematic_state", "/vehicle/vehicle_kinematic_state"),
            ("input/tf", "/tf"),
            ("input/tf_static", "/tf_static"),
-       ],
+        ],
     )
     lon_control = Node(
         package='trajectory_follower_nodes',
@@ -186,12 +184,12 @@ def generate_launch_description():
             LaunchConfiguration('lon_control_param_file'),
             LaunchConfiguration('vehicle_characteristics_param_file'),
         ],
-       remappings=[
+        remappings=[
            ("input/current_trajectory", "/planning/trajectory"),
            ("input/current_state", "/vehicle/vehicle_kinematic_state"),
            ("input/tf", "/tf"),
            ("input/tf_static", "/tf_static"),
-       ],
+        ],
     )
     latlon_muxer = Node(
         package='trajectory_follower_nodes',
@@ -201,13 +199,12 @@ def generate_launch_description():
         parameters=[
             LaunchConfiguration('latlon_muxer_param_file'),
         ],
-       remappings=[
+        remappings=[
            ("input/lateral/control_cmd", "output/lateral/control_cmd"),
            ("input/longitudinal/control_cmd", "output/longitudinal_control_cmd"),
            ("output/control_cmd", "/vehicle/ackermann_vehicle_command"),
-       ],
+        ],
     )
-
 
     core_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource([avp_demo_pkg_prefix, '/launch/avp_core.launch.py']),
