@@ -163,6 +163,24 @@ TEST(PolygonPointTest, SmallPentagon) {
       polygon.begin(), polygon.end(), TestPoint{2.0F, 2.0F}));
 }
 
+TEST(PolygonPointTest, LidarPoints) {
+  std::list<TestPoint> polygon{{1.0F, 7.24161e-08F}, {-0.866025F, 1.5F}, {-2.33097F, -0.322411F},
+    {-0.46494F, -1.82241F}};
+  order_ccw(polygon);
+
+  EXPECT_TRUE(
+    autoware::common::geometry::is_point_inside_polygon_2d(
+      polygon.begin(), polygon.end(), TestPoint{-0.866F, 1.5F}));
+}
+
+TEST(PolygonPointTest, PointOverVertex) {
+  std::list<TestPoint> polygon{{1.0F, 1.0F}, {2.0F, 2.0F}, {3.0F, 1.0F}};
+  order_ccw(polygon);
+  EXPECT_TRUE(
+    autoware::common::geometry::is_point_inside_polygon_2d(
+      polygon.begin(), polygon.end(), TestPoint{1.0F, 1.0F}));
+}
+
 TEST(PolygonPointTest, SmallPentagonOverMinusX) {
   std::list<TestPoint> polygon{{-5.5F, 0}, {-5.6, 0.1F}, {-5.4F, 0.2F}, {-5.2F, 0.1F},
     {-5.3F, 0.0F}};
