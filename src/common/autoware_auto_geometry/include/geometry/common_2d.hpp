@@ -554,14 +554,11 @@ bool is_point_inside_polygon_2d(
     }
     if (point_adapter::y_(*it) <= point_adapter::y_(p)) {
       // Upward crossing edge
-      if (point_adapter::y_(*next_it) >= point_adapter::y_(p)) {
-        if (comparison::abs_gt(check_point_position_to_line_2d(*it, *next_it, p), 0.0F, 1e-3F)) {
+      if (point_adapter::y_(*next_it) > point_adapter::y_(p)) {
+        if (check_point_position_to_line_2d(*it, *next_it, p) > 0) {
           ++winding_num;
         } else {
-          if (comparison::abs_eq_zero(
-              check_point_position_to_line_2d(*it, *next_it, p),
-              1e-3F))
-          {
+          if (check_point_position_to_line_2d(*it, *next_it, p) == 0) {
             return true;
           }
         }
@@ -569,19 +566,17 @@ bool is_point_inside_polygon_2d(
     } else {
       // Downward crossing edge
       if (point_adapter::y_(*next_it) <= point_adapter::y_(p)) {
-        if (comparison::abs_lt(check_point_position_to_line_2d(*it, *next_it, p), 0.0F, 1e-3F)) {
+        if (check_point_position_to_line_2d(*it, *next_it, p) < 0) {
           --winding_num;
         } else {
-          if (comparison::abs_eq_zero(
-              check_point_position_to_line_2d(*it, *next_it, p),
-              1e-3F))
-          {
+          if (check_point_position_to_line_2d(*it, *next_it, p) == 0) {
             return true;
           }
         }
       }
     }
   }
+
   return winding_num != 0;
 }
 

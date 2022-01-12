@@ -109,7 +109,6 @@ INSTANTIATE_TEST_CASE_P(
   ), );
 
 TEST(PolygonPointTest, Basic) {
-  GTEST_SKIP();  // TODO(yunus.caliskan): enable after #1231
   std::list<TestPoint> polygon{{5.0F, 5.0F}, {10.0F, 5.0F}, {5.0F, 10.0F}, {10.0F, 10.0F}};
   order_ccw(polygon);
   EXPECT_FALSE(
