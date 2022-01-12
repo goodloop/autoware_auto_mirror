@@ -114,6 +114,70 @@ TEST(PolygonPointTest, Basic) {
   EXPECT_FALSE(
     autoware::common::geometry::is_point_inside_polygon_2d(
       polygon.begin(), polygon.end(), TestPoint{0.0F, 10.0F}));
+
+  EXPECT_TRUE(
+    autoware::common::geometry::is_point_inside_polygon_2d(
+      polygon.begin(), polygon.end(), TestPoint{7.5F, 7.5F}));
+
+  // Point collinear with vertex
+  EXPECT_TRUE(
+    autoware::common::geometry::is_point_inside_polygon_2d(
+      polygon.begin(), polygon.end(), TestPoint{7.5F, 5.0F}));
+}
+
+
+TEST(PolygonPointTest, Triangle) {
+  std::list<TestPoint> polygon{{0.0F, 10.0F}, {-2.5F, -5.0F}, {2.5F, -5.0F}};
+  order_ccw(polygon);
+  EXPECT_TRUE(
+    autoware::common::geometry::is_point_inside_polygon_2d(
+      polygon.begin(), polygon.end(), TestPoint{0.0F, 0.0F}));
+
+  // Point collinear with vertex
+  EXPECT_TRUE(
+    autoware::common::geometry::is_point_inside_polygon_2d(
+      polygon.begin(), polygon.end(), TestPoint{-2.4F, -5.0F}));
+
+  EXPECT_FALSE(
+    autoware::common::geometry::is_point_inside_polygon_2d(
+      polygon.begin(), polygon.end(), TestPoint{5.0F, 5.0F}));
+
+  EXPECT_FALSE(
+    autoware::common::geometry::is_point_inside_polygon_2d(
+      polygon.begin(), polygon.end(), TestPoint{-5.0F, -5.0F}));
+}
+
+TEST(PolygonPointTest, SmallPentagon) {
+  std::list<TestPoint> polygon{{1.5F, 1.5F}, {1.4F, 1.6F}, {1.6F, 1.7}, {1.8F, 1.6F}, {1.7F, 1.5F}};
+  order_ccw(polygon);
+  EXPECT_TRUE(
+    autoware::common::geometry::is_point_inside_polygon_2d(
+      polygon.begin(), polygon.end(), TestPoint{1.6F, 1.6F}));
+
+  EXPECT_FALSE(
+    autoware::common::geometry::is_point_inside_polygon_2d(
+      polygon.begin(), polygon.end(), TestPoint{1.4F, 1.4F}));
+
+  EXPECT_FALSE(
+    autoware::common::geometry::is_point_inside_polygon_2d(
+      polygon.begin(), polygon.end(), TestPoint{2.0F, 2.0F}));
+}
+
+TEST(PolygonPointTest, SmallPentagonOverMinusX) {
+  std::list<TestPoint> polygon{{-5.5F, 0}, {-5.6, 0.1F}, {-5.4F, 0.2F}, {-5.2F, 0.1F},
+    {-5.3F, 0.0F}};
+  order_ccw(polygon);
+  EXPECT_TRUE(
+    autoware::common::geometry::is_point_inside_polygon_2d(
+      polygon.begin(), polygon.end(), TestPoint{-5.6F, 0.1F}));
+
+  EXPECT_FALSE(
+    autoware::common::geometry::is_point_inside_polygon_2d(
+      polygon.begin(), polygon.end(), TestPoint{-5.4F, -0.1F}));
+
+  EXPECT_FALSE(
+    autoware::common::geometry::is_point_inside_polygon_2d(
+      polygon.begin(), polygon.end(), TestPoint{0.0F, 0.0F}));
 }
 
 // IoU of two intersecting shapes: a pentagon and a square. The test includes pen and paper

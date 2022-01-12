@@ -555,10 +555,16 @@ bool is_point_inside_polygon_2d(
     if (point_adapter::y_(*it) <= point_adapter::y_(p)) {
       // Upward crossing edge
       if (point_adapter::y_(*next_it) > point_adapter::y_(p)) {
-        if (check_point_position_to_line_2d(*it, *next_it, p) > 0) {
+        if (comparison::abs_gt(
+            check_point_position_to_line_2d(*it, *next_it, p), 0.0F,
+            std::numeric_limits<float32_t>::epsilon()))
+        {
           ++winding_num;
         } else {
-          if (check_point_position_to_line_2d(*it, *next_it, p) == 0) {
+          if (comparison::abs_eq_zero(
+              check_point_position_to_line_2d(*it, *next_it, p),
+              std::numeric_limits<float32_t>::epsilon()))
+          {
             return true;
           }
         }
@@ -566,10 +572,16 @@ bool is_point_inside_polygon_2d(
     } else {
       // Downward crossing edge
       if (point_adapter::y_(*next_it) <= point_adapter::y_(p)) {
-        if (check_point_position_to_line_2d(*it, *next_it, p) < 0) {
+        if (comparison::abs_lt(
+            check_point_position_to_line_2d(*it, *next_it, p), 0.0F,
+            std::numeric_limits<float32_t>::epsilon()))
+        {
           --winding_num;
         } else {
-          if (check_point_position_to_line_2d(*it, *next_it, p) == 0) {
+          if (comparison::abs_eq_zero(
+              check_point_position_to_line_2d(*it, *next_it, p),
+              std::numeric_limits<float32_t>::epsilon()))
+          {
             return true;
           }
         }
