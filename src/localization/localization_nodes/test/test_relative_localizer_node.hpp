@@ -81,7 +81,7 @@ class MockInitializer
 public:
   Transform guess(
     const tf2::BufferCore &, tf2::TimePoint stamp,
-    const std::string & id1, const std::string & id2);
+    const std::string & id1, const std::string & id2, bool & is_reinitialization);
 
   void set_fallback_pose(const geometry_msgs::msg::TransformStamped &);
 };
