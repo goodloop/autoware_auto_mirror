@@ -47,6 +47,7 @@
 #include <geometry_msgs/msg/pose_array.hpp>
 
 // others
+#include <unordered_map>
 #include <string>
 #include <memory>
 
