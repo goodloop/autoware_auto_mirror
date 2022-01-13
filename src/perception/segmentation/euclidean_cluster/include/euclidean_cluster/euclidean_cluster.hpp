@@ -299,7 +299,7 @@ EUCLIDEAN_CLUSTER_PUBLIC
 BoundingBoxArray compute_bounding_boxes(
   Clusters & clusters, const BboxMethod method, const bool compute_height,
   const bool size_filter = false,
-  const FilterConfig & filter_config = {0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F});;
+  const FilterConfig & filter_config = {0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F});
 /// \brief Convert this bounding box to a DetectedObjects message
 /// \param[in] boxes A bounding box array
 /// \returns A DetectedObjects message with the bounding boxes inside

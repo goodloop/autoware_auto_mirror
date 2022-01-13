@@ -169,8 +169,8 @@ TEST_F(BoundingBoxComputationTest, BasicLfit2d_max_xy_filter)
 
   DetectedObjects objects_msg = convert_to_detected_objects(boxes_msg);
   ASSERT_EQ(objects_msg.objects.size(), 2U);
-  for (const auto & object : objects_msg.objects) {
-    test_object_msg(object, lfit_expected_corners_xy_max_filter, 0.25F);
+  for (size_t i = 0U; i < objects_msg.objects.size(); ++i) {
+    test_object_msg(objects_msg.objects[i], boxes_msg.boxes[i], 0.25F);
   }
 }
 
@@ -230,9 +230,9 @@ TEST_F(BoundingBoxComputationTest, BasicLfit3d_max_z_filter)
   }
 
   ASSERT_EQ(objects_msg.objects.size(), 2U);
-  for (const auto & object : objects_msg.objects) {
-    test_object_msg(object, expected_corners_3d, 0.25F);
-    EXPECT_EQ(object.shape.height, 1.0F);
+  for (size_t i = 0U; i < objects_msg.objects.size(); ++i) {
+    test_object_msg(objects_msg.objects[i], boxes_msg.boxes[i], 0.25F);
+    EXPECT_EQ(objects_msg.objects[i].shape.height, 1.0F);
   }
 }
 
