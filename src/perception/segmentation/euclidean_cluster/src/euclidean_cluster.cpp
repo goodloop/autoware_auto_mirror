@@ -101,12 +101,12 @@ FilterConfig::FilterConfig(
   const float32_t max_x,
   const float32_t max_y,
   const float32_t max_z)
-  : m_min_filter_x(min_x),
-    m_min_filter_y(min_y),
-    m_min_filter_z(min_z),
-    m_max_filter_x(max_x),
-    m_max_filter_y(max_y),
-    m_max_filter_z(max_z)
+: m_min_filter_x(min_x),
+  m_min_filter_y(min_y),
+  m_min_filter_z(min_z),
+  m_max_filter_x(max_x),
+  m_max_filter_y(max_y),
+  m_max_filter_z(max_z)
 {
 }
 ////////////////////////////////////////////////////////////////////////////////
@@ -136,7 +136,9 @@ const std::string & Config::frame_id() const
 }
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
-EuclideanCluster::EuclideanCluster(const Config & cfg, const HashConfig & hash_cfg, const FilterConfig & filter_cfg)
+EuclideanCluster::EuclideanCluster(
+  const Config & cfg, const HashConfig & hash_cfg,
+  const FilterConfig & filter_cfg)
 : m_config(cfg),
   m_hash(hash_cfg),
   m_filter_config(filter_cfg),
@@ -366,12 +368,16 @@ BoundingBoxArray compute_bounding_boxes(
       }
 
       if (size_filter) {
-        BoundingBox& box = boxes.boxes.back();
+        BoundingBox & box = boxes.boxes.back();
         bool erase_box = false;
-        if ( (box.size.x > filter_config.max_filter_x()) || (box.size.y > filter_config.max_filter_y()) ||
-             (box.size.x < filter_config.min_filter_x()) || (box.size.y < filter_config.min_filter_y()) ) erase_box = true;
-        if ( (compute_height) && ((box.size.z > filter_config.max_filter_z()) || (box.size.z < filter_config.min_filter_z())) ) erase_box = true;
-        if (erase_box) boxes.boxes.pop_back();
+        if ( (box.size.x > filter_config.max_filter_x()) ||
+          (box.size.y > filter_config.max_filter_y()) ||
+          (box.size.x < filter_config.min_filter_x()) ||
+          (box.size.y < filter_config.min_filter_y()) ) {erase_box = true;}
+        if ( (compute_height) &&
+          ((box.size.z > filter_config.max_filter_z()) ||
+          (box.size.z < filter_config.min_filter_z())) ) {erase_box = true;}
+        if (erase_box) {boxes.boxes.pop_back();}
       }
     } catch (const std::exception & e) {
       std::cerr << e.what() << std::endl;

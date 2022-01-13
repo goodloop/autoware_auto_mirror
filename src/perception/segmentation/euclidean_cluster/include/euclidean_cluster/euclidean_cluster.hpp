@@ -122,6 +122,7 @@ public:
   /// \brief Gets maximum filter in direction of z
   /// \return maximum filter of z direction
   float32_t max_filter_z() const;
+
 private:
   const float32_t m_min_filter_x;
   const float32_t m_min_filter_y;
@@ -176,6 +177,7 @@ public:
   /// \param[in] clusters The clusters object
   /// \return True if config is valid
   bool match_clusters_size(const Clusters & clusters) const;
+
 private:
   const std::string m_frame_id;
   const std::size_t m_min_cluster_size;
@@ -203,7 +205,9 @@ public:
   /// \param[in] hash_cfg The configuration of the underlying spatial hash, controls the maximum
   ///                     number of points in a scene
   /// \param[in] filter_cfg The configuration of the min/max size limit of the bounding boxes
-  EuclideanCluster(const Config & cfg, const HashConfig & hash_cfg, const FilterConfig & filter_cfg);
+  EuclideanCluster(
+    const Config & cfg, const HashConfig & hash_cfg,
+    const FilterConfig & filter_cfg);
   /// \brief Insert an individual point
   /// \param[in] pt The point to insert
   /// \throw std::length_error If the underlying spatial hash is full

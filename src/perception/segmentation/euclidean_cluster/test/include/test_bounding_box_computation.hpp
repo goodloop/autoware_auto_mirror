@@ -162,13 +162,13 @@ TEST_F(BoundingBoxComputationTest, BasicLfit2d_max_xy_filter)
 
   FilterConfig fcg{0.2F, 0.2F, 0.2F, 1.0F, 1.0F, 1.0F};
   BoundingBoxArray boxes_msg = compute_bounding_boxes(clusters, BboxMethod::LFit, false, true, fcg);
-  ASSERT_EQ(boxes_msg.boxes.size(), 2U);
+  ASSERT_EQ(boxes_msg.boxes.size(), 0U);
   for (const auto & box : boxes_msg.boxes) {
     test_corners(box, lfit_expected_corners_xy_max_filter, 0.25F);
   }
 
   DetectedObjects objects_msg = convert_to_detected_objects(boxes_msg);
-  ASSERT_EQ(objects_msg.objects.size(), 2U);
+  ASSERT_EQ(objects_msg.objects.size(), 0U);
   for (size_t i = 0U; i < objects_msg.objects.size(); ++i) {
     test_object_msg(objects_msg.objects[i], boxes_msg.boxes[i], 0.25F);
   }
@@ -229,7 +229,7 @@ TEST_F(BoundingBoxComputationTest, BasicLfit3d_max_z_filter)
     pt.z = -2.F;
   }
 
-  ASSERT_EQ(objects_msg.objects.size(), 2U);
+  ASSERT_EQ(objects_msg.objects.size(), 0U);
   for (size_t i = 0U; i < objects_msg.objects.size(); ++i) {
     test_object_msg(objects_msg.objects[i], boxes_msg.boxes[i], 0.25F);
     EXPECT_EQ(objects_msg.objects[i].shape.height, 1.0F);
