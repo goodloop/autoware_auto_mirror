@@ -192,7 +192,7 @@ private:
 /// The input to this should be nonground points pased through a voxel grid.
 class EUCLIDEAN_CLUSTER_PUBLIC EuclideanCluster
 {
-ppublic:
+public:
   enum class Error : uint8_t
   {
     NONE = 0U,
