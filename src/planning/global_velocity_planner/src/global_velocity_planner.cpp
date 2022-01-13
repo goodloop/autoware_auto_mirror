@@ -144,6 +144,7 @@ void GlobalVelocityPlanner::calculate_waypoints()
   }
   if (lanelets.empty()) {
     std::cout << "no lanelet" << std::endl;
+    return;
   }
 
   TrajectoryPoint start_point, final_point;
