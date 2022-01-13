@@ -210,6 +210,54 @@ void GlobalVelocityPlanner::calculate_waypoints()
   GlobalVelocityPlanner::vel_wrt_lateral_acceleration();
   GlobalVelocityPlanner::vel_wrt_longitudinal_acceleration();
   GlobalVelocityPlanner::set_acceleration();
+  std::cout << " SIZE IS = " << way_points->size()<< std::endl;
+  for(size_t i = 0; i < way_points->size(); i++){
+    auto & p = way_points->at(i).point;
+    if (!isfinite(p.pose.position.x))
+    {
+      std::cout << "At index = " << i << " p.pose.position.x not finite" << std::endl;
+    }
+    if (!isfinite(p.pose.position.y))
+    {
+      std::cout << "At index = " << i << " p.pose.position.y not finite" << std::endl;
+    }
+    if (!isfinite(p.pose.orientation.w))
+    {
+      std::cout << "At index = " << i << " p.pose.orientation.w not finite" << std::endl;
+    }
+    if (!isfinite(p.pose.orientation.x))
+    {
+      std::cout << "At index = " << i << " p.pose.orientation.x not finite" << std::endl;
+    }
+    if (!isfinite(p.pose.orientation.y))
+    {
+      std::cout << "At index = " << i << " p.pose.orientation.y not finite" << std::endl;
+    }
+    if (!isfinite(p.pose.orientation.z))
+    {
+      std::cout << "At index = " << i << " p.pose.orientation.z not finite" << std::endl;
+    }
+    if (!isfinite(p.longitudinal_velocity_mps))
+    {
+      std::cout << "At index = " << i << " p.longitudinal_velocity_mps not finite" << std::endl;
+    }
+    if (!isfinite(p.lateral_velocity_mps))
+    {
+      std::cout << "At index = " << i << " p.lateral_velocity_mps not finite" << std::endl;
+    }
+    if (!isfinite(p.heading_rate_rps))
+    {
+      std::cout << "At index = " << i << " p.heading_rate_rps not finite" << std::endl;
+    }
+    if (!isfinite(p.front_wheel_angle_rad))
+    {
+      std::cout << "At index = " << i << " p.front_wheel_angle_rad not finite: " << p.front_wheel_angle_rad << std::endl;
+    }
+    if (!isfinite(p.rear_wheel_angle_rad))
+    {
+      std::cout << "At index = " << i << " p.rear_wheel_angle_rad not finite" << std::endl;
+    }
+  }
   is_route_ready = true;
 }
 
@@ -218,10 +266,12 @@ void GlobalVelocityPlanner::set_steering_angle(point & pt)
   // TODO(berkay6): Add the steering angle for the first point
   const auto wheel_base =
     vehicle_param.length_cg_front_axel() + vehicle_param.length_cg_rear_axel();
-  if (pt.curvature == NAN) {
+  if (std::isnan(pt.curvature)) {
+    pt.point.front_wheel_angle_rad = 0.0;
     return;
   }
   pt.point.front_wheel_angle_rad = std::atan(wheel_base * pt.curvature);
+  std::cout << pt.point.front_wheel_angle_rad << std::endl;
 }
 
 void GlobalVelocityPlanner::set_orientation(size_t i)
@@ -375,30 +425,73 @@ void GlobalVelocityPlanner::set_time_from_start()
   }
 }
 
+bool GlobalVelocityPlanner::need_trajectory()
+{
+  if(trajectory.points.empty()){
+    return true;
+  }
+  if(trajectory.points.size() < 50){
+    if(way_points->size() - last_point <= trajectory.points.size()){
+      return false;
+    }
+    return true;
+  }
+  return false;
+
+}
+
 void GlobalVelocityPlanner::calculate_trajectory(const State & pose)
 {
-  size_t begin = last_point + trajectory.points.size() + 1;
-  size_t closest_index = GlobalVelocityPlanner::get_closest_index(pose);
-
-  if (closest_index >= last_point) {
-    trajectory.points.erase(
-      trajectory.points.begin(),
-      trajectory.points.begin() + static_cast<uint32_t>(closest_index - last_point));
-    size_t length = std::min(
-      (autoware_auto_planning_msgs::msg::Trajectory::CAPACITY - trajectory.points.size()),
-      way_points->size() - begin);
-    for (size_t j = 0; j < length; j++) {
-      trajectory.points.push_back(way_points->at(begin + j).point);
+//  const size_t front_adder = 0;
+//  size_t begin = last_point + trajectory.points.size() + front_adder;
+//  size_t closest_index = GlobalVelocityPlanner::get_closest_index(pose);
+//  if (closest_index >= last_point) {
+//    trajectory.points.erase(
+//      trajectory.points.begin(),
+//      trajectory.points.begin() + static_cast<uint32_t>(closest_index - last_point));
+//    size_t length = std::min(
+//      (autoware_auto_planning_msgs::msg::Trajectory::CAPACITY - trajectory.points.size()),
+//      way_points->size() - begin);
+//    for (size_t j = 0; j < length; j++) {
+//      trajectory.points.push_back(way_points->at(begin + j).point);
+//    }
+//  }
+//  else {
+//    trajectory.points.resize(trajectory.points.size() - (last_point - closest_index));
+//    for (size_t j = 0; j < (last_point - closest_index); j++) {
+//      trajectory.points.insert(trajectory.points.begin(), way_points->at(last_point - j).point);
+//    }
+//  }
+//  GlobalVelocityPlanner::set_time_from_start();
+//  last_point = closest_index;
+    size_t closest_index = GlobalVelocityPlanner::get_closest_index(pose) + 1;
+    if(need_trajectory()){
+      trajectory.points.clear();
+      size_t length = std::min(
+        (autoware_auto_planning_msgs::msg::Trajectory::CAPACITY - trajectory.points.size()),
+        way_points->size() - closest_index);
+      for (size_t j = 0; j < length; j++) {
+        trajectory.points.push_back(way_points->at(closest_index + j).point);
+      }
+      GlobalVelocityPlanner::set_time_from_start();
     }
-  } else {
-    trajectory.points.resize(trajectory.points.size() - (last_point - closest_index));
-    for (size_t j = 0; j < (last_point - closest_index); j++) {
-      trajectory.points.insert(trajectory.points.begin(), way_points->at(last_point - j).point);
+    else {
+      if (closest_index > last_point) {
+        std::cout << closest_index - last_point << std::endl;
+        trajectory.points.erase(
+          trajectory.points.begin(),
+          trajectory.points.begin() + static_cast<uint32_t>(closest_index - last_point));
+      }
+      else{
+        if(trajectory.points.size() + last_point - closest_index > trajectory.CAPACITY){
+          trajectory.points.resize(trajectory.points.size() - (last_point - closest_index));
+        }
+        for (size_t j = 0; j < (last_point - closest_index); j++) {
+        trajectory.points.insert(trajectory.points.begin(), way_points->at(last_point -1 - j).point);
+        }
+      }
     }
-  }
-
-  GlobalVelocityPlanner::set_time_from_start();
-  last_point = closest_index;
+    last_point = closest_index;
 }
 }  // namespace global_velocity_planner
 }  // namespace autoware

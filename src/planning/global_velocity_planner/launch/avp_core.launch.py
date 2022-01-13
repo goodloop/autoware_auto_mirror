@@ -208,6 +208,7 @@ def generate_launch_description():
         package='global_velocity_planner',
         name='global_velocity_planner_node',
         namespace='planning',
+        output='screen',
         executable='global_velocity_planner_node_exe',
         parameters=[
             LaunchConfiguration('global_velocity_planner_param_file'),

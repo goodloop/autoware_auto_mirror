@@ -97,6 +97,7 @@ private:
   void set_orientation(size_t i);
   void set_acceleration();
   void set_time_from_start();
+  bool need_trajectory();
   size_t get_closest_index(const State & pose);
   // variables
 
