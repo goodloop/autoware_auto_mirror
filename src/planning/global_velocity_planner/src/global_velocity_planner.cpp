@@ -139,7 +139,9 @@ void GlobalVelocityPlanner::calculate_waypoints()
       lanelets.push_back(lane);
     } catch (const lanelet::NoSuchPrimitiveError & ex) {
       // stop adding lanelets if lane cannot be found. e.g. goal is outside of queried submap
-      break;
+      //break;
+
+      std::cout << primitive.id << " couldn't added because it is not a lane" << std::endl;
     }
   }
   if (lanelets.empty()) {
