@@ -176,9 +176,9 @@ LongitudinalController::LongitudinalController(const rclcpp::NodeOptions & node_
     "input/current_trajectory", rclcpp::QoS{1},
     std::bind(&LongitudinalController::callbackTrajectory, this, _1));
   m_pub_control_cmd = create_publisher<autoware_auto_control_msgs::msg::LongitudinalCommand>(
-    "output/longitudinal_control_cmd", rclcpp::QoS{1});
+    "output/longitudinal/control_cmd", rclcpp::QoS{1});
   m_pub_slope = create_publisher<autoware_auto_system_msgs::msg::Float32MultiArrayDiagnostic>(
-    "output/slope_angle", rclcpp::QoS{1});
+    "output/longitudinal/slope_angle", rclcpp::QoS{1});
   m_pub_debug = create_publisher<autoware_auto_system_msgs::msg::Float32MultiArrayDiagnostic>(
     "output/longitudinal/diagnostic", rclcpp::QoS{1});
 

@@ -201,7 +201,7 @@ def generate_launch_description():
         ],
         remappings=[
            ("input/lateral/control_cmd", "output/lateral/control_cmd"),
-           ("input/longitudinal/control_cmd", "output/longitudinal_control_cmd"),
+           ("input/longitudinal/control_cmd", "output/longitudinal/control_cmd"),
            ("output/control_cmd", "/vehicle/ackermann_vehicle_command"),
         ],
     )
