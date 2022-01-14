@@ -19,6 +19,7 @@
 
 #include <rclcpp_components/register_node_macro.hpp>
 
+#include <unordered_map>
 #include <string>
 #include <memory>
 
@@ -310,17 +311,17 @@ void BehaviorPlannerNode::on_ego_state(const State::SharedPtr & msg)
     if (it != gear_report_to_vsc_gear.end()) {
       VehicleStateCommand gear_command;
       RCLCPP_INFO_THROTTLE(
-      get_logger(), clock, 3000,
-      "Send command to convert desired_gear %d to %d",
-      static_cast<int>(desired_gear), static_cast<int>(it->second));
+        get_logger(), clock, 3000,
+        "Send command to convert desired_gear %d to %d",
+        static_cast<int>(desired_gear), static_cast<int>(it->second));
       gear_command.gear = it->second;
       gear_command.mode = VehicleStateCommand::MODE_AUTONOMOUS;
       gear_command.stamp = msg->header.stamp;
       m_vehicle_state_command_pub->publish(gear_command);
     } else {
       RCLCPP_INFO_THROTTLE(
-      get_logger(), clock, 3000,
-      "Unable to match desired_gear %d", static_cast<int>(desired_gear));
+        get_logger(), clock, 3000,
+        "Unable to match desired_gear %d", static_cast<int>(desired_gear));
     }
     // send trajectory with current state so that velocity will be zero in order to change gear
     Trajectory trajectory;

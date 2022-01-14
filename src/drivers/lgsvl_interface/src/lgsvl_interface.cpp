@@ -348,7 +348,6 @@ bool8_t LgsvlInterface::send_control_command(
   raw_msg.throttle = 0;
   raw_msg.brake = 0;
 
-  // using VSR = autoware_auto_vehicle_msgs::msg::VehicleStateReport;
   const auto directional_accel = get_gear_report().report ==
     GearReport::REVERSE ? -msg.long_accel_mps2 : msg.long_accel_mps2;
 
