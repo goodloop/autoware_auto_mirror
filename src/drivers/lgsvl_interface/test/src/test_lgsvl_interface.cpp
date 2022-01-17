@@ -70,10 +70,12 @@ TEST_F(LgsvlInterfaceTest, GearMappingStateCommand)
     };
 
   // Tests
-  wait_for_subscription_callback(lgsvl_interface::VSC::GEAR_DRIVE,
+  wait_for_subscription_callback(
+    lgsvl_interface::VSC::GEAR_DRIVE,
     lgsvl_interface::VSD::GEAR_DRIVE);
 
-  wait_for_subscription_callback(lgsvl_interface::VSC::GEAR_REVERSE,
+  wait_for_subscription_callback(
+    lgsvl_interface::VSC::GEAR_REVERSE,
     lgsvl_interface::VSD::GEAR_REVERSE);
 
   wait_for_subscription_callback(
