@@ -50,6 +50,7 @@ using visualization_msgs::msg::MarkerArray;
 using BoundingBox = autoware_auto_perception_msgs::msg::BoundingBox;
 using BoundingBoxArray = autoware_auto_perception_msgs::msg::BoundingBoxArray;
 using DetectedObjects = autoware_auto_perception_msgs::msg::DetectedObjects;
+
 /// \brief Combined object detection node, primarily does clustering, can also do in-place
 ///        downsampling and bounding box formation
 class EUCLIDEAN_CLUSTER_NODES_PUBLIC EuclideanClusterNode : public rclcpp::Node
@@ -64,6 +65,7 @@ public:
     const rclcpp::NodeOptions & node_options);
 
 private:
+  enum class DetectedObjectsShape : uint8_t { POLYGON_PRISM = 1u, BOUNDING_BOX = 2u, };
   /// \brief Main callback function
   void EUCLIDEAN_CLUSTER_NODES_LOCAL handle(const PointCloud2::SharedPtr msg_ptr);
   /// \brief Insert directly into clustering algorithm
@@ -80,14 +82,25 @@ private:
   void EUCLIDEAN_CLUSTER_NODES_LOCAL handle_clusters(
     Clusters & clusters,
     const std_msgs::msg::Header & header);
+  /// \brief Converts detected objects type from string to DetectedObjectsShape
+  DetectedObjectsShape get_detected_object_type_from_string(
+    const std::string & detected_object_type_string)
+  {
+    if (detected_object_type_string == "polygon") {
+      return DetectedObjectsShape::POLYGON_PRISM;
+    } else if (detected_object_type_string == "bounding_box") {
+      return DetectedObjectsShape::BOUNDING_BOX;
+    } else {
+      throw std::invalid_argument{"Unknown detected object type"};
+    }
+  }
 
   // pub/sub
   const rclcpp::Subscription<PointCloud2>::SharedPtr m_cloud_sub_ptr;
   const rclcpp::Publisher<Clusters>::SharedPtr m_cluster_pub_ptr;
   const rclcpp::Publisher<BoundingBoxArray>::SharedPtr m_box_pub_ptr;
-  const rclcpp::Publisher<DetectedObjects>::SharedPtr m_detected_objects_pub_ptr;
-  const rclcpp::Publisher<DetectedObjects>::SharedPtr m_detected_objects_polygon_pub_ptr;
   const rclcpp::Publisher<MarkerArray>::SharedPtr m_marker_pub_ptr;
+  rclcpp::Publisher<DetectedObjects>::SharedPtr m_detected_objects_pub_ptr;
   std::shared_ptr<tf2_ros::Buffer> tf_buffer_;
   std::shared_ptr<tf2_ros::TransformListener> tf_listener_;
 
@@ -95,6 +108,7 @@ private:
   euclidean_cluster::EuclideanCluster m_cluster_alg;
   Clusters m_clusters;
   std::unique_ptr<VoxelAlgorithm> m_voxel_ptr;
+  DetectedObjectsShape detected_objects_shape_type;
   const bool8_t m_use_lfit;
   const bool8_t m_use_z;
   const bool8_t m_filter_output_by_size;
