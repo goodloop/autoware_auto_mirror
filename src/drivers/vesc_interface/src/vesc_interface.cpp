@@ -1,3 +1,19 @@
+// Copyright 2021 The Autoware Foundation
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+// Co-developed by Tier IV, Inc. and Apex.AI, Inc.
+
 #include "vesc_interface/vesc_interface.hpp"
 
 #include <iostream>
@@ -26,10 +42,10 @@ VESCInterface::VESCInterface(
 
   // Subscribers to data from VESC
   vesc_motor_state_ = node.create_subscription<VescStateStamped>(
-    "sensors/core", 
+    "sensors/core",
     10,
     [this](VescStateStamped::SharedPtr msg) {on_motor_state_report(msg);}
-    );
+  );
 
   servo_state_ = node.create_subscription<Float64>(
     "sensors/servo_position_command",
@@ -62,7 +78,7 @@ bool8_t VESCInterface::send_control_command(const VehicleControlCommand & msg)
 {
   if (msg.velocity_mps == 0.0f || !run_autonomous) {
     seen_zero_speed = true;
-  } else{
+  } else {
     seen_zero_speed = false;
   }
 
@@ -77,9 +93,9 @@ bool8_t VESCInterface::send_control_command(const VehicleControlCommand & msg)
 
   // calc steering angle (servo)
   Float64 servo_msg;
-  if (run_autonomous){
-    servo_msg.data = direction * steering_to_servo_gain_ * 
-      static_cast<double>(msg.front_wheel_angle_rad) + steering_to_servo_offset_;   
+  if (run_autonomous) {
+    servo_msg.data = direction * steering_to_servo_gain_ *
+      static_cast<double>(msg.front_wheel_angle_rad) + steering_to_servo_offset_;
   } else {
     servo_msg.data = steering_to_servo_offset_;
   }
@@ -98,7 +114,7 @@ bool8_t VESCInterface::handle_mode_change_request(
 {
   if (request->mode == ModeChangeRequest::MODE_MANUAL) {
     run_autonomous = false;
-  } else if (request->mode == ModeChangeRequest::MODE_AUTONOMOUS){
+  } else if (request->mode == ModeChangeRequest::MODE_AUTONOMOUS) {
     run_autonomous = true;
   } else {
     RCLCPP_ERROR(m_logger, "Got invalid autonomy mode request value.");
@@ -114,21 +130,22 @@ bool8_t VESCInterface::send_control_command(const RawControlCommand & msg)
   return true;
 }
 
-void VESCInterface::on_motor_state_report(const VescStateStamped::SharedPtr &msg)
+void VESCInterface::on_motor_state_report(const VescStateStamped::SharedPtr & msg)
 {
   float64_t current_speed = (-msg->state.speed - speed_to_erpm_offset_) / speed_to_erpm_gain_;
-  if (std::fabs(current_speed)<0.05){
+  if (std::fabs(current_speed) < 0.05) {
     current_speed = 0.0;
   }
   odometry().velocity_mps = static_cast<float>(current_speed);
 
 
   float64_t current_front_wheel_angle(0.0);
-  current_front_wheel_angle =(last_servo_cmd->data - steering_to_servo_offset_) / steering_to_servo_gain_;
+  current_front_wheel_angle = (last_servo_cmd->data - steering_to_servo_offset_) /
+    steering_to_servo_gain_;
   odometry().front_wheel_angle_rad = static_cast<float>(current_front_wheel_angle);
 }
 
-void VESCInterface::on_servo_state_report(const Float64::SharedPtr &msg)
+void VESCInterface::on_servo_state_report(const Float64::SharedPtr & msg)
 {
   last_servo_cmd = msg;
 }

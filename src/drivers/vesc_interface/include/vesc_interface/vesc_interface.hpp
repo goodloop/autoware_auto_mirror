@@ -96,14 +96,17 @@ public:
   /// \return False if message is not send, otherwise True
   bool8_t send_state_command(const VehicleStateCommand & msg);
 
-  /// \brief Get vehicle speed (meters/second) and steering angle (rad), and publish motor ERPM and servo position.
+  /// \brief Get vehicle speed (meters/second) and steering angle (rad),
+  ///        and publish motor ERPM and servo position.
   /// \param[in] msg The control command send to the vehicle
   /// \return False if message is not send, otherwise True
   bool8_t send_control_command(const VehicleControlCommand & msg);
 
-  /// \brief Switch between autonomous and manual driving mode, maintain internal state, and only send control commands when autonomous mode is active
+  /// \brief Switch between autonomous and manual driving mode,
+  ///        maintain internal state, and only send control commands
+  ///        when autonomous mode is active
   /// \param[in] request Request object
-  /// \return False if message is not send, otherwise True 
+  /// \return False if message is not send, otherwise True
   bool8_t handle_mode_change_request(
     autoware_auto_msgs::srv::AutonomyModeChange_Request::SharedPtr request);
 
@@ -119,7 +122,7 @@ private:
   rclcpp::Logger m_logger;
   // conversion and gain offsets
   float64_t speed_to_erpm_gain_, speed_to_erpm_offset_;
-  float64_t steering_to_servo_gain_, steering_to_servo_offset_;  
+  float64_t steering_to_servo_gain_, steering_to_servo_offset_;
   Float64::SharedPtr last_servo_cmd;
 
   // Direction:
