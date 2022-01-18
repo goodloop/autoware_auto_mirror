@@ -304,7 +304,6 @@ bool8_t LgsvlInterface::send_state_command(
     msg_corrected.gear = static_cast<uint8_t>(VSD::GEAR_DRIVE);
     RCLCPP_WARN(m_logger, "Unsupported gear value in state command, defaulting to Drive");
   }
-  RCLCPP_WARN(m_logger, "send_state_cmd converted gear : %d", static_cast<int>(msg_corrected.gear));
   // Correcting wipers
   auto const wiper_iter = autoware_to_lgsvl_wiper.find(msg.wiper);
 
