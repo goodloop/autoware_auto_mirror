@@ -20,13 +20,14 @@ import launch_testing
 import launch_testing.actions
 import os
 import pytest
+from time import sleep
 import unittest
 
 
 @pytest.mark.launch_test
 def generate_test_description():
     autoware_demos_share_dir = get_package_share_directory('autoware_demos')
-    launch_file = 'launch/avp_sim.launch.py'
+    launch_file = 'launch/ekf_ndt_smoothing_lgsvl.launch.py'
     return LaunchDescription([
         IncludeLaunchDescription(
             PythonLaunchDescriptionSource(os.path.join(autoware_demos_share_dir, launch_file)),
@@ -38,19 +39,14 @@ def generate_test_description():
 class TestAutowareReady(unittest.TestCase):
     def test_init_done(self, proc_output):
         # Wait for initialization to be complete
-        for process in [
-            'costmap_generator', 'lanelet2_map_provider', 'behavior_planner', 'freespace_planner'
-        ]:
-            proc_output.assertWaitFor('Waiting for', process=process, timeout=5, stream='stderr')
+        sleep(5)
 
 
 @launch_testing.post_shutdown_test()
 class TestProcessOutput(unittest.TestCase):
     def test_exit_code(self, proc_info):
         # Check that all processes in the launch file exit with code 0
-        # Exception: costmap_generator_node exits with -6
+        # Exception: rviz might exit with other codes
         for process_name in proc_info.process_names():
-            if "costmap_generator_node" in process_name:
-                launch_testing.asserts.assertExitCodes(proc_info, [-6], process=process_name)
-            else:
+            if "rviz" not in process_name:
                 launch_testing.asserts.assertExitCodes(proc_info, process=process_name)
