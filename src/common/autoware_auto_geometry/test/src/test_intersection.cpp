@@ -198,7 +198,7 @@ TEST(PolygonPointTest, SmallPentagonOverMinusX) {
       polygon.begin(), polygon.end(), TestPoint{0.0F, 0.0F}));
 }
 
-// Convace test, lives here : https://chart-studio.plotly.com/~xmfcx/1/#/
+// Concave test, lives here : https://chart-studio.plotly.com/~xmfcx/1/#/
 TEST(PolygonPointTest, ConcaveTestGeneratedPlotly) {
   std::list<TestPoint> polygon{{0.0F, 1.0F}, {1.0F, -1.0F}, {1.0F, 3.0F}, {-2.0F, 2.0F},
     {-1.0F, -1.0F}};
