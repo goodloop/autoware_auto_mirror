@@ -55,13 +55,16 @@ public:
   /// \param time_point Time to guess the pose.
   /// \param target_frame Target frame of the transform. (i.e. "map")
   /// \param source_frame Source frame of the transform. (i.e. "base_link")
+  /// \param is_reinitialization When true, 2d pose estimate is called again.
   /// \return The transform at the given time point
   PoseT guess(
     const tf2::BufferCore & tf_graph, tf2::TimePoint time_point,
-    const std::string & target_frame, const std::string & source_frame)
+    const std::string & target_frame, const std::string & source_frame,
+    bool & is_reinitialization)
   {
     try {
       // attempt to get transform at a given point.
+      if (is_reinitialization) throw "re-initialization";
       return tf_graph.lookupTransform(target_frame, source_frame, time_point);
       // TODO(yunus.caliskan): Consider detecting too large interpolations and issuing a
       //  warning/error.
@@ -79,6 +82,7 @@ public:
                 "have the matching frame IDs.");
       }
       m_fallback_pose.value().header.stamp = ::time_utils::to_message(time_point);
+      is_reinitialization = false;
       return m_fallback_pose.value();
     }
   }
