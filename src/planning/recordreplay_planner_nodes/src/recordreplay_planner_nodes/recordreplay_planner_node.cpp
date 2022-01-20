@@ -229,7 +229,10 @@ void RecordReplayPlannerNode::on_ego(const State::SharedPtr & msg)
       m_replaygoalhandle->publish_feedback(feedback_msg);
     }
 
-    if (m_planner->reached_goal(msg_world, m_goal_distance_threshold_m, m_goal_angle_threshold_rad)) {
+    if (m_planner->reached_goal(
+        msg_world, m_goal_distance_threshold_m,
+        m_goal_angle_threshold_rad))
+    {
       m_replaygoalhandle->succeed(std::make_shared<ReplayTrajectory::Result>());
       m_planner->stop_replaying();
     }
