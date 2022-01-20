@@ -60,15 +60,15 @@ using State = autoware_auto_vehicle_msgs::msg::VehicleKinematicState;
 struct GLOBAL_VELOCITY_PLANNER_PUBLIC point
 {
   TrajectoryPoint point;
-  float speed_limit;
-  float curvature;
+  float32_t speed_limit;
+  float32_t curvature;
 };
 
 struct GLOBAL_VELOCITY_PLANNER_PUBLIC GlobalVelocityPlannerConfig
 {
   float32_t trajectory_resolution;
-  float lateral_acceleration;
-  float longitudinal_acceleration;
+  float32_t lateral_acceleration;
+  float32_t longitudinal_acceleration;
 };
 
 class GLOBAL_VELOCITY_PLANNER_PUBLIC GlobalVelocityPlanner
@@ -77,14 +77,14 @@ public:
   explicit GlobalVelocityPlanner(
     const VehicleConfig & vehicle_param, const GlobalVelocityPlannerConfig & planner_config);
   std::shared_ptr<std::vector<point>> way_points;
-  bool is_route_ready = false;
+  bool8_t is_route_ready = false;
   Trajectory trajectory;
   VehicleConfig vehicle_param;
   GlobalVelocityPlannerConfig velocity_planner_config;
   // functions
   void set_route(const HADMapRoute & route, const lanelet::LaneletMapPtr & lanelet_map_ptr);
-  bool is_route_empty();
-  bool is_route_over();
+  bool8_t is_route_empty();
+  bool8_t is_route_over();
   void clear_route();
   void calculate_waypoints();
   void calculate_trajectory(const State & pose);
@@ -97,7 +97,7 @@ private:
   void set_orientation(size_t i);
   void set_acceleration();
   void set_time_from_start();
-  bool need_trajectory();
+  bool8_t need_trajectory();
   size_t get_closest_index(const State & pose);
   // variables
 

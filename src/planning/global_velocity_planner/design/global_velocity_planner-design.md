@@ -45,10 +45,10 @@ Outputs:
 <!-- If applicable -->
 1. Generation of trajectory points from centerline in Lanelet Map
 2. Calculation of curvatures of the trajectory points.
-3. Calculation of longitudinal velocities with respect to lateral and longitudinal velocities.
-4. Calculation of steering angle and orientation of each trajectory points.
+3. Calculation of longitudinal velocities with respect to lateral and longitudinal accelerations.
+4. Calculation of steering angle and orientation of each trajectory point.
 5. Calculation of time of arrival for each points from velocity.
-6. Resizing the trejectory.
+6. Resizing the trajectory.
 
 
 ## Error detection and handling

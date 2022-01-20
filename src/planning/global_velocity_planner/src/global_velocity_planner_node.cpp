@@ -51,12 +51,10 @@ void GlobalVelocityPlannerNode::init()
   const global_velocity_planner::GlobalVelocityPlannerConfig planner_config{
     static_cast<float32_t>(
       declare_parameter("global_velocity_planner.trajectory_resolution").get<float32_t>()),
-    static_cast<float>(
-      declare_parameter("global_velocity_planner.lateral_acceleration").get<float>()),
-    static_cast<float>(
-      declare_parameter("global_velocity_planner.longitudinal_acceleration").get<float>())};
-//    std::cout << planner_config.trajectory_resolution << std::endl;
-//    std::cout << vehicle_param.front_cornering_stiffness() << std::endl;
+    static_cast<float32_t>(
+      declare_parameter("global_velocity_planner.lateral_acceleration").get<float32_t>()),
+    static_cast<float32_t>(
+      declare_parameter("global_velocity_planner.longitudinal_acceleration").get<float32_t>())};
 
   velocity_planner = std::make_unique<GlobalVelocityPlanner>(vehicle_param, planner_config);
 

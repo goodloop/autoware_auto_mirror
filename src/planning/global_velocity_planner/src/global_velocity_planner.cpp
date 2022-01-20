@@ -33,9 +33,9 @@ namespace global_velocity_planner
 
 using autoware_auto_planning_msgs::msg::HADMapRoute;
 
-float distance_calculate(TrajectoryPoint p1, TrajectoryPoint p2)
+float32_t distance_calculate(TrajectoryPoint p1, TrajectoryPoint p2)
 {
-  return static_cast<float>(sqrt(
+  return static_cast<float32_t>(sqrt(
            (p1.pose.position.x - p2.pose.position.x) * (p1.pose.position.x - p2.pose.position.x) +
            (p1.pose.position.y - p2.pose.position.y) * (p1.pose.position.y - p2.pose.position.y)));
 }
@@ -72,14 +72,14 @@ lanelet::Point3d convertToLaneletPoint(const autoware_auto_planning_msgs::msg::T
   return lanelet::Point3d(lanelet::InvalId, pt.pose.position.x, pt.pose.position.y, 0.0);
 }
 
-float find_acceleration(TrajectoryPoint p1, TrajectoryPoint p2)
+float32_t find_acceleration(const TrajectoryPoint & p1, const TrajectoryPoint & p2)
 {
   return (p2.longitudinal_velocity_mps * p2.longitudinal_velocity_mps -
          p1.longitudinal_velocity_mps * p1.longitudinal_velocity_mps) /
          (2 * distance_calculate(p1, p2));
 }
 
-float find_velocity(TrajectoryPoint p1, TrajectoryPoint p2, float longitudinal_acceleration)
+float32_t find_velocity(const TrajectoryPoint & p1, const TrajectoryPoint & p2, float32_t longitudinal_acceleration)
 {
   return sqrt(
     (p1.longitudinal_velocity_mps * p1.longitudinal_velocity_mps) +
@@ -104,7 +104,7 @@ void GlobalVelocityPlanner::set_route(
   this->map = lanelet_map_ptr;
 }
 
-bool GlobalVelocityPlanner::is_route_empty()
+bool8_t GlobalVelocityPlanner::is_route_empty()
 {
   return this->route->segments.empty();
 }
@@ -118,7 +118,7 @@ void GlobalVelocityPlanner::clear_route()
   this->is_route_ready = false;
 }
 
-bool GlobalVelocityPlanner::is_route_over()
+bool8_t GlobalVelocityPlanner::is_route_over()
 {
   return last_point == way_points->size() - 2;  // because mpc dont look closest trajectory index
 }
@@ -300,7 +300,7 @@ void GlobalVelocityPlanner::calculate_curvatures()
       way_points->at(i).curvature = NAN;  // first and last points can not have curvature values
     } else {
       // Menger Curvature calculation
-      auto area = static_cast<float>(
+      auto area = static_cast<float32_t>(
         abs(
           way_points->at(i - 1).point.pose.position.x *
           (way_points->at(i).point.pose.position.y -
@@ -313,9 +313,9 @@ void GlobalVelocityPlanner::calculate_curvatures()
         2);
       way_points->at(i).curvature =
         (4 * area /
-        (distance_calculate(way_points->at(i + 1).point, way_points->at(i).point) *
-        distance_calculate(way_points->at(i - 1).point, way_points->at(i).point) *
-        distance_calculate(way_points->at(i + 1).point, way_points->at(i - 1).point)));
+        (common::geometry::distance_2d(way_points->at(i + 1).point, way_points->at(i).point) *
+          common::geometry::distance_2d(way_points->at(i - 1).point, way_points->at(i).point) *
+          common::geometry::distance_2d(way_points->at(i + 1).point, way_points->at(i - 1).point)));
     }
     GlobalVelocityPlanner::set_steering_angle(way_points->at(i));
     GlobalVelocityPlanner::set_orientation(i);
@@ -330,7 +330,7 @@ void GlobalVelocityPlanner::vel_wrt_lateral_acceleration()
       pt.point.longitudinal_velocity_mps = 0;  // initialize first and last points velocity
       continue;
     }
-    float tmp = sqrt((velocity_planner_config.lateral_acceleration) / pt.curvature);
+    float32_t tmp = sqrt((velocity_planner_config.lateral_acceleration) / pt.curvature);
     if (tmp < pt.speed_limit) {
       pt.point.longitudinal_velocity_mps = tmp;
     } else {
@@ -341,10 +341,10 @@ void GlobalVelocityPlanner::vel_wrt_lateral_acceleration()
 
 void GlobalVelocityPlanner::vel_wrt_longitudinal_acceleration()
 {
-  int dir = 1;
-  int i = 0;
-  float acceleration_offset = 0.00001f;  // we need it bcs stuckking somewhere
-  while (i + dir < static_cast<int>(way_points->size())) {
+  int64_t dir = 1;
+  int64_t i = 0;
+  float32_t acceleration_offset = 0.00001f;  // we need it bcs stuckking somewhere
+  while (i + dir < static_cast<int64_t>(way_points->size())) {
     auto & pt1 = way_points->at(static_cast<size_t>(i));
     auto & pt2 = way_points->at(static_cast<size_t>(i + dir));
     if (
@@ -394,14 +394,12 @@ size_t GlobalVelocityPlanner::get_closest_index(const State & pose)
 
 void GlobalVelocityPlanner::set_acceleration()
 {
-  for (size_t i = 0; i < way_points->size(); i++) {
-    if (i == way_points->size() - 1) {
-      way_points->at(i).point.acceleration_mps2 = 0.0f;
-    } else {
+  for (size_t i = 0; i < way_points->size()-1; i++) {
       way_points->at(i).point.acceleration_mps2 =
         find_acceleration(way_points->at(i).point, way_points->at(i + 1).point);
-    }
   }
+  way_points->back().point.acceleration_mps2 = 0.0f;
+
 }
 
 void GlobalVelocityPlanner::set_time_from_start()
@@ -428,7 +426,7 @@ void GlobalVelocityPlanner::set_time_from_start()
   }
 }
 
-bool GlobalVelocityPlanner::need_trajectory()
+bool8_t GlobalVelocityPlanner::need_trajectory()
 {
   if(trajectory.points.empty()){
     return true;

@@ -36,15 +36,15 @@ using motion::motion_common::VehicleConfig;
 struct GlobalVelocityPlannerConfig
 {
   float32_t trajectory_resolution;
-  float lateral_acceleration;
-  float longitudinal_acceleration;
+  float32_t lateral_acceleration;
+  float32_t longitudinal_acceleration;
 };
 
 struct point
 {
   TrajectoryPoint point;
-  float speed_limit;
-  float curvature;
+  float32_t speed_limit;
+  float32_t curvature;
 };
 
 // returns a map with a lane has given number of points(n_points)
