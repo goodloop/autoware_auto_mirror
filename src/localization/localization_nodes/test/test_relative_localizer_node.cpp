@@ -374,7 +374,7 @@ Transform MockInitializer::guess(
   Transform transform;
   transform.header.stamp = ::time_utils::to_message(stamp);
   transform.header.frame_id = obs_frame + map_frame;
-  if (is_reinitialization) std:: cerr << "tmp" << std::endl;
+  if (is_reinitialization) {std::cerr << "tmp" << std::endl;}
   return transform;
 }
 

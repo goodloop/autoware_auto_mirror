@@ -45,17 +45,20 @@ TEST(BestEffortInitializationTest, BadLookup) {
   tf_graph.setTransform(transform, "testauthority");
   EXPECT_NO_THROW(
     check_transform_eq(
-      transform, initializer.guess(tf_graph, now, target_frame, source_frame, is_reinitialization)));
+      transform,
+      initializer.guess(tf_graph, now, target_frame, source_frame, is_reinitialization)));
 
   // Extrapolation can be performed now that there's data in the tf graph.
   EXPECT_NO_THROW(
     check_transform_eq(
-      transform, initializer.guess(tf_graph, now + dt, target_frame, source_frame, is_reinitialization)));
+      transform,
+      initializer.guess(tf_graph, now + dt, target_frame, source_frame, is_reinitialization)));
 
   // Backwards extrapolation is not supported.
   EXPECT_THROW(
     check_transform_eq(
-      transform, initializer.guess(tf_graph, now - dt, target_frame, source_frame, is_reinitialization)),
+      transform,
+      initializer.guess(tf_graph, now - dt, target_frame, source_frame, is_reinitialization)),
     std::domain_error);
 
   EXPECT_THROW(
@@ -68,7 +71,7 @@ TEST(BestEffortInitializationTest, BadLookup) {
   EXPECT_THROW(
     initializer.guess(
       tf_graph, now,
-      target_frame, source_frame, is_reinitialization), char*);
+      target_frame, source_frame, is_reinitialization), char *);
 }
 
 TEST_P(BestEffortInitializationTest, Basic) {
@@ -102,11 +105,15 @@ TEST_P(BestEffortInitializationTest, Basic) {
 
   bool is_reinitialization = false;
 
-  const auto tf0_guess = initializer.guess(tf_graph, t0, target_frame, source_frame, is_reinitialization);
+  const auto tf0_guess = initializer.guess(
+    tf_graph, t0, target_frame, source_frame,
+    is_reinitialization);
   const auto tf_interpolate_guess = initializer.guess(
     tf_graph, t_interpolate, target_frame,
     source_frame, is_reinitialization);
-  const auto tf1_guess = initializer.guess(tf_graph, t1, target_frame, source_frame, is_reinitialization);
+  const auto tf1_guess = initializer.guess(
+    tf_graph, t1, target_frame, source_frame,
+    is_reinitialization);
   const auto tf_extrapolate_guess =
     initializer.guess(tf_graph, t1 + dt, target_frame, source_frame, is_reinitialization);
 

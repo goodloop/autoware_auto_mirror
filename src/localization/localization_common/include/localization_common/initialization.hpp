@@ -64,7 +64,7 @@ public:
   {
     try {
       // attempt to get transform at a given point.
-      if (is_reinitialization) throw "re-initialization";
+      if (is_reinitialization) {throw "re-initialization";}
       return tf_graph.lookupTransform(target_frame, source_frame, time_point);
       // TODO(yunus.caliskan): Consider detecting too large interpolations and issuing a
       //  warning/error.
