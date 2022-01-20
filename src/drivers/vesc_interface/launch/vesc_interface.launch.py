@@ -14,7 +14,7 @@
 #
 # Co-developed by Tier IV, Inc. and Apex.AI, Inc.
 
-"""Launch file for the interface between the VESC interface and Autoware.Auto"""
+"""Launch file for the interface between the VESC interface and Autoware.Auto."""
 
 from launch import LaunchDescription
 from launch.substitutions import LaunchConfiguration
