@@ -50,20 +50,30 @@ namespace global_velocity_planner
 {
 using autoware::common::types::float32_t;
 using autoware::common::types::float64_t;
+using autoware::common::types::bool8_t;
 using autoware_auto_planning_msgs::msg::HADMapRoute;
 using autoware_auto_planning_msgs::msg::Trajectory;
 using autoware_auto_planning_msgs::msg::TrajectoryPoint;
 using lanelet::LaneletMapConstPtr;
 using motion::motion_common::VehicleConfig;
 using State = autoware_auto_vehicle_msgs::msg::VehicleKinematicState;
-
+/**
+ * @brief it is waypoint variable, any point should have speed limit (read from map),
+ * curvature which is calculated in calculate_curvatures function,
+ * and Trajectory point which is taken from lanelets in route.
+ */
 struct GLOBAL_VELOCITY_PLANNER_PUBLIC point
 {
   TrajectoryPoint point;
   float32_t speed_limit;
   float32_t curvature;
 };
-
+/**
+ * @brief It is planner configuration parameters.
+ * @param [in] trajectory_resolution represents distance between waypoints.
+ * @param [in] lateral_acceleration it is the maximum lateral acceleration in high curvature points.
+ * @param [in] longitudinal_acceleration represents maximum longitudinal acceleration.
+ */
 struct GLOBAL_VELOCITY_PLANNER_PUBLIC GlobalVelocityPlannerConfig
 {
   float32_t trajectory_resolution;
@@ -82,22 +92,76 @@ public:
   VehicleConfig vehicle_param;
   GlobalVelocityPlannerConfig velocity_planner_config;
   // functions
+  /**
+ * @brief Set the route by using output of global planner and map data
+   */
   void set_route(const HADMapRoute & route, const lanelet::LaneletMapPtr & lanelet_map_ptr);
+  /**
+ * @brief Checks the route empty or not
+   */
   bool8_t is_route_empty();
+  /**
+ * @brief Checks the route is over or not
+   */
   bool8_t is_route_over();
+
   void clear_route();
+  /**
+ * @brief It calculates waypoints by using the map data and global route
+   * Calculated waypoints have steering angle, velocity, acceleration, orientation with respect to
+   * path's characteristic.
+   */
   void calculate_waypoints();
+  /**
+ * @brief It calculates trajectory wrt waypoints. It cuts the trajectory wrt vehicle's state.
+   * If trajectory size is smaller than 50 and there are more than 50 waypoints, need_trajectory
+   * returns true and all trajectory is calculated again.
+   * It can be used in both reverse and forward driving.
+   */
   void calculate_trajectory(const State & pose);
 
 private:
+  /**
+ * @brief It calculates the curvature of all points by using neighbour points. The first and last
+   * points' curvature is NaN.
+   * It uses Menger Curvature: https://en.wikipedia.org/wiki/Menger_curvature
+   */
   void calculate_curvatures();
+  /**
+ * @brief It determines the upper and lower bound of longitudinal velocity with respect to maximum
+   * lateral acceleration.
+   */
   void vel_wrt_lateral_acceleration();
+  /**
+ * @brief Calculates other points' velocity by using output of vel_wrt_lateral_acceleration and
+   * maximum longitudinal velocity.
+   */
   void vel_wrt_longitudinal_acceleration();
+  /**
+ * @brief Sets steering angle by using waypoints.
+   */
   void set_steering_angle(point & pt);
+  /**
+ * @brief Sets orientation by using waypoints.
+   */
   void set_orientation(size_t i);
+  /**
+ * @brief Calculates the acceleration of points after velocities are set.
+   */
   void set_acceleration();
+  /**
+ * @brief It calculates the timing of trajectories with respect to vehicle's longitudinal velocity
+   */
   void set_time_from_start();
+  /**
+ * @brief Checks the vehichle needs trajectory or not. If remaining trajectory lower than 50 and
+   * remaining waypoints more than 50, It returns true.
+   */
   bool8_t need_trajectory();
+  /**
+ * @brief It gets closest waypoint index wrt vehicle's pose.
+   */
+   // TODO(berkay6): remove get_closest_index use common function motion_common::findNearestIndex
   size_t get_closest_index(const State & pose);
   // variables
 

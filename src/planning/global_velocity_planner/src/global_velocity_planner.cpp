@@ -156,12 +156,9 @@ void GlobalVelocityPlanner::calculate_waypoints()
 
   final_point.pose = route->goal_pose;
   final.point = final_point;
-  //    std::cout << start_point.x<< ", " <<  start_point.y << std::endl;
-
 
   // fill the vector
   size_t start_index = get_closest_lanelet(lanelets, start_point);
-  //    std::cout << start_index<< ", " <<  final_index << std::endl;
 
   lanelet::traffic_rules::TrafficRulesPtr traffic_rules_ptr =
     lanelet::traffic_rules::TrafficRulesFactory::create(
@@ -213,54 +210,6 @@ void GlobalVelocityPlanner::calculate_waypoints()
   GlobalVelocityPlanner::vel_wrt_lateral_acceleration();
   GlobalVelocityPlanner::vel_wrt_longitudinal_acceleration();
   GlobalVelocityPlanner::set_acceleration();
-  std::cout << " SIZE IS = " << way_points->size()<< std::endl;
-  for(size_t i = 0; i < way_points->size(); i++){
-    auto & p = way_points->at(i).point;
-    if (!isfinite(p.pose.position.x))
-    {
-      std::cout << "At index = " << i << " p.pose.position.x not finite" << std::endl;
-    }
-    if (!isfinite(p.pose.position.y))
-    {
-      std::cout << "At index = " << i << " p.pose.position.y not finite" << std::endl;
-    }
-    if (!isfinite(p.pose.orientation.w))
-    {
-      std::cout << "At index = " << i << " p.pose.orientation.w not finite" << std::endl;
-    }
-    if (!isfinite(p.pose.orientation.x))
-    {
-      std::cout << "At index = " << i << " p.pose.orientation.x not finite" << std::endl;
-    }
-    if (!isfinite(p.pose.orientation.y))
-    {
-      std::cout << "At index = " << i << " p.pose.orientation.y not finite" << std::endl;
-    }
-    if (!isfinite(p.pose.orientation.z))
-    {
-      std::cout << "At index = " << i << " p.pose.orientation.z not finite" << std::endl;
-    }
-    if (!isfinite(p.longitudinal_velocity_mps))
-    {
-      std::cout << "At index = " << i << " p.longitudinal_velocity_mps not finite" << std::endl;
-    }
-    if (!isfinite(p.lateral_velocity_mps))
-    {
-      std::cout << "At index = " << i << " p.lateral_velocity_mps not finite" << std::endl;
-    }
-    if (!isfinite(p.heading_rate_rps))
-    {
-      std::cout << "At index = " << i << " p.heading_rate_rps not finite" << std::endl;
-    }
-    if (!isfinite(p.front_wheel_angle_rad))
-    {
-      std::cout << "At index = " << i << " p.front_wheel_angle_rad not finite: " << p.front_wheel_angle_rad << std::endl;
-    }
-    if (!isfinite(p.rear_wheel_angle_rad))
-    {
-      std::cout << "At index = " << i << " p.rear_wheel_angle_rad not finite" << std::endl;
-    }
-  }
   is_route_ready = true;
 }
 
@@ -274,7 +223,6 @@ void GlobalVelocityPlanner::set_steering_angle(point & pt)
     return;
   }
   pt.point.front_wheel_angle_rad = std::atan(wheel_base * pt.curvature);
-  std::cout << pt.point.front_wheel_angle_rad << std::endl;
 }
 
 void GlobalVelocityPlanner::set_orientation(size_t i)
@@ -343,7 +291,8 @@ void GlobalVelocityPlanner::vel_wrt_longitudinal_acceleration()
 {
   int64_t dir = 1;
   int64_t i = 0;
-  float32_t acceleration_offset = 0.00001f;  // we need it bcs stuckking somewhere
+  const float32_t epsilon = 0.00001f;  // we need it bcs stuckking somewhere
+  const float32_t set_acceleration = velocity_planner_config.longitudinal_acceleration - epsilon;
   while (i + dir < static_cast<int64_t>(way_points->size())) {
     auto & pt1 = way_points->at(static_cast<size_t>(i));
     auto & pt2 = way_points->at(static_cast<size_t>(i + dir));
@@ -353,7 +302,7 @@ void GlobalVelocityPlanner::vel_wrt_longitudinal_acceleration()
       pt2.point.longitudinal_velocity_mps = find_velocity(
         pt1.point,
         pt2.point,
-        velocity_planner_config.longitudinal_acceleration - acceleration_offset);
+        set_acceleration);
       i = i + dir;
       continue;
     }
@@ -443,28 +392,6 @@ bool8_t GlobalVelocityPlanner::need_trajectory()
 
 void GlobalVelocityPlanner::calculate_trajectory(const State & pose)
 {
-//  const size_t front_adder = 0;
-//  size_t begin = last_point + trajectory.points.size() + front_adder;
-//  size_t closest_index = GlobalVelocityPlanner::get_closest_index(pose);
-//  if (closest_index >= last_point) {
-//    trajectory.points.erase(
-//      trajectory.points.begin(),
-//      trajectory.points.begin() + static_cast<uint32_t>(closest_index - last_point));
-//    size_t length = std::min(
-//      (autoware_auto_planning_msgs::msg::Trajectory::CAPACITY - trajectory.points.size()),
-//      way_points->size() - begin);
-//    for (size_t j = 0; j < length; j++) {
-//      trajectory.points.push_back(way_points->at(begin + j).point);
-//    }
-//  }
-//  else {
-//    trajectory.points.resize(trajectory.points.size() - (last_point - closest_index));
-//    for (size_t j = 0; j < (last_point - closest_index); j++) {
-//      trajectory.points.insert(trajectory.points.begin(), way_points->at(last_point - j).point);
-//    }
-//  }
-//  GlobalVelocityPlanner::set_time_from_start();
-//  last_point = closest_index;
     size_t closest_index = GlobalVelocityPlanner::get_closest_index(pose) + 1;
     if(need_trajectory()){
       trajectory.points.clear();
@@ -478,7 +405,6 @@ void GlobalVelocityPlanner::calculate_trajectory(const State & pose)
     }
     else {
       if (closest_index > last_point) {
-        std::cout << closest_index - last_point << std::endl;
         trajectory.points.erase(
           trajectory.points.begin(),
           trajectory.points.begin() + static_cast<uint32_t>(closest_index - last_point));
