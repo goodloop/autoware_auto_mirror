@@ -44,6 +44,9 @@
 #include <chrono>
 #include <cstdint>
 
+
+using autoware::common::types::float64_t;
+
 using autoware_auto_msgs::msg::RawControlCommand;
 using autoware_auto_msgs::msg::VehicleControlCommand;
 using autoware_auto_msgs::msg::VehicleStateCommand;
@@ -56,68 +59,78 @@ using std_msgs::msg::Float64;
 
 namespace autoware
 {
-/// \brief TODO(jacobjj): Document namespaces!
+/// \brief A namespace to implement all functions to interface with VESC.
 namespace vesc_interface
 // Inherit from vehicle_interface::platform_interface
 {
 /// Platform interface implementation for VESC. Bridges data to and from the VESC
 /// to convert speed and wheel angle position to motor speed and servo position.
+/// ERPM (electric RPM) = speed_to_erpm_gain * speed (meters/second) + speed_to_erpm_offset
+/// servo value (0 to 1) = steering_to_servo_gain * steering_angle (rad) + steering_to_servo_offset
 /// \brief Class for interfacing with VESC
 class VESC_INTERFACE_PUBLIC VESCInterface
   : public ::autoware::drivers::vehicle_interface::PlatformInterface
 {
 public:
   /// \brief Default Constructor.
-  /// TODO(jacobjj): Comment
+  /// \param[in] node Reference to node
+  /// \param[in] speed_to_erpm_gain Gain to convert speed(m/s) to ERPM
+  /// \param[in] speed_to_erpm_offset Offset ERPM motor speed.
+  /// \param[in] steering_to_servo_gain Gain to convert steering angle (rad) to servo position
+  /// \param[in] steering_to_servo_offset Default servo position when car is moving straight
   VESCInterface(
     rclcpp::Node & node,
-    double speed_to_erpm_gain,
-    double speed_to_erpm_offset,
-    double steering_to_servo_gain,
-    double steering_to_servo_offset
+    float64_t speed_to_erpm_gain,
+    float64_t speed_to_erpm_offset,
+    float64_t steering_to_servo_gain,
+    float64_t steering_to_servo_offset
   );
 
   /// \brief Sends True message
+  /// \param[in] timeout The maximum amount of time to check/receive data
+  /// \returns always returns True.
   bool8_t update(std::chrono::nanoseconds timeout);
 
-  // send_state_command() - Most for gears, transmit the gear to VESC driver
-  // Gear equivalent of reverse/ forward
+  /// \brief Switch between reverse and forward direction.
+  /// \param[in] msg The state command to send to the vehicle
+  /// \return False if message is not send, otherwise True
   bool8_t send_state_command(const VehicleStateCommand & msg);
 
-  // send_control_command() - desired speed and desired tire angle
-  // Convert those to motorRPM, servo positions
-  // RawControlCommand - Log NotSupported!!
-  // IF manual mode - send zeros.
+  /// \brief Get vehicle speed (meters/second) and steering angle (rad),
+  ///        and publish motor ERPM and servo position.
+  /// \param[in] msg The control command send to the vehicle
+  /// \return False if message is not send, otherwise True
   bool8_t send_control_command(const VehicleControlCommand & msg);
 
-  // handle_mode_change_request()
-  // Switch between autonomous, and manual mode
-  // maintain internal state, and only send commands when autonomous mode is active
-  // IF manual mode - send zeros.
+  /// \brief Switch between autonomous and manual driving mode,
+  ///        maintain internal state, and only send control commands
+  ///        when autonomous mode is active
+  /// \param[in] request Request object
+  /// \return False if message is not send, otherwise True
   bool8_t handle_mode_change_request(
     autoware_auto_msgs::srv::AutonomyModeChange_Request::SharedPtr request);
 
   /// \brief Send raw control commands, currently not implemented, hence logs error.
+  /// \param[in] msg The raw message command.
+  /// \return True always.
   bool8_t send_control_command(const RawControlCommand & msg);
 
   // state_report() -> Set the gear (forward/backward)
-
-  // odometry() -> velocity_mps meters/s
-  //               front_wheel_angle_rad (radians, positive-to the left)
-  // https://gitlab.com/autowarefoundation/autoware.auto/autoware_auto_msgs/-/blob/master/autoware_auto_msgs/msg/VehicleOdometry.idl
 
 private:
   // ROS parameters
   rclcpp::Logger m_logger;
   // conversion and gain offsets
-  double speed_to_erpm_gain_, speed_to_erpm_offset_;
-  double steering_to_servo_gain_, steering_to_servo_offset_;
+  float64_t speed_to_erpm_gain_, speed_to_erpm_offset_;
+  float64_t steering_to_servo_gain_, steering_to_servo_offset_;
+  Float64::SharedPtr last_servo_cmd;
 
   // Direction:
   //      1: Forward
   //     -1: Reverse
-  int direction{1};
-  bool seen_zero_speed{false};
+  int32_t direction{1};
+  bool8_t seen_zero_speed{false};
+  bool8_t run_autonomous{false};
 
   // ROS services
   rclcpp::Publisher<Float64>::SharedPtr erpm_pub_;
