@@ -90,9 +90,6 @@ float32_t GLOBAL_VELOCITY_PLANNER_PUBLIC find_velocity(
   const TrajectoryPoint & p1,
   const TrajectoryPoint & p2,
   float32_t longitudinal_acceleration);
-size_t GLOBAL_VELOCITY_PLANNER_PUBLIC get_closest_lanelet(
-  const lanelet::ConstLanelets & lanelets,
-  const TrajectoryPoint & point);
 
 class GLOBAL_VELOCITY_PLANNER_PUBLIC GlobalVelocityPlanner
 {
