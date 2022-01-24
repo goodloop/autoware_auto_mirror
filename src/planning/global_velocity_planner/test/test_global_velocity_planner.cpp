@@ -32,6 +32,7 @@ using autoware_auto_planning_msgs::msg::HADMapRoute;
 using autoware_auto_planning_msgs::msg::Trajectory;
 using autoware_auto_planning_msgs::msg::TrajectoryPoint;
 using motion::motion_common::VehicleConfig;
+using State = autoware_auto_vehicle_msgs::msg::VehicleKinematicState;
 
 struct GlobalVelocityPlannerConfig
 {
@@ -213,7 +214,28 @@ TEST_F(GlobalVelocityPlannerTest, route_test)
 
   // create route message
   const auto had_map_route = getARoute(lane_id, 5.0F);
+  TrajectoryPoint start;
+  State pose;
+  pose.state.pose = had_map_route.start_pose;
+
   velocity_planner_ptr->set_route(had_map_route, lanelet_map_ptr);
+  velocity_planner_ptr->calculate_waypoints();
+  velocity_planner_ptr->calculate_trajectory(pose);
+  ASSERT_FALSE(velocity_planner_ptr->is_route_over());
+
+  ASSERT_FALSE(velocity_planner_ptr->trajectory.points.empty());
+  TrajectoryPoint p1;
+  p1.pose.position.x = 0;
+  p1.pose.position.y = 0;
+  p1.longitudinal_velocity_mps = 1;
+  TrajectoryPoint p2;
+  p2.pose.position.x = 1;
+  p2.pose.position.y = 0;
+  p2.longitudinal_velocity_mps = 2;
+  ASSERT_FLOAT_EQ(autoware::global_velocity_planner::find_velocity(p1, p2, 0.1F), 1.0954452F);
+
+  ASSERT_FLOAT_EQ(autoware::global_velocity_planner::find_acceleration(p1, p2), 1.5F);
+
   // return trajectory should not be empty
   ASSERT_FALSE(velocity_planner_ptr->is_route_empty());
   velocity_planner_ptr->clear_route();

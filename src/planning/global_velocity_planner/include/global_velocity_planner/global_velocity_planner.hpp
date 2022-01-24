@@ -80,6 +80,19 @@ struct GLOBAL_VELOCITY_PLANNER_PUBLIC GlobalVelocityPlannerConfig
   float32_t lateral_acceleration;
   float32_t longitudinal_acceleration;
 };
+size_t GLOBAL_VELOCITY_PLANNER_PUBLIC get_closest_lanelet(
+  const lanelet::ConstLanelets & lanelets,
+  const TrajectoryPoint & point);
+float32_t GLOBAL_VELOCITY_PLANNER_PUBLIC find_acceleration(
+  const TrajectoryPoint & p1,
+  const TrajectoryPoint & p2);
+float32_t GLOBAL_VELOCITY_PLANNER_PUBLIC find_velocity(
+  const TrajectoryPoint & p1,
+  const TrajectoryPoint & p2,
+  float32_t longitudinal_acceleration);
+size_t GLOBAL_VELOCITY_PLANNER_PUBLIC get_closest_lanelet(
+  const lanelet::ConstLanelets & lanelets,
+  const TrajectoryPoint & point);
 
 class GLOBAL_VELOCITY_PLANNER_PUBLIC GlobalVelocityPlanner
 {
@@ -161,7 +174,7 @@ private:
   /**
  * @brief It gets closest waypoint index wrt vehicle's pose.
    */
-   // TODO(berkay6): remove get_closest_index use common function motion_common::findNearestIndex
+  // TODO(berkay6): remove get_closest_index use common function motion_common::findNearestIndex
   size_t get_closest_index(const State & pose);
   // variables
 

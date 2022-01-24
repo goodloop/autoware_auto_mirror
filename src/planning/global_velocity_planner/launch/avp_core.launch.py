@@ -47,19 +47,14 @@ def generate_launch_description():
     lanelet2_map_provider_param_file = os.path.join(
         avp_demo_pkg_prefix, 'param/avp/lanelet2_map_provider.param.yaml')
 
-    lane_planner_param_file = os.path.join(
-        autoware_launch_pkg_prefix, 'param/lane_planner.param.yaml')
     global_velocity_planner_param_file = os.path.join(
         global_vel_planner_prefix, 'param/defaults.param.yaml')
-
     costmap_generator_param_file = os.path.join(
         autoware_launch_pkg_prefix, 'param/costmap_generator.param.yaml')
     freespace_planner_param_file = os.path.join(
         autoware_launch_pkg_prefix, 'param/freespace_planner.param.yaml')
     object_collision_estimator_param_file = os.path.join(
         autoware_launch_pkg_prefix, 'param/object_collision_estimator.param.yaml')
-    behavior_planner_param_file = os.path.join(
-        autoware_launch_pkg_prefix, 'param/behavior_planner.param.yaml')
     off_map_obstacles_filter_param_file = os.path.join(
         autoware_launch_pkg_prefix, 'param/off_map_obstacles_filter.param.yaml')
 
@@ -72,6 +67,12 @@ def generate_launch_description():
         'point_cloud_fusion_nodes')
 
     # Arguments
+
+    global_velocity_planner_param = DeclareLaunchArgument(
+        'global_velocity_planner_param_file',
+        default_value=global_velocity_planner_param_file,
+        description='Path to parameter file for global velocity planner'
+    )
 
     euclidean_cluster_param = DeclareLaunchArgument(
         'euclidean_cluster_param_file',
@@ -98,16 +99,6 @@ def generate_launch_description():
         default_value=lanelet2_map_provider_param_file,
         description='Path to parameter file for Lanelet2 Map Provider'
     )
-    lane_planner_param = DeclareLaunchArgument(
-        'lane_planner_param_file',
-        default_value=lane_planner_param_file,
-        description='Path to parameter file for lane planner'
-    )
-    global_velocity_planner_param = DeclareLaunchArgument(
-        'global_velocity_planner_param_file',
-        default_value=global_velocity_planner_param_file,
-        description='Path to parameter file for global velocity planner'
-    )
     costmap_generator_param = DeclareLaunchArgument(
         'costmap_generator_param_file',
         default_value=costmap_generator_param_file,
@@ -122,11 +113,6 @@ def generate_launch_description():
         'object_collision_estimator_param_file',
         default_value=object_collision_estimator_param_file,
         description='Path to parameter file for object collision estimator'
-    )
-    behavior_planner_param = DeclareLaunchArgument(
-        'behavior_planner_param_file',
-        default_value=behavior_planner_param_file,
-        description='Path to parameter file for behavior planner'
     )
     off_map_obstacles_filter_param = DeclareLaunchArgument(
         'off_map_obstacles_filter_param_file',
@@ -203,7 +189,57 @@ def generate_launch_description():
         remappings=[('HAD_Map_Client', '/had_maps/HAD_Map_Service'),
                     ('vehicle_kinematic_state', '/vehicle/vehicle_kinematic_state')]
     )
-
+    costmap_generator = Node(
+        package='costmap_generator_nodes',
+        executable='costmap_generator_node_exe',
+        name='costmap_generator_node',
+        namespace='planning',
+        output='screen',
+        parameters=[
+            LaunchConfiguration('costmap_generator_param_file'),
+        ],
+        remappings=[
+            ('~/client/HAD_Map_Service', '/had_maps/HAD_Map_Service')
+        ]
+    )
+    freespace_planner = Node(
+        package='freespace_planner',
+        executable='freespace_planner_node_exe',
+        name='freespace_planner',
+        namespace='planning',
+        output='screen',
+        parameters=[
+            LaunchConfiguration('freespace_planner_param_file'),
+            LaunchConfiguration('vehicle_constants_manager_param_file')
+        ]
+    )
+    object_collision_estimator = Node(
+        package='object_collision_estimator_nodes',
+        name='object_collision_estimator_node',
+        namespace='planning',
+        executable='object_collision_estimator_node_exe',
+        condition=IfCondition(LaunchConfiguration('with_obstacles')),
+        parameters=[
+            LaunchConfiguration('object_collision_estimator_param_file'),
+            LaunchConfiguration('vehicle_characteristics_param_file'),
+        ],
+        remappings=[
+            ('obstacle_topic', '/perception/lidar_bounding_boxes_filtered'),
+        ]
+    )
+    off_map_obstacles_filter = Node(
+        package='off_map_obstacles_filter_nodes',
+        name='off_map_obstacles_filter_node',
+        namespace='perception',
+        executable='off_map_obstacles_filter_nodes_exe',
+        parameters=[LaunchConfiguration('off_map_obstacles_filter_param_file')],
+        output='screen',
+        remappings=[
+            ('bounding_boxes_in', 'lidar_bounding_boxes'),
+            ('bounding_boxes_out', 'lidar_bounding_boxes_filtered'),
+            ('HAD_Map_Service', '/had_maps/HAD_Map_Service'),
+        ]
+    )
     global_velocity_planner = Node(
         package='global_velocity_planner',
         name='global_velocity_planner_node',
@@ -224,12 +260,10 @@ def generate_launch_description():
         scan_downsampler_param,
         with_obstacles_param,
         lanelet2_map_provider_param,
-        lane_planner_param,
-        global_velocity_planner_param,
         costmap_generator_param,
         freespace_planner_param,
         object_collision_estimator_param,
-        behavior_planner_param,
+        global_velocity_planner_param,
         off_map_obstacles_filter_param,
         vehicle_characteristics_param,
         vehicle_constants_manager_param,
@@ -240,11 +274,9 @@ def generate_launch_description():
         lanelet2_map_provider,
         lanelet2_map_visualizer,
         global_planner,
-        # lane_planner,
-        # costmap_generator,
-        # freespace_planner,
-        # object_collision_estimator,
-        # behavior_planner,
-        # off_map_obstacles_filter,
+        costmap_generator,
+        freespace_planner,
+        object_collision_estimator,
+        off_map_obstacles_filter,
         global_velocity_planner,
     ])

@@ -33,13 +33,6 @@ namespace global_velocity_planner
 
 using autoware_auto_planning_msgs::msg::HADMapRoute;
 
-float32_t distance_calculate(TrajectoryPoint p1, TrajectoryPoint p2)
-{
-  return static_cast<float32_t>(sqrt(
-           (p1.pose.position.x - p2.pose.position.x) * (p1.pose.position.x - p2.pose.position.x) +
-           (p1.pose.position.y - p2.pose.position.y) * (p1.pose.position.y - p2.pose.position.y)));
-}
-
 size_t get_closest_lanelet(const lanelet::ConstLanelets & lanelets, const TrajectoryPoint & point)
 {
   float64_t closest_distance = std::numeric_limits<float64_t>::max();
@@ -76,14 +69,16 @@ float32_t find_acceleration(const TrajectoryPoint & p1, const TrajectoryPoint & 
 {
   return (p2.longitudinal_velocity_mps * p2.longitudinal_velocity_mps -
          p1.longitudinal_velocity_mps * p1.longitudinal_velocity_mps) /
-         (2 * distance_calculate(p1, p2));
+         (2 * common::geometry::distance_2d(p1, p2));
 }
 
-float32_t find_velocity(const TrajectoryPoint & p1, const TrajectoryPoint & p2, float32_t longitudinal_acceleration)
+float32_t find_velocity(
+  const TrajectoryPoint & p1, const TrajectoryPoint & p2,
+  float32_t longitudinal_acceleration)
 {
   return sqrt(
     (p1.longitudinal_velocity_mps * p1.longitudinal_velocity_mps) +
-    (2 * (longitudinal_acceleration)) * distance_calculate(p1, p2));
+    (2 * (longitudinal_acceleration)) * common::geometry::distance_2d(p1, p2));
 }
 
 GlobalVelocityPlanner::GlobalVelocityPlanner(
@@ -138,9 +133,6 @@ void GlobalVelocityPlanner::calculate_waypoints()
 
       lanelets.push_back(lane);
     } catch (const lanelet::NoSuchPrimitiveError & ex) {
-      // stop adding lanelets if lane cannot be found. e.g. goal is outside of queried submap
-      //break;
-
       std::cout << primitive.id << " couldn't added because it is not a lane" << std::endl;
     }
   }
@@ -262,8 +254,8 @@ void GlobalVelocityPlanner::calculate_curvatures()
       way_points->at(i).curvature =
         (4 * area /
         (common::geometry::distance_2d(way_points->at(i + 1).point, way_points->at(i).point) *
-          common::geometry::distance_2d(way_points->at(i - 1).point, way_points->at(i).point) *
-          common::geometry::distance_2d(way_points->at(i + 1).point, way_points->at(i - 1).point)));
+        common::geometry::distance_2d(way_points->at(i - 1).point, way_points->at(i).point) *
+        common::geometry::distance_2d(way_points->at(i + 1).point, way_points->at(i - 1).point)));
     }
     GlobalVelocityPlanner::set_steering_angle(way_points->at(i));
     GlobalVelocityPlanner::set_orientation(i);
@@ -343,12 +335,11 @@ size_t GlobalVelocityPlanner::get_closest_index(const State & pose)
 
 void GlobalVelocityPlanner::set_acceleration()
 {
-  for (size_t i = 0; i < way_points->size()-1; i++) {
-      way_points->at(i).point.acceleration_mps2 =
-        find_acceleration(way_points->at(i).point, way_points->at(i + 1).point);
+  for (size_t i = 0; i < way_points->size() - 1; i++) {
+    way_points->at(i).point.acceleration_mps2 =
+      find_acceleration(way_points->at(i).point, way_points->at(i + 1).point);
   }
   way_points->back().point.acceleration_mps2 = 0.0f;
-
 }
 
 void GlobalVelocityPlanner::set_time_from_start()
@@ -377,48 +368,47 @@ void GlobalVelocityPlanner::set_time_from_start()
 
 bool8_t GlobalVelocityPlanner::need_trajectory()
 {
-  if(trajectory.points.empty()){
+  if (trajectory.points.empty()) {
     return true;
   }
-  if(trajectory.points.size() < 50){
-    if(way_points->size() - last_point <= trajectory.points.size()){
+  if (trajectory.points.size() < 50) {
+    if (way_points->size() - last_point <= trajectory.points.size()) {
       return false;
     }
     return true;
   }
   return false;
-
 }
 
 void GlobalVelocityPlanner::calculate_trajectory(const State & pose)
 {
-    size_t closest_index = GlobalVelocityPlanner::get_closest_index(pose) + 1;
-    if(need_trajectory()){
-      trajectory.points.clear();
-      size_t length = std::min(
-        (autoware_auto_planning_msgs::msg::Trajectory::CAPACITY - trajectory.points.size()),
-        way_points->size() - closest_index);
-      for (size_t j = 0; j < length; j++) {
-        trajectory.points.push_back(way_points->at(closest_index + j).point);
-      }
-      GlobalVelocityPlanner::set_time_from_start();
+  size_t closest_index = GlobalVelocityPlanner::get_closest_index(pose) + 1;
+  if (need_trajectory()) {
+    trajectory.points.clear();
+    size_t length = std::min(
+      (autoware_auto_planning_msgs::msg::Trajectory::CAPACITY - trajectory.points.size()),
+      way_points->size() - closest_index);
+    for (size_t j = 0; j < length; j++) {
+      trajectory.points.push_back(way_points->at(closest_index + j).point);
     }
-    else {
-      if (closest_index > last_point) {
-        trajectory.points.erase(
+    GlobalVelocityPlanner::set_time_from_start();
+  } else {
+    if (closest_index > last_point) {
+      trajectory.points.erase(
+        trajectory.points.begin(),
+        trajectory.points.begin() + static_cast<uint32_t>(closest_index - last_point));
+    } else {
+      if (trajectory.points.size() + last_point - closest_index > trajectory.CAPACITY) {
+        trajectory.points.resize(trajectory.points.size() - (last_point - closest_index));
+      }
+      for (size_t j = 0; j < (last_point - closest_index); j++) {
+        trajectory.points.insert(
           trajectory.points.begin(),
-          trajectory.points.begin() + static_cast<uint32_t>(closest_index - last_point));
-      }
-      else{
-        if(trajectory.points.size() + last_point - closest_index > trajectory.CAPACITY){
-          trajectory.points.resize(trajectory.points.size() - (last_point - closest_index));
-        }
-        for (size_t j = 0; j < (last_point - closest_index); j++) {
-        trajectory.points.insert(trajectory.points.begin(), way_points->at(last_point -1 - j).point);
-        }
+          way_points->at(last_point - 1 - j).point);
       }
     }
-    last_point = closest_index;
+  }
+  last_point = closest_index;
 }
 }  // namespace global_velocity_planner
 }  // namespace autoware

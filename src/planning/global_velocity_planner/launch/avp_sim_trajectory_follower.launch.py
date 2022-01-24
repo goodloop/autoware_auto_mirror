@@ -52,7 +52,6 @@ def generate_launch_description():
     latlon_muxer_param_file = os.path.join(
         avp_demo_pkg_prefix, 'param/avp/latlon_muxer.param.yaml')
 
-
     urdf_pkg_prefix = get_package_share_directory('lexus_rx_450h_description')
     urdf_path = os.path.join(urdf_pkg_prefix, 'urdf/lexus_rx_450h.urdf')
     with open(urdf_path, 'r') as infp:
@@ -100,7 +99,6 @@ def generate_launch_description():
         default_value=latlon_muxer_param_file,
         description='Path to config file for lateral and longitudinal control commands muxer'
     )
-
 
     # Nodes
 
@@ -204,11 +202,10 @@ def generate_launch_description():
         ],
         remappings=[
             ("input/lateral/control_cmd", "output/lateral/control_cmd"),
-            ("input/longitudinal/control_cmd", "output/longitudinal_control_cmd"),
+            ("input/longitudinal/control_cmd", "output/longitudinal/control_cmd"),
             ("output/control_cmd", "/vehicle/ackermann_vehicle_command"),
         ],
     )
-
 
     core_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource([global_vel_planner_prefix, '/launch/avp_core.launch.py']),
