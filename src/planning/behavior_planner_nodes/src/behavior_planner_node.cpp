@@ -297,15 +297,11 @@ void BehaviorPlannerNode::on_ego_state(const State::SharedPtr & msg)
       get_logger(), clock, 3000,
       "Trying to change gear, current gear is %d, desired gear is %d.",
       static_cast<int>(m_current_gear), static_cast<int>(desired_gear));
-    RCLCPP_INFO_THROTTLE(
-      get_logger(), clock, 3000,
-      "Send command to convert desired_gear %d to %d",
-      static_cast<int>(desired_gear), static_cast<int>(it->second));
     GearCommand gear_command;
     gear_command.command = desired_gear;
     gear_command.stamp = msg->header.stamp;
     m_gear_command_pub->publish(gear_command);
-    else {
+  } else {
       RCLCPP_INFO_THROTTLE(
         get_logger(), clock, 3000,
         "Unable to match desired_gear %d", static_cast<int>(desired_gear));

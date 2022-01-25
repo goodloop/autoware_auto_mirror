@@ -327,7 +327,7 @@ void VehicleInterfaceNode::init(
       "gear_report", rclcpp::QoS{10U});
     m_gear_cmd_sub = create_subscription<autoware_auto_vehicle_msgs::msg::GearCommand>(
       "gear_command", rclcpp::QoS{10U},
-      [this](autoware_auto_vehicle_msgs::msg::GearCommand::SHaredPtr msg)
+      [this](autoware_auto_vehicle_msgs::msg::GearCommand::SharedPtr msg)
       {m_interface->send_gear_command(*msg);});
   }
 
