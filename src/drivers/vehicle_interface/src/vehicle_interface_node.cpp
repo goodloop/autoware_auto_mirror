@@ -293,10 +293,6 @@ void VehicleInterfaceNode::init(
     odometry.topic,
     rclcpp::QoS{10U});
   // Make subordinate subscriber TODO(c.ho) parameterize time better
-  // using VSC = autoware_auto_vehicle_msgs::msg::VehicleStateCommand;
-  // m_state_sub = create_subscription<VSC>(
-  //   state_command.topic, rclcpp::QoS{10U},
-  //   [this](VSC::SharedPtr msg) {m_last_state_command = *msg;});
 
   // Feature subscriptions/publishers
   if (m_enabled_features.find(ViFeature::HEADLIGHTS) != m_enabled_features.end()) {

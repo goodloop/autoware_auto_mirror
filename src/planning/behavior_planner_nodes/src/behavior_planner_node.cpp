@@ -28,15 +28,6 @@ namespace autoware
 namespace behavior_planner_nodes
 {
 
-// const std::unordered_map<GEAR_TYPE, GEAR_TYPE> BehaviorPlannerNode::gear_report_to_vsc_gear {
-//   {GearReport::NONE, VehicleStateCommand::GEAR_NEUTRAL},
-//   {GearReport::DRIVE_1, VehicleStateCommand::GEAR_DRIVE},
-//   {GearReport::REVERSE, VehicleStateCommand::GEAR_REVERSE},
-//   {GearReport::PARK, VehicleStateCommand::GEAR_PARK},
-//   {GearReport::LOW, VehicleStateCommand::GEAR_LOW},
-//   {GearReport::NEUTRAL, VehicleStateCommand::GEAR_NEUTRAL},
-// };
-
 BehaviorPlannerNode::BehaviorPlannerNode(const rclcpp::NodeOptions & options)
 :  Node("behavior_planner_node", options)
 {
@@ -306,9 +297,6 @@ void BehaviorPlannerNode::on_ego_state(const State::SharedPtr & msg)
       get_logger(), clock, 3000,
       "Trying to change gear, current gear is %d, desired gear is %d.",
       static_cast<int>(m_current_gear), static_cast<int>(desired_gear));
-
-    // auto const it = gear_report_to_vsc_gear.find(desired_gear);
-    // if (it != gear_report_to_vsc_gear.end()) {
     RCLCPP_INFO_THROTTLE(
       get_logger(), clock, 3000,
       "Send command to convert desired_gear %d to %d",
@@ -317,7 +305,6 @@ void BehaviorPlannerNode::on_ego_state(const State::SharedPtr & msg)
     gear_command.command = desired_gear;
     gear_command.stamp = msg->header.stamp;
     m_gear_command_pub->publish(gear_command);
-    // }
     else {
       RCLCPP_INFO_THROTTLE(
         get_logger(), clock, 3000,

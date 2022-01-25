@@ -64,7 +64,6 @@ using geometry_msgs::msg::Pose;
 using autoware_auto_planning_msgs::msg::Trajectory;
 using autoware_auto_planning_msgs::msg::TrajectoryPoint;
 using autoware_auto_planning_msgs::msg::HADMapRoute;
-// using autoware_auto_vehicle_msgs::msg::VehicleStateCommand;
 using autoware_auto_vehicle_msgs::msg::VehicleStateReport;
 using autoware_auto_vehicle_msgs::msg::GearReport;
 using autoware_auto_vehicle_msgs::msg::GearCommand;
