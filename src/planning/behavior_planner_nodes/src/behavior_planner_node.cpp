@@ -301,11 +301,6 @@ void BehaviorPlannerNode::on_ego_state(const State::SharedPtr & msg)
     gear_command.command = desired_gear;
     gear_command.stamp = msg->header.stamp;
     m_gear_command_pub->publish(gear_command);
-  } else {
-      RCLCPP_INFO_THROTTLE(
-        get_logger(), clock, 3000,
-        "Unable to match desired_gear %d", static_cast<int>(desired_gear));
-    }
     // send trajectory with current state so that velocity will be zero in order to change gear
     Trajectory trajectory;
     trajectory.header.frame_id = "map";
