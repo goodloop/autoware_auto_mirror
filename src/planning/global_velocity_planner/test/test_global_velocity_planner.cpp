@@ -172,13 +172,6 @@ TEST_F(GlobalVelocityPlannerTest, waypoint_test)
   ASSERT_FLOAT_EQ(velocity_planner_ptr->way_points->at(3).point.longitudinal_velocity_mps, 1.5F);
   ASSERT_FLOAT_EQ(velocity_planner_ptr->way_points->at(4).point.longitudinal_velocity_mps, 0.0F);
 
-  velocity_planner_ptr->set_acceleration();
-  ASSERT_FLOAT_EQ(velocity_planner_ptr->way_points->at(0).point.acceleration_mps2, 0.159099026F);
-  ASSERT_FLOAT_EQ(velocity_planner_ptr->way_points->at(1).point.acceleration_mps2, -0.118933983F);
-  ASSERT_FLOAT_EQ(velocity_planner_ptr->way_points->at(2).point.acceleration_mps2, 0.118933983F);
-  ASSERT_FLOAT_EQ(velocity_planner_ptr->way_points->at(3).point.acceleration_mps2, -0.159099026F);
-  ASSERT_FLOAT_EQ(velocity_planner_ptr->way_points->at(4).point.acceleration_mps2, 0.0F);
-
   velocity_planner_ptr->set_steering_angle(velocity_planner_ptr->way_points->operator[](0));
   velocity_planner_ptr->set_steering_angle(velocity_planner_ptr->way_points->operator[](1));
   velocity_planner_ptr->set_steering_angle(velocity_planner_ptr->way_points->operator[](2));

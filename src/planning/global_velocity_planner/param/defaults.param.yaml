@@ -3,8 +3,8 @@
     heading_weight: 0.1
     global_velocity_planner:
       trajectory_resolution: 0.5
-      lateral_acceleration: 0.4
-      longitudinal_acceleration: 0.5
+      lateral_acceleration: 2.0
+      longitudinal_acceleration: 2.0
     vehicle:
       cg_to_front_m: 1.228
       cg_to_rear_m: 1.5618

@@ -201,7 +201,6 @@ void GlobalVelocityPlanner::calculate_waypoints()
   GlobalVelocityPlanner::calculate_curvatures();
   GlobalVelocityPlanner::vel_wrt_lateral_acceleration();
   GlobalVelocityPlanner::vel_wrt_longitudinal_acceleration();
-  GlobalVelocityPlanner::set_acceleration();
   is_route_ready = true;
 }
 
@@ -333,15 +332,6 @@ size_t GlobalVelocityPlanner::get_closest_index(const State & pose)
   return closest_index;
 }
 
-void GlobalVelocityPlanner::set_acceleration()
-{
-  for (size_t i = 0; i < way_points->size() - 1; i++) {
-    way_points->at(i).point.acceleration_mps2 =
-      find_acceleration(way_points->at(i).point, way_points->at(i + 1).point);
-  }
-  way_points->back().point.acceleration_mps2 = 0.0f;
-}
-
 void GlobalVelocityPlanner::set_time_from_start()
 {
   if (trajectory.points.empty()) {
@@ -391,7 +381,6 @@ void GlobalVelocityPlanner::calculate_trajectory(const State & pose)
     for (size_t j = 0; j < length; j++) {
       trajectory.points.push_back(way_points->at(closest_index + j).point);
     }
-    GlobalVelocityPlanner::set_time_from_start();
   } else {
     if (closest_index > last_point) {
       trajectory.points.erase(
@@ -409,6 +398,8 @@ void GlobalVelocityPlanner::calculate_trajectory(const State & pose)
     }
   }
   last_point = closest_index;
+  GlobalVelocityPlanner::set_time_from_start();
 }
+
 }  // namespace global_velocity_planner
 }  // namespace autoware

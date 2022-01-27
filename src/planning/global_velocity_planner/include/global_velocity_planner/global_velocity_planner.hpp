@@ -156,10 +156,6 @@ private:
    */
   void set_orientation(size_t i);
   /**
- * @brief Calculates the acceleration of points after velocities are set.
-   */
-  void set_acceleration();
-  /**
  * @brief It calculates the timing of trajectories with respect to vehicle's longitudinal velocity
    */
   void set_time_from_start();
