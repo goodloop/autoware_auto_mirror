@@ -20,7 +20,7 @@ namespace autoware
 {
 namespace vesc_interface
 {
-using VSC = autoware_auto_msgs::msg::VehicleStateCommand;
+using VSC = autoware_auto_vehicle_msgs::msg::VehicleStateCommand;
 VESCInterface::VESCInterface(
   rclcpp::Node & node,
   float64_t speed_to_erpm_gain,
@@ -108,7 +108,7 @@ bool8_t VESCInterface::send_control_command(const VehicleControlCommand & msg)
 }
 
 bool8_t VESCInterface::handle_mode_change_request(
-  autoware_auto_msgs::srv::AutonomyModeChange_Request::SharedPtr request)
+  autoware_auto_vehicle_msgs::srv::AutonomyModeChange_Request::SharedPtr request)
 {
   if (request->mode == ModeChangeRequest::MODE_MANUAL) {
     run_autonomous = false;
@@ -125,7 +125,14 @@ bool8_t VESCInterface::send_control_command(const RawControlCommand & msg)
 {
   (void)msg;
   RCLCPP_WARN(m_logger, "Cannot control the VESC using RawControlCommand");
-  return true;
+  return false;
+}
+
+bool8_t VESCInterface::send_control_command(const AckermannControlCommand & msg)
+{
+  (void)msg;
+  RCLCPP_WARN(m_logger, "Cannot control the VESC using AckermannControlCommand");
+  return false;
 }
 
 void VESCInterface::on_motor_state_report(const VescStateStamped::SharedPtr & msg)
@@ -135,7 +142,6 @@ void VESCInterface::on_motor_state_report(const VescStateStamped::SharedPtr & ms
     current_speed = 0.0;
   }
   odometry().velocity_mps = static_cast<float>(current_speed);
-
 
   float64_t current_front_wheel_angle(0.0);
   current_front_wheel_angle = (last_servo_cmd->data - steering_to_servo_offset_) /
