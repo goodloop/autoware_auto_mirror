@@ -1,7 +1,5 @@
-# This is parameter file for the vesc_interface
 /**:
   ros__parameters:
-    # ------x ------- x------
     cycle_time_ms: 10
     # Only one of the three control command topics need be specified
     # "raw", "basic" or "high_level"
