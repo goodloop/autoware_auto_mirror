@@ -20,7 +20,6 @@
       timeout_acceleration_mps2: 3.0
       state_transition_timeout_ms: 3000
       gear_shift_accel_deadzone_mps2: 0.5
-    # -------x without this, VESCInterfaceNode cannot be launched --
     vesc:
       speed_to_erpm_gain: 4615.0
       speed_to_erpm_offset: 0.0
