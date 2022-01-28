@@ -31,12 +31,14 @@ maximum lateral and longitudinal acceleration which are taken from parameter fil
     - How do you use the package / API? -->
 Inputs:
 * Global route
+
 Parameters:
 * Longitudinal acceleration
 * Lateral acceleration
 * Trajectory resolution
 * cg_to_front_m
 * cg_to_rear_m
+
 Outputs:
 * Trajectory
 

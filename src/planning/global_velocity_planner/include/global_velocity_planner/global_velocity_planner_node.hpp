@@ -1,4 +1,4 @@
-// Copyright 2021 The Autoware Foundation
+// Copyright 2022 The Autoware Foundation
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -56,7 +56,7 @@ using autoware::common::types::float64_t;
 using autoware::common::types::uchar8_t;
 
 /// \class GlobalVelocityPlannerNode
-/// \brief ROS 2 Node for hello world.
+/// \brief Global velocity planner, it is created to test the controllers.
 class GLOBAL_VELOCITY_PLANNER_PUBLIC GlobalVelocityPlannerNode : public rclcpp::Node
 {
 public:
