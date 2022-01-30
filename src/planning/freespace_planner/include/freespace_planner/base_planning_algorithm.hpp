@@ -59,17 +59,26 @@ struct IndexXY
   int y;
 };
 
+/// \brief Transform pose using given transform
 geometry_msgs::msg::Pose transformPose(
   const geometry_msgs::msg::Pose & pose, const geometry_msgs::msg::TransformStamped & transform);
 
+
+/// \brief Transform pose floating-point values to discrete costmap coordinates
 IndexXYT pose2index(
   const geometry_msgs::msg::Pose & pose_local,
   const float & costmap_resolution,
   const size_t theta_size);
+
+/// \brief Transform discrete costmap coordinates to floating-point pose values
 geometry_msgs::msg::Pose index2pose(
   const IndexXYT & index, const float & costmap_resolution, const size_t theta_size);
+
+/// \brief Transform pose from its frame to costmaps local frame
 geometry_msgs::msg::Pose global2local(
   const nav_msgs::msg::OccupancyGrid & costmap, const geometry_msgs::msg::Pose & pose_global);
+
+/// \brief Transform pose from costmaps to its original frame
 geometry_msgs::msg::Pose local2global(
   const nav_msgs::msg::OccupancyGrid & costmap, const geometry_msgs::msg::Pose & pose_local);
 
