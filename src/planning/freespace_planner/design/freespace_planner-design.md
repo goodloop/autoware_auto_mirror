@@ -1,21 +1,25 @@
-A* search {#astar-search}
+Freespace planner {#freespace-planner}
 ===============
 
-This is the design document for the `astar_search` package.
+This is the design document for the `freespace_planner` package.
 
 # Purpose / Use cases
 
-A* search package provides an implementation of Hybrid A* search algorithm. It generates smooth paths from start pose to
-goal pose respecting kinematic constrains of the vehicle.
+Freespace planner provides implementations of different searching algorithms.
+Package implements base class from which each implementation inherits.
+Each implementation generates smooth paths from start pose to goal pose respecting kinematic constrains of the vehicle.
+
+Currently implemented algorithms:
+
+* Hybrid A*
 
 # Design
 
-A* search needs a representation of an environment in order to plan a trajectory.
+Planner needs a representation of an environment in order to plan a trajectory.
 It is provided in form of [nav_msgs::msg::OccupancyGrid](http://docs.ros.org/en/noetic/api/nav_msgs/html/msg/OccupancyGrid.html) costmap.
 Algorithm outputs custom `PlannerWaypoints` object which definition can be found in code docs.
 
-Having the costmap A* search can create smooth and kinematically feasible trajectories that avoid obstacles using Hybrid
-A* algorithm.
+Having the costmap algorithms can create smooth and kinematically feasible trajectories that avoid obstacles.
 
 Additionally the algorithm has implemented the Reeds-Shepp cost estimation algorithm, which makes the found paths smooth and optimal.
 
@@ -31,10 +35,10 @@ Planning does not return the planned trajectory, but it can be accessed by the a
 
 ## Configuration
 
+### Common planner parameters
+
 | Parameter                     | Type   | Unit | Description                                                                                    |
 | ----------------------------- | ------ | ---- | ---------------------------------------------------------------------------------------------- |
-| `use_back`                    | bool   | -    | whether using backward trajectory                                                              |
-| `only_behind_solutions`       | bool   | -    | whether restricting the solutions to be behind the goal                                        |
 | `time_limit`                  | double | ms   | time limit of planning                                                                         |
 | `robot_length`                | double | m    | robot length                                                                                   |
 | `robot_width`                 | double | m    | robot width                                                                                    |
@@ -46,7 +50,15 @@ Planning does not return the planned trajectory, but it can be accessed by the a
 | `curve_weight`                | double | -    | additional cost factor for curve actions                                                       |
 | `reverse_weight`              | double | -    | additional cost factor increasing trajectory cost when changing <br> move direction to reverse |
 | `obstacle_threshold`          | double | -    | threshold for regarding a certain grid cell as obstacle                                        |
-| `distance_heuristic_weight`   | double | -    | heuristic weight for estimating node's cost                                                    |
+
+### Hybrid A* parameters
+
+| Parameter                     | Type   | Unit | Description                                             |
+| ----------------------------- | ------ | ---- | ------------------------------------------------------- |
+| `use_back`                    | bool   | -    | whether using backward trajectory                       |
+| `use_reeds_shepp`             | bool   | -    | whether using Reeds-Shepp cost estimation algorithm     |
+| `only_behind_solutions`       | bool   | -    | whether restricting the solutions to be behind the goal |
+| `distance_heuristic_weight`   | double | -    | heuristic weight for estimating node's cost             |
 
 # References / External Links
 
