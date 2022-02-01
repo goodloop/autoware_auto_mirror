@@ -37,7 +37,8 @@
   <test_depend>autoware_testing</test_depend>
   <test_depend>ros_testing</test_depend>
 
-  <export>
+
+    <export>
     <build_type>ament_cmake</build_type>
   </export>
 </package>
