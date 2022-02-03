@@ -174,11 +174,11 @@ void RecordReplayPlannerNode::on_ego(const State::SharedPtr & msg)
 
   Transform tf_map2odom;
   State msg_world = *msg;
-  try{
+  try {
     tf_map2odom = tf_buffer_->lookupTransform(
       recording_frame, msg->header.frame_id,
       tf2::TimePointZero);
-  }catch(...){
+  } catch (...) {
     // skip recording/replaying if tf failed to get a transform to world frame.
     RCLCPP_ERROR_THROTTLE(
       this->get_logger(), *(this->get_clock()), 1000 /*ms*/,
