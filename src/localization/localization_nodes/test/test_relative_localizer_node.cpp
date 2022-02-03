@@ -369,13 +369,19 @@ void TestRelativeLocalizerNode::on_observation_with_invalid_map(
 // The resulting frame id should contain: obs_frame + map_frame.
 Transform MockInitializer::guess(
   const tf2::BufferCore &, tf2::TimePoint stamp,
-  const std::string & map_frame, const std::string & obs_frame, bool & is_reinitialization)
+  const std::string & map_frame, const std::string & obs_frame)
 {
   Transform transform;
   transform.header.stamp = ::time_utils::to_message(stamp);
   transform.header.frame_id = obs_frame + map_frame;
-  if (is_reinitialization) {std::cerr << "tmp" << std::endl;}
   return transform;
 }
 
 void MockInitializer::set_fallback_pose(const geometry_msgs::msg::TransformStamped &) {}
+
+Transform MockInitializer::get_fallback_pose(tf2::TimePoint time_point)
+{
+  Transform transform;
+  transform.header.stamp = ::time_utils::to_message(time_point);
+  return transform;
+}

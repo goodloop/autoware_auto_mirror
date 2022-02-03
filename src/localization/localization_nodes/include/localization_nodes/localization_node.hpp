@@ -342,8 +342,14 @@ private:
     const auto & map_frame = m_map_ptr->frame_id();
 
     try {
-      geometry_msgs::msg::TransformStamped initial_guess = m_pose_initializer.guess(
-        m_tf_buffer, observation_time, map_frame, observation_frame, is_reinitialization);
+      geometry_msgs::msg::TransformStamped initial_guess;
+      if (is_reinitialization) {
+        initial_guess = m_pose_initializer.get_fallback_pose(observation_time);
+        is_reinitialization = false;
+      } else {
+        initial_guess = m_pose_initializer.guess(
+          m_tf_buffer, observation_time, map_frame, observation_frame);
+      }
       RegistrationSummary summary{};
       const auto pose_out =
         m_localizer_ptr->register_measurement(*msg_ptr, initial_guess, *m_map_ptr, &summary);

@@ -36,42 +36,31 @@ TEST(BestEffortInitializationTest, BadLookup) {
   ASSERT_NE(nonexisting_frame, target_frame);
   ASSERT_NE(nonexisting_frame, source_frame);
   tf2::BufferCore tf_graph;
-  bool is_reinitialization = false;
   EXPECT_THROW(
-    initializer.guess(tf_graph, now, target_frame, source_frame, is_reinitialization),
+    initializer.guess(tf_graph, now, target_frame, source_frame),
     tf2::LookupException);
   auto transform = make_transform(15.0F, 15.0F, 15.0F, 15.0F, 15.0F, 15.0F);
   transform.header.stamp = time_utils::to_message(now);
   tf_graph.setTransform(transform, "testauthority");
   EXPECT_NO_THROW(
     check_transform_eq(
-      transform,
-      initializer.guess(tf_graph, now, target_frame, source_frame, is_reinitialization)));
+      transform, initializer.guess(tf_graph, now, target_frame, source_frame)));
 
   // Extrapolation can be performed now that there's data in the tf graph.
   EXPECT_NO_THROW(
     check_transform_eq(
-      transform,
-      initializer.guess(tf_graph, now + dt, target_frame, source_frame, is_reinitialization)));
+      transform, initializer.guess(tf_graph, now + dt, target_frame, source_frame)));
 
   // Backwards extrapolation is not supported.
   EXPECT_THROW(
     check_transform_eq(
-      transform,
-      initializer.guess(tf_graph, now - dt, target_frame, source_frame, is_reinitialization)),
+      transform, initializer.guess(tf_graph, now - dt, target_frame, source_frame)),
     std::domain_error);
 
   EXPECT_THROW(
     initializer.guess(
       tf_graph, now,
-      nonexisting_frame, source_frame, is_reinitialization), tf2::LookupException);
-
-  // reinitialization
-  is_reinitialization = true;
-  EXPECT_THROW(
-    initializer.guess(
-      tf_graph, now,
-      target_frame, source_frame, is_reinitialization), char *);
+      nonexisting_frame, source_frame), tf2::LookupException);
 }
 
 TEST_P(BestEffortInitializationTest, Basic) {
@@ -103,19 +92,13 @@ TEST_P(BestEffortInitializationTest, Basic) {
   tf_interpolated.header.stamp = time_utils::to_message(t_interpolate);
   tf_interpolated.transform = get_interpolation(tf0.transform, tf1.transform, ratio);
 
-  bool is_reinitialization = false;
-
-  const auto tf0_guess = initializer.guess(
-    tf_graph, t0, target_frame, source_frame,
-    is_reinitialization);
+  const auto tf0_guess = initializer.guess(tf_graph, t0, target_frame, source_frame);
   const auto tf_interpolate_guess = initializer.guess(
     tf_graph, t_interpolate, target_frame,
-    source_frame, is_reinitialization);
-  const auto tf1_guess = initializer.guess(
-    tf_graph, t1, target_frame, source_frame,
-    is_reinitialization);
+    source_frame);
+  const auto tf1_guess = initializer.guess(tf_graph, t1, target_frame, source_frame);
   const auto tf_extrapolate_guess =
-    initializer.guess(tf_graph, t1 + dt, target_frame, source_frame, is_reinitialization);
+    initializer.guess(tf_graph, t1 + dt, target_frame, source_frame);
 
   check_transform_eq(tf0, tf0_guess);
   check_transform_eq(tf_interpolated, tf_interpolate_guess);
