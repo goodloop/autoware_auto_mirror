@@ -205,4 +205,5 @@ TEST_F(GlobalVelocityPlannerNodeTest, check_trajectory) {
     executor.spin_once();
   }
   ASSERT_TRUE(received_trajectory);
+  rclcpp::shutdown();
 }
