@@ -31,6 +31,7 @@ namespace common
 namespace osqp
 {
 OSQPInterface::OSQPInterface(const c_float eps_abs, const bool8_t polish)
+: m_work{nullptr, OSQPWorkspaceDeleter}
 {
   m_settings = std::make_unique<OSQPSettings>();
   m_data = std::make_unique<OSQPData>();
@@ -56,6 +57,13 @@ OSQPInterface::OSQPInterface(
 : OSQPInterface(eps_abs)
 {
   initializeProblem(P, A, q, l, u);
+}
+
+void OSQPInterface::OSQPWorkspaceDeleter(OSQPWorkspace * ptr) noexcept
+{
+  if (ptr != nullptr) {
+    osqp_cleanup(ptr);
+  }
 }
 
 int64_t OSQPInterface::initializeProblem(
@@ -101,24 +109,18 @@ int64_t OSQPInterface::initializeProblem(
   m_data->u = u_dyn;
 
   // Setup workspace
-  m_exitflag = osqp_setup(&m_work, m_data.get(), m_settings.get());
+  OSQPWorkspace * workspace;
+  m_exitflag = osqp_setup(&workspace, m_data.get(), m_settings.get());
+  m_work.reset(workspace);
   m_work_initialized = true;
 
   return m_exitflag;
 }
 
-OSQPInterface::~OSQPInterface()
-{
-  // Cleanup dynamic OSQP memory
-  if (m_work) {
-    osqp_cleanup(m_work);
-  }
-}
-
 std::tuple<std::vector<float64_t>, std::vector<float64_t>, int64_t, int64_t> OSQPInterface::solve()
 {
   // Solve Problem
-  osqp_solve(m_work);
+  osqp_solve(m_work.get());
 
   /********************
    * EXTRACT SOLUTION
@@ -158,6 +160,9 @@ std::tuple<std::vector<float64_t>, std::vector<float64_t>, int64_t,
 
   // Run the solver on the stored problem representation.
   std::tuple<std::vector<float64_t>, std::vector<float64_t>, int64_t, int64_t> result = solve();
+
+  m_work.reset();
+  m_work_initialized = false;
 
   return result;
 }
