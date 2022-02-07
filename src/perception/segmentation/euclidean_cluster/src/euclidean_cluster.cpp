@@ -78,13 +78,13 @@ PointXYZIR::operator autoware_auto_perception_msgs::msg::PointXYZIF() const
 ////////////////////////////////////////////////////////////////////////////////
 Config::Config(
   const std::string & frame_id,
-  const std::size_t min_cluster_size,
+  const std::size_t min_number_of_points_in_cluster,
   const std::size_t max_num_clusters,
   const float32_t min_cluster_threshold_m,
   const float32_t max_cluster_threshold_m,
   const float32_t cluster_threshold_saturation_distance_m)
 : m_frame_id(frame_id),
-  m_min_cluster_size(min_cluster_size),
+  m_min_number_of_points_in_cluster(min_number_of_points_in_cluster),
   m_max_num_clusters(max_num_clusters),
   m_min_thresh_m(min_cluster_threshold_m),
   m_max_distance_m(cluster_threshold_saturation_distance_m),
@@ -110,9 +110,9 @@ FilterConfig::FilterConfig(
 {
 }
 ////////////////////////////////////////////////////////////////////////////////
-std::size_t Config::min_cluster_size() const
+std::size_t Config::min_number_of_points_in_cluster() const
 {
-  return m_min_cluster_size;
+  return m_min_number_of_points_in_cluster;
 }
 ////////////////////////////////////////////////////////////////////////////////
 std::size_t Config::max_num_clusters() const
@@ -151,7 +151,7 @@ bool Config::match_clusters_size(const Clusters & clusters) const
   if (clusters.cluster_boundary.capacity() < m_max_num_clusters) {
     ret = false;
   }
-  if (clusters.points.capacity() < (m_max_num_clusters * m_min_cluster_size)) {
+  if (clusters.points.capacity() < (m_max_num_clusters * m_min_number_of_points_in_cluster)) {
     ret = false;
   }
   return ret;
@@ -266,7 +266,7 @@ void EuclideanCluster::cluster(Clusters & clusters, const Hash::IT it)
       ++last_cls_pt_idx;
     }
     // check if cluster is large enough
-    if (last_cls_pt_idx < m_config.min_cluster_size()) {
+    if (last_cls_pt_idx < m_config.min_number_of_points_in_cluster()) {
       // reject the cluster if too small
       clusters.cluster_boundary.pop_back();
     }

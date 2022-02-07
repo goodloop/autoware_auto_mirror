@@ -141,7 +141,7 @@ class EUCLIDEAN_CLUSTER_PUBLIC Config
 public:
   /// \brief Constructor
   /// \param[in] frame_id The frame id for which all clusters are initialized with
-  /// \param[in] min_cluster_size The number of points that must be in a cluster before it is not
+  /// \param[in] min_number_of_points_in_cluster The number of points that must be in a cluster before it is not
   ///                             considered noise
   /// \param[in] max_num_clusters The maximum preallocated number of clusters in a scene
   /// \param[in] min_cluster_threshold_m The minimum connectivity threshold when r = 0
@@ -151,14 +151,14 @@ public:
   ///                                                    is clamped to the maximum value
   Config(
     const std::string & frame_id,
-    const std::size_t min_cluster_size,
+    const std::size_t min_number_of_points_in_cluster,
     const std::size_t max_num_clusters,
     const float32_t min_cluster_threshold_m,
     const float32_t max_cluster_threshold_m,
     const float32_t cluster_threshold_saturation_distance_m);
   /// \brief Gets minimum number of points needed for a cluster to not be considered noise
   /// \return Minimum cluster size
-  std::size_t min_cluster_size() const;
+  std::size_t min_number_of_points_in_cluster() const;
   /// \brief Gets maximum preallocated number of clusters
   /// \return Maximum number of clusters
   std::size_t max_num_clusters() const;
@@ -180,7 +180,7 @@ public:
 
 private:
   const std::string m_frame_id;
-  const std::size_t m_min_cluster_size;
+  const std::size_t m_min_number_of_points_in_cluster;
   const std::size_t m_max_num_clusters;
   const float32_t m_min_thresh_m;
   const float32_t m_max_distance_m;
