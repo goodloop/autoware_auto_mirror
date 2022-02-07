@@ -192,7 +192,6 @@ void EuclideanClusterNode::handle_clusters(
     return;
   }
 
-  euclidean_cluster::Config conf = m_cluster_alg.get_config();
   BoundingBoxArray boxes;
   if (m_use_lfit) {
     boxes = euclidean_cluster::details::compute_bounding_boxes(
