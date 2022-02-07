@@ -367,16 +367,17 @@ BoundingBoxArray compute_bounding_boxes(
           iter_pair.first, iter_pair.second, boxes.boxes.back());
       }
 
+      // remove the bounding box if it does not satisfy the specified size
       if (size_filter) {
         BoundingBox & box = boxes.boxes.back();
         bool erase_box = false;
-        if ( (box.size.x > filter_config.max_filter_x()) ||
-          (box.size.y > filter_config.max_filter_y()) ||
-          (box.size.x < filter_config.min_filter_x()) ||
-          (box.size.y < filter_config.min_filter_y()) ) {erase_box = true;}
-        if ( (compute_height) &&
-          ((box.size.z > filter_config.max_filter_z()) ||
-          (box.size.z < filter_config.min_filter_z())) ) {erase_box = true;}
+        if ( box.size.x > filter_config.max_filter_x() ||
+          box.size.y > filter_config.max_filter_y() ||
+          box.size.x < filter_config.min_filter_x() ||
+          box.size.y < filter_config.min_filter_y() ) {erase_box = true;}
+        if ( compute_height &&
+          (box.size.z > filter_config.max_filter_z() ||
+          box.size.z < filter_config.min_filter_z()) ) {erase_box = true;}
         if (erase_box) {boxes.boxes.pop_back();}
       }
     } catch (const std::exception & e) {
