@@ -243,6 +243,8 @@ public:
   /// \return Internal configuration class
   const Config & get_config() const;
 
+  /// \brief Gets internal configuration class for filters
+  /// \return Internal FilterConfiguration class
   const FilterConfig & get_filter_config() const;
 
   /// \brief Throw the stored error during clustering process
@@ -303,7 +305,11 @@ EUCLIDEAN_CLUSTER_PUBLIC
 BoundingBoxArray compute_bounding_boxes(
   Clusters & clusters, const BboxMethod method, const bool compute_height,
   const bool size_filter = false,
-  const FilterConfig & filter_config = {0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F});
+  const FilterConfig & filter_config = {0.0F, 0.0F, 0.0F,
+                                       std::numeric_limits<float>::max(),
+                                       std::numeric_limits<float>::max(),
+                                       std::numeric_limits<float>::max()}
+
 /// \brief Convert this bounding box to a DetectedObjects message
 /// \param[in] boxes A bounding box array
 /// \returns A DetectedObjects message with the bounding boxes inside
