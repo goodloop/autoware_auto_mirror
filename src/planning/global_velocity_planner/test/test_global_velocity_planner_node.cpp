@@ -1,4 +1,4 @@
-// Copyright 2022 The Autoware Foundation
+// Copyright 2022 Leo Drive Teknoloji A.Ş.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,7 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
+//
+// Co-developed by Tier IV, Inc. Apex.AI, Inc. and Leo Drive Teknoloji A.Ş.
 #include <global_velocity_planner/global_velocity_planner_node.hpp>
 #include <had_map_utils/had_map_conversion.hpp>
 #include <memory>
@@ -98,8 +99,7 @@ inline geometry_msgs::msg::TransformStamped getDummyTransform(const VehicleState
   transform_stamped.child_frame_id = State.header.frame_id;
   return transform_stamped;
 }
-Trajectory::SharedPtr trajectory_out;
-autoware::common::types::bool8_t received_trajectory = false;
+
 
 class GlobalVelocityPlannerNodeTest : public ::testing::Test
 {
@@ -129,8 +129,8 @@ public:
 
     trajectory_sub = m_fake_node->create_subscription<Trajectory>(
       "trajectory", rclcpp::QoS{10},
-      [](const Trajectory::SharedPtr msg) {
-        trajectory_out = msg; received_trajectory = true;
+      [this](const Trajectory::SharedPtr msg) {
+        this->trajectory_out = msg; this->received_trajectory = true;
       });
     br = std::make_shared<tf2_ros::StaticTransformBroadcaster>(this->m_fake_node);
 
@@ -167,7 +167,8 @@ public:
     autoware::common::had_map_utils::toBinaryMsg(map_ptr, map_msg);
     response->map = map_msg;
   }
-
+  Trajectory::SharedPtr trajectory_out;
+  autoware::common::types::bool8_t received_trajectory = false;
   std::shared_ptr<autoware::global_velocity_planner::GlobalVelocityPlannerNode> m_planner_ptr;
   rclcpp::Node::SharedPtr m_fake_node{nullptr};
   rclcpp::Service<HADMapService>::SharedPtr m_fake_map_service;

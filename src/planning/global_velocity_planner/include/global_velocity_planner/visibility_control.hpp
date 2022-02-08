@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-// Co-developed by Tier IV, Inc. and Apex.AI, Inc.
+// Co-developed by Tier IV, Inc. Apex.AI, Inc. and Leo Drive Teknoloji A.Ş.
 
 #ifndef GLOBAL_VELOCITY_PLANNER__VISIBILITY_CONTROL_HPP_
 #define GLOBAL_VELOCITY_PLANNER__VISIBILITY_CONTROL_HPP_

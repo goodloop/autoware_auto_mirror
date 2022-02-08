@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-// Co-developed by Tier IV, Inc. and Apex.AI, Inc.
+// Co-developed by Tier IV, Inc. Apex.AI, Inc. and Leo Drive Teknoloji A.Ş.
 #include <geometry/common_2d.hpp>
 #include <global_velocity_planner/global_velocity_planner.hpp>
 #include <had_map_utils/had_map_utils.hpp>

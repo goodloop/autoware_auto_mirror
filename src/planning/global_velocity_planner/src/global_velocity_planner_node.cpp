@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-// Co-developed by Tier IV, Inc. and Apex.AI, Inc.
+// Co-developed by Tier IV, Inc. Apex.AI, Inc. and Leo Drive Teknoloji A.Ş.
 
 #include <common/types.hpp>
 #include <geometry/common_2d.hpp>
