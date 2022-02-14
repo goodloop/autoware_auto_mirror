@@ -71,6 +71,7 @@ autoware_auto_perception_msgs::msg::TrackedObjects make()
     .height(2.3F);
   auto object =
     autoware_auto_perception_msgs::build<autoware_auto_perception_msgs::msg::TrackedObject>()
+    .uuid(unique_identifier_msgs::msg::UUID())
     .object_id(134)
     .existence_probability(1.0F)
     .classification({classification})
