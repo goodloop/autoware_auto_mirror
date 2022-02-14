@@ -35,7 +35,6 @@
 #include <autoware_auto_vehicle_msgs/msg/gear_report.hpp>
 #include <autoware_auto_vehicle_msgs/msg/gear_command.hpp>
 #include <autoware_auto_vehicle_msgs/msg/vehicle_state_report.hpp>
-// #include <autoware_auto_vehicle_msgs/msg/vehicle_state_command.hpp>
 #include <autoware_auto_mapping_msgs/srv/had_map_service.hpp>
 #include <autoware_auto_planning_msgs/srv/modify_trajectory.hpp>
 #include <behavior_planner/behavior_planner.hpp>
