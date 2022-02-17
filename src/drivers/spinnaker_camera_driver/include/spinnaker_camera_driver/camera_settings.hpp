@@ -54,7 +54,8 @@ public:
     const std::string & pixel_format,
     const std::string & frame_id = "camera",
     const std::string & serial_number = "",
-    std::int64_t device_link_throughput_limit = 100000000L);
+    std::int64_t device_link_throughput_limit = 100000000L,
+    std::uint32_t binning = 1L);
 
   inline std::uint32_t get_window_width() const noexcept {return m_window_width;}
   inline std::uint32_t get_window_height() const noexcept {return m_window_height;}
@@ -66,6 +67,7 @@ public:
   {
     return m_device_link_throughput_limit;
   }
+  inline std::uint32_t get_binning() const noexcept {return m_binning;}
 
 private:
   /// A set of all valid pixel formats.
@@ -90,6 +92,9 @@ private:
 
   /// Desired device link throuput limit.
   std::int64_t m_device_link_throughput_limit;
+
+  /// Binning pixels.
+  std::uint32_t m_binning;
 };
 
 }  //  namespace spinnaker

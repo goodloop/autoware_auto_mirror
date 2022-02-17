@@ -43,6 +43,7 @@ namespace
 static constexpr const char kDefaultCameraFrame[] = "camera";
 static constexpr const char kCameraSerial[] = "";
 static constexpr std::int64_t kDefaultDeviceThroughputLimit = 100000000L;
+static constexpr std::int32_t kDefaulktCameraBinning = 1L;
 }  // namespace
 
 namespace autoware
@@ -93,6 +94,8 @@ spinnaker::CameraListWrapper & SpinnakerCameraNode::create_cameras_from_params(
       const auto device_link_throughput_limit_param{
         declare_parameter(
           prefix_dot + "device_link_throughput_limit", kDefaultDeviceThroughputLimit)};
+      const auto camera_binning{static_cast<std::uint32_t>(
+        declare_parameter(prefix_dot + "binning", kDefaulktCameraBinning))};
       return spinnaker::CameraSettings{
       static_cast<std::uint32_t>(
         declare_parameter(prefix_dot + "window_width").get<std::uint64_t>()),
@@ -102,7 +105,8 @@ spinnaker::CameraListWrapper & SpinnakerCameraNode::create_cameras_from_params(
       declare_parameter(prefix_dot + "pixel_format").template get<std::string>(),
       camera_frame_id_param,
       camera_serial_number_param,
-      device_link_throughput_limit_param};
+      device_link_throughput_limit_param,
+      camera_binning};
     };
 
   const std::string camera_settings_param_name{"camera_settings"};
