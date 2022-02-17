@@ -108,6 +108,10 @@ FilterConfig::FilterConfig(
   m_max_filter_y(max_y),
   m_max_filter_z(max_z)
 {
+  if(min_x > min_y || max_x > max_y)
+    {
+      throw std::runtime_error("Wrong configuration: width(x) parameter must be smaller than the length(y) paramter for size filter");
+    }
 }
 ////////////////////////////////////////////////////////////////////////////////
 std::size_t Config::min_number_of_points_in_cluster() const
