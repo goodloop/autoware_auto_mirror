@@ -14,19 +14,21 @@
 
 """Launch file for interface node between New Eagle Raptor DBW and Autoware.Auto."""
 
-from launch import LaunchDescription
-from launch_ros.actions import Node
-from launch.substitutions import LaunchConfiguration
 from ament_index_python import get_package_share_directory
-from launch.launch_description_sources import FrontendLaunchDescriptionSource
+
+from launch import LaunchDescription
 from launch.actions import IncludeLaunchDescription
+from launch.launch_description_sources import FrontendLaunchDescriptionSource
+from launch.substitutions import LaunchConfiguration
+
+from launch_ros.actions import Node
 
 
 def generate_launch_description():
     """Generate launch description with a single component."""
     # ---------------- Params ----------------
     raptor_interface_params_file = LaunchConfiguration(
-        "raptor_interface_params",
+        'raptor_interface_params',
         default=[get_package_share_directory('ne_raptor_interface'),
                  '/param/defaults.param.yaml']
     )
