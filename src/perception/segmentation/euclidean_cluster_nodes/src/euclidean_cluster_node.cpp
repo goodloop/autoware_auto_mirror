@@ -71,7 +71,8 @@ m_marker_pub_ptr{get_parameter("use_box").as_bool() ?
 m_cluster_alg{
   euclidean_cluster::Config{
     declare_parameter("cluster.frame_id").get<std::string>().c_str(),
-    static_cast<std::size_t>(declare_parameter("cluster.min_number_of_points_in_cluster").get<std::size_t>()),
+    static_cast<std::size_t>(declare_parameter(
+      "cluster.min_number_of_points_in_cluster").get<std::size_t>()),
     static_cast<std::size_t>(declare_parameter("cluster.max_num_clusters").get<std::size_t>()),
     static_cast<float32_t>(declare_parameter("cluster.min_cluster_threshold_m").get<float32_t>()),
     static_cast<float32_t>(declare_parameter("cluster.max_cluster_threshold_m").get<float32_t>()),

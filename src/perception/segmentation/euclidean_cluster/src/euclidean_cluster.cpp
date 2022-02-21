@@ -108,10 +108,10 @@ FilterConfig::FilterConfig(
   m_max_filter_y(max_y),
   m_max_filter_z(max_z)
 {
-  if(min_x > min_y || max_x > max_y)
-    {
-      throw std::runtime_error("Wrong configuration: width(x) parameter must be smaller than the length(y) paramter for size filter");
-    }
+  if (min_x > min_y || max_x > max_y) {
+    throw std::runtime_error(
+            "width(x) must be smaller than the length(y) for min/max filter");
+  }
 }
 ////////////////////////////////////////////////////////////////////////////////
 std::size_t Config::min_number_of_points_in_cluster() const
@@ -375,11 +375,11 @@ BoundingBoxArray compute_bounding_boxes(
       if (size_filter) {
         BoundingBox & box = boxes.boxes.back();
         bool erase_box = false;
-        if ( box.size.x > filter_config.max_filter_x() ||
+        if (box.size.x > filter_config.max_filter_x() ||
           box.size.y > filter_config.max_filter_y() ||
           box.size.x < filter_config.min_filter_x() ||
           box.size.y < filter_config.min_filter_y() ) {erase_box = true;}
-        if ( compute_height &&
+        if (compute_height &&
           (box.size.z > filter_config.max_filter_z() ||
           box.size.z < filter_config.min_filter_z()) ) {erase_box = true;}
         if (erase_box) {boxes.boxes.pop_back();}

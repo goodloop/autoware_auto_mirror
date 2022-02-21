@@ -18,16 +18,17 @@
 
 #ifndef EUCLIDEAN_CLUSTER__EUCLIDEAN_CLUSTER_HPP_
 #define EUCLIDEAN_CLUSTER__EUCLIDEAN_CLUSTER_HPP_
+#include <euclidean_cluster/visibility_control.hpp>
 
 #include <autoware_auto_perception_msgs/msg/bounding_box_array.hpp>
 #include <autoware_auto_perception_msgs/msg/detected_objects.hpp>
 #include <autoware_auto_perception_msgs/msg/point_clusters.hpp>
 #include <geometry/spatial_hash.hpp>
-#include <euclidean_cluster/visibility_control.hpp>
 #include <common/types.hpp>
+#include <limits>
 #include <string>
-#include <vector>
 #include <utility>
+#include <vector>
 
 namespace autoware
 {
@@ -141,8 +142,8 @@ class EUCLIDEAN_CLUSTER_PUBLIC Config
 public:
   /// \brief Constructor
   /// \param[in] frame_id The frame id for which all clusters are initialized with
-  /// \param[in] min_number_of_points_in_cluster The number of points that must be in a cluster before it is not
-  ///                             considered noise
+  /// \param[in] min_number_of_points_in_cluster The number of points that must be in a cluster
+  ///                                            before it is not considered noise
   /// \param[in] max_num_clusters The maximum preallocated number of clusters in a scene
   /// \param[in] min_cluster_threshold_m The minimum connectivity threshold when r = 0
   /// \param[in] max_cluster_threshold_m The maximum connectivity threshold when
@@ -306,9 +307,9 @@ BoundingBoxArray compute_bounding_boxes(
   Clusters & clusters, const BboxMethod method, const bool compute_height,
   const bool size_filter = false,
   const FilterConfig & filter_config = {0.0F, 0.0F, 0.0F,
-                                       std::numeric_limits<float>::max(),
-                                       std::numeric_limits<float>::max(),
-                                       std::numeric_limits<float>::max()}
+    std::numeric_limits<float>::max(),
+    std::numeric_limits<float>::max(),
+    std::numeric_limits<float>::max()});
 
 /// \brief Convert this bounding box to a DetectedObjects message
 /// \param[in] boxes A bounding box array
