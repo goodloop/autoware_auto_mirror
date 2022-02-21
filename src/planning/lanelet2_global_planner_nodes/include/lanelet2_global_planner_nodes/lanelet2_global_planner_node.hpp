@@ -17,7 +17,13 @@
 #ifndef  LANELET2_GLOBAL_PLANNER_NODES__LANELET2_GLOBAL_PLANNER_NODE_HPP_
 #define  LANELET2_GLOBAL_PLANNER_NODES__LANELET2_GLOBAL_PLANNER_NODE_HPP_
 // ros2
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wuseless-cast"
 #include <rclcpp/rclcpp.hpp>
+#pragma GCC diagnostic pop
+
 #include <rclcpp_action/rclcpp_action.hpp>
 #include <std_msgs/msg/string.hpp>
 #include <geometry_msgs/msg/pose_stamped.hpp>
@@ -28,7 +34,14 @@
 // autoware
 #include <lanelet2_global_planner_nodes/visibility_control.hpp>
 #include <lanelet2_global_planner/lanelet2_global_planner.hpp>
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wconversion"
+#pragma GCC diagnostic ignored "-Wold-style-cast"
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wuseless-cast"
 #include <lanelet2_core/LaneletMap.h>
+#pragma GCC diagnostic pop
+
 #include <common/types.hpp>
 #include <autoware_auto_mapping_msgs/srv/had_map_service.hpp>
 #include <autoware_auto_mapping_msgs/msg/had_map_bin.hpp>

@@ -49,6 +49,19 @@ RUN apt-get update && \
         $(cat /tmp/apt-packages | cut -d# -f1 | envsubst) \
     && rm -rf /var/lib/apt/lists/* /tmp/apt-packages
 
+RUN if [ "$ROS_DISTRO" = "foxy" ]; then \
+        apt-get update && \
+        apt-get install -y ros-$ROS_DISTRO-lgsvl-bridge && \
+        rm -rf /var/lib/apt/lists/*; \
+    fi
+
+# Reenable when the LGSVL bridge is available for Galactic
+# RUN if [ "$ROS_DISTRO" = "galactic" ]; then \
+#         apt-get update && \
+#         apt-get install -y ros-$ROS_DISTRO-lgsvl-bridge && \
+#         rm -rf /var/lib/apt/lists/*; \
+#     fi
+
 RUN echo 'ALL ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
 RUN echo 'Defaults env_keep += "DEBUG ROS_DISTRO"' >> /etc/sudoers
 
@@ -72,8 +85,10 @@ COPY gdbinit /etc/gdb/
 # Install a browser. Needed to configure SVL simulator
 RUN if [ "$(uname -m)" = "x86_64" ]; then \
         curl -LO https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb && \
+        apt-get update && \
         apt-get install -y ./google-chrome-stable_current_amd64.deb && \
-        rm google-chrome-stable_current_amd64.deb; \
+        rm google-chrome-stable_current_amd64.deb && \
+        rm -rf /var/lib/apt/lists/*; \
     fi 
 
 

@@ -12,7 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wconversion"
+#pragma GCC diagnostic ignored "-Wold-style-cast"
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wuseless-cast"
 #include <lanelet2_io/Io.h>
+#pragma GCC diagnostic pop
+
 #include <lanelet2_io/io_handlers/Factory.h>
 #include <lanelet2_io/io_handlers/Writer.h>
 
@@ -21,7 +28,12 @@
 #include <string>
 #include <memory>
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wuseless-cast"
 #include "rclcpp/rclcpp.hpp"
+#pragma GCC diagnostic pop
+
 #include "lanelet2_map_provider/lanelet2_map_provider.hpp"
 #include "lanelet2_map_provider/lanelet2_map_provider_node.hpp"
 #include "gtest/gtest.h"

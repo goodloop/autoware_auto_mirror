@@ -32,9 +32,22 @@
 #include "geometry_msgs/msg/twist_stamped.hpp"
 #include "helper_functions/angle_utils.hpp"
 #include "motion_common/motion_common.hpp"
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wuseless-cast"
 #include "rclcpp/rclcpp.hpp"
+#pragma GCC diagnostic pop
+
 #include "tf2/utils.h"
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wconversion"
+#pragma GCC diagnostic ignored "-Wdouble-promotion"
+#pragma GCC diagnostic ignored "-Wold-style-cast"
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wuseless-cast"
 #include "tf2_geometry_msgs/tf2_geometry_msgs.h"
+#pragma GCC diagnostic pop
 
 
 namespace autoware

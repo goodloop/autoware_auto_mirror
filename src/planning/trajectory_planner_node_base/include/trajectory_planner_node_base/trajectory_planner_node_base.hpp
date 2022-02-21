@@ -22,7 +22,17 @@
 #include <trajectory_planner_node_base/visibility_control.hpp>
 
 // ROS
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wuseless-cast"
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wuseless-cast"
 #include <rclcpp/rclcpp.hpp>
+#pragma GCC diagnostic pop
+
+#pragma GCC diagnostic pop
 #include <rclcpp_action/rclcpp_action.hpp>
 
 // Autoware Package
@@ -32,7 +42,14 @@
 #include <common/types.hpp>
 
 // external libraries
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wconversion"
+#pragma GCC diagnostic ignored "-Wold-style-cast"
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wuseless-cast"
 #include <lanelet2_core/LaneletMap.h>
+#pragma GCC diagnostic pop
+
 #include <memory>
 #include <string>
 

@@ -48,16 +48,22 @@ if(BUILD_TESTING)
   add_ros_test(
     test/ros_info_node_launch.test.py
     TIMEOUT "30"
+    ENV
+    ROS_DOMAIN_ID=21
   )
 
   add_ros_test(
     test/sys_info_node_launch.test.py
     TIMEOUT "30"
+    ENV
+    ROS_DOMAIN_ID=22
   )
 
   add_ros_test(
     test/benchmark_tool_node_launch.test.py
     TIMEOUT "30"
+    ENV
+    ROS_DOMAIN_ID=23
   )
 endif()
 

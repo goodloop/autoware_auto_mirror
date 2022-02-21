@@ -63,33 +63,34 @@ PointCloud2FilterTransformNode::PointCloud2FilterTransformNode(
   const rclcpp::NodeOptions & node_options)
 : Node("point_cloud_filter_transform_node", node_options),
   m_angle_filter{
-    static_cast<float32_t>(declare_parameter("start_angle").get<float64_t>()),
-    static_cast<float32_t>(declare_parameter("end_angle").get<float64_t>())},
+    static_cast<float32_t>(declare_parameter<float64_t>("start_angle")),
+    static_cast<float32_t>(declare_parameter<float64_t>("end_angle"))},
   m_distance_filter{
-    static_cast<float32_t>(declare_parameter("min_radius").get<float64_t>()),
-    static_cast<float32_t>(declare_parameter("max_radius").get<float64_t>())},
-  m_input_frame_id{declare_parameter("input_frame_id").get<std::string>()},
-  m_output_frame_id{declare_parameter("output_frame_id").get<std::string>()},
-  m_init_timeout{std::chrono::milliseconds{declare_parameter("init_timeout_ms").get<int32_t>()}},
-  m_timeout{std::chrono::milliseconds{declare_parameter("timeout_ms").get<int32_t>()}},
+    static_cast<float32_t>(declare_parameter<float64_t>("min_radius")),
+    static_cast<float32_t>(declare_parameter<float64_t>("max_radius"))},
+  m_input_frame_id{declare_parameter<std::string>("input_frame_id")},
+  m_output_frame_id{declare_parameter<std::string>("output_frame_id")},
+  m_init_timeout{std::chrono::milliseconds{declare_parameter<int>("init_timeout_ms")}},
+  m_timeout{std::chrono::milliseconds{declare_parameter<int>("timeout_ms")}},
   m_sub_ptr{create_subscription<PointCloud2>(
       "points_in", rclcpp::QoS{10},
       std::bind(
         &PointCloud2FilterTransformNode::process_filtered_transformed_message, this, _1))},
   m_pub_ptr{create_publisher<PointCloud2>("points_filtered", rclcpp::QoS{10})},
   m_expected_num_publishers{
-    static_cast<size_t>(declare_parameter("expected_num_publishers").get<int32_t>())},
+    static_cast<size_t>(declare_parameter<int>("expected_num_publishers"))},
   m_expected_num_subscribers{
-    static_cast<size_t>(declare_parameter("expected_num_subscribers").get<int32_t>())},
-  m_pcl_size{static_cast<std::uint32_t>(declare_parameter("pcl_size").get<uint32_t>())}
-{  /// Declare transform parameters with the namespace
-  this->declare_parameter("static_transformer.quaternion.x");
-  this->declare_parameter("static_transformer.quaternion.y");
-  this->declare_parameter("static_transformer.quaternion.z");
-  this->declare_parameter("static_transformer.quaternion.w");
-  this->declare_parameter("static_transformer.translation.x");
-  this->declare_parameter("static_transformer.translation.y");
-  this->declare_parameter("static_transformer.translation.z");
+    static_cast<size_t>(declare_parameter<int>("expected_num_subscribers"))},
+  m_pcl_size{static_cast<std::uint32_t>(declare_parameter<int>("pcl_size"))}
+{
+  /// Declare transform parameters with the namespace
+  this->declare_parameter("static_transformer.quaternion.x", rclcpp::PARAMETER_DOUBLE);
+  this->declare_parameter("static_transformer.quaternion.y", rclcpp::PARAMETER_DOUBLE);
+  this->declare_parameter("static_transformer.quaternion.z", rclcpp::PARAMETER_DOUBLE);
+  this->declare_parameter("static_transformer.quaternion.w", rclcpp::PARAMETER_DOUBLE);
+  this->declare_parameter("static_transformer.translation.x", rclcpp::PARAMETER_DOUBLE);
+  this->declare_parameter("static_transformer.translation.y", rclcpp::PARAMETER_DOUBLE);
+  this->declare_parameter("static_transformer.translation.z", rclcpp::PARAMETER_DOUBLE);
 
   /// Declare objects to hold transform parameters
   rclcpp::Parameter quat_x_param;
@@ -114,13 +115,13 @@ PointCloud2FilterTransformNode::PointCloud2FilterTransformNode(
     m_static_transformer = std::make_unique<StaticTransformer>(
       get_transform(
         m_input_frame_id, m_output_frame_id,
-        quat_x_param.as_double(),
-        quat_y_param.as_double(),
-        quat_z_param.as_double(),
-        quat_w_param.as_double(),
-        trans_x_param.as_double(),
-        trans_y_param.as_double(),
-        trans_z_param.as_double()).transform);
+        quat_x_param.get_value<float64_t>(),
+        quat_y_param.get_value<float64_t>(),
+        quat_z_param.get_value<float64_t>(),
+        quat_w_param.get_value<float64_t>(),
+        trans_x_param.get_value<float64_t>(),
+        trans_y_param.get_value<float64_t>(),
+        trans_z_param.get_value<float64_t>()).transform);
   } else {  /// Else lookup transform being published on /tf or /static_tf topics
     /// TF buffer
     tf2_ros::Buffer tf2_buffer(this->get_clock());

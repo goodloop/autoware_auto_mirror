@@ -15,7 +15,13 @@
 #ifndef MONITORED_NODE__MONITORED_SUBSCRIPTION_HPP_
 #define MONITORED_NODE__MONITORED_SUBSCRIPTION_HPP_
 
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wuseless-cast"
 #include <rclcpp/rclcpp.hpp>
+#pragma GCC diagnostic pop
+
 #include <std_msgs/msg/u_int32.hpp>
 
 #include <chrono>
@@ -61,7 +67,7 @@ public:
     CallbackT && callback, std::chrono::milliseconds max_callback_duration,
     SafetyMonitorInterface::SharedPtr safety_monitor_interface,
     rclcpp::Node * parent_node,
-    rclcpp::callback_group::CallbackGroup::SharedPtr subscription_callback_group)
+    rclcpp::CallbackGroup::SharedPtr subscription_callback_group)
   : m_topic_name(topic_name), m_callback(callback),
     m_safety_monitor_interface(safety_monitor_interface),
     m_max_callback_duration(max_callback_duration)

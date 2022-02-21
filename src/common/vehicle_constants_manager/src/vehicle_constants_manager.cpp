@@ -13,7 +13,13 @@
 // limitations under the License.
 
 #include "vehicle_constants_manager/vehicle_constants_manager.hpp"
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wuseless-cast"
 #include <rclcpp/rclcpp.hpp>
+#pragma GCC diagnostic pop
+
 
 #include <map>
 #include <stdexcept>
@@ -170,7 +176,7 @@ VehicleConstants declare_and_get_vehicle_constants(rclcpp::Node & node)
       continue;
     }
 
-    pair.second = node.declare_parameter(pair.first).get<float64_t>();
+    pair.second = node.declare_parameter<float64_t>(pair.first);
   }
 
   return VehicleConstants(

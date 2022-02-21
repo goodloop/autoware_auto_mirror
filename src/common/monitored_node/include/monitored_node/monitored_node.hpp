@@ -15,7 +15,13 @@
 #ifndef MONITORED_NODE__MONITORED_NODE_HPP_
 #define MONITORED_NODE__MONITORED_NODE_HPP_
 
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wuseless-cast"
 #include <rclcpp/rclcpp.hpp>
+#pragma GCC diagnostic pop
+
 
 #include <utility>
 #include <chrono>
@@ -56,9 +62,9 @@ public:
     // Create callback groups so that timer and subscription callbacks can be invoked in separate
     // threads. This only applies when a multi-thread executor is used.
     m_timer_callback_group = create_callback_group(
-      rclcpp::callback_group::CallbackGroupType::MutuallyExclusive);
+      rclcpp::CallbackGroupType::MutuallyExclusive);
     m_subscription_callback_group = create_callback_group(
-      rclcpp::callback_group::CallbackGroupType::MutuallyExclusive);
+      rclcpp::CallbackGroupType::MutuallyExclusive);
 
     // Initialise safety monitor interface
     m_safety_monitor_interface = std::make_shared<SafetyMonitorInterface>(
@@ -160,8 +166,8 @@ private:
   static constexpr const char * m_max_callback_duration_param_name{"max_callback_duration_ms"};
 
   // shared pointers to callback groups to be used with timers and subscriptions
-  rclcpp::callback_group::CallbackGroup::SharedPtr m_timer_callback_group{};
-  rclcpp::callback_group::CallbackGroup::SharedPtr m_subscription_callback_group{};
+  rclcpp::CallbackGroup::SharedPtr m_timer_callback_group{};
+  rclcpp::CallbackGroup::SharedPtr m_subscription_callback_group{};
 };
 
 }  // namespace monitored_node

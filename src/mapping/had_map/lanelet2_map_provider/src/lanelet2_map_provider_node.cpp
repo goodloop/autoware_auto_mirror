@@ -21,10 +21,25 @@
 #include <tf2/buffer_core.h>
 #include <tf2/time.h>
 #include <tf2_ros/transform_listener.h>
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wconversion"
+#pragma GCC diagnostic ignored "-Wdouble-promotion"
+#pragma GCC diagnostic ignored "-Wold-style-cast"
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wuseless-cast"
 #include <tf2_ros/buffer.h>
+#pragma GCC diagnostic pop
+
 #include <geometry_msgs/msg/transform_stamped.h>
 
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wuseless-cast"
 #include <rclcpp/rclcpp.hpp>
+#pragma GCC diagnostic pop
+
 #include <rclcpp/time_source.hpp>
 #include <rclcpp_components/register_node_macro.hpp>
 #include <common/types.hpp>
@@ -47,13 +62,13 @@ namespace lanelet2_map_provider
 Lanelet2MapProviderNode::Lanelet2MapProviderNode(const rclcpp::NodeOptions & options)
 : Node("Lanelet2MapProvider", options)
 {
-  const std::string map_filename = declare_parameter("map_osm_file").get<std::string>();
+  const std::string map_filename = declare_parameter<std::string>("map_osm_file");
   const float64_t origin_offset_lat = declare_parameter("origin_offset_lat", 0.0);
   const float64_t origin_offset_lon = declare_parameter("origin_offset_lon", 0.0);
   if (has_parameter("latitude") && has_parameter("longitude") && has_parameter("elevation")) {
-    const float64_t origin_lat = declare_parameter("latitude").get<float64_t>();
-    const float64_t origin_lon = declare_parameter("longitude").get<float64_t>();
-    const float64_t origin_alt = declare_parameter("elevation").get<float64_t>();
+    const float64_t origin_lat = declare_parameter<float64_t>("latitude");
+    const float64_t origin_lon = declare_parameter<float64_t>("longitude");
+    const float64_t origin_alt = declare_parameter<float64_t>("elevation");
     LatLonAlt map_origin{origin_lat, origin_lon, origin_alt};
     m_map_provider = std::make_unique<Lanelet2MapProvider>(
       map_filename, map_origin, origin_offset_lat, origin_offset_lon);

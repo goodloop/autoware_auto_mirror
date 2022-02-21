@@ -1,0 +1,29 @@
+repositories:
+  src/external/autoware_auto_msgs:
+    type: git
+    url: https://gitlab.com/autowarefoundation/autoware.auto/autoware_auto_msgs.git
+    version: ea918bb077cc806619d5ffa9397c180b9cb907ca
+  src/external/casadi_vendor:
+    type: git
+    url: https://gitlab.com/autowarefoundation/autoware.auto/casadi_vendor.git
+    version: e244158a3dd6d181c01bd756b3603a39a09107e9
+  src/external/grid_map:
+    type: git
+    url: https://github.com/ANYbotics/grid_map.git
+    version: 7afca6c8314bd3016dc974541aecca3ed39ccab0
+  src/external/transport_drivers:
+    type: git
+    url: https://github.com/ros-drivers/transport_drivers.git
+    version: 0140e5e7c0702a675472ee0e5bff22955e45729c
+  src/external/raptor_dbw_ros2:
+    type: git
+    url: https://github.com/NewEagleRaptor/raptor-dbw-ros2.git
+    version: 8bcb321103abdf1da603865ec8cf12e803f085bc
+  src/external/lgsvl_bridge:
+    type: git
+    url: https://github.com/lgsvl/ros2-lgsvl-bridge.git
+    version: 4654ff45d21f84ce1ccc4546d9394e10217a6339
+  src/external/vesc:
+    type: git
+    url: https://github.com/f1tenth/vesc
+    version: ros2

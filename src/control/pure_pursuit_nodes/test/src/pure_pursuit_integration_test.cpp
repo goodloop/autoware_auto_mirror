@@ -15,7 +15,13 @@
 // Co-developed by Tier IV, Inc. and Apex.AI, Inc.
 
 #include <common/types.hpp>
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wuseless-cast"
 #include <rclcpp/rclcpp.hpp>
+#pragma GCC diagnostic pop
+
 #include <autoware_auto_planning_msgs/msg/trajectory.hpp>
 #include <autoware_auto_planning_msgs/msg/trajectory_point.hpp>
 #include <autoware_auto_vehicle_msgs/msg/vehicle_kinematic_state.hpp>
@@ -158,8 +164,8 @@ public:
   {
     using namespace std::string_literals;
     RCLCPP_INFO(get_logger(), "MotionControllerPubSub checking...");
-    RCLCPP_INFO(get_logger(), "\tShould receive: "s + std::to_string(m_num_msgs * 2U));
-    RCLCPP_INFO(get_logger(), "\tActual received: "s + std::to_string(m_num_received_msgs));
+    RCLCPP_INFO_STREAM(get_logger(), "\tShould receive: "s << std::to_string(m_num_msgs * 2U));
+    RCLCPP_INFO_STREAM(get_logger(), "\tActual received: "s << std::to_string(m_num_received_msgs));
     // Relatively loose check: make sure you got at least something
     bool8_t message_received = m_num_received_msgs > 0U;
     // Make sure you're close enough
@@ -167,10 +173,12 @@ public:
     // Definitely shouldn't get too many
     message_received = message_received && (m_num_received_msgs <= m_num_msgs * 2U);
 
-    RCLCPP_INFO(get_logger(), "\tShould have correct answer: "s + std::to_string(m_num_msgs));
-    RCLCPP_INFO(
+    RCLCPP_INFO_STREAM(
       get_logger(),
-      "\tActual have correct answer: "s + std::to_string(m_num_correct_output));
+      "\tShould have correct answer: "s << std::to_string(m_num_msgs));
+    RCLCPP_INFO_STREAM(
+      get_logger(),
+      "\tActual have correct answer: "s << std::to_string(m_num_correct_output));
     bool8_t is_correct = m_num_correct_output <= m_num_msgs;
     is_correct = is_correct && ((m_num_correct_output * 2U) > (m_num_msgs * 7 / 10));
     return message_received && is_correct;

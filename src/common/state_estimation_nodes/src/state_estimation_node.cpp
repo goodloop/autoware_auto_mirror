@@ -26,7 +26,15 @@
 #include <state_estimation/noise_model/wiener_noise.hpp>
 
 #include <tf2_eigen/tf2_eigen.h>
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wconversion"
+#pragma GCC diagnostic ignored "-Wdouble-promotion"
+#pragma GCC diagnostic ignored "-Wold-style-cast"
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wuseless-cast"
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
+#pragma GCC diagnostic pop
+
 
 #include <functional>
 #include <limits>
@@ -109,8 +117,8 @@ StateEstimationNode::StateEstimationNode(
 : rclcpp::Node{"state_estimation_node", node_options},
   m_tf_listener(m_tf_buffer, std::shared_ptr<rclcpp::Node>(this, [](auto) {}), false)
 {
-  m_frame_id = declare_parameter("frame_id").get<std::string>();
-  m_child_frame_id = declare_parameter("child_frame_id").get<std::string>();
+  m_frame_id = declare_parameter<std::string>("frame_id");
+  m_child_frame_id = declare_parameter<std::string>("child_frame_id");
   m_publish_frequency = declare_parameter("output_frequency", kInvalidFrequency);
   m_publish_data_driven = declare_parameter("data_driven", false);
   const auto time_between_publish_requests{

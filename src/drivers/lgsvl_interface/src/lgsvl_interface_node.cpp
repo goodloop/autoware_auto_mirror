@@ -58,14 +58,14 @@ LgsvlInterfaceNode::LgsvlInterfaceNode(
   const auto table = [this](const std::string & prefix_raw) -> Table1D {
       const std::string prefix = "lgsvl." + prefix_raw + ".";
       return Table1D{
-      declare_parameter(prefix + "domain").get<std::vector<float64_t>>(),
-      declare_parameter(prefix + "range").get<std::vector<float64_t>>()
+      declare_parameter<std::vector<float64_t>>(prefix + "domain"),
+      declare_parameter<std::vector<float64_t>>(prefix + "range")
       };
     };
-  const auto pub_pose_param = declare_parameter("lgsvl.publish_pose");
+  const auto pub_pose_param = declare_parameter("lgsvl.publish_pose", rclcpp::PARAMETER_BOOL);
   const bool pub_pose = rclcpp::ParameterType::PARAMETER_NOT_SET == pub_pose_param.get_type() ?
     PUBLISH : pub_pose_param.get<bool>();
-  const auto pub_tf_param = declare_parameter("lgsvl.publish_tf");
+  const auto pub_tf_param = declare_parameter("lgsvl.publish_tf", rclcpp::PARAMETER_BOOL);
   const bool pub_tf = rclcpp::ParameterType::PARAMETER_NOT_SET == pub_tf_param.get_type() ?
     NO_PUBLISH : pub_tf_param.get<bool>();
 

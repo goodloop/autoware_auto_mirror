@@ -18,14 +18,29 @@
 #define POINT_CLOUD_FILTER_TRANSFORM_NODES__POINT_CLOUD_FILTER_TRANSFORM_NODE_HPP_
 
 #include <point_cloud_filter_transform_nodes/visibility_control.hpp>
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wuseless-cast"
 #include <rclcpp/rclcpp.hpp>
+#pragma GCC diagnostic pop
+
 #include <lidar_utils/point_cloud_utils.hpp>
 #include <sensor_msgs/msg/point_cloud2.hpp>
 
 #include <memory>
 #include <string>
 
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wconversion"
+#pragma GCC diagnostic ignored "-Wdouble-promotion"
+#pragma GCC diagnostic ignored "-Wold-style-cast"
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wuseless-cast"
 #include "tf2_ros/buffer.h"
+#pragma GCC diagnostic pop
+
 #include "tf2_ros/transform_listener.h"
 
 namespace autoware

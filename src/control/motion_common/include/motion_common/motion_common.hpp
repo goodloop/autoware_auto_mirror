@@ -15,15 +15,41 @@
 #define MOTION_COMMON__MOTION_COMMON_HPP_
 
 #include <motion_common/visibility_control.hpp>
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsign-conversion"
 #include <autoware_auto_planning_msgs/msg/trajectory.hpp>
+#pragma GCC diagnostic pop
+
 #include <autoware_auto_system_msgs/msg/control_diagnostic.hpp>
 #include <autoware_auto_vehicle_msgs/msg/vehicle_control_command.hpp>
 #include <autoware_auto_vehicle_msgs/msg/vehicle_kinematic_state.hpp>
 #include <geometry_msgs/msg/transform_stamped.hpp>
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdouble-promotion"
+#pragma GCC diagnostic ignored "-Wold-style-cast"
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wuseless-cast"
 #include <tf2/LinearMath/Quaternion.h>
+#pragma GCC diagnostic pop
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wconversion"
+#pragma GCC diagnostic ignored "-Wold-style-cast"
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wuseless-cast"
 #include <tf2/utils.h>
+#pragma GCC diagnostic pop
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wconversion"
+#pragma GCC diagnostic ignored "-Wdouble-promotion"
+#pragma GCC diagnostic ignored "-Wold-style-cast"
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wuseless-cast"
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
+#pragma GCC diagnostic pop
+
 #include <time_utils/time_utils.hpp>
 
 #include <algorithm>

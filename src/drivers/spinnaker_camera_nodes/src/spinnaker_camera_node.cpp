@@ -71,7 +71,8 @@ SpinnakerCameraNode::SpinnakerCameraNode(
     // TODO(igor): this should really be a terminate. It is a post-condition violation.
     throw std::runtime_error("No publishers created. Cannot start node.");
   }
-  cameras.set_image_callback(std::bind(
+  cameras.set_image_callback(
+    std::bind(
       &SpinnakerCameraNode::publish_image, this, std::placeholders::_1, std::placeholders::_2));
   cameras.start_capturing();
 }
@@ -95,11 +96,11 @@ spinnaker::CameraListWrapper & SpinnakerCameraNode::create_cameras_from_params(
           prefix_dot + "device_link_throughput_limit", kDefaultDeviceThroughputLimit)};
       return spinnaker::CameraSettings{
       static_cast<std::uint32_t>(
-        declare_parameter(prefix_dot + "window_width").get<std::uint64_t>()),
+        declare_parameter<int64_t>(prefix_dot + "window_width")),
       static_cast<std::uint32_t>(
-        declare_parameter(prefix_dot + "window_height").get<std::uint64_t>()),
-      declare_parameter(prefix_dot + "fps").template get<float64_t>(),
-      declare_parameter(prefix_dot + "pixel_format").template get<std::string>(),
+        declare_parameter<int64_t>(prefix_dot + "window_height")),
+      declare_parameter<float64_t>(prefix_dot + "fps"),
+      declare_parameter<std::string>(prefix_dot + "pixel_format"),
       camera_frame_id_param,
       camera_serial_number_param,
       device_link_throughput_limit_param};
@@ -116,7 +117,8 @@ spinnaker::CameraListWrapper & SpinnakerCameraNode::create_cameras_from_params(
       settings_from_params(camera_settings_param_name));
   } else {
     std::vector<spinnaker::CameraSettings> settings;
-    std::transform(camera_names.begin(), camera_names.end(), std::back_inserter(settings),
+    std::transform(
+      camera_names.begin(), camera_names.end(), std::back_inserter(settings),
       [&camera_settings_param_name, &settings_from_params](
         const std::string & name) -> spinnaker::CameraSettings {
         return settings_from_params(camera_settings_param_name + "." + name);

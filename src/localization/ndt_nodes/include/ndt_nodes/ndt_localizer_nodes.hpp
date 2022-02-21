@@ -24,7 +24,13 @@
 #include <sensor_msgs/msg/point_cloud2.hpp>
 #include <optimization/newtons_method_optimizer.hpp>
 #include <optimization/line_search/more_thuente_line_search.hpp>
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wuseless-cast"
 #include <rclcpp/rclcpp.hpp>
+#pragma GCC diagnostic pop
+
 #include <utility>
 #include <string>
 #include <memory>
@@ -84,9 +90,9 @@ public:
     const PoseInitializerT & pose_initializer)
   : ParentT(node_name, name_space, pose_initializer),
     m_predict_translation_threshold{
-      this->declare_parameter("predict_pose_threshold.translation").template get<double>()},
+      this->template declare_parameter<double>("predict_pose_threshold.translation")},
     m_predict_rotation_threshold{
-      this->declare_parameter("predict_pose_threshold.rotation").template get<double>()}
+      this->template declare_parameter<double>("predict_pose_threshold.rotation")}
   {
     init();
   }
@@ -98,9 +104,9 @@ public:
     const PoseInitializerT & pose_initializer)
   : ParentT(node_name, node_options, pose_initializer),
     m_predict_translation_threshold{
-      this->declare_parameter("predict_pose_threshold.translation").template get<double>()},
+      this->template declare_parameter<double>("predict_pose_threshold.translation")},
     m_predict_rotation_threshold{
-      this->declare_parameter("predict_pose_threshold.rotation").template get<double>()}
+      this->template declare_parameter<double>("predict_pose_threshold.rotation")}
   {
     init();
   }
@@ -185,32 +191,28 @@ private:
   {
     // Fetch localizer configuration
     ndt::P2DNDTLocalizerConfig localizer_config{
-      static_cast<uint32_t>(this->declare_parameter("localizer.scan.capacity").
-      template get<uint32_t>()),
+      static_cast<uint32_t>(this->template declare_parameter<int>("localizer.scan.capacity")),
       std::chrono::milliseconds(
         static_cast<uint64_t>(
-          this->declare_parameter("localizer.guess_time_tolerance_ms").template get<uint64_t>()))
+          this->template declare_parameter<int64_t>("localizer.guess_time_tolerance_ms")))
     };
 
-    const auto outlier_ratio{this->declare_parameter(
-        "localizer.optimization.outlier_ratio").template get<float64_t>()};
+    const auto outlier_ratio{this->template declare_parameter<float64_t>(
+        "localizer.optimization.outlier_ratio")};
 
     common::optimization::OptimizationOptions optimizer_options{
       static_cast<uint64_t>(
-        this->declare_parameter("localizer.optimizer.max_iterations").template get<uint64_t>()),
-      this->declare_parameter("localizer.optimizer.score_tolerance").template get<float64_t>(),
-      this->declare_parameter(
-        "localizer.optimizer.parameter_tolerance").template get<float64_t>(),
-      this->declare_parameter("localizer.optimizer.gradient_tolerance").template get<float64_t>()
+        this->template declare_parameter<int64_t>("localizer.optimizer.max_iterations")),
+      this->template declare_parameter<float64_t>("localizer.optimizer.score_tolerance"),
+      this->template declare_parameter<float64_t>("localizer.optimizer.parameter_tolerance"),
+      this->template declare_parameter<float64_t>("localizer.optimizer.gradient_tolerance")
     };
 
     // Construct and set the localizer.
-    const float32_t step_max{static_cast<float32_t>(this->declare_parameter(
-        "localizer.optimizer.line_search.step_max").
-      template get<float64_t>())};
-    const float32_t step_min{static_cast<float32_t>(this->declare_parameter(
-        "localizer.optimizer.line_search.step_min").
-      template get<float64_t>())};
+    const float32_t step_max{static_cast<float32_t>(this->template declare_parameter<float64_t>(
+        "localizer.optimizer.line_search.step_max"))};
+    const float32_t step_min{static_cast<float32_t>(this->template declare_parameter<float64_t>(
+        "localizer.optimizer.line_search.step_min"))};
     // TODO(igor): make the line search configurable.
     auto localizer_ptr = std::make_unique<Localizer>(
       localizer_config,

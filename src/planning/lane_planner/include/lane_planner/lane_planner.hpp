@@ -21,7 +21,11 @@
 
 #include <lane_planner/visibility_control.hpp>
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsign-conversion"
 #include <autoware_auto_vehicle_msgs/msg/vehicle_kinematic_state.hpp>
+#pragma GCC diagnostic pop
+
 #include <autoware_auto_planning_msgs/msg/trajectory.hpp>
 #include <autoware_auto_planning_msgs/msg/had_map_route.hpp>
 #include <common/types.hpp>
@@ -29,7 +33,14 @@
 
 #include <trajectory_smoother/trajectory_smoother.hpp>
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wconversion"
+#pragma GCC diagnostic ignored "-Wold-style-cast"
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wuseless-cast"
 #include <lanelet2_core/LaneletMap.h>
+#pragma GCC diagnostic pop
+
 #include <lanelet2_core/primitives/Point.h>
 
 #include <iostream>
