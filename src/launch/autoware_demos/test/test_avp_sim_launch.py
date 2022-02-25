@@ -52,7 +52,12 @@ class TestProcessOutput(unittest.TestCase):
     def test_exit_code(self, proc_info):
         # Check that all processes in the launch file exit with code 0
         # Exceptions: some processes have inconsistent exit codes
-        ex_processes = ["costmap_generator_node", "ndt_map_publisher"]
+        ex_processes = [
+            "costmap_generator_node",
+            "ndt_map_publisher",
+            "lanelet2_map_provider",
+            "lanelet2_global_planner_node",
+        ]
         ex_codes = [0, -6, -15]
         for process_name in proc_info.process_names():
             if any(ex_process in process_name for ex_process in ex_processes):
