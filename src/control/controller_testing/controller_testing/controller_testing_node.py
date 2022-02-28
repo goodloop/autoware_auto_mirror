@@ -350,14 +350,16 @@ class ControllerTestingNode(Node):
 
         # Controller Diagnostics
         if len(self._diag_msgs) > 0:
-            diag_init_time = Time.from_msg(self._diag_msgs[0].diag_header.data_stamp).nanoseconds / 1e9
+            diag_init_time = Time.from_msg(
+                self._diag_msgs[0].diag_header.data_stamp).nanoseconds / 1e9
 
             def get_from_diag(accessor):
                 return list(map(lambda x: accessor(x), self._diag_msgs))
 
             diag_time_history = get_from_diag(
                 lambda instant:
-                    (Time.from_msg(instant.diag_header.data_stamp).nanoseconds / 1e9) - diag_init_time
+                    (Time.from_msg(instant.diag_header.data_stamp).nanoseconds / 1e9)
+                    - diag_init_time
             )
             lateral_error_m = get_from_diag(lambda instant: instant.lateral_error_m)
             longitudinal_error_m = get_from_diag(lambda instant: instant.longitudinal_error_m)
