@@ -21,6 +21,10 @@
 
 namespace autoware_utils
 {
+/// \brief Wrap angle to the [min_deg, min_deg + 180] range.
+/// \param deg Degree to be normalized
+/// \param min_deg Minimum degree
+/// \return N Normalized degree
 inline double normalizeDegree(const double deg, const double min_deg = -180)
 {
   const auto max_deg = min_deg + 360.0;
@@ -32,7 +36,10 @@ inline double normalizeDegree(const double deg, const double min_deg = -180)
 
   return value - std::copysign(360.0, value);
 }
-
+/// \brief Wrap angle to the [min_rad, min_rad + 2PI] range.
+/// \param rad Radian value to be normalized
+/// \param min_rad Minimum radian
+/// \return Normalized radian
 inline double normalizeRadian(const double rad, const double min_rad = -pi)
 {
   const auto max_rad = min_rad + 2 * pi;

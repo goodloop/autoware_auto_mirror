@@ -22,6 +22,13 @@
 
 namespace autoware_utils
 {
+/// \brief Vector creation based on numerical range
+/// \tparam T Type of values
+/// \param start Start of the interval
+/// \param stop Stop of the interval
+/// \param step Indicating the step size of the interval and it is a number by which the
+/// interval values change. The default value of this parameter is 1
+/// \return  the vector within the specified range
 template<class T>
 std::vector<T> arange(const T start, const T stop, const T step = 1)
 {
@@ -50,6 +57,12 @@ std::vector<T> arange(const T start, const T stop, const T step = 1)
   return out;
 }
 
+/// \brief Get spaced numbers over a specified interval
+/// \tparam T Type of values
+/// \param start The starting value of the interval
+/// \param stop The stopping value of the interval
+/// \param num Number of spaced samples over the interval to be generated
+/// \return The vector within the range specified
 template<class T>
 std::vector<double> linspace(const T start, const T stop, const size_t num)
 {

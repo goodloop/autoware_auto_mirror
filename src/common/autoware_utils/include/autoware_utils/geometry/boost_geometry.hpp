@@ -67,16 +67,23 @@ struct Point3d : public Eigen::Vector3d
   [[nodiscard]] Point2d to_2d() const;
 };
 
+/// \brief Convert Point2d to Point3d
+/// \param z z value of the Point
+/// \return Point as a Point3d type
 inline Point3d Point2d::to_3d(const double z) const
 {
   return Point3d{x(), y(), z};
 }
 
+/// \brief Convert Point3d to Point2d
+/// \return Point as a Point2d type
 inline Point2d Point3d::to_2d() const
 {
   return Point2d{x(), y()};
 }
-
+/// \brief Get ROS geometry_msgs::msg::Point from Point3d
+/// \param point Point
+/// \return geometry_msgs::msg::Point message
 inline geometry_msgs::msg::Point toMsg(const Point3d & point)
 {
   geometry_msgs::msg::Point msg;
@@ -86,6 +93,9 @@ inline geometry_msgs::msg::Point toMsg(const Point3d & point)
   return msg;
 }
 
+/// \brief Get Point3d from ROS geometry_msgs::msg::Point message
+/// \param msg Point
+/// \return Point as a Point3d type
 inline Point3d fromMsg(const geometry_msgs::msg::Point & msg)
 {
   Point3d point;

@@ -28,6 +28,10 @@ struct PoseDeviation
   double yaw;
 };
 
+/// \brief Calculate lateral deviation from given base Pose message to target Point message
+/// \param base_pose Base pose message
+/// \param target_point Target point message
+/// \return Lateral deviation
 inline double calcLateralDeviation(
   const geometry_msgs::msg::Pose & base_pose, const geometry_msgs::msg::Point & target_point)
 {
@@ -45,6 +49,10 @@ inline double calcLateralDeviation(
   return cross_vec.z();
 }
 
+/// \brief Calculate longitudinal deviation from given base Pose message to target Point message
+/// \param base_pose  Base pose message
+/// \param target_point  Target point message
+/// \return Longitudinal deviation
 inline double calcLongitudinalDeviation(
   const geometry_msgs::msg::Pose & base_pose, const geometry_msgs::msg::Point & target_point)
 {
@@ -60,6 +68,10 @@ inline double calcLongitudinalDeviation(
   return base_unit_vec.dot(diff_vec);
 }
 
+/// \brief Calculate yaw deviation from given base Pose to target Pose messages
+/// \param base_pose Base pose message
+/// \param target_pose Target pose message
+/// \return yaw deviation
 inline double calcYawDeviation(
   const geometry_msgs::msg::Pose & base_pose, const geometry_msgs::msg::Pose & target_pose)
 {
@@ -68,6 +80,10 @@ inline double calcYawDeviation(
   return normalizeRadian(target_yaw - base_yaw);
 }
 
+/// \brief Calculate pose deviation from given base Pose message to target Pose message
+/// \param base_pose Base pose message
+/// \param target_pose Target pose message
+/// \return Pose deviation
 inline PoseDeviation calcPoseDeviation(
   const geometry_msgs::msg::Pose & base_pose, const geometry_msgs::msg::Pose & target_pose)
 {
