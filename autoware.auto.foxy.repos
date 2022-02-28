@@ -2,7 +2,7 @@ repositories:
   src/external/autoware_auto_msgs:
     type: git
     url: https://gitlab.com/autowarefoundation/autoware.auto/autoware_auto_msgs.git
-    version: ac0e064b7efa02a48367ebc041a4332513bd0082
+    version: ad575110c7ec4a22713ec164d5dba31d741ccd8b
   src/external/grid_map:
     type: git
     url: https://github.com/ANYbotics/grid_map.git
