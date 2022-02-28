@@ -239,7 +239,10 @@ TEST_F(VelodyneDriver, Basic)
     EXPECT_LE(pt.intensity, 255.0F);
     EXPECT_GE(pt.intensity, 0.0F);
     // IDs are contiguous
-    EXPECT_TRUE((pt.fire_id == last_fire_id) || (pt.fire_id == (last_fire_id + 1U)));
+    EXPECT_TRUE(
+      (pt.fire_id == last_fire_id) ||
+      (pt.fire_id % Vlp16Translator::NUM_LASERS ==
+      (last_fire_id + 1U) % Vlp16Translator::NUM_LASERS));
     last_fire_id = pt.fire_id;
   }
   EXPECT_GE(min_r, 0.0F);

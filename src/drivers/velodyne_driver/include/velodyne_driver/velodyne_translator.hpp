@@ -51,6 +51,9 @@ public:
   /// \brief Stores basic configuration information, does some simple validity checking
   static constexpr uint16_t POINT_BLOCK_CAPACITY = 512U;
 
+  // Number of lasers in the LIDAR
+  static constexpr uint16_t NUM_LASERS = SensorData::NUM_LASERS;
+
   class Config
   {
 public:
@@ -133,7 +136,7 @@ private:
         PointXYZIF pt;
         polar_to_xyz(pt, r, th, phi);
         pt.intensity = m_intensity_table[channel.data[2U]];
-        pt.fire_id = m_sensor_data.seq_id(m_block_counter, pt_fire_id);
+        pt.fire_id = pt_fire_id % m_sensor_data.NUM_LASERS;
 
         output.push_back(pt);
       }
