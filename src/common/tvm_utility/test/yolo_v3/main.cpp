@@ -23,8 +23,53 @@
 #include "gtest/gtest.h"
 #include "tvm_utility/model_zoo.hpp"
 #include "tvm_utility/pipeline.hpp"
+#include <autoware_auto_perception_msgs/msg/bounding_box.hpp>
+
+
+// network input dimensions
+#define NETWORK_INPUT_WIDTH 416
+#define NETWORK_INPUT_HEIGHT 416
+
+// network output dimensions
+#define NETWORK_OUTPUT_HEIGHT_1 13
+#define NETWORK_OUTPUT_WIDTH_1 13
+#define NETWORK_OUTPUT_DEPTH 255
+
+// network output dimensions
+#define NETWORK_OUTPUT_HEIGHT_2 26
+#define NETWORK_OUTPUT_WIDTH_2 26
+
+// network output dimensions
+#define NETWORK_OUTPUT_HEIGHT_3 52
+#define NETWORK_OUTPUT_WIDTH_3 52
+
+/// Struct for storing detections in image with confidence scores
+struct BoundingBox
+{
+
+  float xmin;
+  float ymin;
+  float xmax;
+  float ymax;
+  float conf;
+
+  BoundingBox(float x_min, float y_min, float x_max, float y_max, float conf_) : xmin(x_min), ymin(y_min), xmax(x_max), ymax(y_max), conf(conf_){};
+};
+
+/// Map for storing the class and detections in the image
+std::map<int, std::vector<BoundingBox>> bbox_map{};
+static const int NETWORK_OUTPUT_WIDTH[3] = {NETWORK_OUTPUT_WIDTH_1, NETWORK_OUTPUT_WIDTH_2,
+                                            NETWORK_OUTPUT_WIDTH_3};
+static const int NETWORK_OUTPUT_HEIGHT[3] = {NETWORK_OUTPUT_HEIGHT_1, NETWORK_OUTPUT_HEIGHT_2,
+                                              NETWORK_OUTPUT_HEIGHT_3};
+
+// minimum confidence score by which to filter the output detections
+#define SCORE_THRESHOLD 0.5
+
+#define NMS_THRESHOLD 0.45
 
 using model_zoo::perception::camera_obstacle_detection::yolo_v3::tensorflow_fp32_coco::config;
+// using BoundingBox = autoware_auto_perception_msgs::msg::BoundingBox;
 
 // Name of file containing the human readable names of the classes. One class
 // on each line.
@@ -234,8 +279,13 @@ public:
   std::vector<float>
   schedule(const tvm_utility::pipeline::TVMArrayContainerVector & input)
   {
+    int scale = 0;
+    // Vector used to check if the result is accurate,
+    // this is also the output of this (schedule) function
+    std::vector<float> scores_above_threshold{};
     // Loop to run through the multiple outputs generated for different scale
     for (auto& y : input) {
+      int64_t shape_y[] = {1, NETWORK_OUTPUT_WIDTH[scale], NETWORK_OUTPUT_HEIGHT[scale], NETWORK_OUTPUT_DEPTH};
       auto l_h = shape_y[1];           // layer height
       auto l_w = shape_y[2];           // layer width
       auto n_classes = labels.size();  // total number of classes
@@ -244,8 +294,8 @@ public:
       auto nudetections = n_classes * n_anchors * l_w * l_h;
 
       // assert data is stored row-majored in y and the dtype is float
-      assert(y->strides == nullptr);
-      assert(y->dtype.bits == sizeof(float) * 8);
+      assert(y.strides == nullptr);
+      assert(y.dtype.bits == sizeof(float) * 8);
 
       // get a pointer to the output data
       float *data_ptr = reinterpret_cast<float *>(reinterpret_cast<uint8_t *>(y.getArray()->data) +
@@ -265,9 +315,7 @@ public:
       auto sigmoid = [](float x)
       { return static_cast<float>(1.0 / (1.0 + std::exp(-x))); };
 
-      // Vector used to check if the result is accurate,
-      // this is also the output of this (schedule) function
-      std::vector<float> scores_above_threshold{};
+      
 
       // Parse results into detections. Loop over each detection cell in the model
       // output
@@ -293,8 +341,8 @@ public:
             auto y_coord = (sigmoid(box_y) + i) / l_h;
 
             // Transform bounding box height and width from log to absolute space
-            auto w = anchor_w * exp(box_w) / network_input_width;
-            auto h = anchor_h * exp(box_h) / network_input_height;
+            auto w = anchor_w * exp(box_w) / NETWORK_INPUT_WIDTH;
+            auto h = anchor_h * exp(box_h) / NETWORK_INPUT_HEIGHT;
 
             // Decode the confidence of detection in this anchor box
             auto p_0 = sigmoid(box_p);
@@ -335,6 +383,7 @@ public:
           }
         }
       }
+      scale++;
     }
     return scores_above_threshold;
   }
@@ -345,12 +394,6 @@ private:
   int64_t network_output_depth;
   std::vector<std::string> labels{};
   std::vector<std::pair<float, float>> anchors{};
-  /// Map for storing the class and detections in the image
-  std::map<int, std::vector<BoundingBox>> bbox_map{};
-  static const int NETWORK_OUTPUT_WIDTH[3] = {NETWORK_OUTPUT_WIDTH_1, NETWORK_OUTPUT_WIDTH_2,
-                                              NETWORK_OUTPUT_WIDTH_3};
-  static const int NETWORK_OUTPUT_HEIGHT[3] = {NETWORK_OUTPUT_HEIGHT_1, NETWORK_OUTPUT_HEIGHT_2,
-                                               NETWORK_OUTPUT_HEIGHT_3};
 };
 
 TEST(PipelineExamples, SimplePipeline) {

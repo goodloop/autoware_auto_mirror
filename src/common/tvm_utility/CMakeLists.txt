@@ -91,6 +91,7 @@ if(BUILD_TESTING)
       ament_add_gtest(${TEST_CASE_NAME} ${TEST_CASE_SOURCES})
       ament_target_dependencies(${TEST_CASE_NAME}
         "ament_index_cpp"
+        "autoware_auto_perception_msgs"
         "tvm_vendor"
         "sensor_msgs")
 
