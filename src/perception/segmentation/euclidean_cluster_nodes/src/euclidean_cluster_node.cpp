@@ -281,7 +281,6 @@ void EuclideanClusterNode::handle(const PointCloud2::SharedPtr msg_ptr)
     }
     m_cluster_alg.cluster(m_clusters);
     //lint -e{523} NOLINT empty functions to make this modular
-    // handle_clusters(m_clusters, msg_ptr->header);
     handle_clusters(m_clusters, msg_ptr->header);
     m_cluster_alg.throw_stored_error();
   } catch (const std::exception & e) {

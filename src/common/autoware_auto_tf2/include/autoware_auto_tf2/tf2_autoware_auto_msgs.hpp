@@ -78,7 +78,7 @@ void doTransform(
 // template<>
 inline
 void doTransform(
-  Clusters & t_in, Clusters & t_out,
+  const Clusters & t_in, Clusters & t_out,
   const geometry_msgs::msg::TransformStamped & transform)
 {
   geometry_msgs::msg::Point32 tmp_in, tmp_out;
