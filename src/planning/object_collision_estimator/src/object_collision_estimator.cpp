@@ -110,10 +110,10 @@ BoundingBox waypointToBox(
 /// \return AxisAlignedBoundingBox The axis aligned bounding box
 AxisAlignedBoundingBox calculateAxisAlignedBoundingBox(const BoundingBox & bbox)
 {
-  auto min_x = std::numeric_limits<float>::max();
-  auto min_y = std::numeric_limits<float>::max();
-  auto max_x = std::numeric_limits<float>::lowest();
-  auto max_y = std::numeric_limits<float>::lowest();
+  auto min_x = std::numeric_limits<float32_t>::max();
+  auto min_y = std::numeric_limits<float32_t>::max();
+  auto max_x = std::numeric_limits<float32_t>::lowest();
+  auto max_y = std::numeric_limits<float32_t>::lowest();
 
   for (auto corner : bbox.corners) {
     min_x = std::min(min_x, corner.x);
