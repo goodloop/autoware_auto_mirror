@@ -80,7 +80,7 @@ struct COMMON_PUBLIC PointXYZF
   float32_t x{0};
   float32_t y{0};
   float32_t z{0};
-  uint16_t id{0};
+  uint16_t fire_id{0};
   static constexpr uint16_t END_OF_SCAN_ID = 65535u;
   friend bool operator==(
     const PointXYZF & p1,
@@ -91,7 +91,7 @@ struct COMMON_PUBLIC PointXYZF
     return rel_eq(p1.x, p2.x, epsilon) &&
            rel_eq(p1.y, p2.y, epsilon) &&
            rel_eq(p1.z, p2.z, epsilon) &&
-           (p1.id == p2.id);
+           (p1.fire_id == p2.fire_id);
   }
 };
 

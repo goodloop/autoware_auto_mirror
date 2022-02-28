@@ -122,18 +122,18 @@ private:
       const auto num_banked_pts = flag_check_result.second;
       const uint32_t azimuth_base = to_uint32(block.azimuth_bytes[1U], block.azimuth_bytes[0U]);
 
-      for (uint16_t pt_id = 0U; pt_id < NUM_POINTS_PER_BLOCK; ++pt_id) {
-        const DataChannel & channel = block.channels[pt_id];
+      for (uint16_t pt_fire_id = 0U; pt_fire_id < NUM_POINTS_PER_BLOCK; ++pt_fire_id) {
+        const DataChannel & channel = block.channels[pt_fire_id];
         const uint32_t th = (azimuth_base + m_sensor_data.azimuth_offset(
-            num_banked_pts, block_id, pt_id)) % AZIMUTH_ROTATION_RESOLUTION;
+            num_banked_pts, block_id, pt_fire_id)) % AZIMUTH_ROTATION_RESOLUTION;
         const float32_t r = compute_distance_m(channel.data[1U], channel.data[0U]);
-        const uint32_t phi = m_sensor_data.altitude(num_banked_pts, block_id, pt_id);
+        const uint32_t phi = m_sensor_data.altitude(num_banked_pts, block_id, pt_fire_id);
 
         // Compute the point
         PointXYZIF pt;
         polar_to_xyz(pt, r, th, phi);
         pt.intensity = m_intensity_table[channel.data[2U]];
-        pt.id = m_sensor_data.seq_id(m_block_counter, pt_id);
+        pt.fire_id = m_sensor_data.seq_id(m_block_counter, pt_fire_id);
 
         output.push_back(pt);
       }
@@ -141,7 +141,7 @@ private:
       if (static_cast<float32_t>(m_block_counter) > m_sensor_data.num_blocks_per_revolution()) {
         // full revolution reached.
         PointXYZIF pt;
-        pt.id =
+        pt.fire_id =
           static_cast<uint16_t>(PointXYZIF::END_OF_SCAN_ID);
         output.push_back(pt);
         m_block_counter = uint16_t{0U};

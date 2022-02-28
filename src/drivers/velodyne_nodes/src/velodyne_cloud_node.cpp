@@ -189,7 +189,7 @@ bool8_t VelodyneCloudNode<T>::convert(
   m_translator.convert(pkt, m_point_block);
   for (uint32_t idx = 0U; idx < m_point_block.size(); ++idx) {
     const autoware::common::types::PointXYZIF & pt = m_point_block[idx];
-    if (static_cast<uint16_t>(autoware::common::types::PointXYZIF::END_OF_SCAN_ID) != pt.id) {
+    if (static_cast<uint16_t>(autoware::common::types::PointXYZIF::END_OF_SCAN_ID) != pt.fire_id) {
       modifier->push_back(pt);
       m_point_cloud_idx++;
       if (modifier->size() >= m_cloud_size) {
