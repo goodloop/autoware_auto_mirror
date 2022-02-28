@@ -42,10 +42,9 @@ uint32_t VLP16Data::altitude(uint16_t, uint32_t, uint32_t pt_id) const
   return m_altitude_ind[pt_id % NUM_LASERS];
 }
 
-uint16_t VLP16Data::seq_id(uint16_t num_blocks, uint32_t pt_id) const noexcept
+uint16_t VLP16Data::seq_id(uint16_t, uint32_t pt_id) const noexcept
 {
-  const auto num_seqs = static_cast<uint16_t>(NUM_SEQUENCES_PER_BLOCK * num_blocks);
-  return (pt_id < NUM_LASERS) ? num_seqs : static_cast<uint16_t>(num_seqs + uint16_t{1U});
+  return pt_id % NUM_LASERS;
 }
 
 void VLP16Data::init_azimuth_table(const float32_t rpm)
