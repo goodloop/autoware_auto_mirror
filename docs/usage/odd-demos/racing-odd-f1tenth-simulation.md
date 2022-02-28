@@ -1,4 +1,4 @@
-F1Tenth Demonstration {#f1tenth-demo}
+F1Tenth Demonstration {#f1tenth-demo-lgsvl}
 =================================================
 
 @tableofcontents
@@ -169,3 +169,5 @@ ade$ ros2 action send_goal /planning/replaytrajectory autoware_auto_planning_msg
 
 ## Known issues
 The replayed velocity might not be exactly the same with the recorded one. This is due to limitation of `Pure Pursuit` algorithm. The implementation does not take delay and external force into consideration, which means that it assumes constant speed when acceleration is released even if break is not pressed. This causes velocity of the vehicle to be wrong. Improvements will be made in the future.
+
+In addition, the record replay planner currently has no looping capability. The vehicle will simply stop at the end of the recorded trajectory. A [merge request](https://gitlab.com/autowarefoundation/autoware.auto/AutowareAuto/-/merge_requests/1362) is being actively worked on to improve this.
