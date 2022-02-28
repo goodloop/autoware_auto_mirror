@@ -69,6 +69,20 @@ def generate_launch_description():
         description='Launch RVIZ2 in addition to other nodes'
     )
 
+    show_final_report_param = DeclareLaunchArgument(
+        'show_final_report',
+        default_value='False',
+        description='Show graphical report of final results'
+    )
+
+    controller_testing_params = [
+        LaunchConfiguration("controller_testing_param_file"),
+        {
+            'real_time_sim': LaunchConfiguration('real_time_sim'),
+            'show_final_report': LaunchConfiguration('show_final_report')
+        }
+    ]
+
     # Nodes
 
     controller_testing = Node(
@@ -77,9 +91,7 @@ def generate_launch_description():
         namespace="control",
         name="controller_testing_node",
         output="screen",
-        parameters=[LaunchConfiguration("controller_testing_param_file"), {
-            'real_time_sim': LaunchConfiguration('real_time_sim')
-        }],
+        parameters=controller_testing_params,
         remappings=[
             ("vehicle_state", "/vehicle/vehicle_kinematic_state"),
             ("planned_trajectory", "/planning/trajectory"),
@@ -95,9 +107,7 @@ def generate_launch_description():
         namespace="control",
         name="controller_testing_node",
         output="screen",
-        parameters=[LaunchConfiguration("controller_testing_param_file"), {
-            'real_time_sim': LaunchConfiguration('real_time_sim')
-        }],
+        parameters=controller_testing_params,
         remappings=[
             ("vehicle_state", "/vehicle/vehicle_kinematic_state"),
             ("planned_trajectory", "/planning/trajectory"),
@@ -146,6 +156,7 @@ def generate_launch_description():
             controller_testing_param,
             mpc_controller_param,
             with_rviz_param,
+            show_final_report_param,
             rviz2,
             urdf_publisher,
             mpc_controller,

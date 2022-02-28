@@ -106,6 +106,9 @@ class ControllerTestingNode(Node):
             "trajectory.heading_rate_increments"
         ).value
 
+        # Final report flag
+        self._show_final_report = self.declare_parameter("show_final_report", False).value
+
         # Publisher
         self._publisher_state = self.create_publisher(
             VehicleKinematicState, "vehicle_state", 0
@@ -196,8 +199,9 @@ class ControllerTestingNode(Node):
             # assuming non-realtime is at least 10 times faster, and adding 1 sec buffer
             assumed_timeout = (self.param_stop_n_report_time_s / 10.0) + 1.0
             if (self.get_clock().now() - self.init_time) > Duration(seconds=assumed_timeout):
-                # only call in manual testing
-                # self.final_report()
+                if self._show_final_report:
+                    self.final_report()
+
                 self.shutdown()
 
     def control_callback(self, current_command_msg):
@@ -224,8 +228,9 @@ class ControllerTestingNode(Node):
         # Check if we want to continue with the simulation
         if self.param_stop_n_report_time_s != 0:
             if self._simulator.simulation_time >= self.param_stop_n_report_time_s:
-                # only call in manual testing
-                # self.final_report()
+                if self._show_final_report:
+                    self.final_report()
+
                 self.shutdown()
 
         # Trigger one simulation step and update current state. In externally
@@ -294,8 +299,8 @@ class ControllerTestingNode(Node):
         def get_from_history(accessor):
             return list(map(lambda x: accessor(x), self._memory_recorder.history))
 
-        x_history = get_from_history(lambda instant: instant.state.pose.position.x)
-        y_history = get_from_history(lambda instant: instant.state.pose.position.y)
+        x_history = get_from_history(lambda instant: instant.state.x)
+        y_history = get_from_history(lambda instant: instant.state.y)
         time_history = get_from_history(lambda instant: instant.time)
         velocity_history = get_from_history(lambda instant: instant.state.v)
         cmd_a_history = get_from_history(lambda instant: instant.command.acceleration)
@@ -345,14 +350,14 @@ class ControllerTestingNode(Node):
 
         # Controller Diagnostics
         if len(self._diag_msgs) > 0:
-            diag_init_time = Time.from_msg(self._diag_msgs[0].header.data_stamp).nanoseconds / 1e9
+            diag_init_time = Time.from_msg(self._diag_msgs[0].diag_header.data_stamp).nanoseconds / 1e9
 
             def get_from_diag(accessor):
                 return list(map(lambda x: accessor(x), self._diag_msgs))
 
             diag_time_history = get_from_diag(
                 lambda instant:
-                    (Time.from_msg(instant.header.data_stamp).nanoseconds / 1e9) - diag_init_time
+                    (Time.from_msg(instant.diag_header.data_stamp).nanoseconds / 1e9) - diag_init_time
             )
             lateral_error_m = get_from_diag(lambda instant: instant.lateral_error_m)
             longitudinal_error_m = get_from_diag(lambda instant: instant.longitudinal_error_m)
@@ -556,9 +561,9 @@ class ControllerTestingNode(Node):
             cur_x += discretization_m * np.cos(heading_angle)
             cur_y += discretization_m * np.sin(heading_angle)
 
-            trajectory_point.x = cur_x
-            trajectory_point.y = cur_y
-            trajectory_point.heading = from_angle(heading_angle)
+            trajectory_point.pose.position.x = cur_x
+            trajectory_point.pose.position.y = cur_y
+            trajectory_point.pose.orientation = from_angle(heading_angle)
             trajectory_point.longitudinal_velocity_mps = float(speed)
             trajectory_point.acceleration_mps2 = (speed - prev_speed) / seconds
             trajectory_point.heading_rate_rps = (heading_angle - prev_heading_angle) / seconds
