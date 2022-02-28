@@ -54,8 +54,8 @@ using CloudModifier =
 using CloudView = point_cloud_msg_wrapper::PointCloud2View<autoware::common::types::PointXYZI>;
 
 using CloudModifierRing =
-  point_cloud_msg_wrapper::PointCloud2Modifier<autoware::common::types::PointXYZIF>;
-using CloudViewRing = point_cloud_msg_wrapper::PointCloud2View<autoware::common::types::PointXYZIF>;
+  point_cloud_msg_wrapper::PointCloud2Modifier<autoware::common::types::PointXYZIR>;
+using CloudViewRing = point_cloud_msg_wrapper::PointCloud2View<autoware::common::types::PointXYZIR>;
 
 using sensor_msgs::msg::PointCloud2;
 
