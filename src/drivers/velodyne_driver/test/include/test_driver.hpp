@@ -240,7 +240,7 @@ TEST_F(VelodyneDriver, Basic)
     EXPECT_GE(pt.intensity, 0.0F);
     // IDs are contiguous
     EXPECT_TRUE(
-      (pt.fire_id == last_fire_id) ||
+      (pt.fire_id == last_fire_id && pt.fire_id == 0U) ||  // Initial case
       (pt.fire_id % Vlp16Translator::NUM_LASERS ==
       (last_fire_id + 1U) % Vlp16Translator::NUM_LASERS));
     last_fire_id = pt.fire_id;
