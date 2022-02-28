@@ -89,7 +89,7 @@ void generate_points(
     pt.y = 0.0F;
     pt.z = -cfg.get_sensor_height() + std::get<1>(x);
     pt.intensity = 0.0F;
-    pt.id = 0U;
+    pt.fire_id = 0U;
     pts_out.push_back(pt);
     // posix: 0  =  ground
     label_out.push_back(std::get<2>(x) == 0);
@@ -118,14 +118,14 @@ void label_and_check(
     // This looks wrong at first but it's actually correct : unsigned underflow
     for (size_t idx = pts.size() - 1U; idx < pts.size(); --idx) {
       PointXYZIF pt = pts[idx];
-      pt.id = idx;
+      pt.fire_id = idx;
       all_points.push_back(pt);
       filter.insert(&all_points.back());
     }
   } else {
     for (size_t idx = 0U; idx < pts.size(); ++idx) {
       PointXYZIF pt = pts[idx];
-      pt.id = idx;
+      pt.fire_id = idx;
       all_points.push_back(pt);
       filter.insert(&all_points.back());
     }
@@ -140,14 +140,16 @@ void label_and_check(
   // check result
   size_t num_wrong = 0U;
   for (const PointXYZIF * pt : ground_blk) {
-    if (!label[pt->id]) {  // true <--> ground
-      std::cerr << pt->id << " expected " << (label[pt->id] ? "ground" : "nonground") << "\n";
+    if (!label[pt->fire_id]) {  // true <--> ground
+      std::cerr << pt->fire_id << " expected " << (label[pt->fire_id] ? "ground" : "nonground") <<
+        "\n";
       ++num_wrong;
     }
   }
   for (const PointXYZIF * pt : nonground_blk) {
-    if (label[pt->id]) {  // true <--> ground
-      std::cerr << pt->id << " expected " << (label[pt->id] ? "ground" : "nonground") << "\n";
+    if (label[pt->fire_id]) {  // true <--> ground
+      std::cerr << pt->fire_id << " expected " << (label[pt->fire_id] ? "ground" : "nonground") <<
+        "\n";
       ++num_wrong;
     }
   }

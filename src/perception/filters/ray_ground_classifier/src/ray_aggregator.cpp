@@ -131,7 +131,7 @@ void RayAggregator::end_of_scan()
 ////////////////////////////////////////////////////////////////////////////////
 bool8_t RayAggregator::insert(const PointXYZIFR & pt)
 {
-  if (static_cast<uint16_t>(PointXYZIF::END_OF_SCAN_ID) == pt.get_point_pointer()->id) {
+  if (static_cast<uint16_t>(PointXYZIF::END_OF_SCAN_ID) == pt.get_point_pointer()->fire_id) {
     return false;
   } else {
     const std::size_t idx = bin(pt);
@@ -174,7 +174,7 @@ bool8_t RayAggregator::insert(const PointPtrBlock & blk)
   bool8_t ret = true;
   for (const PointXYZIF * pt : blk) {
     ret = insert(pt);
-    if (!ret || (static_cast<uint16_t>(PointXYZIF::END_OF_SCAN_ID) == pt->id)) {
+    if (!ret || (static_cast<uint16_t>(PointXYZIF::END_OF_SCAN_ID) == pt->fire_id)) {
       break;
     }
   }

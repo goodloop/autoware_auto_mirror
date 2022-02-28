@@ -465,13 +465,13 @@ TEST_F(RayGroundClassifier, StructuredPartitionAndOther)
   std::vector<PointXYZIF> all_points;
   all_points.reserve(2 * pts.size());
   for (PointXYZIF & pt : pts) {
-    pt.id = 0U;
+    pt.fire_id = 0U;
     all_points.push_back(pt);
     raw_points.push_back(&all_points.back());
   }
   // add second ray
   for (PointXYZIF & pt : pts) {
-    pt.id = 1U;
+    pt.fire_id = 1U;
     all_points.push_back(pt);
     raw_points.push_back(&all_points.back());
   }
@@ -490,7 +490,7 @@ TEST_F(RayGroundClassifier, StructuredPartitionAndOther)
     if ((idx != 15U) && (idx != 30U)) {
       EXPECT_LT(
         ground_pt->z,
-        cfg.m_ground_z_m + 0.1F) << idx << ", " << ground_pt->x << ", " << ground_pt->id;
+        cfg.m_ground_z_m + 0.1F) << idx << ", " << ground_pt->x << ", " << ground_pt->fire_id;
     }
   }
   for (uint32_t idx = 0U; idx < nonground_points.size(); ++idx) {
@@ -537,13 +537,13 @@ TEST_F(RayGroundClassifier, StructuredPartitionAndOther)
   // add end of scan
   raw_points.resize(1);
   PointXYZIF eos_pt;
-  eos_pt.id = static_cast<uint16_t>(PointXYZIF::END_OF_SCAN_ID);
+  eos_pt.fire_id = static_cast<uint16_t>(PointXYZIF::END_OF_SCAN_ID);
   raw_points[0U] = &eos_pt;
   cls.structured_partition(raw_points, ground_points, nonground_points);
   EXPECT_EQ(ground_points.size(), 1UL);
   EXPECT_EQ(nonground_points.size(), 1UL);
-  EXPECT_EQ(ground_points[0U]->id, static_cast<uint16_t>(PointXYZIF::END_OF_SCAN_ID));
-  EXPECT_EQ(nonground_points[0U]->id, static_cast<uint16_t>(PointXYZIF::END_OF_SCAN_ID));
+  EXPECT_EQ(ground_points[0U]->fire_id, static_cast<uint16_t>(PointXYZIF::END_OF_SCAN_ID));
+  EXPECT_EQ(nonground_points[0U]->fire_id, static_cast<uint16_t>(PointXYZIF::END_OF_SCAN_ID));
 }
 /////
 TEST_F(RayGroundClassifier, BadCases)
