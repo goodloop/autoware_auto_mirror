@@ -24,6 +24,50 @@
 #include "gtest/gtest.h"
 #include "tvm_utility/model_zoo.hpp"
 #include "tvm_utility/pipeline.hpp"
+#include <autoware_auto_perception_msgs/msg/bounding_box.hpp>
+
+
+// network input dimensions
+#define NETWORK_INPUT_WIDTH 416
+#define NETWORK_INPUT_HEIGHT 416
+
+// network output dimensions
+#define NETWORK_OUTPUT_HEIGHT_1 13
+#define NETWORK_OUTPUT_WIDTH_1 13
+#define NETWORK_OUTPUT_DEPTH 255
+
+// network output dimensions
+#define NETWORK_OUTPUT_HEIGHT_2 26
+#define NETWORK_OUTPUT_WIDTH_2 26
+
+// network output dimensions
+#define NETWORK_OUTPUT_HEIGHT_3 52
+#define NETWORK_OUTPUT_WIDTH_3 52
+
+/// Struct for storing detections in image with confidence scores
+struct BoundingBox
+{
+
+  float xmin;
+  float ymin;
+  float xmax;
+  float ymax;
+  float conf;
+
+  BoundingBox(float x_min, float y_min, float x_max, float y_max, float conf_) : xmin(x_min), ymin(y_min), xmax(x_max), ymax(y_max), conf(conf_){};
+};
+
+/// Map for storing the class and detections in the image
+std::map<int, std::vector<BoundingBox>> bbox_map{};
+static const int NETWORK_OUTPUT_WIDTH[3] = {NETWORK_OUTPUT_WIDTH_1, NETWORK_OUTPUT_WIDTH_2,
+                                            NETWORK_OUTPUT_WIDTH_3};
+static const int NETWORK_OUTPUT_HEIGHT[3] = {NETWORK_OUTPUT_HEIGHT_1, NETWORK_OUTPUT_HEIGHT_2,
+                                              NETWORK_OUTPUT_HEIGHT_3};
+
+// minimum confidence score by which to filter the output detections
+#define SCORE_THRESHOLD 0.5
+
+#define NMS_THRESHOLD 0.45
 
 // network input dimensions
 #define NETWORK_INPUT_WIDTH 416
@@ -429,7 +473,7 @@ TEST(PipelineExamples, SimplePipeline) {
 
   // A memcpy means that the floats in expected_output have a well-defined binary value
   for (int i = 0; i < int_output.size(); i++) {
-    memcpy(&expected_output[i], &int_output[i], sizeof(expected_output[i]))
+    memcpy(&expected_output[i], &int_output[i], sizeof(expected_output[i]));
   }
 
   // Test: check if the generated output is equal to the reference
