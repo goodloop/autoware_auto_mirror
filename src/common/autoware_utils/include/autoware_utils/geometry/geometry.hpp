@@ -82,7 +82,7 @@ inline geometry_msgs::msg::Point getPoint(const geometry_msgs::msg::PoseWithCova
 }
 
 /// \brief Get position field from the autoware_auto_planning_msgs::msg::PathPoint message
-/// \param autoware_auto_planning_msgs::msg::PathPoint message
+/// \param p autoware_auto_planning_msgs::msg::PathPoint message
 /// \return Position field of the autoware_auto_planning_msgs::msg::PathPoint message
 template<>
 inline geometry_msgs::msg::Point getPoint(const autoware_auto_planning_msgs::msg::PathPoint & p)
