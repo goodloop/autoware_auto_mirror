@@ -412,6 +412,22 @@ bool8_t LgsvlInterface::handle_mode_change_request(
   return true;
 }
 
+
+void LgsvlInterface::send_gear_command(
+  const autoware_auto_vehicle_msgs::msg::GearCommand & msg)
+{
+  auto msg_corrected = msg;
+  auto const gear_iter = autoware_to_lgsvl_gear.find(msg.command);
+  if (gear_iter != autoware_to_lgsvl_gear.end()) {
+    msg_corrected.command = gear_iter->second;
+  } else {
+    msg_corrected.command = static_cast<uint8_t>(VSD::GEAR_DRIVE);
+    RCLCPP_WARN(m_logger, "Unsupported gear value in state command, defaulting to Drive");
+  }
+  m_lgsvl_state.set__current_gear(msg_corrected.command);
+  m_state_pub->publish(m_lgsvl_state);
+}
+
 void LgsvlInterface::send_headlights_command(
   const autoware_auto_vehicle_msgs::msg::HeadlightsCommand & msg)
 {

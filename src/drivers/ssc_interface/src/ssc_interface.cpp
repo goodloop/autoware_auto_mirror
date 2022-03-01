@@ -44,7 +44,7 @@ SscInterface::SscInterface(
 {
   (void)max_yaw_rate_rad;  // avoid warning -Wunused-parameter
   // Publishers (to SSC)
-  m_gear_cmd_pub = node.create_publisher<GearCommand>("gear_select", 10);
+  m_gear_cmd_pub = node.create_publisher<SscGearCommand>("gear_select", 10);
   m_speed_cmd_pub = node.create_publisher<SpeedMode>("arbitrated_speed_commands", 10);
   m_steer_cmd_pub = node.create_publisher<SteerMode>("arbitrated_steering_commands", 10);
   m_turn_signal_cmd_pub = node.create_publisher<TurnSignalCommand>(
@@ -114,7 +114,7 @@ bool8_t SscInterface::send_state_command(const VehicleStateCommand & msg)
   m_turn_signal_cmd_pub->publish(tsc);
 
   // Gear command
-  GearCommand gc;
+  SscGearCommand gc;
   // Has no mode - only listens if at least one
   // other DBW system is enabled
   gc.command.gear = SscGear::NONE;
