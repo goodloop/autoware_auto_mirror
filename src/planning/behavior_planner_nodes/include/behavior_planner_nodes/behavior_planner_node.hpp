@@ -33,8 +33,8 @@
 #include <autoware_auto_planning_msgs/msg/trajectory_point.hpp>
 #include <autoware_auto_vehicle_msgs/msg/vehicle_kinematic_state.hpp>
 #include <autoware_auto_vehicle_msgs/msg/gear_report.hpp>
+#include <autoware_auto_vehicle_msgs/msg/gear_command.hpp>
 #include <autoware_auto_vehicle_msgs/msg/vehicle_state_report.hpp>
-#include <autoware_auto_vehicle_msgs/msg/vehicle_state_command.hpp>
 #include <autoware_auto_mapping_msgs/srv/had_map_service.hpp>
 #include <autoware_auto_planning_msgs/srv/modify_trajectory.hpp>
 #include <behavior_planner/behavior_planner.hpp>
@@ -63,9 +63,9 @@ using geometry_msgs::msg::Pose;
 using autoware_auto_planning_msgs::msg::Trajectory;
 using autoware_auto_planning_msgs::msg::TrajectoryPoint;
 using autoware_auto_planning_msgs::msg::HADMapRoute;
-using autoware_auto_vehicle_msgs::msg::VehicleStateCommand;
 using autoware_auto_vehicle_msgs::msg::VehicleStateReport;
 using autoware_auto_vehicle_msgs::msg::GearReport;
+using autoware_auto_vehicle_msgs::msg::GearCommand;
 using GEAR_TYPE =
   std::remove_const<decltype(autoware_auto_vehicle_msgs::msg::GearReport::DRIVE_1)>::type;
 using State = autoware_auto_vehicle_msgs::msg::VehicleKinematicState;
@@ -105,7 +105,7 @@ private:
   rclcpp::Publisher<Trajectory>::SharedPtr m_debug_checkpoints_pub{};
   rclcpp::Publisher<geometry_msgs::msg::PoseArray>::SharedPtr m_debug_global_path_pub{};
   rclcpp::Publisher<HADMapRoute>::SharedPtr m_debug_subroute_pub{};
-  rclcpp::Publisher<VehicleStateCommand>::SharedPtr m_vehicle_state_command_pub{};
+  rclcpp::Publisher<GearCommand>::SharedPtr m_gear_command_pub{};
 
   //  planner
   std::unique_ptr<behavior_planner::BehaviorPlanner> m_planner;
