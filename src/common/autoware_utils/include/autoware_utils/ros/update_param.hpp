@@ -22,6 +22,12 @@
 
 namespace autoware_utils
 {
+/// \brief Get value of of the param from given parameter name
+/// \tparam T Type value of the parameter
+/// \param params Vector of parameters
+/// \param name Name of the parameter value
+/// \param value Parameter value to be updated
+/// \return If the vector of parameters contains name return true, else false.
 template<class T>
 bool updateParam(const std::vector<rclcpp::Parameter> & params, const std::string & name, T & value)
 {

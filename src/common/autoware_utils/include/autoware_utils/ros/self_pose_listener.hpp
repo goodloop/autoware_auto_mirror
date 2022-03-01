@@ -29,6 +29,7 @@ public:
   explicit SelfPoseListener(rclcpp::Node * node)
   : transform_listener_(node) {}
 
+  /// \brief Wait for first pose
   void waitForFirstPose()
   {
     while (rclcpp::ok()) {
@@ -40,6 +41,8 @@ public:
     }
   }
 
+  /// \brief Get current pose
+  /// \return PoseStamped message as a ConstSharedPtr
   geometry_msgs::msg::PoseStamped::ConstSharedPtr getCurrentPose()
   {
     const auto tf = transform_listener_.getLatestTransform("map", "base_link");

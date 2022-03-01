@@ -28,12 +28,21 @@ template<
 class StopWatch
 {
 public:
+  /// \brief Constructor of StopWatch
   StopWatch() {tic(default_name);}
 
+  /// \brief initialize stopwatch
+  /// \param name Name of the stopwatch
   void tic(const std::string & name = default_name) {t_start_[name] = Clock::now();}
 
+  /// \brief initialize stopwatch
+  /// \param name name of the stopwatch
   void tic(const char * name) {tic(std::string(name));}
 
+  /// \brief Read elapsed second from the stopwatch
+  /// \param name Name of the stopwatch
+  /// \param reset Reset stopwatch
+  /// \return Read value as a second
   double toc(const std::string & name, const bool reset = false)
   {
     const auto t_start = t_start_.at(name);
@@ -49,8 +58,15 @@ public:
     return static_cast<double>(duration) / one_sec;
   }
 
+  /// \brief Read elapsed second from the stopwatch
+  /// \param name Name of the stopwatch
+  /// \param reset Reset stopwatch, default = false.
+  /// \return Read value as a second
   double toc(const char * name, const bool reset = false) {return toc(std::string(name), reset);}
 
+  /// \brief Read elapsed second from the stopwatch
+  /// \param reset Reset stopwatch, default = false.
+  /// \return Read value as a second
   double toc(const bool reset = false) {return toc(default_name, reset);}
 
 private:

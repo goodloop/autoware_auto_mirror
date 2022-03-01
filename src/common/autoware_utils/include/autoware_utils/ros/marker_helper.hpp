@@ -23,6 +23,11 @@
 
 namespace autoware_utils
 {
+/// \brief Create marker position from x,y,z values
+/// \param x The x position of the marker
+/// \param y The y position of the marker
+/// \param z The z position of the marker
+/// \return Point message
 inline geometry_msgs::msg::Point createMarkerPosition(double x, double y, double z)
 {
   geometry_msgs::msg::Point point;
@@ -31,7 +36,12 @@ inline geometry_msgs::msg::Point createMarkerPosition(double x, double y, double
   point.z = z;
   return point;
 }
-
+/// \brief Create marker orientation from x,y,z,w values
+/// \param x The x orientation of the marker
+/// \param y The y orientation of the marker
+/// \param z The z orientation of the marker
+/// \param w The w orientation of the marker
+/// \return Quaternion message
 inline geometry_msgs::msg::Quaternion createMarkerOrientation(
   double x, double y, double z, double w)
 {
@@ -42,7 +52,11 @@ inline geometry_msgs::msg::Quaternion createMarkerOrientation(
   quaternion.w = w;
   return quaternion;
 }
-
+/// \brief Create marker scale from x,y,z values
+/// \param x The x value of the marker scale
+/// \param y The y value of the marker scale
+/// \param z The z value of the marker scale
+/// \return Vector3 message
 inline geometry_msgs::msg::Vector3 createMarkerScale(double x, double y, double z)
 {
   geometry_msgs::msg::Vector3 scale;
@@ -51,7 +65,12 @@ inline geometry_msgs::msg::Vector3 createMarkerScale(double x, double y, double 
   scale.z = z;
   return scale;
 }
-
+/// \brief Create marker color from r,g,b,a values
+/// \param r  The r value of the marker color
+/// \param g  The g value of the marker color
+/// \param b  The b value of the marker color
+/// \param a  The a value of the marker color
+/// \return ColorRGBA message
 inline std_msgs::msg::ColorRGBA createMarkerColor(float r, float g, float b, float a)
 {
   std_msgs::msg::ColorRGBA color;
@@ -61,7 +80,15 @@ inline std_msgs::msg::ColorRGBA createMarkerColor(float r, float g, float b, flo
   color.a = a;
   return color;
 }
-
+/// \brief Create default marker
+/// \param frame_id frame id
+/// \param now time value to be timestamp of the message
+/// \param ns namespace
+/// \param id id of the marker
+/// \param type type of the marker
+/// \param scale scale of the marker
+/// \param color color of the marker
+/// \return Marker message
 inline visualization_msgs::msg::Marker createDefaultMarker(
   const std::string & frame_id,
   const rclcpp::Time & now,
@@ -89,7 +116,9 @@ inline visualization_msgs::msg::Marker createDefaultMarker(
 
   return marker;
 }
-
+/// \brief Append given marker array to another marker array
+/// \param additional_marker_array additional marker array to be appended
+/// \param marker_array original marker array
 inline void appendMarkerArray(
   const visualization_msgs::msg::MarkerArray & additional_marker_array,
   visualization_msgs::msg::MarkerArray * marker_array)

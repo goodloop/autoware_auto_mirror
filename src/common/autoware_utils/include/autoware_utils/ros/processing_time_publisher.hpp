@@ -28,6 +28,10 @@ namespace autoware_utils
 class ProcessingTimePublisher
 {
 public:
+  /// \brief Constructor
+  /// \param node Node
+  /// \param name Name of the publisher
+  /// \param qos QoS of the publisher
   explicit ProcessingTimePublisher(
     rclcpp::Node * node,
     const std::string & name = "~/debug/processing_time_ms",
@@ -37,6 +41,8 @@ public:
       node->create_publisher<diagnostic_msgs::msg::DiagnosticStatus>(name, qos);
   }
 
+  /// \brief Publish DiagnosticStatus message
+  /// \param processing_time_map Processing time map to be publish as a DiagnosticStatus
   void publish(const std::map<std::string, double> & processing_time_map)
   {
     diagnostic_msgs::msg::DiagnosticStatus status;
@@ -54,6 +60,11 @@ public:
 private:
   rclcpp::Publisher<diagnostic_msgs::msg::DiagnosticStatus>::SharedPtr pub_processing_time_;
 
+  /// \brief String with precision
+  /// \tparam T Type of value
+  /// \param value Value to applied digits of precision
+  /// \param precision Precision value
+  /// \return Precision applied string value
   template<class T>
   std::string to_string_with_precision(const T & value, const int precision)
   {

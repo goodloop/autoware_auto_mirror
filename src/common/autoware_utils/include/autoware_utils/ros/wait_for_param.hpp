@@ -23,6 +23,12 @@
 
 namespace autoware_utils
 {
+/// \brief Get parameter from remote node using parameter client service
+/// \tparam T Type of parameter
+/// \param node Node
+/// \param remote_node_name Remote node name
+/// \param param_name Name of the parameter
+/// \return Parameter
 template<class T>
 T waitForParam(
   rclcpp::Node * node, const std::string & remote_node_name, const std::string & param_name)

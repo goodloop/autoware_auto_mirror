@@ -25,6 +25,9 @@
 
 namespace autoware_utils
 {
+/// \brief Check given points set non empty
+/// \tparam T type of trajectory points
+/// \param points set of a point
 template<class T>
 void validateNonEmpty(const T & points)
 {
@@ -33,6 +36,13 @@ void validateNonEmpty(const T & points)
   }
 }
 
+/// \brief Get index of the first zero velocity trajectory point from source index to
+/// destination index
+/// \tparam T Type of trajectory point
+/// \param points_with_vel Set of a trajectory point
+/// \param src_idx Source index
+/// \param dst_idx Destination index
+/// \return Index of first zero velocity trajectory point
 template<class T>
 boost::optional<size_t> searchZeroVelocityIndex(
   const T & points_with_vel, const size_t src_idx, const size_t dst_idx)
@@ -49,12 +59,22 @@ boost::optional<size_t> searchZeroVelocityIndex(
   return {};
 }
 
+/// \brief Get index of the first zero velocity trajectory point from source index to
+/// destination index
+/// \tparam T Type of trajectory point
+/// \param points_with_twist Set of a trajectory point
+/// \return Index of first zero velocity trajectory point
 template<class T>
 boost::optional<size_t> searchZeroVelocityIndex(const T & points_with_twist)
 {
   return searchZeroVelocityIndex(points_with_twist, 0, points_with_twist.size());
 }
 
+/// \brief Find the nearest point from a given point set
+/// \tparam T Type of point set
+/// \param points Set of a point
+/// \param point The point where the nearest trajectory point will be found
+/// \return Index of the nearest point
 template<class T>
 size_t findNearestIndex(const T & points, const geometry_msgs::msg::Point & point)
 {
@@ -73,6 +93,13 @@ size_t findNearestIndex(const T & points, const geometry_msgs::msg::Point & poin
   return min_idx;
 }
 
+/// \brief Find the nearest point from a given point set with constraints
+/// \tparam T Type of the point
+/// \param points Set of point
+/// \param pose  The pose where the nearest trajectory point will be found
+/// \param max_dist Maximum distance constrain
+/// \param max_yaw Maximum yaw constrain
+/// \return If found return index of point, else return none
 template<class T>
 boost::optional<size_t> findNearestIndex(
   const T & points,

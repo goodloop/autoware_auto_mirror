@@ -30,6 +30,8 @@ namespace autoware_utils
 class TransformListener
 {
 public:
+  /// \brief Constructor of TransformListener
+  /// \param node Node
   explicit TransformListener(rclcpp::Node * node)
   : clock_(node->get_clock()), logger_(node->get_logger())
   {
@@ -40,6 +42,10 @@ public:
     tf_listener_ = std::make_shared<tf2_ros::TransformListener>(*tf_buffer_);
   }
 
+  /// \brief Get latest transform
+  /// \param from The target frame to which data should be transformed
+  /// \param to The source frame where the data originated
+  /// \return Transfrom message
   geometry_msgs::msg::TransformStamped::ConstSharedPtr getLatestTransform(
     const std::string & from, const std::string & to)
   {
@@ -55,6 +61,12 @@ public:
     return std::make_shared<const geometry_msgs::msg::TransformStamped>(tf);
   }
 
+  /// \brief Get transform
+  /// \param from The target frame to which data should be transformed
+  /// \param to The source frame where the data originated
+  /// \param time The time at which the value of the transform is desired
+  /// \param duration How long to block before failing
+  /// \return TransformStamped message
   geometry_msgs::msg::TransformStamped::ConstSharedPtr getTransform(
     const std::string & from,
     const std::string & to,

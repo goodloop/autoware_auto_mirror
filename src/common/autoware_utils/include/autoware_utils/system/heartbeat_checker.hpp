@@ -23,6 +23,10 @@ template<class HeartbeatMsg>
 class HeaderlessHeartbeatChecker
 {
 public:
+  /// \brief Constructor of HeaderlessHeartbeatChecker
+  /// \param node Node
+  /// \param topic_name Topic name of the generated subscriber
+  /// \param timeout Timeout value of the software diagnostic
   HeaderlessHeartbeatChecker(
     rclcpp::Node & node, const std::string & topic_name, const double timeout)
   : clock_(node.get_clock()), timeout_(timeout)
@@ -32,6 +36,8 @@ public:
       topic_name, rclcpp::QoS{1}, std::bind(&HeaderlessHeartbeatChecker::onHeartbeat, this, _1));
   }
 
+  /// \brief Check timeout of the topic
+  /// \return If timeout return true, else return false
   bool isTimeout()
   {
     const auto time_from_last_heartbeat = clock_->now() - last_heartbeat_time_;
@@ -49,6 +55,8 @@ private:
   typename rclcpp::Subscription<HeartbeatMsg>::SharedPtr sub_heartbeat_;
   rclcpp::Time last_heartbeat_time_ = rclcpp::Time(0);
 
+  /// \brief Update heartbeat time
+  /// \param msg Heartbreaker message to be updated to heartbeat time
   void onHeartbeat([[maybe_unused]] const typename HeartbeatMsg::ConstSharedPtr msg)
   {
     last_heartbeat_time_ = clock_->now();

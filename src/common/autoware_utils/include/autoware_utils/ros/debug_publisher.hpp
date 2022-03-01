@@ -28,6 +28,12 @@ namespace autoware_utils
 {
 namespace debug_publisher
 {
+/// \brief convert data to debug message
+/// \tparam T_msg type of message
+/// \tparam T type of data
+/// \param data data of the message
+/// \param stamp time value to be timestamp of the message
+/// \return ros message
 template<
   class T_msg,
   class T,
@@ -48,6 +54,11 @@ public:
   explicit DebugPublisher(rclcpp::Node * node, const char * ns)
   : node_(node), ns_(ns) {}
 
+  /// \brief publish debug message
+  /// \tparam T type of debug message
+  /// \param name frame id
+  /// \param data message to be published
+  /// \param qos QoS of message
   template<
     class T,
     std::enable_if_t<rosidl_generator_traits::is_message<T>::value, std::nullptr_t> = nullptr>
@@ -60,6 +71,12 @@ public:
     std::dynamic_pointer_cast<rclcpp::Publisher<T>>(pub_map_.at(name))->publish(data);
   }
 
+  /// \brief publish debug message
+  /// \tparam T_msg type of message
+  /// \tparam T type of data
+  /// \param name frame id
+  /// \param data data of the message
+  /// \param qos QoS of message
   template<
     class T_msg,
     class T,
