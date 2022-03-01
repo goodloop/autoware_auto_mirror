@@ -31,8 +31,6 @@
 
 #include <Eigen/Geometry>
 
-#include <iostream>
-
 namespace autoware
 {
 namespace common
