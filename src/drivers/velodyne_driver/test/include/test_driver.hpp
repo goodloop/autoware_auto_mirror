@@ -197,7 +197,7 @@ protected:
   std::vector<autoware::common::types::PointXYZIF> out;
 };  // class VelodyneDriver
 
-/// make sure instantiating the driver doesn't result in the process shitting the bed
+/// make sure instantiating the driver doesn't result in the process failing
 TEST_F(VelodyneDriver, Basic)
 {
   const geometry_msgs::msg::Point32 offset_m;
