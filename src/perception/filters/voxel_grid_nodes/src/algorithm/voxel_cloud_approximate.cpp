@@ -40,7 +40,8 @@ VoxelCloudApproximate::VoxelCloudApproximate(const voxel_grid::Config & cfg)
   m_grid(cfg)
 {
   // frame id is arbitrary, not the responsibility of this component
-  point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZI>{m_cloud, "base_link"};
+  using autoware::common::lidar_utils::CloudModifier;
+  CloudModifier{m_cloud, "base_link"};
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -83,7 +84,8 @@ void VoxelCloudApproximate::insert(
 const sensor_msgs::msg::PointCloud2 & VoxelCloudApproximate::get()
 {
   using autoware::common::types::PointXYZI;
-  point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZI> modifier{m_cloud};
+  using autoware::common::lidar_utils::CloudModifier;
+  CloudModifier modifier{m_cloud};
   modifier.clear();
   modifier.reserve(m_grid.size());
 

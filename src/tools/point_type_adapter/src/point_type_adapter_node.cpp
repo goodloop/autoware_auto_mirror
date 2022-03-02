@@ -15,7 +15,7 @@
 #include <sensor_msgs/msg/point_cloud2.hpp>
 #include <sensor_msgs/point_cloud2_iterator.hpp>
 #include <common/types.hpp>
-#include <point_cloud_msg_wrapper/point_cloud_msg_wrapper.hpp>
+#include <lidar_utils/point_cloud_utils.hpp>
 #include <memory>
 #include <algorithm>
 #include <exception>
@@ -68,7 +68,8 @@ void PointTypeAdapterNode::callback_cloud_input(const PointCloud2::SharedPtr msg
 PointCloud2::SharedPtr PointTypeAdapterNode::cloud_in_to_cloud_xyzi(
   const PointCloud2::ConstSharedPtr cloud_in) const
 {
-  using CloudModifier = point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZI>;
+  using autoware::common::types::PointXYZI;
+  using autoware::common::lidar_utils::CloudModifier;
   PointCloud2::SharedPtr cloud_out_ptr = std::make_shared<PointCloud2>();
 
   auto fields_contain_field_with_name_and_datatype = [this](

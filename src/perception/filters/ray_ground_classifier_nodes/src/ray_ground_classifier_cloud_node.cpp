@@ -15,7 +15,6 @@
 // Co-developed by Tier IV, Inc. and Apex.AI, Inc.
 #include <common/types.hpp>
 #include <lidar_utils/point_cloud_utils.hpp>
-#include <point_cloud_msg_wrapper/point_cloud_msg_wrapper.hpp>
 #include <ray_ground_classifier_nodes/ray_ground_classifier_cloud_node.hpp>
 #include <rclcpp/rclcpp.hpp>
 #include <rclcpp_components/register_node_macro.hpp>
@@ -40,6 +39,8 @@ using autoware::perception::filters::ray_ground_classifier::PointPtrBlock;
 using std::placeholders::_1;
 
 using autoware::common::lidar_utils::has_intensity_and_throw_if_no_xyz;
+
+using autoware::common::lidar_utils::CloudModifier;
 
 RayGroundClassifierCloudNode::RayGroundClassifierCloudNode(
   const rclcpp::NodeOptions & node_options)
@@ -83,9 +84,9 @@ RayGroundClassifierCloudNode::RayGroundClassifierCloudNode(
       "points_nonground", rclcpp::QoS(10)))
 {
   // initialize messages
-  point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZI>{
+  CloudModifier{
     m_ground_msg, m_frame_id}.reserve(m_pcl_size);
-  point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZI>{
+  CloudModifier{
     m_nonground_msg, m_frame_id}.reserve(m_pcl_size);
 }
 ////////////////////////////////////////////////////////////////////////////////
@@ -97,8 +98,8 @@ RayGroundClassifierCloudNode::callback(const PointCloud2::SharedPtr msg)
   const ray_ground_classifier::PointXYZIFR eos_pt{&pt_tmp};
 
   try {
-    point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZI> ground_msg_modifier{m_ground_msg};
-    point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZI> nonground_msg_modifier{
+    CloudModifier ground_msg_modifier{m_ground_msg};
+    CloudModifier nonground_msg_modifier{
       m_nonground_msg};
 
     // Reset messages and aggregator to ensure they are in a good state
@@ -257,10 +258,10 @@ void RayGroundClassifierCloudNode::reset()
   //                   which would lead to filled rays and overflow during next callback
   m_aggregator.reset();
   // reset messages
-  point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZI> modifier1{m_ground_msg};
+  CloudModifier modifier1{m_ground_msg};
   modifier1.clear();
 
-  point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZI> modifier2{m_nonground_msg};
+  CloudModifier modifier2{m_nonground_msg};
   modifier2.clear();
 }
 }  // namespace ray_ground_classifier_nodes

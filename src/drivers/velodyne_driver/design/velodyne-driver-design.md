@@ -21,7 +21,7 @@ One modification applied is that in addition to standard values, e.g. spatial
 coordinates and intensity, we retain some order information from the sensor
 itself.
 
-Specifically, `fire_id` is kept track of, which consolidates points of a
+Specifically, `id` is kept track of, which consolidates points of a
 point cloud into 16 point blocks that make up a fire pattern, or can be thought
 of as a ray, where 16 in this case is the number of lasers in the particular
 model of Velodyne LiDAR used. This information is used downstream, most
@@ -31,7 +31,7 @@ An additional modification to the driver API is that points can be seen or
 consumed before a full point cloud is received. This allows downstream
 computation (e.g. filtering, ground segmentation) to happen as the point cloud
 is coming in, to minimize the overall latency of the system. In this use case,
-a special `fire_id`, `END_OF_SCAN_ID = 0xFFFF` is used to denote where one
+a special `id`, `END_OF_SCAN_ID = 0xFFFF` is used to denote where one
 pointcloud ends and another begins. In order to maintain consistency in a system
 that works off these point streams, the point delimiting two pointclouds *must*
 be pushed downstream.
