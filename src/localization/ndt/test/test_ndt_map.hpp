@@ -27,9 +27,11 @@
 #include <map>
 #include <string>
 #include "common/types.hpp"
+#include "lidar_utils/point_cloud_utils.hpp"
 
 using autoware::common::types::float32_t;
 using autoware::common::types::float64_t;
+using autoware::common::lidar_utils::CloudModifier;
 
 using autoware::localization::ndt::DynamicNDTMap;
 constexpr auto kNumConfigPoints = DynamicNDTMap::kNumConfigPoints;
@@ -52,14 +54,14 @@ sensor_msgs::msg::PointField make_pf(
 void populate_pc(
   sensor_msgs::msg::PointCloud2 & pc,
   size_t num_points);
-using PointXYZI = autoware::common::types::PointXYZI;
+using autoware::common::types::PointXYZI;
 
 PointXYZI get_point_from_vector(const Eigen::Vector3d & v);
 
 // add the point `center` and 4 additional points in a fixed distance from the center
 // resulting in 7 points with random but bounded covariance
 void add_cell(
-  point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZI> & msg_wrapper,
+  CloudModifier & msg_wrapper,
   const Eigen::Vector3d & center, double fixed_deviation);
 
 using PointXYZ = geometry_msgs::msg::Point32;
@@ -76,7 +78,7 @@ protected:
   void build_pc(const autoware::perception::filters::voxel_grid::Config & cfg);
 
   sensor_msgs::msg::PointCloud2 m_pc;
-  point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZI> m_pc_wrapper;
+  CloudModifier m_pc_wrapper;
   std::map<uint64_t, Eigen::Vector3d> m_voxel_centers;
   static constexpr std::uint32_t NUM_POINTS{50U};
   PointXYZ m_min_point;

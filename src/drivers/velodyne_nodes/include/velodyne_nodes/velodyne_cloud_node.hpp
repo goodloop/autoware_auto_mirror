@@ -43,6 +43,44 @@ namespace drivers
 namespace velodyne_nodes
 {
 
+class CloudModifierWrapperBase
+{
+public:
+  virtual void clear() = 0;
+
+  virtual void reserve(const std::size_t) = 0;
+
+  virtual void resize(const uint32_t cloud_size) = 0;
+
+  virtual std::size_t size() const = 0;
+
+  virtual void push_back(const autoware::common::types::PointXYZIF &) = 0;
+};
+
+template<typename CloudModifierT>
+class CloudModifierWrapper : public CloudModifierWrapperBase
+{
+private:
+  CloudModifierT modifier_;
+
+public:
+  CloudModifierWrapper(sensor_msgs::msg::PointCloud2 & pc, const std::string & frame_id)
+  : modifier_(CloudModifierT(pc, frame_id)) {}
+
+  explicit CloudModifierWrapper(sensor_msgs::msg::PointCloud2 & pc)
+  : modifier_(CloudModifierT(pc)) {}
+
+  inline void clear() override;
+
+  inline void reserve(const std::size_t cloud_size) override;
+
+  inline void resize(const uint32_t cloud_size) override;
+
+  inline std::size_t size() const override;
+
+  inline void push_back(const autoware::common::types::PointXYZIF &) override;
+};
+
 /// Template class for the velodyne driver node that receives veldyne `packet`s via
 /// UDP, converts the packet into a PointCloud2 message and publishes this cloud.
 /// \tparam SensorData SensorData implementation for the specific velodyne sensor model.
@@ -87,6 +125,7 @@ private:
   uint32_t m_point_cloud_idx;
   const std::string m_frame_id;
   const std::uint32_t m_cloud_size;
+  bool8_t m_ring_information;
 };  // class VelodyneCloudNode
 
 class VELODYNE_NODES_PUBLIC VelodyneCloudWrapperNode : public rclcpp::Node

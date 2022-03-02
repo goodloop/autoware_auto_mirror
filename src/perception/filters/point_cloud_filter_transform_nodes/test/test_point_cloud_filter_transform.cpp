@@ -79,7 +79,8 @@ sensor_msgs::msg::PointCloud2 make_pc(
 {
   sensor_msgs::msg::PointCloud2 msg;
   using autoware::common::types::PointXYZIF;
-  point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZIF> modifier{msg, "base_link"};
+  using autoware::common::lidar_utils::CloudModifierRing;
+  CloudModifierRing modifier{msg, "base_link"};
   modifier.reserve(seeds.size());
 
   for (auto seed : seeds) {
@@ -200,6 +201,7 @@ TEST_F(PointCloudFilterTransformIntegration, CloudBasicTest)
   velodyne_params.emplace_back("cloud_size", static_cast<int64_t>(m_cloud_size));
   velodyne_params.emplace_back("rpm", static_cast<int>(m_vlp_config.get_rpm()));
   velodyne_params.emplace_back("topic", topic_name);
+  velodyne_params.emplace_back("ring_information", false);
   rclcpp::NodeOptions velodyne_options = rclcpp::NodeOptions().arguments(
     {"-r __node:=velodyne_cloud_node"});
   velodyne_options.parameter_overrides(velodyne_params);
@@ -303,7 +305,8 @@ TEST_F(PointCloudFilterTransformIntegration, Filter270Radius10) {
   std::vector<std::vector<PointXYZIF>> expected_filter_output_points(1);
   PointCloud2 raw_msg;
   using autoware::common::types::PointXYZIF;
-  point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZIF> modifier{raw_msg, "lidar_front"};
+  using autoware::common::lidar_utils::CloudModifierRing;
+  CloudModifierRing modifier{raw_msg, "lidar_front"};
   modifier.reserve(5);
 
   PointXYZIF pt;

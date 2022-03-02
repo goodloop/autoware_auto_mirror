@@ -116,8 +116,8 @@ sensor_msgs::msg::PointCloud2 autoware::mapping::point_cloud_mapping::make_pc(
   const std::string & frame)
 {
   sensor_msgs::msg::PointCloud2 pc;
-  using autoware::common::types::PointXYZI;
-  point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZI> modifier{pc, frame};
+  using autoware::common::lidar_utils::CloudModifier;
+  CloudModifier modifier{pc, frame};
   for (const auto & pt : pts) {
     modifier.push_back(pt);
   }

@@ -141,13 +141,15 @@ void label_and_check(
   size_t num_wrong = 0U;
   for (const PointXYZIF * pt : ground_blk) {
     if (!label[pt->id]) {  // true <--> ground
-      std::cerr << pt->id << " expected " << (label[pt->id] ? "ground" : "nonground") << "\n";
+      std::cerr << pt->id << " expected " << (label[pt->id] ? "ground" : "nonground") <<
+        "\n";
       ++num_wrong;
     }
   }
   for (const PointXYZIF * pt : nonground_blk) {
     if (label[pt->id]) {  // true <--> ground
-      std::cerr << pt->id << " expected " << (label[pt->id] ? "ground" : "nonground") << "\n";
+      std::cerr << pt->id << " expected " << (label[pt->id] ? "ground" : "nonground") <<
+        "\n";
       ++num_wrong;
     }
   }

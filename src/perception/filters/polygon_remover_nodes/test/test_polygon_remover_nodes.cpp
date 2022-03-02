@@ -13,7 +13,7 @@
 // limitations under the License.
 
 #include <common/types.hpp>
-#include <point_cloud_msg_wrapper/point_cloud_msg_wrapper.hpp>
+#include <lidar_utils/point_cloud_utils.hpp>
 #include <random>
 #include <memory>
 #include <string>
@@ -22,7 +22,7 @@
 #include "polygon_remover_nodes/polygon_remover_node.hpp"
 
 using autoware::common::types::PointXYZI;
-using PointCloud2 = sensor_msgs::msg::PointCloud2;
+using sensor_msgs::msg::PointCloud2;
 using autoware::common::types::float32_t;
 
 geometry_msgs::msg::Point32 make_point_geo(float x, float y, float z)
@@ -53,7 +53,7 @@ PointCloud2::SharedPtr generate_cloud_rect_counted(
   const float32_t bound_y_max)
 {
   PointCloud2::SharedPtr cloud_input_ptr = std::make_shared<PointCloud2>();
-  using CloudModifier = point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZI>;
+  using autoware::common::lidar_utils::CloudModifier;
   CloudModifier cloud_modifier_input(*cloud_input_ptr, "");
 
   // Populate it with random points within a selected area
@@ -69,6 +69,7 @@ PointCloud2::SharedPtr generate_cloud_rect_counted(
 
   auto generate_random_point_within_rect =
     [&dist_within_x, &dist_within_y, &dist_within_z, &mt]() {
+      using autoware::common::types::PointXYZI;
       PointXYZI point_xyzi;
       point_xyzi.x = dist_within_x(mt);
       point_xyzi.y = dist_within_y(mt);
@@ -169,7 +170,7 @@ TEST(TestPolygonRemoverNodes, TestRemoveRectangle) {
   auto callback_cloud_polygon_removed =
     [&test_completed, &count_points_outside_rect](
     const sensor_msgs::msg::PointCloud2::SharedPtr msg) {
-      using CloudView = point_cloud_msg_wrapper::PointCloud2View<PointXYZI>;
+      using autoware::common::lidar_utils::CloudView;
       CloudView cloud_view_input(*msg);
       EXPECT_EQ(cloud_view_input.size(), count_points_outside_rect);
       test_completed = true;

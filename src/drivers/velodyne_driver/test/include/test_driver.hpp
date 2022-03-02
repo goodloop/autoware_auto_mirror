@@ -197,7 +197,7 @@ protected:
   std::vector<autoware::common::types::PointXYZIF> out;
 };  // class VelodyneDriver
 
-/// make sure instantiating the driver doesn't result in the process shitting the bed
+/// make sure instantiating the driver doesn't result in the process failing
 TEST_F(VelodyneDriver, Basic)
 {
   const geometry_msgs::msg::Point32 offset_m;
@@ -239,7 +239,10 @@ TEST_F(VelodyneDriver, Basic)
     EXPECT_LE(pt.intensity, 255.0F);
     EXPECT_GE(pt.intensity, 0.0F);
     // IDs are contiguous
-    EXPECT_TRUE((pt.id == last_id) || (pt.id == (last_id + 1U)));
+    EXPECT_TRUE(
+      (pt.id == last_id && pt.id == 0U) ||  // Initial case
+      (pt.id % Vlp16Translator::NUM_LASERS ==
+      (last_id + 1U) % Vlp16Translator::NUM_LASERS));
     last_id = pt.id;
   }
   EXPECT_GE(min_r, 0.0F);
