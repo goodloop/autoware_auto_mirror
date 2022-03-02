@@ -255,7 +255,7 @@ After the new sensor configuration has been created, copy its UUID using the but
 
 @image html images/sensor-config-view.png "Sensor Configuration UUID button location" width=50%
 
-Now create a new YAML file containing the value just copied as follows. In this example below we are using the UUID `5ab8175f-e1f1-427c-a86e-e882fa842977` for the new sensor configuration:
+Now create a new YAML file containing the value just copied as follows. In this example below we are using the UUID `c7d50f84-0a6b-4007-9b34-a723dc0e3d20` for the new sensor configuration:
 ```{yaml}
 # vehicle_sensor_configuration.param.yaml
 ---
@@ -263,7 +263,7 @@ Now create a new YAML file containing the value just copied as follows. In this 
 /**:
    ros__parameters:
       vehicle:
-         config_uuid: 5ab8175f-e1f1-427c-a86e-e882fa842977
+         config_uuid: c7d50f84-0a6b-4007-9b34-a723dc0e3d20
 ```
 Finally run the AVP simulation while passing the override parameters file:
 ```{bash}
