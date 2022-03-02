@@ -94,7 +94,7 @@ void
 RayGroundClassifierCloudNode::callback(const PointCloud2::SharedPtr msg)
 {
   PointXYZIF pt_tmp;
-  pt_tmp.fire_id = static_cast<uint16_t>(PointXYZIF::END_OF_SCAN_ID);
+  pt_tmp.id = static_cast<uint16_t>(PointXYZIF::END_OF_SCAN_ID);
   const ray_ground_classifier::PointXYZIFR eos_pt{&pt_tmp};
 
   try {

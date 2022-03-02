@@ -115,19 +115,19 @@ static void BenchMsgWrapperAccessPoint(benchmark::State & state)
   auto y = 0.0F;
   auto z = 0.0F;
   auto intensity = 0.0F;
-  auto fire_id = 0;
+  auto id = 0;
   for (auto _ : state) {
     for (const auto & p : modifier) {
       benchmark::DoNotOptimize(x);
       benchmark::DoNotOptimize(y);
       benchmark::DoNotOptimize(z);
       benchmark::DoNotOptimize(intensity);
-      benchmark::DoNotOptimize(fire_id);
+      benchmark::DoNotOptimize(id);
       x = p.x;
       y = p.y;
       z = p.z;
       intensity = p.intensity;
-      fire_id = p.fire_id;
+      id = p.id;
     }
   }
 }

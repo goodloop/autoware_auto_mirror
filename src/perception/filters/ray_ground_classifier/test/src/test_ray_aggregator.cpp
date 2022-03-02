@@ -279,7 +279,7 @@ TEST(RayAggregator, Segfault)
   pt.y = -3.12589109E-05;
   pt.z = 6.1132035;
   pt.intensity = 13;
-  pt.fire_id = 0;
+  pt.id = 0;
 
   EXPECT_NO_THROW(agg.insert(&pt));
 }
@@ -317,7 +317,7 @@ TEST(RayAggregator, ResetBug) {
     std::array<PointXYZIF, kNumPoints> pts;
     pts[0U].x = 1.0F; pts[0U].y = 5.0F;
     pts[1U].x = 2.0F; pts[1U].y = 10.0F;
-    pts[2U].fire_id = static_cast<uint16_t>(PointXYZIF::END_OF_SCAN_ID);
+    pts[2U].id = static_cast<uint16_t>(PointXYZIF::END_OF_SCAN_ID);
     check_one_ray_fn(pts);
   }
 
@@ -328,7 +328,7 @@ TEST(RayAggregator, ResetBug) {
     std::array<PointXYZIF, kNumPoints> pts;
     pts[0U].x = 1.0F; pts[0U].y = 2.0F;
     pts[1U].x = 2.0F; pts[1U].y = 4.0F;
-    pts[2U].fire_id = static_cast<uint16_t>(PointXYZIF::END_OF_SCAN_ID);
+    pts[2U].id = static_cast<uint16_t>(PointXYZIF::END_OF_SCAN_ID);
     check_one_ray_fn(pts);
   }
 }

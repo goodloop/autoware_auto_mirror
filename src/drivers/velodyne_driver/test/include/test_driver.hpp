@@ -215,11 +215,11 @@ TEST_F(VelodyneDriver, Basic)
   float32_t max_th = -std::numeric_limits<float32_t>::max();
   float32_t min_phi = std::numeric_limits<float32_t>::max();
   float32_t max_phi = -std::numeric_limits<float32_t>::max();
-  uint32_t last_fire_id = 0U;
+  uint32_t last_id = 0U;
   for (uint32_t idx = 0U; idx < out.size(); ++idx) {
     autoware::common::types::PointXYZIF & pt = out[idx];
     if (0U == idx) {
-      last_fire_id = pt.fire_id;
+      last_id = pt.id;
     }
     const float32_t th = atan2f(pt.y, pt.x);
     const float32_t r_xy = sqrtf((pt.x * pt.x) + (pt.y * pt.y));
@@ -240,10 +240,10 @@ TEST_F(VelodyneDriver, Basic)
     EXPECT_GE(pt.intensity, 0.0F);
     // IDs are contiguous
     EXPECT_TRUE(
-      (pt.fire_id == last_fire_id && pt.fire_id == 0U) ||  // Initial case
-      (pt.fire_id % Vlp16Translator::NUM_LASERS ==
-      (last_fire_id + 1U) % Vlp16Translator::NUM_LASERS));
-    last_fire_id = pt.fire_id;
+      (pt.id == last_id && pt.id == 0U) ||  // Initial case
+      (pt.id % Vlp16Translator::NUM_LASERS ==
+      (last_id + 1U) % Vlp16Translator::NUM_LASERS));
+    last_id = pt.id;
   }
   EXPECT_GE(min_r, 0.0F);
   EXPECT_LE(max_r, 130.0F) << max_r;  // max range from spec sheet
