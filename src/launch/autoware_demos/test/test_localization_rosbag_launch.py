@@ -48,8 +48,17 @@ class TestProcessOutput(unittest.TestCase):
         # Check that all processes in the launch file exit with code 0
         # Exception: ros2 bag play exits with code 2 when it cannot find a bag file
         # Exception: rviz might exit with other codes
+        # Exceptions: some processes have inconsistent exit codes
+        ex_processes = [
+            "ros2",
+            "ndt_map_publisher",
+            "lanelet2_map_provider",
+            "lanelet2_global_planner_node",
+            "costmap_generator_node",
+        ]
+        ex_codes = [0, 2, -6, -15]
         for process_name in proc_info.process_names():
-            if "ros2" in process_name:
-                launch_testing.asserts.assertExitCodes(proc_info, [0, 2], process=process_name)
+            if any(ex_process in process_name for ex_process in ex_processes):
+                launch_testing.asserts.assertExitCodes(proc_info, ex_codes, process=process_name)
             elif "rviz" not in process_name:
                 launch_testing.asserts.assertExitCodes(proc_info, process=process_name)
