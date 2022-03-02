@@ -30,6 +30,9 @@ def generate_test_description():
     return LaunchDescription([
         IncludeLaunchDescription(
             PythonLaunchDescriptionSource(os.path.join(autoware_demos_share_dir, launch_file)),
+            launch_arguments={
+                'with_lgsvl': 'false'
+            }.items(),
         ),
         launch_testing.actions.ReadyToTest(),
     ])
@@ -48,9 +51,16 @@ class TestAutowareReady(unittest.TestCase):
 class TestProcessOutput(unittest.TestCase):
     def test_exit_code(self, proc_info):
         # Check that all processes in the launch file exit with code 0
-        # Exception: costmap_generator_node exits with -6
+        # Exceptions: some processes have inconsistent exit codes
+        ex_processes = [
+            "costmap_generator_node",
+            "ndt_map_publisher",
+            "lanelet2_map_provider",
+            "lanelet2_global_planner_node",
+        ]
+        ex_codes = [0, -6, -15]
         for process_name in proc_info.process_names():
-            if "costmap_generator_node" in process_name:
-                launch_testing.asserts.assertExitCodes(proc_info, [-6], process=process_name)
+            if any(ex_process in process_name for ex_process in ex_processes):
+                launch_testing.asserts.assertExitCodes(proc_info, ex_codes, process=process_name)
             else:
                 launch_testing.asserts.assertExitCodes(proc_info, process=process_name)
