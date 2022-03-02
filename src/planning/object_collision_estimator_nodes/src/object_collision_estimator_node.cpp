@@ -164,6 +164,7 @@ void ObjectCollisionEstimatorNode::estimate_collision(
   rclcpp::Time request_time{
     request->original_trajectory.header.stamp,
     m_last_obstacle_msg_time.get_clock_type()};
+
   auto elapsed_time = request_time - m_last_obstacle_msg_time;
   if (m_last_obstacle_msg_time.seconds() == 0) {
     RCLCPP_WARN(
@@ -175,54 +176,41 @@ void ObjectCollisionEstimatorNode::estimate_collision(
       "Outdated obstacle information."
       "Collision estimation will be based on old obstacle positions");
   }
+
   // copy the input trajectory into the output variable
-  Trajectory trajectory = request->original_trajectory;
+  response->modified_trajectory = request->original_trajectory;
+  Trajectory trajectory_transformed = request->original_trajectory;
+
   const tf2::TimePoint trajectory_time_point = tf2::TimePoint(
     std::chrono::seconds(request->original_trajectory.header.stamp.sec) +
     std::chrono::nanoseconds(request->original_trajectory.header.stamp.nanosec));
 
-  // transform coming trajectory odom to target frame
   if (response->modified_trajectory.header.frame_id != m_target_frame_id) {
     geometry_msgs::msg::TransformStamped tf;
     try {
       tf = this->m_tf_buffer->lookupTransform(
         m_target_frame_id,
-        trajectory.header.frame_id,
+        request->original_trajectory.header.frame_id,
         trajectory_time_point);
     } catch (const tf2::ExtrapolationException &) {
-      // do validation in the future
-      // sometimes trajectory comes from future.
       tf = this->m_tf_buffer->lookupTransform(
         m_target_frame_id,
-        trajectory.header.frame_id,
+        request->original_trajectory.header.frame_id,
         tf2::TimePointZero);
     }
 
-    for (auto & trajectory_point : trajectory.points) {
+    for (auto & trajectory_point : trajectory_transformed.points) {
       ::motion::motion_common::doTransform(
         trajectory_point, trajectory_point, tf);
     }
-    trajectory.header.frame_id = m_target_frame_id;
   }
 
   // m_estimator performs the collision estimation and the trajectory will get updated inside
-  m_estimator->updatePlan(trajectory);
-  // Update response in target frame
-  Trajectory modified_trajectory;
-  modified_trajectory.header = request->original_trajectory.header;
-
-  for (std::size_t i = 0; i < trajectory.points.size(); i++) {
-    TrajectoryPoint trajectory_point;
-    trajectory_point = trajectory.points.at(i);
-    trajectory_point.pose = request->original_trajectory.points.at(i).pose;
-    modified_trajectory.points.push_back(trajectory_point);
-  }
-
-  response->modified_trajectory = modified_trajectory;
-
+  m_estimator->updatePlan(trajectory_transformed, response->modified_trajectory);
   // publish trajectory bounding box for visualization
   auto trajectory_bbox = m_estimator->getTrajectoryBoundingBox();
-  trajectory_bbox.header = trajectory.header;
+  trajectory_bbox.header.frame_id = m_target_frame_id;
+  trajectory_bbox.header.stamp = request->original_trajectory.header.stamp;
   auto marker = toVisualizationMarkerArray(
     trajectory_bbox, response->modified_trajectory.points.size());
   m_trajectory_bbox_pub->publish(marker);

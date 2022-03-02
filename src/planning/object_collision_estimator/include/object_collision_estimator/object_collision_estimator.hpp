@@ -46,6 +46,7 @@ using autoware_auto_perception_msgs::msg::BoundingBoxArray;
 using autoware_auto_perception_msgs::msg::PredictedObjects;
 using autoware_auto_perception_msgs::msg::PredictedObject;
 using autoware::common::types::float32_t;
+using autoware::common::types::float64_t;
 using autoware::common::types::PI;
 
 struct AxisAlignedBoundingBox
@@ -54,9 +55,9 @@ struct AxisAlignedBoundingBox
   geometry_msgs::msg::Point32 upper_bound;
 };
 
-struct BoundingBoxInfo
+struct PredictedObjectInfo
 {
-  BoundingBox bbox;
+  PredictedObject predicted_object;
   AxisAlignedBoundingBox axis_bbox;
 };
 
@@ -104,9 +105,11 @@ public:
   /// \details the list of obstacles should be passed to the estimator with a prior call to
   ///          updateObstacles. When a collision is detected, the trajectory is modified in place
   ///          such that the velocity of the ego vehicle becomes 0 before the collision point.
-  /// \param[inout] trajectory The intended trajectory of the ego vehicle. If a collision is
-  ///               detected, this variable is modified in place.
-  void updatePlan(Trajectory & trajectory) noexcept;
+  /// \param[inout] trajectory The transformed trajectory of the ego vehicle. used for
+  ///               collision prediction.
+  /// \param[inout] trajectory_response The intended trajectory of the ego vehicle. If a collision
+  ///               is  detected, this variable is modified in place.
+  void updatePlan(Trajectory & trajectory, Trajectory & trajectory_response) noexcept;
 
   /// \brief Get the latest bounding box of target trajectory
   /// \returns The latest bounding box of the target trajectory
@@ -114,7 +117,7 @@ public:
 
 private:
   ObjectCollisionEstimatorConfig m_config;
-  PredictedObjects m_predicted_objects{};
+  std::vector<PredictedObjectInfo> m_predicted_objects{};
   BoundingBoxArray m_trajectory_bboxes{};
   TrajectorySmoother m_smoother;
 };

@@ -98,17 +98,17 @@ void object_collision_estimator_test(
     autoware_auto_perception_msgs::msg::Shape shape;
     shape.polygon.points = {
       make_point(
-        -generated_obstacle_size / 2,
-        -generated_obstacle_size / 2),
+        -generated_obstacle_length / 2,
+        -generated_obstacle_width / 2),
       make_point(
-        generated_obstacle_size / 2,
-        -generated_obstacle_size / 2),
+        generated_obstacle_length / 2,
+        -generated_obstacle_width / 2),
       make_point(
-        generated_obstacle_size / 2,
-        generated_obstacle_size / 2),
+        generated_obstacle_length / 2,
+        generated_obstacle_width / 2),
       make_point(
-        -generated_obstacle_size / 2,
-        generated_obstacle_size / 2)
+        -generated_obstacle_length / 2,
+        generated_obstacle_width / 2)
     };
     predicted_object.shape.push_back(shape);
     predicted_objects.objects.push_back(predicted_object);
@@ -116,7 +116,7 @@ void object_collision_estimator_test(
 
   // call the estimator API
   estimator.updatePredictedObjects(predicted_objects);
-  estimator.updatePlan(trajectory);
+  estimator.updatePlan(trajectory, trajectory);
 
   if (obstacle_bbox_idx < trajectory_length) {
     if (obstacle_bbox_idx != 0) {
