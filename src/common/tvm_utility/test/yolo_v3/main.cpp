@@ -410,7 +410,7 @@ TEST(PipelineExamplesYoloV3, SimplePipelineYoloV3) {
   }
 
   // Test: check if the generated output is equal to the reference
-  EXPECT_EQ(expected_output.size(), output.size()) << "Unexpected output si";
+  EXPECT_EQ(expected_output.size(), output.size()) << "Unexpected output size";
   for (auto i = 0; i < output.size(); ++i) {
     EXPECT_NEAR(expected_output[i], output[i], 0.0001) << "at index: " << i;
   }
