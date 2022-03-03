@@ -278,7 +278,7 @@ int32_t ObjectCollisionEstimator::updatePlan(
       trajectory_point.acceleration_mps2 = 0.0;
     }
   }
-  return static_cast<size_t>(collision_index);
+  return collision_index;
 }
 
 
@@ -287,7 +287,6 @@ void ObjectCollisionEstimator::updatePredictedObjects(
 {
   auto get_dimensions = [&](
     PredictedObject & predicted_object,
-    AxisAlignedBoundingBox & axis_aligned_bounding_box,
     const float32_t min_obstacle_dimension
     ) {
       auto min_x = std::numeric_limits<float32_t>::max();
@@ -322,17 +321,19 @@ void ObjectCollisionEstimator::updatePredictedObjects(
           static_cast<float32_t>(predicted_object.kinematics.initial_pose.pose.position.y));
       }
 
+      AxisAlignedBoundingBox axis_aligned_bounding_box;
       axis_aligned_bounding_box.lower_bound.x = min_x;
       axis_aligned_bounding_box.lower_bound.y = min_y;
       axis_aligned_bounding_box.upper_bound.x = max_x;
       axis_aligned_bounding_box.upper_bound.y = max_y;
+
+      return axis_aligned_bounding_box;
     };
 
   m_predicted_objects.clear();
   for (auto & predicted_object : predicted_objects.objects) {
-    AxisAlignedBoundingBox axis_aligned_bounding_box;
-    get_dimensions(
-      predicted_object, axis_aligned_bounding_box,
+    AxisAlignedBoundingBox axis_aligned_bounding_box = get_dimensions(
+      predicted_object,
       m_config.min_obstacle_dimension_m);
     PredictedObjectInfo predicted_object_info;
     predicted_object_info.predicted_object = predicted_object;
