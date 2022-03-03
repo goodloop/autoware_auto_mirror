@@ -142,6 +142,9 @@ void NDTMapPublisherNode::run()
   if (m_viz_map) {
     reset_pc_msg(m_downsampled_pc);
     downsample_pc();
+    if (m_downsampled_pc.width > 0U) {
+      m_viz_pub->publish(m_downsampled_pc);
+    }
   }
   publish();
 }
