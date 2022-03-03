@@ -98,8 +98,7 @@ public:
   ///           * box.size.x and box.size.y map to the length of the first and second edges
   ///             respectively
   /// \param[in] predicted_objects A array of predicted object representing a list of obstacles
-  void updatePredictedObjects(
-    const PredictedObjects & predicted_objects) noexcept;
+  void updatePredictedObjects(PredictedObjects predicted_objects) noexcept;
 
   /// \brief Perform collision detection given an trajectory
   /// \details the list of obstacles should be passed to the estimator with a prior call to
@@ -109,7 +108,8 @@ public:
   ///               collision prediction.
   /// \param[inout] trajectory_response The intended trajectory of the ego vehicle. If a collision
   ///               is  detected, this variable is modified in place.
-  void updatePlan(Trajectory & trajectory, Trajectory & trajectory_response) noexcept;
+  /// \returns Collision index
+  int32_t updatePlan(const Trajectory & trajectory, Trajectory & trajectory_response) noexcept;
 
   /// \brief Get the latest bounding box of target trajectory
   /// \returns The latest bounding box of the target trajectory

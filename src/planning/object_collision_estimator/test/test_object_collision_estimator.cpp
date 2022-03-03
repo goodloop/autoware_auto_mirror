@@ -119,14 +119,6 @@ void object_collision_estimator_test(
   estimator.updatePlan(trajectory, trajectory);
 
   if (obstacle_bbox_idx < trajectory_length) {
-    if (obstacle_bbox_idx != 0) {
-      // Check that the trajectory has been curtailed
-      EXPECT_EQ(trajectory.points.size(), obstacle_bbox_idx - 1);
-    } else {
-      // Check that the trajectory has been curtailed
-      EXPECT_EQ(trajectory.points.size(), 0U);
-    }
-
     // Check that the last point has zero velocity and acceleration
     if (trajectory.points.size() != 0) {
       EXPECT_EQ(trajectory.points[trajectory.points.size() - 1].longitudinal_velocity_mps, 0);

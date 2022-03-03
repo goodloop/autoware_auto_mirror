@@ -206,13 +206,17 @@ void ObjectCollisionEstimatorNode::estimate_collision(
   }
 
   // m_estimator performs the collision estimation and the trajectory will get updated inside
-  m_estimator->updatePlan(trajectory_transformed, response->modified_trajectory);
+  const auto collision_index = m_estimator->updatePlan(
+    trajectory_transformed,
+    response->modified_trajectory);
   // publish trajectory bounding box for visualization
   auto trajectory_bbox = m_estimator->getTrajectoryBoundingBox();
   trajectory_bbox.header.frame_id = m_target_frame_id;
   trajectory_bbox.header.stamp = request->original_trajectory.header.stamp;
   auto marker = toVisualizationMarkerArray(
-    trajectory_bbox, response->modified_trajectory.points.size());
+    trajectory_bbox,
+    (collision_index <= -1 ) ?
+    request->original_trajectory.points.size() : static_cast<size_t>(collision_index));
   m_trajectory_bbox_pub->publish(marker);
 }
 

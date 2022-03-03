@@ -215,7 +215,7 @@ int32_t getStopIndex(
   if (collision_index < 0) {
     return collision_index;
   }
-  int32_t stop_index = collision_index;
+  int32_t stop_index = 0;
   float32_t accumulated_distance = 0;
 
   for (int32_t i = collision_index; i >= 1; i--) {
@@ -244,46 +244,51 @@ ObjectCollisionEstimator::ObjectCollisionEstimator(
   }
 }
 
-void ObjectCollisionEstimator::updatePlan(
-  Trajectory & trajectory,
+int32_t ObjectCollisionEstimator::updatePlan(
+  const Trajectory & trajectory,
   Trajectory & trajectory_response) noexcept
 {
   // Collision detection
   auto collision_index = detectCollision(
     trajectory, m_predicted_objects, m_config.vehicle_config,
     m_config.safety_factor, m_trajectory_bboxes);
-
   auto trajectory_end_idx = getStopIndex(trajectory, collision_index, m_config.stop_margin);
 
-  if (trajectory_end_idx >= 0) {
+  if (trajectory_end_idx >= 2) {
     // Cut trajectory short to just before the collision point
     trajectory_response.points.resize(static_cast<std::size_t>(trajectory_end_idx));
+    // Mark the last point along the trajectory as "stopping" by setting
+    // accelerations and velocities to zero.
+    const auto trajectory_last_idx = static_cast<std::size_t>(trajectory_end_idx - 1);
 
-    if (trajectory_end_idx >= 1) {
-      // Mark the last point along the trajectory as "stopping" by setting
-      // accelerations and velocities to zero.
-      const auto trajectory_last_idx = static_cast<std::size_t>(trajectory_end_idx - 1);
+    trajectory_response.points[trajectory_last_idx].longitudinal_velocity_mps = 0.0;
+    trajectory_response.points[trajectory_last_idx].acceleration_mps2 = 0.0;
 
-      trajectory_response.points[trajectory_last_idx].longitudinal_velocity_mps = 0.0;
-      trajectory_response.points[trajectory_last_idx].acceleration_mps2 = 0.0;
-
-      // smooth the velocity profile of the trajectory so that it is realistically
-      // executable.
-      m_smoother.Filter(trajectory_response);
+    // smooth the velocity profile of the trajectory so that it is realistically
+    // executable.
+    m_smoother.Filter(trajectory_response);
+  } else if (trajectory_end_idx >= 0) {
+    // Valid trajectory for trajectory follower should be contained at least 2 points.
+    // Cut trajectory short to just before the collision point
+    trajectory_response.points.resize(static_cast<std::size_t>(2));
+    // Mark the last point along the trajectory as "stopping" by setting
+    // accelerations and velocities to zero.
+    for (auto & trajectory_point : trajectory_response.points) {
+      trajectory_point.longitudinal_velocity_mps = 0.0;
+      trajectory_point.acceleration_mps2 = 0.0;
     }
   }
+  return static_cast<size_t>(collision_index);
 }
 
 
 void ObjectCollisionEstimator::updatePredictedObjects(
-  const PredictedObjects & predicted_objects) noexcept
+  PredictedObjects predicted_objects) noexcept
 {
-  auto predicted_objects_clone = predicted_objects;
-
-  auto update_dimensions = [&](
+  auto get_dimensions = [&](
     PredictedObject & predicted_object,
     AxisAlignedBoundingBox & axis_aligned_bounding_box,
-    float32_t min_obstacle_dimension
+    const float32_t min_obstacle_dimension
     ) {
       auto min_x = std::numeric_limits<float32_t>::max();
       auto min_y = std::numeric_limits<float32_t>::max();
@@ -324,9 +329,9 @@ void ObjectCollisionEstimator::updatePredictedObjects(
     };
 
   m_predicted_objects.clear();
-  for (auto & predicted_object : predicted_objects_clone.objects) {
+  for (auto & predicted_object : predicted_objects.objects) {
     AxisAlignedBoundingBox axis_aligned_bounding_box;
-    update_dimensions(
+    get_dimensions(
       predicted_object, axis_aligned_bounding_box,
       m_config.min_obstacle_dimension_m);
     PredictedObjectInfo predicted_object_info;
