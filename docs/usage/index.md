@@ -46,6 +46,7 @@ The following pages describe how to run demonstrations which showcase specific p
 
 - @subpage behavior-planner-howto
 - @subpage global-planner-howto
+- @subpage map-creation-howto
 - @subpage ndt-initialization
 - @subpage ekf-localization-howto
 - @subpage perception-stack-howto
