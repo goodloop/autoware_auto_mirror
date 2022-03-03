@@ -14,15 +14,18 @@
 #
 # Co-developed by Tier IV, Inc. and Apex.AI, Inc.
 
+import os
+import unittest
+
 from ament_index_python import get_package_share_directory
+
 from launch import LaunchDescription
 
 from launch_ros.actions import Node
+
 import launch_testing
 
-import os
 import pytest
-import unittest
 
 
 @pytest.mark.launch_test
@@ -40,9 +43,9 @@ def generate_test_description():
 
     # map_provide node execution definition
     map_provider_node_runner = Node(
-        package="ndt_nodes",
-        executable="ndt_map_publisher_exe",
-        namespace="localization",
+        package='ndt_nodes',
+        executable='ndt_map_publisher_exe',
+        namespace='localization',
         parameters=[
             map_param_file,
             {'map_yaml_file': map_yaml_file_param},
