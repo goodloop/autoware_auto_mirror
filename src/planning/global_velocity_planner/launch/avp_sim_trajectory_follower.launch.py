@@ -57,6 +57,11 @@ def generate_launch_description():
     with open(urdf_path, 'r') as infp:
         urdf_file = infp.read()
 
+    map_pcd_file = os.path.join(
+        avp_demo_pkg_prefix, 'data/autonomoustuff_parking_lot.pcd')
+    map_yaml_file = os.path.join(
+        avp_demo_pkg_prefix, 'data/autonomoustuff_parking_lot.yaml')
+
     # Arguments
 
     lgsvl_interface_param = DeclareLaunchArgument(
@@ -141,7 +146,9 @@ def generate_launch_description():
         package='ndt_nodes',
         executable='ndt_map_publisher_exe',
         namespace='localization',
-        parameters=[LaunchConfiguration('map_publisher_param_file')]
+        parameters=[LaunchConfiguration('map_publisher_param_file'),
+                    {"map_pcd_file": map_pcd_file,
+                     "map_yaml_file": map_yaml_file}]
     )
     urdf_publisher = Node(
         package='robot_state_publisher',
