@@ -39,6 +39,9 @@ def generate_launch_description():
     map_yaml_file = os.path.join(
         get_package_share_directory('autoware_demos'),
         'data/autonomoustuff_parking_lot_lgsvl.yaml')
+    map_osm_file = os.path.join(
+        get_package_share_directory('autoware_demos'),
+        'data/autonomoustuff_parking_lot.osm')
 
     # Nodes
 
@@ -99,7 +102,8 @@ def generate_launch_description():
         package='lanelet2_map_provider',
         executable='lanelet2_map_provider_exe',
         namespace='had_maps',
-        parameters=[LaunchConfiguration('lanelet2_map_provider_param_file')]
+        parameters=[LaunchConfiguration('lanelet2_map_provider_param_file'),
+                    {'map_osm_file': map_osm_file}]
     )
 
     lanelet2_map_visualizer = Node(

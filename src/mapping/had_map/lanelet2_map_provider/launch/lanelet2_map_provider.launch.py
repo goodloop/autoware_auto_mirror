@@ -37,12 +37,18 @@ def generate_launch_description():
         default_value=lanelet2_map_provider_param_file,
         description='Path to parameter file for map provider'
     )
+
+    map_osm_file = os.path.join(
+        get_package_share_directory('autoware_demos'),
+        'data/autonomoustuff_parking_lot.osm')
+
     # map_provider and visualizer node execution definition
     lanelet2_map_provider = Node(
         package='lanelet2_map_provider',
         executable='lanelet2_map_provider_exe',
         namespace='had_maps',
-        parameters=[LaunchConfiguration('lanelet2_map_provider_param_file')]
+        parameters=[LaunchConfiguration('lanelet2_map_provider_param_file'),
+                    {'map_osm_file': map_osm_file}]
     )
     lanelet2_map_visualizer = Node(
         package='lanelet2_map_provider',

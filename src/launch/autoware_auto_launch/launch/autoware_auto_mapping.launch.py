@@ -41,6 +41,8 @@ def generate_launch_description():
         avp_demo_pkg_prefix, 'data/autonomoustuff_parking_lot_lgsvl.pcd')
     map_yaml_file = os.path.join(
         avp_demo_pkg_prefix, 'data/autonomoustuff_parking_lot_lgsvl.yaml')
+    map_osm_file = os.path.join(
+        avp_demo_pkg_prefix, 'data/autonomoustuff_parking_lot.osm')
 
     # Arguments
     lanelet2_map_provider_param = DeclareLaunchArgument(
@@ -60,7 +62,8 @@ def generate_launch_description():
         executable='lanelet2_map_provider_exe',
         namespace='had_maps',
         name='lanelet2_map_provider_node',
-        parameters=[LaunchConfiguration('lanelet2_map_provider_param_file')]
+        parameters=[LaunchConfiguration('lanelet2_map_provider_param_file'),
+                    {'map_osm_file': map_osm_file}]
     )
     lanelet2_map_visualizer = Node(
         package='lanelet2_map_provider',
