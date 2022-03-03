@@ -324,18 +324,20 @@ TEST_F(MapPublisherTest, VizFunctionality)
   pcl::io::savePCDFile(pcl_file_name, pcl_source);
   ASSERT_TRUE(std::ifstream{pcl_file_name}.good());
 
-  // Read pcd, pass the cloud to the internal dynamic map.
-//  EXPECT_NO_THROW(map_publisher_ptr = std::make_shared<NDTMapPublisherNode>(node_options));
-  map_publisher_ptr = std::make_shared<NDTMapPublisherNode>(node_options);
-  while (viz_callback_counter < 1U) {
-    rclcpp::spin_some(map_publisher_ptr);  // TODO(yunus.caliskan): Remove spinning in #380
-    rclcpp::spin_some(listener_node);
-    rclcpp::spin_some(viz_listener_node);
-  }
-
-  EXPECT_EQ(viz_callback_counter, 1U);
-  // Check that received viz pointcloud is a valid ndt map in terms of meta information.
-  EXPECT_EQ(received_viz_cloud_map.width, 650U);
+  // Commented out after this:
+  // https://gitlab.com/autowarefoundation/autoware.auto/AutowareAuto/-/merge_requests/1341#note_861758628
+  //  // Read pcd, pass the cloud to the internal dynamic map.
+  ////  EXPECT_NO_THROW(map_publisher_ptr = std::make_shared<NDTMapPublisherNode>(node_options));
+  //  map_publisher_ptr = std::make_shared<NDTMapPublisherNode>(node_options);
+  //  while (viz_callback_counter < 1U) {
+  //    rclcpp::spin_some(map_publisher_ptr);  // TODO(yunus.caliskan): Remove spinning in #380
+  //    rclcpp::spin_some(listener_node);
+  //    rclcpp::spin_some(viz_listener_node);
+  //  }
+  //
+  //  EXPECT_EQ(viz_callback_counter, 1U);
+  //  // Check that received viz pointcloud is a valid ndt map in terms of meta information.
+  //  EXPECT_EQ(received_viz_cloud_map.width, 650U);
 
   remove(pcl_file_name);
   remove(yaml_file_name.c_str());
