@@ -1,4 +1,5 @@
 Map Creation {#map-creation-howto}
+==============================
 
 # Overview
 Autoware requires two types of maps for autonomous driving:
