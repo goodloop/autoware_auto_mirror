@@ -30,10 +30,17 @@ def generate_launch_description():
     """
     autoware_auto_launch_pkg_prefix = get_package_share_directory(
         'autoware_auto_launch')
+    avp_demo_pkg_prefix = get_package_share_directory('autoware_demos')
+
     lanelet2_map_provider_param_file = os.path.join(
         autoware_auto_launch_pkg_prefix, 'param/lanelet2_map_provider.param.yaml')
     map_publisher_param_file = os.path.join(
         autoware_auto_launch_pkg_prefix, 'param/map_publisher.param.yaml')
+
+    map_pcd_file = os.path.join(
+        avp_demo_pkg_prefix, 'data/autonomoustuff_parking_lot_lgsvl.pcd')
+    map_yaml_file = os.path.join(
+        avp_demo_pkg_prefix, 'data/autonomoustuff_parking_lot_lgsvl.yaml')
 
     # Arguments
     lanelet2_map_provider_param = DeclareLaunchArgument(
@@ -65,7 +72,9 @@ def generate_launch_description():
         package='ndt_nodes',
         executable='ndt_map_publisher_exe',
         namespace='localization',
-        parameters=[LaunchConfiguration('map_publisher_param_file')]
+        parameters=[LaunchConfiguration('map_publisher_param_file'),
+                    {"map_pcd_file": map_pcd_file,
+                     "map_yaml_file": map_yaml_file}]
     )
 
     return LaunchDescription([

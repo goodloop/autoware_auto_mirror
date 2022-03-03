@@ -43,6 +43,13 @@ def get_param_file(package_name, file_name):
 
 
 def generate_launch_description():
+    map_pcd_file = os.path.join(
+        get_package_share_directory('autoware_demos'),
+        'data/autonomoustuff_parking_lot_lgsvl.pcd')
+    map_yaml_file = os.path.join(
+        get_package_share_directory('autoware_demos'),
+        'data/autonomoustuff_parking_lot_lgsvl.yaml')
+
     # only the front lidar is used for localization and thus needs downsampling
     voxel_grid_downsampling = Node(
         executable='voxel_grid_node_exe',
@@ -81,7 +88,9 @@ def generate_launch_description():
         package='ndt_nodes',
         parameters=[
             get_param_file('autoware_demos',
-                           'autoware_academy_demo/map_publisher.param.yaml')
+                           'autoware_academy_demo/map_publisher.param.yaml'),
+            {"map_pcd_file": map_pcd_file,
+             "map_yaml_file": map_yaml_file}
         ]
     )
 

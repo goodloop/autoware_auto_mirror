@@ -61,9 +61,9 @@ def generate_launch_description():
         urdf_file = infp.read()
 
     map_pcd_file = os.path.join(
-        avp_demo_pkg_prefix, 'data/autonomoustuff_parking_lot.pcd')
+        avp_demo_pkg_prefix, 'data/autonomoustuff_parking_lot_lgsvl.pcd')
     map_yaml_file = os.path.join(
-        avp_demo_pkg_prefix, 'data/autonomoustuff_parking_lot.yaml')
+        avp_demo_pkg_prefix, 'data/autonomoustuff_parking_lot_lgsvl.yaml')
 
     # Arguments
 

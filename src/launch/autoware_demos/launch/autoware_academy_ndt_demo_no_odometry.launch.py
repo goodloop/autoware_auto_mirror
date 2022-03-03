@@ -42,6 +42,13 @@ def generate_launch_description():
         get_package_share_directory('autoware_demos'),
         'param/autoware_academy_demo/map_publisher.param.yaml')
 
+    map_pcd_file = os.path.join(
+        get_package_share_directory('autoware_demos'),
+        'data/autonomoustuff_parking_lot_lgsvl.pcd')
+    map_yaml_file = os.path.join(
+        get_package_share_directory('autoware_demos'),
+        'data/autonomoustuff_parking_lot_lgsvl.yaml')
+
     rviz_cfg_path = os.path.join(get_package_share_directory('autoware_demos'),
                                  'rviz2/autoware_academy_demo.rviz')
 
@@ -107,7 +114,9 @@ def generate_launch_description():
         package='ndt_nodes',
         executable='ndt_map_publisher_exe',
         namespace='localization',
-        parameters=[LaunchConfiguration('map_publisher_param_file')]
+        parameters=[LaunchConfiguration('map_publisher_param_file'),
+                    {"map_pcd_file": map_pcd_file,
+                     "map_yaml_file": map_yaml_file}]
     )
 
     rviz2 = Node(
