@@ -38,7 +38,7 @@ def generate_launch_description():
         package='ndt_nodes',
         executable='p2d_ndt_localizer_exe',
         parameters=[p2d_ndt_localizer_param_file],
-        remappings=[("points_in", "points_nonground")])
+        remappings=[('points_in', 'points_nonground')])
 
     return launch.LaunchDescription([
         p2d_ndt_localizer_runner])
