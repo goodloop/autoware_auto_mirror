@@ -1,6 +1,6 @@
 #! /usr/bin/env python3
 
-# Copyright (c) 2020-2021, Arm Limited
+# Copyright (c) 2021, Arm Limited
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -33,9 +33,9 @@ from sensor_msgs.msg import PointCloud2
 from std_msgs.msg import Int64
 
 
-class EuclideanClusterNodeTask(BenchmarkTask):
+class ApolloLidarSegmentationNodeTask(BenchmarkTask):
     """
-    The EuclideanClusterNodeTask class benchmarks the lidar_euclidean_cluster_detect node.
+    The ApolloLidarSegmentationNodeTask class benchmarks the apollo_lidar_segmentation node.
 
     It is a specialized BenchmarkTask class holding all the peculiarities of that node.
     """
@@ -50,11 +50,11 @@ class EuclideanClusterNodeTask(BenchmarkTask):
     # POINT_CLOUD_TRACK_MIN_SUBS is 1 because the minimum number of
     # subscriber before publish the data is 1: the node under test
     POINT_CLOUD_TRACK_MIN_SUBS = 1
-    SPEED_METRIC_TOPIC = "/euclidean_cluster_node_speed_metric"
-    SPEED_METRIC_RESULT_PATH = "/euclidean_cluster_node/speed"
-    OBJDET_METRIC_RESULT_PATH = "/euclidean_cluster_node/objdet"
-    SPEED_METRIC_OUTPUT_PATH = "/euclidean_cluster_node"
-    OBJDET_METRIC_OUTPUT_PATH = "/euclidean_cluster_node"
+    SPEED_METRIC_TOPIC = "/apollo_lidar_segmentation_node_speed_metric"
+    SPEED_METRIC_RESULT_PATH = "/apollo_lidar_segmentation_node/speed"
+    OBJDET_METRIC_RESULT_PATH = "/apollo_lidar_segmentation_node/objdet"
+    SPEED_METRIC_OUTPUT_PATH = "/apollo_lidar_segmentation_node"
+    OBJDET_METRIC_OUTPUT_PATH = "/apollo_lidar_segmentation_node"
     SPEED_MEASURE_FILE_NAME = "speed.txt"
     SPEED_METRIC_OUTPUT_FILENAME = "speed_metric.txt"
 
@@ -62,12 +62,12 @@ class EuclideanClusterNodeTask(BenchmarkTask):
 
     def __init__(self, node):
         """
-        Create a EuclideanClusterNodeTask object.
+        Create a ApolloLidarSegmentationNodeTask object.
 
         @param node: ROS2 node
         @type  node: rclpy.node.Node
         """
-        super(EuclideanClusterNodeTask, self).__init__(node)
+        super(ApolloLidarSegmentationNodeTask, self).__init__(node)
         self._data_player = None
         self._time_estimator = None
         self._kitti_3d_metric = None
