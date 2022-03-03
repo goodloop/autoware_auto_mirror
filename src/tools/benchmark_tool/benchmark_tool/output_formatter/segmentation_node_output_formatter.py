@@ -24,11 +24,11 @@ from benchmark_tool.kittiobjdetsdk.kitti_obj_detection_utils \
     import KittiObjDetectionUtils
 
 
-class EuclideanClusterNodeOutputFormatter(OutputFormatter):
+class SegmentationNodeOutputFormatter(OutputFormatter):
     """
-    The EuclideanClusterNodeOutputFormatter class is a specialized OutputFormatter class.
+    The SegmentationNodeOutputFormatter class is a specialized OutputFormatter class.
 
-    It listens to the output topic of the euclidean_cluster_node node and transform the received
+    It listens to the output topic of the segmentation node and transform the received
     data into the kitti object detection format.
     """
 
@@ -54,7 +54,7 @@ class EuclideanClusterNodeOutputFormatter(OutputFormatter):
 
     def __init__(self, node, result_path, calibration_path):
         """
-        Create a EuclideanClusterNodeOutputFormatter object.
+        Create a SegmentationNodeOutputFormatter object.
 
         @param node: ROS2 node
         @type  node: rclpy.node.Node
@@ -64,8 +64,8 @@ class EuclideanClusterNodeOutputFormatter(OutputFormatter):
         @param calibration_path: The path on filesystem where the calibration files are saved
         @type  calibration_path: str
         """
-        super(EuclideanClusterNodeOutputFormatter, self).__init__(node,
-                                                                  result_path)
+        super(SegmentationNodeOutputFormatter, self).__init__(node,
+                                                              result_path)
         self._file_index = 0
         self._calibration_path = calibration_path
 
@@ -79,7 +79,7 @@ class EuclideanClusterNodeOutputFormatter(OutputFormatter):
         @type  topic: str
         @return: True on success, False on failure
         """
-        # Check the existance of the calibration folder
+        # Check the existence of the calibration folder
         if not os.path.isdir(self._calibration_path):
             error(self.node,
                   "Calibration path %s does not exists" % self._calibration_path)
@@ -87,7 +87,7 @@ class EuclideanClusterNodeOutputFormatter(OutputFormatter):
                   "Please create an instance with a correct folder path")
             return False
 
-        # Creates the results folder if not exists
+        # Creates the results folder if it doesn't exists
         if not OutputFormatter.create_folder(self._result_path):
             return False
 
@@ -105,7 +105,7 @@ class EuclideanClusterNodeOutputFormatter(OutputFormatter):
 
         self._file_index = 0
 
-        # Remove everything inside that folder
+        # Remove everything from inside the folder
         if not OutputFormatter.clean_folder(self._result_path):
             return False
 
@@ -115,7 +115,7 @@ class EuclideanClusterNodeOutputFormatter(OutputFormatter):
         """
         Save a new text files containing all the detection using the kitti object detection format.
 
-        This function is a callback for the euclidean_cluster_node output topic node.
+        This function is a callback for the segmentation node output topic node.
         Each autoware_auto_perception_msgs.msg.BoundingBoxArray message received creates a text
         file whose name is incremental.
         In this function the output of the node is transformed and formatted into the format
@@ -123,7 +123,7 @@ class EuclideanClusterNodeOutputFormatter(OutputFormatter):
         The kitti SDK expects data in camera rectified reference frame for the 3d data and it
         expects 2d coordinates into left color camera reference frame.
 
-        @param msg: Received message from euclidean_cluster_node node
+        @param msg: Received message from the segmentation node
         @type  msg: autoware_auto_perception_msgs.msg.BoundingBoxArray
         @return: None
         """
@@ -164,16 +164,13 @@ class EuclideanClusterNodeOutputFormatter(OutputFormatter):
                 position[1, 0] = detection.centroid.y
                 position[2, 0] = detection.centroid.z
 
-                # Transform reference frame from velodine to camera
+                # Transform reference frame from velodyne to camera
                 position = \
                     KittiObjDetectionUtils.transform_velodyne_to_camera_frame(
                         position,
                         calibration_matrices)
 
-                # Euclidean cluster node doesn't specify if the item is a car,
-                # pedestrian or anything, it just clusters a cloud of points.
-                # Here we hardcode the label Car
-                kitti_det.obj_type = "Car"
+                kitti_det.obj_type = detection.vehicle_label
                 kitti_det.box3d_pos_x = position[0, 0]
                 kitti_det.box3d_pos_y = position[1, 0]
                 kitti_det.box3d_pos_z = position[2, 0]
@@ -182,8 +179,7 @@ class EuclideanClusterNodeOutputFormatter(OutputFormatter):
                 kitti_det.box3d_length = detection.size.x
                 kitti_det.box3d_yaw = yaw_angle
 
-                # The euclidean cluster node doesn't set a score, we put 1.0
-                kitti_det.score = 1.0
+                kitti_det.score = detection.class_likelihood
 
                 # Compute 3D Bounding box
                 bbox_3d = KittiObjDetectionUtils.compute_3d_bbox(kitti_det)
