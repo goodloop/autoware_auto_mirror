@@ -30,17 +30,17 @@ def generate_launch_description():
     # map_provider parameter file definition
     ndt_map_provider_file_path = os.path.join(
         get_package_share_directory('autoware_auto_launch'),
-        "param",
-        "map_publisher.param.yaml")
+        'param',
+        'map_publisher.param.yaml')
     map_provider_param_file = LaunchConfiguration(
-        "params", default=[ndt_map_provider_file_path])
+        'params', default=[ndt_map_provider_file_path])
 
     # map provide map file arguments
     map_yaml_file_path = os.path.join(
-        map_data_prefix, "data/autonomoustuff_parking_lot_lgsvl.yaml"
+        map_data_prefix, 'data/autonomoustuff_parking_lot_lgsvl.yaml'
     )
     map_pcd_file_path = os.path.join(
-        map_data_prefix, "data/autonomoustuff_parking_lot_lgsvl.pcd"
+        map_data_prefix, 'data/autonomoustuff_parking_lot_lgsvl.pcd'
     )
     map_yaml_file_param = DeclareLaunchArgument(
         'map_yaml_file_arg',
@@ -55,12 +55,12 @@ def generate_launch_description():
 
     # map_provide node execution definition
     map_provider_node_runner = launch_ros.actions.Node(
-        package="ndt_nodes",
-        executable="ndt_map_publisher_exe",
-        namespace="localization",
+        package='ndt_nodes',
+        executable='ndt_map_publisher_exe',
+        namespace='localization',
         parameters=[map_provider_param_file,
-                    {"map_yaml_file": LaunchConfiguration('map_yaml_file_arg')},
-                    {"map_pcd_file": LaunchConfiguration('map_pcd_file_arg')}])
+                    {'map_yaml_file': LaunchConfiguration('map_yaml_file_arg')},
+                    {'map_pcd_file': LaunchConfiguration('map_pcd_file_arg')}])
 
     # map downsampler paramter file definition
     ndt_map_downsampler_file_path = os.path.join(
@@ -76,8 +76,8 @@ def generate_launch_description():
         executable='voxel_grid_node_exe',
         parameters=[map_downsampler_param_file],
         remappings=[
-            ("points_in", "viz_ndt_map"),
-            ("points_downsampled", "viz_ndt_map_downsampled")
+            ('points_in', 'viz_ndt_map'),
+            ('points_downsampled', 'viz_ndt_map_downsampled')
         ])
 
     # require a map file location
