@@ -27,7 +27,7 @@ if(BUILD_TESTING)
 
   # gtest
   set(GB_PLANNER_GTEST lanelet2_global_planner_gtest)
-  ament_add_gtest(${GB_PLANNER_GTEST}
+  ament_add_ros_isolated_gtest(${GB_PLANNER_GTEST}
           test/test_lanelet2_global_planner.hpp
           test/test_lanelet2_global_planner.cpp
           include/lanelet2_global_planner/lanelet2_global_planner.hpp

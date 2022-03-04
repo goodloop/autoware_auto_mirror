@@ -52,7 +52,7 @@ if(BUILD_TESTING)
   # Unit tests
   set(TEST_SOURCES test/test_off_map_obstacles_filter_nodes.cpp)
   set(TEST_OFF_MAP_OBSTACLES_FILTER_NODES_EXE test_off_map_obstacles_filter_nodes)
-  ament_add_gtest(${TEST_OFF_MAP_OBSTACLES_FILTER_NODES_EXE} ${TEST_SOURCES})
+  ament_add_ros_isolated_gtest(${TEST_OFF_MAP_OBSTACLES_FILTER_NODES_EXE} ${TEST_SOURCES})
   autoware_set_compile_options(${TEST_OFF_MAP_OBSTACLES_FILTER_NODES_EXE})
   target_link_libraries(${TEST_OFF_MAP_OBSTACLES_FILTER_NODES_EXE} ${PROJECT_NAME})
 endif()

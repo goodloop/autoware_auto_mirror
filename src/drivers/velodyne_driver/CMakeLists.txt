@@ -43,7 +43,7 @@ if(BUILD_TESTING)
 
     # gtest
     set(VELODYNE_GTEST velodyne_gtest)
-    ament_add_gtest(${VELODYNE_GTEST}
+    ament_add_ros_isolated_gtest(${VELODYNE_GTEST}
             "test/src/test_velodyne.cpp"
             "test/src/test_vlp32c.cpp"
             "test/src/test_vls128.cpp")

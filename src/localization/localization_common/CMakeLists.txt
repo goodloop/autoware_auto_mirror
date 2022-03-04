@@ -39,7 +39,7 @@ if(BUILD_TESTING)
   # gtest
   set(LOCALIZATION_COMMON_TEST localization_common_gtest)
 
-  ament_add_gtest(${LOCALIZATION_COMMON_TEST}
+  ament_add_ros_isolated_gtest(${LOCALIZATION_COMMON_TEST}
     test/test_initialization.hpp
     test/test_initialization.cpp)
 

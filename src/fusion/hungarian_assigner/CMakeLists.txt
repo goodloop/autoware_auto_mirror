@@ -36,7 +36,7 @@ if(BUILD_TESTING)
   ament_lint_auto_find_test_dependencies()
 
   set(HUNGARIAN_ASSIGN_GTEST hungarian_assigner_gtest)
-  ament_add_gtest(${HUNGARIAN_ASSIGN_GTEST} test/src/test_hungarian_assigner.cpp)
+  ament_add_ros_isolated_gtest(${HUNGARIAN_ASSIGN_GTEST} test/src/test_hungarian_assigner.cpp)
   autoware_set_compile_options(${HUNGARIAN_ASSIGN_GTEST})
   target_include_directories(${HUNGARIAN_ASSIGN_GTEST} PRIVATE "test/include" "include")
   target_link_libraries(${HUNGARIAN_ASSIGN_GTEST} ${PROJECT_NAME})

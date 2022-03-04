@@ -28,7 +28,7 @@ if(BUILD_TESTING)
   add_smoke_test(${PROJECT_NAME} ${NODE_NAME})
 
   # Unit test
-  ament_add_gtest(mpc_controller_nodes_unit_tests
+  ament_add_ros_isolated_gtest(mpc_controller_nodes_unit_tests
     test/gtest_main.cpp
     test/sanity_check.cpp)
   autoware_set_compile_options(mpc_controller_nodes_unit_tests)

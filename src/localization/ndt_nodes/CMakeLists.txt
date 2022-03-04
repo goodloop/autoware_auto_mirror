@@ -83,7 +83,7 @@ if(BUILD_TESTING)
   # gtest
   set(NDT_NODES_TEST ndt_nodes_gtest)
 
-  ament_add_gtest(${NDT_NODES_TEST}
+  ament_add_ros_isolated_gtest(${NDT_NODES_TEST}
     test/test_map_publisher.cpp
     WORKING_DIRECTORY /tmp)
   autoware_set_compile_options(${NDT_NODES_TEST})

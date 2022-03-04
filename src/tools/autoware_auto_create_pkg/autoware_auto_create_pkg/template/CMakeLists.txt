@@ -66,7 +66,7 @@ if(BUILD_TESTING)
   # Unit tests
   set(TEST_SOURCES test/test_hello_world.cpp)
   set(TEST_HELLO_WORLD_EXE test_hello_world)
-  ament_add_gtest(${TEST_HELLO_WORLD_EXE} ${TEST_SOURCES})
+  ament_add_ros_isolated_gtest(${TEST_HELLO_WORLD_EXE} ${TEST_SOURCES})
   autoware_set_compile_options(${TEST_HELLO_WORLD_EXE})
   target_link_libraries(${TEST_HELLO_WORLD_EXE} ${PROJECT_NAME})
 endif()

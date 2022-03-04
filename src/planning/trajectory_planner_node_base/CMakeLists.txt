@@ -43,7 +43,7 @@ if(BUILD_TESTING)
   # Unit tests
   set(TEST_SOURCES test/test_trajectory_planner_node_base.cpp)
   set(TEST_TRAJECTORY_PLANNER_NODE_BASE_EXE test_trajectory_planner_node_base)
-  ament_add_gtest(${TEST_TRAJECTORY_PLANNER_NODE_BASE_EXE} ${TEST_SOURCES})
+  ament_add_ros_isolated_gtest(${TEST_TRAJECTORY_PLANNER_NODE_BASE_EXE} ${TEST_SOURCES})
   autoware_set_compile_options(${TEST_TRAJECTORY_PLANNER_NODE_BASE_EXE})
   target_link_libraries(${TEST_TRAJECTORY_PLANNER_NODE_BASE_EXE} ${PROJECT_NAME})
 endif()

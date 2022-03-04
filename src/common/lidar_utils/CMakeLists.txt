@@ -24,7 +24,7 @@ if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
   ament_lint_auto_find_test_dependencies()
 
-  ament_add_gtest(test_lidar_utils
+  ament_add_ros_isolated_gtest(test_lidar_utils
     test/src/test_fast_atan2.cpp
     test/src/test_point_cloud_utils.cpp
     test/src/test_cluster_view.cpp

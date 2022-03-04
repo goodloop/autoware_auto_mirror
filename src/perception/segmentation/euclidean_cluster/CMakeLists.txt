@@ -37,7 +37,7 @@ if(BUILD_TESTING)
 
   # gtest
   set(EUCLIDEAN_CLUSTER_GTEST euclidean_cluster_gtest)
-  ament_add_gtest(${EUCLIDEAN_CLUSTER_GTEST} test/src/test_euclidean_cluster.cpp)
+  ament_add_ros_isolated_gtest(${EUCLIDEAN_CLUSTER_GTEST} test/src/test_euclidean_cluster.cpp)
   autoware_set_compile_options(${EUCLIDEAN_CLUSTER_GTEST})
   target_compile_options(${EUCLIDEAN_CLUSTER_GTEST} PRIVATE -Wno-conversion)
   target_include_directories(${EUCLIDEAN_CLUSTER_GTEST} PRIVATE "test/include" "include")

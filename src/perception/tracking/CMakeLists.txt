@@ -76,7 +76,7 @@ if(BUILD_TESTING)
       test/include/tracking/test_utils.hpp
       test/src/test_utils.cpp
   )
-  ament_add_gtest(${TEST_TRACKING_EXE} ${TEST_SOURCES})
+  ament_add_ros_isolated_gtest(${TEST_TRACKING_EXE} ${TEST_SOURCES})
   autoware_set_compile_options(${TEST_TRACKING_EXE})
   target_link_libraries(${TEST_TRACKING_EXE} ${PROJECT_NAME})
   add_dependencies(${TEST_TRACKING_EXE} ${PROJECT_NAME})

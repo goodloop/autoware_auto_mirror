@@ -38,7 +38,7 @@ if(BUILD_TESTING)
   ament_lint_auto_find_test_dependencies()
 
   # Unit test
-  ament_add_gtest(
+  ament_add_ros_isolated_gtest(
     simple_planning_simulator_unit_tests
     test/test_simple_planning_simulator.cpp
     TIMEOUT 120)

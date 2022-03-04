@@ -16,7 +16,7 @@ if(BUILD_TESTING)
   # Linters
   ament_lint_auto_find_test_dependencies()
   # Unit test
-  ament_add_gtest(motion_testing_unit_tests
+  ament_add_ros_isolated_gtest(motion_testing_unit_tests
     test/gtest_main.cpp
     test/constant_trajectory.cpp
     test/trajectory_checks.cpp)

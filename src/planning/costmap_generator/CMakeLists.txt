@@ -37,8 +37,8 @@ if(BUILD_TESTING)
   ament_lint_auto_find_test_dependencies()
 
   # Unit tests
-  find_package(ament_cmake_gtest REQUIRED)
-  ament_add_gtest(${COSTMAP_GENERATOR_LIB}_test test/test_costmap_generator.cpp TIMEOUT 100)
+  find_package(ament_cmake_ros REQUIRED)
+  ament_add_ros_isolated_gtest(${COSTMAP_GENERATOR_LIB}_test test/test_costmap_generator.cpp TIMEOUT 100)
   autoware_set_compile_options(${COSTMAP_GENERATOR_LIB}_test)
   target_link_libraries(${COSTMAP_GENERATOR_LIB}_test ${COSTMAP_GENERATOR_LIB})
 endif()

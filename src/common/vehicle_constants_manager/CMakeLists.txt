@@ -41,7 +41,7 @@ if(BUILD_TESTING)
   # Unit tests
   set(TEST_SOURCES test/test_vehicle_constants_manager.cpp)
   set(TEST_VEHICLE_CONSTANTS_MANAGER_EXE test_vehicle_constants_manager)
-  ament_add_gtest(${TEST_VEHICLE_CONSTANTS_MANAGER_EXE} ${TEST_SOURCES})
+  ament_add_ros_isolated_gtest(${TEST_VEHICLE_CONSTANTS_MANAGER_EXE} ${TEST_SOURCES})
   autoware_set_compile_options(${TEST_VEHICLE_CONSTANTS_MANAGER_EXE})
   target_link_libraries(${TEST_VEHICLE_CONSTANTS_MANAGER_EXE} ${PROJECT_NAME})
 endif()

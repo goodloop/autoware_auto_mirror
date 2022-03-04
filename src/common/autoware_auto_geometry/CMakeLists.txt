@@ -46,7 +46,7 @@ if(BUILD_TESTING)
     test/src/test_common_2d.cpp
     test/src/test_intersection.cpp
   )
-  ament_add_gtest(${GEOMETRY_GTEST} ${GEOMETRY_SRC})
+  ament_add_ros_isolated_gtest(${GEOMETRY_GTEST} ${GEOMETRY_SRC})
   autoware_set_compile_options(${GEOMETRY_GTEST})
   target_compile_options(${GEOMETRY_GTEST} PRIVATE -Wno-conversion -Wno-sign-conversion)
   target_include_directories(${GEOMETRY_GTEST} PRIVATE "test/include" "include")

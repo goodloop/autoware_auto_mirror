@@ -43,7 +43,7 @@ if(BUILD_TESTING)
   # Unit tests
   set(TEST_SOURCES test/gtest_main.cpp test/test_trajectory_smoother.cpp)
   set(TEST_TRAJECTORY_SMOOTHER_EXE test_trajectory_smoother)
-  ament_add_gtest(${TEST_TRAJECTORY_SMOOTHER_EXE} ${TEST_SOURCES})
+  ament_add_ros_isolated_gtest(${TEST_TRAJECTORY_SMOOTHER_EXE} ${TEST_SOURCES})
   autoware_set_compile_options(${TEST_TRAJECTORY_SMOOTHER_EXE})
   target_compile_options(${TEST_TRAJECTORY_SMOOTHER_EXE} PRIVATE -Wno-double-promotion -Wno-float-conversion)
   target_link_libraries(${TEST_TRAJECTORY_SMOOTHER_EXE} ${PROJECT_NAME})

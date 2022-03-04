@@ -36,7 +36,7 @@ if(BUILD_TESTING)
   ament_lint_auto_find_test_dependencies()
 
   # gtest
-  ament_add_gtest(${MOTION_MODEL_GTEST}
+  ament_add_ros_isolated_gtest(${MOTION_MODEL_GTEST}
                   test/test_differential_motion_model.cpp
                   test/test_linear_motion_model.cpp
                   test/test_stationary_motion_model.cpp)

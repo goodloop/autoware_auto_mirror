@@ -39,7 +39,7 @@ if(BUILD_TESTING)
 
   # gtest
   set(PURE_PURSUIT_GTEST pure_pursuit_gtest)
-  ament_add_gtest(${PURE_PURSUIT_GTEST}
+  ament_add_ros_isolated_gtest(${PURE_PURSUIT_GTEST}
     test/gtest_main.cpp
     test/sanity_checks.cpp
     test/test_pure_pursuit.cpp)
