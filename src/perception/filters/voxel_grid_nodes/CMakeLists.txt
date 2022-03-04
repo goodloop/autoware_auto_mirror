@@ -51,13 +51,14 @@ if(BUILD_TESTING)
 
   # gtest
   set(VOXEL_GRID_NODE_GTEST voxel_algorithm_gtest)
-  ament_add_gtest(${VOXEL_GRID_NODE_GTEST} test/test_voxel_grid_nodes.cpp)
+  ament_add_ros_isolated_gtest(${VOXEL_GRID_NODE_GTEST} test/test_voxel_grid_nodes.cpp)
   autoware_set_compile_options(${VOXEL_GRID_NODE_GTEST})
   target_link_libraries(${VOXEL_GRID_NODE_GTEST} ${VOXEL_GRID_NODE_LIB})
   target_include_directories(${VOXEL_GRID_NODE_GTEST} PRIVATE "test/include" "include")
 
-  add_ros_test(
-    test/voxel_grid_fuzzing.test.py
+  ament_add_ros_isolated_pytest_test(
+    voxel_grid_fuzzing_test
+    test/voxel_grid_fuzzing_test.py
     TIMEOUT "120"
   )
 
