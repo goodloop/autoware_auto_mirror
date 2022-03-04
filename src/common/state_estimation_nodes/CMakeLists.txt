@@ -41,8 +41,7 @@ if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
   ament_lint_auto_find_test_dependencies()
 
-  find_package(ament_cmake_gtest REQUIRED)
-  ament_add_gmock(test_state_estimation_node
+  ament_add_ros_isolated_gmock(test_state_estimation_node
           test/test_history.cpp
           test/test_steady_time_grid.cpp
           test/test_kalman_filter_wrapper.cpp
@@ -52,12 +51,14 @@ if(BUILD_TESTING)
   target_link_libraries(test_state_estimation_node state_estimation_node)
 
   find_package(ros_testing REQUIRED)
-  add_ros_test(
-    test/state_estimation_node_bad.test.py
+  ament_add_ros_isolated_pytest_test(
+    state_estimation_node_bad
+    test/state_estimation_node_bad.py
     TIMEOUT "10"
   )
-  add_ros_test(
-    test/state_estimation_node_launch.test.py
+  ament_add_ros_isolated_pytest_test(
+    state_estimation_node_launch
+    test/state_estimation_node_launch.py
     TIMEOUT "30"
   )
 endif()

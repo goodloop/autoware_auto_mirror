@@ -13,19 +13,20 @@
 # limitations under the License.
 #
 # Co-developed by Tier IV, Inc. and Apex.AI, Inc.
-import unittest
 
 import ament_index_python
 
 import launch
 import launch.actions
-
 import launch_ros.actions
-
 import launch_testing
 import launch_testing.util
 
+import pytest
+import unittest
 
+
+@pytest.mark.launch_test
 def generate_test_description():
     # The node under test and the checker node that will pass/fail our tests:
     state_estimation_node = launch_ros.actions.Node(
