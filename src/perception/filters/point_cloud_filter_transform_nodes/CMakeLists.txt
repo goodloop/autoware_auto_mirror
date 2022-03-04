@@ -51,11 +51,16 @@ if(BUILD_TESTING)
   ament_target_dependencies(${FILTER_TRANSFORM_NODE_GTEST} "lidar_integration" "velodyne_nodes" "autoware_auto_common")
 
   # # integration test
-  add_ros_test(test/cloud_mutation.test.py)
-  add_ros_test(test/point_cloud_filter_transform_cloud.test.py)
-  add_ros_test(test/point_cloud_filter_transform_tf_publisher.test.py)
-  add_ros_test(
-    test/point_cloud_filter_transform_node_launch.test.py
+  ament_add_ros_isolated_pytest_test(cloud_mutation_test
+    test/cloud_mutation_test.py)
+  ament_add_ros_isolated_pytest_test(point_cloud_filter_transform_cloud_test
+    test/point_cloud_filter_transform_cloud_test.py)
+  ament_add_ros_isolated_pytest_test(
+    point_cloud_filter_transform_tf_publisher_test
+    test/point_cloud_filter_transform_tf_publisher_test.py)
+  ament_add_ros_isolated_pytest_test(
+    point_cloud_filter_transform_node_launch_test
+    test/point_cloud_filter_transform_node_launch_test.py
     TIMEOUT "30"
   )
 endif()
