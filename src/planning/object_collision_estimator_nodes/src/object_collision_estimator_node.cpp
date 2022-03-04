@@ -25,6 +25,8 @@
 #include "object_collision_estimator_nodes/visualize.hpp"
 #include "object_collision_estimator/object_collision_estimator.hpp"
 
+#include "motion_common/motion_common.hpp"
+
 namespace motion
 {
 namespace planning
@@ -37,6 +39,8 @@ using motion::planning::object_collision_estimator::ObjectCollisionEstimatorConf
 using motion::planning::object_collision_estimator::ObjectCollisionEstimator;
 using motion::planning::trajectory_smoother::TrajectorySmootherConfig;
 using motion::planning::trajectory_smoother::TrajectorySmoother;
+using autoware_auto_planning_msgs::msg::Trajectory;
+using autoware_auto_planning_msgs::msg::TrajectoryPoint;
 using motion::motion_common::VehicleConfig;
 using motion::motion_common::Real;
 using autoware::common::types::float64_t;
@@ -127,10 +131,9 @@ ObjectCollisionEstimatorNode::ObjectCollisionEstimatorNode(const rclcpp::NodeOpt
       estimate_collision(request, response);
     });
 
-  // Create subscriber and subscribe to the obstacles topic
-  m_obstacles_sub = Node::create_subscription<BoundingBoxArray>(
-    OBSTACLE_TOPIC, QoS{10},
-    [this](const BoundingBoxArray::SharedPtr msg) {this->on_bounding_box(msg);});
+  m_predicted_objects_sub = Node::create_subscription<PredictedObjects>(
+    "predicted_objects", QoS{10},
+    [this](const PredictedObjects::SharedPtr msg) {this->on_predicted_object(msg);});
 
   m_trajectory_bbox_pub =
     create_publisher<MarkerArray>("debug/trajectory_bounding_boxes", QoS{10});
@@ -140,80 +143,28 @@ ObjectCollisionEstimatorNode::ObjectCollisionEstimatorNode(const rclcpp::NodeOpt
   m_tf_listener = std::make_shared<tf2_ros::TransformListener>(
     *m_tf_buffer,
     std::shared_ptr<rclcpp::Node>(this, [](auto) {}), false);
+  m_tf_buffer->setUsingDedicatedThread(true);
 }
 
-void ObjectCollisionEstimatorNode::update_obstacles(const BoundingBoxArray & bbox_array)
+void ObjectCollisionEstimatorNode::on_predicted_object(const PredictedObjects::SharedPtr & msg)
 {
-  const auto modified_obstacles = m_estimator->updateObstacles(bbox_array);
-
-  for (const auto & modified_obstacle : modified_obstacles) {
-    RCLCPP_WARN(
-      this->get_logger(), "Obstacle was too small, increased to: %f x %fm.",
-      static_cast<float64_t>(modified_obstacle.size.x),
-      static_cast<float64_t>(modified_obstacle.size.y));
+  if (msg->header.frame_id != m_target_frame_id) {
+    RCLCPP_ERROR(
+      this->get_logger(),
+      "Target frame should be same with Tracking/Prediction frame");
   }
-}
-
-void ObjectCollisionEstimatorNode::on_bounding_box(const BoundingBoxArray::SharedPtr & msg)
-{
-  // Update most recent bounding boxes internally
-  if (msg->header.frame_id == m_target_frame_id) {
-    // No transform needed, update bounding boxes directly
-    update_obstacles(*msg);
-
-    // keep track of the timestamp of the lastest successful obstacle message
-    m_last_obstacle_msg_time = msg->header.stamp;
-  } else {
-    // clean up any existing timer
-    if (m_wall_timer != nullptr) {
-      m_wall_timer->cancel();
-      m_wall_timer = nullptr;
-
-      RCLCPP_WARN(
-        this->get_logger(),
-        "Unable to get a valid transform before a new obstacle message arrived");
-    }
-
-    // create a new timer with timeout to check periodically if a valid transform for that timestamp
-    // is available.
-    const auto start_time = this->now();
-    m_wall_timer = create_wall_timer(
-      0.02s, [this, msg, start_time]() {
-        auto elapsed_time = this->now() - start_time;
-        const auto timeout = 0.1s;
-
-        if (elapsed_time < timeout) {
-          if (this->m_tf_buffer->canTransform(
-            m_target_frame_id, msg->header.frame_id,
-            tf2_ros::fromMsg(msg->header.stamp)))
-          {
-            // a valid transform is aviable, perform transform
-            this->m_wall_timer->cancel();
-            this->m_wall_timer = nullptr;
-            auto msg_transformed = this->m_tf_buffer->transform(*msg, m_target_frame_id);
-            update_obstacles(msg_transformed);
-
-            // keep track of the timestamp of the lastest successful obstacle message
-            this->m_last_obstacle_msg_time = msg_transformed.header.stamp;
-          }
-        } else {
-          // timeout occurred, clean up timer
-          this->m_wall_timer->cancel();
-          this->m_wall_timer = nullptr;
-          RCLCPP_WARN(
-            this->get_logger(), "on_bounding_box cannot transform %s to %s.",
-            msg->header.frame_id.c_str(), m_target_frame_id.c_str());
-        }
-      });
-  }
+  m_last_obstacle_msg_time = msg->header.stamp;
+  m_estimator->updatePredictedObjects(*msg);
 }
 
 void ObjectCollisionEstimatorNode::estimate_collision(
   const std::shared_ptr<autoware_auto_planning_msgs::srv::ModifyTrajectory::Request> request,
   std::shared_ptr<autoware_auto_planning_msgs::srv::ModifyTrajectory::Response> response)
 {
-  rclcpp::Time request_time{request->original_trajectory.header.stamp,
+  rclcpp::Time request_time{
+    request->original_trajectory.header.stamp,
     m_last_obstacle_msg_time.get_clock_type()};
+
   auto elapsed_time = request_time - m_last_obstacle_msg_time;
   if (m_last_obstacle_msg_time.seconds() == 0) {
     RCLCPP_WARN(
@@ -223,20 +174,49 @@ void ObjectCollisionEstimatorNode::estimate_collision(
     RCLCPP_WARN(
       this->get_logger(),
       "Outdated obstacle information."
-      " Collision estimation will be based on old obstacle positions");
+      "Collision estimation will be based on old obstacle positions");
   }
 
   // copy the input trajectory into the output variable
   response->modified_trajectory = request->original_trajectory;
+  Trajectory trajectory_transformed = request->original_trajectory;
+
+  const tf2::TimePoint trajectory_time_point = tf2::TimePoint(
+    std::chrono::seconds(request->original_trajectory.header.stamp.sec) +
+    std::chrono::nanoseconds(request->original_trajectory.header.stamp.nanosec));
+
+  if (response->modified_trajectory.header.frame_id != m_target_frame_id) {
+    geometry_msgs::msg::TransformStamped tf;
+    try {
+      tf = this->m_tf_buffer->lookupTransform(
+        m_target_frame_id,
+        request->original_trajectory.header.frame_id,
+        trajectory_time_point);
+    } catch (const tf2::ExtrapolationException &) {
+      tf = this->m_tf_buffer->lookupTransform(
+        m_target_frame_id,
+        request->original_trajectory.header.frame_id,
+        tf2::TimePointZero);
+    }
+
+    for (auto & trajectory_point : trajectory_transformed.points) {
+      ::motion::motion_common::doTransform(
+        trajectory_point, trajectory_point, tf);
+    }
+  }
 
   // m_estimator performs the collision estimation and the trajectory will get updated inside
-  m_estimator->updatePlan(response->modified_trajectory);
-
+  const auto collision_index = m_estimator->updatePlan(
+    trajectory_transformed,
+    response->modified_trajectory);
   // publish trajectory bounding box for visualization
   auto trajectory_bbox = m_estimator->getTrajectoryBoundingBox();
-  trajectory_bbox.header = response->modified_trajectory.header;
+  trajectory_bbox.header.frame_id = m_target_frame_id;
+  trajectory_bbox.header.stamp = request->original_trajectory.header.stamp;
   auto marker = toVisualizationMarkerArray(
-    trajectory_bbox, response->modified_trajectory.points.size());
+    trajectory_bbox,
+    (collision_index <= -1 ) ?
+    request->original_trajectory.points.size() : static_cast<size_t>(collision_index));
   m_trajectory_bbox_pub->publish(marker);
 }
 
