@@ -147,7 +147,7 @@ bool8_t isTooFarAway(
 /// \brief Detect possible collision between a trajectory and a list of obstacle bounding boxes.
 ///        Return the index in the trajectory where the first collision happens.
 /// \param trajectory Planned trajectory of ego vehicle.
-/// \param obstacles Array of bounding boxes of detected obstacles.
+/// \param predicted_objects Array of predicted object.
 /// \param vehicle_param Configuration regarding the dimensions of the ego vehicle
 /// \param safety_factor A factor to inflate the size of the vehicle so to avoid getting too close
 ///                      to obstacles.
@@ -156,7 +156,7 @@ bool8_t isTooFarAway(
 ///         collision is detected, -1 is returned.
 int32_t detectCollision(
   const Trajectory & trajectory,
-  const std::vector<BoundingBoxInfo> & obstacles,
+  const std::vector<PredictedObjectInfo> & predicted_objects,
   const VehicleConfig & vehicle_param,
   const float32_t safety_factor,
   BoundingBoxArray & waypoint_bboxes)
@@ -171,14 +171,25 @@ int32_t detectCollision(
   for (std::size_t i = 0; (i < trajectory.points.size()) && (collision_index == -1); ++i) {
     // calculate a bounding box given a trajectory point
     const auto & waypoint_bbox = waypoint_bboxes.boxes.at(i);
-
     auto axis_aligned_bbox = calculateAxisAlignedBoundingBox(waypoint_bbox);
+    const std::vector<geometry_msgs::msg::Point32> waypoint_bbox_corners{
+      waypoint_bbox.corners.begin(), waypoint_bbox.corners.end()};
+
     // Check for collisions with all perceived obstacles
-    for (const auto & obstacle_bbox : obstacles) {
-      if (!isTooFarAway(axis_aligned_bbox, obstacle_bbox.axis_bbox) &&
-        autoware::common::geometry::intersect(
-          waypoint_bbox.corners.begin(), waypoint_bbox.corners.end(),
-          obstacle_bbox.bbox.corners.begin(), obstacle_bbox.bbox.corners.end()))
+    for (const auto & predicted_object : predicted_objects) {
+      // TODO(@kcolak): For now, object prediction modules only works for stationary object. After
+      //  adding the dynamic obstacle prediction, this part needs to be updated.
+      const auto predicted_object_corners =
+        autoware::common::geometry::bounding_box::details::get_transformed_corners(
+        predicted_object.predicted_object.shape[0],
+        predicted_object.predicted_object.kinematics.initial_pose.pose.position,
+        predicted_object.predicted_object.kinematics.initial_pose.pose.orientation);
+
+      if (!isTooFarAway(
+          axis_aligned_bbox,
+          predicted_object.axis_bbox) && autoware::common::geometry::intersect(
+          waypoint_bbox_corners.begin(), waypoint_bbox_corners.end(),
+          predicted_object_corners.begin(), predicted_object_corners.end()))
       {
         // Collision detected, set end index (non-inclusive), this will end outer loop immediately
         collision_index = static_cast<decltype(collision_index)>(i);
@@ -204,7 +215,7 @@ int32_t getStopIndex(
   if (collision_index < 0) {
     return collision_index;
   }
-  int32_t stop_index = collision_index;
+  int32_t stop_index = 0;
   float32_t accumulated_distance = 0;
 
   for (int32_t i = collision_index; i >= 1; i--) {
@@ -233,75 +244,102 @@ ObjectCollisionEstimator::ObjectCollisionEstimator(
   }
 }
 
-void ObjectCollisionEstimator::updatePlan(Trajectory & trajectory) noexcept
+int32_t ObjectCollisionEstimator::updatePlan(
+  const Trajectory & trajectory,
+  Trajectory & trajectory_response) noexcept
 {
   // Collision detection
   auto collision_index = detectCollision(
-    trajectory, m_obstacles, m_config.vehicle_config,
+    trajectory, m_predicted_objects, m_config.vehicle_config,
     m_config.safety_factor, m_trajectory_bboxes);
-
   auto trajectory_end_idx = getStopIndex(trajectory, collision_index, m_config.stop_margin);
 
-  if (trajectory_end_idx >= 0) {
+  if (trajectory_end_idx >= 2) {
     // Cut trajectory short to just before the collision point
-    trajectory.points.resize(static_cast<std::size_t>(trajectory_end_idx));
+    trajectory_response.points.resize(static_cast<std::size_t>(trajectory_end_idx));
+    // Mark the last point along the trajectory as "stopping" by setting
+    // accelerations and velocities to zero.
+    const auto trajectory_last_idx = static_cast<std::size_t>(trajectory_end_idx - 1);
 
-    if (trajectory_end_idx >= 1) {
-      // Mark the last point along the trajectory as "stopping" by setting
-      // accelerations and velocities to zero.
-      const auto trajectory_last_idx = static_cast<std::size_t>(trajectory_end_idx - 1);
+    trajectory_response.points[trajectory_last_idx].longitudinal_velocity_mps = 0.0;
+    trajectory_response.points[trajectory_last_idx].acceleration_mps2 = 0.0;
 
-      trajectory.points[trajectory_last_idx].longitudinal_velocity_mps = 0.0;
-      trajectory.points[trajectory_last_idx].acceleration_mps2 = 0.0;
-
-      // smooth the velocity profile of the trajectory so that it is realistically
-      // executable.
-      m_smoother.Filter(trajectory);
+    // smooth the velocity profile of the trajectory so that it is realistically
+    // executable.
+    m_smoother.Filter(trajectory_response);
+  } else if (trajectory_end_idx >= 0) {
+    // Valid trajectory for trajectory follower should be contained at least 2 points.
+    // Cut trajectory short to just before the collision point
+    trajectory_response.points.resize(static_cast<std::size_t>(2));
+    // Mark the last point along the trajectory as "stopping" by setting
+    // accelerations and velocities to zero.
+    for (auto & trajectory_point : trajectory_response.points) {
+      trajectory_point.longitudinal_velocity_mps = 0.0;
+      trajectory_point.acceleration_mps2 = 0.0;
     }
   }
+  return collision_index;
 }
 
-std::vector<BoundingBox> ObjectCollisionEstimator::updateObstacles(
-  const BoundingBoxArray & bounding_boxes) noexcept
+
+void ObjectCollisionEstimator::updatePredictedObjects(
+  PredictedObjects predicted_objects) noexcept
 {
-  auto boxes = bounding_boxes;
+  auto get_dimensions = [&](
+    PredictedObject & predicted_object,
+    const float32_t min_obstacle_dimension
+    ) {
+      auto min_x = std::numeric_limits<float32_t>::max();
+      auto min_y = std::numeric_limits<float32_t>::max();
+      auto max_x = std::numeric_limits<float32_t>::lowest();
+      auto max_y = std::numeric_limits<float32_t>::lowest();
 
-  std::vector<BoundingBox> modified_obstacles;
-  for (auto & box : boxes.boxes) {
-    if (std::min(box.size.x, box.size.y) < m_config.min_obstacle_dimension_m) {
-      Point32 heading;
-      heading.x = box.orientation.w;
-      heading.y = box.orientation.z;
-      // Double the quaternion's angle to get the heading, which is a unit vector colinear to the
-      // y-axis.
-      rotate_2d(heading, heading.x, heading.y);
+      for (auto & corner_point : predicted_object.shape[0].polygon.points) {
+        // Update obstacles corner under minimum obstacle dimension threshold
+        // Current shape corners object centric
+        if (abs(corner_point.x) < min_obstacle_dimension / 2) {
+          const auto scale_factor = (min_obstacle_dimension / 2) / corner_point.x;
+          corner_point.x = corner_point.x * scale_factor;
+          corner_point.y = corner_point.y * scale_factor;
+        } else if (abs(corner_point.x) < min_obstacle_dimension / 2) {
+          const auto scale_factor = (min_obstacle_dimension / 2) / corner_point.y;
+          corner_point.x = corner_point.x * scale_factor;
+          corner_point.y = corner_point.y * scale_factor;
+        }
 
-      // Compute base vectors of the new bounding box. Those vectors have the new desired length so
-      // that the corners are scaled at an equal distance on each side.
-      box.size.x = std::max(box.size.x, m_config.min_obstacle_dimension_m);
-      box.size.y = std::max(box.size.y, m_config.min_obstacle_dimension_m);
-      auto vect_x = times_2d(minus_2d(get_normal(heading)), box.size.x / 2);
-      auto vect_y = times_2d(heading, box.size.y / 2);
+        min_x = std::min(
+          min_x, corner_point.x +
+          static_cast<float32_t>(predicted_object.kinematics.initial_pose.pose.position.x));
+        min_y = std::min(
+          min_y, corner_point.y +
+          static_cast<float32_t>(predicted_object.kinematics.initial_pose.pose.position.y));
+        max_x = std::max(
+          max_x, corner_point.x +
+          static_cast<float32_t>(predicted_object.kinematics.initial_pose.pose.position.x));
+        max_y = std::max(
+          max_y, corner_point.y +
+          static_cast<float32_t>(predicted_object.kinematics.initial_pose.pose.position.y));
+      }
 
-      // Bottom left corner: -x-y
-      box.corners[0] = plus_2d(box.centroid, minus_2d(plus_2d(vect_x, vect_y)));
-      // Bottom right corner: x-y
-      box.corners[1] = plus_2d(box.centroid, minus_2d(vect_x, vect_y));
-      // Top right corner: x+y
-      box.corners[2] = plus_2d(box.centroid, plus_2d(vect_x, vect_y));
-      // Top left corner: -x+y
-      box.corners[3] = plus_2d(box.centroid, minus_2d(vect_y, vect_x));
+      AxisAlignedBoundingBox axis_aligned_bounding_box;
+      axis_aligned_bounding_box.lower_bound.x = min_x;
+      axis_aligned_bounding_box.lower_bound.y = min_y;
+      axis_aligned_bounding_box.upper_bound.x = max_x;
+      axis_aligned_bounding_box.upper_bound.y = max_y;
 
-      modified_obstacles.push_back(box);
-    }
+      return axis_aligned_bounding_box;
+    };
+
+  m_predicted_objects.clear();
+  for (auto & predicted_object : predicted_objects.objects) {
+    AxisAlignedBoundingBox axis_aligned_bounding_box = get_dimensions(
+      predicted_object,
+      m_config.min_obstacle_dimension_m);
+    PredictedObjectInfo predicted_object_info;
+    predicted_object_info.predicted_object = predicted_object;
+    predicted_object_info.axis_bbox = axis_aligned_bounding_box;
+    m_predicted_objects.push_back(predicted_object_info);
   }
-
-  m_obstacles.clear();
-  for (auto & box : boxes.boxes) {
-    m_obstacles.push_back({box, calculateAxisAlignedBoundingBox(box)});
-  }
-
-  return modified_obstacles;
 }
 
 }  // namespace object_collision_estimator
