@@ -12,8 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import os
-
 from ament_index_python import get_package_share_directory
 
 import launch_ros.actions
@@ -21,7 +19,11 @@ import launch_testing
 
 import lidar_integration
 
+import os
+import pytest
 
+
+@pytest.mark.launch_test
 def generate_test_description():
     # The node under test and the checker node that will pass/fail our tests:
     test_topic = 'veloyne_cloud_node_test_topic'

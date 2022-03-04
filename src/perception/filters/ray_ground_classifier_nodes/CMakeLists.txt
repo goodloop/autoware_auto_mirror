@@ -39,7 +39,7 @@ if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
   ament_lint_auto_find_test_dependencies()
 
-  ament_add_gtest(test_ray_ground_classifier_nodes_gtest
+  ament_add_ros_isolated_gtest(test_ray_ground_classifier_nodes_gtest
     test/src/test_ray_ground_classifier_nodes.cpp
   )
   autoware_set_compile_options(test_ray_ground_classifier_nodes_gtest)
@@ -58,12 +58,14 @@ if(BUILD_TESTING)
     "sensor_msgs"
   )
 
-  add_ros_test(
-    test/ray_ground_classifier_fuzzing.test.py
+  ament_add_ros_isolated_pytest_test(
+    ray_ground_classifier_fuzzing_test
+    test/ray_ground_classifier_fuzzing_test.py
     TIMEOUT "120"
   )
-  add_ros_test(
-    test/ray_ground_classifier_node_launch.test.py
+  ament_add_ros_isolated_pytest_test(
+    ray_ground_classifier_node_launch_test
+    test/ray_ground_classifier_node_launch_test.py
     TIMEOUT "30"
   )
 endif()
