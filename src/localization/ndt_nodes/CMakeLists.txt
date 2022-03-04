@@ -75,8 +75,9 @@ if(BUILD_TESTING)
   add_smoke_test(${PROJECT_NAME} ${P2D_NDT_LOCALIZER_NODE_EXE}
           PARAM_FILENAME test_localizer.param.yaml)
 
-  add_ros_test(
-    test/ndt_map_publisher_launch.test.py
+  ament_add_ros_isolated_pytest_test(
+    ndt_map_publisher_launch_test
+    test/ndt_map_publisher_launch_test.py
     TIMEOUT "30"
   )
 
