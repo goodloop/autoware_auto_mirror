@@ -65,7 +65,7 @@ if(BUILD_TESTING)
     # "Unit" test
     set(VELODYNE_NODE_GTEST velodyne_node_gtest)
 
-    ament_add_gtest(${VELODYNE_NODE_GTEST}
+    ament_add_ros_isolated_gtest(${VELODYNE_NODE_GTEST}
       "test/src/test.cpp"
       "test/src/velodyne_node_test.cpp"
     )
@@ -75,17 +75,20 @@ if(BUILD_TESTING)
     target_link_libraries(${VELODYNE_NODE_GTEST} ${CLOUD_LIB} ${BLOCK_LIB})
     ament_target_dependencies(${VELODYNE_NODE_GTEST} "lidar_integration")
 
-    add_ros_test(
-      test/velodyne_node.test.py
+    ament_add_ros_isolated_pytest_test(
+      velodyne_node_test
+      test/velodyne_node_test.py
       TIMEOUT "120"
     )
-    add_ros_test(
-      test/velodyne_node_bad.test.py
+    ament_add_ros_isolated_pytest_test(
+      velodyne_node_bad_test
+      test/velodyne_node_bad_test.py
       TIMEOUT "10"
     )
 
-    add_ros_test(
-      test/velodyne_node_half_cloud.test.py
+    ament_add_ros_isolated_pytest_test(
+      velodyne_node_half_cloud_test
+      test/velodyne_node_half_cloud_test.py
       TIMEOUT "120"
     )
 

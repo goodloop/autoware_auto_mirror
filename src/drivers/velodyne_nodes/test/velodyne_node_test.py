@@ -18,8 +18,10 @@ import ament_index_python
 import launch_ros.actions
 import launch_testing
 import lidar_integration
+import pytest
 
 
+@pytest.mark.launch_test
 def generate_test_description():
     PORT = lidar_integration.get_open_port()
 
