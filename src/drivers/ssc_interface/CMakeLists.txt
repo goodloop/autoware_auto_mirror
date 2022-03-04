@@ -52,7 +52,7 @@ if(BUILD_TESTING)
   add_smoke_test(${PROJECT_NAME} ${NODE_NAME})
 
   # Unit tests
-  ament_add_gtest(test_${PROJECT_NAME}
+  ament_add_ros_isolated_gtest(test_${PROJECT_NAME}
     test/test_ssc_interface.cpp
   )
   autoware_set_compile_options(test_${PROJECT_NAME})

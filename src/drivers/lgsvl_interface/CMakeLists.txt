@@ -28,7 +28,7 @@ if(BUILD_TESTING)
   # gtest
   set(LGSVL_INTERFACE_GTEST test_${PROJECT_NAME}_gtest)
 
-  ament_add_gtest(${LGSVL_INTERFACE_GTEST}
+  ament_add_ros_isolated_gtest(${LGSVL_INTERFACE_GTEST}
     test/src/gtest_main.cpp
     test/src/test_lgsvl_interface.cpp)
   autoware_set_compile_options(${LGSVL_INTERFACE_GTEST})

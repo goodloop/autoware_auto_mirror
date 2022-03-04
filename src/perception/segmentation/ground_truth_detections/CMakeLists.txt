@@ -69,7 +69,7 @@ if(BUILD_TESTING)
   # Component test
   set(TEST_SOURCES test/test_ground_truth_detections_node.cpp)
   set(TEST_GROUND_TRUTH_DETECTIONS_EXE test_ground_truth_detections)
-  ament_add_gtest(${TEST_GROUND_TRUTH_DETECTIONS_EXE} ${TEST_SOURCES})
+  ament_add_ros_isolated_gtest(${TEST_GROUND_TRUTH_DETECTIONS_EXE} ${TEST_SOURCES})
   autoware_set_compile_options(${TEST_GROUND_TRUTH_DETECTIONS_EXE})
   target_link_libraries(${TEST_GROUND_TRUTH_DETECTIONS_EXE} ${PROJECT_NAME} ${PROJECT_NAME}_node)
   add_dependencies(${TEST_GROUND_TRUTH_DETECTIONS_EXE} ${PROJECT_NAME}_node)

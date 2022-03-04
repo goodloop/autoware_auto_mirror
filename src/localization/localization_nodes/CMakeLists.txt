@@ -39,7 +39,7 @@ if(BUILD_TESTING)
   # gtest
   set(LOCALIZATION_NODE_TEST localization_node_gtest)
 
-  ament_add_gtest(${LOCALIZATION_NODE_TEST}
+  ament_add_ros_isolated_gtest(${LOCALIZATION_NODE_TEST}
           test/test_relative_localizer_node.hpp
           test/test_relative_localizer_node.cpp)
   autoware_set_compile_options(${LOCALIZATION_NODE_TEST})

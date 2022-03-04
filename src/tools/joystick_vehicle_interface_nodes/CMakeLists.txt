@@ -21,7 +21,7 @@ if(BUILD_TESTING)
   ament_lint_auto_find_test_dependencies()
 
   # Test
-  ament_add_gtest(joystick_vehicle_interface_nodes_test
+  ament_add_ros_isolated_gtest(joystick_vehicle_interface_nodes_test
     test/mapping.cpp)
   autoware_set_compile_options(joystick_vehicle_interface_nodes_test)
   target_include_directories(joystick_vehicle_interface_nodes_test PUBLIC include)

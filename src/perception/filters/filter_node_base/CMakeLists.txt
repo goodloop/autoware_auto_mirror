@@ -44,7 +44,7 @@ if(BUILD_TESTING)
   find_package(ament_cmake_gtest REQUIRED)
   set(TEST_SOURCES test/test_filter_node_base.cpp)
   set(TEST_FILTER_NODE_BASE_EXE test_filter_node_base)
-  ament_add_gmock(${TEST_FILTER_NODE_BASE_EXE} ${TEST_SOURCES})
+  ament_add_ros_isolated_gmock(${TEST_FILTER_NODE_BASE_EXE} ${TEST_SOURCES})
   target_compile_options(${TEST_FILTER_NODE_BASE_EXE} PUBLIC "-Wno-pedantic")
   target_link_libraries(${TEST_FILTER_NODE_BASE_EXE} ${PROJECT_NAME})
   ament_target_dependencies(${TEST_FILTER_NODE_BASE_EXE}

@@ -57,7 +57,7 @@ if(BUILD_TESTING)
     test/test_prediction_nodes.cpp
   )
   set(TEST_PREDICTION_NODES_EXE test_prediction_nodes)
-  ament_add_gtest(${TEST_PREDICTION_NODES_EXE} ${TEST_SOURCES})
+  ament_add_ros_isolated_gtest(${TEST_PREDICTION_NODES_EXE} ${TEST_SOURCES})
   autoware_set_compile_options(${TEST_PREDICTION_NODES_EXE})
   target_link_libraries(${TEST_PREDICTION_NODES_EXE} ${PROJECT_NAME}_node_lib)
   add_dependencies(${TEST_PREDICTION_NODES_EXE} ${PROJECT_NAME}_node_lib)
@@ -66,8 +66,9 @@ if(BUILD_TESTING)
   )
 
   find_package(ros_testing REQUIRED)
-  add_ros_test(
-    test/prediction_nodes_launch.test.py
+  ament_add_ros_isolated_pytest_test(
+    prediction_nodes_launch_test
+    test/prediction_nodes_launch_test.py
     TIMEOUT "30"
   )
 endif()
