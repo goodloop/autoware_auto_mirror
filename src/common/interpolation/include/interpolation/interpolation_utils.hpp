@@ -21,6 +21,9 @@
 
 namespace interpolation_utils
 {
+/// \brief Check if std::vector is strictly increasing
+/// \param x Vector of doubles
+/// \return if std::vector is strictly increasing return true, else return false
 inline bool isIncreasing(const std::vector<double> & x)
 {
   if (x.empty()) {
@@ -36,6 +39,9 @@ inline bool isIncreasing(const std::vector<double> & x)
   return true;
 }
 
+/// \brief Check if std::vector is strictly not decreasing
+/// \param x Vector of doubles
+/// \return if std::vector is strictly not decreasing return true, else return false
 inline bool isNotDecreasing(const std::vector<double> & x)
 {
   if (x.empty()) {
@@ -51,6 +57,10 @@ inline bool isNotDecreasing(const std::vector<double> & x)
   return true;
 }
 
+/// \brief Check values for interpolation. Throw exceptions for invalid arguments
+/// \param base_keys Base key values, coordinates of the base point
+/// \param base_values Base values
+/// \param query_keys Query keys, coordinates of the query point
 inline void validateInput(
   const std::vector<double> & base_keys,
   const std::vector<double> & base_values,

@@ -23,7 +23,7 @@
 
 namespace interpolation
 {
-// NOTE: X(s) = a_i (s - s_i)^3 + b_i (s - s_i)^2 + c_i (s - s_i) + d_i : (i = 0, 1, ... N-1)
+/// \brief X(s) = a_i (s - s_i)^3 + b_i (s - s_i)^2 + c_i (s - s_i) + d_i : (i = 0, 1, ... N-1)
 struct MultiSplineCoef
 {
   explicit MultiSplineCoef(const size_t num_spline)
@@ -39,7 +39,11 @@ struct MultiSplineCoef
   std::vector<double> c;
   std::vector<double> d;
 };
-
+/// \brief Spherical Linear Interpolation
+/// \param base_keys  Set of base keys, coordinates of the base point
+/// \param base_values Set of base values
+/// \param query_keys Set of query keys
+/// \return The spherical Linear interpolated values
 std::vector<double> slerp(
   const std::vector<double> & base_keys,
   const std::vector<double> & base_values,

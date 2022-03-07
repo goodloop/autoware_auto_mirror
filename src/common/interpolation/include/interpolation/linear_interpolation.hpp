@@ -21,8 +21,18 @@
 
 namespace interpolation
 {
+/// \brief Calculate linear interpolation from given source, destination and ration value
+/// \param src_val The source value
+/// \param dst_val The destination value
+/// \param ratio Interpolation ratio
+/// \return The interpolated value
 double lerp(const double src_val, const double dst_val, const double ratio);
 
+/// \brief Calculate linear interpolation from given values
+/// \param base_keys Set of base keys, coordinates of the base point
+/// \param base_values Set of base values
+/// \param query_keys Set of query keys, coordinates of the query point
+/// \return The linear interpolated values
 std::vector<double> lerp(
   const std::vector<double> & base_keys,
   const std::vector<double> & base_values,
