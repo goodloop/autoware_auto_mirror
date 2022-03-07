@@ -58,6 +58,13 @@ def generate_launch_description():
     with open(urdf_path, 'r') as infp:
         urdf_file = infp.read()
 
+    map_pcd_file = os.path.join(
+        get_package_share_directory('autoware_demos'),
+        'data/autonomoustuff_parking_lot_lgsvl.pcd')
+    map_yaml_file = os.path.join(
+        get_package_share_directory('autoware_demos'),
+        'data/autonomoustuff_parking_lot_lgsvl.yaml')
+
     pc_filter_transform_param = DeclareLaunchArgument(
         'pc_filter_transform_param_file',
         default_value=pc_filter_transform_param_file,
@@ -132,7 +139,9 @@ def generate_launch_description():
         package='ndt_nodes',
         executable='ndt_map_publisher_exe',
         namespace='localization',
-        parameters=[LaunchConfiguration('map_publisher_param_file')]
+        parameters=[LaunchConfiguration('map_publisher_param_file'),
+                    {"map_pcd_file": map_pcd_file,
+                     "map_yaml_file": map_yaml_file}]
     )
 
     lgsvl_interface = Node(
