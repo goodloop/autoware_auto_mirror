@@ -247,8 +247,8 @@ private:
       const float32_t cosy = 1.0F - (2.0F * tf_z * tf_z);
       const float32_t heading_rad = atan2f(siny, cosy);
       const float32_t relative_y = (-sinf(heading_rad) * 5.0F) + (cosf(heading_rad) * 5.0F);
-      const float32_t carvature = (2.0F * relative_y) / denominator;
-      const float32_t angle = atanf(carvature * 2.7F);
+      const float32_t curvature = (2.0F * relative_y) / denominator;
+      const float32_t angle = atanf(curvature * 2.7F);
       if (
         (fabsf(accel - msg->long_accel_mps2) < TOL) &&
         (fabsf(angle - msg->front_wheel_angle_rad) < TOL))
