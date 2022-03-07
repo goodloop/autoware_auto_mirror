@@ -66,6 +66,10 @@ def generate_launch_description():
     point_cloud_fusion_node_pkg_prefix = get_package_share_directory(
         'point_cloud_fusion_nodes')
 
+    map_osm_file = os.path.join(
+        get_package_share_directory('autoware_demos'),
+        'data/autonomoustuff_parking_lot.osm')
+
     # Arguments
 
     global_velocity_planner_param = DeclareLaunchArgument(
@@ -173,7 +177,8 @@ def generate_launch_description():
         executable='lanelet2_map_provider_exe',
         namespace='had_maps',
         name='lanelet2_map_provider_node',
-        parameters=[LaunchConfiguration('lanelet2_map_provider_param_file')]
+        parameters=[LaunchConfiguration('lanelet2_map_provider_param_file'),
+                    {'map_osm_file': map_osm_file}]
     )
     lanelet2_map_visualizer = Node(
         package='lanelet2_map_provider',

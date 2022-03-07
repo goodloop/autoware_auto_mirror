@@ -1,7 +1,7 @@
 /**:
   ros__parameters:
-    map_pcd_file: "/opt/AutowareAuto/share/autoware_demos/data/autonomoustuff_parking_lot.pcd"
-    map_yaml_file: "/opt/AutowareAuto/share/autoware_demos/data/autonomoustuff_parking_lot.yaml"
+#    map_pcd_file: "/opt/AutowareAuto/share/autoware_demos/data/autonomoustuff_parking_lot.pcd"
+#    map_yaml_file: "/opt/AutowareAuto/share/autoware_demos/data/autonomoustuff_parking_lot.yaml"
     map_frame: "map"
     map_config:
       capacity: 1000000
