@@ -41,7 +41,7 @@ if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
   ament_lint_auto_find_test_dependencies()
 
-  find_package(ament_cmake_gtest REQUIRED)
+  find_package(ament_cmake_ros REQUIRED)
   ament_add_gmock(test_state_estimation_node
           test/test_history.cpp
           test/test_steady_time_grid.cpp

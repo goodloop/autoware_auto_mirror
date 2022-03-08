@@ -33,7 +33,7 @@ if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
   ament_lint_auto_find_test_dependencies()
 
-  ament_add_gtest(test_ray_ground_classifier_gtest
+  ament_add_ros_isolated_gtest(test_ray_ground_classifier_gtest
     test/src/test_ray_ground_classifier.cpp
   )
   autoware_set_compile_options(test_ray_ground_classifier_gtest)
@@ -46,7 +46,7 @@ if(BUILD_TESTING)
     ${OpenMP_LIBS}
   )
 
-  ament_add_gtest(test_ray_ground_classifier_raytrace_gtest
+  ament_add_ros_isolated_gtest(test_ray_ground_classifier_raytrace_gtest
     test/src/test_ray_ground_classifier_raytrace.cpp
   )
   autoware_set_compile_options(test_ray_ground_classifier_raytrace_gtest)
@@ -59,7 +59,7 @@ if(BUILD_TESTING)
     ${OpenMP_LIBS}
   )
 
-  ament_add_gtest(test_ray_aggregator_gtest
+  ament_add_ros_isolated_gtest(test_ray_aggregator_gtest
     test/src/test_ray_aggregator.cpp
   )
   autoware_set_compile_options(test_ray_aggregator_gtest)

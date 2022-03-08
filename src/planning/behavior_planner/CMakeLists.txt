@@ -45,7 +45,7 @@ if(BUILD_TESTING)
   # Unit tests
   set(TEST_SOURCES test/test_behavior_planner.cpp)
   set(TEST_BEHAVIOR_PLANNER_EXE test_behavior_planner)
-  ament_add_gtest(${TEST_BEHAVIOR_PLANNER_EXE} ${TEST_SOURCES})
+  ament_add_ros_isolated_gtest(${TEST_BEHAVIOR_PLANNER_EXE} ${TEST_SOURCES})
   autoware_set_compile_options(${TEST_BEHAVIOR_PLANNER_EXE})
   target_link_libraries(${TEST_BEHAVIOR_PLANNER_EXE} ${PROJECT_NAME})
 endif()

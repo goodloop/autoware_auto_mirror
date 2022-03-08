@@ -36,7 +36,7 @@ if(BUILD_TESTING)
   ament_lint_auto_find_test_dependencies()
 
   # gtest
-  ament_add_gtest(${STATE_VECTOR_GTEST}
+  ament_add_ros_isolated_gtest(${STATE_VECTOR_GTEST}
                   test/test_variables.cpp
                   test/test_generic_state.cpp)
   autoware_set_compile_options(${STATE_VECTOR_GTEST})

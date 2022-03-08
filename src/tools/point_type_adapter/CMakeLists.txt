@@ -44,7 +44,7 @@ if(BUILD_TESTING)
   # Unit tests
   set(TEST_SOURCES test/test_point_type_adapter.cpp)
   set(TEST_POINT_TYPE_ADAPTER_EXE test_point_type_adapter)
-  ament_add_gtest(${TEST_POINT_TYPE_ADAPTER_EXE} ${TEST_SOURCES})
+  ament_add_ros_isolated_gtest(${TEST_POINT_TYPE_ADAPTER_EXE} ${TEST_SOURCES})
   autoware_set_compile_options(${TEST_POINT_TYPE_ADAPTER_EXE})
   target_link_libraries(${TEST_POINT_TYPE_ADAPTER_EXE} ${PROJECT_NAME}_node)
 endif()

@@ -12,7 +12,7 @@ if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
   ament_lint_auto_find_test_dependencies()
 
-  ament_add_gtest(test_quick_sort_iterative
+  ament_add_ros_isolated_gtest(test_quick_sort_iterative
     test/src/test_quick_sort_iterative.cpp
   )
   autoware_set_compile_options(test_quick_sort_iterative)

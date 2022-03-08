@@ -55,7 +55,7 @@ if(BUILD_TESTING)
 
   # Unit tests
   install(DIRECTORY artifacts DESTINATION ${CMAKE_BINARY_DIR})
-  ament_add_gtest(test_benchmark_tool test/test_benchmark_tool.cpp)
+  ament_add_ros_isolated_gtest(test_benchmark_tool test/test_benchmark_tool.cpp)
   autoware_set_compile_options(test_benchmark_tool)
   if(CMAKE_COMPILER_IS_GNUCXX)
     target_compile_options(test_benchmark_tool

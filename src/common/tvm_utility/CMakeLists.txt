@@ -56,7 +56,7 @@ if(BUILD_TESTING)
   set(${PROJECT_NAME}_BACKEND llvm CACHE STRING "${PROJECT_NAME} neural network backend")
 
   # compile each folder inside test/ as a test case
-  find_package(ament_cmake_gtest REQUIRED)
+  find_package(ament_cmake_ros REQUIRED)
   find_package(OpenCV REQUIRED)
   find_package(tvm_vendor REQUIRED)
   set(tvm_runtime_DIR ${tvm_vendor_DIR})
@@ -83,7 +83,7 @@ if(BUILD_TESTING)
       endif()
       # add all cpp files in the folder to the target
       file(GLOB TEST_CASE_SOURCES ${TEST_FOLDER}/*.cpp)
-      ament_add_gtest(${TEST_CASE_NAME} ${TEST_CASE_SOURCES})
+      ament_add_ros_isolated_gtest(${TEST_CASE_NAME} ${TEST_CASE_SOURCES})
       ament_target_dependencies(${TEST_CASE_NAME}
         "ament_index_cpp"
         "tvm_vendor"

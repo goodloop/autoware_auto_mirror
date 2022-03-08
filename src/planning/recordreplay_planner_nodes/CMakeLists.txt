@@ -29,7 +29,7 @@ if(BUILD_TESTING)
   add_smoke_test(${PROJECT_NAME} ${NODE_NAME})
 
   # Unit test
-  ament_add_gtest(${RECORDREPLAY_PLANNER_NODE_LIB}_unit_tests
+  ament_add_ros_isolated_gtest(${RECORDREPLAY_PLANNER_NODE_LIB}_unit_tests
     test/gtest_main.cpp
     test/sanity_checks.cpp)
   autoware_set_compile_options(${RECORDREPLAY_PLANNER_NODE_LIB}_unit_tests)

@@ -45,7 +45,7 @@ if(BUILD_TESTING)
 
   # gtest
   set(PCF_GTEST pointcloud_fusion_gtest)
-  ament_add_gtest(${PCF_GTEST}
+  ament_add_ros_isolated_gtest(${PCF_GTEST}
           test/test_point_cloud_fusion_nodes.hpp
           test/test_point_cloud_fusion_nodes.cpp)
   autoware_set_compile_options(${PCF_GTEST})

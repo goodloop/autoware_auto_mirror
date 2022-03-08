@@ -41,14 +41,14 @@ if(BUILD_TESTING)
 
     # gtest
     set(XSENS_IMU_GTEST xsens_imu_gtest)
-    ament_add_gtest(${XSENS_IMU_GTEST}
+    ament_add_ros_isolated_gtest(${XSENS_IMU_GTEST}
       "test/src/test_xsens_imu.cpp")
     autoware_set_compile_options(${XSENS_IMU_GTEST})
     target_include_directories(${XSENS_IMU_GTEST} PRIVATE test/include include)
     target_link_libraries(${XSENS_IMU_GTEST} ${PROJECT_NAME})
 
     set(XSENS_GPS_GTEST xsens_gps_gtest)
-    ament_add_gtest(${XSENS_GPS_GTEST}
+    ament_add_ros_isolated_gtest(${XSENS_GPS_GTEST}
       "test/src/test_xsens_gps.cpp")
     autoware_set_compile_options(${XSENS_GPS_GTEST})
     target_include_directories(${XSENS_GPS_GTEST} PRIVATE test/include include)

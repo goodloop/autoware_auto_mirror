@@ -37,7 +37,7 @@ if(BUILD_TESTING)
   ament_lint_auto_find_test_dependencies()
 
   # gtest
-  ament_add_gtest(${STATE_ESTIMATION_GTEST}
+  ament_add_ros_isolated_gtest(${STATE_ESTIMATION_GTEST}
                   test/test_kalman_filter.cpp
                   test/test_linear_measurement.cpp
                   test/test_uniform_noise.cpp

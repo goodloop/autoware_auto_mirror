@@ -57,7 +57,7 @@ if(BUILD_TESTING)
   # gtest
   set(OPTIMIZATION_TEST optimization_gtest)
 
-  ament_add_gtest(${OPTIMIZATION_TEST}
+  ament_add_ros_isolated_gtest(${OPTIMIZATION_TEST}
           test/test_cache_states.hpp
           test/test_newton_optimization.hpp
           test/test_cache_states.cpp

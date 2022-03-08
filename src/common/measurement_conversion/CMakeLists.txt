@@ -57,7 +57,7 @@ if(BUILD_TESTING)
   # Unit tests
   set(TEST_SOURCES test/test_measurement_conversion.cpp test/test_eigen_utils.cpp)
   set(TEST_MEASUREMENT_CONVERSION_EXE test_measurement_conversion)
-  ament_add_gtest(${TEST_MEASUREMENT_CONVERSION_EXE} ${TEST_SOURCES})
+  ament_add_ros_isolated_gtest(${TEST_MEASUREMENT_CONVERSION_EXE} ${TEST_SOURCES})
   autoware_set_compile_options(${TEST_MEASUREMENT_CONVERSION_EXE})
   target_link_libraries(${TEST_MEASUREMENT_CONVERSION_EXE} ${PROJECT_NAME})
 endif()

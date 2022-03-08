@@ -68,7 +68,7 @@ if(baidu_cnn_FOUND)
 
     # gtest
     set(APOLLO_LIDAR_SEGMENTATION_GTEST apollo_lidar_segmentation_gtest)
-    ament_add_gtest(${APOLLO_LIDAR_SEGMENTATION_GTEST} test/main.cpp TIMEOUT 120)
+    ament_add_ros_isolated_gtest(${APOLLO_LIDAR_SEGMENTATION_GTEST} test/main.cpp TIMEOUT 120)
     autoware_set_compile_options(${APOLLO_LIDAR_SEGMENTATION_GTEST})
     target_include_directories(${APOLLO_LIDAR_SEGMENTATION_GTEST} PRIVATE "include")
     target_link_libraries(${APOLLO_LIDAR_SEGMENTATION_GTEST} ${PROJECT_NAME})

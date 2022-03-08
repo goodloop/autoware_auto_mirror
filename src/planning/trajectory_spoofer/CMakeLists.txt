@@ -56,7 +56,7 @@ if(BUILD_TESTING)
   # Unit tests
   set(TEST_SOURCES test/gtest_main.cpp test/test_trajectory_spoofer.cpp)
   set(TEST_TRAJECTORY_SPOOFER_EXE test_trajectory_spoofer)
-  ament_add_gtest(${TEST_TRAJECTORY_SPOOFER_EXE} ${TEST_SOURCES})
+  ament_add_ros_isolated_gtest(${TEST_TRAJECTORY_SPOOFER_EXE} ${TEST_SOURCES})
   autoware_set_compile_options(${TEST_TRAJECTORY_SPOOFER_EXE})
   target_compile_options(${TEST_TRAJECTORY_SPOOFER_EXE} PRIVATE -Wno-double-promotion -Wno-float-conversion)
   ament_target_dependencies(${TEST_TRAJECTORY_SPOOFER_EXE}

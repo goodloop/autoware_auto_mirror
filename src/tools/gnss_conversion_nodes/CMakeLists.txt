@@ -65,7 +65,7 @@ if(BUILD_TESTING)
   # Unit tests
   set(TEST_SOURCES test/test_gnss_conversion_node.cpp)
   set(TEST_GNSS_CONVERTION_NODE test_gnss_conversion_node)
-  ament_add_gtest(${TEST_GNSS_CONVERTION_NODE} ${TEST_SOURCES})
+  ament_add_ros_isolated_gtest(${TEST_GNSS_CONVERTION_NODE} ${TEST_SOURCES})
   target_link_libraries(${TEST_GNSS_CONVERTION_NODE} ${PROJECT_NAME})
   ament_target_dependencies(${TEST_GNSS_CONVERTION_NODE}
       "rclcpp"

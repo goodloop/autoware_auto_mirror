@@ -18,7 +18,7 @@ if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
   ament_lint_auto_find_test_dependencies()
   ## Unit test
-  ament_add_gtest(recordreplay_planner_unit_tests
+  ament_add_ros_isolated_gtest(recordreplay_planner_unit_tests
     test/gtest_main.cpp
     test/sanity_checks.cpp)
   autoware_set_compile_options(recordreplay_planner_unit_tests)

@@ -41,7 +41,7 @@ if(BUILD_TESTING)
   ament_lint_auto_find_test_dependencies()
 
   # Unit tests
-  find_package(ament_cmake_gtest REQUIRED)
+  find_package(ament_cmake_ros REQUIRED)
   set(TEST_SOURCES test/test_filter_node_base.cpp)
   set(TEST_FILTER_NODE_BASE_EXE test_filter_node_base)
   ament_add_gmock(${TEST_FILTER_NODE_BASE_EXE} ${TEST_SOURCES})

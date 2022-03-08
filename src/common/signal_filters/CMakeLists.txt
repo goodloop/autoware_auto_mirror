@@ -12,7 +12,7 @@ if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
   ament_lint_auto_find_test_dependencies()
 
-  ament_add_gtest(signal_filter_test test/sanity_check.cpp test/gtest_main.cpp)
+  ament_add_ros_isolated_gtest(signal_filter_test test/sanity_check.cpp test/gtest_main.cpp)
   autoware_set_compile_options(signal_filter_test)
   target_compile_options(signal_filter_test PRIVATE -Wno-sign-conversion)
   target_include_directories(signal_filter_test PRIVATE include)

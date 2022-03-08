@@ -43,7 +43,7 @@ if(BUILD_TESTING)
   # gtest
   set(VOXEL_GRID_GTEST voxel_grid_gtest)
 
-  ament_add_gtest(${VOXEL_GRID_GTEST} test/src/test_voxel_grid.cpp)
+  ament_add_ros_isolated_gtest(${VOXEL_GRID_GTEST} test/src/test_voxel_grid.cpp)
   autoware_set_compile_options(${VOXEL_GRID_GTEST})
   target_compile_options(${VOXEL_GRID_GTEST} PRIVATE -Wno-sign-conversion -Wno-double-promotion)
   target_link_libraries(${VOXEL_GRID_GTEST} ${PROJECT_NAME})

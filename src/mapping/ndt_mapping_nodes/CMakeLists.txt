@@ -50,11 +50,11 @@ if(BUILD_TESTING)
   find_package(autoware_testing REQUIRED)
   add_smoke_test(${PROJECT_NAME} ${MAPPER_NODE_EXE})
 
-  find_package(ament_cmake_gtest REQUIRED)
+  find_package(ament_cmake_ros REQUIRED)
   # TODO(yunus.caliskan): figure out why we need this when it gets exported by point_cloud_mapping
   find_package(PCL 1.8 REQUIRED COMPONENTS io)
 
-  ament_add_gtest(test_${PROJECT_NAME} test/test_ndt_mapping_nodes.cpp)
+  ament_add_ros_isolated_gtest(test_${PROJECT_NAME} test/test_ndt_mapping_nodes.cpp)
   autoware_set_compile_options(test_${PROJECT_NAME})
   target_compile_options(test_${PROJECT_NAME} PRIVATE -Wno-sign-conversion -Wno-conversion -Wno-double-promotion -Wno-useless-cast)
 

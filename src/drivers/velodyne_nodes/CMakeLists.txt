@@ -65,7 +65,7 @@ if(BUILD_TESTING)
     # "Unit" test
     set(VELODYNE_NODE_GTEST velodyne_node_gtest)
 
-    ament_add_gtest(${VELODYNE_NODE_GTEST}
+    ament_add_ros_isolated_gtest(${VELODYNE_NODE_GTEST}
       "test/src/test.cpp"
       "test/src/velodyne_node_test.cpp"
     )

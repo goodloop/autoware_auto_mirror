@@ -19,8 +19,8 @@ if(BUILD_TESTING)
   ament_lint_auto_find_test_dependencies()
 
   # Unit tests
-  find_package(ament_cmake_gtest REQUIRED)
-  ament_add_gtest(${FREESPACE_PLANNER_LIB}_test test/test_freespace_planner.cpp TIMEOUT 600)
+  find_package(ament_cmake_ros REQUIRED)
+  ament_add_ros_isolated_gtest(${FREESPACE_PLANNER_LIB}_test test/test_freespace_planner.cpp TIMEOUT 600)
   autoware_set_compile_options(${FREESPACE_PLANNER_LIB}_test)
   target_link_libraries(${FREESPACE_PLANNER_LIB}_test ${FREESPACE_PLANNER_LIB})
 endif()

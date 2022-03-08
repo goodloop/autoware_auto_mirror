@@ -43,7 +43,7 @@ if(BUILD_TESTING)
   # Unit tests
   set(TEST_SOURCES test/test_lane_planner.cpp)
   set(TEST_LANE_PLANNER_EXE test_lane_planner)
-  ament_add_gtest(${TEST_LANE_PLANNER_EXE} ${TEST_SOURCES})
+  ament_add_ros_isolated_gtest(${TEST_LANE_PLANNER_EXE} ${TEST_SOURCES})
   autoware_set_compile_options(${TEST_LANE_PLANNER_EXE})
   target_link_libraries(${TEST_LANE_PLANNER_EXE} ${PROJECT_NAME})
   add_dependencies(${TEST_LANE_PLANNER_EXE} ${PROJECT_NAME})

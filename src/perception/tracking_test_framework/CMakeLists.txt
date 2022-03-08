@@ -63,7 +63,7 @@ if(BUILD_TESTING)
   # Unit tests
   set(TEST_SOURCES test/test_tracking_test_framework.cpp)
   set(TEST_TRACKING_TEST_FRAMEWORK_EXE test_tracking_test_framework)
-  ament_add_gtest(${TEST_TRACKING_TEST_FRAMEWORK_EXE} ${TEST_SOURCES})
+  ament_add_ros_isolated_gtest(${TEST_TRACKING_TEST_FRAMEWORK_EXE} ${TEST_SOURCES})
   autoware_set_compile_options(${TEST_TRACKING_TEST_FRAMEWORK_EXE})
   target_link_libraries(${TEST_TRACKING_TEST_FRAMEWORK_EXE} ${PROJECT_NAME})
 endif()

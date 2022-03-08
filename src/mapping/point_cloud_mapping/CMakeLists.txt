@@ -54,7 +54,7 @@ if(BUILD_TESTING)
   # gtest
   set(PC_MAPPING_TEST pcm_test)
 
-  ament_add_gtest(${PC_MAPPING_TEST}
+  ament_add_ros_isolated_gtest(${PC_MAPPING_TEST}
           test/test_map.hpp
           test/test_map.cpp
   )

@@ -38,7 +38,7 @@ if(BUILD_TESTING)
   # Unit tests
   set(TEST_SOURCES test/test_polygon_remover_nodes.cpp)
   set(TEST_POLYGON_REMOVER_NODES_EXE test_polygon_remover_nodes)
-  ament_add_gtest(${TEST_POLYGON_REMOVER_NODES_EXE} ${TEST_SOURCES})
+  ament_add_ros_isolated_gtest(${TEST_POLYGON_REMOVER_NODES_EXE} ${TEST_SOURCES})
   autoware_set_compile_options(${TEST_POLYGON_REMOVER_NODES_EXE})
   target_link_libraries(${TEST_POLYGON_REMOVER_NODES_EXE} ${NODE_NAME})
 

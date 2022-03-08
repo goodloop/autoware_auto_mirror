@@ -39,7 +39,7 @@ if(BUILD_TESTING)
   ament_lint_auto_find_test_dependencies()
 
   # compile each folder inside test/ as a test case
-  find_package(ament_cmake_gtest REQUIRED)
+  find_package(ament_cmake_ros REQUIRED)
 
   file(GLOB TEST_CASES test/*)
   foreach(TEST_FOLDER ${TEST_CASES})
@@ -48,7 +48,7 @@ if(BUILD_TESTING)
           ${CMAKE_CURRENT_LIST_DIR}/test ${TEST_FOLDER})
     # add all cpp files in the folder to the target
     file(GLOB TEST_CASE_SOURCES ${TEST_FOLDER}/*.cpp)
-    ament_add_gtest(${TEST_CASE_NAME} ${TEST_CASE_SOURCES})
+    ament_add_ros_isolated_gtest(${TEST_CASE_NAME} ${TEST_CASE_SOURCES})
     target_link_libraries(${TEST_CASE_NAME} ${PROJECT_NAME})
   endforeach()
 

@@ -65,9 +65,9 @@ if(BUILD_TESTING)
   # gtest
   set(NDT_TEST ndt_gtest)
 
-  find_package(ament_cmake_gtest REQUIRED)
+  find_package(ament_cmake_ros REQUIRED)
 
-  ament_add_gtest(${NDT_TEST}
+  ament_add_ros_isolated_gtest(${NDT_TEST}
           test/test_ndt_utils.hpp
           test/test_ndt_utils.cpp
           test/test_ndt_map.hpp

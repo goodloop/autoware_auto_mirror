@@ -84,7 +84,7 @@ if(BUILD_TESTING)
     test/test_ne_raptor_interface_talker.cpp
   )
   set(TEST_NE_RAPTOR_INTERFACE_EXE test_ne_raptor_interface)
-  ament_add_gtest(${TEST_NE_RAPTOR_INTERFACE_EXE} ${TEST_SOURCES})
+  ament_add_ros_isolated_gtest(${TEST_NE_RAPTOR_INTERFACE_EXE} ${TEST_SOURCES})
   autoware_set_compile_options(${TEST_NE_RAPTOR_INTERFACE_EXE})
   target_link_libraries(${TEST_NE_RAPTOR_INTERFACE_EXE} ${PROJECT_NAME})
 endif()

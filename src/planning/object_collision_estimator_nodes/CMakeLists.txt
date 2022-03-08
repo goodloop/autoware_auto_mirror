@@ -58,7 +58,7 @@ if(BUILD_TESTING)
   )
 
   # Build unit test
-  ament_add_gtest(${OBJECT_COLLISION_ESTIMATOR_NODE_LIB}_unit_tests
+  ament_add_ros_isolated_gtest(${OBJECT_COLLISION_ESTIMATOR_NODE_LIB}_unit_tests
     test/${OBJECT_COLLISION_ESTIMATOR_NODE_LIB}_test.cpp)
   autoware_set_compile_options(${OBJECT_COLLISION_ESTIMATOR_NODE_LIB}_unit_tests)
   target_compile_options(${OBJECT_COLLISION_ESTIMATOR_NODE_LIB}_unit_tests PRIVATE -Wno-conversion)

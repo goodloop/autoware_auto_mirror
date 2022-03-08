@@ -62,7 +62,7 @@ if(BUILD_TESTING)
     test/test_voxel_grid_outlier_filter.cpp
     test/outlier_filter_test_utils.hpp)
   set(TEST_OUTLIER_FILTER_EXE test_outlier_filter)
-  ament_add_gtest(${TEST_OUTLIER_FILTER_EXE} ${TEST_SOURCES})
+  ament_add_ros_isolated_gtest(${TEST_OUTLIER_FILTER_EXE} ${TEST_SOURCES})
   autoware_set_compile_options(${TEST_OUTLIER_FILTER_EXE})
   target_link_libraries(${TEST_OUTLIER_FILTER_EXE} ${PROJECT_NAME})
   ament_target_dependencies(${TEST_OUTLIER_FILTER_EXE} "lidar_utils")

@@ -97,7 +97,7 @@ if(BUILD_TESTING)
   # Unit tests
   set(TEST_SOURCES test/test_lanelet2_map_provider.cpp)
   set(TEST_LANELET2_MAP_PROVIDER_EXE test_lanelet2_map_provider)
-  ament_add_gtest(${TEST_LANELET2_MAP_PROVIDER_EXE} ${TEST_SOURCES})
+  ament_add_ros_isolated_gtest(${TEST_LANELET2_MAP_PROVIDER_EXE} ${TEST_SOURCES})
   autoware_set_compile_options(${TEST_LANELET2_MAP_PROVIDER_EXE})
   target_link_libraries(${TEST_LANELET2_MAP_PROVIDER_EXE}
     ${PROJECT_NAME}
