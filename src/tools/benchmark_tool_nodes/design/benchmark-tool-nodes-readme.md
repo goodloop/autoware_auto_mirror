@@ -26,6 +26,13 @@ interest:
 - Raw data
 - 3D Object detection evaluation 2017
 
+The dataset must be accessible from within the ADE container, if using one.
+To do this, one simple solution is to add a command like
+```
+-v /abs_path_to_kitti_dataset:/home/your_username/kitti_data
+```
+to your `.aderc` file, specifically to the `ADE_DOCKER_RUN_ARGS` variable.
+
 ### Understand the velodyne format
 
 Velodyne points are stored as Nx4 float matrix into a binary file.

@@ -157,18 +157,35 @@ Each specialized component should:
 
 ## How to launch
 
-List of supported nodes and how to launch them:
+Some extra packages (w.r.t. `benchmark_tool_nodes`) need to be built before the
+user can launch the appropriate test case. What follows is a list of supported
+nodes, the command used to launch the corresponding test case, and the required
+packages:
 
 - euclidean_cluster_nodes
-  - `ros2 launch benchmark_tool_nodes euclidean_cluster_node_benchmark.launch.py`
+  `ros2 launch benchmark_tool_nodes euclidean_cluster_node_benchmark.launch.py`
+  required packages:
+    - `ray_ground_classifier_nodes`
+    - `euclidean_cluster_nodes`
 - apollo_lidar_segmentation_nodes
-  - `ros2 launch benchmark_tool_nodes apollo_lidar_segmentation_node_benchmark.launch.py`
+  `ros2 launch benchmark_tool_nodes apollo_lidar_segmentation_node_benchmark.launch.py`
+  required packages:
+    - `ray_ground_classifier_nodes`
+    - `apollo_lidar_segmentation_nodes`
 - ray_ground_classifier_nodes
-  - `ros2 launch benchmark_tool_nodes ray_ground_classifier_benchmark.launch.py`
+  `ros2 launch benchmark_tool_nodes ray_ground_classifier_benchmark.launch.py`
+  required packages:
+    - `ray_ground_classifier_nodes`
 - ray_ground_classifier_euclidean_cluster_nodes
-  - `ros2 launch benchmark_tool_nodes ray_ground_classifier_euclidean_cluster_node_benchmark.launch.py`
+  `ros2 launch benchmark_tool_nodes ray_ground_classifier_euclidean_cluster_node_benchmark.launch.py`
+  required packages:
+    - `ray_ground_classifier_nodes`
+    - `euclidean_cluster_nodes`
 - ndt_matching [1]
-  - `ros2 launch benchmark_tool_nodes lidar_localization_benchmark.launch.py`
+  `ros2 launch benchmark_tool_nodes lidar_localization_benchmark.launch.py`
+  required packages:
+    - `point_cloud_filter_transform_nodes`
+    - `autoware_demos`
 
 [1] @ref benchmark-tool-nodes-lidar-localization "See the lidar localization documentation"
 
