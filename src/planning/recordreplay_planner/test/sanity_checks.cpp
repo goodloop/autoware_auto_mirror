@@ -1,4 +1,4 @@
-// Copyright 2020-2021 Embotech AG, Zurich, Switzerland, Arm Ltd. Inspired by Christopher Ho's mpc code
+// Copyright 2020-2021 Embotech AG, Zurich, Switzerland, Arm Ltd., Inspired by Christopher Ho
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -200,7 +200,10 @@ TEST(RecordreplaySanityChecks, RecedingHorizonCornercases)
 
   // Check: State we have not recorded, but is closest to the (N,0) state
   {
-    auto trajectory = planner.plan(make_state(1.0F * N + 5.0F, 1.0F, 0.0F, 0.0F, 0.0F, 0.0F, t0), false);
+    auto trajectory = planner.plan(
+      make_state(
+        1.0F * N + 5.0F, 1.0F, 0.0F, 0.0F, 0.0F, 0.0F,
+        t0), false);
     EXPECT_EQ((N - 1) * 1.0F, trajectory.points[0].pose.position.x);
     EXPECT_EQ(0.0F, trajectory.points[0].pose.position.y);
   }
@@ -382,12 +385,12 @@ TEST(RecordreplayLoopingTrajectories, correctLoopHandling) {
 
   auto vehicle_trajectory_point = record_buf[record_buf.size() - 10].state;
 
-  autoware_auto_msgs::msg::VehicleKinematicState vehicle_state
+  autoware_auto_vehicle_msgs::msg::VehicleKinematicState vehicle_state
   {rosidl_runtime_cpp::MessageInitialization::ALL};
 
-  vehicle_state.state.x = vehicle_trajectory_point.x;
-  vehicle_state.state.y = vehicle_trajectory_point.y;
-  vehicle_state.state.heading = vehicle_trajectory_point.heading;
+  vehicle_state.state.pose.position.x = vehicle_trajectory_point.pose.position.x;
+  vehicle_state.state.pose.position.y = vehicle_trajectory_point.pose.position.y;
+  vehicle_state.state.pose.orientation = vehicle_trajectory_point.pose.orientation;
   vehicle_state.state.longitudinal_velocity_mps =
     vehicle_trajectory_point.longitudinal_velocity_mps;
   vehicle_state.state.acceleration_mps2 = vehicle_trajectory_point.acceleration_mps2;

@@ -1,4 +1,4 @@
-// Copyright 2020-2021 Embotech AG, Zurich, Switzerland, Arm Ltd. Inspired by Christopher Ho's mpc code
+// Copyright 2020-2021 Embotech AG, Zurich, Switzerland, Arm Ltd. Inspired by Christopher Ho
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -459,9 +459,9 @@ bool8_t RecordReplayPlanner::is_loop(
     const auto & goal_state = m_record_buffer.front().state;
     const auto & start_state = m_record_buffer.back().state;
     const auto distance2d =
-      static_cast<float64_t>(std::hypot(
-        start_state.x - goal_state.x,
-        start_state.y - goal_state.y));
+      std::hypot(
+      start_state.pose.position.x - goal_state.pose.position.x,
+      start_state.pose.position.y - goal_state.pose.position.y);
 
     retval = distance2d < distance_thresh;
   }
