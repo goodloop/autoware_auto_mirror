@@ -308,15 +308,15 @@ std::pair<float32_t, float32_t> PurePursuit::compute_relative_xy_offset(
 ////////////////////////////////////////////////////////////////////////////////
 float32_t PurePursuit::compute_steering_rad(const TrajectoryPoint & current_point)
 {
-  // Compute the steering angle by arctan(carvature * wheel_distance)
+  // Compute the steering angle by arctan(curvature * wheel_distance)
   // link: https://www.ri.cmu.edu/pub_files/2009/2/
   //       Automatic_Steering_Methods_for_Autonomous_Automobile_Path_Tracking.pdf
   const float32_t denominator = compute_points_distance_squared(current_point, m_target_point);
   const float32_t numerator = compute_relative_xy_offset(current_point, m_target_point).second;
   constexpr float32_t epsilon = 0.0001F;
   // equivalent to (2 * y) / (distance * distance) = (2 * sin(th)) / distance
-  const float32_t carvature = (denominator > epsilon) ? ((2.0F * numerator) / denominator) : 0.0F;
-  const float32_t steering_angle_rad = atanf(carvature * m_config.get_distance_front_rear_wheel());
+  const float32_t curvature = (denominator > epsilon) ? ((2.0F * numerator) / denominator) : 0.0F;
+  const float32_t steering_angle_rad = atanf(curvature * m_config.get_distance_front_rear_wheel());
   return steering_angle_rad;
 }
 ////////////////////////////////////////////////////////////////////////////////

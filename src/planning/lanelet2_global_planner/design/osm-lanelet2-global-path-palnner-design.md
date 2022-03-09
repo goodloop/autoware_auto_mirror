@@ -3,7 +3,7 @@ OSM Planner {#osm-planner}
 
 # Purpose / Use cases
 
-This package provides a global path planner with the lanelet2 openstreet map (osm) xml. It plans a shortest path/lane
+This package provides a global path planner with the lanelet2 [OpenStreetMap (OSM)](https://www.openstreetmap.org/about) XML. It plans a shortest path/lane
 from a current location to the final parking spot following traffic rules define in the map. The path is
 given as an array of the lane id from the starting to the goal position.
 
