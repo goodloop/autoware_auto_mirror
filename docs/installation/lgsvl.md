@@ -20,7 +20,7 @@ The following guide assumes that the SVL simulator will be run from inside an AD
 - ADE 4.2.0 or later. Follow the
 [ADE installation instructions](https://ade-cli.readthedocs.io/en/latest/install.html) to install it
 - NVidia graphics card
-- If using Docker engine version 19.03 or later, [install Native GPU Support](https://github.com/NVIDIA/nvidia-docker/wiki/Installation-(Native-GPU-Support)).
+- If using Docker engine version 19.03 or later, [install Native GPU Support](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html)).
 - If using Docker engine with a version less than 19.03, either upgrade Docker or [install nvidia-docker2](https://github.com/NVIDIA/nvidia-docker/wiki/Installation-(version-2.0))
 - Cyclone DDS is the DDS vendor; see @ref choosing-a-dds-vendor
 
@@ -77,7 +77,7 @@ ade$ sudo apt update ; sudo apt dist-upgrade
 
 ## Configure the cluster
 
-You need to make your ADE environment a valid SVL cluster in order to launch any simulations. This is a one time configuration step. 
+You need to make your ADE environment a valid SVL cluster in order to launch any simulations. This is a one time configuration step.
 
 On your first simulator run there should be a window with only one button: `LINK TO CLOUD`. Click it and a web browser with `https://wise.svlsimulator.com/` should open. You can create a new cluster there by providing a cluster name and clicking `Create cluster` button.
 
@@ -127,13 +127,13 @@ Once you added vehicle to your library:
 @image html images/svl-sensors.png "Configuring sensors"
 
 Notice that there is already an `Autoware.Auto` configuration. To make sure that we are running the newest version possible, it is better to create a new one and use the most recent version of sensor configuration file:
-- Click `+ Create New Configuration` button at the bottom of the page. 
+- Click `+ Create New Configuration` button at the bottom of the page.
 - Set a configuration name and pick `ROS2ForUnitySVLBridge` as a bridge. This is a native implementation of ROS2 bridge.
 - Confirm.
 
 In the configuration edit view:
 - Click `{...}` symbol near Visual Editor (preview) window.
-- Paste contents of [avp-sensors.json](https://gitlab.com/autowarefoundation/autoware.auto/AutowareAuto/-/blob/master/src/launch/autoware_demos/config/svl/avp-sensors.json) file inside edit window. `Configurator` window should populate with bunch of sensors now. 
+- Paste contents of [avp-sensors.json](https://gitlab.com/autowarefoundation/autoware.auto/AutowareAuto/-/blob/master/src/launch/autoware_demos/config/svl/avp-sensors.json) file inside edit window. `Configurator` window should populate with bunch of sensors now.
 - Click `Save` to save configuration.
 
 @image html images/svl-sensors-json.png "Json configuration file" width=40%
@@ -156,7 +156,7 @@ To create a new simulation, follow the below steps.
   _or for custom simulations:_
     - Select the `Random Traffic` runtime template from the drop-down menu;
     - Select `AutonomouStuff` map and `AWFLexus2016RXHybrid` vehicle with your sensor configuration. Click `Next`;
-    - Select `Other ROS 2 Autopilot` autopilot and leave `Bridge Connection` with default value. 
+    - Select `Other ROS 2 Autopilot` autopilot and leave `Bridge Connection` with default value.
 - Click `Next` and then `Publish`.
 
 You can visit [SVL documentation](https://www.svlsimulator.com/docs/user-interface/web/simulations/) for more in-depth description.
