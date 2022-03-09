@@ -116,13 +116,21 @@ The rviz config has displays for all topics in this tutorial. As nodes are launc
   ```
   ![Autoware.Auto ray ground filter snapshot](autoware-auto-ray-ground-filter-smaller.png)
 
-3. Launch the `euclidean_cluster_node` node. This node clusters non-ground points into objects and publishes bounding boxes. In a new terminal, do:
+3. Launch the `euclidean_cluster_node` node. This node clusters non-ground points into objects and publishes bounding boxes or convex polygon prisms optionally. For publish bounding boxes, in a new terminal, do:
   ```{bash}
   $ ade enter
   ade$ source /opt/AutowareAuto/setup.bash
   ade$ ros2 run euclidean_cluster_nodes euclidean_cluster_node_exe --ros-args --params-file /opt/AutowareAuto/share/euclidean_cluster_nodes/param/vlp16_lexus_cluster.param.yaml --remap points_in:=/points_nonground
   ```
   ![Autoware.Auto bounding boxes segmentation snapshot](autoware-auto-bounding-boxes-smaller.png)
+
+Alternatively, publish the convex polygon prism from the euclidean clustering algorithm. In a new terminal, do:
+  ```{bash}
+  $ ade enter
+  ade$ source /opt/AutowareAuto/setup.bash
+  ade$ ros2 run euclidean_cluster_nodes euclidean_cluster_node_exe --ros-args --params-file /opt/AutowareAuto/share/euclidean_cluster_nodes/param/vlp16_lexus_cluster_as_polygon.param.yaml --remap points_in:=/points_nonground
+  ```
+  ![Autoware.Auto convex polygon prisms segmentation snapshot](autoware-auto-polygon-prisms.png)  
 
 ## Convenience Launch Files
 
@@ -150,6 +158,15 @@ To simplify the process of launching these nodes there exists a convenience laun
   ade$ ros2 run velodyne_nodes velodyne_cloud_node_exe --ros-args -p model:=vlp16 --remap __ns:=/lidar_rear --params-file /opt/AutowareAuto/share/velodyne_nodes/param/vlp16_test_rear.param.yaml
   ```
 4. Enter ADE and run the launch file
+   
+   Publish the convex polygon prisms for describe the spatial location of objects.
+
+  ```{bash}
+  ade enter
+  ade$ source /opt/AutowareAuto/setup.bash
+  ade$ ros2 launch autoware_demos lidar_polygon_prisms_pcap.launch.py
+  ```
+  Or alternativelly, publish the bounding boxes for describe the spatial location of objects.
   ```{bash}
   ade enter
   ade$ source /opt/AutowareAuto/setup.bash
@@ -162,6 +179,16 @@ To simplify the process of launching these nodes there exists a convenience laun
 
 1. See [Running the SVL Simulator along side Autoware.Auto](lgsvl.html)
 2. Enter ADE and run the launch file
+
+   Publish the convex polygon prisms for describe the spatial location of objects.
+
+  ```{bash}
+  $ ade enter
+  ade$ source /opt/AutowareAuto/setup.bash
+  ade$ ros2 launch autoware_demos lidar_polygon_prisms_lgsvl.launch.py
+  ```
+  Or alternativelly, publish the bounding boxes for describe the spatial location of objects.
+
   ```{bash}
   $ ade enter
   ade$ source /opt/AutowareAuto/setup.bash
