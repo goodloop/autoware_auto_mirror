@@ -69,8 +69,7 @@ RUN cat /bashrc-git-prompt >> /etc/skel/.bashrc && \
     rm /bashrc-git-prompt
 COPY gdbinit /etc/gdb/
 
-RUN apt-get install -f
-
+RUN apt-get update && apt-get install -y fonts-liberation libu2f-udev
 # Install a browser. Needed to configure SVL simulator
 RUN if [ "$(uname -m)" = "x86_64" ]; then \
         curl -LO https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb && \
