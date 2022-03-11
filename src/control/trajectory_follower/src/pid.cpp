@@ -16,6 +16,7 @@
 #include <memory>
 #include <utility>
 #include <vector>
+#include <stdexcept>
 
 #include "trajectory_follower/pid.hpp"
 
