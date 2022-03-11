@@ -59,7 +59,7 @@ using autoware::common::types::bool8_t;
 using autoware::common::types::float32_t;
 using autoware::common::types::TAU;
 
-using automotive_platform_msgs::msg::GearCommand;
+using SscGearCommand = automotive_platform_msgs::msg::GearCommand;
 using automotive_platform_msgs::msg::GearFeedback;
 using automotive_platform_msgs::msg::SpeedMode;
 using automotive_platform_msgs::msg::SteeringFeedback;
@@ -149,7 +149,7 @@ public:
 
 private:
   // Publishers (to SSC)
-  rclcpp::Publisher<GearCommand>::SharedPtr m_gear_cmd_pub;
+  rclcpp::Publisher<SscGearCommand>::SharedPtr m_gear_cmd_pub;
   rclcpp::Publisher<SpeedMode>::SharedPtr m_speed_cmd_pub;
   rclcpp::Publisher<SteerMode>::SharedPtr m_steer_cmd_pub;
   rclcpp::Publisher<TurnSignalCommand>::SharedPtr m_turn_signal_cmd_pub;

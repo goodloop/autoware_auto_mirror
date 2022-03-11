@@ -88,6 +88,7 @@ autoware_auto_perception_msgs::msg::PredictedObject from_tracked(
   const autoware_auto_perception_msgs::msg::TrackedObject & tracked)
 {
   return autoware_auto_perception_msgs::build<autoware_auto_perception_msgs::msg::PredictedObject>()
+         .uuid(tracked.uuid)
          .object_id(tracked.object_id)
          .existence_probability(tracked.existence_probability)
          .classification(tracked.classification)
