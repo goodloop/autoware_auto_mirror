@@ -353,9 +353,10 @@ void RecordReplayPlannerNode::replay_handle_accepted(
     // Set looping behavior
     const auto loop_good = m_planner->is_loop(m_max_loop_gap_m);
     m_planner->set_loop(m_enable_loop && loop_good);
-    if (m_enable_loop && !loop_good)
-    {
-      RCLCPP_WARN(this->get_logger(), "Looping enabled, but the start and end points are too far. Ignoring looping.");
+    if (m_enable_loop && !loop_good) {
+      RCLCPP_WARN(
+        this->get_logger(),
+        "Looping enabled, but the start and end points are too far. Ignoring looping.");
     }
   }
 
