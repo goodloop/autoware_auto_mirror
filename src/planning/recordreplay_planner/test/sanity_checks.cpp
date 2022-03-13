@@ -78,7 +78,7 @@ TEST_P(SanityChecksTrajectoryProperties, Basicproperties)
   EXPECT_EQ(planner_.get_record_length(), static_cast<std::size_t>(N));
 
   // Test: Check that the plan returned has the expected time length
-  auto trajectory = planner_.plan(make_state(0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, t0), false);
+  auto trajectory = planner_.plan(make_state(0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, t0));
   float64_t trajectory_time_length = trajectory.points[N - 1].time_from_start.sec + 1e-9F *
     trajectory.points[N - 1].time_from_start.nanosec;
   float64_t endpoint_sec = (1.0F * (N - 1) * time_increment).count() * 1.0e-3;
@@ -124,7 +124,7 @@ TEST_P(SanityChecksTrajectoryLength, Length)
 
   // Test: Check that the length is equal to the number of states we fed in
   EXPECT_EQ(planner_.get_record_length(), N);
-  auto trajectory = planner_.plan(dummy_state, false);
+  auto trajectory = planner_.plan(dummy_state);
 
   EXPECT_EQ(
     trajectory.points.size(),
@@ -169,7 +169,7 @@ TEST(RecordreplaySanityChecks, RecedingHorizonHappycase)
   // Call "plan" multiple times in sequence, expecting the states to come back out in order
   const auto t0 = system_clock::from_time_t({});
   for (uint32_t k = {}; k < N; ++k) {
-    auto trajectory = planner.plan(make_state(1.0F * k, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, t0), false);
+    auto trajectory = planner.plan(make_state(1.0F * k, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, t0));
     // normally don't check float equality but we _just_ pushed this float so it ought not
     // to have changed
     EXPECT_EQ(1.0F * k, trajectory.points[0].pose.position.x);
@@ -187,23 +187,20 @@ TEST(RecordreplaySanityChecks, RecedingHorizonCornercases)
 
   // Check: State we have not recorded, but is closest to the (0,0) state
   {
-    auto trajectory = planner.plan(make_state(-1.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, t0), false);
+    auto trajectory = planner.plan(make_state(-1.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, t0));
     EXPECT_EQ(0.0F, trajectory.points[0].pose.position.x);
   }
 
   // Check: State we have not recorded, but is closest to the (0,0) state
   {
-    auto trajectory = planner.plan(make_state(0.1F, 0.1F, 0.0F, 0.0F, 0.0F, 0.0F, t0), false);
+    auto trajectory = planner.plan(make_state(0.1F, 0.1F, 0.0F, 0.0F, 0.0F, 0.0F, t0));
     EXPECT_EQ(0.0F, trajectory.points[0].pose.position.x);
     EXPECT_EQ(0.0F, trajectory.points[0].pose.position.y);
   }
 
   // Check: State we have not recorded, but is closest to the (N,0) state
   {
-    auto trajectory = planner.plan(
-      make_state(
-        1.0F * N + 5.0F, 1.0F, 0.0F, 0.0F, 0.0F, 0.0F,
-        t0), false);
+    auto trajectory = planner.plan(make_state(1.0F * N + 5.0F, 1.0F, 0.0F, 0.0F, 0.0F, 0.0F, t0));
     EXPECT_EQ((N - 1) * 1.0F, trajectory.points[0].pose.position.x);
     EXPECT_EQ(0.0F, trajectory.points[0].pose.position.y);
   }
@@ -271,7 +268,7 @@ TEST(RecordreplayWriteReadTrajectory, WriteReadTrajectory)
   EXPECT_EQ(planner.get_record_length(), static_cast<std::size_t>(5));
 
   const auto t0 = system_clock::from_time_t({});
-  auto trajectory = planner.plan(make_state(0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, t0), false);
+  auto trajectory = planner.plan(make_state(0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, t0));
 
   for (uint32_t k = {}; k < N; ++k) {
     EXPECT_EQ(1.0F * k, trajectory.points[k].pose.position.x);
@@ -309,7 +306,7 @@ TEST(RecordreplayReachGoal, checkReachGoalCondition)
     const auto vehicle_state = make_state(
       x, 0.0F, heading, 0.0F, 0.0F, 0.0F,
       system_clock::from_time_t({}));
-    planner.plan(vehicle_state, false);
+    planner.plan(vehicle_state);
     EXPECT_FALSE(planner.reached_goal(vehicle_state, distance_thresh, angle_thresh));
   }
 
@@ -320,7 +317,7 @@ TEST(RecordreplayReachGoal, checkReachGoalCondition)
     const auto vehicle_state = make_state(
       x, 0.0F, heading, 0.0F, 0.0F, 0.0F,
       system_clock::from_time_t({}));
-    planner.plan(vehicle_state, false);
+    planner.plan(vehicle_state);
     EXPECT_FALSE(planner.reached_goal(vehicle_state, distance_thresh, angle_thresh));
   }
 
@@ -331,7 +328,7 @@ TEST(RecordreplayReachGoal, checkReachGoalCondition)
     const auto vehicle_state = make_state(
       x, 0.0F, heading, 0.0F, 0.0F, 0.0F,
       system_clock::from_time_t({}));
-    planner.plan(vehicle_state, false);
+    planner.plan(vehicle_state);
     EXPECT_TRUE(planner.reached_goal(vehicle_state, distance_thresh, angle_thresh));
   }
 }
@@ -343,7 +340,7 @@ TEST(RecordreplayLoopingTrajectories, maintainTrajectoryLength) {
 
   // It doesn't matter that this trajectory isn't a real loop, we will treat it like one
   auto planner = helper_create_and_record_example(N);
-
+  planner.set_loop(true);
 
   // We will start in the middle of this, and we expect
   // that the return trajectory is of the full length
@@ -351,7 +348,7 @@ TEST(RecordreplayLoopingTrajectories, maintainTrajectoryLength) {
     N / 2, 0.0F, 0.0F,
     0.0F, 0.0F, 0.0F, system_clock::from_time_t({}));
 
-  auto traj = planner.plan(vehicle_state, true);
+  auto traj = planner.plan(vehicle_state);
   EXPECT_EQ(traj.points.size(), static_cast<std::size_t>(N));
 }
 
@@ -378,6 +375,7 @@ RecordReplayPlanner helper_create_and_record_pseudo_loop(uint32_t N)
 
 TEST(RecordreplayLoopingTrajectories, correctLoopHandling) {
   auto planner = helper_create_and_record_pseudo_loop(500);
+  planner.set_loop(planner.is_loop(5));
 
   // We will start in the middle of this, and we
   // expect that the return trajectory is of the full length
@@ -398,7 +396,7 @@ TEST(RecordreplayLoopingTrajectories, correctLoopHandling) {
   vehicle_state.state.lateral_velocity_mps = vehicle_trajectory_point.lateral_velocity_mps;
   vehicle_state.header.stamp = time_utils::to_message(system_clock::from_time_t({}));
 
-  auto traj = planner.plan(vehicle_state, planner.is_loop(5));
+  auto traj = planner.plan(vehicle_state);
 
   EXPECT_EQ(traj.points.size(), static_cast<std::size_t>(100));
 }
