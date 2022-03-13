@@ -131,7 +131,6 @@ private:
 
   // Looping behaviors
   bool8_t m_enable_loop = false;
-  float64_t m_max_loop_gap_m = 5.0;
 
   std::size_t m_traj_start_idx{};
   std::size_t m_traj_end_idx{};

@@ -41,6 +41,8 @@ RecordReplayPlannerNode::RecordReplayPlannerNode(const rclcpp::NodeOptions & nod
   const auto min_record_distance = declare_parameter("min_record_distance").get<float64_t>();
   m_goal_distance_threshold_m = declare_parameter("goal_distance_threshold_m").get<float32_t>();
   m_goal_angle_threshold_rad = declare_parameter("goal_angle_threshold_rad").get<float32_t>();
+  m_enable_loop = declare_parameter("loop_trajectory").get<bool>();
+  m_max_loop_gap_m = declare_parameter("loop_max_gap_m").get<float64_t>();
 
   using rclcpp::QoS;
   using namespace std::chrono_literals;
@@ -210,9 +212,7 @@ void RecordReplayPlannerNode::on_ego(const State::SharedPtr & msg)
 
   if (m_planner->is_replaying()) {
     RCLCPP_INFO_ONCE(this->get_logger(), "Replaying recorded ego postion as trajectory");
-    const auto & traj_raw = m_planner->plan(
-      *msg, m_planner->is_loop(
-        5 * m_goal_distance_threshold_m));
+    const auto & traj_raw = m_planner->plan(*msg);
 
     // Request service to consider object collision if enabled
     if (m_modify_trajectory_client) {
@@ -239,7 +239,7 @@ void RecordReplayPlannerNode::on_ego(const State::SharedPtr & msg)
     if (m_planner->reached_goal(
         *msg, m_goal_distance_threshold_m, m_goal_angle_threshold_rad))
     {
-      if (!m_planner->is_loop(5 * m_goal_distance_threshold_m)) {
+      if (!m_planner->get_loop()) {
         m_replaygoalhandle->succeed(std::make_shared<ReplayTrajectory::Result>());
         m_planner->stop_replaying();
       } else {
@@ -350,6 +350,13 @@ void RecordReplayPlannerNode::replay_handle_accepted(
     // Read trajectory from file
     m_planner->readTrajectoryBufferFromFile(
       goal_handle->get_goal()->replay_path);
+    // Set looping behavior
+    const auto loop_good = m_planner->is_loop(m_max_loop_gap_m);
+    m_planner->set_loop(m_enable_loop && loop_good);
+    if (m_enable_loop && !loop_good)
+    {
+      RCLCPP_WARN(this->get_logger(), "Looping enabled, but the start and end points are too far. Ignoring looping.");
+    }
   }
 
   // If a path was recorded previously, clear the markers
