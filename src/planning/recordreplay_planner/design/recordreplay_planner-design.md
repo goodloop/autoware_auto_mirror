@@ -35,6 +35,12 @@ Loop detection is currently very simple, it relies on simple proximity of end an
 This could cause undesired behaviour if looping is not desired, or could cause issues if looping is desired but the
 recording goes past the start point. In future, loop detection could be significantly improved.
 
+When looping reaches the last point, it simply concatenates the beginning of the trajectory. no effort is made to
+ensure that the position, orientation, and speed updates are kinematically feasible. For example, if during recording
+the vehicle stopped at the last point, the trajectory will contain the same speed information, even though the vehicle
+is supposed to keep driving to the first point. Therefore, to use looping, it is highly recommended to first optimize
+the path file that the user obtained while recording.
+
 ## Inputs / Outputs / API
 
 Inputs:
