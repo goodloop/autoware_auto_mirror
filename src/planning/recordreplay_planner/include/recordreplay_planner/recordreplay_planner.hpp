@@ -72,7 +72,7 @@ public:
    * \param loop whether or not the stored path is a loop
    * \return a trajectory that replays the stored path from the current point
    */
-  const Trajectory & plan(const State & current_state, const bool loop);
+  const Trajectory & plan(const State & current_state);
 
   // Return the number of currently-recorded State messages
   std::size_t get_record_length() const noexcept;
@@ -91,8 +91,6 @@ public:
   // Configure looping behavior
   void set_loop(const bool8_t loop);
   bool8_t get_loop() const;
-  void set_max_loop_gap(const float64_t max_loop_gap);
-  float64_t get_max_loop_gap() const;
 
   /**
    * \brief Judges whether current_state has reached the last point in record buffer
@@ -121,9 +119,7 @@ public:
 
 private:
   // Obtain a trajectory from the internally-stored recording buffer
-  RECORDREPLAY_PLANNER_LOCAL const Trajectory & from_record(
-    const State & current_state,
-    const bool loop);
+  RECORDREPLAY_PLANNER_LOCAL const Trajectory & from_record(const State & current_state);
 
   // Find the index of the state in the record buffer
   // closest to the current vehicle state

@@ -207,9 +207,9 @@ bool RecordReplayPlanner::record_state(const State & state_to_record)
   }
 }
 
-const Trajectory & RecordReplayPlanner::plan(const State & current_state, const bool loop)
+const Trajectory & RecordReplayPlanner::plan(const State & current_state)
 {
-  return from_record(current_state, loop);
+  return from_record(current_state);
 }
 
 
@@ -240,7 +240,7 @@ std::size_t RecordReplayPlanner::get_closest_state(const State & current_state)
 }
 
 
-const Trajectory & RecordReplayPlanner::from_record(const State & current_state, const bool loop)
+const Trajectory & RecordReplayPlanner::from_record(const State & current_state)
 {
   // Find out where on the recorded buffer we should start replaying
   m_traj_start_idx = get_closest_state(current_state);
@@ -251,7 +251,7 @@ const Trajectory & RecordReplayPlanner::from_record(const State & current_state,
   size_t publication_len;
 
   // Determine the final point in the trajectory and the length of the published trajectory
-  if (!loop) {
+  if (!m_enable_loop) {
     // If not a loop, we first determine how much we
     // can record - this will either be the distance from
     // the start index to the end of the recording, or
@@ -278,7 +278,7 @@ const Trajectory & RecordReplayPlanner::from_record(const State & current_state,
 
   const auto t0 = time_utils::from_message(m_record_buffer[m_traj_start_idx].header.stamp);
 
-  if (!loop || m_traj_start_idx < m_traj_end_idx) {
+  if (!m_enable_loop || m_traj_start_idx < m_traj_end_idx) {
     // If not looping, we simply copy points between start index and end index
     // in record buffer into the return trajectory, adjusting timestamps
     // such that they're relative to current time
@@ -301,7 +301,7 @@ const Trajectory & RecordReplayPlanner::from_record(const State & current_state,
     }
     // At this stage, t1 is relative time of the final point in the record buffer
 
-    for (std::size_t i = 0; i < m_traj_end_idx; ++i) {
+    for (std::size_t i = 0U; i < m_traj_end_idx; ++i) {
       auto idx = i + (record_length - m_traj_start_idx);
       trajectory.points[idx] = m_record_buffer[i].state;
 
@@ -330,7 +330,7 @@ const Trajectory & RecordReplayPlanner::from_record(const State & current_state,
   // accelerations and velocities to zero. TODO(s.me) this is by no means
   // guaranteed to be dynamically feasible. One could implement a proper velocity
   // profile here in the future.
-  if (!loop && m_traj_end_idx > m_traj_start_idx) {
+  if (!m_enable_loop && m_traj_end_idx > m_traj_start_idx) {
     const auto traj_last_idx = publication_len - 1U;
     trajectory.points[traj_last_idx].longitudinal_velocity_mps = 0.0;
     trajectory.points[traj_last_idx].lateral_velocity_mps = 0.0;
@@ -431,14 +431,6 @@ void RecordReplayPlanner::set_loop(const bool8_t loop)
 bool8_t RecordReplayPlanner::get_loop() const
 {
   return m_enable_loop;
-}
-void RecordReplayPlanner::set_max_loop_gap(const float64_t max_loop_gap)
-{
-  m_max_loop_gap_m = max_loop_gap;
-}
-float64_t RecordReplayPlanner::get_max_loop_gap() const
-{
-  return m_max_loop_gap_m;
 }
 
 bool8_t RecordReplayPlanner::reached_goal(
