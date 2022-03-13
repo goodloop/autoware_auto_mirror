@@ -88,6 +88,12 @@ public:
   void writeTrajectoryBufferToFile(const std::string & record_path);
   void readTrajectoryBufferFromFile(const std::string & replay_path);
 
+  // Configure looping behavior
+  void set_loop(const bool8_t loop);
+  bool8_t get_loop() const;
+  void set_max_loop_gap(const float64_t max_loop_gap);
+  float64_t get_max_loop_gap() const;
+
   /**
    * \brief Judges whether current_state has reached the last point in record buffer
    * \param current_state current state of the vehicle
@@ -126,6 +132,10 @@ private:
   // Weight of heading in computations of differences between states
   float64_t m_heading_weight = 0.1;
   float64_t m_min_record_distance = 0.0;
+
+  // Looping behaviors
+  bool8_t m_enable_loop = false;
+  float64_t m_max_loop_gap_m = 5.0;
 
   std::size_t m_traj_start_idx{};
   std::size_t m_traj_end_idx{};

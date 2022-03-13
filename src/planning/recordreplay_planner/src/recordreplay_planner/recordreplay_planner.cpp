@@ -423,6 +423,24 @@ void RecordReplayPlanner::readTrajectoryBufferFromFile(const std::string & repla
   }
 }
 
+void RecordReplayPlanner::set_loop(const bool8_t loop)
+{
+  m_enable_loop = loop;
+}
+
+bool8_t RecordReplayPlanner::get_loop() const
+{
+  return m_enable_loop;
+}
+void RecordReplayPlanner::set_max_loop_gap(const float64_t max_loop_gap)
+{
+  m_max_loop_gap_m = max_loop_gap;
+}
+float64_t RecordReplayPlanner::get_max_loop_gap() const
+{
+  return m_max_loop_gap_m;
+}
+
 bool8_t RecordReplayPlanner::reached_goal(
   const State & current_state,
   const float64_t & distance_thresh,
