@@ -71,3 +71,12 @@ ade$ ros2 launch autoware_demos recordreplay_planner_demo.launch.py run_pure_pur
 ```
 
 Note that the pure pursuit controller is more primitive and does not stop for objects on the path that could cause collision
+
+### Looping
+
+To enable trajectory looping, modify [recordreplay_planner.param.yaml](src/launch/autoware_demos/param/recordreplay_planner.param.yaml):
+
+* Set `loop_trajectory` to `True`
+* Set `loop_max_gap_m` to be the maximum gap (meter) allowed between the start and end point to complete the loop, such as `10`.
+
+Note that it is better to stop the recording command while the vehicle is still driving. Otherwise the vehicle may come to a stop at the end of the trajectory and not move across to the start point. It is even better to edit the saved path file and optimize the speed and pose at the joint.
