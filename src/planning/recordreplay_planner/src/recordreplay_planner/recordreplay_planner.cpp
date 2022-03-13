@@ -248,7 +248,7 @@ const Trajectory & RecordReplayPlanner::from_record(const State & current_state)
   // Determine how long the published trajectory will be
   auto & trajectory = m_trajectory;
   const auto record_length = get_record_length();
-  size_t publication_len;
+  std::size_t publication_len;
 
   // Determine the final point in the trajectory and the length of the published trajectory
   if (!m_enable_loop) {
