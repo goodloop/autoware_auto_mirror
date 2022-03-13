@@ -7,7 +7,8 @@ This package provides a simple class for recording states, then playing them bac
 be used in both the simulator as well as in on-site tests of the controller: One can turn on recording, start
 driving a trajectory, then reset vehicle position, then start replay and see what the controller does.
 
-The trajectories can be a loop , which is detected automatically if the final recorded point is sufficiently close to the first point. It also incorporates a limited capability to try and avoid collisions.
+The trajectories can be a loop , which can be determined naively by checking the distance between the first and last
+point of the trajectory, but the user has the ultimate control over toggling this behavior.
 
 
 # Design
@@ -31,11 +32,12 @@ to track the desired velocity going to zero in a single trajectory step.
 Making sure this assumption is satisfied by construction would involve creating a dynamically feasible
 velocity profile for stopping - this has not been done yet. 
 
-Loop detection is currently very simple, it relies on simple proximity of end and start points. 
-This could cause undesired behaviour if looping is not desired, or could cause issues if looping is desired but the
-recording goes past the start point. In future, loop detection could be significantly improved.
+It is the user's responsibility to check if the trajectory is suitable for looping, and call `set_loop` accordingly
+to toggle the looping behavior with regard to the current trajectory that the controller is replaying. `is_loop`,
+which is a naive function to check if the start and end point of a trajectory is sufficiently closed enough, is provided
+and in fact used by `recordreplay_planner_nodes`.
 
-When looping reaches the last point, it simply concatenates the beginning of the trajectory. no effort is made to
+When looping reaches the last point, it simply concatenates the beginning of the trajectory. No effort is made to
 ensure that the position, orientation, and speed updates are kinematically feasible. For example, if during recording
 the vehicle stopped at the last point, the trajectory will contain the same speed information, even though the vehicle
 is supposed to keep driving to the first point. Therefore, to use looping, it is highly recommended to first optimize
