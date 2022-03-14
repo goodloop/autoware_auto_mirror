@@ -69,7 +69,6 @@ public:
   /**
    * \brief Generates a trajectory from the recorded path
    * \param current_state current state of the vehicle
-   * \param loop whether or not the stored path is a loop
    * \return a trajectory that replays the stored path from the current point
    */
   const Trajectory & plan(const State & current_state);
