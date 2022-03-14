@@ -107,7 +107,7 @@ TEST(TestLanelet2MapProviderNode, TestService) {
   rclcpp::spin_some(map_node_ptr);
 
   if (rclcpp::spin_until_future_complete(node, result) ==
-    rclcpp::executor::FutureReturnCode::SUCCESS)
+    rclcpp::FutureReturnCode::SUCCESS)
   {
     std::cerr << "Success\n";
   } else {
