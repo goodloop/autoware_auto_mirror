@@ -19,6 +19,7 @@
 #include <diagnostic_msgs/msg/diagnostic_status.hpp>
 #include <diagnostic_msgs/msg/key_value.hpp>
 
+#include <cinttypes>
 #include <string>
 #include <tuple>
 #include <memory>
@@ -100,7 +101,7 @@ public:
             } else {
               RCLCPP_ERROR(
                 m_parent_node->get_logger(), "Did not find timer for event %s.",
-                event_name);
+                event_name.c_str());
             }
             this->m_timers_mutex.unlock();
 
@@ -144,7 +145,7 @@ public:
     } else {
       RCLCPP_ERROR(
         m_parent_node->get_logger(),
-        "The min/max time (%llims, %llims) for event %s is not possible.",
+        "The min/max time (%" PRId64 "ms, %" PRId64 "ms) for event %s is not possible.",
         min_time.count(), max_time.count(), event_name.c_str());
     }
   }
@@ -203,7 +204,7 @@ public:
         // log error to console
         RCLCPP_ERROR(
           m_parent_node->get_logger(),
-          "event %s arrived at %lu. arrived_too_early: min_time %lu ms, elapsed_time:%lu ms.",
+          "event %s arrived at %f ms. arrived_too_early: min_time %lu ms, elapsed_time:%f ms.",
           event_name.c_str(),
           event_timestamp.nanoseconds() * 1e-6, min_time.count(), elapsed_time_in_ns * 1e-6);
       }
