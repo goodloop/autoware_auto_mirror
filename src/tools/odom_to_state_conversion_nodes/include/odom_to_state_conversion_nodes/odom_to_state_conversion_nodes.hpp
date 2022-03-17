@@ -22,7 +22,6 @@
 #define ODOM_TO_STATE_CONVERSION_NODES__ODOM_TO_STATE_CONVERSION_NODES_HPP_
 
 #include <memory>
-#include <unordered_map>
 #include <string>
 
 #include "odom_to_state_conversion_nodes/visibility_control.hpp"
