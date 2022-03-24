@@ -212,7 +212,7 @@ void RecordReplayPlannerNode::on_ego(const State::SharedPtr & msg)
 
   if (m_planner->is_replaying()) {
     RCLCPP_INFO_ONCE(this->get_logger(), "Replaying recorded ego postion as trajectory");
-    const auto & traj_raw = m_planner->plan(*msg);
+    const auto & traj_raw = m_planner->plan(msg_world);
 
     // Request service to consider object collision if enabled
     if (m_modify_trajectory_client) {
@@ -237,7 +237,7 @@ void RecordReplayPlannerNode::on_ego(const State::SharedPtr & msg)
 
     // If we reach the destination and are not in a loop, terminate replay
     if (m_planner->reached_goal(
-        *msg, m_goal_distance_threshold_m, m_goal_angle_threshold_rad))
+        msg_world, m_goal_distance_threshold_m, m_goal_angle_threshold_rad))
     {
       if (!m_planner->get_loop()) {
         m_replaygoalhandle->succeed(std::make_shared<ReplayTrajectory::Result>());
