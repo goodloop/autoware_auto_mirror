@@ -66,6 +66,8 @@ TEST(MytestBase, Basic)
   node_options_rr.append_parameter_override("enable_object_collision_estimator", true);
   node_options_rr.append_parameter_override("enable_object_collision_estimator", true);
   node_options_rr.append_parameter_override("goal_distance_threshold_m", 0.75);
+  node_options_rr.append_parameter_override("loop_trajectory", false);
+  node_options_rr.append_parameter_override("loop_max_gap_m", 0.0);
   node_options_rr.append_parameter_override(
     "goal_angle_threshold_rad",
     autoware::common::types::PI_2);

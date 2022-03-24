@@ -1,4 +1,4 @@
-// Copyright 2020 Embotech AG, Zurich, Switzerland, inspired by Christopher Ho's mpc code
+// Copyright 2020-2021 Embotech AG, Zurich, Switzerland, Arm Ltd. Inspired by Christopher Ho
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -331,4 +331,72 @@ TEST(RecordreplayReachGoal, checkReachGoalCondition)
     planner.plan(vehicle_state);
     EXPECT_TRUE(planner.reached_goal(vehicle_state, distance_thresh, angle_thresh));
   }
+}
+
+TEST(RecordreplayLoopingTrajectories, maintainTrajectoryLength) {
+  // This test assumes that `trajectory.points.max_size() > 5
+  // As of 2021-08-12 it is 100
+  uint32_t N = 5;
+
+  // It doesn't matter that this trajectory isn't a real loop, we will treat it like one
+  auto planner = helper_create_and_record_example(N);
+  planner.set_loop(true);
+
+  // We will start in the middle of this, and we expect
+  // that the return trajectory is of the full length
+  auto vehicle_state = make_state(
+    N / 2, 0.0F, 0.0F,
+    0.0F, 0.0F, 0.0F, system_clock::from_time_t({}));
+
+  auto traj = planner.plan(vehicle_state);
+  EXPECT_EQ(traj.points.size(), static_cast<std::size_t>(N));
+}
+
+RecordReplayPlanner helper_create_and_record_pseudo_loop(uint32_t N)
+{
+  if (N < 2) {
+    return RecordReplayPlanner();
+  } else {
+    // Assume that helper_create_and_record_example(N)
+    // still creates a straight line trajectory from (0,0) to (N-1,0)
+    auto planner = helper_create_and_record_example(N - 1);
+
+    // The last argument could be made better by pulling the
+    // time associated with the last point in the trajectory
+    // but this isn't that important to testing loop functionality
+    planner.record_state(
+      make_state(
+        0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F,
+        system_clock::from_time_t({})));
+
+    return planner;
+  }
+}
+
+TEST(RecordreplayLoopingTrajectories, correctLoopHandling) {
+  auto planner = helper_create_and_record_pseudo_loop(500);
+  planner.set_loop(planner.is_loop(5));
+
+  // We will start in the middle of this, and we
+  // expect that the return trajectory is of the full length
+  auto record_buf = planner.get_record_buffer();
+
+  auto vehicle_trajectory_point = record_buf[record_buf.size() - 10].state;
+
+  autoware_auto_vehicle_msgs::msg::VehicleKinematicState vehicle_state
+  {rosidl_runtime_cpp::MessageInitialization::ALL};
+
+  vehicle_state.state.pose.position.x = vehicle_trajectory_point.pose.position.x;
+  vehicle_state.state.pose.position.y = vehicle_trajectory_point.pose.position.y;
+  vehicle_state.state.pose.orientation = vehicle_trajectory_point.pose.orientation;
+  vehicle_state.state.longitudinal_velocity_mps =
+    vehicle_trajectory_point.longitudinal_velocity_mps;
+  vehicle_state.state.acceleration_mps2 = vehicle_trajectory_point.acceleration_mps2;
+  vehicle_state.state.heading_rate_rps = vehicle_trajectory_point.heading_rate_rps;
+  vehicle_state.state.lateral_velocity_mps = vehicle_trajectory_point.lateral_velocity_mps;
+  vehicle_state.header.stamp = time_utils::to_message(system_clock::from_time_t({}));
+
+  auto traj = planner.plan(vehicle_state);
+
+  EXPECT_EQ(traj.points.size(), static_cast<std::size_t>(100));
 }
