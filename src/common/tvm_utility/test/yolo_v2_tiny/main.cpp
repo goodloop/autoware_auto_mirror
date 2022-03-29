@@ -255,7 +255,7 @@ private:
   std::vector<std::pair<float, float>> anchors{};
 };
 
-TEST(PipelineExamples, SimplePipeline) {
+TEST(PipelineExamplesYoloV2Tiny, SimplePipelineYoloV2Tiny) {
   // Instantiate the pipeline
   using PrePT = PreProcessorYoloV2Tiny;
   using IET = tvm_utility::pipeline::InferenceEngineTVM;
