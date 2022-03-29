@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <autoware_auto_perception_msgs/msg/bounding_box.hpp>
-
 #include <opencv2/opencv.hpp>
 #include <algorithm>
 #include <string>
@@ -173,7 +171,7 @@ public:
       auto l_h = shape_y[1];           // layer height
       auto l_w = shape_y[2];           // layer width
       auto n_classes = labels.size();  // total number of classes
-      auto n_anchors = anchors.size()/config.network_outputs.size();    // total number of anchors
+      auto n_anchors = anchors.size() / config.network_outputs.size();  // total number of anchors
       auto n_coords = 4;               // number of coordinates in a single anchor box
       auto nudetections = n_classes * n_anchors * l_w * l_h;
 
