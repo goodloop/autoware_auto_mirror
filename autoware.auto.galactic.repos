@@ -7,6 +7,10 @@ repositories:
     type: git
     url: https://github.com/ANYbotics/grid_map.git
     version: 869c5d56f05c01c73e0ef8fa30c85ba7f68f8558
+  src/external/lgsvl_bridge:
+    type: git
+    url: https://github.com/lgsvl/ros2-lgsvl-bridge.git
+    version: 4654ff45d21f84ce1ccc4546d9394e10217a6339
   src/external/raptor_dbw_ros2:
     type: git
     url: https://github.com/NewEagleRaptor/raptor-dbw-ros2.git
