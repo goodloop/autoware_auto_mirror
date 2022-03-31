@@ -6,7 +6,7 @@ repositories:
   src/external/grid_map:
     type: git
     url: https://github.com/ANYbotics/grid_map.git
-    version: 869c5d56f05c01c73e0ef8fa30c85ba7f68f8558
+    version: 7afca6c8314bd3016dc974541aecca3ed39ccab0
   src/external/lgsvl_bridge:
     type: git
     url: https://github.com/lgsvl/ros2-lgsvl-bridge.git
