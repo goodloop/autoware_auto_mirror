@@ -1,0 +1,6 @@
+/**:
+  ros__parameters:
+    state_topic: "vehicle_state" # Topic of the VehicleKinematicState to publish
+    vehicle_odom_topic: "odometry" # Topic of the VehicleOdometry to subscribe to
+    odom_topic: "odom" # Topic of the nav_msgs/msg/Odometry to subscribe to
+    use_vehicle_odom_for_velocity: true # otherwise uses nav_msgs/msg/Odometry.twist.linear.x

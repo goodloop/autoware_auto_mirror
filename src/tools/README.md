@@ -23,3 +23,4 @@ visualization tools and interfaces for debugging.
 - @subpage simple_planning_simulator-package-design
 - @subpage gnss-conversion-nodes-design
 - @subpage test_trajectory_following-package-design
+- @subpage odom_to_state_conversion_nodes-package-design
