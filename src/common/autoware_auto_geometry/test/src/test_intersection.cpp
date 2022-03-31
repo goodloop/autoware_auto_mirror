@@ -105,8 +105,7 @@ INSTANTIATE_TEST_SUITE_P(
   {{15.0F, 15.0F}, {20.0F, 15.0F}, {15.0F, 20.0F}, {20.0F, 20.0F}},
   {}
 }
-    // cppcheck-suppress syntaxError
-  ), );
+  ));
 
 TEST(PolygonPointTest, Basic) {
   std::list<TestPoint> polygon{{5.0F, 5.0F}, {10.0F, 5.0F}, {5.0F, 10.0F}, {10.0F, 10.0F}};

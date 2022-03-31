@@ -55,7 +55,7 @@ public:
   /// \param[in] timer_callback_group Callback group to be used to invoke timer callbacks
   SafetyMonitorInterface(
     rclcpp::Node * parent_node,
-    rclcpp::callback_group::CallbackGroup::SharedPtr timer_callback_group)
+    rclcpp::CallbackGroup::CallbackGroup::SharedPtr timer_callback_group)
   : m_parent_node(parent_node), m_timer_callback_group(timer_callback_group)
   {
     // Create a publisher to publish diagnostic messages. The topic name is hard coded so that all
@@ -100,7 +100,7 @@ public:
             } else {
               RCLCPP_ERROR(
                 m_parent_node->get_logger(), "Did not find timer for event %s.",
-                event_name);
+                event_name.c_str());
             }
             this->m_timers_mutex.unlock();
 
@@ -144,7 +144,7 @@ public:
     } else {
       RCLCPP_ERROR(
         m_parent_node->get_logger(),
-        "The min/max time (%llims, %llims) for event %s is not possible.",
+        "The min/max time (%lims, %lims) for event %s is not possible.",
         min_time.count(), max_time.count(), event_name.c_str());
     }
   }
@@ -205,7 +205,7 @@ public:
           m_parent_node->get_logger(),
           "event %s arrived at %lu. arrived_too_early: min_time %lu ms, elapsed_time:%lu ms.",
           event_name.c_str(),
-          event_timestamp.nanoseconds() * 1e-6, min_time.count(), elapsed_time_in_ns * 1e-6);
+          event_timestamp.nanoseconds() * static_cast<uint32_t>(1e-6), min_time.count(), elapsed_time_in_ns * static_cast<uint32_t>(1e-6));
       }
     }
     this->m_timers_mutex.unlock();
@@ -230,7 +230,7 @@ private:
   // Mutex to control multi threaded access to the timers
   std::mutex m_timers_mutex{};
   // Shared pointer to the callback group used to invoke timer callbacks.
-  rclcpp::callback_group::CallbackGroup::SharedPtr m_timer_callback_group{};
+  rclcpp::CallbackGroup::CallbackGroup::SharedPtr m_timer_callback_group{};
 
   /// \brief get the diagnostic message's "name" field. This is a combination of a hard-coded
   ///        prefix and the parent node's name
