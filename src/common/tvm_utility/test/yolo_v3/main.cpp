@@ -24,7 +24,9 @@
 #include "tvm_utility/pipeline.hpp"
 
 using model_zoo::perception::camera_obstacle_detection::yolo_v3::tensorflow_fp32_coco::config;
-// using BoundingBox = autoware_auto_perception_msgs::msg::BoundingBox;
+
+#define SCORE_THRESHOLD 0.5
+#define NMS_THRESHOLD 0.45
 
 // Name of file containing the human readable names of the classes. One class
 // on each line.
@@ -125,8 +127,6 @@ public:
     tvm_utility::pipeline::InferenceEngineTVMConfig config)
   : network_input_width(config.network_inputs[0].second[1]),
     network_input_height(config.network_inputs[0].second[2]),
-    network_output_width(config.network_outputs[0].second[1]),
-    network_output_height(config.network_outputs[0].second[2]),
     network_output_depth(config.network_outputs[0].second[3])
   {
     // Parse human readable names for the classes
@@ -249,7 +249,7 @@ public:
             // Find the most likely score
             auto max_score = class_probabilities[max_ind] * p_0 / p_total;
 
-            if (max_score > 0.5) {
+            if (max_score > SCORE_THRESHOLD) {
               if (bbox_map.count(max_ind) == 0) {
                 bbox_map[max_ind] = std::vector<BoundingBox>{};
               }
@@ -281,8 +281,6 @@ public:
 private:
   int64_t network_input_width;
   int64_t network_input_height;
-  int64_t network_output_width;
-  int64_t network_output_height;
   int64_t network_output_depth;
   std::vector<std::string> labels{};
   std::vector<std::pair<float, float>> anchors{};
@@ -373,7 +371,7 @@ private:
         }
 
         for (int j = i + 1; j < bboxes.size(); j++) {
-          if (bbox_iou(bboxes[i], bboxes[j]) >= 0.45) {
+          if (bbox_iou(bboxes[i], bboxes[j]) >= NMS_THRESHOLD) {
             bboxes[j].conf = 0;
           }
         }
