@@ -239,7 +239,7 @@ protected:
       if (eptr) {
         std::rethrow_exception(eptr);
       } else {
-        RCLCPP_ERROR(get_logger(), error_source + ": error nullptr");
+        RCLCPP_ERROR(get_logger(), (error_source + ": error nullptr").c_str());
       }
     } catch (const std::exception & e) {
       RCLCPP_ERROR(get_logger(), e.what());
