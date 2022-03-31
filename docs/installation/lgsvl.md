@@ -269,18 +269,46 @@ ade$ source /opt/AutowareAuto/setup.bash
 ade$ ros2 launch point_type_adapter point_type_adapter.launch.py
 ```
 
-Launch scripts are also provided for convenience. For example for a joystick control demo, run the following in a new terminal window:
-
-```{bash}
-$ ade enter
-ade$ source /opt/AutowareAuto/setup.bash
-ade$ ros2 launch joystick_vehicle_interface_nodes lgsvl_joystick.launch.py
-```
-
 For an example of using `VehicleControlCommand` with SVL, run the following demo in a new terminal window:
 
 ```{bash}
 $ ade enter
 ade$ source /opt/AutowareAuto/setup.bash
 ade$ ros2 launch lgsvl_interface lgsvl_vehicle_control_command.launch.py
+```
+
+## Running Autoware Joystick Demo on LGSVL
+
+To test Autoware and LGSVL installation, follow the instructions below to drive the vehicle with a joystick in LGSVL using Autoware.
+
+Prepare a joystick. Most joysticks can be recognized by Linux under `/dev/input/js0`. Autoware natively supports Logitech F310 joystick, the mapping file of which can be found in `joystick_vehicle_interface_nodes` package.
+
+For other joysticks, a similar mapping file needs to be created.
+
+Stop any running ADE containers:
+
+```{bash}
+ade stop
+```
+
+Launch a new ADE container and pass the joystick device to it, assuming `js0` is your joystick device. Then launch the simulator:
+
+```{bash}
+$ ade --rc .aderc-amd64-foxy-lgsvl start --update --enter -- --device /dev/input/js0
+ade$ /opt/lgsvl/simulator
+```
+
+In LGSVL, create and start a simulation scenario described as above.
+
+Finally, launch the Autoware joystick demo in a new terminal:
+
+```{bash}
+$ ade enter
+ade$ source /opt/AutowareAuto/setup.bash
+
+# If you are using a Logitech F310 joystick:
+ade$ ros2 launch joystick_vehicle_interface_nodes lgsvl_joystick.launch.py
+
+# OR, if you have a custom joystick mapping:
+ade$ ros2 launch joystick_vehicle_interface_nodes lgsvl_joystick.launch.py joy_translator_param:=/path/to/your/joystick/config.param.yaml
 ```
