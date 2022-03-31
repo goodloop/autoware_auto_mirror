@@ -146,7 +146,7 @@ TEST_P(HighFrequencyWarning, Basic)
   }
 }
 
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
   Test,
   HighFrequencyWarning,
   ::testing::Values(
@@ -206,7 +206,7 @@ TEST_P(NoStateChange, Basic)
   }
 }
 
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
   Test,
   NoStateChange,
   ::testing::Values(
@@ -327,7 +327,7 @@ TEST_P(TimeoutCommands, Basic)
 
 // Assume characteristic time rate of 100ms
 
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
   Test,
   TimeoutCommands,
   ::testing::Values(

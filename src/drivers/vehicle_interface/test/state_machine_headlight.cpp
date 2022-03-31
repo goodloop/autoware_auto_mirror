@@ -67,7 +67,7 @@ TEST_P(WipersOnHeadlightsOn, Basic)
   }
 }
 
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
   Test,
   WipersOnHeadlightsOn,
   ::testing::Values(
@@ -112,7 +112,7 @@ TEST_P(WipersOffHeadlightNoChange, Basic)
   EXPECT_TRUE(sm_.reports().empty());
 }
 
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
   Test,
   WipersOffHeadlightNoChange,
   ::testing::Values(

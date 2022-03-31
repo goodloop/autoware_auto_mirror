@@ -135,7 +135,7 @@ TEST_P(P2DLocalizerParameterTest, SanityTest) {
   std::cout << "The estimated pose difference after \n" << pose_out << std::endl;
 }
 
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
   SanityTest, P2DLocalizerParameterTest,
   ::testing::Values(
     PoseParams{0.0, 0.65, 0.0, 0.0, 0.0, 0.0},

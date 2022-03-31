@@ -92,7 +92,7 @@ TEST_P(SanityChecksAxisAlignedStraight, Basic)
   check_steer(cmd, guess, TOL);
 }
 
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
   Basic, SanityChecksAxisAlignedStraight,
   ::testing::Values(
     StraightTestParam{0.0F, 0.0F, false},
@@ -132,7 +132,7 @@ TEST_P(SanityChecksOrientedStraight, Basic)
   check_steer(cmd, guess, TOL);
 }
 
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
   Basic, SanityChecksOrientedStraight,
   ::testing::Values(
     StraightTestParam{0.0F, 0.0F, false},
@@ -173,7 +173,7 @@ TEST_P(SanityChecksOrthogonalOrientation, Basic)
   check_steer(cmd, guess, TOL);
 }
 
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
   Basic, SanityChecksOrthogonalOrientation,
   ::testing::Values(
     StraightTestParam{0.0F, 5.0F, false},

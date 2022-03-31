@@ -71,7 +71,7 @@ TEST_P(GearShiftVelocity, Basic)
   }
 }
 
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
   Test,
   GearShiftVelocity,
   ::testing::Values(
@@ -150,7 +150,7 @@ TEST_P(AutoGearShift, Basic)
 }
 
 // Assume characteristic time step of 100ms
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
   Test,
   AutoGearShift,
   ::testing::Values(

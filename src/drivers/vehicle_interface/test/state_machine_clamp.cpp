@@ -74,7 +74,7 @@ TEST_P(CommandClamp, Basic)
   }
 }
 
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
   Test,
   CommandClamp,
   ::testing::Values(

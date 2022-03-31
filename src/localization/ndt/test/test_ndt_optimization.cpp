@@ -211,7 +211,7 @@ TEST_P(AlignmentXyzTest, AlignShapesWithinOneVoxel) {
 
 
 // TODO(#1063): when these parameters are picked bigger the tests fail. We need to investigate why.
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
   AlignmentXyzTest, AlignmentXyzTest,
   ::testing::Values(
     OptTestParams{0.2, 0.0, 0.0, 0.0, 0.0, 0.0, false, false},
@@ -221,7 +221,7 @@ INSTANTIATE_TEST_CASE_P(
     // cppcheck-suppress syntaxError
   ), );
 
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
   NumericalAnalysis, P2DOptimizationNumericalTest,
   ::testing::Values(
     OptTestParams{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, true, false},

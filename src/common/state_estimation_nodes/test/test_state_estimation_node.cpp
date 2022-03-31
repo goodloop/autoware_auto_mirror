@@ -141,7 +141,7 @@ constexpr ParameterBundle kNoPublish{false};
 using StateEstimationNodeTest =
   autoware::tools::testing::FakeTestNodeParametrized<ParameterBundle>;
 
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
   StateEstimationNodeTests,
   StateEstimationNodeTest,
   ::testing::Values(kPublish, kNoPublish), /*This comment needed to shut off a warning*/);

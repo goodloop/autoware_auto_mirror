@@ -86,7 +86,7 @@ TEST_P(SanityChecksTrajectoryProperties, Basicproperties)
   EXPECT_NEAR(trajectory_time_length, endpoint_sec, ep);
 }
 
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
   TrajectoryProperties,
   SanityChecksTrajectoryProperties,
   testing::Values(
@@ -131,7 +131,7 @@ TEST_P(SanityChecksTrajectoryLength, Length)
     std::min(N, static_cast<uint32_t>(trajectory.points.max_size())));
 }
 
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
   TrajectoryLength,
   SanityChecksTrajectoryLength,
   testing::Values(

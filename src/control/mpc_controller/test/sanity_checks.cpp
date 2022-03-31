@@ -230,7 +230,7 @@ TEST_P(SanityChecksOneshot, ConstantTrajectory)
   }
 }
 
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
   Oneshot,
   SanityChecksOneshot,
   testing::Values(
@@ -363,7 +363,7 @@ TEST_P(SanityChecksSimulation, ConstantTrajectorySimulation)
   apex_test_tools::memory_test::stop();
 }
 
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
   Simulation,
   SanityChecksSimulation,
   testing::Values(

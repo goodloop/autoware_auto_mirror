@@ -65,7 +65,7 @@ TEST_P(IntersectionTest, Basic) {
   }
 }
 
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
   Basic, IntersectionTest,
   ::testing::Values(
     IntersectionTestParams{
