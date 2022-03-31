@@ -65,17 +65,17 @@ Next, to compile the source code, see @ref building.
 
 # Troubleshooting
 
-In case where `ros-foxy-autoware-auto-msgs` is installed on the system, colcon uses it instead of
+In case where `ros-galactic-autoware-auto-msgs` is installed on the system, colcon uses it instead of
 the one in the `AutowareAuto/src/external/` folder. This may cause errors.
 To prevent this, please remove the package by:
 
 ```{bash}
-sudo apt purge -y ros-foxy-autoware-auto-msgs
+sudo apt purge -y ros-galactic-autoware-auto-msgs
 ```
 
 In case an error occurs related to `acado` package, please run:
 
 ```{bash}
-sudo apt purge -y ros-foxy-acado-vendor
-sudo apt install -y ros-foxy-acado-vendor
+sudo apt purge -y ros-galactic-acado-vendor
+sudo apt install -y ros-galactic-acado-vendor
 ```

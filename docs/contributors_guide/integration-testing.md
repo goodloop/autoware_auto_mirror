@@ -227,7 +227,7 @@ The simple test described in @ref integration-testing-component-test can be exte
 
 ### Testing the output of a node
 
-To test while the node is running, create an [*active test*](https://github.com/ros2/launch/tree/foxy/launch_testing#active-tests) by adding a subclass of Python's `unittest.TestCase` to `*launch.test.py`. Some boilerplate code is required to access output by creating a node and a subscription to a particular topic; e.g.
+To test while the node is running, create an [*active test*](https://github.com/ros2/launch/tree/galactic/launch_testing#active-tests) by adding a subclass of Python's `unittest.TestCase` to `*launch.test.py`. Some boilerplate code is required to access output by creating a node and a subscription to a particular topic; e.g.
 
 ```{python}
 import unittest

@@ -37,12 +37,12 @@ Guidelines and Best Practices {#contributor-guidelines}
 
 # Guidelines for General Code Development
 
-Only C++14 and below is allowed for functional code.
+Only C++17 and below is allowed for functional code.
 Python 3.7+ and Bash are allowed for tooling.
 CMake is the preferred build system, it should integrate with Colcon.
 Deviations need to be approved by the maintainers.
 
-The requirements for C++14 and Python 3.7+ align with compiler and tooling support found in ROS Foxy.
+The requirements for C++17 and Python 3.7+ align with compiler and tooling support found in ROS Galactic.
 This may change in the future as new OS or ROS environments are targeted; see @ref target-environments for details.
 
 ## License and Copyright
@@ -249,7 +249,7 @@ which would look something like:
    [component](#contributors-guidelines-components), so it can be created with launch files.
 
 In the rare case that fine-grained control over execution is desired, create a main function in a separate file with a
-[ROS Executor](http://docs.ros2.org/foxy/api/rclcpp/classrclcpp_1_1Executor.html#details) to control provision of
+[ROS Executor](http://docs.ros2.org/galactic/api/rclcpp/classrclcpp_1_1Executor.html#details) to control provision of
 execution time of the node in some way (e.g. through calling `spin()`).
 
 This design pattern helps to promote separation of concerns and code re-use. The core and the ROS node(s) can be

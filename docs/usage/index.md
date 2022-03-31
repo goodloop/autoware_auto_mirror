@@ -18,7 +18,7 @@ That will set a few environment variables, e.g. `$AMENT_PREFIX_PATH`. To reset t
 If you forget to source the installation, trying to run any `ros2 run` or `ros2 launch` commands will only print something like:
 
 ```{bash}
-Package 'autoware_demos' not found: "package 'autoware_demos' not found, searching: ['/opt/ros/foxy']"
+Package 'autoware_demos' not found: "package 'autoware_demos' not found, searching: ['/opt/ros/galactic']"
 ```
 
 Many launch configurations rely on a point cloud map, which is managed via `git lfs`. To download it, do

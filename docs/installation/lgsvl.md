@@ -43,7 +43,7 @@ Start ADE with the SVL volume:
 
 ```{bash}
 $ cd ~/adehome/AutowareAuto
-$ ade --rc .aderc-amd64-foxy-lgsvl start --update --enter
+$ ade --rc .aderc-lgsvl start --update --enter
 ```
 
 Pick a different `.aderc-*-lgsvl` file to manually choose a ROS version.
@@ -294,7 +294,7 @@ ade stop
 Launch a new ADE container and pass the joystick device to it, assuming `js0` is your joystick device. Then launch the simulator:
 
 ```{bash}
-$ ade --rc .aderc-amd64-foxy-lgsvl start --update --enter -- --device /dev/input/js0
+$ ade --rc .aderc-lgsvl start --update --enter -- --device /dev/input/js0
 ade$ /opt/lgsvl/simulator
 ```
 

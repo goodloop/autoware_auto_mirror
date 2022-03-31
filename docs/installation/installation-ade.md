@@ -110,7 +110,7 @@ ls -l .aderc*
 Choose one, then launch with:
 
 ```{bash}
-ade --rc .aderc-amd64-foxy  start --update --enter
+ade --rc .aderc  start --update --enter
 ```
 
 Congratulations! Now you should have a terminal inside ADE:
@@ -129,18 +129,18 @@ Upon entering, ADE outputs the images used to create the environment; e.g.
 ```{bash}
 $ ade enter
 Entering ade with following images:
-ade-foxy    | 8b1e0efdde07 | master  | registry.gitlab.com/autowarefoundation/autoware.auto/autowareauto/amd64/ade-foxy:master
-binary-foxy | 0e582f863d4c | master  | registry.gitlab.com/autowarefoundation/autoware.auto/autowareauto/amd64/binary-foxy:master
-foxy        | 2020.06      | 2020.06 | registry.gitlab.com/autowarefoundation/autoware.auto/ade-lgsvl/foxy:2020.06
+ade-galactic    | 8b1e0efdde07 | master  | registry.gitlab.com/autowarefoundation/autoware.auto/autowareauto/amd64/ade-galactic:master
+binary-galactic | 0e582f863d4c | master  | registry.gitlab.com/autowarefoundation/autoware.auto/autowareauto/amd64/binary-galactic:master
+galactic        | 2020.06      | 2020.06 | registry.gitlab.com/autowarefoundation/autoware.auto/ade-lgsvl/galactic:2020.06
 ```
 
 The images are mounted under `/opt`:
 
 ```{bash}
 @ade:~$ ls /opt
-AutowareAuto # image: binary-foxy:master
-lgsvl        # image: ade-lgsvl/foxy:2020.06
-ros          # image: ade-foxy:master
+AutowareAuto # image: binary-galactic:master
+lgsvl        # image: ade-lgsvl/galactic:2020.06
+ros          # image: ade-galactic:master
 ```
 
 The code in `/opt/AutowareAuto` is built from a particular version of the master branch of

@@ -72,7 +72,7 @@ Now anything that can be run with `ros2 run package_name executable_name <param1
 The nodes that are run with `ros2 launch` command cannot be debugged with following method although it should be
 fairly simple to [have Clion Attach to a Process](https://www.jetbrains.com/help/clion/attaching-to-local-process.html).
 
-### Example for running the "point_cloud_filter_transform_nodes" from the perception/filters in ROS2 Foxy:**
+### Example for running the "point_cloud_filter_transform_nodes" from the perception/filters in ROS2:**
 
 Normally this node can be run with following commands:
 ```{bash}

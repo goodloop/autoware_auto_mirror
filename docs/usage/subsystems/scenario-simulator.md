@@ -9,7 +9,7 @@ It is assumed that you are running AutowareAuto in ADE environment with default 
 
 * update, run and enter ADE
 ```
-ade --rc .aderc-amd64-foxy-lgsvl start --update --enter
+ade --rc .aderc-lgsvl start --update --enter
 ```
 * go to `AutowareAuto` directory
 ```
@@ -22,7 +22,7 @@ git checkout 1ab065f4f45a506870cc341d58c751a48f1c5a15
 
 * import required repos install dependencies for `scenario_test_runner` that are not present in ADE
 ```
-vcs import < autoware.auto.foxy.repos
+vcs import < autoware.auto.$ROS_DISTRO.repos
 ./tools/simulation/get_scenario_simulator_v2.sh
 cd ~/AutowareAuto/src/external/scenario_simulator
 git checkout a8e30ebaa7e24f132e28b0c1ff96295fa5730b75
@@ -39,19 +39,19 @@ colcon build --packages-up-to scenario_test_runner scenario_simulator_launch kas
 
 In case of build problems, please refer to @ref building.
 
-In case where `ros-foxy-autoware-auto-msgs` is installed on the system, colcon uses it instead of
+In case where `ros-galactic-autoware-auto-msgs` is installed on the system, colcon uses it instead of
 the one in the `AutowareAuto/src/external/` folder. This may cause errors.
 To prevent this, please remove the package by:
 
 ```{bash}
-sudo apt purge -y ros-foxy-autoware-auto-msgs
+sudo apt purge -y ros-galactic-autoware-auto-msgs
 ```
 
 In case an error occurs related to `acado` package, please run:
 
 ```{bash}
-sudo apt purge -y ros-foxy-acado-vendor
-sudo apt install -y ros-foxy-acado-vendor
+sudo apt purge -y ros-galactic-acado-vendor
+sudo apt install -y ros-galactic-acado-vendor
 ```
 
 # Usage
@@ -64,7 +64,7 @@ Autoware launch file needs to be ran from the repo root directory (inside `Autow
 
 If you restart ade, make sure to reinstall the dependencies by the following:
 ```
-ade --rc .aderc-amd64-foxy-lgsvl start --update --enter
+ade --rc .aderc-amd64-lgsvl start --update --enter
 cd AutowareAuto
 sudo apt update; rosdep update; rosdep install --from-paths src --ignore-src -r -y
 ```
