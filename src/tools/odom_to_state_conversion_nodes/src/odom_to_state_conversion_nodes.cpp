@@ -11,8 +11,6 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-//
-// Co-developed by Tier IV, Inc. and Apex.AI, Inc.
 
 #include <string>
 #include <memory>
@@ -35,7 +33,7 @@ OdomToStateConversionNode::OdomToStateConversionNode(const rclcpp::NodeOptions &
     declare_parameter("vehicle_odom_topic", "odometry"), rclcpp::QoS{10},
     std::bind(&OdomToStateConversionNode::on_vehicle_odom, this, _1));
   m_odom_sub =
-    create_subscription<VehicleOdometry>(
+    create_subscription<Odometry>(
     declare_parameter("odom_topic", "odom"), rclcpp::QoS{10},
     std::bind(&OdomToStateConversionNode::on_odom, this, _1));
 
@@ -51,6 +49,7 @@ void OdomToStateConversionNode::on_odom(const Odometry::SharedPtr msg)
     m_state->header = msg->header;
     m_state->state.pose = msg->pose.pose;
     m_state->state.heading_rate_rps = static_cast<float32_t>(msg->twist.twist.angular.z);
+    m_state->state.lateral_velocity_mps = static_cast<float32_t>(msg->twist.twist.linear.y);
     if (!m_use_vehicle_odom_for_velocity) {
       m_state->state.longitudinal_velocity_mps = static_cast<float32_t>(msg->twist.twist.linear.x);
     }

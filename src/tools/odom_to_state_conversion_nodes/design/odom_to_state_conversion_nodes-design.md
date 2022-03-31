@@ -27,6 +27,8 @@ For populating velocity, the user has the freedom to choose between both sources
 
 `lgsvl_interface` and `ssc_interface` has more rigorous checks on the condition of outputing `VehicleKinematicState`.
 
+`acceleration_mps2` is not populated in the output message.
+
 ## Inputs / Outputs / API
 
 ### Subscribers
