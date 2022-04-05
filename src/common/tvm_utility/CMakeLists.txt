@@ -81,11 +81,17 @@ if(BUILD_TESTING)
         message(WARNING "Missing image artifact for yolo_v2_tiny, skipping test")
         continue()
       endif()
+      if(TEST_CASE_NAME STREQUAL "yolo_v3" AND
+          NOT EXISTS ${TEST_ARTIFACTS}/yolo_v3/test_image_0.jpg)
+        message(WARNING "Missing image artifact for yolo_v3, skipping test")
+        continue()
+      endif()
       # add all cpp files in the folder to the target
       file(GLOB TEST_CASE_SOURCES ${TEST_FOLDER}/*.cpp)
       ament_add_gtest(${TEST_CASE_NAME} ${TEST_CASE_SOURCES})
       ament_target_dependencies(${TEST_CASE_NAME}
         "ament_index_cpp"
+        "autoware_auto_perception_msgs"
         "tvm_vendor"
         "sensor_msgs")
 
