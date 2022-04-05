@@ -83,6 +83,8 @@ public:
   void set_min_record_distance(float64_t min_record_distance);
   float64_t get_min_record_distance() const;
 
+  void set_skip_first_velocity(const bool8_t skip_first_velocity);
+
   // Writing/Loading buffered trajectory information to/from disk
   void writeTrajectoryBufferToFile(const std::string & record_path);
   void readTrajectoryBufferFromFile(const std::string & replay_path);
@@ -127,6 +129,7 @@ private:
   // Weight of heading in computations of differences between states
   float64_t m_heading_weight = 0.1;
   float64_t m_min_record_distance = 0.0;
+  bool8_t m_skip_first_velocity = false;
 
   // Looping behaviors
   bool8_t m_enable_loop = false;
