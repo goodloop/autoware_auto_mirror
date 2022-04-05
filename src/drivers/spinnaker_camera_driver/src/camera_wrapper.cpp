@@ -215,12 +215,31 @@ void CameraWrapper::configure_camera(
 
   m_frame_id = camera_settings.get_frame_id();
 
-  m_camera->Width.SetValue(camera_settings.get_window_width());
-  m_camera->Height.SetValue(camera_settings.get_window_height());
-
   auto IsAvailableAndWritable = [](const Spinnaker::GenApi::IBase & value) {
       return IsAvailable(value) && IsWritable(value);
     };
+
+  if (IsAvailableAndWritable(m_camera->BinningHorizontal)) {
+    m_camera->BinningHorizontal.SetValue(camera_settings.get_binning());
+    if (m_camera->BinningHorizontal.GetValue() != camera_settings.get_binning()) {
+      throw std::invalid_argument(
+        "Error applying camera settings. The horizontal binning expected value was " +
+        std::to_string(camera_settings.get_binning()) + ", while the configured value is " +
+        std::to_string(m_camera->BinningHorizontal.GetValue()) + ".");
+    }
+  }
+  if (IsAvailableAndWritable(m_camera->BinningVertical)) {
+    m_camera->BinningVertical.SetValue(camera_settings.get_binning());
+    if (m_camera->BinningVertical.GetValue() != camera_settings.get_binning()) {
+      throw std::invalid_argument(
+        "Error applying camera settings. The vertical binning expected value was " +
+        std::to_string(camera_settings.get_binning()) + ", while the configured value is " +
+        std::to_string(m_camera->BinningVertical.GetValue()) + ".");
+    }
+  }
+
+  m_camera->Width.SetValue(camera_settings.get_window_width());
+  m_camera->Height.SetValue(camera_settings.get_window_height());
 
   using Spinnaker::GenApi::INodeMap;
   using Spinnaker::GenApi::CBooleanPtr;
