@@ -23,6 +23,8 @@
 #include <autoware_auto_planning_msgs/msg/trajectory_point.hpp>
 #include <geometry/convex_hull.hpp>
 #include <geometry/common_2d.hpp>
+#include <boost/geometry.hpp>
+#include <boost/geometry/algorithms/assign.hpp>
 
 #include <limits>
 #include <vector>
@@ -31,9 +33,17 @@
 #include <utility>
 #include <type_traits>
 #include <algorithm>
+#include <set>
+
+namespace bg = boost::geometry;
+
+typedef bg::model::point<autoware::common::types::float32_t, 2, bg::cs::cartesian> point_type;
+typedef bg::model::ring<point_type> polygon_type;
+
 
 namespace autoware
 {
+
 namespace common
 {
 namespace geometry
@@ -257,21 +267,49 @@ bool intersect(const Iter begin1, const Iter end1, const Iter begin2, const Iter
 /// \tparam Iterable2T A container class that has stl style iterators defined.
 /// \tparam PointT Point type that have the adapters for the x and y fields.
 /// set to `Point1T`
-/// \param polygon1 A convex polygon
-/// \param polygon2 A convex polygon
+/// \param list1 A convex polygon
+/// \param list2 A convex polygon
 /// \return The resulting conv
+
 template<template<typename ...> class Iterable1T, template<typename ...> class Iterable2T,
   typename PointT>
 std::list<PointT> convex_polygon_intersection2d(
-  const Iterable1T<PointT> & polygon1,
-  const Iterable2T<PointT> & polygon2)
+  const Iterable1T<PointT> & list1,
+  const Iterable2T<PointT> & list2)
 {
+  auto convert_to_boost = [](const auto & list) {
+      point_type boost_point;
+      std::list<point_type> boost_list;
+      for (auto & item : list) {
+        boost_point.set<0>(item.x);
+        boost_point.set<1>(item.y);
+        boost_list.push_back(boost_point);
+      }
+      return boost_list;
+    };
+
+  std::list<polygon_type> temp;
   std::list<PointT> result;
-  details::append_contained_points(polygon1, polygon2, result);
-  details::append_contained_points(polygon2, polygon1, result);
-  details::append_intersection_points(polygon1, polygon2, result);
-  const auto end_it = common::geometry::convex_hull(result);
-  result.resize(static_cast<uint32_t>(std::distance(result.cbegin(), end_it)));
+  polygon_type polygon1;
+  polygon_type polygon2;
+
+  bg::assign_points(polygon1, convert_to_boost(list1));
+  bg::correct(polygon1);
+
+  bg::assign_points(polygon2, convert_to_boost(list2));
+  bg::correct(polygon2);
+
+  bg::intersection(polygon1, polygon2, temp);
+
+  PointT intersection;
+
+  for (const auto & p : temp) {
+    for (auto & item : p) {
+      intersection.x = item.template get<0>();
+      intersection.y = item.template get<1>();
+      result.push_back(intersection);
+    }
+  }
   return result;
 }
 
