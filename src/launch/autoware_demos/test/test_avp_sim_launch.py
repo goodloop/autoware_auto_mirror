@@ -42,9 +42,9 @@ class TestAutowareReady(unittest.TestCase):
     def test_init_done(self, proc_output):
         # Wait for initialization to be complete
         for process in [
-            'costmap_generator', 'lanelet2_map_provider', 'behavior_planner', 'freespace_planner'
+            'lanelet2_map_provider', 'behavior_path_planner'
         ]:
-            proc_output.assertWaitFor('Waiting for', process=process, timeout=5, stream='stderr')
+            proc_output.assertWaitFor('aiting for', process=process, timeout=5, stream='stderr')
 
 
 @launch_testing.post_shutdown_test()
@@ -60,7 +60,12 @@ class TestProcessOutput(unittest.TestCase):
         ]
         ex_codes = [0, -6, -15]
         for process_name in proc_info.process_names():
+<<<<<<< HEAD
             if any(ex_process in process_name for ex_process in ex_processes):
                 launch_testing.asserts.assertExitCodes(proc_info, ex_codes, process=process_name)
+=======
+            if "behavior_path_planner" in process_name:
+                launch_testing.asserts.assertExitCodes(proc_info, [-6], process=process_name)
+>>>>>>> 656c2a328... [#1410] Update test_avp_sim_launch.py for new planner
             else:
                 launch_testing.asserts.assertExitCodes(proc_info, process=process_name)
