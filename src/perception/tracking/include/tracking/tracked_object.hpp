@@ -135,6 +135,11 @@ public:
     return m_msg.kinematics.orientation;
   }
 
+  inline uint8_t label() const
+  {
+    return m_classifier.most_likely_class();
+  }
+
 private:
   /// The final to-be-published object.
   TrackedObjectMsg m_msg;

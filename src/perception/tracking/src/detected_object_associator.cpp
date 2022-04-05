@@ -144,7 +144,6 @@ bool DetectedObjectAssociator::consider_associating(
   const float32_t det_area = common::geometry::area_checked_2d(
     detection.shape.polygon.points.begin(), detection.shape.polygon.points.end());
 
-  // TODO(gowtham.ranganathan): Add support for articulated objects
   const float32_t track_area = common::geometry::area_checked_2d(
     track.shape().polygon.points.begin(), track.shape().polygon.points.end());
   static constexpr float32_t kAreaEps = 1e-3F;
@@ -185,6 +184,7 @@ bool DetectedObjectAssociator::consider_associating(
   }
   return false;
 }
+
 
 void DetectedObjectAssociator::set_weight(
   const float32_t weight,

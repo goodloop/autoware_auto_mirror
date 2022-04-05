@@ -48,19 +48,21 @@ static constexpr float32_t KLidarClassificationCovariance = 1.0F;
 static constexpr float32_t kVisionClassificationCovariance = 0.1F;
 
 using autoware::common::types::float64_t;
+using autoware_auto_perception_msgs::msg::DetectedObject;
+using autoware_auto_perception_msgs::msg::DetectedObjectKinematics;
+using autoware_auto_perception_msgs::msg::DetectedObjects;
 using geometry_msgs::build;
 using geometry_msgs::msg::Point32;
-using autoware_auto_perception_msgs::msg::DetectedObjects;
-using autoware_auto_perception_msgs::msg::DetectedObjectKinematics;
 using nav_msgs::msg::Odometry;
 using TrackedObjectsMsg = autoware_auto_perception_msgs::msg::TrackedObjects;
+using PointClusters = autoware_auto_perception_msgs::msg::PointClusters;
 
 bool is_gravity_aligned(const geometry_msgs::msg::Quaternion & quat)
 {
   // Check that the transformation is still roughly 2D, i.e. does not have substantial pitch and
   // roll. That means that either the rotation angle is small, or the rotation axis is
   // approximately equal to the z axis.
-  constexpr float64_t kAngleThresh = 0.1;  // rad
+  constexpr float64_t kAngleThresh = 0.1;     // rad
   constexpr float64_t kAxisTiltThresh = 0.1;  // rad
   // rotation angle small
   // ⇔ |θ| <= kAngleThresh  (angles are assumed to be between -π and π)
@@ -70,8 +72,8 @@ bool is_gravity_aligned(const geometry_msgs::msg::Quaternion & quat)
     // From Wikipedia: (x, y, z) = cos(θ/2) * (u_x, u_y, u_z), where u is the rotation axis.
     // The cosine of the angle α between the rotation axis and the z axis is the dot product of the
     // rotation axis u and the the z axis, so cos(α) = u_z.
-    const float64_t u_z = std::abs(quat.z) / std::sqrt(
-      quat.x * quat.x + quat.y * quat.y + quat.z * quat.z);
+    const float64_t u_z =
+      std::abs(quat.z) / std::sqrt(quat.x * quat.x + quat.y * quat.y + quat.z * quat.z);
     if (u_z < std::cos(kAxisTiltThresh)) {
       return false;
     }
@@ -101,8 +103,8 @@ DetectedObjects transform(
   tf2::fromMsg(detection_frame_odometry.pose.pose, tf__tracking__detection);
   const Eigen::Matrix3d rot_d = tf__tracking__detection.linear();
   // Convert the odometry to TransformStamped for use with tf2::doTransform.
-  const geometry_msgs::msg::TransformStamped tf_msg__tracking__detection = to_transform(
-    detection_frame_odometry);
+  const geometry_msgs::msg::TransformStamped tf_msg__tracking__detection =
+    to_transform(detection_frame_odometry);
   // Hoisted outside the loop
   Eigen::Vector3d centroid_detection = Eigen::Vector3d::Zero();
 
@@ -117,6 +119,7 @@ DetectedObjects transform(
     tf2::fromMsg(detection.kinematics.pose_with_covariance.pose.position, centroid_detection);
     const Eigen::Vector3d centroid_tracking = tf__tracking__detection * centroid_detection;
     detection.kinematics.pose_with_covariance.pose.position = tf2::toMsg(centroid_tracking);
+
     if (detection.kinematics.orientation_availability != DetectedObjectKinematics::UNAVAILABLE) {
       geometry_msgs::msg::QuaternionStamped q_out;
       // Use quaternion stamped because there is no doTransform for quaternion even though
@@ -156,6 +159,67 @@ DetectedObjects transform(
   return result;
 }
 
+DetectedObject transform_single_object(
+  const Odometry & detection_frame_odometry,
+  const DetectedObject & bbox_detection_frame)
+{
+  DetectedObject detection = bbox_detection_frame;
+  // Convert the odometry to Eigen objects.
+  Eigen::Isometry3d tf__tracking__detection = Eigen::Isometry3d::Identity();
+  tf2::fromMsg(detection_frame_odometry.pose.pose, tf__tracking__detection);
+  const Eigen::Matrix3d rot_d = tf__tracking__detection.linear();
+  // Convert the odometry to TransformStamped for use with tf2::doTransform.
+  const geometry_msgs::msg::TransformStamped tf_msg__tracking__detection =
+    to_transform(detection_frame_odometry);
+  // Hoisted outside the loop
+  Eigen::Vector3d centroid_detection = Eigen::Vector3d::Zero();
+
+
+  // Transform the pose.
+  tf2::fromMsg(detection.kinematics.pose_with_covariance.pose.position, centroid_detection);
+  const Eigen::Vector3d centroid_tracking = tf__tracking__detection * centroid_detection;
+  detection.kinematics.pose_with_covariance.pose.position = tf2::toMsg(centroid_tracking);
+
+  if (detection.kinematics.orientation_availability != DetectedObjectKinematics::UNAVAILABLE) {
+    geometry_msgs::msg::QuaternionStamped q_out;
+    // Use quaternion stamped because there is no doTransform for quaternion even though
+    // stamp of QuaternionStamped is not being used for anything
+    tf2::doTransform(
+      geometry_msgs::msg::QuaternionStamped{}.set__quaternion(
+        detection.kinematics.pose_with_covariance.pose.orientation),
+      q_out,
+      tf_msg__tracking__detection);
+    detection.kinematics.pose_with_covariance.pose.orientation = q_out.quaternion;
+  }
+  if (detection.kinematics.has_position_covariance) {
+    // Doing this properly is difficult. We'll ignore the rotational part. This is a practical
+    // solution since only the yaw covariance is relevant, and the yaw covariance is
+    // unaffected by the transformation, which preserves the z axis.
+    // An even more accurate implementation could additionally include the odometry covariance.
+    const Eigen::Map<Eigen::Matrix<double, 6, 6, Eigen::RowMajor>> cov_full(
+      detection.kinematics.pose_with_covariance.covariance.data());
+    // TODO(Maxime CLEMENT): can it be removed ? this is never used.
+    Eigen::Matrix<double, 3, 3> cov(cov_full.block(0, 0, 3, 3));
+    cov = rot_d * cov * rot_d.transpose();
+  }
+  // Transform the twist.
+  if (detection.kinematics.has_twist) {
+    auto & linear = detection.kinematics.twist.twist.linear;
+    const auto & frame_linear = detection_frame_odometry.twist.twist.linear;
+    const Eigen::Vector3d eigen_linear{linear.x, linear.y, linear.z};
+    const Eigen::Vector3d eigen_linear_transformed = rot_d * eigen_linear;
+    // This assumes the detection frame has no angular velocity wrt the tracking frame.
+    // TODO(nikolai.morin): Implement the full formula, to be found in
+    // Craig's "Introduction to robotics" book, third edition, formula 5.13
+    linear.x = frame_linear.x + eigen_linear_transformed.x();
+    linear.y = frame_linear.y + eigen_linear_transformed.y();
+    linear.z = frame_linear.z + eigen_linear_transformed.z();
+  }
+
+
+  return detection;
+}
+
 TrackedObjectsMsg convert_to_msg(
   const TrackedObjects & tracks, const builtin_interfaces::msg::Time & stamp)
 {
@@ -164,19 +228,79 @@ TrackedObjectsMsg convert_to_msg(
   array.header.frame_id = tracks.frame_id;
   array.objects.reserve(tracks.objects.size());
   std::transform(
-    tracks.objects.begin(), tracks.objects.end(), std::back_inserter(array.objects), [](
-      TrackedObject o) {return o.msg();});
+    tracks.objects.begin(),
+    tracks.objects.end(),
+    std::back_inserter(array.objects),
+    [](TrackedObject o) {return o.msg();});
   return array;
 }
 
+DetectedObjects convert_unassigned_clusters_to_detected_objects(
+  const autoware_auto_perception_msgs::msg::PointClusters & clusters,
+  const DetectedObjectsUpdateResult & update_result)
+{
+  using geometry_msgs::msg::Point32;
+  using geometry_msgs::build;
+
+  common::lidar_utils::PointClustersView clusters_msg_view{clusters};
+  DetectedObjects detections_from_clusters;
+  detections_from_clusters.header = clusters.header;
+  detections_from_clusters.objects.reserve(clusters_msg_view.size());
+  for (const auto idx : update_result.unassigned_clusters_indices) {
+    if (idx >= clusters_msg_view.size()) {
+      throw std::runtime_error("Wrong cluster idx");
+    }
+    autoware_auto_perception_msgs::msg::DetectedObject detected_object;
+    detected_object.existence_probability = 1.0F;
+    // Set shape as a convex hull of the cluster.
+    auto cluster_view = clusters_msg_view[static_cast<std::uint32_t>(idx)];
+    std::list<autoware_auto_perception_msgs::msg::PointClusters::_points_type::value_type>
+    point_list{cluster_view.begin(), cluster_view.end()};
+    const auto hull_end_iter = common::geometry::convex_hull(point_list);
+
+    for (auto iter = point_list.begin(); iter != hull_end_iter; ++iter) {
+      const auto & hull_point = *iter;
+      detected_object.shape.polygon.points.push_back(
+        build<Point32>().x(hull_point.x).y(hull_point.y).z(0.0F));
+    }
+    common::geometry::bounding_box::compute_height(
+      cluster_view.begin(),
+      cluster_view.end(),
+      detected_object.shape);
+
+    // Compute the centroid
+    geometry_msgs::msg::Point32 sum;
+    for (const auto & point : detected_object.shape.polygon.points) {
+      sum = common::geometry::plus_2d(sum, point);
+    }
+    const auto centroid = common::geometry::times_2d(
+      sum, 1.0F / static_cast<float>(detected_object.shape.polygon.points.size()));
+    auto & detected_object_position = detected_object.kinematics.pose_with_covariance.pose.position;
+    detected_object_position.x = static_cast<decltype(detected_object_position.x)>(centroid.x);
+    detected_object_position.y = static_cast<decltype(detected_object_position.y)>(centroid.y);
+    detected_object_position.z = static_cast<decltype(detected_object_position.z)>(centroid.z);
+    for (auto & point : detected_object.shape.polygon.points) {
+      // We assume here a zero orientation as we don't care about the orientation of the convex
+      // hull. This then becomes a poor man's transformation into the object-local coordinates.
+      point = common::geometry::minus_2d(point, centroid);
+    }
+
+    // Compute the classification
+    autoware_auto_perception_msgs::msg::ObjectClassification label;
+    label.classification = autoware_auto_perception_msgs::msg::ObjectClassification::UNKNOWN;
+    label.probability = 1.0F;
+    detected_object.classification.emplace_back(label);
+
+    detections_from_clusters.objects.push_back(detected_object);
+  }
+  return detections_from_clusters;
+}
 
 }  // anonymous namespace
 
 template<class TrackCreatorT>
 MultiObjectTracker<TrackCreatorT>::MultiObjectTracker(
-  MultiObjectTrackerOptions options,
-  TrackCreatorT track_creator,
-  const tf2::BufferCore & buffer)
+  MultiObjectTrackerOptions options, TrackCreatorT track_creator, const tf2::BufferCore & buffer)
 : m_options{options},
   m_object_associator{options.object_association_config},
   m_vision_associator{options.vision_association_config, buffer},
@@ -187,8 +311,7 @@ MultiObjectTracker<TrackCreatorT>::MultiObjectTracker(
 
 template<class TrackCreatorT>
 DetectedObjectsUpdateResult MultiObjectTracker<TrackCreatorT>::update(
-  const ClustersMsg & incoming_clusters,
-  const nav_msgs::msg::Odometry & detection_frame_odometry)
+  const ClustersMsg & incoming_clusters, const nav_msgs::msg::Odometry & detection_frame_odometry)
 {
   ClustersMsg clusters = incoming_clusters;
   BoundingBoxArray boxes_in_detection_frame;
@@ -214,14 +337,17 @@ DetectedObjectsUpdateResult MultiObjectTracker<TrackCreatorT>::update(
     std::back_inserter(detections.objects),
     common::geometry::bounding_box::details::make_detected_object);
 
-  return update(detections, detection_frame_odometry);
+  DetectedObjectsUpdateResult tracking_result;
+  tracking_result = update(detections, detection_frame_odometry);
+  tracking_result.leftover_detected_objects =
+    convert_unassigned_clusters_to_detected_objects(incoming_clusters, tracking_result);
+  return tracking_result;
 }
 
 /// \relates autoware::perception::tracking::MultiObjectTracker
 template<class TrackCreatorT>
 DetectedObjectsUpdateResult MultiObjectTracker<TrackCreatorT>::update(
-  const DetectedObjects & detections,
-  const nav_msgs::msg::Odometry & detection_frame_odometry)
+  const DetectedObjects & detections, const nav_msgs::msg::Odometry & detection_frame_odometry)
 {
   DetectedObjectsUpdateResult result;
   result.status = this->validate(detections, detection_frame_odometry);
@@ -315,6 +441,117 @@ DetectedObjectsUpdateResult MultiObjectTracker<TrackCreatorT>::update(
 }
 
 template<class TrackCreatorT>
+DetectedObjectsUpdateResult MultiObjectTracker<TrackCreatorT>::update(
+  const MultiObjectTracker::DetectedObjectsMsg & detected_polygon_prisms,
+  const MultiObjectTracker::ClustersMsg & incoming_clusters,
+  const nav_msgs::msg::Odometry & detection_frame_odometry)
+{
+  ClustersMsg clusters = incoming_clusters;
+  DetectedObjectsUpdateResult result;
+  result.status = this->validate(detected_polygon_prisms, detection_frame_odometry);
+  if (result.status != TrackerUpdateStatus::Ok) {
+    return result;
+  }
+
+  // ==================================
+  // Transform detections
+  // ==================================
+  DetectedObjects detections_in_tracker_frame{
+    transform(m_options.frame, detected_polygon_prisms, detection_frame_odometry)};
+
+  // ==================================
+  // Predict tracks forward
+  // ==================================
+  const auto target_time = time_utils::from_message(detected_polygon_prisms.header.stamp);
+  const auto dt = target_time - m_last_update;
+  for (auto & object : m_tracks.objects) {
+    object.predict(dt);
+  }
+
+  // ==================================
+  // Associate observations with tracks
+  // ==================================
+  const auto detection_associations =
+    m_object_associator.assign(detections_in_tracker_frame, this->m_tracks);
+  ObjectsWithAssociations detections_with_associations{
+    detections_in_tracker_frame, detection_associations};
+
+  // ==================================
+  // Update tracks with observations
+  // ==================================
+  for (size_t detection_idx = 0; detection_idx < detections_with_associations.associations().size();
+    ++detection_idx)
+  {
+    const auto & association = detections_with_associations.associations()[detection_idx];
+    if (association.matched == Matched::kExistingTrack) {
+      const auto iter_pair = common::lidar_utils::get_cluster(clusters, detection_idx);
+      if (iter_pair.first == iter_pair.second) {
+        continue;
+      }
+      BoundingBox bbox_detection_frame =
+        common::geometry::bounding_box::lfit_bounding_box_2d(iter_pair.first, iter_pair.second);
+      common::geometry::bounding_box::compute_height(
+        iter_pair.first, iter_pair.second, bbox_detection_frame);
+      DetectedObject bbox_as_detected_object =
+        common::geometry::bounding_box::details::make_detected_object(bbox_detection_frame);
+      DetectedObject bbox_transformed = transform_single_object(
+        detection_frame_odometry, bbox_as_detected_object);
+      const auto matched_track_index = association.match_index;
+      m_tracks.objects[matched_track_index].update(bbox_transformed);
+    }
+  }
+
+  const auto & track_associations = m_object_associator.track_associations();
+  for (auto idx = 0U; idx < m_object_associator.track_associations().size(); ++idx) {
+    const auto & association = track_associations[idx];
+    if (association.matched == Matched::kNothing) {
+      m_tracks.objects[idx].no_update();
+    }
+  }
+
+  // ==================================
+  // Initialize new tracks
+  // ==================================
+  const auto track_creation_result = m_track_creator.create_tracks(detections_with_associations);
+  m_tracks.objects.insert(
+    m_tracks.objects.end(),
+    std::make_move_iterator(track_creation_result.tracks.begin()),
+    std::make_move_iterator(track_creation_result.tracks.end()));
+  result.related_rois_stamp = track_creation_result.related_rois_stamp;
+  // Set all the unassigned cluster indices to the output.
+  for (auto i = 0U; i < track_creation_result.associations.size(); ++i) {
+    if (track_creation_result.associations[i].matched == Matched::kNothing) {
+      result.leftover_detected_objects.objects.push_back(detected_polygon_prisms.objects.at(i));
+    }
+  }
+  result.leftover_detected_objects.header = detected_polygon_prisms.header;
+  // ==================================
+  // Prune tracks
+  // ==================================
+  // TODO(igor): If we ever need to ensure that the indices of tracks are correct in the association
+  // array that is part of the track creation result, we would need to make sure we adapt the
+  // indices in that array once some tracks aregit emekti removed.
+  const auto last =
+    std::remove_if(
+    m_tracks.objects.begin(),
+    m_tracks.objects.end(),
+    [this](const auto & object) {
+      return object.should_be_removed(
+        this->m_options.pruning_time_threshold, this->m_options.pruning_ticks_threshold);
+    });
+  m_tracks.objects.erase(last, m_tracks.objects.end());
+
+  // ==================================
+  // Build result
+  // ==================================
+  result.tracks = convert_to_msg(m_tracks, detections_with_associations.objects().header.stamp);
+  result.status = TrackerUpdateStatus::Ok;
+  m_last_update = target_time;
+
+  return result;
+}
+
+template<class TrackCreatorT>
 void MultiObjectTracker<TrackCreatorT>::update(const ClassifiedRoiArrayMsg & rois)
 {
   const auto target_time = time_utils::from_message(rois.header.stamp);
@@ -333,8 +570,7 @@ void MultiObjectTracker<TrackCreatorT>::update(const ClassifiedRoiArrayMsg & roi
     const auto & maybe_roi_idx = association.track_assignments[i];
     if (maybe_roi_idx != AssociatorResult::UNASSIGNED) {
       m_tracks.objects[i].update(
-        rois.rois[maybe_roi_idx].classifications,
-        kVisionClassificationCovariance);
+        rois.rois[maybe_roi_idx].classifications, kVisionClassificationCovariance);
     } else {
       m_tracks.objects[i].update(kUnknownClass, KLidarClassificationCovariance);
     }
@@ -344,8 +580,7 @@ void MultiObjectTracker<TrackCreatorT>::update(const ClassifiedRoiArrayMsg & roi
 
 template<class TrackCreatorT>
 TrackerUpdateStatus MultiObjectTracker<TrackCreatorT>::validate(
-  const DetectedObjects & detections,
-  const nav_msgs::msg::Odometry & detection_frame_odometry)
+  const DetectedObjects & detections, const nav_msgs::msg::Odometry & detection_frame_odometry)
 {
   const auto target_time = time_utils::from_message(detections.header.stamp);
   if (target_time < m_last_update) {
@@ -366,6 +601,7 @@ TrackerUpdateStatus MultiObjectTracker<TrackCreatorT>::validate(
   // * detection poses are gravity aligned
   return TrackerUpdateStatus::Ok;
 }
+
 
 // Disabling this warning is required to enable an explicit function instantiation in the header. I
 // believe this is a bug in the compiler ¯\_(ツ)_/¯
