@@ -23,8 +23,7 @@
 
 #include "autoware_auto_vehicle_msgs/msg/headlights_command.hpp"
 
-using autoware::common::types::bool8_t;
-using autoware::common::types::float64_t;
+using autoware::common::types::float32_t;
 
 namespace joystick_vehicle_interface_nodes
 {
@@ -41,15 +40,15 @@ JoystickVehicleInterfaceNode::JoystickVehicleInterfaceNode(
 
   // maps
   const auto check_set_int = [this](auto & map, auto key, const std::string & param_name) {
-      const auto param = declare_parameter<int>(param_name, 1000);
+      const auto param = static_cast<uint32_t>(declare_parameter<int>(param_name, 1000));
       if (param != 1000) {
         map[key] = param;
       }
   };
 
-  const auto check_set_double = [this](auto & map, auto key, const std::string & param_name) {
-      const auto param = declare_parameter<double>(param_name, 1000.0);
-      if (param != 1000.0) {
+  const auto check_set_float = [this](auto & map, auto key, const std::string & param_name) {
+      const auto param = static_cast<float32_t>(declare_parameter<double>(param_name, 1000.0));
+      if (param != 1000.0f) {
         map[key] = param;
       }
   };
@@ -65,40 +64,40 @@ JoystickVehicleInterfaceNode::JoystickVehicleInterfaceNode(
   check_set_int(axis_map, Axes::VELOCITY, "axes.velocity");
   // axis scale map
   AxisScaleMap axis_scale_map{};
-  check_set_double(axis_scale_map, Axes::THROTTLE, "axis_scale.throttle");
-  check_set_double(axis_scale_map, Axes::BRAKE, "axis_scale.brake");
-  check_set_double(axis_scale_map, Axes::FRONT_STEER, "axis_scale.front_steer");
-  check_set_double(axis_scale_map, Axes::REAR_STEER, "axis_scale.rear_steer");
-  check_set_double(axis_scale_map, Axes::CURVATURE, "axis_scale.curvature");
-  check_set_double(axis_scale_map, Axes::ACCELERATION, "axis_scale.acceleration");
-  check_set_double(axis_scale_map, Axes::VELOCITY, "axis_scale.velocity");
+  check_set_float(axis_scale_map, Axes::THROTTLE, "axis_scale.throttle");
+  check_set_float(axis_scale_map, Axes::BRAKE, "axis_scale.brake");
+  check_set_float(axis_scale_map, Axes::FRONT_STEER, "axis_scale.front_steer");
+  check_set_float(axis_scale_map, Axes::REAR_STEER, "axis_scale.rear_steer");
+  check_set_float(axis_scale_map, Axes::CURVATURE, "axis_scale.curvature");
+  check_set_float(axis_scale_map, Axes::ACCELERATION, "axis_scale.acceleration");
+  check_set_float(axis_scale_map, Axes::VELOCITY, "axis_scale.velocity");
   // axis offset map
   AxisScaleMap axis_offset_map{};
-  check_set_int(axis_offset_map, Axes::THROTTLE, "axis_offset.throttle");
-  check_set_int(axis_offset_map, Axes::BRAKE, "axis_offset.brake");
-  check_set_int(axis_offset_map, Axes::FRONT_STEER, "axis_offset.front_steer");
-  check_set_int(axis_offset_map, Axes::REAR_STEER, "axis_offset.rear_steer");
-  check_set_int(axis_offset_map, Axes::CURVATURE, "axis_offset.curvature");
-  check_set_int(axis_offset_map, Axes::ACCELERATION, "axis_offset.acceleration");
-  check_set_int(axis_offset_map, Axes::VELOCITY, "axis_offset.velocity");
+  check_set_float(axis_offset_map, Axes::THROTTLE, "axis_offset.throttle");
+  check_set_float(axis_offset_map, Axes::BRAKE, "axis_offset.brake");
+  check_set_float(axis_offset_map, Axes::FRONT_STEER, "axis_offset.front_steer");
+  check_set_float(axis_offset_map, Axes::REAR_STEER, "axis_offset.rear_steer");
+  check_set_float(axis_offset_map, Axes::CURVATURE, "axis_offset.curvature");
+  check_set_float(axis_offset_map, Axes::ACCELERATION, "axis_offset.acceleration");
+  check_set_float(axis_offset_map, Axes::VELOCITY, "axis_offset.velocity");
   // button map
   ButtonMap button_map{};
-  check_set_double(button_map, Buttons::AUTONOMOUS_TOGGLE, "buttons.autonomous");
-  check_set_double(button_map, Buttons::HEADLIGHTS_TOGGLE, "buttons.headlights");
-  check_set_double(button_map, Buttons::WIPER_TOGGLE, "buttons.wiper");
-  check_set_double(button_map, Buttons::GEAR_DRIVE, "buttons.gear_drive");
-  check_set_double(button_map, Buttons::GEAR_REVERSE, "buttons.gear_reverse");
-  check_set_double(button_map, Buttons::GEAR_PARK, "buttons.gear_park");
-  check_set_double(button_map, Buttons::GEAR_NEUTRAL, "buttons.gear_neutral");
-  check_set_double(button_map, Buttons::GEAR_LOW, "buttons.gear_low");
-  check_set_double(button_map, Buttons::BLINKER_LEFT, "buttons.blinker_left");
-  check_set_double(button_map, Buttons::BLINKER_RIGHT, "buttons.blinker_right");
-  check_set_double(button_map, Buttons::BLINKER_HAZARD, "buttons.blinker_hazard");
-  check_set_double(button_map, Buttons::VELOCITY_UP, "buttons.velocity_up");
-  check_set_double(button_map, Buttons::VELOCITY_DOWN, "buttons.velocity_down");
-  check_set_double(button_map, Buttons::RECORDREPLAY_START_RECORD, "buttons.recordreplay_start_record");
-  check_set_double(button_map, Buttons::RECORDREPLAY_START_REPLAY, "buttons.recordreplay_start_replay");
-  check_set_double(button_map, Buttons::RECORDREPLAY_STOP, "buttons.recordreplay_stop");
+  check_set_int(button_map, Buttons::AUTONOMOUS_TOGGLE, "buttons.autonomous");
+  check_set_int(button_map, Buttons::HEADLIGHTS_TOGGLE, "buttons.headlights");
+  check_set_int(button_map, Buttons::WIPER_TOGGLE, "buttons.wiper");
+  check_set_int(button_map, Buttons::GEAR_DRIVE, "buttons.gear_drive");
+  check_set_int(button_map, Buttons::GEAR_REVERSE, "buttons.gear_reverse");
+  check_set_int(button_map, Buttons::GEAR_PARK, "buttons.gear_park");
+  check_set_int(button_map, Buttons::GEAR_NEUTRAL, "buttons.gear_neutral");
+  check_set_int(button_map, Buttons::GEAR_LOW, "buttons.gear_low");
+  check_set_int(button_map, Buttons::BLINKER_LEFT, "buttons.blinker_left");
+  check_set_int(button_map, Buttons::BLINKER_RIGHT, "buttons.blinker_right");
+  check_set_int(button_map, Buttons::BLINKER_HAZARD, "buttons.blinker_hazard");
+  check_set_int(button_map, Buttons::VELOCITY_UP, "buttons.velocity_up");
+  check_set_int(button_map, Buttons::VELOCITY_DOWN, "buttons.velocity_down");
+  check_set_int(button_map, Buttons::RECORDREPLAY_START_RECORD, "buttons.recordreplay_start_record");
+  check_set_int(button_map, Buttons::RECORDREPLAY_START_REPLAY, "buttons.recordreplay_start_replay");
+  check_set_int(button_map, Buttons::RECORDREPLAY_STOP, "buttons.recordreplay_stop");
 
   // Control commands
   if (control_command == "high_level") {

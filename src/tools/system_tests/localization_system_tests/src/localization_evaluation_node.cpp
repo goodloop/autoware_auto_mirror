@@ -98,7 +98,7 @@ LocalizationEvaluationNode::~LocalizationEvaluationNode() noexcept
     "Processed " << m_num_computed << " samples." << std::endl <<
     "Average translation error: " << m_average_translation_err << " meters." << std::endl <<
     "Average rotation error: " << m_average_rotation_err << " radians." << std::endl;
-  RCLCPP_INFO(get_logger(), report.str());
+  RCLCPP_INFO(get_logger(), report.str().c_str());
 }
 
 LocalizationEvaluationNode::float64_t

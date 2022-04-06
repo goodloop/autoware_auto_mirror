@@ -105,7 +105,7 @@ public:
   {
     if (m_map_ptr->size() > 0U) {
       const auto & file_name_prefix = m_prefix_generator.get(m_base_fn_prefix);
-      RCLCPP_DEBUG(get_logger(), "The map is written to" + file_name_prefix + ".pcd");
+      RCLCPP_DEBUG(get_logger(), "The map is written to %s.pcd", file_name_prefix.c_str());
       m_map_ptr->write(file_name_prefix);
     }
   }
@@ -223,7 +223,7 @@ private:
       if (m_write_trigger.ready(*m_map_ptr)) {
         const auto & file_name_prefix = m_prefix_generator.get(m_base_fn_prefix);
         m_map_ptr->write(file_name_prefix);
-        RCLCPP_DEBUG(get_logger(), "The map is written to" + file_name_prefix + ".pcd");
+        RCLCPP_DEBUG(get_logger(), "The map is written to %s.pcd", file_name_prefix.c_str());
       }
       if (m_clear_trigger.ready(*m_map_ptr)) {
         RCLCPP_DEBUG(get_logger(), "The map is cleared.");
@@ -235,7 +235,7 @@ private:
       m_map_ptr->update(increment);
       m_previous_transform = pose_to_transform(pose_out, msg_ptr->header.frame_id);
     } catch (const std::runtime_error & e) {
-      RCLCPP_ERROR(get_logger(), "Failed to register the measurement: ", e.what());
+      RCLCPP_ERROR(get_logger(), "Failed to register the measurement: %s", e.what());
     }
   }
 
