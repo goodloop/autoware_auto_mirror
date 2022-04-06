@@ -1,4 +1,4 @@
-# Copyright 2021 Arm Ltd.
+# Copyright 2021-2022 Arm Ltd.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -25,27 +25,23 @@ set(PREFIX_DIR ${CMAKE_BINARY_DIR}/download)
 file(MAKE_DIRECTORY ${PREFIX_DIR}/src/networks)
 
 if(CMAKE_SYSTEM_PROCESSOR IN_LIST SUPPORTED_ARCH)
-  # Prevent re-downloading the pre-compiled networks on every build command.
-  if(NOT EXISTS ${PREFIX_DIR}/src/networks-${CMAKE_SYSTEM_PROCESSOR}.tar.gz)
-    # Check if the user wants to download the artifacts.
-    if(DOWNLOAD_ARTIFACTS)
-      include(ExternalProject)
-      externalproject_add(networks
-        PREFIX ${PREFIX_DIR}
-        DOWNLOAD_DIR ${PREFIX_DIR}/src
-        SOURCE_DIR ${PREFIX_DIR}/src/networks
-        URL https://autoware-modelzoo.s3.us-east-2.amazonaws.com/networks-${CMAKE_SYSTEM_PROCESSOR}.tar.gz
-        CONFIGURE_COMMAND ""
-        BUILD_COMMAND ""
-        INSTALL_COMMAND ""
-      )
-    else()
-      message(WARNING "Skipped download (enable by setting DOWNLOAD_ARTIFACTS)")
-    endif()
+  if(DOWNLOAD_ARTIFACTS)
+    set(EXEC_DOWNLOAD TRUE)
+  else()
+    set(EXEC_DOWNLOAD FALSE)
+    message(WARNING "Skipped download (enable by setting DOWNLOAD_ARTIFACTS)")
   endif()
 else()
+  set(EXEC_DOWNLOAD FALSE)
   message(WARNING "Skipped download (unsupported architecture)")
 endif()
+
+add_custom_target(artifact_download ALL
+  COMMAND "EXEC_DOWNLOAD=${EXEC_DOWNLOAD}"
+          "PREFIX_DIR=${PREFIX_DIR}"
+          "CMAKE_SYSTEM_PROCESSOR=${CMAKE_SYSTEM_PROCESSOR}"
+          "${CMAKE_CURRENT_SOURCE_DIR}/download_neural_networks.sh"
+)
 
 # Install the pre-compiled networks
 install(
