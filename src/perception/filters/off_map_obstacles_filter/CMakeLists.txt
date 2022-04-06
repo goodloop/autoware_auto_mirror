@@ -51,6 +51,7 @@ if(BUILD_TESTING)
   set(TEST_OFF_MAP_OBSTACLES_FILTER_EXE test_off_map_obstacles_filter)
   ament_add_gtest(${TEST_OFF_MAP_OBSTACLES_FILTER_EXE} ${TEST_SOURCES})
   autoware_set_compile_options(${TEST_OFF_MAP_OBSTACLES_FILTER_EXE})
+  ament_target_dependencies(${TEST_OFF_MAP_OBSTACLES_FILTER_EXE} SYSTEM ${${PROJECT_NAME}_BUILD_DEPENDS})
   target_link_libraries(${TEST_OFF_MAP_OBSTACLES_FILTER_EXE} ${PROJECT_NAME})
 endif()
 
