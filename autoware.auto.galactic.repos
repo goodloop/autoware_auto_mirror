@@ -18,7 +18,7 @@ repositories:
   src/external/raptor_dbw_ros2:
     type: git
     url: https://github.com/NewEagleRaptor/raptor-dbw-ros2.git
-    version: 8bcb321103abdf1da603865ec8cf12e803f085bc
+    version: 4ad958dd07bb9c7128dc75bc7397bc8f5be30a3c
   src/external/transport_drivers:
     type: git
     url: https://github.com/ros-drivers/transport_drivers.git
