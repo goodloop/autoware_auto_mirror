@@ -123,8 +123,6 @@ INSTANTIATE_TEST_SUITE_P(
   std::vector<State>{State::MODE, State::WIPER, State::BLINKER, State::GEAR, State::HEADLIGHT},
   21U
 }
-    // cppcheck-suppress syntaxError
-  ),
-);
+  ));
 
 // TODO(c.ho) bad state report test cases...

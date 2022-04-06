@@ -52,7 +52,7 @@ VehicleInterfaceNode::VehicleInterfaceNode(
       return std::string{name_param};
     };
   const auto time = [this](const auto param_name) -> std::chrono::milliseconds {
-      const auto count_ms = declare_parameter(param_name).template get<int64_t>();
+      const auto count_ms = declare_parameter<int>(param_name);
       return std::chrono::milliseconds{count_ms};
     };
   const auto limits_from_param = [this](const auto prefix) -> Limits<float32_t> {

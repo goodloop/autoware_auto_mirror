@@ -87,9 +87,7 @@ INSTANTIATE_TEST_SUITE_P(
       HeadlightsCommand::ENABLE_LOW},
     WiperHeadlight{WipersCommand::ENABLE_HIGH, HeadlightsCommand::ENABLE_HIGH,
       HeadlightsCommand::ENABLE_HIGH}
-    // cppcheck-suppress syntaxError
-  ),
-);
+  ));
 
 class WipersOffHeadlightNoChange : public wiper_headlight_state_machine
 {
@@ -132,5 +130,4 @@ INSTANTIATE_TEST_SUITE_P(
     WiperHeadlight{VSR::WIPER_HIGH, VSR::HEADLIGHT_HIGH, HeadlightsCommand::DISABLE},
     WiperHeadlight{VSR::WIPER_HIGH, VSR::HEADLIGHT_HIGH, HeadlightsCommand::DISABLE},
     WiperHeadlight{VSR::WIPER_HIGH, VSR::HEADLIGHT_HIGH, HeadlightsCommand::ENABLE_HIGH}
-  ),
-);
+  ));

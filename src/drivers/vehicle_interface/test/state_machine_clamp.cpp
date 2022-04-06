@@ -99,5 +99,4 @@ INSTANTIATE_TEST_SUITE_P(
     CommandClampParam{0.0F, min_front_steer -
       std::numeric_limits<decltype(min_front_steer)>::epsilon() - front_steer_threshold, true}
     // cppcheck-suppress syntaxError
-  ),
-);
+  ));
