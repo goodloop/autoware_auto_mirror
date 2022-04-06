@@ -50,7 +50,7 @@ OffMapObstaclesFilterNode::OffMapObstaclesFilterNode(const rclcpp::NodeOptions &
       rmw_qos_profile_services_default)),
   m_tf2_buffer(this->get_clock()),
   m_tf2_listener(m_tf2_buffer),
-  m_overlap_threshold(declare_parameter("overlap_threshold").get<float64_t>())
+  m_overlap_threshold(declare_parameter<double>("overlap_threshold"))
 {
   while (!m_map_client_ptr->wait_for_service(1s)) {
     if (!rclcpp::ok()) {
@@ -69,7 +69,7 @@ OffMapObstaclesFilterNode::OffMapObstaclesFilterNode(const rclcpp::NodeOptions &
   // Bounding box arrays can be visualized directly – this visualization is for checking that the
   // conversion + transformation of bboxes to polygons in the map frame is correct. It shouldn't
   // be needed by most people.
-  if (declare_parameter("publish_polygon_viz", rclcpp::ParameterValue(false)).get<bool8_t>()) {
+  if (declare_parameter<bool>("publish_polygon_viz", false)) {
     m_marker_pub_ptr = create_publisher<MarkerArray>("bounding_boxes_viz", rclcpp::QoS{10});
   }
 }

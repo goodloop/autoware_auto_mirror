@@ -59,12 +59,6 @@ using autoware_auto_vehicle_msgs::msg::HornReport;
 using autoware_auto_vehicle_msgs::msg::WipersCommand;
 using autoware_auto_vehicle_msgs::msg::WipersReport;
 
-/// Convenience struct for construction
-struct TopicNumMatches
-{
-  std::string topic;
-};  // struct TopicNumMatches
-
 /// Convenience struct to construct filters
 struct FilterConfig
 {
@@ -140,9 +134,9 @@ protected:
 private:
   // Helper function called in constructors
   VEHICLE_INTERFACE_LOCAL void init(
-    const TopicNumMatches & control_command,
-    const TopicNumMatches & odometry,
-    const TopicNumMatches & state_report,
+    const std::string & control_command,
+    const std::string & odometry,
+    const std::string & state_report,
     const std::experimental::optional<StateMachineConfig> & state_machine_config,
     const FilterConfig & longitudinal_filter,
     const FilterConfig & curvature_filter,

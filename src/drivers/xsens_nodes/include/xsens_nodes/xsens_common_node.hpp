@@ -94,7 +94,7 @@ public:
     m_translator(
         {
         }),
-    m_frame_id(this->declare_parameter("frame_id").template get<std::string>().c_str())
+    m_frame_id(this->declare_parameter<std::string>("frame_id").c_str())
   {
   }
 

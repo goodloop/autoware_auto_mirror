@@ -38,23 +38,23 @@ AutowareStateMonitorNode::AutowareStateMonitorNode(const rclcpp::NodeOptions & n
   using std::placeholders::_3;
 
   // Parameters
-  update_rate_ = this->declare_parameter("update_rate", 10.0);
-  local_frame_ = this->declare_parameter("local_frame", "base_link");
-  global_frame_ = this->declare_parameter("global_frame", "map");
+  update_rate_ = this->declare_parameter<double>("update_rate", 10.0);
+  local_frame_ = this->declare_parameter<std::string>("local_frame", "base_link");
+  global_frame_ = this->declare_parameter<std::string>("global_frame", "map");
 
   // Parameters for StateMachine
   state_param_.arrived_distance_threshold =
-    this->declare_parameter("arrived_distance_threshold", 1.0);
+    this->declare_parameter<double>("arrived_distance_threshold", 1.0);
   state_param_.stopped_time_threshold =
-    this->declare_parameter("stopped_time_threshold", 1.0);
+    this->declare_parameter<double>("stopped_time_threshold", 1.0);
   state_param_.stopped_velocity_threshold_mps =
-    this->declare_parameter("stopped_velocity_threshold_mps", 0.01);
+    this->declare_parameter<double>("stopped_velocity_threshold_mps", 0.01);
   state_param_.wait_time_after_initializing =
-    this->declare_parameter("wait_time_after_initializing", 1.0);
+    this->declare_parameter<double>("wait_time_after_initializing", 1.0);
   state_param_.wait_time_after_planning =
-    this->declare_parameter("wait_time_after_planning", 1.0);
+    this->declare_parameter<double>("wait_time_after_planning", 1.0);
   state_param_.wait_time_after_arrived_goal =
-    this->declare_parameter("wait_time_after_arrived_goal", 2.0);
+    this->declare_parameter<double>("wait_time_after_arrived_goal", 2.0);
 
   // State Machine
   state_machine_ = std::make_shared<StateMachine>(state_param_);

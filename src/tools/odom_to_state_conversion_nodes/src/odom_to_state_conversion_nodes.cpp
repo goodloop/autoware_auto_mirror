@@ -27,17 +27,17 @@ OdomToStateConversionNode::OdomToStateConversionNode(const rclcpp::NodeOptions &
 {
   m_state_pub =
     create_publisher<VehicleKinematicState>(
-    declare_parameter("state_topic", "vehicle_state"), rclcpp::QoS{10});
+    declare_parameter<std::string>("state_topic", "vehicle_state"), rclcpp::QoS{10});
   m_vehicle_odom_sub =
     create_subscription<VehicleOdometry>(
-    declare_parameter("vehicle_odom_topic", "odometry"), rclcpp::QoS{10},
+    declare_parameter<std::string>("vehicle_odom_topic", "odometry"), rclcpp::QoS{10},
     std::bind(&OdomToStateConversionNode::on_vehicle_odom, this, _1));
   m_odom_sub =
     create_subscription<Odometry>(
-    declare_parameter("odom_topic", "odom"), rclcpp::QoS{10},
+    declare_parameter<std::string>("odom_topic", "odom"), rclcpp::QoS{10},
     std::bind(&OdomToStateConversionNode::on_odom, this, _1));
 
-  m_use_vehicle_odom_for_velocity = declare_parameter(
+  m_use_vehicle_odom_for_velocity = declare_parameter<bool>(
     "use_vehicle_odom_for_velocity", true);
 }
 

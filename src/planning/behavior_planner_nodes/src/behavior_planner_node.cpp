@@ -41,22 +41,22 @@ void BehaviorPlannerNode::init()
 
   // Setup planner
   const auto cg_to_front_m =
-    static_cast<float32_t>(declare_parameter("vehicle.cg_to_front_m").get<float64_t>());
+    static_cast<float32_t>(declare_parameter<double>("vehicle.cg_to_front_m"));
   const auto cg_to_rear_m =
-    static_cast<float32_t>(declare_parameter("vehicle.cg_to_rear_m").get<float64_t>());
+    static_cast<float32_t>(declare_parameter<double>("vehicle.cg_to_rear_m"));
   const auto front_overhang_m =
-    static_cast<float32_t>(declare_parameter("vehicle.front_overhang_m").get<float64_t>());
+    static_cast<float32_t>(declare_parameter<double>("vehicle.front_overhang_m"));
   const auto rear_overhang_m =
-    static_cast<float32_t>(declare_parameter("vehicle.rear_overhang_m").get<float64_t>());
+    static_cast<float32_t>(declare_parameter<double>("vehicle.rear_overhang_m"));
   const auto cg_to_vehicle_center =
     ( (cg_to_front_m + front_overhang_m) - (rear_overhang_m + cg_to_rear_m) ) * 0.5F;
 
   const behavior_planner::PlannerConfig config{
-    static_cast<float32_t>(declare_parameter("goal_distance_thresh").get<float64_t>()),
-    static_cast<float32_t>(declare_parameter("stop_velocity_thresh").get<float64_t>()),
-    static_cast<float32_t>(declare_parameter("heading_weight").get<float64_t>()),
-    static_cast<float32_t>(declare_parameter("subroute_goal_offset_lane2parking").get<float64_t>()),
-    static_cast<float32_t>(declare_parameter("subroute_goal_offset_parking2lane").get<float64_t>()),
+    static_cast<float32_t>(declare_parameter<double>("goal_distance_thresh")),
+    static_cast<float32_t>(declare_parameter<double>("stop_velocity_thresh")),
+    static_cast<float32_t>(declare_parameter<double>("heading_weight")),
+    static_cast<float32_t>(declare_parameter<double>("subroute_goal_offset_lane2parking")),
+    static_cast<float32_t>(declare_parameter<double>("subroute_goal_offset_parking2lane")),
     cg_to_vehicle_center
   };
 
@@ -112,7 +112,7 @@ void BehaviorPlannerNode::init()
     RCLCPP_INFO(get_logger(), "Waiting for service 'HAD_Map_Service'...");
   }
 
-  if (declare_parameter("enable_object_collision_estimator").get<bool>()) {
+  if (declare_parameter<bool>("enable_object_collision_estimator")) {
     m_modify_trajectory_client = this->create_client<ModifyTrajectory>("estimate_collision");
     while (!m_modify_trajectory_client->wait_for_service(1s)) {
       if (!rclcpp::ok()) {

@@ -48,8 +48,8 @@ VehicleInterfaceNode::VehicleInterfaceNode(
 {
   // Helper functions
   const auto topic_num_matches_from_param = [this](const auto param) {
-      const auto name_param = declare_parameter(param);
-      return TopicNumMatches{name_param.template get<std::string>()};
+      const auto name_param = declare_parameter<std::string>(param);
+      return std::string{name_param};
     };
   const auto time = [this](const auto param_name) -> std::chrono::milliseconds {
       const auto count_ms = declare_parameter(param_name).template get<int64_t>();
@@ -58,27 +58,28 @@ VehicleInterfaceNode::VehicleInterfaceNode(
   const auto limits_from_param = [this](const auto prefix) -> Limits<float32_t> {
       const auto prefix_dot = prefix + std::string{"."};
       return {
-      static_cast<float32_t>(declare_parameter(prefix_dot + "min").template get<float64_t>()),
-      static_cast<float32_t>(declare_parameter(prefix_dot + "max").template get<float64_t>()),
-      static_cast<float32_t>(declare_parameter(prefix_dot + "threshold").template get<float64_t>())
+      static_cast<float32_t>(declare_parameter<double>(prefix_dot + "min")),
+      static_cast<float32_t>(declare_parameter<double>(prefix_dot + "max")),
+      static_cast<float32_t>(declare_parameter<double>(prefix_dot + "threshold"))
       };
     };
   // optionally instantiate a config
   std::experimental::optional<StateMachineConfig> state_machine_config{};
   {
     const auto velocity_threshold =
-      declare_parameter("state_machine.gear_shift_velocity_threshold_mps");
-    if (rclcpp::PARAMETER_NOT_SET != velocity_threshold.get_type()) {
+      declare_parameter<double>(
+        "state_machine.gear_shift_velocity_threshold_mps", std::numeric_limits<double>::max());
+    if (velocity_threshold != std::numeric_limits<double>::max()) {
       state_machine_config = StateMachineConfig{
-        static_cast<float32_t>(velocity_threshold.get<float64_t>()),
+        static_cast<float32_t>(velocity_threshold),
         limits_from_param("state_machine.acceleration_limits"),
         limits_from_param("state_machine.front_steer_limits"),
-        std::chrono::milliseconds{declare_parameter("state_machine.time_step_ms").get<int64_t>()},
+        std::chrono::milliseconds{declare_parameter<int>("state_machine.time_step_ms")},
         static_cast<float32_t>(
-          declare_parameter("state_machine.timeout_acceleration_mps2").get<float64_t>()),
+          declare_parameter<double>("state_machine.timeout_acceleration_mps2")),
         time("state_machine.state_transition_timeout_ms"),
         static_cast<float32_t>(
-          declare_parameter("state_machine.gear_shift_accel_deadzone_mps2").get<float64_t>())
+          declare_parameter<double>("state_machine.gear_shift_accel_deadzone_mps2"))
       };
     }
   }
@@ -86,41 +87,38 @@ VehicleInterfaceNode::VehicleInterfaceNode(
   const auto filter = [this](const auto prefix_middle) -> FilterConfig {
       const auto prefix = std::string{"filter."} + prefix_middle + std::string{"."};
       // lazy optional stuff: if one is missing then give up
-      const auto type = declare_parameter(prefix + "type");
-      if (rclcpp::PARAMETER_NOT_SET == type.get_type()) {
+      const auto type = declare_parameter<std::string>(prefix + "type", "");
+      if (type != "") {
         return FilterConfig{"", 0.0F};
       }
       const auto cutoff =
-        static_cast<Real>(declare_parameter(prefix + "cutoff_frequency_hz").template
-        get<float32_t>());
-      return FilterConfig{type.template get<std::string>(), cutoff};
+        static_cast<Real>(declare_parameter<double>(prefix + "cutoff_frequency_hz"));
+      return FilterConfig{type, cutoff};
     };
   // Check for enabled features
-  const auto feature_list_string = declare_parameter("features");
+  const auto feature_list_string = declare_parameter<std::vector<std::string>>("features");
 
-  if (feature_list_string.get_type() != rclcpp::PARAMETER_NOT_SET) {
-    for (const auto & feature : feature_list_string.template get<std::vector<std::string>>()) {
-      const auto found_feature = m_avail_features.find(feature);
+  for (const auto & feature : feature_list_string) {
+    const auto found_feature = m_avail_features.find(feature);
 
-      if (found_feature == m_avail_features.end()) {
-        throw std::domain_error{"Provided feature not found in list of available features"};
-      }
-
-      const auto supported_feature = features.find(found_feature->second);
-
-      if (supported_feature == features.end()) {
-        throw std::domain_error{"Provided feature not found in list of supported features"};
-      }
-
-      m_enabled_features.insert(*supported_feature);
+    if (found_feature == m_avail_features.end()) {
+      throw std::domain_error{"Provided feature not found in list of available features"};
     }
+
+    const auto supported_feature = features.find(found_feature->second);
+
+    if (supported_feature == features.end()) {
+      throw std::domain_error{"Provided feature not found in list of supported features"};
+    }
+
+    m_enabled_features.insert(*supported_feature);
   }
 
   // Actually init
   init(
     topic_num_matches_from_param("control_command"),
-    TopicNumMatches{"odometry"},
-    TopicNumMatches{"state_report"},
+    std::string{"odometry"},
+    std::string{"state_report"},
     state_machine_config,
     filter("longitudinal"),
     filter("curvature"),
@@ -265,9 +263,9 @@ void VehicleInterfaceNode::on_mode_change_request(
 
 ////////////////////////////////////////////////////////////////////////////////
 void VehicleInterfaceNode::init(
-  const TopicNumMatches & control_command,
-  const TopicNumMatches & odometry,
-  const TopicNumMatches & state_report,
+  const std::string & control_command,
+  const std::string & odometry,
+  const std::string & state_report,
   const std::experimental::optional<StateMachineConfig> & state_machine_config,
   const FilterConfig & longitudinal_filter,
   const FilterConfig & curvature_filter,
@@ -287,10 +285,10 @@ void VehicleInterfaceNode::init(
     });
   // Make publishers
   m_state_pub = create_publisher<autoware_auto_vehicle_msgs::msg::VehicleStateReport>(
-    state_report.topic + "_out", rclcpp::QoS{10U});
+    state_report + "_out", rclcpp::QoS{10U});
   m_odom_pub =
     create_publisher<autoware_auto_vehicle_msgs::msg::VehicleOdometry>(
-    odometry.topic,
+    odometry,
     rclcpp::QoS{10U});
   // Make subordinate subscriber TODO(c.ho) parameterize time better
 
@@ -349,24 +347,24 @@ void VehicleInterfaceNode::init(
                }
              };
     };
-  if (control_command.topic == "high_level") {
+  if (control_command == "high_level") {
     using HCC = autoware_auto_control_msgs::msg::HighLevelControlCommand;
     m_command_sub =
       create_subscription<HCC>("high_level_command", rclcpp::QoS{10U}, cmd_callback(HCC{}));
     m_state_machine = state_machine();
-  } else if (control_command.topic == "basic") {
+  } else if (control_command == "basic") {
     RCLCPP_WARN(
       logger(),
       "Use of basic control command is deprecated in favor of AckermannControlCommand");
     m_command_sub = create_subscription<BasicControlCommand>(
       "vehicle_command", rclcpp::QoS{10U}, cmd_callback(BasicControlCommand{}));
     m_state_machine = state_machine();
-  } else if (control_command.topic == "ackermann") {
+  } else if (control_command == "ackermann") {
     using AckermannCC = autoware_auto_control_msgs::msg::AckermannControlCommand;
     m_command_sub = create_subscription<AckermannCC>(
       "ackermann_vehicle_command", rclcpp::QoS{10U}, cmd_callback(AckermannCC{}));
     m_state_machine = state_machine();
-  } else if (control_command.topic == "raw") {
+  } else if (control_command == "raw") {
     using RCC = autoware_auto_vehicle_msgs::msg::RawControlCommand;
     m_command_sub =
       create_subscription<RCC>("raw_command", rclcpp::QoS{10U}, cmd_callback(RCC{}));

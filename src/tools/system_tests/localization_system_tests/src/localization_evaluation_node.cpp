@@ -35,33 +35,33 @@ LocalizationEvaluationNode::LocalizationEvaluationNode(
   estimate_offset.setIdentity();
   estimate_offset.translate(
     Eigen::Vector3d{
-      declare_parameter("estimate_offset.translation.x").get<double>(),
-      declare_parameter("estimate_offset.translation.y").get<double>(),
-      declare_parameter("estimate_offset.translation.z").get<double>()
+      declare_parameter<double>("estimate_offset.translation.x"),
+      declare_parameter<double>("estimate_offset.translation.y"),
+      declare_parameter<double>("estimate_offset.translation.z")
     });
   estimate_offset.rotate(
     Eigen::Quaterniond {
-      declare_parameter("estimate_offset.rotation.w").get<double>(),
-      declare_parameter("estimate_offset.rotation.x").get<double>(),
-      declare_parameter("estimate_offset.rotation.y").get<double>(),
-      declare_parameter("estimate_offset.rotation.z").get<double>()
+      declare_parameter<double>("estimate_offset.rotation.w"),
+      declare_parameter<double>("estimate_offset.rotation.x"),
+      declare_parameter<double>("estimate_offset.rotation.y"),
+      declare_parameter<double>("estimate_offset.rotation.z")
     });
 
   EigTransform gt_offset;
   gt_offset.setIdentity();
   gt_offset.translate(
     Eigen::Vector3d{
-      declare_parameter("ground_truth_offset.translation.x").get<double>(),
-      declare_parameter("ground_truth_offset.translation.y").get<double>(),
-      declare_parameter("ground_truth_offset.translation.z").get<double>()
+      declare_parameter<double>("ground_truth_offset.translation.x"),
+      declare_parameter<double>("ground_truth_offset.translation.y"),
+      declare_parameter<double>("ground_truth_offset.translation.z")
     });
 
   estimate_offset.rotate(
     Eigen::Quaterniond {
-      declare_parameter("ground_truth_offset.rotation.w").get<double>(),
-      declare_parameter("ground_truth_offset.rotation.x").get<double>(),
-      declare_parameter("ground_truth_offset.rotation.y").get<double>(),
-      declare_parameter("ground_truth_offset.rotation.z").get<double>()
+      declare_parameter<double>("ground_truth_offset.rotation.w"),
+      declare_parameter<double>("ground_truth_offset.rotation.x"),
+      declare_parameter<double>("ground_truth_offset.rotation.y"),
+      declare_parameter<double>("ground_truth_offset.rotation.z")
     });
 
   m_ground_truth_to_estimate_tf = estimate_offset * gt_offset.inverse();

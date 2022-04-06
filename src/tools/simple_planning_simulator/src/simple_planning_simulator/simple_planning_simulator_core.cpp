@@ -78,10 +78,10 @@ SimplePlanningSimulator::SimplePlanningSimulator(const rclcpp::NodeOptions & opt
   tf_buffer_(get_clock()),
   tf_listener_(tf_buffer_, std::shared_ptr<rclcpp::Node>(this, [](auto) {}), false)
 {
-  simulated_frame_id_ = declare_parameter("simulated_frame_id", "base_link");
-  origin_frame_id_ = declare_parameter("origin_frame_id", "odom");
-  add_measurement_noise_ = declare_parameter("add_measurement_noise", false);
-  cg_to_rear_m_ = declare_parameter("vehicle.cg_to_rear_m", 1.5);
+  simulated_frame_id_ = declare_parameter<std::string>("simulated_frame_id", "base_link");
+  origin_frame_id_ = declare_parameter<std::string>("origin_frame_id", "odom");
+  add_measurement_noise_ = declare_parameter<bool>("add_measurement_noise", false);
+  cg_to_rear_m_ = declare_parameter<double>("vehicle.cg_to_rear_m", 1.5);
 
   using rclcpp::QoS;
   using std::placeholders::_1;
@@ -105,7 +105,8 @@ SimplePlanningSimulator::SimplePlanningSimulator(const rclcpp::NodeOptions & opt
   pub_kinematic_state_ = create_publisher<VehicleKinematicState>("output/kinematic_state", QoS{1});
   pub_tf_ = create_publisher<tf2_msgs::msg::TFMessage>("/tf", QoS{1});
 
-  timer_sampling_time_ms_ = static_cast<uint32_t>(declare_parameter("timer_sampling_time_ms", 25));
+  timer_sampling_time_ms_ = static_cast<uint32_t>(
+    declare_parameter<int>("timer_sampling_time_ms", 25));
   on_timer_ = create_wall_timer(
     std::chrono::milliseconds(timer_sampling_time_ms_),
     std::bind(&SimplePlanningSimulator::on_timer, this));
@@ -115,7 +116,8 @@ SimplePlanningSimulator::SimplePlanningSimulator(const rclcpp::NodeOptions & opt
   initialize_vehicle_model();
 
   // set initialize source
-  const auto initialize_source = declare_parameter("initialize_source", "INITIAL_POSE_TOPIC");
+  const auto initialize_source = declare_parameter<std::string>(
+    "initialize_source", "INITIAL_POSE_TOPIC");
   RCLCPP_INFO(this->get_logger(), "initialize_source : %s", initialize_source.c_str());
   if (initialize_source == "ORIGIN") {
     geometry_msgs::msg::Pose p;
@@ -131,10 +133,10 @@ SimplePlanningSimulator::SimplePlanningSimulator(const rclcpp::NodeOptions & opt
     std::random_device seed;
     auto & m = measurement_noise_;
     m.rand_engine_ = std::make_shared<std::mt19937>(seed());
-    float64_t pos_noise_stddev = declare_parameter("pos_noise_stddev", 1e-2);
-    float64_t vel_noise_stddev = declare_parameter("vel_noise_stddev", 1e-2);
-    float64_t rpy_noise_stddev = declare_parameter("rpy_noise_stddev", 1e-4);
-    float64_t steer_noise_stddev = declare_parameter("steer_noise_stddev", 1e-4);
+    float64_t pos_noise_stddev = declare_parameter<double>("pos_noise_stddev", 1e-2);
+    float64_t vel_noise_stddev = declare_parameter<double>("vel_noise_stddev", 1e-2);
+    float64_t rpy_noise_stddev = declare_parameter<double>("rpy_noise_stddev", 1e-4);
+    float64_t steer_noise_stddev = declare_parameter<double>("steer_noise_stddev", 1e-4);
     m.pos_dist_ = std::make_shared<std::normal_distribution<>>(0.0, pos_noise_stddev);
     m.vel_dist_ = std::make_shared<std::normal_distribution<>>(0.0, vel_noise_stddev);
     m.rpy_dist_ = std::make_shared<std::normal_distribution<>>(0.0, rpy_noise_stddev);
@@ -144,20 +146,21 @@ SimplePlanningSimulator::SimplePlanningSimulator(const rclcpp::NodeOptions & opt
 
 void SimplePlanningSimulator::initialize_vehicle_model()
 {
-  const auto vehicle_model_type_str = declare_parameter("vehicle_model_type", "IDEAL_STEER_VEL");
+  const auto vehicle_model_type_str = declare_parameter<std::string>(
+    "vehicle_model_type", "IDEAL_STEER_VEL");
 
   RCLCPP_INFO(this->get_logger(), "vehicle_model_type = %s", vehicle_model_type_str.c_str());
 
-  const float64_t cg_to_front_m = declare_parameter("vehicle.cg_to_front_m", 1.5);
+  const float64_t cg_to_front_m = declare_parameter<double>("vehicle.cg_to_front_m", 1.5);
   const float64_t wheelbase = cg_to_front_m + cg_to_rear_m_;
-  const float64_t vel_lim = declare_parameter("vel_lim", 50.0);
-  const float64_t vel_rate_lim = declare_parameter("vel_rate_lim", 7.0);
-  const float64_t steer_lim = declare_parameter("steer_lim", 1.0);
-  const float64_t steer_rate_lim = declare_parameter("steer_rate_lim", 5.0);
-  const float64_t acc_time_delay = declare_parameter("acc_time_delay", 0.1);
-  const float64_t acc_time_constant = declare_parameter("acc_time_constant", 0.1);
-  const float64_t steer_time_delay = declare_parameter("steer_time_delay", 0.24);
-  const float64_t steer_time_constant = declare_parameter("steer_time_constant", 0.27);
+  const float64_t vel_lim = declare_parameter<double>("vel_lim", 50.0);
+  const float64_t vel_rate_lim = declare_parameter<double>("vel_rate_lim", 7.0);
+  const float64_t steer_lim = declare_parameter<double>("steer_lim", 1.0);
+  const float64_t steer_rate_lim = declare_parameter<double>("steer_rate_lim", 5.0);
+  const float64_t acc_time_delay = declare_parameter<double>("acc_time_delay", 0.1);
+  const float64_t acc_time_constant = declare_parameter<double>("acc_time_constant", 0.1);
+  const float64_t steer_time_delay = declare_parameter<double>("steer_time_delay", 0.24);
+  const float64_t steer_time_constant = declare_parameter<double>("steer_time_constant", 0.27);
 
   if (vehicle_model_type_str == "IDEAL_STEER_VEL") {
     vehicle_model_type_ = VehicleModelType::IDEAL_STEER_VEL;

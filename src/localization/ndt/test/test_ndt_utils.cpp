@@ -124,8 +124,7 @@ INSTANTIATE_TEST_SUITE_P(
     PoseParams{2.5, -1.9, 0.1, -2.1, 0.1, 3.05},
     PoseParams{2.5, -1.9, 64, -2.1, 31, -1.2},
     PoseParams{0.001, 1.00009, -1.0, 0.0, 0.75, 0.13}
-    // cppcheck-suppress syntaxError
-  ), );
+  ));
 
 INSTANTIATE_TEST_SUITE_P(
   FuzzedTests, TestTransformAdapters,
@@ -133,8 +132,7 @@ INSTANTIATE_TEST_SUITE_P(
     PoseParams{0.1, 50.0},
     PoseParams{100.0, 0.005},
     PoseParams{25.5, 4.5}
-    // cppcheck-suppress syntaxError
-  ), );
+  ));
 
 TEST_P(CovarianceStabilityTest, Basic) {
   Cov3x3Param::CovMatrix covariance = GetParam().cov;
@@ -176,5 +174,4 @@ INSTANTIATE_TEST_SUITE_P(
     Cov3x3Param(1.0, 1.0, 0.0, true),
     Cov3x3Param(1e-2, 1e-3, 65, true),
     Cov3x3Param(1e-2, 1e-3, 1e-15, true)
-    // cppcheck-suppress syntaxError
-  ), );
+  ));

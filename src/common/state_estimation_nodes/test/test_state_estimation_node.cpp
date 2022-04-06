@@ -144,7 +144,7 @@ using StateEstimationNodeTest =
 INSTANTIATE_TEST_SUITE_P(
   StateEstimationNodeTests,
   StateEstimationNodeTest,
-  ::testing::Values(kPublish, kNoPublish), /*This comment needed to shut off a warning*/);
+  ::testing::Values(kPublish, kNoPublish));
 
 /// @test Test that if we publish one message, it generates a state estimate which is sent out.
 TEST_P(StateEstimationNodeTest, PublishAndReceivePoseMessage) {

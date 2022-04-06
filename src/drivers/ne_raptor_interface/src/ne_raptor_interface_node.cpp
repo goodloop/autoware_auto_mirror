@@ -43,16 +43,16 @@ NERaptorInterfaceNode::NERaptorInterfaceNode(const rclcpp::NodeOptions & options
   set_interface(
     std::make_unique<NERaptorInterface>(
       *this,
-      declare_parameter("ne_raptor.ecu_build_num").get<uint16_t>(),
-      declare_parameter("ne_raptor.front_axle_to_cog").get<float32_t>(),
-      declare_parameter("ne_raptor.rear_axle_to_cog").get<float32_t>(),
-      declare_parameter("ne_raptor.steer_to_tire_ratio").get<float32_t>(),
-      declare_parameter("ne_raptor.max_steer_angle").get<float32_t>(),
+      declare_parameter<int>("ne_raptor.ecu_build_num"),
+      declare_parameter<double>("ne_raptor.front_axle_to_cog"),
+      declare_parameter<double>("ne_raptor.rear_axle_to_cog"),
+      declare_parameter<double>("ne_raptor.steer_to_tire_ratio"),
+      declare_parameter<double>("ne_raptor.max_steer_angle"),
       get_state_machine().get_config().accel_limits().max(),
       get_state_machine().get_config().accel_limits().min(),
-      declare_parameter("ne_raptor.acceleration_positive_jerk_limit").get<float32_t>(),
-      declare_parameter("ne_raptor.deceleration_negative_jerk_limit").get<float32_t>(),
-      declare_parameter("ne_raptor.pub_period").get<uint32_t>()
+      declare_parameter<double>("ne_raptor.acceleration_positive_jerk_limit"),
+      declare_parameter<double>("ne_raptor.deceleration_negative_jerk_limit"),
+      declare_parameter<int>("ne_raptor.pub_period")
   ));
 }
 

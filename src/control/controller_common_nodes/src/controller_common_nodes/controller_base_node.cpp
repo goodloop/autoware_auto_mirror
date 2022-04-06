@@ -35,12 +35,12 @@ ControllerBaseNode::ControllerBaseNode(const std::string & name, const std::stri
   using rclcpp::ParameterValue;
   using std::string;
   init(
-    declare_parameter("command_topic", ParameterValue{""}, ParameterDescriptor{}).get<string>(),
-    declare_parameter("state_topic", ParameterValue{""}, ParameterDescriptor{}).get<string>(),
-    declare_parameter("tf_topic", ParameterValue{""}, ParameterDescriptor{}).get<string>(),
-    declare_parameter("static_tf_topic", ParameterValue{""}, ParameterDescriptor{}).get<string>(),
-    declare_parameter("trajectory_topic", ParameterValue{""}, ParameterDescriptor{}).get<string>(),
-    declare_parameter("diagnostic_topic", ParameterValue{""}, ParameterDescriptor{}).get<string>());
+    declare_parameter<std::string>("command_topic", ""),
+    declare_parameter<std::string>("state_topic", ""),
+    declare_parameter<std::string>("tf_topic", ""),
+    declare_parameter<std::string>("static_tf_topic", ""),
+    declare_parameter<std::string>("trajectory_topic", ""),
+    declare_parameter<std::string>("diagnostic_topic", ""));
 }
 
 ////////////////////////////////////////////////////////////////////////////////

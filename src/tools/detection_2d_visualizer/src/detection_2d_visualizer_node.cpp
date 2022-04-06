@@ -39,7 +39,7 @@ Detection2dVisualizerNode::Detection2dVisualizerNode(const rclcpp::NodeOptions &
           &Detection2dVisualizerNode::process, this,
           std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
     };
-  if (declare_parameter("sync_approximately", true)) {
+  if (declare_parameter<bool>("sync_approximately", true)) {
     m_approximate_sync_ptr = std::make_unique<message_filters::Synchronizer<ApproximatePolicy>>(
       ApproximatePolicy(50), m_image_sub, m_roi_sub, m_projection_sub);
     initialize(m_approximate_sync_ptr);

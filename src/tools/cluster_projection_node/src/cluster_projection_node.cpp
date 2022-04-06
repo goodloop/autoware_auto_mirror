@@ -32,24 +32,24 @@ ClusterProjectionNode::ClusterProjectionNode(const rclcpp::NodeOptions & options
   m_projection_pub{create_publisher<autoware_auto_perception_msgs::msg::ClassifiedRoiArray>(
       "/projected_clusters", rclcpp::QoS{30})},
   m_camera_model{{
-        static_cast<std::size_t>(declare_parameter(
-          "camera_intrinsics.width").get<int64_t>()),
-        static_cast<std::size_t>(declare_parameter(
-          "camera_intrinsics.height").get<int64_t>()),
-        static_cast<float32_t>(declare_parameter(
-          "camera_intrinsics.fx").get<float32_t>()),
-        static_cast<float32_t>(declare_parameter(
-          "camera_intrinsics.fy").get<float32_t>()),
-        static_cast<float32_t>(declare_parameter(
-          "camera_intrinsics.ox").get<float32_t>()),
-        static_cast<float32_t>(declare_parameter(
-          "camera_intrinsics.oy").get<float32_t>()),
-        static_cast<float32_t>(declare_parameter(
-          "camera_intrinsics.skew").get<float32_t>())
+        static_cast<std::size_t>(declare_parameter<int>(
+          "camera_intrinsics.width")),
+        static_cast<std::size_t>(declare_parameter<int>(
+          "camera_intrinsics.height")),
+        static_cast<float32_t>(declare_parameter<double>(
+          "camera_intrinsics.fx")),
+        static_cast<float32_t>(declare_parameter<double>(
+          "camera_intrinsics.fy")),
+        static_cast<float32_t>(declare_parameter<double>(
+          "camera_intrinsics.ox")),
+        static_cast<float32_t>(declare_parameter<double>(
+          "camera_intrinsics.oy")),
+        static_cast<float32_t>(declare_parameter<double>(
+          "camera_intrinsics.skew"))
       }},
   m_buffer{},
   m_tf_listener{m_buffer},
-  m_camera_frame{declare_parameter("camera_frame", "camera")}
+  m_camera_frame{declare_parameter<std::string>("camera_frame", "camera")}
 {}
 
 void ClusterProjectionNode::cluster_callback(
@@ -84,8 +84,7 @@ void ClusterProjectionNode::cluster_callback(
       projections.rois.emplace_back(projection_roi);
     } catch (const std::exception & e) {
       RCLCPP_WARN(
-        get_logger(), "Couldn't get the transform with error: " +
-        std::string{e.what()});
+        get_logger(), "Couldn't get the transform with error: %s", e.what());
     }
   }
   m_projection_pub->publish(projections);

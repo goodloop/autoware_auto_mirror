@@ -50,24 +50,20 @@ LgsvlInterfaceNode::LgsvlInterfaceNode(
   const auto sim_veh_odom_topic = "vehicle_odom";
   // Optional
   const std::string sim_nav_odom_topic =
-    declare_parameter("use_nav_odometry_topic", true) ?
+    declare_parameter<bool>("use_nav_odometry_topic", true) ?
     "gnss_odom" : "";
   const auto kinematic_state_topic = "vehicle_kinematic_state";
   const std::string sim_odom_child_frame =
-    declare_parameter("lgsvl.odom_child_frame", "base_link");
+    declare_parameter<std::string>("lgsvl.odom_child_frame", "base_link");
   const auto table = [this](const std::string & prefix_raw) -> Table1D {
       const std::string prefix = "lgsvl." + prefix_raw + ".";
       return Table1D{
-      declare_parameter(prefix + "domain").get<std::vector<float64_t>>(),
-      declare_parameter(prefix + "range").get<std::vector<float64_t>>()
+      declare_parameter<std::vector<double>>(prefix + "domain"),
+      declare_parameter<std::vector<double>>(prefix + "range")
       };
     };
-  const auto pub_pose_param = declare_parameter("lgsvl.publish_pose");
-  const bool pub_pose = rclcpp::ParameterType::PARAMETER_NOT_SET == pub_pose_param.get_type() ?
-    PUBLISH : pub_pose_param.get<bool>();
-  const auto pub_tf_param = declare_parameter("lgsvl.publish_tf");
-  const bool pub_tf = rclcpp::ParameterType::PARAMETER_NOT_SET == pub_tf_param.get_type() ?
-    NO_PUBLISH : pub_tf_param.get<bool>();
+  const auto pub_pose = declare_parameter<bool>("lgsvl.publish_pose", false);
+  const auto pub_tf = declare_parameter<bool>("lgsvl.publish_tf");
 
   // Set up interface
   set_interface(

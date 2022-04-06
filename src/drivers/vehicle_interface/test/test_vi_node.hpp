@@ -39,7 +39,6 @@ using autoware::drivers::vehicle_interface::Limits;
 using autoware::drivers::vehicle_interface::VehicleInterfaceNode;
 using autoware::drivers::vehicle_interface::PlatformInterface;
 using autoware::drivers::vehicle_interface::FilterConfig;
-using autoware::drivers::vehicle_interface::TopicNumMatches;
 using autoware::drivers::vehicle_interface::ViFeature;
 
 using autoware_auto_vehicle_msgs::msg::HeadlightsCommand;

@@ -115,10 +115,10 @@ GnssConversionNode::GnssConversionNode(const rclcpp::NodeOptions & options)
     GeographicLib::Constants::WGS84_f()},
   m_tf_listener(m_tf_buffer, std::shared_ptr<rclcpp::Node>(this, [](auto) {}), false)
 {
-  const auto history_size{declare_parameter(kHistorySizeTag, kDefaultHistorySize)};
+  const auto history_size{declare_parameter<int>(kHistorySizeTag, kDefaultHistorySize)};
   if (history_size <= 0) {throw std::domain_error("History size must be positive.");}
-  m_frame_id = declare_parameter(kFrameIdTag, kDefaultFrameId);
-  m_child_frame_id = declare_parameter(kChildFrameIdTag, kDefaultChildFrameIdTag);
+  m_frame_id = declare_parameter<std::string>(kFrameIdTag, kDefaultFrameId);
+  m_child_frame_id = declare_parameter<std::string>(kChildFrameIdTag, kDefaultChildFrameIdTag);
   const auto qos = rclcpp::QoS{static_cast<std::size_t>(history_size)};
 
   m_publisher = create_publisher<RelativePositionWithCovarianceStamped>(kOutputTopic, qos);
@@ -126,7 +126,8 @@ GnssConversionNode::GnssConversionNode(const rclcpp::NodeOptions & options)
     kGnssFixInputTopic, qos,
     std::bind(&GnssConversionNode::nav_sat_fix_callback, this, std::placeholders::_1));
   m_override_variances_diagonal =
-    declare_parameter(kOverrideCovarianceTag, std::vector<common::types::float64_t>{});
+    declare_parameter<std::vector<double>>(
+      kOverrideCovarianceTag, std::vector<common::types::float64_t>{});
   if (m_override_variances_diagonal.size() != 3UL) {
     throw std::runtime_error("Override covariance must have exactly 3 entries.");
   }
@@ -158,9 +159,8 @@ void GnssConversionNode::nav_sat_fix_callback(
       m_steady_clock,
       kDefaultLoggingInterval,
       "Skipping publishing of a GNSS pose message.\n"
-      "Could not look up transformation between " +
-      out_msg.header.frame_id + " and " +
-      m_frame_id + " with the exception: " + exception.what());
+      "Could not look up transformation between %s and %s with the exception: %s",
+      out_msg.header.frame_id.c_str(), m_frame_id.c_str(), exception.what());
     return;
   }
   if (!m_override_variances_diagonal.empty()) {

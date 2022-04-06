@@ -53,68 +53,35 @@ ObjectCollisionEstimatorNode::ObjectCollisionEstimatorNode(const rclcpp::NodeOpt
   // Declare node parameters. See ObjectCollisionEstimator Class for details of the functions of
   // these parameters.
   const VehicleConfig vehicle_param{
-    static_cast<Real>(declare_parameter(
-      "vehicle.cg_to_front_m"
-    ).get<float32_t>()),
-    static_cast<Real>(declare_parameter(
-      "vehicle.cg_to_rear_m"
-    ).get<float32_t>()),
-    static_cast<Real>(declare_parameter(
-      "vehicle.front_corner_stiffness"
-    ).get<float32_t>()),
-    static_cast<Real>(declare_parameter(
-      "vehicle.rear_corner_stiffness"
-    ).get<float32_t>()),
-    static_cast<Real>(declare_parameter(
-      "vehicle.mass_kg"
-    ).get<float32_t>()),
-    static_cast<Real>(declare_parameter(
-      "vehicle.yaw_inertia_kgm2"
-    ).get<float32_t>()),
-    static_cast<Real>(declare_parameter(
-      "vehicle.width_m"
-    ).get<float32_t>()),
-    static_cast<Real>(declare_parameter(
-      "vehicle.front_overhang_m"
-    ).get<float32_t>()),
-    static_cast<Real>(declare_parameter(
-      "vehicle.rear_overhang_m"
-    ).get<float32_t>())
+    static_cast<Real>(declare_parameter<double>("vehicle.cg_to_front_m")),
+    static_cast<Real>(declare_parameter<double>("vehicle.cg_to_rear_m")),
+    static_cast<Real>(declare_parameter<double>("vehicle.front_corner_stiffness")),
+    static_cast<Real>(declare_parameter<double>("vehicle.rear_corner_stiffness")),
+    static_cast<Real>(declare_parameter<double>("vehicle.mass_kg")),
+    static_cast<Real>(declare_parameter<double>("vehicle.yaw_inertia_kgm2")),
+    static_cast<Real>(declare_parameter<double>("vehicle.width_m")),
+    static_cast<Real>(declare_parameter<double>("vehicle.front_overhang_m")),
+    static_cast<Real>(declare_parameter<double>("vehicle.rear_overhang_m"))
   };
 
   const auto safety_factor =
-    static_cast<float32_t>(declare_parameter(
-      "safety_factor"
-    ).get<float32_t>());
+    static_cast<float32_t>(declare_parameter<double>("safety_factor"));
   const auto stop_margin =
-    static_cast<float32_t>(declare_parameter(
-      "stop_margin"
-    ).get<float32_t>());
+    static_cast<float32_t>(declare_parameter<double>("stop_margin"));
   const auto min_obstacle_dimension_m =
-    static_cast<float32_t>(declare_parameter(
-      "min_obstacle_dimension_m"
-    ).get<float32_t>());
+    static_cast<float32_t>(declare_parameter<double>("min_obstacle_dimension_m"));
   const TrajectorySmootherConfig smoother_config {
-    static_cast<float32_t>(declare_parameter(
-      "trajectory_smoother.kernel_std"
-    ).get<float32_t>()),
-    static_cast<uint32_t>(declare_parameter(
-      "trajectory_smoother.kernel_size"
-    ).get<uint32_t>())
+    static_cast<float32_t>(declare_parameter<double>("trajectory_smoother.kernel_std")),
+    static_cast<uint32_t>(declare_parameter<int>("trajectory_smoother.kernel_size"))
   };
 
   // Object staleness time threshold
   m_staleness_threshold_ms = std::chrono::milliseconds(
-    static_cast<uint32_t>(declare_parameter(
-      "staleness_threshold_ms"
-    ).get<uint32_t>())
+    static_cast<uint32_t>(declare_parameter<int>("staleness_threshold_ms"))
   );
 
   // the tf frame in which planned local trajectories are published
-  m_target_frame_id =
-    static_cast<std::string>(declare_parameter(
-      "target_frame_id"
-    ).get<std::string>());
+  m_target_frame_id = declare_parameter<std::string>("target_frame_id");
 
   // Create an object collision estimator
   const ObjectCollisionEstimatorConfig config {vehicle_param, safety_factor, stop_margin,

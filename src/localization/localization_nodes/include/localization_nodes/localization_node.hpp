@@ -135,22 +135,20 @@ public:
     m_observation_sub(create_subscription<ObservationMsgT>(
         "points_in",
         rclcpp::QoS{rclcpp::KeepLast{
-            static_cast<size_t>(declare_parameter("observation_sub.history_depth").template
-            get<size_t>())}},
+            static_cast<size_t>(declare_parameter<int>("observation_sub.history_depth"))}},
         [this](typename ObservationMsgT::ConstSharedPtr msg) {observation_callback(msg);})),
     m_map_sub(
       create_subscription<MapMsgT>(
         "ndt_map",
         rclcpp::QoS{rclcpp::KeepLast{
-            static_cast<size_t>(declare_parameter("map_sub.history_depth").
-            template get<size_t>())}}.transient_local(),
+            static_cast<size_t>(declare_parameter<int>("map_sub.history_depth")
+          )}}.transient_local(),
         [this](typename MapMsgT::ConstSharedPtr msg) {map_callback(msg);})),
     m_pose_publisher(
       create_publisher<PoseWithCovarianceStamped>(
         "ndt_pose",
         rclcpp::QoS{rclcpp::KeepLast{
-            static_cast<size_t>(declare_parameter(
-              "pose_pub.history_depth").template get<size_t>())}})),
+            static_cast<size_t>(declare_parameter<int>("pose_pub.history_depth"))}})),
     m_initial_pose_sub(
       create_subscription<PoseWithCovarianceStamped>(
         "initialpose",
@@ -175,22 +173,20 @@ public:
     m_observation_sub(create_subscription<ObservationMsgT>(
         "points_in",
         rclcpp::QoS{rclcpp::KeepLast{
-            static_cast<size_t>(declare_parameter("observation_sub.history_depth").template
-            get<size_t>())}},
+            static_cast<size_t>(declare_parameter<int>("observation_sub.history_depth"))}},
         [this](typename ObservationMsgT::ConstSharedPtr msg) {observation_callback(msg);})),
     m_map_sub(
       create_subscription<MapMsgT>(
         "ndt_map",
         rclcpp::QoS{rclcpp::KeepLast{
-            static_cast<size_t>(declare_parameter("map_sub.history_depth").
-            template get<size_t>())}}.transient_local(),
+            static_cast<size_t>(declare_parameter<int>("map_sub.history_depth")
+          )}}.transient_local(),
         [this](typename MapMsgT::ConstSharedPtr msg) {map_callback(msg);})),
     m_pose_publisher(
       create_publisher<PoseWithCovarianceStamped>(
         "ndt_pose",
         rclcpp::QoS{rclcpp::KeepLast{
-            static_cast<size_t>(declare_parameter(
-              "pose_pub.history_depth").template get<size_t>())}})),
+            static_cast<size_t>(declare_parameter<int>("pose_pub.history_depth"))}})),
     m_initial_pose_sub(
       create_subscription<PoseWithCovarianceStamped>(
         "initialpose",
@@ -294,12 +290,12 @@ private:
 
   void init()
   {
-    if (declare_parameter("publish_tf").template get<bool>()) {
+    if (declare_parameter<bool>("publish_tf")) {
       m_tf_publisher = create_publisher<tf2_msgs::msg::TFMessage>(
         "/tf",
         rclcpp::QoS{rclcpp::KeepLast{m_pose_publisher->get_queue_size()}});
     }
-    if (declare_parameter("load_initial_pose_from_parameters", false)) {
+    if (declare_parameter<bool>("load_initial_pose_from_parameters", false)) {
       m_pose_initializer.set_fallback_pose(get_initial_pose());
     }
   }
@@ -308,13 +304,13 @@ private:
   {
     geometry_msgs::msg::TransformStamped initial_transform;
     auto & tf = initial_transform.transform;
-    tf.rotation.x = declare_parameter("initial_pose.quaternion.x").template get<float64_t>();
-    tf.rotation.y = declare_parameter("initial_pose.quaternion.y").template get<float64_t>();
-    tf.rotation.z = declare_parameter("initial_pose.quaternion.z").template get<float64_t>();
-    tf.rotation.w = declare_parameter("initial_pose.quaternion.w").template get<float64_t>();
-    tf.translation.x = declare_parameter("initial_pose.translation.x").template get<float64_t>();
-    tf.translation.y = declare_parameter("initial_pose.translation.y").template get<float64_t>();
-    tf.translation.z = declare_parameter("initial_pose.translation.z").template get<float64_t>();
+    tf.rotation.x = declare_parameter<double>("initial_pose.quaternion.x");
+    tf.rotation.y = declare_parameter<double>("initial_pose.quaternion.y");
+    tf.rotation.z = declare_parameter<double>("initial_pose.quaternion.z");
+    tf.rotation.w = declare_parameter<double>("initial_pose.quaternion.w");
+    tf.translation.x = declare_parameter<double>("initial_pose.translation.x");
+    tf.translation.y = declare_parameter<double>("initial_pose.translation.y");
+    tf.translation.z = declare_parameter<double>("initial_pose.translation.z");
     initial_transform.header.frame_id = "map";
     initial_transform.child_frame_id = "base_link";
     return initial_transform;

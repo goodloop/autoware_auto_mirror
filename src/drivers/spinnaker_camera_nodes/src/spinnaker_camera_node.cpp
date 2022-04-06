@@ -65,7 +65,7 @@ SpinnakerCameraNode::SpinnakerCameraNode(
     throw std::runtime_error("No cameras were found. Cannot start node.");
   }
   const std::string one_publisher_per_camera_param{"one_publisher_per_camera"};
-  m_use_publisher_per_camera = declare_parameter(one_publisher_per_camera_param, false);
+  m_use_publisher_per_camera = declare_parameter<bool>(one_publisher_per_camera_param, false);
   m_publishers = create_publishers(this, number_of_cameras, m_use_publisher_per_camera);
   if (m_publishers.empty()) {
     // TODO(igor): this should really be a terminate. It is a post-condition violation.
@@ -87,19 +87,19 @@ spinnaker::CameraListWrapper & SpinnakerCameraNode::create_cameras_from_params(
       const auto prefix_dot = prefix + '.';
       // Declare and init optional params.
       const auto camera_frame_id_param{
-        declare_parameter(prefix_dot + "frame_id", std::string{kDefaultCameraFrame})};
+        declare_parameter<std::string>(prefix_dot + "frame_id", std::string{kDefaultCameraFrame})};
       const auto camera_serial_number_param{
-        declare_parameter(prefix_dot + "serial_number", std::string{kCameraSerial})};
+        declare_parameter<std::string>(prefix_dot + "serial_number", std::string{kCameraSerial})};
       const auto device_link_throughput_limit_param{
-        declare_parameter(
+        declare_parameter<double>(
           prefix_dot + "device_link_throughput_limit", kDefaultDeviceThroughputLimit)};
       return spinnaker::CameraSettings{
       static_cast<std::uint32_t>(
-        declare_parameter(prefix_dot + "window_width").get<std::uint64_t>()),
+        declare_parameter<double>(prefix_dot + "window_width")),
       static_cast<std::uint32_t>(
-        declare_parameter(prefix_dot + "window_height").get<std::uint64_t>()),
-      declare_parameter(prefix_dot + "fps").template get<float64_t>(),
-      declare_parameter(prefix_dot + "pixel_format").template get<std::string>(),
+        declare_parameter<double>(prefix_dot + "window_height")),
+      declare_parameter<double>(prefix_dot + "fps"),
+      declare_parameter<double>(prefix_dot + "pixel_format"),
       camera_frame_id_param,
       camera_serial_number_param,
       device_link_throughput_limit_param};
@@ -107,7 +107,8 @@ spinnaker::CameraListWrapper & SpinnakerCameraNode::create_cameras_from_params(
 
   const std::string camera_settings_param_name{"camera_settings"};
   const std::string cameras_param_name{"cameras"};
-  const auto camera_names{declare_parameter(cameras_param_name, std::vector<std::string>{})};
+  const auto camera_names{declare_parameter<std::vector<std::string>>(
+    cameras_param_name, std::vector<std::string>{})};
   if (camera_names.empty()) {
     RCLCPP_INFO(
       get_logger(), "No '%s' param provided. Looking for a single camera setting.",

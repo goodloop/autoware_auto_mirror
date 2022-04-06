@@ -72,7 +72,7 @@ EmergencyHandlerNode::EmergencyHandlerNode(const rclcpp::NodeOptions & node_opti
   emergency_hazard_level_ = this->declare_parameter<int>("emergency_hazard_level", 2);
   use_emergency_hold_ = this->declare_parameter<bool>("use_emergency_hold", false);
   emergency_stop_acceleration_mps2_ =
-    this->declare_parameter("emergency_stop_acceleration_mps2", -2.5);
+    this->declare_parameter<double>("emergency_stop_acceleration_mps2", -2.5);
   use_parking_after_stopped_ = this->declare_parameter<bool>("use_parking_after_stopped", true);
   stopped_velocity_threshold_ =
     this->declare_parameter<double>("stopped_velocity_threshold", 0.001);
