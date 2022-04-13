@@ -148,13 +148,6 @@ bool8_t VESCInterface::send_control_command(const RawControlCommand & msg)
   return false;
 }
 
-bool8_t VESCInterface::send_control_command(const AckermannControlCommand & msg)
-{
-  (void)msg;
-  RCLCPP_WARN(m_logger, "Cannot control the VESC using AckermannControlCommand");
-  return false;
-}
-
 void VESCInterface::on_motor_state_report(const VescStateStamped::SharedPtr & msg)
 {
   float64_t current_speed = (-msg->state.speed - speed_to_erpm_offset_) / speed_to_erpm_gain_;
