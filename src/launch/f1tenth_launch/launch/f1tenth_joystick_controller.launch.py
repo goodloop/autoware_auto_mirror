@@ -7,6 +7,7 @@ from launch.conditions import IfCondition
 
 import os
 
+
 def generate_launch_description():
     f1tenth_launch_pkg = get_package_share_directory('f1tenth_launch')
 
@@ -15,12 +16,12 @@ def generate_launch_description():
         default_value="basic",  # use "raw", "basic" or "high_level"
         description='command control mode topic name')
 
-    joy_translator_param_file = os.path.join(f1tenth_launch_pkg, 'param/logitech_f310_basic.param.yaml')
+    joy_translator_param_file = os.path.join(
+        f1tenth_launch_pkg, 'param/logitech_f310_basic.param.yaml')
     joy_translator_param = DeclareLaunchArgument(
         'joy_translator_param',
         default_value=joy_translator_param_file,
         description='Path to config file for joystick translator')
-
 
     # joystick driver node
     joy = Node(
@@ -42,7 +43,6 @@ def generate_launch_description():
             ("raw_command", "/vehicle/raw_command"),
             ("state_command", "/vehicle/state_command")
         ])
-
 
     return LaunchDescription([
         control_command_param,

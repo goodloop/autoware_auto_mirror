@@ -8,6 +8,7 @@ from launch.conditions import IfCondition
 
 import os
 
+
 def generate_launch_description():
 
     # package paths
@@ -22,7 +23,8 @@ def generate_launch_description():
         description='Launch RVIZ2 with the specified config file'
     )
 
-    map_file_path = os.path.join(f1tenth_launch_pkg, 'data/red_bull_ring_racetrack.yaml')
+    map_file_path = os.path.join(
+        f1tenth_launch_pkg, 'data/red_bull_ring_racetrack.yaml')
     map_file = DeclareLaunchArgument(
         'map',
         default_value=map_file_path,

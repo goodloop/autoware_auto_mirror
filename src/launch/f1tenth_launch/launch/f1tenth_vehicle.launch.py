@@ -8,18 +8,21 @@ from launch.conditions import IfCondition
 
 import os
 
+
 def generate_launch_description():
     f1tenth_launch_pkg = get_package_share_directory('f1tenth_launch')
 
     # params
-    lgsvl_param_file = os.path.join(f1tenth_launch_pkg, 'param/lgsvl_interface.param.yaml')
+    lgsvl_param_file = os.path.join(
+        f1tenth_launch_pkg, 'param/lgsvl_interface.param.yaml')
     lgsvl_interface_param = DeclareLaunchArgument(
         'lgsvl_interface_param_file',
         default_value=lgsvl_param_file,
         description='Path to config file for LGSVL Interface'
     )
 
-    joy_translator_param_file = os.path.join(f1tenth_launch_pkg, 'param/logitech_f310_basic.param.yaml')
+    joy_translator_param_file = os.path.join(
+        f1tenth_launch_pkg, 'param/logitech_f310_basic.param.yaml')
     joy_translator_param = DeclareLaunchArgument(
         'joy_translator_param',
         default_value=joy_translator_param_file,
@@ -44,9 +47,9 @@ def generate_launch_description():
     )
 
     odom_tf_node = Node(
-            package='svl_robot_bringup',
-            executable='odom_tf',
-        )
+        package='svl_robot_bringup',
+        executable='odom_tf',
+    )
 
     lgsvl_interface = Node(
         package='lgsvl_interface',
@@ -54,8 +57,8 @@ def generate_launch_description():
         namespace='vehicle',
         output='screen',
         parameters=[
-          LaunchConfiguration('lgsvl_interface_param_file'),
-          {"lgsvl.publish_tf": True}
+            LaunchConfiguration('lgsvl_interface_param_file'),
+            {"lgsvl.publish_tf": True}
         ],
         remappings=[
             ("vehicle_control_cmd", "/lgsvl/vehicle_control_cmd"),
@@ -73,7 +76,7 @@ def generate_launch_description():
                          'launch/f1tenth_joystick_controller.launch.py')
         ),
         launch_arguments={
-            'control_command':'basic',
+            'control_command': 'basic',
             'joy_translator_param': LaunchConfiguration('joy_translator_param'),
         }.items(),
         condition=IfCondition(LaunchConfiguration('with_joy'))

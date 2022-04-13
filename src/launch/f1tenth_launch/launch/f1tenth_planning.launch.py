@@ -7,12 +7,15 @@ from launch.conditions import IfCondition
 
 import os
 
+
 def generate_launch_description():
     f1tenth_launch_pkg = get_package_share_directory('f1tenth_launch')
 
     # parameters
-    pure_pursuit_param_file = os.path.join(f1tenth_launch_pkg, 'param/pure_pursuit.param.yaml')
-    recordreplay_planner_param_file = os.path.join(f1tenth_launch_pkg, 'param/recordreplay_planner.param.yaml')
+    pure_pursuit_param_file = os.path.join(
+        f1tenth_launch_pkg, 'param/pure_pursuit.param.yaml')
+    recordreplay_planner_param_file = os.path.join(
+        f1tenth_launch_pkg, 'param/recordreplay_planner.param.yaml')
 
     pure_pursuit_param = DeclareLaunchArgument(
         'pure_pursuit_param_file',
