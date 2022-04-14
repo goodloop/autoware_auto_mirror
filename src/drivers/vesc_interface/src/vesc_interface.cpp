@@ -25,12 +25,16 @@ VESCInterface::VESCInterface(
   rclcpp::Node & node,
   float64_t speed_to_erpm_gain,
   float64_t speed_to_erpm_offset,
+  float64_t max_erpm_positive_delta,
+  float64_t max_erpm_negative_delta,
   float64_t steering_to_servo_gain,
   float64_t steering_to_servo_offset
 )
 : m_logger{node.get_logger()},
   speed_to_erpm_gain_{speed_to_erpm_gain},
   speed_to_erpm_offset_{speed_to_erpm_offset},
+  max_erpm_positive_delta_{max_erpm_positive_delta},
+  max_erpm_negative_delta_{max_erpm_negative_delta},
   steering_to_servo_gain_{steering_to_servo_gain},
   steering_to_servo_offset_{steering_to_servo_offset}
 {
@@ -74,6 +78,7 @@ bool8_t VESCInterface::send_state_command(const VehicleStateCommand & msg)
 
 bool8_t VESCInterface::send_control_command(const VehicleControlCommand & msg)
 {
+  static float64_t prev_erpm_value = 0.0;
   if (msg.velocity_mps == 0.0f || !run_autonomous) {
     seen_zero_speed = true;
   } else {
@@ -89,10 +94,21 @@ bool8_t VESCInterface::send_control_command(const VehicleControlCommand & msg)
       speed_to_erpm_offset_;
   }
 
+  // limit vesc electric RPM
+  erpm_msg.data =
+    (erpm_msg.data <
+    prev_erpm_value + max_erpm_positive_delta_) ? erpm_msg.data : prev_erpm_value +
+    max_erpm_positive_delta_;
+  erpm_msg.data =
+    (erpm_msg.data >
+    prev_erpm_value - max_erpm_negative_delta_) ? erpm_msg.data : prev_erpm_value -
+    max_erpm_negative_delta_;
+  prev_erpm_value = erpm_msg.data;
+
   // calc steering angle (servo)
   Float64 servo_msg;
   if (run_autonomous) {
-    servo_msg.data = direction * steering_to_servo_gain_ *
+    servo_msg.data = steering_to_servo_gain_ *
       static_cast<double>(msg.front_wheel_angle_rad) + steering_to_servo_offset_;
   } else {
     servo_msg.data = steering_to_servo_offset_;
@@ -107,6 +123,16 @@ bool8_t VESCInterface::send_control_command(const VehicleControlCommand & msg)
   return false;
 }
 
+bool8_t VESCInterface::send_control_command(const AckermannControlCommand & msg)
+{
+  VehicleControlCommand vehicle_control_command_msg;
+  vehicle_control_command_msg.velocity_mps = msg.longitudinal.speed;
+  vehicle_control_command_msg.front_wheel_angle_rad = msg.lateral.steering_tire_angle;
+  vehicle_control_command_msg.stamp = msg.stamp;
+  return send_control_command(vehicle_control_command_msg);
+}
+
+/// TODO(jacobjj): Add comments
 bool8_t VESCInterface::handle_mode_change_request(
   autoware_auto_vehicle_msgs::srv::AutonomyModeChange_Request::SharedPtr request)
 {
@@ -125,13 +151,6 @@ bool8_t VESCInterface::send_control_command(const RawControlCommand & msg)
 {
   (void)msg;
   RCLCPP_WARN(m_logger, "Cannot control the VESC using RawControlCommand");
-  return false;
-}
-
-bool8_t VESCInterface::send_control_command(const AckermannControlCommand & msg)
-{
-  (void)msg;
-  RCLCPP_WARN(m_logger, "Cannot control the VESC using AckermannControlCommand");
   return false;
 }
 

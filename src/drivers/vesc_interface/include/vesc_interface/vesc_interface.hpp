@@ -73,13 +73,17 @@ public:
   /// \brief Default Constructor.
   /// \param[in] node Reference to node
   /// \param[in] speed_to_erpm_gain Gain to convert speed(m/s) to ERPM
-  /// \param[in] speed_to_erpm_offset Offset ERPM motor speed.
+  /// \param[in] speed_to_erpm_offset Offset ERPM motor speed
+  /// \param[in] max_erpm_positive_delta Max ERPM ramp up
+  /// \param[in] max_erpm_negative_delta Max ERPM ramp down
   /// \param[in] steering_to_servo_gain Gain to convert steering angle (rad) to servo position
   /// \param[in] steering_to_servo_offset Default servo position when car is moving straight
   VESCInterface(
     rclcpp::Node & node,
     float64_t speed_to_erpm_gain,
     float64_t speed_to_erpm_offset,
+    float64_t max_erpm_positive_delta,
+    float64_t max_erpm_negative_delta,
     float64_t steering_to_servo_gain,
     float64_t steering_to_servo_offset
   );
@@ -125,6 +129,7 @@ private:
   rclcpp::Logger m_logger;
   // conversion and gain offsets
   float64_t speed_to_erpm_gain_, speed_to_erpm_offset_;
+  float64_t max_erpm_positive_delta_, max_erpm_negative_delta_;
   float64_t steering_to_servo_gain_, steering_to_servo_offset_;
   Float64::SharedPtr last_servo_cmd;
 

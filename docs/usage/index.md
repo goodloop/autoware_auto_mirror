@@ -39,6 +39,8 @@ Each article below contains instructions on how to set up, launch and control on
 For demonstrations that work on a real car, the hardware requirements are also described.
 
 - @subpage avpdemo (@subpage avpdemo-impressions "Impressions")
+- @subpage f1tenth-demo-lgsvl "Racing ODD F1Tenth Demo in LGSVL simulator"
+- @subpage f1tenth-demo-real-car "Racing ODD F1Tenth Demo on a physical F1Tenth car"
 
 # General Demos {#usage-general-demos}
 
