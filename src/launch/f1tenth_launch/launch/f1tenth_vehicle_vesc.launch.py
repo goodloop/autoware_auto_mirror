@@ -21,12 +21,15 @@ from ament_index_python import get_package_share_directory
 
 import os
 
+
 def generate_launch_description():
     f1tenth_launch_pkg_prefix = get_package_share_directory('f1tenth_launch')
 
     # param files
     vesc_to_odom_node_param_file = os.path.join(
         f1tenth_launch_pkg_prefix, 'param/vesc_to_odom_node.param.yaml')
+    odom_to_state_param_file = os.path.join(
+        f1tenth_launch_pkg_prefix, 'param/odom_to_state_conversion.param.yaml')
     joy_translator_param_file = os.path.join(
         f1tenth_launch_pkg_prefix, 'param/logitech_f710_basic.param.yaml')
     joy_param_file = os.path.join(
@@ -36,7 +39,7 @@ def generate_launch_description():
     hokuyo_param_file = os.path.join(
         f1tenth_launch_pkg_prefix, 'param/urg_node_serial.param.yaml')
     f1tenth_urdf = os.path.join(
-       f1tenth_launch_pkg_prefix, 'urdf/f1tenth_vesc.urdf')
+        f1tenth_launch_pkg_prefix, 'urdf/f1tenth_vesc.urdf')
 
     with open(f1tenth_urdf, 'r') as infp:
         urdf_file = infp.read()
@@ -67,7 +70,6 @@ def generate_launch_description():
         name='vesc_to_odom_node',
         namespace='vehicle',
         output='screen',
-        # emulate_tty=True,
         parameters=[vesc_to_odom_node_param_file]
     )
 
@@ -98,6 +100,18 @@ def generate_launch_description():
         namespace='vehicle',
         output='screen',
         parameters=[vesc_interface_param_file],
+    )
+
+    odom_to_state_node = Node(
+        package='odom_to_state_conversion_nodes',
+        executable='odom_to_state_conversion_nodes_exe',
+        output='screen',
+        parameters=[odom_to_state_param_file],
+        remappings=[
+            ("vehicle_state", "/vehicle/vehicle_kinematic_state"),
+            ("odometry", "/vehicle/odometry"),
+            ("odom", "/vehicle/odom")
+        ]
     )
 
     hokuyo_node = Node(
@@ -132,6 +146,7 @@ def generate_launch_description():
         with_joy_param,
         vesc_driver_launcher,
         vesc_to_odom_launcher,
+        odom_to_state_node,
         joy,
         joy_translator,
         vesc_interface_node,
