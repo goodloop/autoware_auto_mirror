@@ -95,8 +95,14 @@ bool8_t VESCInterface::send_control_command(const VehicleControlCommand & msg)
   }
 
   // limit vesc electric RPM
-  erpm_msg.data = (erpm_msg.data < prev_erpm_value + max_erpm_positive_delta_) ? erpm_msg.data : prev_erpm_value + max_erpm_positive_delta_;
-  erpm_msg.data = (erpm_msg.data > prev_erpm_value - max_erpm_negative_delta_) ? erpm_msg.data : prev_erpm_value - max_erpm_negative_delta_;
+  erpm_msg.data =
+    (erpm_msg.data <
+    prev_erpm_value + max_erpm_positive_delta_) ? erpm_msg.data : prev_erpm_value +
+    max_erpm_positive_delta_;
+  erpm_msg.data =
+    (erpm_msg.data >
+    prev_erpm_value - max_erpm_negative_delta_) ? erpm_msg.data : prev_erpm_value -
+    max_erpm_negative_delta_;
   prev_erpm_value = erpm_msg.data;
 
   // calc steering angle (servo)
