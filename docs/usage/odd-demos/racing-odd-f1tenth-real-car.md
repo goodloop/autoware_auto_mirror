@@ -20,7 +20,7 @@ It is okay to have custom parts such as:
 - RC chassis, with servo and BLDC motor compatable with any version of VESC;
 - VESC, any version configured properly to control both motor and servo;
 - LiDAR, as long as it has a ROS2 driver;
-- Jetson, preferably more powerful than the Nano board; Xavier NX and AGX are recommended.
+- Onboard computer (ARM64 or X64 Linux with Docker), preferably more powerful than the Nano board; Jetson Xavier NX and AGX are recommended.
 
 ## Remote Desktop
 
@@ -35,20 +35,16 @@ Since Rviz is used in the demo, you need a remote desktop solution on the Jetson
 
 1. Follow the standard [Autoware installation with ADE](https://autowarefoundation.gitlab.io/autoware.auto/AutowareAuto/installation-ade.html) but stop before executing `ade start --update --enter`.
     - Note when downloading ADE: you need to check the ADE's GitLab release page and `wget` the correct binary for AArch64 than what is listed on the ADE website for X86_64.
-    - Before [this MR](https://gitlab.com/autowarefoundation/autoware.auto/AutowareAuto/-/merge_requests/1347) is closed, checkout to `f1tenth-devel-jetson`.
+    - Before [this MR](https://gitlab.com/autowarefoundation/autoware.auto/AutowareAuto/-/merge_requests/1381) is closed, checkout to `f1tenth-release`.
 2. If you have custom LiDAR, 
-    1. check the content of `AutowareAuto/.aderc-jetson-f1tenth`. You would most likely need to modify some device mounting options when launching the container,
-    2. check the content of `AutowareAuto/autoware.auto.foxy.repos`. Add the URL to the ROS2 driver for your LiDAR (put branch name under `version`), and
-    3. add your lidar package as a dependency to `AutowareAuto/src/launch/f1tenth_launch/package.xml`.
-    4. add your lidar node in `AutowareAuto/src/launch/f1tenth_launch/launch/f1tenth_vehicle_vesc.launch.py`. `LaserScan` topic name should be `scan`, `frame_id` should be `lidar`, and the node namespace should be `lidar`.
+    1. Check the content of `AutowareAuto/.aderc-jetson-f1tenth`. You would most likely need to modify some device mounting options when launching the container;
+    2. Check the content of `AutowareAuto/autoware.auto.foxy.repos`. Add the URL to the ROS2 driver for your LiDAR (put branch name under `version`);
+    3. Add your lidar package as a dependency to `AutowareAuto/src/launch/f1tenth_launch/package.xml`;
+    4. Add your lidar node in `AutowareAuto/src/launch/f1tenth_launch/launch/f1tenth_vehicle_vesc.launch.py`; `LaserScan` topic name should be `scan`, `frame_id` should be `lidar`, and the node namespace should be `lidar`.
 
 ## Building Autoware on Jetson
 
-F1Tenth on the Jetson is currently developed under the `f1tenth-devel-jetson` branch of Autoware.Auto. These steps are required before [this MR](https://gitlab.com/autowarefoundation/autoware.auto/AutowareAuto/-/merge_requests/1347) is closed.
-
-First, we need a temporary solution for publishing `VehicleKinematicState`: go to `AutowareAuto/autoware.auto.foxy.repos`, change the URL for VESC to `https://github.com/mitsudome-r/vesc`.
-
-Now build Autoware.
+F1Tenth on the Jetson is currently developed under the `f1tenth-release` branch of Autoware.Auto. These steps are required before [this MR](https://gitlab.com/autowarefoundation/autoware.auto/AutowareAuto/-/merge_requests/1381) is closed.
 
 ```{bash}
 $ cd adehome/AutowareAuto
@@ -68,6 +64,7 @@ ade$ colcon build --symlink-install --cmake-args -DCMAKE_BUILD_TYPE=Release --pa
 Note: `sudo apt update; rosdep update; rosdep install --from-paths src --ignore-src -yr` needs to be re-done every time the ADE container is restarted. These changes are not persistent in the container.
 
 ## Creating Map
+
 ```{bash}
 # (Terminal 1)
 $ ade enter
@@ -135,10 +132,12 @@ ade$ source /opt/AutowareAuto/setup.bash
 ade$ ros2 action send_goal /planning/replaytrajectory autoware_auto_planning_msgs/action/ReplayTrajectory "{replay_path: "/tmp/path"}" --feedback
 ```
 
+### Running in a Loop
+
+To let the vehicle run continuously in a loop, first record a trajectory finished with a stop position just behind the start position. Modify Autoware/src/launch/f1tenth_launch/param/recordreplay_planner.param.yaml by setting `loop_trajectory` to `True`. Build and run the replay.
+
 ## Known issues
 The replayed velocity might not be exactly the same with the recorded one. This is due to limitation of `Pure Pursuit` algorithm. The implementation does not take delay and external force into consideration, which means that it assumes constant speed when acceleration is released even if break is not pressed. This causes velocity of the vehicle to be wrong. Improvements will be made in the future.
-
-In addition, the record replay planner currently has no looping capability. The vehicle will simply stop at the end of the recorded trajectory. A [merge request](https://gitlab.com/autowarefoundation/autoware.auto/AutowareAuto/-/merge_requests/1362) is being actively worked on to improve this.
 
 # Troubleshoot
 
@@ -160,4 +159,4 @@ Your vehicle odometry may need to be recalibrated, and values put into `Autoware
 
 Press B to stop manual joystick output. Otherwise the vehicle would not move.
 
-If the car starting position is too close to the final trajectory point, the replay goal would be reached instantly and the car will not drive. Looping is currently being developed.
+If the car starting position is too close to the final trajectory point and the looping feature is off, the replay goal would be reached instantly and the car will not drive. Looping is currently being developed.
