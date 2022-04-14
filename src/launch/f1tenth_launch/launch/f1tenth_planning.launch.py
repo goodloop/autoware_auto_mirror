@@ -1,18 +1,34 @@
+# Copyright 2020-2022, The Autoware Foundation
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 from ament_index_python import get_package_share_directory
 from launch import LaunchDescription
 from launch_ros.actions import Node
-from launch.actions import GroupAction, ExecuteProcess, DeclareLaunchArgument
+from launch.actions import DeclareLaunchArgument
 from launch.substitutions import LaunchConfiguration
-from launch.conditions import IfCondition
 
 import os
+
 
 def generate_launch_description():
     f1tenth_launch_pkg_prefix = get_package_share_directory('f1tenth_launch')
 
     # parameters
-    pure_pursuit_param_file = os.path.join(f1tenth_launch_pkg_prefix, 'param/pure_pursuit.param.yaml')
-    recordreplay_planner_param_file = os.path.join(f1tenth_launch_pkg_prefix, 'param/recordreplay_planner.param.yaml')
+    pure_pursuit_param_file = os.path.join(
+        f1tenth_launch_pkg_prefix, 'param/pure_pursuit.param.yaml')
+    recordreplay_planner_param_file = os.path.join(
+        f1tenth_launch_pkg_prefix, 'param/recordreplay_planner.param.yaml')
 
     pure_pursuit_param = DeclareLaunchArgument(
         'pure_pursuit_param_file',
