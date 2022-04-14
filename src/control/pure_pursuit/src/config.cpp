@@ -66,8 +66,7 @@ Config::Config(
     throw std::domain_error(
             "pure_pursuit::Config: distance_front_rear_wheel is lower than 0");
   }
-  if (m_max_acceleration < 0.0F)
-  {
+  if (m_max_acceleration < 0.0F) {
     throw std::domain_error(
             "pure_pursuit::Config: max_acceleration is lower than 0");
   }

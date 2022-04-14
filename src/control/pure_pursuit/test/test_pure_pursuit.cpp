@@ -206,7 +206,7 @@ TEST_F(PurePursuitTest, Reverse)
 
 TEST_F(PurePursuitTest, Interpolation)
 {
-  const Config cfg(0.4F, 100.0F, 0.2F, true, false, 2.0F, 0.1F, 30.0F,  2.0F);
+  const Config cfg(0.4F, 100.0F, 0.2F, true, false, 2.0F, 0.1F, 30.0F, 2.0F);
   PurePursuit controller(cfg);
   const float32_t dist_front_rear_wheels = cfg.get_distance_front_rear_wheel();
 
